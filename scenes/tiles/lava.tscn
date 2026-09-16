@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://cxb4xlffsqe4w"]
+
+[ext_resource type="Texture2D" uid="uid://b4dj34ar435t3" path="res://assets/tiles/lava.png" id="1_4ndld"]
+
+[node name="lava" type="Sprite2D" unique_id=182423027]
+texture = ExtResource("1_4ndld")

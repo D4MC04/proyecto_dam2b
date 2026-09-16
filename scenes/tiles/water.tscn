@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://0830pxqevpp8"]
+
+[ext_resource type="Texture2D" uid="uid://f48yd54f3h8v" path="res://assets/tiles/water.png" id="1_mo28j"]
+
+[node name="water" type="Sprite2D" unique_id=2083904751]
+texture = ExtResource("1_mo28j")

@@ -1,0 +1,25 @@
+[gd_resource type="TileSet" format=3 uid="uid://du11y2104lqxj"]
+
+[ext_resource type="PackedScene" uid="uid://blq22iko6q557" path="res://scenes/tiles/forest.tscn" id="1_duc57"]
+[ext_resource type="PackedScene" uid="uid://cxb4xlffsqe4w" path="res://scenes/tiles/lava.tscn" id="2_8rkia"]
+[ext_resource type="PackedScene" uid="uid://3jwlmwf11bha" path="res://scenes/tiles/path.tscn" id="3_7bjng"]
+[ext_resource type="PackedScene" uid="uid://fwlgcfqiwrav" path="res://scenes/tiles/sand.tscn" id="4_78hsd"]
+[ext_resource type="PackedScene" uid="uid://b0suywj4cwixw" path="res://scenes/tiles/snow.tscn" id="5_fdq0t"]
+[ext_resource type="PackedScene" uid="uid://bf65j0y2f1m44" path="res://scenes/tiles/stone.tscn" id="6_ce1cr"]
+[ext_resource type="PackedScene" uid="uid://cyclnxe61y3kw" path="res://scenes/tiles/swamp.tscn" id="7_6mf6j"]
+[ext_resource type="PackedScene" uid="uid://0830pxqevpp8" path="res://scenes/tiles/water.tscn" id="8_vw3a3"]
+[ext_resource type="PackedScene" uid="uid://c70ylpfrdixxc" path="res://scenes/tiles/dirt.tscn" id="9_dqro3"]
+
+[sub_resource type="TileSetScenesCollectionSource" id="TileSetScenesCollectionSource_m6f6v"]
+scenes/9/scene = ExtResource("9_dqro3")
+scenes/10/scene = ExtResource("1_duc57")
+scenes/12/scene = ExtResource("2_8rkia")
+scenes/13/scene = ExtResource("3_7bjng")
+scenes/14/scene = ExtResource("4_78hsd")
+scenes/15/scene = ExtResource("5_fdq0t")
+scenes/16/scene = ExtResource("6_ce1cr")
+scenes/17/scene = ExtResource("7_6mf6j")
+scenes/18/scene = ExtResource("8_vw3a3")
+
+[resource]
+sources/0 = SubResource("TileSetScenesCollectionSource_m6f6v")
