@@ -1,31 +1,33 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://jbj2vu1ckypb"]
 
-[ext_resource type="PackedScene" path="res://scenes/tilemap.tscn" id="1_map"]
-[ext_resource type="Script" path="res://scripts/movement.gd" id="2_move"]
+[ext_resource type="PackedScene" uid="uid://b82xasxk0idp3" path="res://scenes/tilemap.tscn" id="1_map"]
+[ext_resource type="Script" uid="uid://d0x7r10k67uxu" path="res://scripts/movement.gd" id="2_move"]
 [ext_resource type="PackedScene" path="res://scenes/alien.tscn" id="3_alien"]
 
 [sub_resource type="Curve2D" id="Curve2D_level"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 24, 168, 0, 0, 0, 0, 24, 24, 0, 0, 0, 0, 360, 24, 0, 0, 0, 0, 360, 56, 0, 0, 0, 0, 56, 56, 0, 0, 0, 0, 56, 88, 0, 0, 0, 0, 360, 88, 0, 0, 0, 0, 360, 120, 0, 0, 0, 0, 56, 120, 0, 0, 0, 0, 56, 152, 0, 0, 0, 0, 376, 152)
+"points": PackedVector2Array(0, 0, 0, 0, 24, 168, 0, 0, 0, 0, 24, 21.06775, 0, 0, 0, 0, 360, 22.040815, 0, 0, 0, 0, 360, 51.232643, 0, 0, 0, 0, 200, 51.232643, 0, 0, 0, 0, 56, 51.232643, 0, 0, 0, 0, 55, 82.3706, 0, 0, 0, 0, 362, 83.34366, 0, 0, 0, 0, 363, 113.50855, 0, 0, 0, 0, 189, 113.50855, 0, 0, 0, 0, 55, 113.50855, 0, 0, 0, 0, 55, 145.61957, 0, 0, 0, 0, 198, 144.6465, 0, 0, 0, 0, 377, 145.61957)
 }
-point_count = 11
+point_count = 14
 
-[node name="Level" type="Node2D"]
+[node name="Level" type="Node2D" unique_id=275645220]
 
-[node name="Tilemap" parent="." instance=ExtResource("1_map")]
+[node name="Tilemap" parent="." unique_id=1636329305 instance=ExtResource("1_map")]
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1332741225]
 position = Vector2(192, 88)
 zoom = Vector2(3, 3)
 
-[node name="Path2D" type="Path2D" parent="."]
+[node name="Path2D" type="Path2D" parent="." unique_id=596360911]
+position = Vector2(0, -4.6510057)
+scale = Vector2(1, 1.0276847)
 curve = SubResource("Curve2D_level")
 
-[node name="PathFollow2D" type="PathFollow2D" parent="Path2D"]
+[node name="PathFollow2D" type="PathFollow2D" parent="Path2D" unique_id=594805272]
+position = Vector2(24, 168)
 rotates = false
 loop = false
 script = ExtResource("2_move")
 
-[node name="Alien" parent="Path2D/PathFollow2D" instance=ExtResource("3_alien")]
-texture_filter = 1
+[node name="Alien" parent="Path2D/PathFollow2D" unique_id=1293357935 instance=ExtResource("3_alien")]
 scale = Vector2(0.5, 0.5)
