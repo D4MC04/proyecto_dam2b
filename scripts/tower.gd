@@ -13,3 +13,7 @@ func _on_timer_timeout():
 			cercano = a
 	if cercano:
 		cercano.hit()
+
+func ajustar_a_casilla(tamano: Vector2):
+	$ColorRect.size = tamano
+	$ColorRect.position = -tamano / 2

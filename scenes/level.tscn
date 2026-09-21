@@ -7,12 +7,13 @@
 [ext_resource type="PackedScene" path="res://scenes/ship.tscn" id="5_ship"]
 [ext_resource type="Script" uid="uid://bcd8iyt31t735" path="res://scripts/level.gd" id="6_level"]
 [ext_resource type="PackedScene" path="res://scenes/tower.tscn" id="7_tower"]
+[ext_resource type="PackedScene" path="res://scenes/build_grid.tscn" id="8_grid"]
 
 [sub_resource type="Curve2D" id="Curve2D_level"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 24, 168, 0, 0, 0, 0, 24, 21.06775, 0, 0, 0, 0, 360, 22.040815, 0, 0, 0, 0, 360, 51.232643, 0, 0, 0, 0, 200, 51.232643, 0, 0, 0, 0, 56, 51.232643, 0, 0, 0, 0, 55, 82.3706, 0, 0, 0, 0, 362, 83.34366, 0, 0, 0, 0, 363, 113.50855, 0, 0, 0, 0, 189, 113.50855, 0, 0, 0, 0, 55, 113.50855, 0, 0, 0, 0, 55, 145.61957, 0, 0, 0, 0, 198, 144.6465, 0, 0, 0, 0, 377, 145.61957)
+"points": PackedVector2Array(0, 0, 0, 0, 24, 168, 0, 0, 0, 0, 24, 24, 0, 0, 0, 0, 360, 24, 0, 0, 0, 0, 360, 56, 0, 0, 0, 0, 56, 56, 0, 0, 0, 0, 56, 88, 0, 0, 0, 0, 360, 88, 0, 0, 0, 0, 360, 120, 0, 0, 0, 0, 56, 120, 0, 0, 0, 0, 56, 152, 0, 0, 0, 0, 376, 152)
 }
-point_count = 14
+point_count = 11
 
 [node name="Level" type="Node2D" unique_id=275645220]
 script = ExtResource("6_level")
@@ -24,8 +25,6 @@ position = Vector2(192, 88)
 zoom = Vector2(3, 3)
 
 [node name="Path2D" type="Path2D" parent="." unique_id=596360911]
-position = Vector2(0, -4.6510057)
-scale = Vector2(1, 1.0276847)
 curve = SubResource("Curve2D_level")
 
 [node name="PathFollow2D" type="PathFollow2D" parent="Path2D" unique_id=594805272]
@@ -35,6 +34,7 @@ loop = false
 script = ExtResource("2_move")
 
 [node name="Alien" parent="Path2D/PathFollow2D" unique_id=1293357935 instance=ExtResource("3_alien")]
+position = Vector2(0, 0)
 scale = Vector2(0.5, 0.5)
 
 [node name="ShipFollow" type="PathFollow2D" parent="Path2D" unique_id=152018695]
@@ -47,6 +47,8 @@ script = ExtResource("4_delay")
 
 [node name="Tower" parent="." unique_id=1269197556 instance=ExtResource("7_tower")]
 position = Vector2(201, 71)
+
+[node name="BuildGrid" parent="." unique_id=43449701 instance=ExtResource("8_grid")]
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=968077992]
 

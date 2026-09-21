@@ -160,6 +160,7 @@ animations = [
 ]
 
 [node name="Alien" type="AnimatedSprite2D"]
+position = Vector2(0, -8)
 texture_filter = 1
 sprite_frames = SubResource("SpriteFrames_alien")
 animation = &"walk_down"
