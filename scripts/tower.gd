@@ -15,5 +15,4 @@ func _on_timer_timeout():
 		cercano.hit()
 
 func ajustar_a_casilla(tamano: Vector2):
-	$ColorRect.size = tamano
-	$ColorRect.position = -tamano / 2
+	$Sprite2D.scale = tamano / $Sprite2D.texture.get_size()

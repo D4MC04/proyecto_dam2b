@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/tower.gd" id="1_tower"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/tower.png" id="2_tex"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_range"]
 radius = 56.0
@@ -8,12 +9,9 @@ radius = 56.0
 [node name="Tower" type="Node2D" groups=["torres"]]
 script = ExtResource("1_tower")
 
-[node name="ColorRect" type="ColorRect" parent="."]
-offset_left = -8.0
-offset_top = -8.0
-offset_right = 8.0
-offset_bottom = 8.0
-color = Color(0.2, 0.4, 1, 1)
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("2_tex")
 
 [node name="Range" type="Area2D" parent="."]
 collision_layer = 0
