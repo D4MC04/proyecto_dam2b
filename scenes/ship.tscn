@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/alien_animation.gd" id="script"]
+[ext_resource type="PackedScene" path="res://scenes/hitbox.tscn" id="hitbox"]
 [ext_resource type="Texture2D" path="res://assets/sprites/aliens/ship/ship_south.png" id="south"]
 [ext_resource type="Texture2D" path="res://assets/sprites/aliens/ship/ship_north.png" id="north"]
 [ext_resource type="Texture2D" path="res://assets/sprites/aliens/ship/ship_east.png" id="east"]
@@ -77,3 +78,5 @@ libraries = {
 &"": SubResource("AnimationLibrary_bob")
 }
 autoplay = &"bob"
+
+[node name="Hitbox" parent="." instance=ExtResource("hitbox")]

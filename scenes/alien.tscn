@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/alien_animation.gd" id="script"]
+[ext_resource type="PackedScene" path="res://scenes/hitbox.tscn" id="hitbox"]
 [ext_resource type="Texture2D" path="res://assets/sprites/aliens/walk/walk_south_0.png" id="south_0"]
 [ext_resource type="Texture2D" path="res://assets/sprites/aliens/walk/walk_south_1.png" id="south_1"]
 [ext_resource type="Texture2D" path="res://assets/sprites/aliens/walk/walk_south_2.png" id="south_2"]
@@ -163,3 +164,5 @@ texture_filter = 1
 sprite_frames = SubResource("SpriteFrames_alien")
 animation = &"walk_down"
 script = ExtResource("script")
+
+[node name="Hitbox" parent="." instance=ExtResource("hitbox")]

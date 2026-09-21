@@ -3,9 +3,10 @@
 [ext_resource type="PackedScene" uid="uid://b82xasxk0idp3" path="res://scenes/tilemap.tscn" id="1_map"]
 [ext_resource type="Script" uid="uid://d0x7r10k67uxu" path="res://scripts/movement.gd" id="2_move"]
 [ext_resource type="PackedScene" path="res://scenes/alien.tscn" id="3_alien"]
-[ext_resource type="Script" path="res://scripts/delayed_movement.gd" id="4_delay"]
+[ext_resource type="Script" uid="uid://b1v2gunuyjp12" path="res://scripts/delayed_movement.gd" id="4_delay"]
 [ext_resource type="PackedScene" path="res://scenes/ship.tscn" id="5_ship"]
-[ext_resource type="Script" path="res://scripts/level.gd" id="6_level"]
+[ext_resource type="Script" uid="uid://bcd8iyt31t735" path="res://scripts/level.gd" id="6_level"]
+[ext_resource type="PackedScene" path="res://scenes/tower.tscn" id="7_tower"]
 
 [sub_resource type="Curve2D" id="Curve2D_level"]
 _data = {
@@ -36,17 +37,20 @@ script = ExtResource("2_move")
 [node name="Alien" parent="Path2D/PathFollow2D" unique_id=1293357935 instance=ExtResource("3_alien")]
 scale = Vector2(0.5, 0.5)
 
-[node name="ShipFollow" type="PathFollow2D" parent="Path2D"]
+[node name="ShipFollow" type="PathFollow2D" parent="Path2D" unique_id=152018695]
+position = Vector2(24, 168)
 rotates = false
 loop = false
 script = ExtResource("4_delay")
-delay = 1.5
 
-[node name="Ship" parent="Path2D/ShipFollow" instance=ExtResource("5_ship")]
+[node name="Ship" parent="Path2D/ShipFollow" unique_id=1596954105 instance=ExtResource("5_ship")]
 
-[node name="UI" type="CanvasLayer" parent="."]
+[node name="Tower" parent="." unique_id=1269197556 instance=ExtResource("7_tower")]
+position = Vector2(201, 71)
 
-[node name="VidaLabel" type="Label" parent="UI"]
+[node name="UI" type="CanvasLayer" parent="." unique_id=968077992]
+
+[node name="VidaLabel" type="Label" parent="UI" unique_id=1095615923]
 offset_left = 16.0
 offset_top = 16.0
 text = "Vida: 10"
