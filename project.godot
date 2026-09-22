@@ -11,13 +11,14 @@ config_version=5
 [application]
 
 config/name="DAM_Game"
+run/main_scene="uid://jbj2vu1ckypb"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="res://icon.svg"
 
 [display]
 
 window/size/viewport_width=480
-window/size/viewport_height=272
+window/size/viewport_height=270
 window/size/mode=2
 window/size/window_width_override=1920
 window/size/window_height_override=1080

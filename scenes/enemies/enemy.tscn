@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://cbsvv6636wryo"]
+
+[ext_resource type="Script" uid="uid://d0x7r10k67uxu" path="res://scripts/movement.gd" id="1_6xk8f"]
+
+[node name="PathFollow2D" type="PathFollow2D" unique_id=1420706124]
+script = ExtResource("1_6xk8f")
