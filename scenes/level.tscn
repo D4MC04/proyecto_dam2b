@@ -20,10 +20,6 @@ script = ExtResource("6_level")
 
 [node name="Tilemap" parent="." unique_id=1636329305 instance=ExtResource("1_map")]
 
-[node name="Camera2D" type="Camera2D" parent="." unique_id=1332741225]
-position = Vector2(192, 88)
-zoom = Vector2(3, 3)
-
 [node name="Path2D" type="Path2D" parent="." unique_id=596360911]
 curve = SubResource("Curve2D_level")
 
