@@ -1,6 +1,12 @@
 [gd_scene format=3 uid="uid://cbsvv6636wryo"]
 
-[ext_resource type="Script" uid="uid://d0x7r10k67uxu" path="res://scripts/movement.gd" id="1_6xk8f"]
+[ext_resource type="Script" uid="uid://bllbcmppgg75b" path="res://scripts/models/Enemy.gd" id="1_6xk8f"]
 
-[node name="PathFollow2D" type="PathFollow2D" unique_id=1420706124]
+[node name="PathFollow2D" type="PathFollow2D" unique_id=987428534]
 script = ExtResource("1_6xk8f")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=384282756]
+
+[node name="Area2D" type="Area2D" parent="." unique_id=1974079918]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=1498619864]

@@ -1,26 +1,29 @@
+extends PathFollow2D
 class_name Enemy
-extends Area2D
 
-@export var max_health: float = -1.0
-@export var flash_duration: float = 0.15
+@onready var anim: AnimatedSprite2D = $AnimatedSprite2D
 
-var current_health: float
+var data: EnemyData
+var speed: float
+var health: float
 
-@onready var sprite: Sprite2D = $Sprite2D
+func setup(enemy_data: EnemyData):
+	data = enemy_data
+	speed = data.speed
+	health = data.max_health
+	anim.sprite_frames = data.sprite_frames
+	anim.play("walk")
 
-func _ready() -> void:
-	current_health = max_health
+func _process(delta):
+	progress += speed * delta
 
-func take_damage(amount: float) -> void:
-	current_health -= amount
-	_flash(Color.RED)
-	if current_health <= 0:
+func take_damage(amount: float):
+	health -= amount
+	anim.play("hit")
+	if health <= 0:
 		die()
 
-func die() -> void:
+func die():
+	anim.play("die")
+	await anim.animation_finished
 	queue_free()
-
-func _flash(color: Color) -> void:
-	var tween := create_tween()
-	sprite.modulate = color
-	tween.tween_property(sprite, "modulate", Color.WHITE, flash_duration)
