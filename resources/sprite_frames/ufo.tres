@@ -1,0 +1,41 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://byjvfrxtgx1av"]
+
+[ext_resource type="Texture2D" uid="uid://b1nlgwntd3731" path="res://assets/sprites/enemies/ufo/down.png" id="1_qvlne"]
+[ext_resource type="Texture2D" uid="uid://by54gbv66txot" path="res://assets/sprites/enemies/ufo/left.png" id="2_1dkwe"]
+[ext_resource type="Texture2D" uid="uid://bj4imgmulcfps" path="res://assets/sprites/enemies/ufo/right.png" id="3_y6bhe"]
+[ext_resource type="Texture2D" uid="uid://itov1gay6r8k" path="res://assets/sprites/enemies/ufo/up.png" id="4_y38c3"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_qvlne")
+}],
+"loop": 1,
+"name": &"down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_1dkwe")
+}],
+"loop": 1,
+"name": &"left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_y6bhe")
+}],
+"loop": 1,
+"name": &"right",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_y38c3")
+}],
+"loop": 1,
+"name": &"up",
+"speed": 5.0
+}]

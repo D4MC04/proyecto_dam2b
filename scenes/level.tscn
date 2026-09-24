@@ -1,48 +1,27 @@
 [gd_scene format=3 uid="uid://jbj2vu1ckypb"]
 
-[ext_resource type="PackedScene" uid="uid://b82xasxk0idp3" path="res://scenes/tilemap.tscn" id="1_map"]
-[ext_resource type="Script" uid="uid://d0x7r10k67uxu" path="res://scripts/movement.gd" id="2_move"]
-[ext_resource type="PackedScene" path="res://scenes/alien.tscn" id="3_alien"]
-[ext_resource type="Script" uid="uid://b1v2gunuyjp12" path="res://scripts/delayed_movement.gd" id="4_delay"]
-[ext_resource type="PackedScene" path="res://scenes/ship.tscn" id="5_ship"]
+[ext_resource type="PackedScene" uid="uid://di13sfpqn0gub" path="res://scenes/maps/placeholder.tscn" id="2_2r41h"]
+[ext_resource type="PackedScene" uid="uid://cku4cjb3odi31" path="res://scenes/spawner.tscn" id="3_ppgk2"]
 [ext_resource type="Script" uid="uid://bcd8iyt31t735" path="res://scripts/level.gd" id="6_level"]
 [ext_resource type="PackedScene" path="res://scenes/build_grid.tscn" id="8_grid"]
 [ext_resource type="PackedScene" path="res://scenes/game_over.tscn" id="9_over"]
 
 [sub_resource type="Curve2D" id="Curve2D_level"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 24, 168, 0, 0, 0, 0, 24, 24, 0, 0, 0, 0, 360, 24, 0, 0, 0, 0, 360, 56, 0, 0, 0, 0, 56, 56, 0, 0, 0, 0, 56, 88, 0, 0, 0, 0, 360, 88, 0, 0, 0, 0, 360, 120, 0, 0, 0, 0, 56, 120, 0, 0, 0, 0, 56, 152, 0, 0, 0, 0, 376, 152)
+"points": PackedVector2Array(0, 0, 0, 0, 24, 264, 0, 0, 0, 0, 24, 24, 0, 0, 0, 0, 472, 24, 0, 0, 0, 0, 472, 264)
 }
-point_count = 11
+point_count = 4
 
 [node name="Level" type="Node2D" unique_id=275645220]
 script = ExtResource("6_level")
 
-[node name="Tilemap" parent="." unique_id=1636329305 instance=ExtResource("1_map")]
-
-[node name="Camera2D" type="Camera2D" parent="." unique_id=1332741225]
-position = Vector2(192, 88)
-zoom = Vector2(3, 3)
+[node name="Map" parent="." unique_id=1985551843 instance=ExtResource("2_2r41h")]
 
 [node name="Path2D" type="Path2D" parent="." unique_id=596360911]
 curve = SubResource("Curve2D_level")
 
-[node name="PathFollow2D" type="PathFollow2D" parent="Path2D" unique_id=594805272]
-position = Vector2(24, 168)
-rotates = false
-loop = false
-script = ExtResource("2_move")
-
-[node name="Alien" parent="Path2D/PathFollow2D" unique_id=1293357935 instance=ExtResource("3_alien")]
-scale = Vector2(0.5, 0.5)
-
-[node name="ShipFollow" type="PathFollow2D" parent="Path2D" unique_id=152018695]
-position = Vector2(24, 168)
-rotates = false
-loop = false
-script = ExtResource("4_delay")
-
-[node name="Ship" parent="Path2D/ShipFollow" unique_id=1596954105 instance=ExtResource("5_ship")]
+[node name="Spawner" parent="." unique_id=132358068 node_paths=PackedStringArray("paths") instance=ExtResource("3_ppgk2")]
+paths = [NodePath("../Path2D")]
 
 [node name="BuildGrid" parent="." unique_id=43449701 instance=ExtResource("8_grid")]
 
