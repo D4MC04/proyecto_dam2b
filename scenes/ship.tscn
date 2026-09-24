@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b5oh1sv3w2vks"]
 
-[ext_resource type="SpriteFrames" uid="uid://byjvfrxtgx1av" path="res://resources/sprites/ufo.tres" id="1_4tobq"]
+[ext_resource type="SpriteFrames" uid="uid://byjvfrxtgx1av" path="res://resources/sprite_frames/ufo.tres" id="1_4tobq"]
 [ext_resource type="PackedScene" path="res://scenes/hitbox.tscn" id="hitbox"]
 [ext_resource type="Script" uid="uid://bofp3r6e4qt7e" path="res://scripts/alien_animation.gd" id="script"]
 
@@ -30,7 +30,7 @@ _data = {
 texture_filter = 1
 sprite_frames = ExtResource("1_4tobq")
 animation = &"walk_down"
-offset = Vector2(0, 2)
+offset = Vector2(0, 1.3789517)
 script = ExtResource("script")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1380935830]
