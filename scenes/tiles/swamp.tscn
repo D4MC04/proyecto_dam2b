@@ -1,6 +1,0 @@
-[gd_scene format=3 uid="uid://cyclnxe61y3kw"]
-
-[ext_resource type="Texture2D" uid="uid://bpd2q8ttxiyn5" path="res://assets/tiles/swamp.png" id="1_qg8sk"]
-
-[node name="swamp" type="Sprite2D" unique_id=579085914]
-texture = ExtResource("1_qg8sk")

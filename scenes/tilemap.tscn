@@ -1,6 +1,6 @@
 [gd_scene format=4 uid="uid://b82xasxk0idp3"]
 
-[ext_resource type="TileSet" uid="uid://du11y2104lqxj" path="res://resources/tilesets/tileset.tres" id="1_55lsm"]
+[ext_resource type="TileSet" uid="uid://du11y2104lqxj" path="res://resources/tile_sets/tileset.tres" id="1_55lsm"]
 [ext_resource type="Script" uid="uid://d0x7r10k67uxu" path="res://scripts/movement.gd" id="2_fofut"]
 [ext_resource type="PackedScene" uid="uid://bpoqckkqjhiy7" path="res://scenes/animated_sprite.tscn" id="3_i8yab"]
 

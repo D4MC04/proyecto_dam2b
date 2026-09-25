@@ -1,48 +1,8 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://b5oh1sv3w2vks"]
 
-[ext_resource type="Script" path="res://scripts/alien_animation.gd" id="script"]
+[ext_resource type="SpriteFrames" uid="uid://byjvfrxtgx1av" path="res://resources/sprite_frames/ufo.tres" id="1_4tobq"]
 [ext_resource type="PackedScene" path="res://scenes/hitbox.tscn" id="hitbox"]
-[ext_resource type="Texture2D" path="res://assets/sprites/aliens/ship/ship_south.png" id="south"]
-[ext_resource type="Texture2D" path="res://assets/sprites/aliens/ship/ship_north.png" id="north"]
-[ext_resource type="Texture2D" path="res://assets/sprites/aliens/ship/ship_east.png" id="east"]
-[ext_resource type="Texture2D" path="res://assets/sprites/aliens/ship/ship_west.png" id="west"]
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_ship"]
-animations = [
-{
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("south")
-}],
-"loop": true,
-"name": &"walk_down",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("north")
-}],
-"loop": true,
-"name": &"walk_up",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("east")
-}],
-"loop": true,
-"name": &"walk_east",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("west")
-}],
-"loop": true,
-"name": &"walk_west",
-"speed": 5.0
-}
-]
+[ext_resource type="Script" uid="uid://bofp3r6e4qt7e" path="res://scripts/alien_animation.gd" id="script"]
 
 [sub_resource type="Animation" id="Animation_bob"]
 resource_name = "bob"
@@ -66,18 +26,15 @@ _data = {
 &"bob": SubResource("Animation_bob")
 }
 
-[node name="Ship" type="AnimatedSprite2D"]
-position = Vector2(0, -8)
+[node name="Ship" type="AnimatedSprite2D" unique_id=153254008]
 texture_filter = 1
-scale = Vector2(0.5, 0.5)
-sprite_frames = SubResource("SpriteFrames_ship")
+sprite_frames = ExtResource("1_4tobq")
 animation = &"walk_down"
+offset = Vector2(0, 1.3789517)
 script = ExtResource("script")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_bob")
-}
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1380935830]
+libraries/ = SubResource("AnimationLibrary_bob")
 autoplay = &"bob"
 
-[node name="Hitbox" parent="." instance=ExtResource("hitbox")]
+[node name="Hitbox" parent="." unique_id=1694634812 instance=ExtResource("hitbox")]

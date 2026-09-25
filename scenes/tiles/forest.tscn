@@ -1,6 +1,0 @@
-[gd_scene format=3 uid="uid://blq22iko6q557"]
-
-[ext_resource type="Texture2D" uid="uid://gf3mky5igk5v" path="res://assets/tiles/forest.png" id="1_ddnmr"]
-
-[node name="forest" type="Sprite2D" unique_id=1904375005]
-texture = ExtResource("1_ddnmr")

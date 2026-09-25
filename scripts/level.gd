@@ -1,6 +1,6 @@
 extends Node2D
 
-@export var vida = 10
+@export var vida = 2
 
 func _ready():
 	$UI/VidaLabel.text = "Vida: %d" % vida
