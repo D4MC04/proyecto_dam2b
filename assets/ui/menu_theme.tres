@@ -2,6 +2,14 @@
 
 [ext_resource type="FontFile" uid="uid://jbamokon2oqp" path="res://assets/fonts/PressStart2P-Regular.ttf" id="1_font"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_disabled"]
+bg_color = Color(0.03, 0.04, 0.06, 0.5)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.3, 0.35, 1)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_normal"]
 bg_color = Color(0.04, 0.06, 0.1, 0.6)
 border_width_left = 1
@@ -25,14 +33,6 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(0, 0.7, 0.75, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_disabled"]
-bg_color = Color(0.03, 0.04, 0.06, 0.5)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.2, 0.3, 0.35, 1)
 
 [resource]
 default_font = ExtResource("1_font")
