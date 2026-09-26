@@ -17,6 +17,17 @@ func _ready():
 		camino[_casilla(path.to_global(path.curve.sample_baked(d)))] = true
 		d += paso
 	camino[_casilla(path.to_global(path.curve.sample_baked(largo)))] = true
+	# la estación también bloquea sus casillas (solo la parte visible del sprite)
+	var estacion: Sprite2D = nivel.get_node_or_null("Station")
+	if estacion:
+		var r = Rect2(estacion.texture.get_image().get_used_rect())
+		if estacion.centered:
+			r.position -= estacion.texture.get_size() / 2
+		var a = _casilla(estacion.to_global(r.position))
+		var b = _casilla(estacion.to_global(r.end - Vector2.ONE))
+		for x in range(a.x, b.x + 1):
+			for y in range(a.y, b.y + 1):
+				camino[Vector2i(x, y)] = true
 	for t in get_tree().get_nodes_in_group("torres"):
 		_registrar(t)
 

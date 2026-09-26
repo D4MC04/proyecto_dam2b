@@ -6,10 +6,11 @@
 [ext_resource type="PackedScene" path="res://scenes/build_grid.tscn" id="8_grid"]
 [ext_resource type="PackedScene" path="res://scenes/game_over.tscn" id="9_over"]
 [ext_resource type="PackedScene" path="res://scenes/pause_menu.tscn" id="10_pause"]
+[ext_resource type="Texture2D" path="res://assets/sprites/base/space_station.png" id="11_station"]
 
 [sub_resource type="Curve2D" id="Curve2D_level"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 24, 264, 0, 0, 0, 0, 24, 24, 0, 0, 0, 0, 472, 24, 0, 0, 0, 0, 472, 264)
+"points": PackedVector2Array(0, 0, 0, 0, 24, 264, 0, 0, 0, 0, 24, 24, 0, 0, 0, 0, 472, 24, 0, 0, 0, 0, 472, 240)
 }
 point_count = 4
 
@@ -17,6 +18,12 @@ point_count = 4
 script = ExtResource("6_level")
 
 [node name="Map" parent="." unique_id=1985551843 instance=ExtResource("2_2r41h")]
+
+[node name="Station" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(452, 240)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("11_station")
 
 [node name="Path2D" type="Path2D" parent="." unique_id=596360911]
 curve = SubResource("Curve2D_level")
