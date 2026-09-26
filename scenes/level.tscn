@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/build_grid.tscn" id="8_grid"]
 [ext_resource type="PackedScene" path="res://scenes/game_over.tscn" id="9_over"]
 [ext_resource type="PackedScene" path="res://scenes/pause_menu.tscn" id="10_pause"]
-[ext_resource type="Texture2D" path="res://assets/sprites/base/space_station.png" id="11_station"]
+[ext_resource type="Texture2D" uid="uid://cj51ia6vifxbt" path="res://assets/sprites/base/space_station.png" id="11_station"]
 
 [sub_resource type="Curve2D" id="Curve2D_level"]
 _data = {
@@ -19,7 +19,7 @@ script = ExtResource("6_level")
 
 [node name="Map" parent="." unique_id=1985551843 instance=ExtResource("2_2r41h")]
 
-[node name="Station" type="Sprite2D" parent="."]
+[node name="Station" type="Sprite2D" parent="." unique_id=1728177593]
 texture_filter = 1
 position = Vector2(452, 240)
 scale = Vector2(1.5, 1.5)
