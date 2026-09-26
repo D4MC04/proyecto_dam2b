@@ -29,7 +29,8 @@ func _actualizar():
 	var frame_size = sheet.get_height()
 	if frame_size <= 0 or int(sheet.get_width()) % frame_size != 0:
 		return
-	var frame_count = int(sheet.get_width() / frame_size)
+	@warning_ignore("integer_division")
+	var frame_count = sheet.get_width() / frame_size
 
 	var sf = SpriteFrames.new()
 	if not sf.has_animation("default"):

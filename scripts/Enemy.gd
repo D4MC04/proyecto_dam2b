@@ -13,6 +13,7 @@ func setup(enemy_data: EnemyData):
 	speed = data.speed
 	hp = data.hp
 	anim.sprite_frames = data.sprite_frames
+	$HurtBox/CollisionShape2D.shape = data.collision_shape
 	_last_position = global_position
 
 func _process(delta):
@@ -33,11 +34,15 @@ func _update_animation():
 
 func take_damage(amount: float):
 	hp -= amount
-	anim.play("hit")
+	if anim.sprite_frames.has_animation("hit"):
+		anim.play("hit")
 	if hp <= 0:
 		die()
 
 func die():
-	anim.play("die")
-	await anim.animation_finished
+	set_process(false)
+	$HurtBox.set_deferred("monitorable", false)
+	if anim.sprite_frames.has_animation("die"):
+		anim.play("die")
+		await anim.animation_finished
 	queue_free()

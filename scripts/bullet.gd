@@ -10,7 +10,7 @@ func _process(delta):
 		return
 	var destino = objetivo.global_position
 	if global_position.distance_to(destino) <= 4.0:
-		objetivo.hit()
+		objetivo.get_parent().take_damage(1)
 		queue_free()
 		return
 	global_position = global_position.move_toward(destino, VELOCIDAD * delta)
