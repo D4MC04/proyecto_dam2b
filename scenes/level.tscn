@@ -28,7 +28,7 @@ paths = [NodePath("../Path2D")]
 
 [node name="GameOver" parent="." unique_id=1485855328 instance=ExtResource("9_over")]
 
-[node name="PauseMenu" parent="." instance=ExtResource("10_pause")]
+[node name="PauseMenu" parent="." unique_id=221010619 instance=ExtResource("10_pause")]
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=968077992]
 
