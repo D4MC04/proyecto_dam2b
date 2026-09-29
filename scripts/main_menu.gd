@@ -4,6 +4,18 @@ extends Control
 
 func _ready():
 	$Background.texture = fondo
+	$PanelVolumen/Volumen/Slider.set_value_no_signal(MusicManager.volumen)
+	_actualizar_mute()
+
+func _on_mute_button_pressed():
+	MusicManager.toggle_mute()
+	_actualizar_mute()
+
+func _on_slider_value_changed(valor: float):
+	MusicManager.set_volume(valor)
+
+func _actualizar_mute():
+	$PanelVolumen/Volumen/MuteButton.text = "OFF" if MusicManager.muteado else "ON"
 
 func _on_play_button_pressed():
 	_fundido($Caja, $Niveles)
