@@ -1,25 +1,18 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://bx7rr0nvqa7t"]
 
-[ext_resource type="Script" path="res://scripts/tower.gd" id="1_tower"]
-[ext_resource type="Texture2D" path="res://assets/sprites/towers/tower.png" id="2_tex"]
+[ext_resource type="Script" uid="uid://dsh22x071881i" path="res://scripts/Tower.gd" id="1_7itwv"]
+[ext_resource type="PackedScene" uid="uid://f2udr7eyp135" path="res://scenes/Bullet.tscn" id="2_kl3vk"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_range"]
-radius = 56.0
+[node name="Tower" type="Node2D" unique_id=2084911007]
+script = ExtResource("1_7itwv")
+bullet_scene = ExtResource("2_kl3vk")
 
-[node name="Tower" type="Node2D" groups=["torres"]]
-script = ExtResource("1_tower")
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1933094868]
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-texture_filter = 1
-texture = ExtResource("2_tex")
+[node name="RangeDetector" type="Area2D" parent="." unique_id=1527193401]
 
-[node name="Range" type="Area2D" parent="."]
-collision_layer = 0
-collision_mask = 2
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RangeDetector" unique_id=277323560]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Range"]
-shape = SubResource("CircleShape2D_range")
-
-[node name="Timer" type="Timer" parent="."]
+[node name="Timer" type="Timer" parent="." unique_id=837974092]
 wait_time = 0.5
 autostart = true

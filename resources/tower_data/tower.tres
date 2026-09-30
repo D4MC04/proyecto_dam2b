@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="TowerData" format=3 uid="uid://csjdl3uuc2nem"]
+
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/models/TowerData.gd" id="1_fknle"]
+[ext_resource type="Shape2D" uid="uid://w1ba48y2n8pb" path="res://resources/collision_shapes/tower.tres" id="1_pqqyi"]
+[ext_resource type="Resource" uid="uid://b7g7sgtpmk0lh" path="res://resources/bullet_data/red_bullet.tres" id="2_josed"]
+[ext_resource type="SpriteFrames" uid="uid://cdvuqfr1oh4li" path="res://resources/sprite_frames/tower.tres" id="4_ywpje"]
+
+[resource]
+script = ExtResource("1_fknle")
+attack_cooldown = 0.5
+sprite_frames = ExtResource("4_ywpje")
+attack_range = ExtResource("1_pqqyi")
+bullet_data = ExtResource("2_josed")
+metadata/_custom_type_script = "uid://dmo7ci57slbqu"

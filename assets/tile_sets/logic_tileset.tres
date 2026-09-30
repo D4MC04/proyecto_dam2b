@@ -1,0 +1,17 @@
+[gd_resource type="TileSet" format=3 uid="uid://bxqhxqo4qdtij"]
+
+[ext_resource type="Texture2D" uid="uid://blwx1gjj6n3hf" path="res://assets/tile_sets/logic_tiles.png" id="1_chgiq"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lpoh6"]
+texture = ExtResource("1_chgiq")
+0:0/0 = 0
+0:0/0/custom_data_0 = "scenery"
+1:0/0 = 0
+1:0/0/custom_data_0 = "path"
+2:0/0 = 0
+2:0/0/custom_data_0 = "slot"
+
+[resource]
+custom_data_layer_0/name = "kind"
+custom_data_layer_0/type = 4
+sources/0 = SubResource("TileSetAtlasSource_lpoh6")

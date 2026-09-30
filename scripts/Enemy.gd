@@ -1,7 +1,8 @@
 extends PathFollow2D
 class_name Enemy
 
-@onready var anim: AnimatedSprite2D = $Sprite
+@onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var collision_shape: CollisionShape2D = $Area2D/CollisionShape2D
 
 var data: EnemyData
 var speed: float
@@ -12,7 +13,8 @@ func setup(enemy_data: EnemyData):
 	data = enemy_data
 	speed = data.speed
 	hp = data.hp
-	anim.sprite_frames = data.sprite_frames
+	sprite.sprite_frames = data.sprite_frames
+	collision_shape.shape = data.collision_shape
 	_last_position = global_position
 
 func _process(delta):
@@ -22,22 +24,17 @@ func _process(delta):
 func _update_animation():
 	var direction := global_position - _last_position
 	_last_position = global_position
-
 	if direction.length() < 0.01:
 		return
-
 	if abs(direction.x) > abs(direction.y):
-		anim.play("right" if direction.x > 0 else "left")
+		sprite.play("right" if direction.x > 0 else "left")
 	else:
-		anim.play("down" if direction.y > 0 else "up")
+		sprite.play("down" if direction.y > 0 else "up")
 
 func take_damage(amount: float):
 	hp -= amount
-	anim.play("hit")
 	if hp <= 0:
 		die()
 
 func die():
-	anim.play("die")
-	await anim.animation_finished
 	queue_free()

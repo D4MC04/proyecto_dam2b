@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://jbj2vu1ckypb"]
 
-[ext_resource type="Script" uid="uid://bcd8iyt31t735" path="res://scripts/Level.gd" id="1_qifjx"]
+[ext_resource type="Script" uid="uid://bcd8iyt31t735" path="res://scripts/level.gd" id="1_qifjx"]
 [ext_resource type="PackedScene" uid="uid://5wuolkgdjupp" path="res://scenes/maps/Map.tscn" id="2_qifjx"]
 [ext_resource type="PackedScene" uid="uid://cku4cjb3odi31" path="res://scenes/Spawner.tscn" id="3_4qegb"]
 [ext_resource type="PackedScene" uid="uid://c12iqlhvpv5ju" path="res://scenes/Grid.tscn" id="3_dke22"]
-[ext_resource type="PackedScene" uid="uid://bjlaw340mmmog" path="res://scenes/GameOver.tscn" id="5_2eouu"]
+[ext_resource type="PackedScene" path="res://scenes/game_over.tscn" id="5_2eouu"]
 [ext_resource type="PackedScene" uid="uid://b3m7pfeti522b" path="res://scenes/BuildManager.tscn" id="5_dke22"]
 [ext_resource type="PackedScene" uid="uid://bx7rr0nvqa7t" path="res://scenes/Tower.tscn" id="6_faw0r"]
 [ext_resource type="Resource" uid="uid://csjdl3uuc2nem" path="res://resources/tower_data/tower.tres" id="7_2eouu"]

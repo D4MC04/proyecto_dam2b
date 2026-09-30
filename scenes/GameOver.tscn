@@ -1,13 +1,13 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://bjlaw340mmmog"]
 
-[ext_resource type="Script" path="res://scripts/game_over.gd" id="1_over"]
+[ext_resource type="Script" uid="uid://b6t1efckpeo3y" path="res://scripts/GameOver.gd" id="1_over"]
 
-[node name="GameOver" type="CanvasLayer"]
+[node name="GameOver" type="CanvasLayer" unique_id=203846823]
 process_mode = 3
 visible = false
 script = ExtResource("1_over")
 
-[node name="Caja" type="VBoxContainer" parent="."]
+[node name="Caja" type="VBoxContainer" parent="." unique_id=210458407]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -15,14 +15,16 @@ grow_horizontal = 2
 grow_vertical = 2
 alignment = 1
 
-[node name="Titulo" type="Label" parent="Caja"]
+[node name="Titulo" type="Label" parent="Caja" unique_id=1114582151]
+layout_mode = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 8
 theme_override_font_sizes/font_size = 64
 text = "GAME OVER"
 horizontal_alignment = 1
 
-[node name="Reiniciar" type="Label" parent="Caja"]
+[node name="Reiniciar" type="Label" parent="Caja" unique_id=55884603]
+layout_mode = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
 text = "Pulsa R para reiniciar"
