@@ -1,15 +1,15 @@
 extends Node2D
 
-@export var vida = 10
+@onready var spawner: Node = $Spawner
+@onready var game_over_screen: CanvasLayer = $UI/GameOverScreen
+
+var finished := false
 
 func _ready():
-	$UI/VidaLabel.text = "Vida: %d" % vida
+	spawner.enemy_reached_end.connect(_lose)
 
-func _process(_delta):
-	for f in $Path2D.get_children():
-		if f is PathFollow2D and f.progress_ratio >= 1.0:
-			f.queue_free()
-			vida = max(vida - 1, 0)
-			$UI/VidaLabel.text = "Vida: %d" % vida
-			if vida == 0:
-				$GameOver.mostrar()
+func _lose():
+	if finished:
+		return
+	finished = true
+	game_over_screen.mostrar()

@@ -2,20 +2,52 @@
 
 [ext_resource type="Script" uid="uid://bcd8iyt31t735" path="res://scripts/Level.gd" id="1_qifjx"]
 [ext_resource type="PackedScene" uid="uid://5wuolkgdjupp" path="res://scenes/maps/Map.tscn" id="2_qifjx"]
-[ext_resource type="PackedScene" uid="uid://cku4cjb3odi31" path="res://scenes/Spawner.tscn" id="3_4qegb"]
+[ext_resource type="PackedScene" uid="uid://wqh1fjkx1u7n" path="res://scenes/Spawner.tscn" id="3_4qegb"]
 [ext_resource type="PackedScene" uid="uid://c12iqlhvpv5ju" path="res://scenes/Grid.tscn" id="3_dke22"]
 [ext_resource type="PackedScene" uid="uid://bjlaw340mmmog" path="res://scenes/GameOver.tscn" id="5_2eouu"]
 [ext_resource type="PackedScene" uid="uid://b3m7pfeti522b" path="res://scenes/BuildManager.tscn" id="5_dke22"]
-[ext_resource type="PackedScene" uid="uid://bx7rr0nvqa7t" path="res://scenes/Tower.tscn" id="6_faw0r"]
+[ext_resource type="Script" uid="uid://cwc32qenwkwf3" path="res://scripts/models/SpawnEntry.gd" id="5_m0xki"]
+[ext_resource type="PackedScene" uid="uid://b4qxa5dcr0sba" path="res://scenes/Tower.tscn" id="6_faw0r"]
+[ext_resource type="Resource" uid="uid://ct17eiklf1sb7" path="res://resources/enemy_data/ufo.tres" id="6_xe3hh"]
 [ext_resource type="Resource" uid="uid://csjdl3uuc2nem" path="res://resources/tower_data/tower.tres" id="7_2eouu"]
-[ext_resource type="Texture2D" path="res://assets/sprites/base/space_station.png" id="11_station"]
-[ext_resource type="PackedScene" path="res://scenes/PauseMenu.tscn" id="10_pause"]
+[ext_resource type="Resource" path="res://resources/enemy_data/spiked_ship.tres" id="7_p6oy6"]
+[ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/models/WaveData.gd" id="8_opqd1"]
+[ext_resource type="PackedScene" uid="uid://b6hyuslcy228o" path="res://scenes/PauseMenu.tscn" id="10_pause"]
 
-[sub_resource type="Curve2D" id="Curve2D_level"]
-_data = {
-"points": PackedVector2Array(0, 0, 0, 0, 24, 264, 0, 0, 0, 0, 24, 24, 0, 0, 0, 0, 472, 24, 0, 0, 0, 0, 472, 240)
-}
-point_count = 4
+[sub_resource type="Resource" id="Resource_xyj84"]
+script = ExtResource("5_m0xki")
+enemy_data = ExtResource("6_xe3hh")
+time = 1.0
+metadata/_custom_type_script = "uid://cwc32qenwkwf3"
+
+[sub_resource type="Resource" id="Resource_gips2"]
+script = ExtResource("5_m0xki")
+enemy_data = ExtResource("6_xe3hh")
+time = 2.0
+metadata/_custom_type_script = "uid://cwc32qenwkwf3"
+
+[sub_resource type="Resource" id="Resource_wsd7d"]
+script = ExtResource("5_m0xki")
+enemy_data = ExtResource("6_xe3hh")
+time = 3.0
+metadata/_custom_type_script = "uid://cwc32qenwkwf3"
+
+[sub_resource type="Resource" id="Resource_iw3v5"]
+script = ExtResource("5_m0xki")
+enemy_data = ExtResource("7_p6oy6")
+time = 4.0
+metadata/_custom_type_script = "uid://cwc32qenwkwf3"
+
+[sub_resource type="Resource" id="Resource_40jy2"]
+script = ExtResource("5_m0xki")
+enemy_data = ExtResource("7_p6oy6")
+time = 5.0
+metadata/_custom_type_script = "uid://cwc32qenwkwf3"
+
+[sub_resource type="Resource" id="Resource_0akr6"]
+script = ExtResource("8_opqd1")
+entries = Array[ExtResource("5_m0xki")]([SubResource("Resource_xyj84"), SubResource("Resource_gips2"), SubResource("Resource_wsd7d"), SubResource("Resource_iw3v5"), SubResource("Resource_40jy2")])
+metadata/_custom_type_script = "uid://bov3v8pbstdra"
 
 [node name="Level" type="Node2D" unique_id=275645220]
 script = ExtResource("1_qifjx")
@@ -24,32 +56,19 @@ script = ExtResource("1_qifjx")
 
 [node name="Grid" parent="." unique_id=2089228780 instance=ExtResource("3_dke22")]
 
-[node name="Spawner" parent="." unique_id=132358068 node_paths=PackedStringArray("paths") instance=ExtResource("3_4qegb")]
-paths = [NodePath("../Path2D")]
+[node name="Spawner" parent="." unique_id=132358068 node_paths=PackedStringArray("map") instance=ExtResource("3_4qegb")]
+map = NodePath("../Map")
+wave = SubResource("Resource_0akr6")
 
 [node name="BuildManager" parent="." unique_id=1876976917 node_paths=PackedStringArray("grid") instance=ExtResource("5_dke22")]
 grid = NodePath("../Grid")
 tower_scene = ExtResource("6_faw0r")
 selected_tower_data = ExtResource("7_2eouu")
 
-[node name="Station" type="Sprite2D" parent="." unique_id=1728177593]
-texture_filter = 1
-position = Vector2(452, 240)
-scale = Vector2(1.5, 1.5)
-texture = ExtResource("11_station")
+[node name="UI" type="Node2D" parent="." unique_id=841118778]
 
-[node name="Path2D" type="Path2D" parent="." unique_id=596360911]
-curve = SubResource("Curve2D_level")
+[node name="PauseMenu" parent="UI" unique_id=221010619 instance=ExtResource("10_pause")]
+visible = false
 
-[node name="GameOver" parent="." unique_id=1485855328 instance=ExtResource("5_2eouu")]
-
-[node name="PauseMenu" parent="." unique_id=221010619 instance=ExtResource("10_pause")]
-
-[node name="UI" type="CanvasLayer" parent="." unique_id=968077992]
-
-[node name="VidaLabel" type="Label" parent="UI" unique_id=1095615923]
-offset_left = 81.0
-offset_top = 78.0
-offset_right = 142.0
-offset_bottom = 101.0
-text = "Vida: 10"
+[node name="GameOverScreen" parent="UI" unique_id=1485855328 instance=ExtResource("5_2eouu")]
+visible = false

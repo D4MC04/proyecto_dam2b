@@ -4,7 +4,6 @@
 
 [node name="GameOver" type="CanvasLayer" unique_id=203846823]
 process_mode = 3
-visible = false
 script = ExtResource("1_over")
 
 [node name="Caja" type="VBoxContainer" parent="." unique_id=210458407]

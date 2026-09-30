@@ -9,6 +9,8 @@ var speed: float
 var hp: float
 var _last_position: Vector2
 
+signal reached_end
+
 func setup(enemy_data: EnemyData):
 	data = enemy_data
 	speed = data.speed
@@ -20,6 +22,10 @@ func setup(enemy_data: EnemyData):
 func _process(delta):
 	progress += speed * delta
 	_update_animation()
+	if progress_ratio >= 1.0:
+		set_process(false)
+		reached_end.emit()
+		queue_free()
 
 func _update_animation():
 	var direction := global_position - _last_position

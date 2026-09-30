@@ -6,10 +6,9 @@
 [node name="PauseMenu" type="CanvasLayer" unique_id=1125883917]
 process_mode = 3
 layer = 2
-visible = false
 script = ExtResource("1_pause")
 
-[node name="Fondo" type="ColorRect" parent="." unique_id=203747810]
+[node name="Background" type="ColorRect" parent="." unique_id=203747810]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -17,16 +16,17 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.6)
 
-[node name="Caja" type="VBoxContainer" parent="." unique_id=30459475]
+[node name="Box" type="VBoxContainer" parent="." unique_id=30459475]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("2_theme")
+theme_override_constants/separation = 10
 alignment = 1
 
-[node name="Titulo" type="Label" parent="Caja" unique_id=1243934992]
+[node name="Title" type="Label" parent="Box" unique_id=1243934992]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
@@ -35,24 +35,24 @@ theme_override_font_sizes/font_size = 24
 text = "PAUSA"
 horizontal_alignment = 1
 
-[node name="Continuar" type="Button" parent="Caja" unique_id=438037907]
+[node name="Continuar" type="Button" parent="Box" unique_id=438037907]
 custom_minimum_size = Vector2(100, 24)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Continuar"
 
-[node name="Reiniciar" type="Button" parent="Caja" unique_id=43701199]
+[node name="Reiniciar" type="Button" parent="Box" unique_id=43701199]
 custom_minimum_size = Vector2(100, 24)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Reiniciar"
 
-[node name="Salir" type="Button" parent="Caja" unique_id=1477365320]
+[node name="Salir" type="Button" parent="Box" unique_id=1477365320]
 custom_minimum_size = Vector2(100, 24)
 layout_mode = 2
 size_flags_horizontal = 4
-text = "Salir al menu"
+text = "Salir"
 
-[connection signal="pressed" from="Caja/Continuar" to="." method="_on_continuar_pressed"]
-[connection signal="pressed" from="Caja/Reiniciar" to="." method="_on_reiniciar_pressed"]
-[connection signal="pressed" from="Caja/Salir" to="." method="_on_salir_pressed"]
+[connection signal="pressed" from="Box/Continuar" to="." method="_on_continuar_pressed"]
+[connection signal="pressed" from="Box/Reiniciar" to="." method="_on_reiniciar_pressed"]
+[connection signal="pressed" from="Box/Salir" to="." method="_on_salir_pressed"]
