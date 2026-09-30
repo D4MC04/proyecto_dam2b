@@ -11,7 +11,7 @@
 
 [sub_resource type="Curve2D" id="Curve2D_level"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 24, 264, 0, 0, 0, 0, 24, 24, 0, 0, 0, 0, 472, 24, 0, 0, 0, 0, 472, 264)
+"points": PackedVector2Array(0, 0, 0, 0, 24, 264, 0, 0, 0, 0, 24, 24, 0, 0, 0, 0, 472, 24, 0, 0, 0, 0, 472, 240)
 }
 point_count = 4
 
@@ -30,10 +30,18 @@ grid = NodePath("../Grid")
 tower_scene = ExtResource("6_faw0r")
 selected_tower_data = ExtResource("7_2eouu")
 
+[node name="Station" type="Sprite2D" parent="." unique_id=1728177593]
+texture_filter = 1
+position = Vector2(452, 240)
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("11_station")
+
 [node name="Path2D" type="Path2D" parent="." unique_id=596360911]
 curve = SubResource("Curve2D_level")
 
 [node name="GameOver" parent="." unique_id=1485855328 instance=ExtResource("5_2eouu")]
+
+[node name="PauseMenu" parent="." unique_id=221010619 instance=ExtResource("10_pause")]
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=968077992]
 

@@ -1,0 +1,41 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/enemies/spiked_ship/down.png" id="1_down"]
+[ext_resource type="Texture2D" path="res://assets/sprites/enemies/spiked_ship/left.png" id="2_left"]
+[ext_resource type="Texture2D" path="res://assets/sprites/enemies/spiked_ship/right.png" id="3_right"]
+[ext_resource type="Texture2D" path="res://assets/sprites/enemies/spiked_ship/up.png" id="4_up"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_down")
+}],
+"loop": 1,
+"name": &"down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_left")
+}],
+"loop": 1,
+"name": &"left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_right")
+}],
+"loop": 1,
+"name": &"right",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_up")
+}],
+"loop": 1,
+"name": &"up",
+"speed": 5.0
+}]
