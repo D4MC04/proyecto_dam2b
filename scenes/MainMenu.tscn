@@ -1,0 +1,271 @@
+[gd_scene format=3 uid="uid://deo1tg3qjuyh1"]
+
+[ext_resource type="Script" uid="uid://hut21l7kytl6" path="res://scripts/MainMenu.gd" id="1_menu"]
+[ext_resource type="Script" uid="uid://bnok54y84qsmr" path="res://scripts/Starfield.gd" id="2_stars"]
+[ext_resource type="Texture2D" uid="uid://c5u3a6vnf6m0d" path="res://assets/sprites/planets/luna.png" id="7_1ajci"]
+[ext_resource type="Texture2D" uid="uid://bs0dfebgax8p0" path="res://assets/sprites/planets/planetagaseoso2.png" id="9_1ajci"]
+[ext_resource type="PackedScene" uid="uid://ds51ueya6tle1" path="res://scenes/SpaceBody.tscn" id="9_body"]
+[ext_resource type="Texture2D" uid="uid://6vae21c3u2eo" path="res://assets/sprites/planets/planetarojo.png" id="9_rcqid"]
+[ext_resource type="Texture2D" uid="uid://bbg55c2mjm7bq" path="res://assets/sprites/planets/saturnin.png" id="10_1ajci"]
+[ext_resource type="Texture2D" uid="uid://cl7f1ueax6jdo" path="res://assets/sprites/planets/planeta_1.png" id="10_planeta1"]
+[ext_resource type="Texture2D" uid="uid://c1kau8qq2nlhf" path="res://assets/sprites/planets/planetalava1.png" id="11_7b55j"]
+[ext_resource type="Texture2D" uid="uid://7udnrdhnrwfo" path="res://assets/sprites/planets/asteroide_1.png" id="12_asteroide1"]
+[ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="13_theme"]
+[ext_resource type="Script" uid="uid://mb67t4tqyohq" path="res://scripts/Comets.gd" id="14_comets"]
+[ext_resource type="Script" uid="uid://dd6xsyc7ng8u7" path="res://scripts/Asteroids.gd" id="17_asteroids"]
+
+[node name="MainMenu" type="Control" unique_id=576679633]
+texture_filter = 1
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("13_theme")
+script = ExtResource("1_menu")
+
+[node name="Background" type="ColorRect" parent="." unique_id=742900571]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="StarField" type="Node2D" parent="." unique_id=933333249]
+script = ExtResource("2_stars")
+
+[node name="Comets" type="Node2D" parent="." unique_id=273898892]
+script = ExtResource("14_comets")
+
+[node name="Asteroids" type="Node2D" parent="." unique_id=413824944]
+script = ExtResource("17_asteroids")
+
+[node name="Planets" type="Node2D" parent="." unique_id=1569682466]
+
+[node name="Planeta1" parent="Planets" unique_id=603984696 instance=ExtResource("9_body")]
+position = Vector2(477.10352, 242.0957)
+rotation = 0.2268928
+scale = Vector2(1.8779294, 1.598086)
+frame_progress = 0.32060584
+speed_scale = 0.5
+sheet = ExtResource("10_planeta1")
+fps = 3.0
+
+[node name="Planeta5" parent="Planets" unique_id=1965250712 instance=ExtResource("9_body")]
+position = Vector2(411.52454, 38.20743)
+rotation = 0.46251225
+scale = Vector2(0.47721493, 0.46993628)
+frame_progress = 0.41442108
+speed_scale = 0.5
+sheet = ExtResource("7_1ajci")
+fps = 7.0
+
+[node name="Planeta6" parent="Planets" unique_id=2016053893 instance=ExtResource("9_body")]
+position = Vector2(82.99999, 165.99998)
+rotation = 3.822271
+scale = Vector2(1.5076561, 1.4725642)
+frame_progress = 0.4956814
+speed_scale = 0.07
+sheet = ExtResource("9_rcqid")
+fps = 60.0
+
+[node name="Planeta7" parent="Planets" unique_id=1255540921 instance=ExtResource("9_body")]
+position = Vector2(143, 33.59999)
+rotation = 3.822271
+scale = Vector2(0.51869583, 0.47507852)
+frame_progress = 0.4956814
+speed_scale = 0.07
+sheet = ExtResource("9_1ajci")
+fps = 60.0
+
+[node name="Planeta8" parent="Planets" unique_id=865614892 instance=ExtResource("9_body")]
+position = Vector2(344.00003, 173)
+rotation = 3.132866
+scale = Vector2(0.40685415, 0.3730729)
+frame_progress = 0.4956814
+speed_scale = 0.07
+sheet = ExtResource("10_1ajci")
+fps = 60.0
+
+[node name="Planeta9" parent="Planets" unique_id=606652752 instance=ExtResource("9_body")]
+position = Vector2(311.00003, 235.00002)
+rotation = 3.132866
+scale = Vector2(0.3549205, 0.3730729)
+frame_progress = 0.4956814
+speed_scale = 0.07
+sheet = ExtResource("11_7b55j")
+fps = 60.0
+
+[node name="Asteroide1" parent="Planets" unique_id=359384108 instance=ExtResource("9_body")]
+visible = false
+position = Vector2(50.25, 230.75)
+scale = Vector2(0.355, 0.33500007)
+frame_progress = 0.4673347
+sheet = ExtResource("12_asteroide1")
+fps = 10.0
+
+[node name="TitleScreen" type="VBoxContainer" parent="." unique_id=1853329339]
+layout_mode = 0
+offset_right = 480.0
+offset_bottom = 270.0
+theme_override_constants/separation = 32
+alignment = 1
+
+[node name="Title" type="Label" parent="TitleScreen" unique_id=337636773]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 24
+text = "ASTRO ARTILLERY"
+horizontal_alignment = 1
+
+[node name="Buttons" type="VBoxContainer" parent="TitleScreen" unique_id=203701852]
+layout_mode = 2
+alignment = 1
+
+[node name="PlayButton" type="Button" parent="TitleScreen/Buttons" unique_id=1180300128]
+custom_minimum_size = Vector2(100, 24)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Jugar"
+
+[node name="SettingsButton" type="Button" parent="TitleScreen/Buttons" unique_id=528850060]
+custom_minimum_size = Vector2(100, 24)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Opciones"
+
+[node name="QuitButton" type="Button" parent="TitleScreen/Buttons" unique_id=1613827906]
+custom_minimum_size = Vector2(100, 24)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Salir"
+
+[node name="Levels" type="VBoxContainer" parent="." unique_id=2135136794]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="Titulo" type="Label" parent="Levels" unique_id=1293381837]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 16
+text = "SELECCIONA NIVEL"
+horizontal_alignment = 1
+
+[node name="Grid" type="GridContainer" parent="Levels" unique_id=1866487335]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 4
+
+[node name="Nivel1" type="Button" parent="Levels/Grid" unique_id=247441349]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+text = "1"
+
+[node name="Nivel2" type="Button" parent="Levels/Grid" unique_id=121248092]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+disabled = true
+text = "2"
+
+[node name="Nivel3" type="Button" parent="Levels/Grid" unique_id=840672192]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+disabled = true
+text = "3"
+
+[node name="Nivel4" type="Button" parent="Levels/Grid" unique_id=1910698393]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+disabled = true
+text = "4"
+
+[node name="Nivel5" type="Button" parent="Levels/Grid" unique_id=1613066555]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+disabled = true
+text = "5"
+
+[node name="Nivel6" type="Button" parent="Levels/Grid" unique_id=2055581524]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+disabled = true
+text = "6"
+
+[node name="Nivel7" type="Button" parent="Levels/Grid" unique_id=984409964]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+disabled = true
+text = "7"
+
+[node name="Nivel8" type="Button" parent="Levels/Grid" unique_id=2089221261]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+disabled = true
+text = "8"
+
+[node name="VolverButton" type="Button" parent="Levels" unique_id=555534078]
+custom_minimum_size = Vector2(100, 24)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Volver"
+
+[node name="VolumePanel" type="PanelContainer" parent="." unique_id=1402917536]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 12.0
+offset_top = -6.0
+offset_right = 12.0
+offset_bottom = -6.0
+grow_vertical = 0
+
+[node name="Volume" type="HBoxContainer" parent="VolumePanel" unique_id=731552904]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Label" type="Label" parent="VolumePanel/Volume" unique_id=1188034215]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 6
+text = "MUSICA"
+vertical_alignment = 1
+
+[node name="MuteButton" type="Button" parent="VolumePanel/Volume" unique_id=1877263105]
+custom_minimum_size = Vector2(22, 10)
+layout_mode = 2
+theme_override_font_sizes/font_size = 6
+text = "ON"
+
+[node name="Slider" type="HSlider" parent="VolumePanel/Volume" unique_id=926481377]
+custom_minimum_size = Vector2(44, 8)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/grabber_offset = -1
+max_value = 1.0
+step = 0.05
+
+[connection signal="pressed" from="TitleScreen/Buttons/PlayButton" to="." method="_on_play_button_pressed"]
+[connection signal="pressed" from="TitleScreen/Buttons/QuitButton" to="." method="_on_quit_button_pressed"]
+[connection signal="pressed" from="Levels/Grid/Nivel1" to="." method="_on_nivel_1_pressed"]
+[connection signal="pressed" from="Levels/VolverButton" to="." method="_on_volver_pressed"]
+[connection signal="pressed" from="VolumePanel/Volume/MuteButton" to="." method="_on_mute_button_pressed"]
+[connection signal="value_changed" from="VolumePanel/Volume/Slider" to="." method="_on_slider_value_changed"]

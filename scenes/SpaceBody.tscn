@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://ds51ueya6tle1"]
+
+[ext_resource type="Script" uid="uid://6y6q4xkgrc50" path="res://scripts/SpaceBody.gd" id="1_body"]
+
+[node name="SpaceBody" type="AnimatedSprite2D" unique_id=1285612761]
+texture_filter = 1
+script = ExtResource("1_body")

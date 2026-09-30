@@ -9,7 +9,7 @@ const SHEETS = [
 	preload("res://assets/sprites/planets/asteroide_3.png"),
 	preload("res://assets/sprites/planets/asteroide_4.png"),
 ]
-const BODY = preload("res://scenes/space_body.tscn")
+const BODY = preload("res://scenes/SpaceBody.tscn")
 const MAX_ACTIVE = 2
 const SPEED = 60.0
 const SCALE = 0.22          # frame de 100px -> ~22px en pantalla

@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://jbj2vu1ckypb"]
+[gd_scene format=3 uid="uid://i4sayli8d78g"]
 
 [ext_resource type="Script" uid="uid://bcd8iyt31t735" path="res://scripts/Level.gd" id="1_qifjx"]
 [ext_resource type="PackedScene" uid="uid://5wuolkgdjupp" path="res://scenes/maps/Map.tscn" id="2_qifjx"]
@@ -8,6 +8,8 @@
 [ext_resource type="PackedScene" uid="uid://b3m7pfeti522b" path="res://scenes/BuildManager.tscn" id="5_dke22"]
 [ext_resource type="PackedScene" uid="uid://bx7rr0nvqa7t" path="res://scenes/Tower.tscn" id="6_faw0r"]
 [ext_resource type="Resource" uid="uid://csjdl3uuc2nem" path="res://resources/tower_data/tower.tres" id="7_2eouu"]
+[ext_resource type="Texture2D" path="res://assets/sprites/base/space_station.png" id="11_station"]
+[ext_resource type="PackedScene" path="res://scenes/PauseMenu.tscn" id="10_pause"]
 
 [sub_resource type="Curve2D" id="Curve2D_level"]
 _data = {
