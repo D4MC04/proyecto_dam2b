@@ -6,6 +6,7 @@
 
 [resource]
 script = ExtResource("1_bqpnv")
+name = "UFO"
 hp = 25.0
 speed = 200.0
 sprite_frames = ExtResource("2_qsa1s")
