@@ -2286,6 +2286,8 @@ texture = ExtResource("8_6mf6j")
 11:21/0 = 0
 
 [resource]
+custom_data_layer_0/name = "buildable"
+custom_data_layer_0/type = 1
 sources/0 = SubResource("TileSetAtlasSource_vw3a3")
 sources/1 = SubResource("TileSetAtlasSource_dqro3")
 sources/2 = SubResource("TileSetAtlasSource_m6f6v")

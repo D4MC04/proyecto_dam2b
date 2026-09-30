@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cku4cjb3odi31"]
 
 [ext_resource type="Script" uid="uid://csf1nnwmpkyxg" path="res://scripts/Spawner.gd" id="1_cmhla"]
-[ext_resource type="PackedScene" uid="uid://cbsvv6636wryo" path="res://scenes/enemy.tscn" id="2_4wbs5"]
+[ext_resource type="PackedScene" uid="uid://cbsvv6636wryo" path="res://scenes/Enemy.tscn" id="2_4wbs5"]
 [ext_resource type="Script" uid="uid://cwc32qenwkwf3" path="res://scripts/models/SpawnEntry.gd" id="3_30a77"]
 [ext_resource type="Resource" uid="uid://ct17eiklf1sb7" path="res://resources/enemy_data/ufo.tres" id="4_p5s3f"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/models/WaveData.gd" id="5_e3f8v"]

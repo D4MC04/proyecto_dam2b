@@ -24,20 +24,19 @@ _data = {
 &"bob": SubResource("Animation_bob")
 }
 
-[node name="PathFollow2D" type="PathFollow2D" unique_id=987428534]
+[node name="Enemy" type="PathFollow2D" unique_id=987428534]
 rotates = false
 loop = false
 script = ExtResource("1_7p1mj")
 
-[node name="Sprite" type="AnimatedSprite2D" parent="." unique_id=384282756]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=384282756]
+animation = &""
 offset = Vector2(0, 2)
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Sprite" unique_id=463465856]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="AnimatedSprite2D" unique_id=463465856]
 libraries/ = SubResource("AnimationLibrary_7p1mj")
 autoplay = &"bob"
 
-[node name="HurtBox" type="Area2D" parent="." unique_id=1974079918]
-collision_layer = 2
-collision_mask = 0
+[node name="Area2D" type="Area2D" parent="." unique_id=1974079918]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox" unique_id=1498619864]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=1498619864]
