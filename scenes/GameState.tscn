@@ -6,5 +6,5 @@
 
 [node name="GameState" type="Node" unique_id=336094220]
 script = ExtResource("1_si82d")
-available_towers = Array[ExtResource("2_ppnic")]([ExtResource("3_an17e"), ExtResource("3_an17e"), ExtResource("3_an17e"), ExtResource("3_an17e"), ExtResource("3_an17e"), ExtResource("3_an17e")])
+available_towers = Array[ExtResource("2_ppnic")]([ExtResource("3_an17e")])
 money = 100

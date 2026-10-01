@@ -7,8 +7,9 @@
 [resource]
 script = ExtResource("1_data")
 name = "Spikey"
-hp = 12.0
-speed = 70.0
+hp = 50
+speed = 25
+reward = 100
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 metadata/_custom_type_script = "uid://do62ihbnaitnl"

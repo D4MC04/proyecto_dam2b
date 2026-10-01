@@ -6,8 +6,8 @@
 
 [resource]
 script = ExtResource("1_53mei")
-damage = 2.5
-speed = 150.0
+damage = 5.0
+speed = 250.0
 sprite_frames = ExtResource("3_mlrh5")
 collision_shape = ExtResource("1_8b6xl")
 metadata/_custom_type_script = "uid://dufu06mgtfw20"
