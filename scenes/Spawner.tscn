@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://wqh1fjkx1u7n"]
 
 [ext_resource type="Script" uid="uid://csf1nnwmpkyxg" path="res://scripts/Spawner.gd" id="1_cmhla"]
-[ext_resource type="PackedScene" uid="uid://cbsvv6636wryo" path="res://scenes/Enemy.tscn" id="2_4wbs5"]
+[ext_resource type="PackedScene" uid="uid://ctmtdrb4lan53" path="res://scenes/Enemy.tscn" id="2_4wbs5"]
 [ext_resource type="Script" uid="uid://cwc32qenwkwf3" path="res://scripts/models/SpawnEntry.gd" id="3_30a77"]
 [ext_resource type="Resource" uid="uid://ct17eiklf1sb7" path="res://resources/enemy_data/ufo.tres" id="4_p5s3f"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/models/WaveData.gd" id="5_e3f8v"]
@@ -42,8 +42,7 @@ script = ExtResource("5_e3f8v")
 entries = Array[ExtResource("3_30a77")]([SubResource("Resource_ppgk2"), SubResource("Resource_pqd0y"), SubResource("Resource_xy2fk"), SubResource("Resource_spiked1"), SubResource("Resource_spiked2")])
 metadata/_custom_type_script = "uid://bov3v8pbstdra"
 
-[node name="Spawner" type="Node2D" unique_id=132358068 node_paths=PackedStringArray("paths")]
+[node name="Spawner" type="Node2D" unique_id=132358068]
 script = ExtResource("1_cmhla")
-paths = [NodePath("")]
 enemy_scene = ExtResource("2_4wbs5")
 wave = SubResource("Resource_mx8sn")

@@ -24,7 +24,8 @@ func _on_play_button_pressed():
 func _on_volver_pressed():
 	_transition(levels_panel, main_panel)
 
-func _on_nivel_1_pressed():
+func _on_nivel_pressed(n: int):
+	Map.selected ="res://scenes/maps/Map%d.tscn" % n
 	get_tree().change_scene_to_file("res://scenes/level.tscn")
 
 func _on_quit_button_pressed():

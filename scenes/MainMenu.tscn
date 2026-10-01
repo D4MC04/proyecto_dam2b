@@ -180,13 +180,11 @@ text = "1"
 [node name="Nivel2" type="Button" parent="Levels/Grid" unique_id=121248092]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
-disabled = true
 text = "2"
 
 [node name="Nivel3" type="Button" parent="Levels/Grid" unique_id=840672192]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
-disabled = true
 text = "3"
 
 [node name="Nivel4" type="Button" parent="Levels/Grid" unique_id=1910698393]
@@ -265,7 +263,9 @@ step = 0.05
 
 [connection signal="pressed" from="TitleScreen/Buttons/PlayButton" to="." method="_on_play_button_pressed"]
 [connection signal="pressed" from="TitleScreen/Buttons/QuitButton" to="." method="_on_quit_button_pressed"]
-[connection signal="pressed" from="Levels/Grid/Nivel1" to="." method="_on_nivel_1_pressed"]
+[connection signal="pressed" from="Levels/Grid/Nivel1" to="." method="_on_nivel_pressed" binds= [1]]
+[connection signal="pressed" from="Levels/Grid/Nivel2" to="." method="_on_nivel_pressed" binds= [2]]
+[connection signal="pressed" from="Levels/Grid/Nivel3" to="." method="_on_nivel_pressed" binds= [3]]
 [connection signal="pressed" from="Levels/VolverButton" to="." method="_on_volver_pressed"]
 [connection signal="pressed" from="VolumePanel/Volume/MuteButton" to="." method="_on_mute_button_pressed"]
 [connection signal="value_changed" from="VolumePanel/Volume/Slider" to="." method="_on_slider_value_changed"]
