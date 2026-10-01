@@ -1,8 +1,8 @@
 [gd_resource type="Resource" script_class="BulletData" format=3 uid="uid://b7g7sgtpmk0lh"]
 
-[ext_resource type="Shape2D" uid="uid://bgj2ljgku54hx" path="res://resources/collision_shapes/red_bullet.tres" id="1_8b6xl"]
+[ext_resource type="Shape2D" uid="uid://bgj2ljgku54hx" path="res://resources/collision_shapes/RedBullet.tres" id="1_8b6xl"]
 [ext_resource type="Script" uid="uid://dufu06mgtfw20" path="res://scripts/models/BulletData.gd" id="1_53mei"]
-[ext_resource type="SpriteFrames" uid="uid://b6fmpev0inj8f" path="res://resources/sprite_frames/red_bullet.tres" id="3_mlrh5"]
+[ext_resource type="SpriteFrames" uid="uid://b6fmpev0inj8f" path="res://resources/sprite_frames/RedBullet.tres" id="3_mlrh5"]
 
 [resource]
 script = ExtResource("1_53mei")

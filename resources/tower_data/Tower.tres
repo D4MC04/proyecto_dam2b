@@ -1,9 +1,9 @@
 [gd_resource type="Resource" script_class="TowerData" format=3 uid="uid://csjdl3uuc2nem"]
 
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/models/TowerData.gd" id="1_fknle"]
-[ext_resource type="Shape2D" uid="uid://w1ba48y2n8pb" path="res://resources/collision_shapes/tower.tres" id="1_pqqyi"]
-[ext_resource type="Resource" uid="uid://b7g7sgtpmk0lh" path="res://resources/bullet_data/red_bullet.tres" id="2_josed"]
-[ext_resource type="SpriteFrames" uid="uid://cdvuqfr1oh4li" path="res://resources/sprite_frames/tower.tres" id="4_ywpje"]
+[ext_resource type="Shape2D" uid="uid://w1ba48y2n8pb" path="res://resources/collision_shapes/Tower.tres" id="1_pqqyi"]
+[ext_resource type="Resource" uid="uid://b7g7sgtpmk0lh" path="res://resources/bullet_data/RedBullet.tres" id="2_josed"]
+[ext_resource type="SpriteFrames" uid="uid://cdvuqfr1oh4li" path="res://resources/sprite_frames/Tower.tres" id="4_ywpje"]
 
 [resource]
 script = ExtResource("1_fknle")

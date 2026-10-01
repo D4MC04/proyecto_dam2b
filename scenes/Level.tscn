@@ -8,9 +8,9 @@
 [ext_resource type="PackedScene" uid="uid://b3m7pfeti522b" path="res://scenes/BuildManager.tscn" id="5_dke22"]
 [ext_resource type="Script" uid="uid://cwc32qenwkwf3" path="res://scripts/models/SpawnEntry.gd" id="5_m0xki"]
 [ext_resource type="PackedScene" uid="uid://b4qxa5dcr0sba" path="res://scenes/Tower.tscn" id="6_faw0r"]
-[ext_resource type="Resource" uid="uid://ct17eiklf1sb7" path="res://resources/enemy_data/ufo.tres" id="6_xe3hh"]
-[ext_resource type="Resource" uid="uid://csjdl3uuc2nem" path="res://resources/tower_data/tower.tres" id="7_2eouu"]
-[ext_resource type="Resource" path="res://resources/enemy_data/spiked_ship.tres" id="7_p6oy6"]
+[ext_resource type="Resource" uid="uid://ct17eiklf1sb7" path="res://resources/enemy_data/Ufo.tres" id="6_xe3hh"]
+[ext_resource type="Resource" uid="uid://csjdl3uuc2nem" path="res://resources/tower_data/Tower.tres" id="7_2eouu"]
+[ext_resource type="Resource" path="res://resources/enemy_data/SpikedShip.tres" id="7_p6oy6"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/models/WaveData.gd" id="8_opqd1"]
 [ext_resource type="PackedScene" uid="uid://b6hyuslcy228o" path="res://scenes/PauseMenu.tscn" id="10_pause"]
 
