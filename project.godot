@@ -18,15 +18,27 @@ config/icon="res://icon.svg"
 [autoload]
 
 MusicManager="*res://scripts/MusicManager.gd"
+GameState="*uid://6jojrgxamdct"
 
 [display]
 
 window/size/viewport_width=480
 window/size/viewport_height=272
-window/size/mode=3
+window/size/mode=2
 window/size/window_width_override=1920
 window/size/window_height_override=1088
 window/stretch/mode="canvas_items"
+
+[input]
+
+ui_focus_next={
+"deadzone": 0.5,
+"events": []
+}
+ui_focus_prev={
+"deadzone": 0.5,
+"events": []
+}
 
 [physics]
 
