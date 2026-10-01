@@ -4,13 +4,16 @@ class_name Bullet
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 
+const LIFETIME := 5.0  # segundos antes de desaparecer si no acierta
+const SIZE_PX := 8.0   # ancho de la bala en pantalla
+
 var data: BulletData
 var target: Enemy
 var direction: Vector2
 
 func _ready() -> void:
 	area_entered.connect(_on_area_entered)
-	get_tree().create_timer(5.0).timeout.connect(queue_free)
+	get_tree().create_timer(LIFETIME).timeout.connect(queue_free)
 
 func setup(bullet_data: BulletData, new_target: Enemy) -> void:
 	data = bullet_data
@@ -19,7 +22,7 @@ func setup(bullet_data: BulletData, new_target: Enemy) -> void:
 	collision_shape.shape = data.collision_shape
 	sprite.play()
 	var frame_width := sprite.sprite_frames.get_frame_texture(sprite.animation, 0).get_width()
-	scale = Vector2.ONE * (8.0 / frame_width)
+	scale = Vector2.ONE * (SIZE_PX / frame_width)
 	_aim()
 
 func _aim() -> void:

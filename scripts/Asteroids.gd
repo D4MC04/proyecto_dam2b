@@ -19,19 +19,17 @@ const TAIL_WIDTH = 4.0
 const TAIL_COLOR = Color(0.75, 0.95, 1.0)
 
 var viewport_size: Vector2
-var rng = RandomNumberGenerator.new()
 var asteroids = []  # cada uno: {"node": AnimatedSprite2D, "dir": Vector2}
 var wait = 0.0
 
 func _ready():
 	viewport_size = get_viewport_rect().size
-	rng.randomize()
-	wait = rng.randf_range(2.0, 6.0)
+	wait = randf_range(2.0, 6.0)
 
 func _process(delta):
 	wait -= delta
 	if wait <= 0.0:
-		wait = rng.randf_range(3.0, 7.0)
+		wait = randf_range(3.0, 7.0)
 		if asteroids.size() < MAX_ACTIVE:
 			_spawn()
 	for a in asteroids:
@@ -49,21 +47,21 @@ func _spawn():
 	# De un borde al opuesto, en horizontal o vertical, con punto de entrada/salida al azar
 	var start: Vector2
 	var end: Vector2
-	if rng.randf() < 0.5:
-		start = Vector2(-MARGIN, rng.randf_range(0, viewport_size.y))
-		end = Vector2(viewport_size.x + MARGIN, rng.randf_range(0, viewport_size.y))
+	if randf() < 0.5:
+		start = Vector2(-MARGIN, randf_range(0, viewport_size.y))
+		end = Vector2(viewport_size.x + MARGIN, randf_range(0, viewport_size.y))
 	else:
-		start = Vector2(rng.randf_range(0, viewport_size.x), -MARGIN)
-		end = Vector2(rng.randf_range(0, viewport_size.x), viewport_size.y + MARGIN)
-	if rng.randf() < 0.5:
+		start = Vector2(randf_range(0, viewport_size.x), -MARGIN)
+		end = Vector2(randf_range(0, viewport_size.x), viewport_size.y + MARGIN)
+	if randf() < 0.5:
 		var tmp = start
 		start = end
 		end = tmp
 	var dir = (end - start).normalized()
 
 	var body = BODY.instantiate()
-	body.fps = rng.randf_range(8.0, 14.0)
-	body.sheet = SHEETS[rng.randi() % SHEETS.size()]
+	body.fps = randf_range(8.0, 14.0)
+	body.sheet = SHEETS[randi() % SHEETS.size()]
 	body.scale = Vector2(SCALE, SCALE)
 	body.position = start + dir  # un paso dentro para no borrarlo en el primer frame
 	add_child(body)

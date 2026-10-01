@@ -52,7 +52,3 @@ func _nearest_enemy() -> Enemy:
 			best_dist = d
 			nearest = enemy
 	return nearest
-
-func fit_to_tile(tile_size: Vector2) -> void:
-	var frame_size: Vector2 = sprite.sprite_frames.get_frame_texture(sprite.animation, 0).get_size()
-	sprite.scale = tile_size / frame_size

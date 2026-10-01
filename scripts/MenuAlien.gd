@@ -14,12 +14,10 @@ const BAND_LEFT = Vector2(10, 130)
 const BAND_RIGHT = Vector2(350, 470)
 
 var viewport_size: Vector2
-var rng = RandomNumberGenerator.new()
 var dir: Vector2
 
 func _ready():
 	viewport_size = get_viewport_rect().size
-	rng.randomize()
 	animation = "walk_down"  # frontal, mirando a la pantalla
 	frame = 0
 	stop()
@@ -35,17 +33,17 @@ func _process(delta):
 func _new_route():
 	var start: Vector2
 	var end: Vector2
-	if rng.randf() < 0.5:
+	if randf() < 0.5:
 		# Horizontal: entra por un lado y sale por el otro, dentro de la franja de arriba o abajo
-		var band = BAND_TOP if rng.randf() < 0.5 else BAND_BOTTOM
-		start = Vector2(-MARGIN, rng.randf_range(band.x, band.y))
-		end = Vector2(viewport_size.x + MARGIN, rng.randf_range(band.x, band.y))
+		var band = BAND_TOP if randf() < 0.5 else BAND_BOTTOM
+		start = Vector2(-MARGIN, randf_range(band.x, band.y))
+		end = Vector2(viewport_size.x + MARGIN, randf_range(band.x, band.y))
 	else:
 		# Vertical: de arriba abajo dentro de la franja izquierda o derecha
-		var band = BAND_LEFT if rng.randf() < 0.5 else BAND_RIGHT
-		start = Vector2(rng.randf_range(band.x, band.y), -MARGIN)
-		end = Vector2(rng.randf_range(band.x, band.y), viewport_size.y + MARGIN)
-	if rng.randf() < 0.5:
+		var band = BAND_LEFT if randf() < 0.5 else BAND_RIGHT
+		start = Vector2(randf_range(band.x, band.y), -MARGIN)
+		end = Vector2(randf_range(band.x, band.y), viewport_size.y + MARGIN)
+	if randf() < 0.5:
 		var tmp = start
 		start = end
 		end = tmp

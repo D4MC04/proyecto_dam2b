@@ -32,9 +32,7 @@ func _actualizar():
 	@warning_ignore("integer_division")
 	var frame_count = sheet.get_width() / frame_size
 
-	var sf = SpriteFrames.new()
-	if not sf.has_animation("default"):
-		sf.add_animation("default")
+	var sf = SpriteFrames.new()  # ya trae la animación "default"
 	sf.set_animation_loop("default", true)
 	sf.set_animation_speed("default", fps)
 	for i in frame_count:

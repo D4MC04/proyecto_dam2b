@@ -17,25 +17,23 @@ const SPARKLE_COLORS = [
 
 var stars = []
 var viewport_size: Vector2
-var rng = RandomNumberGenerator.new()
 var time = 0.0
 
 func _ready():
 	viewport_size = get_viewport_rect().size
-	rng.randomize()
 	for layer in LAYERS:
 		var sparkle = layer.get("sparkle", false)
 		var colors = SPARKLE_COLORS if sparkle else SMALL_COLORS
 		for i in layer["count"]:
 			stars.append({
-				"pos": Vector2(rng.randf_range(0, viewport_size.x), rng.randf_range(0, viewport_size.y)),
+				"pos": Vector2(randf_range(0, viewport_size.x), randf_range(0, viewport_size.y)),
 				"size": layer["size"],
 				"brightness": layer["brightness"],
-				"phase": rng.randf_range(0, TAU),
-				"twinkle": sparkle or rng.randf() < 0.3,  # destellos siempre, puntos solo ~30%
-				"rate": rng.randf_range(0.8, 2.5),  # ritmo propio de cada estrella
+				"phase": randf_range(0, TAU),
+				"twinkle": sparkle or randf() < 0.3,  # destellos siempre, puntos solo ~30%
+				"rate": randf_range(0.8, 2.5),  # ritmo propio de cada estrella
 				"sparkle": sparkle,
-				"color": colors[rng.randi() % colors.size()],
+				"color": colors[randi() % colors.size()],
 			})
 
 func _process(delta):

@@ -14,5 +14,3 @@ bullet_scene = ExtResource("2_kl3vk")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="RangeDetector" unique_id=277323560]
 
 [node name="Timer" type="Timer" parent="." unique_id=837974092]
-wait_time = 0.5
-autostart = true
