@@ -11,6 +11,7 @@ var button_group := ButtonGroup.new()
 func _ready() -> void:
 	_update_money(GameState.money)
 	GameState.money_changed.connect(_update_money)
+	button_group.allow_unpress = true
 	for data in GameState.available_towers:
 		var button: TowerButton = TOWER_BUTTON.instantiate()
 		tower_buttons.add_child(button)

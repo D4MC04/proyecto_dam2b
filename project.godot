@@ -29,6 +29,17 @@ window/size/window_width_override=1920
 window/size/window_height_override=1088
 window/stretch/mode="canvas_items"
 
+[input]
+
+ui_focus_next={
+"deadzone": 0.5,
+"events": []
+}
+ui_focus_prev={
+"deadzone": 0.5,
+"events": []
+}
+
 [physics]
 
 3d/physics_engine="Jolt Physics"
