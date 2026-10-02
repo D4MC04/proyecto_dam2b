@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3]
+
+[ext_resource type="Script" uid="uid://do62ihbnaitnl" path="res://scripts/models/EnemyData.gd" id="1_data"]
+[ext_resource type="Shape2D" path="res://resources/collision_shapes/dart_rojo.tres" id="2_shape"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/dart_rojo.tres" id="3_frames"]
+
+[resource]
+script = ExtResource("1_data")
+hp = 6.0
+speed = 220.0
+sprite_frames = ExtResource("3_frames")
+collision_shape = ExtResource("2_shape")
+rotate_sprite = true
+metadata/_custom_type_script = "uid://do62ihbnaitnl"
