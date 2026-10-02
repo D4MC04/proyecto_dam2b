@@ -11,6 +11,7 @@
 [ext_resource type="Resource" uid="uid://ct17eiklf1sb7" path="res://resources/enemy_data/ufo.tres" id="6_xe3hh"]
 [ext_resource type="Resource" uid="uid://csjdl3uuc2nem" path="res://resources/tower_data/tower.tres" id="7_2eouu"]
 [ext_resource type="Resource" path="res://resources/enemy_data/spiked_ship.tres" id="7_p6oy6"]
+[ext_resource type="Resource" path="res://resources/enemy_data/nodriza.tres" id="9_nodriza"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/models/WaveData.gd" id="8_opqd1"]
 [ext_resource type="PackedScene" uid="uid://b6hyuslcy228o" path="res://scenes/PauseMenu.tscn" id="10_pause"]
 
@@ -44,9 +45,15 @@ enemy_data = ExtResource("7_p6oy6")
 time = 5.0
 metadata/_custom_type_script = "uid://cwc32qenwkwf3"
 
+[sub_resource type="Resource" id="Resource_nodriza1"]
+script = ExtResource("5_m0xki")
+enemy_data = ExtResource("9_nodriza")
+time = 7.0
+metadata/_custom_type_script = "uid://cwc32qenwkwf3"
+
 [sub_resource type="Resource" id="Resource_0akr6"]
 script = ExtResource("8_opqd1")
-entries = Array[ExtResource("5_m0xki")]([SubResource("Resource_xyj84"), SubResource("Resource_gips2"), SubResource("Resource_wsd7d"), SubResource("Resource_iw3v5"), SubResource("Resource_40jy2")])
+entries = Array[ExtResource("5_m0xki")]([SubResource("Resource_xyj84"), SubResource("Resource_gips2"), SubResource("Resource_wsd7d"), SubResource("Resource_iw3v5"), SubResource("Resource_40jy2"), SubResource("Resource_nodriza1")])
 metadata/_custom_type_script = "uid://bov3v8pbstdra"
 
 [node name="Level" type="Node2D" unique_id=275645220]

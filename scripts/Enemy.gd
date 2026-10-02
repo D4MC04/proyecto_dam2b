@@ -36,6 +36,9 @@ func _update_animation():
 		sprite.play("right" if direction.x > 0 else "left")
 	else:
 		sprite.play("down" if direction.y > 0 else "up")
+	if data.rotate_sprite:
+		# El sprite base mira hacia arriba; se gira en pasos de 90°.
+		sprite.rotation = snappedf(direction.angle() + PI / 2, PI / 2)
 
 func take_damage(amount: float):
 	hp -= amount
