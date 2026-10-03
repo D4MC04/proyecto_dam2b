@@ -135,6 +135,9 @@ script = ExtResource("1_qifjx")
 
 [node name="Map" parent="." unique_id=366159857 instance=ExtResource("2_qifjx")]
 
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1203374651]
+position = Vector2(296, 136)
+
 [node name="Grid" parent="." unique_id=2089228780 instance=ExtResource("3_dke22")]
 
 [node name="Spawner" parent="." unique_id=132358068 node_paths=PackedStringArray("map") instance=ExtResource("3_4qegb")]

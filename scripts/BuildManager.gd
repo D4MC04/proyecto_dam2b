@@ -27,6 +27,8 @@ func _ready() -> void:
 	_preview.add_child(_sprite)
 
 func _unhandled_input(event: InputEvent) -> void:
+	# Con la cámara del nivel, la posición del ratón en pantalla no es la del mapa.
+	event = make_input_local(event)
 	if event is InputEventMouseMotion:
 		_update_preview(event.position)
 	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:

@@ -28,6 +28,7 @@ window/size/mode=0
 window/size/window_width_override=1184
 window/size/window_height_override=544
 window/stretch/mode="canvas_items"
+window/stretch/aspect="keep_width"
 
 [input]
 
