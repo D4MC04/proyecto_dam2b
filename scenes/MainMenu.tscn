@@ -108,9 +108,12 @@ sheet = ExtResource("12_asteroide1")
 fps = 10.0
 
 [node name="TitleScreen" type="VBoxContainer" parent="." unique_id=1853329339]
-layout_mode = 0
-offset_right = 480.0
-offset_bottom = 270.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_constants/separation = 32
 alignment = 1
 
