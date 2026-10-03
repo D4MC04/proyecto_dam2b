@@ -25,18 +25,21 @@ metadata/_custom_type_script = "uid://cwc32qenwkwf3"
 script = ExtResource("5_m0xki")
 enemy_data = ExtResource("6_xe3hh")
 time = 2.0
+path_index = 1
 metadata/_custom_type_script = "uid://cwc32qenwkwf3"
 
 [sub_resource type="Resource" id="Resource_wsd7d"]
 script = ExtResource("5_m0xki")
 enemy_data = ExtResource("6_xe3hh")
 time = 3.0
+path_index = 2
 metadata/_custom_type_script = "uid://cwc32qenwkwf3"
 
 [sub_resource type="Resource" id="Resource_iw3v5"]
 script = ExtResource("5_m0xki")
 enemy_data = ExtResource("7_p6oy6")
 time = 4.0
+path_index = 3
 metadata/_custom_type_script = "uid://cwc32qenwkwf3"
 
 [sub_resource type="Resource" id="Resource_40jy2"]
@@ -49,6 +52,7 @@ metadata/_custom_type_script = "uid://cwc32qenwkwf3"
 script = ExtResource("5_m0xki")
 enemy_data = ExtResource("9_nodriza")
 time = 7.0
+path_index = 1
 metadata/_custom_type_script = "uid://cwc32qenwkwf3"
 
 [sub_resource type="Resource" id="Resource_0akr6"]

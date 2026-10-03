@@ -23,7 +23,7 @@ func _process(delta: float) -> void:
 
 func _spawn(entry: SpawnEntry) -> void:
 	var enemy := enemy_scene.instantiate()
-	var path := paths[entry.path_index]
+	var path := paths[entry.path_index % paths.size()]
 	path.add_child(enemy)
 	enemy.setup(entry.enemy_data)
 	enemy.reached_end.connect(enemy_reached_end.emit)
