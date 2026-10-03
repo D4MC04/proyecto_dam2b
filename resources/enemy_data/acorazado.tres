@@ -8,7 +8,7 @@
 script = ExtResource("1_data")
 name = "Acorazado"
 hp = 120.0
-speed = 35.0
+speed = 25
 reward = 350
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
