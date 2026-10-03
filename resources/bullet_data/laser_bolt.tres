@@ -9,7 +9,7 @@
 [resource]
 script = ExtResource("2")
 damage = 12.0
-speed = 400.0
+speed = 250.0
 sprite_frames = ExtResource("3")
 collision_shape = ExtResource("1")
 sprite_scale = 1.5
