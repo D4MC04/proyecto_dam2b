@@ -1,18 +1,22 @@
 [gd_resource type="SpriteFrames" format=3]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/towers/laser/laser_bolt_sheet.png" id="1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/laser/laser_impact_sheet.png" id="1"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0"]
 atlas = ExtResource("1")
-region = Rect2(0, 0, 6, 16)
+region = Rect2(0, 0, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1"]
 atlas = ExtResource("1")
-region = Rect2(6, 0, 6, 16)
+region = Rect2(16, 0, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_2"]
 atlas = ExtResource("1")
-region = Rect2(12, 0, 6, 16)
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3"]
+atlas = ExtResource("1")
+region = Rect2(48, 0, 16, 16)
 
 [resource]
 animations = [{
@@ -25,8 +29,11 @@ animations = [{
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3")
 }],
-"loop": 1,
+"loop": 0,
 "name": &"default",
-"speed": 12.0
+"speed": 16.0
 }]

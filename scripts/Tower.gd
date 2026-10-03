@@ -39,8 +39,10 @@ func _on_attack_timeout() -> void:
 func _shoot(target: Enemy) -> void:
 	var bullet: Bullet = bullet_scene.instantiate()
 	get_parent().add_child(bullet)
-	bullet.global_position = global_position
+	bullet.global_position = global_position + data.muzzle_offset
 	bullet.setup(data.bullet_data, target)
+	if data.muzzle_flash:
+		Effect.spawn(self, data.muzzle_flash, bullet.global_position, data.bullet_data.sprite_scale)
 
 func _nearest_enemy() -> Enemy:
 	enemies_in_range = enemies_in_range.filter(func(e): return is_instance_valid(e))
