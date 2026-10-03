@@ -6,8 +6,10 @@
 
 [resource]
 script = ExtResource("1_data")
+name = "Dart de hielo"
 hp = 6.0
 speed = 220.0
+reward = 40
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 rotate_sprite = true
