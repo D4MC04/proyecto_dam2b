@@ -1,7 +1,7 @@
 extends PanelContainer
 class_name Sidebar
 
-const TOWER_BUTTON: PackedScene = preload("res://Scenes/TowerButton.tscn")
+const TOWER_BUTTON: PackedScene = preload("res://scenes/TowerButton.tscn")
 
 @onready var money_label: Label = %MoneyLabel
 @onready var tower_buttons: GridContainer = %TowerButtons
