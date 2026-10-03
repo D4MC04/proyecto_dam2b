@@ -18,6 +18,11 @@ func _enter_tree():
 	$Spawner.map = map
 
 func _ready():
+	# Césped fuera del mapa: sigue su patrón de 8x8 tiles, con margen arriba, abajo e izquierda.
+	# A la derecha no, para no asomar bajo la barra lateral.
+	for x in range(-6, 30):
+		for y in range(-7, 24):
+			$Background.set_cell(Vector2i(x, y), 0, Vector2i(8 + posmod(x, 8), posmod(y, 8)))
 	spawner.enemy_reached_end.connect(_on_enemy_reached_end)
 
 func _on_enemy_reached_end():

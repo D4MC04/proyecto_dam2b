@@ -23,6 +23,7 @@
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/models/WaveData.gd" id="8_opqd1"]
 [ext_resource type="PackedScene" uid="uid://b6hyuslcy228o" path="res://scenes/PauseMenu.tscn" id="10_pause"]
 [ext_resource type="PackedScene" uid="uid://dgetllrlfjnrc" path="res://scenes/Sidebar.tscn" id="12_xe3hh"]
+[ext_resource type="TileSet" uid="uid://du11y2104lqxj" path="res://resources/tile_sets/tileset.tres" id="13_tileset"]
 
 [sub_resource type="Resource" id="Resource_dart_rojo1"]
 script = ExtResource("5_m0xki")
@@ -134,6 +135,11 @@ metadata/_custom_type_script = "uid://bov3v8pbstdra"
 script = ExtResource("1_qifjx")
 
 [node name="Map" parent="." unique_id=366159857 instance=ExtResource("2_qifjx")]
+
+[node name="Background" type="TileMapLayer" parent="." unique_id=1648220937]
+z_index = -1
+tile_set = ExtResource("13_tileset")
+collision_enabled = false
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1203374651]
 position = Vector2(296, 136)
