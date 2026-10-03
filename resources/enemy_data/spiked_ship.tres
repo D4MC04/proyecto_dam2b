@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" format=3]
+[gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://c4ef5gd8nr04u"]
 
 [ext_resource type="Script" uid="uid://do62ihbnaitnl" path="res://scripts/models/EnemyData.gd" id="1_data"]
 [ext_resource type="Shape2D" path="res://resources/collision_shapes/spiked_ship.tres" id="2_shape"]
@@ -6,9 +6,10 @@
 
 [resource]
 script = ExtResource("1_data")
-speed = 70.0
-hp = 12.0
-damage = 10.0
+name = "Spikey"
+hp = 50
+speed = 25
+reward = 100
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 metadata/_custom_type_script = "uid://do62ihbnaitnl"

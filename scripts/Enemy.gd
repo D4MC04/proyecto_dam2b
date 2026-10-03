@@ -46,4 +46,5 @@ func take_damage(amount: float):
 		die()
 
 func die():
+	GameState.money += data.reward
 	queue_free()
