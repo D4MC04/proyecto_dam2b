@@ -8,6 +8,7 @@ var modo_prueba := false  # TEMPORAL: en true da vidas infinitas para probar.
 
 # En _enter_tree porque Grid y Spawner leen el mapa en su _ready, anterior al del nivel.
 func _enter_tree():
+	GameState.reset()
 	var old := $Map
 	remove_child(old)
 	old.free()

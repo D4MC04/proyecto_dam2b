@@ -8,3 +8,9 @@ signal money_changed(value)
 	set(v):
 		money = v
 		money_changed.emit(money)
+
+# Dinero con el que empieza cada nivel: el valor puesto en GameState.tscn.
+@onready var _initial_money := money
+
+func reset() -> void:
+	money = _initial_money
