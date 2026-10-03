@@ -11,3 +11,5 @@ class_name TowerData
 # Opcionales: destello (sin loop) al disparar y posición de la boca del cañón respecto al centro.
 @export var muzzle_flash: SpriteFrames
 @export var muzzle_offset: Vector2
+# Opcional: cañón (mirando hacia arriba) que gira hacia el enemigo sobre la base fija de sprite_frames.
+@export var cannon: Texture2D
