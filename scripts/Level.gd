@@ -4,7 +4,6 @@ extends Node2D
 @onready var game_over_screen: CanvasLayer = $UI/GameOverScreen
 
 var finished := false
-var modo_prueba := false  # TEMPORAL: en true da vidas infinitas para probar.
 
 # En _enter_tree porque Grid y Spawner leen el mapa en su _ready, anterior al del nivel.
 func _enter_tree():
@@ -23,10 +22,7 @@ func _ready():
 
 func _on_enemy_reached_end():
 	# Al perder, el escudo de la base se queda débil.
-	get_tree().call_group("base", "hit", not modo_prueba)
-	# TEMPORAL: quitar junto con modo_prueba.
-	if modo_prueba:
-		return
+	get_tree().call_group("base", "hit", true)
 	_lose()
 
 func _lose():
