@@ -29,4 +29,4 @@ tile_set = ExtResource("3_7msvs")
 curve = SubResource("Curve2D_o7r77")
 
 [node name="SpaceStation" parent="." unique_id=677178950 instance=ExtResource("4_mmi5e")]
-position = Vector2(456, 19)
+position = Vector2(448, 32)

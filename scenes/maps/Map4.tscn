@@ -38,4 +38,4 @@ curve = SubResource("Curve2D_o7r77")
 curve = SubResource("Curve2D_is7fw")
 
 [node name="SpaceStation" parent="." unique_id=320233137 instance=ExtResource("4_is7fw")]
-position = Vector2(24, 253)
+position = Vector2(32, 240)
