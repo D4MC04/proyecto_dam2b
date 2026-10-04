@@ -14,3 +14,5 @@ class_name TowerData
 # Opcional: cañón (mirando hacia arriba) que gira hacia el enemigo sobre la base fija de sprite_frames.
 # "default" es el reposo; las animaciones "fire_0", "fire_1"... (sin loop) se alternan en cada disparo.
 @export var cannon: SpriteFrames
+# Velocidad de giro del cañón en grados por segundo; 0 = apunta al instante.
+@export var turn_speed: float = 0.0

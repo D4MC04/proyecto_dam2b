@@ -4,6 +4,9 @@ extends Node2D
 @export var data: TowerData
 @export var bullet_scene: PackedScene
 
+# Margen para disparar sin que el cañón esté perfectamente alineado.
+const AIM_TOLERANCE := deg_to_rad(8.0)
+
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var cannon: AnimatedSprite2D = $Cannon
 @onready var attack_range_area: Area2D = $RangeDetector
@@ -12,6 +15,8 @@ extends Node2D
 
 var enemies_in_range: Array[Enemy] = []
 var _shots := 0
+# Cooldown cumplido, a la espera de que el cañón termine de girar hacia el enemigo.
+var _pending_shot := false
 
 func _ready() -> void:
 	sprite.sprite_frames = data.sprite_frames
@@ -24,15 +29,26 @@ func _ready() -> void:
 	attack_range_area.area_exited.connect(_on_area_exited)
 	attack_timer.start()
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	var target := _nearest_enemy()
-	if target != null:
-		_aim(target)
+	if target == null:
+		return
+	# Gira poco a poco por el camino más corto; sin enemigo se queda donde está.
+	if data.turn_speed > 0:
+		cannon.rotation = rotate_toward(cannon.rotation, _target_angle(target), deg_to_rad(data.turn_speed) * delta)
+	else:
+		cannon.rotation = _target_angle(target)
+	if _pending_shot and _is_aimed(target):
+		_pending_shot = false
+		attack_timer.start()
+		_shoot(target)
 
 # El sprite del cañón mira hacia arriba: ángulo hacia el enemigo más 90°.
-func _aim(target: Enemy) -> void:
-	if data.cannon != null:
-		cannon.rotation = (target.global_position - global_position).angle() + PI / 2
+func _target_angle(target: Enemy) -> float:
+	return (target.global_position - global_position).angle() + PI / 2
+
+func _is_aimed(target: Enemy) -> bool:
+	return data.cannon == null or absf(angle_difference(cannon.rotation, _target_angle(target))) <= AIM_TOLERANCE
 
 func _on_area_entered(area: Area2D) -> void:
 	var enemy := area.get_parent()
@@ -48,10 +64,14 @@ func _on_attack_timeout() -> void:
 	var target := _nearest_enemy()
 	if target == null:
 		return
-	_shoot(target)
+	if _is_aimed(target):
+		_shoot(target)
+	else:
+		# El cooldown no se gasta: dispara en cuanto el cañón quede alineado.
+		_pending_shot = true
+		attack_timer.stop()
 
 func _shoot(target: Enemy) -> void:
-	_aim(target)
 	var bullet: Bullet = bullet_scene.instantiate()
 	get_parent().add_child(bullet)
 	# La boca gira con el cañón (sin cañón, su rotación es 0 y no cambia nada).
