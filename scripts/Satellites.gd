@@ -1,45 +1,38 @@
 extends Node2D
 
-# Satélite decorativo que cruza el nivel de borde a borde, como los asteroides del menú
-# pero más lento y menos frecuente. Sin colisión: ni se le dispara ni estorba.
+# Satélite decorativo que cruza el menú de borde a borde, como los asteroides pero más lento
+# y de uno en uno: el siguiente no se programa hasta que el anterior ha salido y se ha borrado.
 
 const FRAMES = preload("res://resources/sprite_frames/satelite.tres")
-const MAX_ACTIVE = 1
-const SPEED = 25.0
-const MARGIN = 40.0         # aparece/desaparece fuera de pantalla (el sprite mide 66 px)
+const SCALE = 0.5           # frame de 66x34 -> ~33x17 en pantalla
+const MARGIN = 20.0         # aparece/desaparece fuera de pantalla
 
 var viewport_size: Vector2
 var rng = RandomNumberGenerator.new()
-var satellites = []  # cada uno: {"node": AnimatedSprite2D, "dir": Vector2}
+var satellite: AnimatedSprite2D  # null mientras no hay ninguno cruzando
+var dir: Vector2
+var speed = 0.0
 var wait = 0.0
-var layer: Node2D
 
 func _ready():
 	viewport_size = get_viewport_rect().size
 	rng.randomize()
-	wait = rng.randf_range(10.0, 20.0)
-	# Capa dentro del mapa, justo antes de los caminos: por encima del suelo y por detrás
-	# de enemigos, base y torres.
-	var paths = get_node("../Map/Paths")
-	layer = Node2D.new()
-	layer.name = "Satellites"
-	paths.get_parent().add_child(layer)
-	paths.get_parent().move_child(layer, paths.get_index())
+	wait = rng.randf_range(3.0, 6.0)
 
 func _process(delta):
-	wait -= delta
-	if wait <= 0.0:
-		wait = rng.randf_range(25.0, 50.0)
-		if satellites.size() < MAX_ACTIVE:
+	if satellite == null:
+		wait -= delta
+		if wait <= 0.0:
 			_spawn()
-	for s in satellites:
-		s["node"].position += s["dir"] * SPEED * delta
-	for s in satellites.filter(_is_outside):
-		s["node"].queue_free()
-	satellites = satellites.filter(func(s): return not _is_outside(s))
+		return
+	satellite.position += dir * speed * delta
+	if _is_outside():
+		satellite.queue_free()
+		satellite = null
+		wait = rng.randf_range(8.0, 15.0)
 
-func _is_outside(s) -> bool:
-	var p = s["node"].position
+func _is_outside() -> bool:
+	var p = satellite.position
 	return p.x < -MARGIN or p.x > viewport_size.x + MARGIN or p.y < -MARGIN or p.y > viewport_size.y + MARGIN
 
 func _spawn():
@@ -56,11 +49,12 @@ func _spawn():
 		var tmp = start
 		start = end
 		end = tmp
-	var dir = (end - start).normalized()
+	dir = (end - start).normalized()
+	speed = rng.randf_range(20.0, 30.0)
 
-	var body = AnimatedSprite2D.new()
-	body.sprite_frames = FRAMES
-	body.position = start + dir  # un paso dentro para no borrarlo en el primer frame
-	layer.add_child(body)
-	body.play()
-	satellites.append({"node": body, "dir": dir})
+	satellite = AnimatedSprite2D.new()
+	satellite.sprite_frames = FRAMES
+	satellite.scale = Vector2(SCALE, SCALE)
+	satellite.position = start + dir  # un paso dentro para no borrarlo en el primer frame
+	add_child(satellite)
+	satellite.play()

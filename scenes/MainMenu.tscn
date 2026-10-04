@@ -13,6 +13,7 @@
 [ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="13_theme"]
 [ext_resource type="Script" uid="uid://mb67t4tqyohq" path="res://scripts/Comets.gd" id="14_comets"]
 [ext_resource type="Script" uid="uid://dd6xsyc7ng8u7" path="res://scripts/Asteroids.gd" id="17_asteroids"]
+[ext_resource type="Script" path="res://scripts/Satellites.gd" id="18_satellites"]
 
 [node name="MainMenu" type="Control" unique_id=576679633]
 texture_filter = 1
@@ -42,6 +43,9 @@ script = ExtResource("14_comets")
 
 [node name="Asteroids" type="Node2D" parent="." unique_id=413824944]
 script = ExtResource("17_asteroids")
+
+[node name="Satellites" type="Node2D" parent="."]
+script = ExtResource("18_satellites")
 
 [node name="Planets" type="Node2D" parent="." unique_id=1569682466]
 
