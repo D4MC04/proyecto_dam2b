@@ -10,7 +10,7 @@
 [resource]
 script = ExtResource("1")
 name = "Cañón doble"
-cost = 150
+cost = 100
 attack_cooldown = 0.25
 icon = ExtResource("4")
 sprite_frames = ExtResource("5")
