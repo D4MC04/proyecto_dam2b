@@ -24,6 +24,7 @@
 [ext_resource type="PackedScene" uid="uid://b6hyuslcy228o" path="res://scenes/PauseMenu.tscn" id="10_pause"]
 [ext_resource type="PackedScene" uid="uid://dgetllrlfjnrc" path="res://scenes/Sidebar.tscn" id="12_xe3hh"]
 [ext_resource type="TileSet" uid="uid://du11y2104lqxj" path="res://resources/tile_sets/tileset.tres" id="13_tileset"]
+[ext_resource type="Script" path="res://scripts/Satellites.gd" id="14_satellites"]
 
 [sub_resource type="Resource" id="Resource_dart_rojo1"]
 script = ExtResource("5_m0xki")
@@ -153,6 +154,9 @@ wave = SubResource("Resource_0akr6")
 [node name="BuildManager" parent="." unique_id=1876976917 node_paths=PackedStringArray("grid") instance=ExtResource("5_dke22")]
 grid = NodePath("../Grid")
 tower_scene = ExtResource("6_faw0r")
+
+[node name="Satellites" type="Node2D" parent="."]
+script = ExtResource("14_satellites")
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=968077992]
 
