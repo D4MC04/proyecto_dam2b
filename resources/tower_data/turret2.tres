@@ -18,5 +18,5 @@ attack_range = ExtResource("2")
 bullet_data = ExtResource("3")
 muzzle_offset = Vector2(0, -14)
 cannon = ExtResource("7")
-turn_speed = 120.0
+turn_speed = 180.0
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

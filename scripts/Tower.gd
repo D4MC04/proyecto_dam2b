@@ -5,7 +5,7 @@ extends Node2D
 @export var bullet_scene: PackedScene
 
 # Margen para disparar sin que el cañón esté perfectamente alineado.
-const AIM_TOLERANCE := deg_to_rad(8.0)
+const AIM_TOLERANCE := deg_to_rad(12.0)
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var cannon: AnimatedSprite2D = $Cannon
