@@ -7,9 +7,9 @@
 [resource]
 script = ExtResource("1_data")
 name = "Nave normal"
-hp = 20.0
+hp = 60.0
 speed = 36
-reward = 100
+reward = 25
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 rotate_sprite = true

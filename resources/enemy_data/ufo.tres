@@ -7,9 +7,9 @@
 [resource]
 script = ExtResource("1_bqpnv")
 name = "UFO"
-hp = 25
+hp = 75
 speed = 50
-reward = 100
+reward = 28
 sprite_frames = ExtResource("2_qsa1s")
 collision_shape = ExtResource("1_ur7pl")
 metadata/_custom_type_script = "uid://do62ihbnaitnl"

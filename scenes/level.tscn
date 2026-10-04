@@ -6,130 +6,10 @@
 [ext_resource type="PackedScene" uid="uid://c12iqlhvpv5ju" path="res://scenes/Grid.tscn" id="3_dke22"]
 [ext_resource type="PackedScene" uid="uid://bjlaw340mmmog" path="res://scenes/GameOver.tscn" id="5_2eouu"]
 [ext_resource type="PackedScene" uid="uid://b3m7pfeti522b" path="res://scenes/BuildManager.tscn" id="5_dke22"]
-[ext_resource type="Script" uid="uid://cwc32qenwkwf3" path="res://scripts/models/SpawnEntry.gd" id="5_m0xki"]
 [ext_resource type="PackedScene" uid="uid://b4qxa5dcr0sba" path="res://scenes/Tower.tscn" id="6_faw0r"]
-[ext_resource type="Resource" uid="uid://ct17eiklf1sb7" path="res://resources/enemy_data/ufo.tres" id="6_xe3hh"]
-[ext_resource type="Resource" uid="uid://c4ef5gd8nr04u" path="res://resources/enemy_data/spiked_ship.tres" id="7_p6oy6"]
-[ext_resource type="Resource" path="res://resources/enemy_data/nodriza.tres" id="9_nodriza"]
-[ext_resource type="Resource" path="res://resources/enemy_data/dart_rojo.tres" id="9_dart_rojo"]
-[ext_resource type="Resource" path="res://resources/enemy_data/dart_verde.tres" id="9_dart_verde"]
-[ext_resource type="Resource" path="res://resources/enemy_data/dart_hielo.tres" id="9_dart_hielo"]
-[ext_resource type="Resource" path="res://resources/enemy_data/dart_morado.tres" id="9_dart_morado"]
-[ext_resource type="Resource" path="res://resources/enemy_data/wasp.tres" id="9_wasp"]
-[ext_resource type="Resource" path="res://resources/enemy_data/nave_normal.tres" id="9_nave_normal"]
-[ext_resource type="Resource" path="res://resources/enemy_data/nave_agresiva.tres" id="9_nave_agresiva"]
-[ext_resource type="Resource" path="res://resources/enemy_data/ariete.tres" id="9_ariete"]
-[ext_resource type="Resource" path="res://resources/enemy_data/acorazado.tres" id="9_acorazado"]
-[ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/models/WaveData.gd" id="8_opqd1"]
 [ext_resource type="PackedScene" uid="uid://b6hyuslcy228o" path="res://scenes/PauseMenu.tscn" id="10_pause"]
 [ext_resource type="PackedScene" uid="uid://dgetllrlfjnrc" path="res://scenes/Sidebar.tscn" id="12_xe3hh"]
 [ext_resource type="TileSet" uid="uid://du11y2104lqxj" path="res://resources/tile_sets/tileset.tres" id="13_tileset"]
-
-[sub_resource type="Resource" id="Resource_dart_rojo1"]
-script = ExtResource("5_m0xki")
-enemy_data = ExtResource("9_dart_rojo")
-time = 5.0
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_dart_verde1"]
-script = ExtResource("5_m0xki")
-enemy_data = ExtResource("9_dart_verde")
-time = 8.0
-path_index = 1
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_dart_hielo1"]
-script = ExtResource("5_m0xki")
-enemy_data = ExtResource("9_dart_hielo")
-time = 11.0
-path_index = 2
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_dart_morado1"]
-script = ExtResource("5_m0xki")
-enemy_data = ExtResource("9_dart_morado")
-time = 14.0
-path_index = 3
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_wasp1"]
-script = ExtResource("5_m0xki")
-enemy_data = ExtResource("9_wasp")
-time = 18.0
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_xyj84"]
-script = ExtResource("5_m0xki")
-enemy_data = ExtResource("6_xe3hh")
-time = 22.0
-path_index = 1
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_gips2"]
-script = ExtResource("5_m0xki")
-enemy_data = ExtResource("6_xe3hh")
-time = 25.0
-path_index = 2
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_wsd7d"]
-script = ExtResource("5_m0xki")
-enemy_data = ExtResource("6_xe3hh")
-time = 28.0
-path_index = 3
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_nave_normal1"]
-script = ExtResource("5_m0xki")
-enemy_data = ExtResource("9_nave_normal")
-time = 32.0
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_iw3v5"]
-script = ExtResource("5_m0xki")
-enemy_data = ExtResource("7_p6oy6")
-time = 36.0
-path_index = 1
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_40jy2"]
-script = ExtResource("5_m0xki")
-enemy_data = ExtResource("7_p6oy6")
-time = 40.0
-path_index = 2
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_nave_agresiva1"]
-script = ExtResource("5_m0xki")
-enemy_data = ExtResource("9_nave_agresiva")
-time = 44.0
-path_index = 3
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_nodriza1"]
-script = ExtResource("5_m0xki")
-enemy_data = ExtResource("9_nodriza")
-time = 49.0
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_ariete1"]
-script = ExtResource("5_m0xki")
-enemy_data = ExtResource("9_ariete")
-time = 54.0
-path_index = 1
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_acorazado1"]
-script = ExtResource("5_m0xki")
-enemy_data = ExtResource("9_acorazado")
-time = 60.0
-path_index = 2
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_0akr6"]
-script = ExtResource("8_opqd1")
-entries = Array[ExtResource("5_m0xki")]([SubResource("Resource_dart_rojo1"), SubResource("Resource_dart_verde1"), SubResource("Resource_dart_hielo1"), SubResource("Resource_dart_morado1"), SubResource("Resource_wasp1"), SubResource("Resource_xyj84"), SubResource("Resource_gips2"), SubResource("Resource_wsd7d"), SubResource("Resource_nave_normal1"), SubResource("Resource_iw3v5"), SubResource("Resource_40jy2"), SubResource("Resource_nave_agresiva1"), SubResource("Resource_nodriza1"), SubResource("Resource_ariete1"), SubResource("Resource_acorazado1")])
-metadata/_custom_type_script = "uid://bov3v8pbstdra"
 
 [node name="Level" type="Node2D" unique_id=275645220]
 script = ExtResource("1_qifjx")
@@ -148,7 +28,6 @@ position = Vector2(296, 136)
 
 [node name="Spawner" parent="." unique_id=132358068 node_paths=PackedStringArray("map") instance=ExtResource("3_4qegb")]
 map = NodePath("../Map")
-wave = SubResource("Resource_0akr6")
 
 [node name="BuildManager" parent="." unique_id=1876976917 node_paths=PackedStringArray("grid") instance=ExtResource("5_dke22")]
 grid = NodePath("../Grid")

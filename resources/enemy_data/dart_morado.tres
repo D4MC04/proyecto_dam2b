@@ -7,9 +7,9 @@
 [resource]
 script = ExtResource("1_data")
 name = "Dart morado"
-hp = 6.0
+hp = 15.0
 speed = 90
-reward = 40
+reward = 12
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 rotate_sprite = true

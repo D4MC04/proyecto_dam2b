@@ -16,6 +16,8 @@ func _enter_tree():
 	add_child(map)
 	move_child(map, 0)
 	$Spawner.map = map
+	# Cada mapa tiene su oleada: MapN.tscn usa resources/waves/nivel_N.tres
+	$Spawner.wave = load("res://resources/waves/nivel_%d.tres" % Map.selected.get_file().to_int())
 
 func _ready():
 	# Césped fuera del mapa: sigue su patrón de 8x8 tiles, con margen arriba, abajo e izquierda.
