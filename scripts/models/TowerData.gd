@@ -12,4 +12,5 @@ class_name TowerData
 @export var muzzle_flash: SpriteFrames
 @export var muzzle_offset: Vector2
 # Opcional: cañón (mirando hacia arriba) que gira hacia el enemigo sobre la base fija de sprite_frames.
-@export var cannon: Texture2D
+# "default" es el reposo; las animaciones "fire_0", "fire_1"... (sin loop) se alternan en cada disparo.
+@export var cannon: SpriteFrames

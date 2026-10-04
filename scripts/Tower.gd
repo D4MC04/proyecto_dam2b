@@ -5,16 +5,17 @@ extends Node2D
 @export var bullet_scene: PackedScene
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var cannon: Sprite2D = $Cannon
+@onready var cannon: AnimatedSprite2D = $Cannon
 @onready var attack_range_area: Area2D = $RangeDetector
 @onready var attack_range_shape: CollisionShape2D = $RangeDetector/CollisionShape2D
 @onready var attack_timer: Timer = $Timer
 
 var enemies_in_range: Array[Enemy] = []
+var _shots := 0
 
 func _ready() -> void:
 	sprite.sprite_frames = data.sprite_frames
-	cannon.texture = data.cannon
+	cannon.sprite_frames = data.cannon
 	set_process(data.cannon != null)
 	attack_range_shape.shape = data.attack_range
 	attack_timer.wait_time = data.attack_cooldown
@@ -54,10 +55,16 @@ func _shoot(target: Enemy) -> void:
 	var bullet: Bullet = bullet_scene.instantiate()
 	get_parent().add_child(bullet)
 	# La boca gira con el cañón (sin cañón, su rotación es 0 y no cambia nada).
-	bullet.global_position = global_position + data.muzzle_offset.rotated(cannon.rotation)
+	# Con dos cañones (muzzle_offset.x != 0) los disparos alternan de lado.
+	var muzzle := data.muzzle_offset * Vector2(-1 if _shots % 2 else 1, 1)
+	bullet.global_position = global_position + muzzle.rotated(cannon.rotation)
 	bullet.setup(data.bullet_data, target)
 	if data.muzzle_flash:
 		Effect.spawn(cannon, data.muzzle_flash, bullet.global_position, data.bullet_data.sprite_scale)
+	var fire_anims := data.cannon.get_animation_names().size() - 1 if data.cannon else 0
+	if fire_anims > 0:
+		cannon.play("fire_%d" % (_shots % fire_anims))
+	_shots += 1
 
 func _nearest_enemy() -> Enemy:
 	enemies_in_range = enemies_in_range.filter(func(e): return is_instance_valid(e))

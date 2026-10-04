@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/towers/laser/laser_full_up.png" id="4"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/laser.tres" id="5"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/laser_flash.tres" id="6"]
-[ext_resource type="Texture2D" path="res://assets/sprites/towers/laser/laser_cannon.png" id="7"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/laser_cannon.tres" id="7"]
 
 [resource]
 script = ExtResource("1")

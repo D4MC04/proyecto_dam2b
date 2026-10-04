@@ -9,7 +9,7 @@ bullet_scene = ExtResource("2_kl3vk")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1933094868]
 
-[node name="Cannon" type="Sprite2D" parent="."]
+[node name="Cannon" type="AnimatedSprite2D" parent="."]
 
 [node name="RangeDetector" type="Area2D" parent="." unique_id=1527193401]
 
