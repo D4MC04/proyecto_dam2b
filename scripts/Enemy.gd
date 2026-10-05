@@ -1,6 +1,8 @@
 extends PathFollow2D
 class_name Enemy
 
+signal died(reward: int)
+
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var collision_shape: CollisionShape2D = $Area2D/CollisionShape2D
 
@@ -43,5 +45,5 @@ func take_damage(amount: float):
 		die()
 
 func die():
-	GameState.money += data.reward
+	died.emit(data.reward)
 	queue_free()

@@ -48,7 +48,7 @@ script = ExtResource("8_opqd1")
 entries = Array[ExtResource("5_m0xki")]([SubResource("Resource_xyj84"), SubResource("Resource_gips2"), SubResource("Resource_wsd7d"), SubResource("Resource_iw3v5"), SubResource("Resource_40jy2")])
 metadata/_custom_type_script = "uid://bov3v8pbstdra"
 
-[node name="Level" type="Node2D" unique_id=1048914466]
+[node name="Level" type="Node" unique_id=1047382048]
 script = ExtResource("1_qifjx")
 
 [node name="Map" parent="." unique_id=366159857 instance=ExtResource("2_qifjx")]
@@ -64,8 +64,8 @@ wave = SubResource("Resource_0akr6")
 
 [node name="BuildManager" type="Node" parent="." unique_id=1876976917 node_paths=PackedStringArray("grid")]
 script = ExtResource("10_p6oy6")
-grid = NodePath("../Grid")
 tower_scene = ExtResource("6_faw0r")
+grid = NodePath("../Grid")
 
 [node name="GameState" type="Node" parent="." unique_id=33024129]
 script = ExtResource("11_ax7ne")

@@ -1,15 +1,16 @@
 class_name Spawner
-extends Node2D
+extends Node
 
-@export var map: Map
-@export var enemy_scene: PackedScene
-@export var wave: WaveData
+signal enemy_died(reward: int)
+signal enemy_reached_end
 
 var paths: Array[Path2D]
 var _elapsed: float = 0.0
 var _next_index: int = 0
 
-signal enemy_reached_end
+@export var map: Map
+@export var enemy_scene: PackedScene
+@export var wave: WaveData
 
 func _ready() -> void:
 	paths = map.get_paths()
@@ -27,3 +28,4 @@ func _spawn(entry: SpawnEntry) -> void:
 	path.add_child(enemy)
 	enemy.setup(entry.enemy_data)
 	enemy.reached_end.connect(enemy_reached_end.emit)
+	enemy.died.connect(enemy_died.emit)

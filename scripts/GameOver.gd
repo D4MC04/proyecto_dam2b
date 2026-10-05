@@ -1,4 +1,4 @@
-extends CanvasLayer
+extends Control
 
 func mostrar():
 	visible = true
