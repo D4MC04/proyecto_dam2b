@@ -1,0 +1,67 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/planets/satelite_sheet.png" id="1"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0"]
+atlas = ExtResource("1")
+region = Rect2(0, 0, 66, 34)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1"]
+atlas = ExtResource("1")
+region = Rect2(66, 0, 66, 34)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2"]
+atlas = ExtResource("1")
+region = Rect2(132, 0, 66, 34)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3"]
+atlas = ExtResource("1")
+region = Rect2(198, 0, 66, 34)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4"]
+atlas = ExtResource("1")
+region = Rect2(264, 0, 66, 34)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5"]
+atlas = ExtResource("1")
+region = Rect2(330, 0, 66, 34)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6"]
+atlas = ExtResource("1")
+region = Rect2(396, 0, 66, 34)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7"]
+atlas = ExtResource("1")
+region = Rect2(462, 0, 66, 34)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 7.0,
+"texture": SubResource("AtlasTexture_0")
+}, {
+"duration": 0.6,
+"texture": SubResource("AtlasTexture_1")
+}, {
+"duration": 0.6,
+"texture": SubResource("AtlasTexture_2")
+}, {
+"duration": 0.6,
+"texture": SubResource("AtlasTexture_3")
+}, {
+"duration": 0.6,
+"texture": SubResource("AtlasTexture_4")
+}, {
+"duration": 0.6,
+"texture": SubResource("AtlasTexture_5")
+}, {
+"duration": 3.0,
+"texture": SubResource("AtlasTexture_6")
+}, {
+"duration": 3.0,
+"texture": SubResource("AtlasTexture_7")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]

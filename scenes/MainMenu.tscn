@@ -13,6 +13,7 @@
 [ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="13_theme"]
 [ext_resource type="Script" uid="uid://mb67t4tqyohq" path="res://scripts/Comets.gd" id="14_comets"]
 [ext_resource type="Script" uid="uid://dd6xsyc7ng8u7" path="res://scripts/Asteroids.gd" id="17_asteroids"]
+[ext_resource type="Script" path="res://scripts/Satellites.gd" id="18_satellites"]
 
 [node name="MainMenu" type="Control" unique_id=576679633]
 texture_filter = 1
@@ -42,6 +43,9 @@ script = ExtResource("14_comets")
 
 [node name="Asteroids" type="Node2D" parent="." unique_id=413824944]
 script = ExtResource("17_asteroids")
+
+[node name="Satellites" type="Node2D" parent="."]
+script = ExtResource("18_satellites")
 
 [node name="Planets" type="Node2D" parent="." unique_id=1569682466]
 
@@ -108,9 +112,12 @@ sheet = ExtResource("12_asteroide1")
 fps = 10.0
 
 [node name="TitleScreen" type="VBoxContainer" parent="." unique_id=1853329339]
-layout_mode = 0
-offset_right = 480.0
-offset_bottom = 270.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_constants/separation = 32
 alignment = 1
 
@@ -180,31 +187,26 @@ text = "1"
 [node name="Nivel2" type="Button" parent="Levels/Grid" unique_id=121248092]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
-disabled = true
 text = "2"
 
 [node name="Nivel3" type="Button" parent="Levels/Grid" unique_id=840672192]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
-disabled = true
 text = "3"
 
 [node name="Nivel4" type="Button" parent="Levels/Grid" unique_id=1910698393]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
-disabled = true
 text = "4"
 
 [node name="Nivel5" type="Button" parent="Levels/Grid" unique_id=1613066555]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
-disabled = true
 text = "5"
 
 [node name="Nivel6" type="Button" parent="Levels/Grid" unique_id=2055581524]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
-disabled = true
 text = "6"
 
 [node name="Nivel7" type="Button" parent="Levels/Grid" unique_id=984409964]
@@ -265,7 +267,12 @@ step = 0.05
 
 [connection signal="pressed" from="TitleScreen/Buttons/PlayButton" to="." method="_on_play_button_pressed"]
 [connection signal="pressed" from="TitleScreen/Buttons/QuitButton" to="." method="_on_quit_button_pressed"]
-[connection signal="pressed" from="Levels/Grid/Nivel1" to="." method="_on_nivel_1_pressed"]
+[connection signal="pressed" from="Levels/Grid/Nivel1" to="." method="_on_nivel_pressed" binds= [1]]
+[connection signal="pressed" from="Levels/Grid/Nivel2" to="." method="_on_nivel_pressed" binds= [2]]
+[connection signal="pressed" from="Levels/Grid/Nivel3" to="." method="_on_nivel_pressed" binds= [3]]
+[connection signal="pressed" from="Levels/Grid/Nivel4" to="." method="_on_nivel_pressed" binds= [4]]
+[connection signal="pressed" from="Levels/Grid/Nivel5" to="." method="_on_nivel_pressed" binds= [5]]
+[connection signal="pressed" from="Levels/Grid/Nivel6" to="." method="_on_nivel_pressed" binds= [6]]
 [connection signal="pressed" from="Levels/VolverButton" to="." method="_on_volver_pressed"]
 [connection signal="pressed" from="VolumePanel/Volume/MuteButton" to="." method="_on_mute_button_pressed"]
 [connection signal="value_changed" from="VolumePanel/Volume/Slider" to="." method="_on_slider_value_changed"]
