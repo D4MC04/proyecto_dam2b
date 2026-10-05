@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://ccg68cm8fy7rs"]
+
+[ext_resource type="PackedScene" uid="uid://cbafsduds0rip" path="res://scenes/LevelUI.tscn" id="1_qbsmt"]
+[ext_resource type="PackedScene" uid="uid://cu4drihu4o72q" path="res://scenes/Level.tscn" id="2_cpr0p"]
+
+[node name="Game" type="Node" unique_id=1976153888]
+
+[node name="LevelUI" parent="." unique_id=245943380 instance=ExtResource("1_qbsmt")]
+
+[node name="Level" parent="." unique_id=1047382048 instance=ExtResource("2_cpr0p")]

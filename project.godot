@@ -18,7 +18,6 @@ config/icon="res://icon.svg"
 [autoload]
 
 MusicManager="*res://scripts/MusicManager.gd"
-GameState="*uid://6jojrgxamdct"
 
 [display]
 

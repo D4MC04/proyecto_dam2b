@@ -1,12 +1,24 @@
 [gd_scene format=3 uid="uid://bjlaw340mmmog"]
 
-[ext_resource type="Script" uid="uid://b6t1efckpeo3y" path="res://scripts/GameOver.gd" id="1_over"]
+[node name="GameOver" type="Control" unique_id=592437674]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="GameOver" type="CanvasLayer" unique_id=203846823]
-process_mode = 3
-script = ExtResource("1_over")
+[node name="Background" type="ColorRect" parent="." unique_id=1727126275]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5882353)
 
 [node name="Caja" type="VBoxContainer" parent="." unique_id=210458407]
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -18,7 +30,7 @@ alignment = 1
 layout_mode = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 8
-theme_override_font_sizes/font_size = 64
+theme_override_font_sizes/font_size = 58
 text = "GAME OVER"
 horizontal_alignment = 1
 
