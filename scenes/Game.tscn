@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://ccg68cm8fy7rs"]
 
-[ext_resource type="Script" uid="uid://darqftj5ceqj5" path="res://scripts/game.gd" id="1_cpr0p"]
+[ext_resource type="Script" uid="uid://darqftj5ceqj5" path="res://scripts/Game.gd" id="1_cpr0p"]
 [ext_resource type="PackedScene" uid="uid://cbafsduds0rip" path="res://scenes/LevelUI.tscn" id="1_qbsmt"]
-[ext_resource type="PackedScene" uid="uid://cu4drihu4o72q" path="res://scenes/Level.tscn" id="2_cpr0p"]
+[ext_resource type="PackedScene" uid="uid://0m1j6ysvbi12" path="res://scenes/Level.tscn" id="2_cpr0p"]
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/models/TowerData.gd" id="4_s0nni"]
 [ext_resource type="Resource" uid="uid://csjdl3uuc2nem" path="res://resources/tower_data/tower.tres" id="5_aug50"]
 

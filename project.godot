@@ -23,7 +23,6 @@ MusicManager="*res://scripts/MusicManager.gd"
 
 window/size/viewport_width=592
 window/size/viewport_height=272
-window/size/mode=0
 window/size/window_width_override=1184
 window/size/window_height_override=544
 window/stretch/mode="canvas_items"
@@ -46,6 +45,6 @@ ui_focus_prev={
 
 [rendering]
 
-environment/defaults/default_clear_color=Color(0.04, 0.06, 0.1, 1)
 textures/canvas_textures/default_texture_filter=0
 rendering_device/driver.windows="d3d12"
+environment/defaults/default_clear_color=Color(0.04, 0.06, 0.1, 1)
