@@ -1,6 +1,6 @@
-[gd_resource type="SpriteFrames" format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://cadpw4urhhur3"]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/towers/turret2/t2_cannon_sheet.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://cun7aitd45kac" path="res://assets/sprites/towers/turret2/t2_cannon_sheet.png" id="1"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0"]
 atlas = ExtResource("1")
@@ -32,7 +32,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_0")
 }],
-"loop": false,
+"loop": 0,
 "name": &"default",
 "speed": 5.0
 }, {
@@ -55,7 +55,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_0")
 }],
-"loop": false,
+"loop": 0,
 "name": &"fire_0",
 "speed": 12.0
 }]

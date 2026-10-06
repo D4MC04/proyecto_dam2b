@@ -3,8 +3,11 @@
 [ext_resource type="Script" uid="uid://dk5e48u7bp0gq" path="res://scripts/Level.gd" id="1_qifjx"]
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/models/TowerData.gd" id="2_m0xki"]
 [ext_resource type="PackedScene" uid="uid://5wuolkgdjupp" path="res://scenes/maps/Map.tscn" id="2_qifjx"]
+[ext_resource type="Resource" path="res://resources/tower_data/laser.tres" id="3_opqd1"]
 [ext_resource type="Script" uid="uid://bea7knwkgxudr" path="res://scripts/Grid.gd" id="3_sv41r"]
 [ext_resource type="Script" uid="uid://csf1nnwmpkyxg" path="res://scripts/Spawner.gd" id="4_m0xki"]
+[ext_resource type="Resource" path="res://resources/tower_data/turret2.tres" id="4_xyj84"]
+[ext_resource type="Resource" path="res://resources/tower_data/turret.tres" id="5_gips2"]
 [ext_resource type="Script" uid="uid://cwc32qenwkwf3" path="res://scripts/models/SpawnEntry.gd" id="5_m0xki"]
 [ext_resource type="PackedScene" uid="uid://ctmtdrb4lan53" path="res://scenes/Enemy.tscn" id="5_xe3hh"]
 [ext_resource type="PackedScene" uid="uid://b4qxa5dcr0sba" path="res://scenes/Tower.tscn" id="6_faw0r"]
@@ -51,7 +54,7 @@ metadata/_custom_type_script = "uid://bov3v8pbstdra"
 
 [node name="Level" type="Node2D" unique_id=1048914466]
 script = ExtResource("1_qifjx")
-towers = Array[ExtResource("2_m0xki")]([null])
+towers = Array[ExtResource("2_m0xki")]([ExtResource("3_opqd1"), ExtResource("4_xyj84"), ExtResource("5_gips2")])
 
 [node name="Map" parent="." unique_id=366159857 instance=ExtResource("2_qifjx")]
 
