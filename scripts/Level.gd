@@ -9,7 +9,7 @@ var towers: Array[TowerData]
 @onready var grid: Grid = $Grid
 @onready var spawner: Spawner = $Spawner
 @onready var build_manager: BuildManager = $BuildManager
-@onready var game_state: GameState = $GameState
+@onready var game_state: LevelState = $LevelState
 
 func _ready() -> void:
 	build_manager.state = game_state

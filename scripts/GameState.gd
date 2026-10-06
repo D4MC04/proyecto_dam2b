@@ -1,18 +1,9 @@
 extends Node
-class_name GameState
 
-signal money_changed(amount: int)
+var current_level: int = 0
 
-var money := 100
-var selected_tower: TowerData
+func is_unlocked(i: int) -> bool:
+	return i <= current_level
 
-func add_money(amount: int) -> void:
-	money += amount
-	money_changed.emit(money)
-
-func spend_money(amount: int) -> bool:
-	if money < amount:
-		return false
-	money -= amount
-	money_changed.emit(money)
-	return true
+func is_completed(i: int) -> bool:
+	return i < current_level

@@ -6,7 +6,7 @@ class_name BuildManager
 
 const RANGE_COLOR := Color(1, 1, 1, 0.15)
 
-var state: GameState
+var state: LevelState
 
 var _preview: Node2D
 var _range: Node2D

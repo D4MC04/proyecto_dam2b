@@ -1,7 +1,5 @@
 extends Control
 
-@export var levels: Array[LevelData]
-
 @onready var main_panel: VBoxContainer = $TitleScreen
 @onready var level_selection_panel: VBoxContainer = $LevelSelectionScreen
 @onready var level_buttons_container: GridContainer = %LevelButtonsContainer
@@ -16,11 +14,12 @@ func _ready():
 	_update_mute_button()
 
 func _build_level_buttons():
-	for i in levels.size():
+	for i in GameData.levels.size():
 		var button := LevelButton.new()
-		button.level = levels[i]
+		button.level = GameData.levels[i]
 		button.text = str(i + 1)
 		button.custom_minimum_size = Vector2(40, 40)
+		button.disabled = not GameState.is_unlocked(i)
 		button.level_selected.connect(_open_level)
 		level_buttons_container.add_child(button)
 
