@@ -1,15 +1,17 @@
 extends Node
 class_name Grid
 
-var logic: TileMapLayer
-var path_cells = {}
-var slot_cells = {}
-var towers = {}
+var logic_map: TileMapLayer
+var path_cells: Dictionary = {}
+var slot_cells: Dictionary = {}
+var towers: Dictionary = {}
 
-func _ready():
-	logic = get_node("../Map/LogicMap")
-	for c in logic.get_used_cells():
-		var data = logic.get_cell_tile_data(c)
+func setup(lm: TileMapLayer) -> void:
+	logic_map = lm
+	path_cells.clear()
+	slot_cells.clear()
+	for c in logic_map.get_used_cells():
+		var data = logic_map.get_cell_tile_data(c)
 		match data.get_custom_data("kind"):
 			"path":
 				path_cells[c] = true
@@ -31,7 +33,7 @@ func register_tower(c: Vector2i, t: Node) -> void:
 	t.tree_exiting.connect(func(): towers.erase(c))
 
 func cell(p: Vector2) -> Vector2i:
-	return logic.local_to_map(logic.to_local(p))
+	return logic_map.local_to_map(logic_map.to_local(p))
 
 func center(c: Vector2i) -> Vector2:
-	return logic.to_global(logic.map_to_local(c))
+	return logic_map.to_global(logic_map.map_to_local(c))
