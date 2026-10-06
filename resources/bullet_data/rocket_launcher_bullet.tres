@@ -2,8 +2,8 @@
 
 [ext_resource type="Shape2D" uid="uid://bgj2ljgku54hx" path="res://resources/collision_shapes/red_bullet.tres" id="1"]
 [ext_resource type="Script" uid="uid://dufu06mgtfw20" path="res://scripts/models/BulletData.gd" id="2"]
-[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/turret2_bullet.tres" id="3"]
-[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/turret2_impact.tres" id="4"]
+[ext_resource type="SpriteFrames" uid="uid://bb5b8lioud2ua" path="res://resources/sprite_frames/rocket_launcher_bullet.tres" id="3"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/rocket_launcher_impact.tres" id="4"]
 
 [resource]
 script = ExtResource("2")

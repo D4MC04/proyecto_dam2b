@@ -1,60 +1,17 @@
 [gd_resource type="Resource" script_class="LevelData" format=3 uid="uid://dm8v13vfersya"]
 
-[ext_resource type="PackedScene" uid="uid://cmokyxicevl04" path="res://scenes/maps/Map1.tscn" id="1_1bffj"]
+[ext_resource type="PackedScene" uid="uid://cmokyxicevl04" path="res://scenes/maps/Level1.tscn" id="1_jcob0"]
 [ext_resource type="Script" uid="uid://du40p5btlpgd0" path="res://scripts/models/LevelData.gd" id="1_obkt0"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/models/WaveData.gd" id="2_ujpww"]
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/models/TowerData.gd" id="3_ismlj"]
-[ext_resource type="Resource" path="res://resources/tower_data/laser.tres" id="4_i2xk7"]
-[ext_resource type="Script" uid="uid://cwc32qenwkwf3" path="res://scripts/models/SpawnEntry.gd" id="4_lv7xm"]
-[ext_resource type="Resource" path="res://resources/enemy_data/ariete.tres" id="5_k6cse"]
-[ext_resource type="Resource" path="res://resources/tower_data/turret2.tres" id="5_rhpp2"]
+[ext_resource type="Resource" uid="uid://bi8dmx532elhj" path="res://resources/tower_data/laser.tres" id="4_i2xk7"]
+[ext_resource type="Resource" uid="uid://bh8qdvmr3kaj" path="res://resources/tower_data/rocket_launcher.tres" id="5_0wb63"]
 [ext_resource type="Resource" path="res://resources/tower_data/turret.tres" id="6_itr4j"]
-[ext_resource type="Resource" path="res://resources/enemy_data/acorazado.tres" id="6_lv7xm"]
-
-[sub_resource type="Resource" id="Resource_k6cse"]
-script = ExtResource("4_lv7xm")
-enemy_data = ExtResource("5_k6cse")
-time = 1.0
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_jcob0"]
-script = ExtResource("4_lv7xm")
-enemy_data = ExtResource("5_k6cse")
-time = 2.0
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_0wb63"]
-script = ExtResource("4_lv7xm")
-enemy_data = ExtResource("5_k6cse")
-time = 3.0
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_ismlj"]
-script = ExtResource("4_lv7xm")
-enemy_data = ExtResource("6_lv7xm")
-time = 6.0
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_i2xk7"]
-script = ExtResource("4_lv7xm")
-enemy_data = ExtResource("6_lv7xm")
-time = 7.0
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_rhpp2"]
-script = ExtResource("4_lv7xm")
-enemy_data = ExtResource("6_lv7xm")
-time = 8.0
-metadata/_custom_type_script = "uid://cwc32qenwkwf3"
-
-[sub_resource type="Resource" id="Resource_5faoh"]
-script = ExtResource("2_ujpww")
-entries = Array[ExtResource("4_lv7xm")]([SubResource("Resource_k6cse"), SubResource("Resource_jcob0"), SubResource("Resource_0wb63"), SubResource("Resource_ismlj"), SubResource("Resource_i2xk7"), SubResource("Resource_rhpp2")])
-metadata/_custom_type_script = "uid://bov3v8pbstdra"
+[ext_resource type="Resource" uid="uid://5hge2mvmeyue" path="res://resources/wave_data/level_1.tres" id="8_ismlj"]
 
 [resource]
 script = ExtResource("1_obkt0")
-map = ExtResource("1_1bffj")
-towers = Array[ExtResource("3_ismlj")]([ExtResource("4_i2xk7"), ExtResource("5_rhpp2"), ExtResource("6_itr4j")])
-waves = Array[ExtResource("2_ujpww")]([SubResource("Resource_5faoh")])
+map = ExtResource("1_jcob0")
+towers = Array[ExtResource("3_ismlj")]([ExtResource("4_i2xk7"), ExtResource("5_0wb63"), ExtResource("6_itr4j")])
+waves = Array[ExtResource("2_ujpww")]([ExtResource("8_ismlj")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"

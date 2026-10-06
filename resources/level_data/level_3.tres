@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="LevelData" format=3 uid="uid://cdvockyn4xmod"]
+
+[ext_resource type="PackedScene" uid="uid://clyg3dytskffe" path="res://scenes/maps/Level3.tscn" id="1_o5mxm"]
+[ext_resource type="Script" uid="uid://du40p5btlpgd0" path="res://scripts/models/LevelData.gd" id="2_tsf7d"]
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/models/TowerData.gd" id="3_kbbha"]
+[ext_resource type="Resource" uid="uid://bi8dmx532elhj" path="res://resources/tower_data/laser.tres" id="4_qbfna"]
+[ext_resource type="Resource" uid="uid://bh8qdvmr3kaj" path="res://resources/tower_data/rocket_launcher.tres" id="5_n2anr"]
+[ext_resource type="Resource" path="res://resources/tower_data/turret.tres" id="6_qjhmt"]
+[ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/models/WaveData.gd" id="7_qiau8"]
+[ext_resource type="Resource" uid="uid://cs06lspqp8epi" path="res://resources/wave_data/level_3.tres" id="8_o5mxm"]
+
+[resource]
+script = ExtResource("2_tsf7d")
+map = ExtResource("1_o5mxm")
+towers = Array[ExtResource("3_kbbha")]([ExtResource("4_qbfna"), ExtResource("5_n2anr"), ExtResource("6_qjhmt")])
+waves = Array[ExtResource("7_qiau8")]([ExtResource("8_o5mxm")])
+metadata/_custom_type_script = "uid://du40p5btlpgd0"

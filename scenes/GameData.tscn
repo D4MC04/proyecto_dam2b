@@ -3,7 +3,12 @@
 [ext_resource type="Script" uid="uid://daiodxwxy5djd" path="res://scripts/GameData.gd" id="1_fa5ai"]
 [ext_resource type="Script" uid="uid://du40p5btlpgd0" path="res://scripts/models/LevelData.gd" id="2_5qiqv"]
 [ext_resource type="Resource" uid="uid://dm8v13vfersya" path="res://resources/level_data/level_1.tres" id="3_8md65"]
+[ext_resource type="Resource" uid="uid://bqvh377bcwk4w" path="res://resources/level_data/level_2.tres" id="4_d0bd5"]
+[ext_resource type="Resource" uid="uid://cdvockyn4xmod" path="res://resources/level_data/level_3.tres" id="5_fvrfv"]
+[ext_resource type="Resource" uid="uid://snokbicbogox" path="res://resources/level_data/level_4.tres" id="6_24vlh"]
+[ext_resource type="Resource" uid="uid://bxp3wwvasbihq" path="res://resources/level_data/level_5.tres" id="7_hvbbc"]
+[ext_resource type="Resource" uid="uid://cqd4c6x6gpivw" path="res://resources/level_data/level_6.tres" id="8_huf1t"]
 
 [node name="GameData" type="Node" unique_id=1456673338]
 script = ExtResource("1_fa5ai")
-levels = Array[ExtResource("2_5qiqv")]([ExtResource("3_8md65"), ExtResource("3_8md65"), ExtResource("3_8md65"), ExtResource("3_8md65"), ExtResource("3_8md65"), ExtResource("3_8md65"), ExtResource("3_8md65"), ExtResource("3_8md65"), ExtResource("3_8md65"), ExtResource("3_8md65")])
+levels = Array[ExtResource("2_5qiqv")]([ExtResource("3_8md65"), ExtResource("4_d0bd5"), ExtResource("5_fvrfv"), ExtResource("6_24vlh"), ExtResource("7_hvbbc"), ExtResource("8_huf1t")])

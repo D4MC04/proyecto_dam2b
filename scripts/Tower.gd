@@ -15,6 +15,7 @@ const AIM_TOLERANCE := deg_to_rad(12.0)
 
 var enemies_in_range: Array[Enemy] = []
 var _shots := 0
+var _target: Enemy = null
 # Cooldown cumplido, a la espera de que el cañón termine de girar hacia el enemigo.
 var _pending_shot := false
 
@@ -30,7 +31,7 @@ func _ready() -> void:
 	attack_timer.start()
 
 func _process(delta: float) -> void:
-	var target := _nearest_enemy()
+	var target := _get_target()
 	if target == null:
 		return
 	# Gira poco a poco por el camino más corto; sin enemigo se queda donde está.
@@ -61,7 +62,7 @@ func _on_area_exited(area: Area2D) -> void:
 		enemies_in_range.erase(enemy)
 
 func _on_attack_timeout() -> void:
-	var target := _nearest_enemy()
+	var target := _get_target()
 	if target == null:
 		return
 	if _is_aimed(target):
@@ -86,16 +87,21 @@ func _shoot(target: Enemy) -> void:
 		cannon.play("fire_%d" % (_shots % fire_anims))
 	_shots += 1
 
-func _nearest_enemy() -> Enemy:
+# Mantiene el objetivo mientras siga vivo y dentro del rango.
+func _get_target() -> Enemy:
+	if not is_instance_valid(_target) or not enemies_in_range.has(_target):
+		_target = _best_enemy()
+	return _target
+
+func _best_enemy() -> Enemy:
 	enemies_in_range = enemies_in_range.filter(func(e): return is_instance_valid(e))
-	var nearest: Enemy = null
-	var best_dist: float = INF
+	var best: Enemy = null
+	var best_progress: float = -INF
 	for enemy in enemies_in_range:
-		var d := global_position.distance_to(enemy.global_position)
-		if d < best_dist:
-			best_dist = d
-			nearest = enemy
-	return nearest
+		if enemy.progress > best_progress:
+			best_progress = enemy.progress
+			best = enemy
+	return best
 
 func fit_to_tile(tile_size: Vector2) -> void:
 	var frame_size: Vector2 = sprite.sprite_frames.get_frame_texture(sprite.animation, 0).get_size()
