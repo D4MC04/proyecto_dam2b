@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://cm121ykhp0hl0" path="res://scripts/Map.gd" id="1_0jhp6"]
 [ext_resource type="TileSet" uid="uid://du11y2104lqxj" path="res://resources/tile_sets/tileset.tres" id="2_mmi5e"]
 [ext_resource type="TileSet" uid="uid://bxqhxqo4qdtij" path="res://assets/tile_sets/logic_tileset.tres" id="3_7msvs"]
-[ext_resource type="Texture2D" uid="uid://cj51ia6vifxbt" path="res://assets/sprites/base/space_station.png" id="4_mmi5e"]
+[ext_resource type="PackedScene" path="res://scenes/SpaceStation.tscn" id="4_mmi5e"]
 
 [sub_resource type="Curve2D" id="Curve2D_o7r77"]
 _data = {
@@ -28,6 +28,5 @@ tile_set = ExtResource("3_7msvs")
 [node name="Path2D" type="Path2D" parent="Paths" unique_id=1996186307]
 curve = SubResource("Curve2D_o7r77")
 
-[node name="SpaceStation" type="Sprite2D" parent="." unique_id=677178950]
-position = Vector2(456, 19)
-texture = ExtResource("4_mmi5e")
+[node name="SpaceStation" parent="." unique_id=677178950 instance=ExtResource("4_mmi5e")]
+position = Vector2(448, 32)

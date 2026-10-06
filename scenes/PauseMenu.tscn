@@ -1,22 +1,26 @@
 [gd_scene format=3 uid="uid://b6hyuslcy228o"]
 
-[ext_resource type="Script" uid="uid://ciic5eb3our4x" path="res://scripts/PauseMenu.gd" id="1_pause"]
 [ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="2_theme"]
 
-[node name="PauseMenu" type="CanvasLayer" unique_id=1125883917]
-process_mode = 3
-layer = 2
-script = ExtResource("1_pause")
-
-[node name="Background" type="ColorRect" parent="." unique_id=203747810]
+[node name="Control" type="Control" unique_id=102313545]
+layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.6)
+
+[node name="Background" type="ColorRect" parent="." unique_id=203747810]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.5882353)
 
 [node name="Box" type="VBoxContainer" parent="." unique_id=30459475]
+layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -52,7 +56,3 @@ custom_minimum_size = Vector2(100, 24)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Salir"
-
-[connection signal="pressed" from="Box/Continuar" to="." method="_on_continuar_pressed"]
-[connection signal="pressed" from="Box/Reiniciar" to="." method="_on_reiniciar_pressed"]
-[connection signal="pressed" from="Box/Salir" to="." method="_on_salir_pressed"]

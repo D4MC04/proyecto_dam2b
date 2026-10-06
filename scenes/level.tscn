@@ -1,18 +1,21 @@
-[gd_scene format=3 uid="uid://i4sayli8d78g"]
+[gd_scene format=3 uid="uid://0m1j6ysvbi12"]
 
-[ext_resource type="Script" uid="uid://bcd8iyt31t735" path="res://scripts/Level.gd" id="1_qifjx"]
+[ext_resource type="Script" uid="uid://dk5e48u7bp0gq" path="res://scripts/Level.gd" id="1_qifjx"]
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/models/TowerData.gd" id="2_m0xki"]
 [ext_resource type="PackedScene" uid="uid://5wuolkgdjupp" path="res://scenes/maps/Map.tscn" id="2_qifjx"]
-[ext_resource type="PackedScene" uid="uid://wqh1fjkx1u7n" path="res://scenes/Spawner.tscn" id="3_4qegb"]
-[ext_resource type="PackedScene" uid="uid://c12iqlhvpv5ju" path="res://scenes/Grid.tscn" id="3_dke22"]
-[ext_resource type="PackedScene" uid="uid://bjlaw340mmmog" path="res://scenes/GameOver.tscn" id="5_2eouu"]
-[ext_resource type="PackedScene" uid="uid://b3m7pfeti522b" path="res://scenes/BuildManager.tscn" id="5_dke22"]
+[ext_resource type="Resource" path="res://resources/tower_data/laser.tres" id="3_opqd1"]
+[ext_resource type="Script" uid="uid://bea7knwkgxudr" path="res://scripts/Grid.gd" id="3_sv41r"]
+[ext_resource type="Script" uid="uid://csf1nnwmpkyxg" path="res://scripts/Spawner.gd" id="4_m0xki"]
+[ext_resource type="Resource" path="res://resources/tower_data/turret2.tres" id="4_xyj84"]
+[ext_resource type="Resource" path="res://resources/tower_data/turret.tres" id="5_gips2"]
 [ext_resource type="Script" uid="uid://cwc32qenwkwf3" path="res://scripts/models/SpawnEntry.gd" id="5_m0xki"]
+[ext_resource type="PackedScene" uid="uid://ctmtdrb4lan53" path="res://scenes/Enemy.tscn" id="5_xe3hh"]
 [ext_resource type="PackedScene" uid="uid://b4qxa5dcr0sba" path="res://scenes/Tower.tscn" id="6_faw0r"]
 [ext_resource type="Resource" uid="uid://ct17eiklf1sb7" path="res://resources/enemy_data/ufo.tres" id="6_xe3hh"]
 [ext_resource type="Resource" uid="uid://c4ef5gd8nr04u" path="res://resources/enemy_data/spiked_ship.tres" id="7_p6oy6"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/models/WaveData.gd" id="8_opqd1"]
-[ext_resource type="PackedScene" uid="uid://b6hyuslcy228o" path="res://scenes/PauseMenu.tscn" id="10_pause"]
-[ext_resource type="PackedScene" uid="uid://dgetllrlfjnrc" path="res://scenes/Sidebar.tscn" id="12_xe3hh"]
+[ext_resource type="Script" uid="uid://dc50n7b1msh6v" path="res://scripts/BuildManager.gd" id="10_p6oy6"]
+[ext_resource type="Script" uid="uid://6uasy1h7h8ho" path="res://scripts/GameState.gd" id="11_ax7ne"]
 
 [sub_resource type="Resource" id="Resource_xyj84"]
 script = ExtResource("5_m0xki")
@@ -49,27 +52,25 @@ script = ExtResource("8_opqd1")
 entries = Array[ExtResource("5_m0xki")]([SubResource("Resource_xyj84"), SubResource("Resource_gips2"), SubResource("Resource_wsd7d"), SubResource("Resource_iw3v5"), SubResource("Resource_40jy2")])
 metadata/_custom_type_script = "uid://bov3v8pbstdra"
 
-[node name="Level" type="Node2D" unique_id=275645220]
+[node name="Level" type="Node2D" unique_id=1048914466]
 script = ExtResource("1_qifjx")
+towers = Array[ExtResource("2_m0xki")]([ExtResource("3_opqd1"), ExtResource("4_xyj84"), ExtResource("5_gips2")])
 
 [node name="Map" parent="." unique_id=366159857 instance=ExtResource("2_qifjx")]
 
-[node name="Grid" parent="." unique_id=2089228780 instance=ExtResource("3_dke22")]
+[node name="Grid" type="Node" parent="." unique_id=2089228780]
+script = ExtResource("3_sv41r")
 
-[node name="Spawner" parent="." unique_id=132358068 node_paths=PackedStringArray("map") instance=ExtResource("3_4qegb")]
+[node name="Spawner" type="Node" parent="." unique_id=132358068 node_paths=PackedStringArray("map")]
+script = ExtResource("4_m0xki")
 map = NodePath("../Map")
+enemy_scene = ExtResource("5_xe3hh")
 wave = SubResource("Resource_0akr6")
 
-[node name="BuildManager" parent="." unique_id=1876976917 node_paths=PackedStringArray("grid") instance=ExtResource("5_dke22")]
+[node name="BuildManager" type="Node" parent="." unique_id=1876976917 node_paths=PackedStringArray("grid")]
+script = ExtResource("10_p6oy6")
 grid = NodePath("../Grid")
 tower_scene = ExtResource("6_faw0r")
 
-[node name="UI" type="CanvasLayer" parent="." unique_id=968077992]
-
-[node name="GameOverScreen" parent="UI" unique_id=1485855328 instance=ExtResource("5_2eouu")]
-visible = false
-
-[node name="PauseMenu" parent="UI" unique_id=221010619 instance=ExtResource("10_pause")]
-visible = false
-
-[node name="Sidebar" parent="UI" unique_id=1395524302 instance=ExtResource("12_xe3hh")]
+[node name="GameState" type="Node" parent="." unique_id=33024129]
+script = ExtResource("11_ax7ne")

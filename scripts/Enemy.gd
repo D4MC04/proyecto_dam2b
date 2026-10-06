@@ -1,6 +1,8 @@
 extends PathFollow2D
 class_name Enemy
 
+signal died(reward: int)
+
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var collision_shape: CollisionShape2D = $Area2D/CollisionShape2D
 
@@ -36,6 +38,9 @@ func _update_animation():
 		sprite.play("right" if direction.x > 0 else "left")
 	else:
 		sprite.play("down" if direction.y > 0 else "up")
+	if data.rotate_sprite:
+		# El sprite base mira hacia arriba; se gira en pasos de 90°.
+		sprite.rotation = snappedf(direction.angle() + PI / 2, PI / 2) + deg_to_rad(data.rotation_offset)
 
 func take_damage(amount: float):
 	hp -= amount
@@ -43,5 +48,5 @@ func take_damage(amount: float):
 		die()
 
 func die():
-	GameState.money += data.reward
+	died.emit(data.reward)
 	queue_free()

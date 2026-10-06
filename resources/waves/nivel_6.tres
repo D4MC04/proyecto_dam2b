@@ -1,0 +1,470 @@
+[gd_resource type="Resource" script_class="WaveData" format=3]
+
+[ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/models/WaveData.gd" id="wave"]
+[ext_resource type="Script" uid="uid://cwc32qenwkwf3" path="res://scripts/models/SpawnEntry.gd" id="entry"]
+[ext_resource type="Resource" path="res://resources/enemy_data/dart_rojo.tres" id="dart_rojo"]
+[ext_resource type="Resource" path="res://resources/enemy_data/dart_verde.tres" id="dart_verde"]
+[ext_resource type="Resource" path="res://resources/enemy_data/dart_hielo.tres" id="dart_hielo"]
+[ext_resource type="Resource" path="res://resources/enemy_data/dart_morado.tres" id="dart_morado"]
+[ext_resource type="Resource" path="res://resources/enemy_data/wasp.tres" id="wasp"]
+[ext_resource type="Resource" path="res://resources/enemy_data/nave_normal.tres" id="nave_normal"]
+[ext_resource type="Resource" path="res://resources/enemy_data/ufo.tres" id="ufo"]
+[ext_resource type="Resource" path="res://resources/enemy_data/nave_agresiva.tres" id="nave_agresiva"]
+[ext_resource type="Resource" path="res://resources/enemy_data/spiked_ship.tres" id="spiked_ship"]
+[ext_resource type="Resource" path="res://resources/enemy_data/ariete.tres" id="ariete"]
+[ext_resource type="Resource" path="res://resources/enemy_data/acorazado.tres" id="acorazado"]
+[ext_resource type="Resource" path="res://resources/enemy_data/nodriza.tres" id="nodriza"]
+
+[sub_resource type="Resource" id="e0"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_rojo")
+time = 3.0
+path_index = 0
+
+[sub_resource type="Resource" id="e1"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_morado")
+time = 8.5
+path_index = 0
+
+[sub_resource type="Resource" id="e2"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_morado")
+time = 13.98
+path_index = 0
+
+[sub_resource type="Resource" id="e3"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_hielo")
+time = 19.44
+path_index = 0
+
+[sub_resource type="Resource" id="e4"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_morado")
+time = 24.88
+path_index = 0
+
+[sub_resource type="Resource" id="e5"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_rojo")
+time = 30.3
+path_index = 0
+
+[sub_resource type="Resource" id="e6"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_hielo")
+time = 35.7
+path_index = 0
+
+[sub_resource type="Resource" id="e7"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_verde")
+time = 41.07
+path_index = 0
+
+[sub_resource type="Resource" id="e8"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_morado")
+time = 46.43
+path_index = 0
+
+[sub_resource type="Resource" id="e9"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_hielo")
+time = 51.77
+path_index = 0
+
+[sub_resource type="Resource" id="e10"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_verde")
+time = 57.09
+path_index = 0
+
+[sub_resource type="Resource" id="e11"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_verde")
+time = 62.39
+path_index = 0
+
+[sub_resource type="Resource" id="e12"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_morado")
+time = 67.66
+path_index = 0
+
+[sub_resource type="Resource" id="e13"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_rojo")
+time = 72.92
+path_index = 0
+
+[sub_resource type="Resource" id="e14"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_rojo")
+time = 78.16
+path_index = 0
+
+[sub_resource type="Resource" id="e15"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_verde")
+time = 83.37
+path_index = 0
+
+[sub_resource type="Resource" id="e16"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_hielo")
+time = 84.17
+path_index = 0
+
+[sub_resource type="Resource" id="e17"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_morado")
+time = 89.37
+path_index = 0
+
+[sub_resource type="Resource" id="e18"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_rojo")
+time = 90.17
+path_index = 0
+
+[sub_resource type="Resource" id="e19"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_verde")
+time = 95.32
+path_index = 0
+
+[sub_resource type="Resource" id="e20"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_hielo")
+time = 96.12
+path_index = 0
+
+[sub_resource type="Resource" id="e21"]
+script = ExtResource("entry")
+enemy_data = ExtResource("wasp")
+time = 101.24
+path_index = 0
+
+[sub_resource type="Resource" id="e22"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_verde")
+time = 102.04
+path_index = 0
+
+[sub_resource type="Resource" id="e23"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_rojo")
+time = 107.11
+path_index = 0
+
+[sub_resource type="Resource" id="e24"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_verde")
+time = 107.91
+path_index = 0
+
+[sub_resource type="Resource" id="e25"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_rojo")
+time = 112.95
+path_index = 0
+
+[sub_resource type="Resource" id="e26"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_morado")
+time = 113.75
+path_index = 0
+
+[sub_resource type="Resource" id="e27"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_verde")
+time = 118.74
+path_index = 0
+
+[sub_resource type="Resource" id="e28"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_hielo")
+time = 119.54
+path_index = 0
+
+[sub_resource type="Resource" id="e29"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_morado")
+time = 124.49
+path_index = 0
+
+[sub_resource type="Resource" id="e30"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_hielo")
+time = 125.29
+path_index = 0
+
+[sub_resource type="Resource" id="e31"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_rojo")
+time = 130.2
+path_index = 0
+
+[sub_resource type="Resource" id="e32"]
+script = ExtResource("entry")
+enemy_data = ExtResource("dart_hielo")
+time = 131.0
+path_index = 0
+
+[sub_resource type="Resource" id="e33"]
+script = ExtResource("entry")
+enemy_data = ExtResource("wasp")
+time = 131.8
+path_index = 0
+
+[sub_resource type="Resource" id="e34"]
+script = ExtResource("entry")
+enemy_data = ExtResource("nave_normal")
+time = 136.68
+path_index = 0
+
+[sub_resource type="Resource" id="e35"]
+script = ExtResource("entry")
+enemy_data = ExtResource("wasp")
+time = 137.48
+path_index = 0
+
+[sub_resource type="Resource" id="e36"]
+script = ExtResource("entry")
+enemy_data = ExtResource("ufo")
+time = 138.28
+path_index = 0
+
+[sub_resource type="Resource" id="e37"]
+script = ExtResource("entry")
+enemy_data = ExtResource("ufo")
+time = 143.09
+path_index = 1
+
+[sub_resource type="Resource" id="e38"]
+script = ExtResource("entry")
+enemy_data = ExtResource("ufo")
+time = 143.89
+path_index = 1
+
+[sub_resource type="Resource" id="e39"]
+script = ExtResource("entry")
+enemy_data = ExtResource("nave_normal")
+time = 144.69
+path_index = 1
+
+[sub_resource type="Resource" id="e40"]
+script = ExtResource("entry")
+enemy_data = ExtResource("nave_agresiva")
+time = 149.44
+path_index = 0
+
+[sub_resource type="Resource" id="e41"]
+script = ExtResource("entry")
+enemy_data = ExtResource("wasp")
+time = 150.24
+path_index = 0
+
+[sub_resource type="Resource" id="e42"]
+script = ExtResource("entry")
+enemy_data = ExtResource("nave_agresiva")
+time = 151.04
+path_index = 0
+
+[sub_resource type="Resource" id="e43"]
+script = ExtResource("entry")
+enemy_data = ExtResource("nave_normal")
+time = 155.73
+path_index = 1
+
+[sub_resource type="Resource" id="e44"]
+script = ExtResource("entry")
+enemy_data = ExtResource("wasp")
+time = 156.53
+path_index = 1
+
+[sub_resource type="Resource" id="e45"]
+script = ExtResource("entry")
+enemy_data = ExtResource("ufo")
+time = 157.33
+path_index = 1
+
+[sub_resource type="Resource" id="e46"]
+script = ExtResource("entry")
+enemy_data = ExtResource("wasp")
+time = 161.95
+path_index = 0
+
+[sub_resource type="Resource" id="e47"]
+script = ExtResource("entry")
+enemy_data = ExtResource("wasp")
+time = 162.75
+path_index = 0
+
+[sub_resource type="Resource" id="e48"]
+script = ExtResource("entry")
+enemy_data = ExtResource("wasp")
+time = 163.55
+path_index = 0
+
+[sub_resource type="Resource" id="e49"]
+script = ExtResource("entry")
+enemy_data = ExtResource("nave_agresiva")
+time = 164.35
+path_index = 0
+
+[sub_resource type="Resource" id="e50"]
+script = ExtResource("entry")
+enemy_data = ExtResource("nave_normal")
+time = 168.92
+path_index = 1
+
+[sub_resource type="Resource" id="e51"]
+script = ExtResource("entry")
+enemy_data = ExtResource("ufo")
+time = 169.72
+path_index = 1
+
+[sub_resource type="Resource" id="e52"]
+script = ExtResource("entry")
+enemy_data = ExtResource("nave_normal")
+time = 170.52
+path_index = 1
+
+[sub_resource type="Resource" id="e53"]
+script = ExtResource("entry")
+enemy_data = ExtResource("nave_normal")
+time = 171.32
+path_index = 1
+
+[sub_resource type="Resource" id="e54"]
+script = ExtResource("entry")
+enemy_data = ExtResource("wasp")
+time = 175.81
+path_index = 2
+
+[sub_resource type="Resource" id="e55"]
+script = ExtResource("entry")
+enemy_data = ExtResource("wasp")
+time = 176.61
+path_index = 2
+
+[sub_resource type="Resource" id="e56"]
+script = ExtResource("entry")
+enemy_data = ExtResource("wasp")
+time = 177.41
+path_index = 2
+
+[sub_resource type="Resource" id="e57"]
+script = ExtResource("entry")
+enemy_data = ExtResource("wasp")
+time = 178.21
+path_index = 2
+
+[sub_resource type="Resource" id="e58"]
+script = ExtResource("entry")
+enemy_data = ExtResource("ufo")
+time = 182.61
+path_index = 1
+
+[sub_resource type="Resource" id="e59"]
+script = ExtResource("entry")
+enemy_data = ExtResource("wasp")
+time = 183.41
+path_index = 1
+
+[sub_resource type="Resource" id="e60"]
+script = ExtResource("entry")
+enemy_data = ExtResource("nave_normal")
+time = 184.21
+path_index = 1
+
+[sub_resource type="Resource" id="e61"]
+script = ExtResource("entry")
+enemy_data = ExtResource("spiked_ship")
+time = 185.01
+path_index = 1
+
+[sub_resource type="Resource" id="e62"]
+script = ExtResource("entry")
+enemy_data = ExtResource("nave_agresiva")
+time = 189.34
+path_index = 2
+
+[sub_resource type="Resource" id="e63"]
+script = ExtResource("entry")
+enemy_data = ExtResource("ariete")
+time = 190.14
+path_index = 0
+
+[sub_resource type="Resource" id="e64"]
+script = ExtResource("entry")
+enemy_data = ExtResource("nave_agresiva")
+time = 190.94
+path_index = 2
+
+[sub_resource type="Resource" id="e65"]
+script = ExtResource("entry")
+enemy_data = ExtResource("nave_agresiva")
+time = 191.74
+path_index = 2
+
+[sub_resource type="Resource" id="e66"]
+script = ExtResource("entry")
+enemy_data = ExtResource("ariete")
+time = 192.54
+path_index = 0
+
+[sub_resource type="Resource" id="e67"]
+script = ExtResource("entry")
+enemy_data = ExtResource("spiked_ship")
+time = 196.78
+path_index = 3
+
+[sub_resource type="Resource" id="e68"]
+script = ExtResource("entry")
+enemy_data = ExtResource("ariete")
+time = 197.58
+path_index = 1
+
+[sub_resource type="Resource" id="e69"]
+script = ExtResource("entry")
+enemy_data = ExtResource("ariete")
+time = 198.38
+path_index = 1
+
+[sub_resource type="Resource" id="e70"]
+script = ExtResource("entry")
+enemy_data = ExtResource("acorazado")
+time = 199.18
+path_index = 1
+
+[sub_resource type="Resource" id="e71"]
+script = ExtResource("entry")
+enemy_data = ExtResource("spiked_ship")
+time = 199.98
+path_index = 3
+
+[sub_resource type="Resource" id="e72"]
+script = ExtResource("entry")
+enemy_data = ExtResource("acorazado")
+time = 204.12
+path_index = 0
+
+[sub_resource type="Resource" id="e73"]
+script = ExtResource("entry")
+enemy_data = ExtResource("acorazado")
+time = 204.92
+path_index = 0
+
+[sub_resource type="Resource" id="e74"]
+script = ExtResource("entry")
+enemy_data = ExtResource("nodriza")
+time = 210.96
+path_index = 0
+
+[resource]
+script = ExtResource("wave")
+entries = Array[ExtResource("entry")]([SubResource("e0"), SubResource("e1"), SubResource("e2"), SubResource("e3"), SubResource("e4"), SubResource("e5"), SubResource("e6"), SubResource("e7"), SubResource("e8"), SubResource("e9"), SubResource("e10"), SubResource("e11"), SubResource("e12"), SubResource("e13"), SubResource("e14"), SubResource("e15"), SubResource("e16"), SubResource("e17"), SubResource("e18"), SubResource("e19"), SubResource("e20"), SubResource("e21"), SubResource("e22"), SubResource("e23"), SubResource("e24"), SubResource("e25"), SubResource("e26"), SubResource("e27"), SubResource("e28"), SubResource("e29"), SubResource("e30"), SubResource("e31"), SubResource("e32"), SubResource("e33"), SubResource("e34"), SubResource("e35"), SubResource("e36"), SubResource("e37"), SubResource("e38"), SubResource("e39"), SubResource("e40"), SubResource("e41"), SubResource("e42"), SubResource("e43"), SubResource("e44"), SubResource("e45"), SubResource("e46"), SubResource("e47"), SubResource("e48"), SubResource("e49"), SubResource("e50"), SubResource("e51"), SubResource("e52"), SubResource("e53"), SubResource("e54"), SubResource("e55"), SubResource("e56"), SubResource("e57"), SubResource("e58"), SubResource("e59"), SubResource("e60"), SubResource("e61"), SubResource("e62"), SubResource("e63"), SubResource("e64"), SubResource("e65"), SubResource("e66"), SubResource("e67"), SubResource("e68"), SubResource("e69"), SubResource("e70"), SubResource("e71"), SubResource("e72"), SubResource("e73"), SubResource("e74")])
