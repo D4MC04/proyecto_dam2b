@@ -23,8 +23,8 @@ MusicManager="*res://scripts/MusicManager.gd"
 
 window/size/viewport_width=592
 window/size/viewport_height=272
-window/size/window_width_override=1184
-window/size/window_height_override=544
+window/size/window_width_override=1776
+window/size/window_height_override=816
 window/stretch/mode="canvas_items"
 window/stretch/aspect="keep_width"
 
