@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://hut21l7kytl6" path="res://scripts/MainMenu.gd" id="1_menu"]
 [ext_resource type="Script" uid="uid://bnok54y84qsmr" path="res://scripts/Starfield.gd" id="2_stars"]
+[ext_resource type="Script" uid="uid://du40p5btlpgd0" path="res://scripts/models/LevelData.gd" id="3_hubol"]
+[ext_resource type="Resource" uid="uid://dm8v13vfersya" path="res://resources/level_data/level_1.tres" id="4_8vx4p"]
 [ext_resource type="Texture2D" uid="uid://c5u3a6vnf6m0d" path="res://assets/sprites/planets/luna.png" id="7_1ajci"]
 [ext_resource type="Texture2D" uid="uid://bs0dfebgax8p0" path="res://assets/sprites/planets/planetagaseoso2.png" id="9_1ajci"]
 [ext_resource type="PackedScene" uid="uid://ds51ueya6tle1" path="res://scenes/SpaceBody.tscn" id="9_body"]
@@ -25,6 +27,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("13_theme")
 script = ExtResource("1_menu")
+levels = Array[ExtResource("3_hubol")]([ExtResource("4_8vx4p"), ExtResource("4_8vx4p"), ExtResource("4_8vx4p"), ExtResource("4_8vx4p"), ExtResource("4_8vx4p"), ExtResource("4_8vx4p"), ExtResource("4_8vx4p"), ExtResource("4_8vx4p")])
 
 [node name="Background" type="ColorRect" parent="." unique_id=742900571]
 layout_mode = 1
@@ -53,7 +56,7 @@ script = ExtResource("18_satellites")
 position = Vector2(477.10352, 242.0957)
 rotation = 0.2268928
 scale = Vector2(1.8779294, 1.598086)
-frame_progress = 0.7680561
+frame_progress = 0.6239309
 speed_scale = 0.5
 sheet = ExtResource("10_planeta1")
 fps = 3.0
@@ -62,7 +65,7 @@ fps = 3.0
 position = Vector2(411.52454, 38.20743)
 rotation = 0.46251225
 scale = Vector2(0.47721493, 0.46993628)
-frame_progress = 0.4586217
+frame_progress = 0.122447625
 speed_scale = 0.5
 sheet = ExtResource("7_1ajci")
 fps = 7.0
@@ -71,7 +74,7 @@ fps = 7.0
 position = Vector2(82.99999, 165.99998)
 rotation = 3.822271
 scale = Vector2(1.5076561, 1.4725642)
-frame_progress = 0.3494133
+frame_progress = 0.74665064
 speed_scale = 0.07
 sheet = ExtResource("9_rcqid")
 fps = 60.0
@@ -80,7 +83,7 @@ fps = 60.0
 position = Vector2(143, 33.59999)
 rotation = 3.822271
 scale = Vector2(0.51869583, 0.47507852)
-frame_progress = 0.3494133
+frame_progress = 0.74665064
 speed_scale = 0.07
 sheet = ExtResource("9_1ajci")
 fps = 60.0
@@ -89,7 +92,7 @@ fps = 60.0
 position = Vector2(344.00003, 173)
 rotation = 3.132866
 scale = Vector2(0.40685415, 0.3730729)
-frame_progress = 0.3494133
+frame_progress = 0.74665064
 speed_scale = 0.07
 sheet = ExtResource("10_1ajci")
 fps = 60.0
@@ -98,7 +101,7 @@ fps = 60.0
 position = Vector2(311.00003, 235.00002)
 rotation = 3.132866
 scale = Vector2(0.3549205, 0.3730729)
-frame_progress = 0.3494133
+frame_progress = 0.74665064
 speed_scale = 0.07
 sheet = ExtResource("11_7b55j")
 fps = 60.0
@@ -107,7 +110,7 @@ fps = 60.0
 visible = false
 position = Vector2(50.25, 230.75)
 scale = Vector2(0.355, 0.33500007)
-frame_progress = 0.4517003
+frame_progress = 0.4922904
 sheet = ExtResource("12_asteroide1")
 fps = 10.0
 
@@ -152,7 +155,7 @@ layout_mode = 2
 size_flags_horizontal = 4
 text = "Salir"
 
-[node name="Levels" type="VBoxContainer" parent="." unique_id=2135136794]
+[node name="LevelSelectionScreen" type="VBoxContainer" parent="." unique_id=2135136794]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -163,7 +166,7 @@ grow_vertical = 2
 theme_override_constants/separation = 12
 alignment = 1
 
-[node name="Titulo" type="Label" parent="Levels" unique_id=1293381837]
+[node name="Titulo" type="Label" parent="LevelSelectionScreen" unique_id=1293381837]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
@@ -172,56 +175,15 @@ theme_override_font_sizes/font_size = 16
 text = "SELECCIONA NIVEL"
 horizontal_alignment = 1
 
-[node name="Grid" type="GridContainer" parent="Levels" unique_id=1866487335]
+[node name="LevelButtonsContainer" type="GridContainer" parent="LevelSelectionScreen" unique_id=1866487335]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 columns = 4
 
-[node name="Nivel1" type="Button" parent="Levels/Grid" unique_id=247441349]
-custom_minimum_size = Vector2(40, 40)
-layout_mode = 2
-text = "1"
-
-[node name="Nivel2" type="Button" parent="Levels/Grid" unique_id=121248092]
-custom_minimum_size = Vector2(40, 40)
-layout_mode = 2
-text = "2"
-
-[node name="Nivel3" type="Button" parent="Levels/Grid" unique_id=840672192]
-custom_minimum_size = Vector2(40, 40)
-layout_mode = 2
-text = "3"
-
-[node name="Nivel4" type="Button" parent="Levels/Grid" unique_id=1910698393]
-custom_minimum_size = Vector2(40, 40)
-layout_mode = 2
-text = "4"
-
-[node name="Nivel5" type="Button" parent="Levels/Grid" unique_id=1613066555]
-custom_minimum_size = Vector2(40, 40)
-layout_mode = 2
-text = "5"
-
-[node name="Nivel6" type="Button" parent="Levels/Grid" unique_id=2055581524]
-custom_minimum_size = Vector2(40, 40)
-layout_mode = 2
-text = "6"
-
-[node name="Nivel7" type="Button" parent="Levels/Grid" unique_id=984409964]
-custom_minimum_size = Vector2(40, 40)
-layout_mode = 2
-disabled = true
-text = "7"
-
-[node name="Nivel8" type="Button" parent="Levels/Grid" unique_id=2089221261]
-custom_minimum_size = Vector2(40, 40)
-layout_mode = 2
-disabled = true
-text = "8"
-
-[node name="VolverButton" type="Button" parent="Levels" unique_id=555534078]
+[node name="VolverButton" type="Button" parent="LevelSelectionScreen" unique_id=555534078]
 custom_minimum_size = Vector2(100, 24)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -267,7 +229,6 @@ step = 0.05
 
 [connection signal="pressed" from="TitleScreen/Buttons/PlayButton" to="." method="_on_play_button_pressed"]
 [connection signal="pressed" from="TitleScreen/Buttons/QuitButton" to="." method="_on_quit_button_pressed"]
-[connection signal="pressed" from="Levels/Grid/Nivel1" to="." method="_on_nivel_1_pressed"]
-[connection signal="pressed" from="Levels/VolverButton" to="." method="_on_volver_pressed"]
+[connection signal="pressed" from="LevelSelectionScreen/VolverButton" to="." method="_on_volver_pressed"]
 [connection signal="pressed" from="VolumePanel/Volume/MuteButton" to="." method="_on_mute_button_pressed"]
 [connection signal="value_changed" from="VolumePanel/Volume/Slider" to="." method="_on_slider_value_changed"]

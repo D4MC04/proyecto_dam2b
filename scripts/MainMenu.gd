@@ -1,15 +1,36 @@
 extends Control
 
-@onready var main_panel: Control = $TitleScreen
-@onready var levels_panel: Control = $Levels
+@export var levels: Array[LevelData]
+
+@onready var main_panel: VBoxContainer = $TitleScreen
+@onready var level_selection_panel: VBoxContainer = $LevelSelectionScreen
+@onready var level_buttons_container: GridContainer = %LevelButtonsContainer
 @onready var volume_slider: Slider = $VolumePanel/Volume/Slider
 @onready var mute_button: Button = $VolumePanel/Volume/MuteButton
 
 const FADE_TIME := 0.25
 
 func _ready():
+	_build_level_buttons()
 	volume_slider.set_value_no_signal(MusicManager.volumen)
 	_update_mute_button()
+
+func _build_level_buttons():
+	for i in levels.size():
+		var button := LevelButton.new()
+		button.level = levels[i]
+		button.text = str(i + 1)
+		button.custom_minimum_size = Vector2(40, 40)
+		button.level_selected.connect(_open_level)
+		level_buttons_container.add_child(button)
+
+func _open_level(data: LevelData):
+	var game = preload("res://scenes/Game.tscn").instantiate()
+	game.level_data = data
+	var tree = get_tree()
+	tree.root.add_child(game)
+	tree.current_scene.queue_free()
+	tree.current_scene = game
 
 func _on_mute_button_pressed():
 	MusicManager.toggle_mute()
@@ -19,10 +40,10 @@ func _on_slider_value_changed(value: float):
 	MusicManager.set_volume(value)
 
 func _on_play_button_pressed():
-	_transition(main_panel, levels_panel)
+	_transition(main_panel, level_selection_panel)
 
 func _on_volver_pressed():
-	_transition(levels_panel, main_panel)
+	_transition(level_selection_panel, main_panel)
 
 func _on_nivel_1_pressed():
 	get_tree().change_scene_to_file("res://scenes/Game.tscn")
