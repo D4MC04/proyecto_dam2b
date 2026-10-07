@@ -22,8 +22,8 @@ var _pending_shot := false
 func _ready() -> void:
 	sprite.sprite_frames = data.sprite_frames
 	cannon.sprite_frames = data.cannon
-	set_process(data.cannon != null and data.pulse == null)
-	if data.pulse:
+	set_process(data.cannon != null and not _is_static())
+	if _is_static():
 		cannon.play()
 		cannon.frame_changed.connect(_on_cannon_frame_changed)
 		cannon.animation_finished.connect(cannon.play.bind(&"default"))
@@ -69,7 +69,7 @@ func _on_attack_timeout() -> void:
 	var target := _get_target()
 	if target == null:
 		return
-	if data.pulse:
+	if _is_static():
 		cannon.play(&"fire_0")
 		return
 	if _is_aimed(target):
@@ -79,10 +79,20 @@ func _on_attack_timeout() -> void:
 		_pending_shot = true
 		attack_timer.stop()
 
-# La onda nace en el frame de pulso de la animación de disparo.
+# Torretas de onda o de rayo: el cañón no gira ni dispara balas.
+func _is_static() -> bool:
+	return data.pulse != null or data.chain != null
+
+# La onda o el rayo salen en su frame de la animación de disparo.
 func _on_cannon_frame_changed() -> void:
-	if cannon.animation == &"fire_0" and cannon.frame == data.pulse.fire_frame:
+	if cannon.animation != &"fire_0":
+		return
+	if data.pulse and cannon.frame == data.pulse.fire_frame:
 		Pulse.spawn(self)
+	elif data.chain and cannon.frame == data.chain.fire_frame:
+		var target := _get_target()
+		if target:
+			Chain.spawn(self, target)
 
 func _shoot(target: Enemy) -> void:
 	var bullet: Bullet = bullet_scene.instantiate()

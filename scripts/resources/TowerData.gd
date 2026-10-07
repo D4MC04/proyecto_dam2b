@@ -19,3 +19,5 @@ class_name TowerData
 # Opcional: con esto la torreta no dispara balas ni gira el cañón; lanza una onda en área en cada cooldown.
 # El cañón anima "default" (reposo en loop) y "fire_0" (carga, pulso y enfriamiento, sin loop).
 @export var pulse: PulseData
+# Opcional: igual que pulse (cañón fijo, mismas animaciones), pero lanza un rayo en cadena al objetivo.
+@export var chain: ChainData

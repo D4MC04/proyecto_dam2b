@@ -16,6 +16,7 @@ const EFFECT_SIZE := 32.0
 const SLOW_FLASH := Color(3, 3, 3)
 const SLOW_FLASH_TIME := 0.1
 const SLOW_TINT := Color(0.65, 0.85, 1.0)
+const HIT_FLASH_TIME := 0.15
 
 # Multiplicador de velocidad mientras está ralentizado.
 var _slow := 1.0
@@ -31,6 +32,7 @@ func setup(enemy_data: EnemyData):
 	sprite.sprite_frames = data.sprite_frames
 	collision_shape.shape = data.collision_shape
 	_last_position = global_position
+	add_to_group(&"enemies")
 
 func _process(delta):
 	progress += speed * _slow * delta
@@ -81,6 +83,15 @@ func _end_slow() -> void:
 	if _frost:
 		_frost.queue_free()
 		_frost = null
+
+# Destello de golpe; al acabar vuelve al color normal, o al tinte si está ralentizado.
+func flash() -> void:
+	var tween := create_tween()
+	tween.tween_property(sprite, "modulate", _rest_color(), HIT_FLASH_TIME).from(SLOW_FLASH)
+	tween.tween_callback(func(): sprite.modulate = _rest_color())
+
+func _rest_color() -> Color:
+	return SLOW_TINT if _slow < 1.0 else Color.WHITE
 
 func effect_scale() -> float:
 	var texture := sprite.sprite_frames.get_frame_texture(sprite.animation, 0)
