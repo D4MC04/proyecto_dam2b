@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="LevelData" format=3 uid="uid://dm8v13vfersya"]
 
-[ext_resource type="PackedScene" uid="uid://cmokyxicevl04" path="res://scenes/maps/Level1.tscn" id="1_jcob0"]
+[ext_resource type="PackedScene" uid="uid://cmokyxicevl04" path="res://scenes/maps/redesign/Level1.tscn" id="1_jcob0"]
 [ext_resource type="Script" uid="uid://du40p5btlpgd0" path="res://scripts/models/LevelData.gd" id="1_obkt0"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/models/WaveData.gd" id="2_ujpww"]
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/models/TowerData.gd" id="3_ismlj"]
