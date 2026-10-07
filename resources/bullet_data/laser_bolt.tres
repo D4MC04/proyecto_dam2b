@@ -1,14 +1,14 @@
-[gd_resource type="Resource" script_class="BulletData" format=3]
+[gd_resource type="Resource" script_class="BulletData" format=3 uid="uid://du31t5u8sf2lq"]
 
 [ext_resource type="Shape2D" uid="uid://bgj2ljgku54hx" path="res://resources/collision_shapes/red_bullet.tres" id="1"]
 [ext_resource type="Script" uid="uid://dufu06mgtfw20" path="res://scripts/models/BulletData.gd" id="2"]
-[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/laser_bolt.tres" id="3"]
-[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/laser_beam.tres" id="4"]
-[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/laser_impact.tres" id="5"]
+[ext_resource type="SpriteFrames" uid="uid://d3oai3cb50745" path="res://resources/sprite_frames/laser_bolt.tres" id="3"]
+[ext_resource type="SpriteFrames" uid="uid://cv5bc0rlylnng" path="res://resources/sprite_frames/laser_beam.tres" id="4"]
+[ext_resource type="SpriteFrames" uid="uid://cq0k3fl531d8t" path="res://resources/sprite_frames/laser_impact.tres" id="5"]
 
 [resource]
 script = ExtResource("2")
-damage = 16.0
+damage = 15.0
 speed = 250.0
 sprite_frames = ExtResource("3")
 collision_shape = ExtResource("1")

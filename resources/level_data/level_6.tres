@@ -3,15 +3,15 @@
 [ext_resource type="PackedScene" uid="uid://b2cjj73krusj4" path="res://scenes/maps/Level6.tscn" id="1_npfra"]
 [ext_resource type="Script" uid="uid://du40p5btlpgd0" path="res://scripts/models/LevelData.gd" id="2_xvb3k"]
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/models/TowerData.gd" id="3_j73uf"]
-[ext_resource type="Resource" uid="uid://bi8dmx532elhj" path="res://resources/tower_data/laser.tres" id="4_c4f27"]
-[ext_resource type="Resource" uid="uid://bh8qdvmr3kaj" path="res://resources/tower_data/rocket_launcher.tres" id="5_ym3px"]
-[ext_resource type="Resource" path="res://resources/tower_data/turret.tres" id="6_r77ex"]
+[ext_resource type="Resource" path="res://resources/turret_data/turret.tres" id="4_npfra"]
+[ext_resource type="Resource" uid="uid://bh8qdvmr3kaj" path="res://resources/turret_data/rocket_launcher.tres" id="5_xvb3k"]
+[ext_resource type="Resource" uid="uid://bi8dmx532elhj" path="res://resources/turret_data/laser.tres" id="6_j73uf"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/models/WaveData.gd" id="7_4aa7w"]
 [ext_resource type="Resource" uid="uid://ojf1udgbevrh" path="res://resources/wave_data/level_6.tres" id="8_npfra"]
 
 [resource]
 script = ExtResource("2_xvb3k")
 map = ExtResource("1_npfra")
-towers = Array[ExtResource("3_j73uf")]([ExtResource("4_c4f27"), ExtResource("5_ym3px"), ExtResource("6_r77ex")])
+towers = Array[ExtResource("3_j73uf")]([ExtResource("4_npfra"), ExtResource("5_xvb3k"), ExtResource("6_j73uf")])
 waves = Array[ExtResource("7_4aa7w")]([ExtResource("8_npfra")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"

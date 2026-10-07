@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="TowerData" format=3 uid="uid://bh8qdvmr3kaj"]
+
+[ext_resource type="Shape2D" path="res://resources/collision_shapes/rocket_launcher.tres" id="1_0boch"]
+[ext_resource type="Resource" uid="uid://clu71hvcigko3" path="res://resources/bullet_data/rocket_launcher_bullet.tres" id="2_o0wnv"]
+[ext_resource type="SpriteFrames" uid="uid://cadpw4urhhur3" path="res://resources/sprite_frames/rocket_launcher_cannon.tres" id="3_6k8hc"]
+[ext_resource type="Texture2D" uid="uid://dsgl1u3cyr2fu" path="res://assets/sprites/towers/turret2/t2_full_up.png" id="4_5bwje"]
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/models/TowerData.gd" id="5_5io4s"]
+[ext_resource type="SpriteFrames" uid="uid://br1xj5sv70s4u" path="res://resources/sprite_frames/rocket_launcher.tres" id="6_27bij"]
+
+[resource]
+script = ExtResource("5_5io4s")
+name = "Cañón pesado"
+cost = 300
+attack_cooldown = 1.5
+icon = ExtResource("4_5bwje")
+sprite_frames = ExtResource("6_27bij")
+attack_range = ExtResource("1_0boch")
+bullet_data = ExtResource("2_o0wnv")
+muzzle_offset = Vector2(0, -14)
+cannon = ExtResource("3_6k8hc")
+turn_speed = 180.0
+metadata/_custom_type_script = "uid://dmo7ci57slbqu"

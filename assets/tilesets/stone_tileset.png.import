@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://blwx1gjj6n3hf"
-path="res://.godot/imported/logic_tiles.png-71c324ea859e357683145917100f68ff.ctex"
+uid="uid://brf478asb6p1"
+path="res://.godot/imported/stone_tileset.png-a2f408f1e9905fdc2eeb0add1a4cd11a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/tile_sets/logic_tiles.png"
-dest_files=["res://.godot/imported/logic_tiles.png-71c324ea859e357683145917100f68ff.ctex"]
+source_file="res://assets/tilesets/stone_tileset.png"
+dest_files=["res://.godot/imported/stone_tileset.png-a2f408f1e9905fdc2eeb0add1a4cd11a.ctex"]
 
 [params]
 

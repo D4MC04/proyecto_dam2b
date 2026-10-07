@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" format=3]
+[gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://do4ht7x2audbo"]
 
 [ext_resource type="Script" uid="uid://do62ihbnaitnl" path="res://scripts/models/EnemyData.gd" id="1_data"]
 [ext_resource type="Shape2D" path="res://resources/collision_shapes/acorazado.tres" id="2_shape"]

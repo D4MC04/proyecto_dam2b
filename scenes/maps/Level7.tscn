@@ -1,8 +1,8 @@
 [gd_scene format=4 uid="uid://kq4wc0a23b6y"]
 
 [ext_resource type="Script" uid="uid://cm121ykhp0hl0" path="res://scripts/Map.gd" id="1_6dmnr"]
-[ext_resource type="TileSet" uid="uid://du11y2104lqxj" path="res://resources/tile_sets/tileset.tres" id="2_pl3d3"]
-[ext_resource type="TileSet" uid="uid://bxqhxqo4qdtij" path="res://assets/tile_sets/logic_tileset.tres" id="3_dvvhl"]
+[ext_resource type="TileSet" uid="uid://du11y2104lqxj" path="res://resources/tilesets/tileset.tres" id="2_pl3d3"]
+[ext_resource type="TileSet" uid="uid://bxqhxqo4qdtij" path="res://resources/tilesets/logic_tileset.tres" id="3_dvvhl"]
 [ext_resource type="Texture2D" uid="uid://cj51ia6vifxbt" path="res://assets/sprites/base/space_station.png" id="4_pl3d3"]
 
 [sub_resource type="Curve2D" id="Curve2D_o7r77"]

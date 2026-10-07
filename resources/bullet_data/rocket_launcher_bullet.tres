@@ -1,17 +1,17 @@
-[gd_resource type="Resource" script_class="BulletData" format=3]
+[gd_resource type="Resource" script_class="BulletData" format=3 uid="uid://clu71hvcigko3"]
 
-[ext_resource type="Shape2D" uid="uid://bgj2ljgku54hx" path="res://resources/collision_shapes/red_bullet.tres" id="1"]
-[ext_resource type="Script" uid="uid://dufu06mgtfw20" path="res://scripts/models/BulletData.gd" id="2"]
-[ext_resource type="SpriteFrames" uid="uid://bb5b8lioud2ua" path="res://resources/sprite_frames/rocket_launcher_bullet.tres" id="3"]
-[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/rocket_launcher_impact.tres" id="4"]
+[ext_resource type="Shape2D" uid="uid://bgj2ljgku54hx" path="res://resources/collision_shapes/red_bullet.tres" id="1_m56mc"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/rocket_launcher_impact.tres" id="2_g10xc"]
+[ext_resource type="Script" uid="uid://dufu06mgtfw20" path="res://scripts/models/BulletData.gd" id="3_ukydi"]
+[ext_resource type="SpriteFrames" uid="uid://bb5b8lioud2ua" path="res://resources/sprite_frames/rocket_launcher_bullet.tres" id="4_40h1v"]
 
 [resource]
-script = ExtResource("2")
-damage = 40.0
+script = ExtResource("3_ukydi")
+damage = 45.0
 speed = 200.0
-sprite_frames = ExtResource("3")
-collision_shape = ExtResource("1")
+sprite_frames = ExtResource("4_40h1v")
+collision_shape = ExtResource("1_m56mc")
 sprite_scale = 1.0
 rotation_offset = 90.0
-impact_frames = ExtResource("4")
+impact_frames = ExtResource("2_g10xc")
 metadata/_custom_type_script = "uid://dufu06mgtfw20"

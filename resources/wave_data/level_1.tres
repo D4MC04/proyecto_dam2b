@@ -1,138 +1,138 @@
 [gd_resource type="Resource" script_class="WaveData" format=3 uid="uid://5hge2mvmeyue"]
 
-[ext_resource type="Resource" path="res://resources/enemy_data/dart_hielo.tres" id="dart_hielo"]
-[ext_resource type="Resource" path="res://resources/enemy_data/dart_morado.tres" id="dart_morado"]
-[ext_resource type="Resource" path="res://resources/enemy_data/dart_rojo.tres" id="dart_rojo"]
-[ext_resource type="Resource" path="res://resources/enemy_data/dart_verde.tres" id="dart_verde"]
-[ext_resource type="Script" uid="uid://cwc32qenwkwf3" path="res://scripts/models/SpawnEntry.gd" id="entry"]
-[ext_resource type="Resource" path="res://resources/enemy_data/wasp.tres" id="wasp"]
-[ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/models/WaveData.gd" id="wave"]
+[ext_resource type="Script" uid="uid://cwc32qenwkwf3" path="res://scripts/models/SpawnEntry.gd" id="1_o3hiw"]
+[ext_resource type="Resource" uid="uid://cqrl6wryh28bv" path="res://resources/enemy_data/dart_morado.tres" id="2_pcggv"]
+[ext_resource type="Resource" uid="uid://c7yydx2yg6klq" path="res://resources/enemy_data/dart_hielo.tres" id="3_4goag"]
+[ext_resource type="Resource" uid="uid://bcvbohxs6cxsf" path="res://resources/enemy_data/dart_verde.tres" id="4_lpouh"]
+[ext_resource type="Resource" uid="uid://bakq6nmr73sl0" path="res://resources/enemy_data/dart_rojo.tres" id="5_k34kx"]
+[ext_resource type="Resource" uid="uid://bfiipacu4434d" path="res://resources/enemy_data/wasp.tres" id="6_r1i7i"]
+[ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/models/WaveData.gd" id="7_2ciy8"]
 
 [sub_resource type="Resource" id="e0"]
-script = ExtResource("entry")
-enemy_data = ExtResource("dart_morado")
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("2_pcggv")
 time = 3.0
 
 [sub_resource type="Resource" id="e1"]
-script = ExtResource("entry")
-enemy_data = ExtResource("dart_hielo")
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("3_4goag")
 time = 7.5
 
 [sub_resource type="Resource" id="e2"]
-script = ExtResource("entry")
-enemy_data = ExtResource("dart_verde")
-time = 11.92
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("4_lpouh")
+time = 11.9
 
 [sub_resource type="Resource" id="e3"]
-script = ExtResource("entry")
-enemy_data = ExtResource("dart_rojo")
-time = 16.26
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("5_k34kx")
+time = 16.25
 
 [sub_resource type="Resource" id="e4"]
-script = ExtResource("entry")
-enemy_data = ExtResource("dart_morado")
-time = 20.52
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("2_pcggv")
+time = 20.5
 
 [sub_resource type="Resource" id="e5"]
-script = ExtResource("entry")
-enemy_data = ExtResource("dart_rojo")
-time = 24.7
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("5_k34kx")
+time = 24.75
 
 [sub_resource type="Resource" id="e6"]
-script = ExtResource("entry")
-enemy_data = ExtResource("dart_hielo")
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("3_4goag")
 time = 28.8
 
 [sub_resource type="Resource" id="e7"]
-script = ExtResource("entry")
-enemy_data = ExtResource("dart_morado")
-time = 32.82
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("2_pcggv")
+time = 32.8
 
 [sub_resource type="Resource" id="e8"]
-script = ExtResource("entry")
-enemy_data = ExtResource("dart_verde")
-time = 33.62
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("4_lpouh")
+time = 33.6
 
 [sub_resource type="Resource" id="e9"]
-script = ExtResource("entry")
-enemy_data = ExtResource("dart_rojo")
-time = 37.56
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("5_k34kx")
+time = 37.55
 
 [sub_resource type="Resource" id="e10"]
-script = ExtResource("entry")
-enemy_data = ExtResource("dart_verde")
-time = 38.36
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("4_lpouh")
+time = 38.35
 
 [sub_resource type="Resource" id="e11"]
-script = ExtResource("entry")
-enemy_data = ExtResource("dart_morado")
-time = 42.14
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("2_pcggv")
+time = 42.1
 
 [sub_resource type="Resource" id="e12"]
-script = ExtResource("entry")
-enemy_data = ExtResource("wasp")
-time = 42.94
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("6_r1i7i")
+time = 42.9
 
 [sub_resource type="Resource" id="e13"]
-script = ExtResource("entry")
-enemy_data = ExtResource("wasp")
-time = 46.56
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("6_r1i7i")
+time = 46.55
 
 [sub_resource type="Resource" id="e14"]
-script = ExtResource("entry")
-enemy_data = ExtResource("dart_hielo")
-time = 47.36
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("3_4goag")
+time = 47.35
 
 [sub_resource type="Resource" id="e15"]
-script = ExtResource("entry")
-enemy_data = ExtResource("dart_rojo")
-time = 48.16
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("5_k34kx")
+time = 48.15
 
 [sub_resource type="Resource" id="e16"]
-script = ExtResource("entry")
-enemy_data = ExtResource("dart_verde")
-time = 51.62
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("4_lpouh")
+time = 51.6
 
 [sub_resource type="Resource" id="e17"]
-script = ExtResource("entry")
-enemy_data = ExtResource("dart_hielo")
-time = 52.42
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("3_4goag")
+time = 52.4
 
 [sub_resource type="Resource" id="e18"]
-script = ExtResource("entry")
-enemy_data = ExtResource("dart_rojo")
-time = 53.22
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("5_k34kx")
+time = 53.2
 
 [sub_resource type="Resource" id="e19"]
-script = ExtResource("entry")
-enemy_data = ExtResource("wasp")
-time = 56.44
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("6_r1i7i")
+time = 56.45
 
 [sub_resource type="Resource" id="e20"]
-script = ExtResource("entry")
-enemy_data = ExtResource("wasp")
-time = 57.24
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("6_r1i7i")
+time = 57.25
 
 [sub_resource type="Resource" id="e21"]
-script = ExtResource("entry")
-enemy_data = ExtResource("wasp")
-time = 58.04
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("6_r1i7i")
+time = 58.05
 
 [sub_resource type="Resource" id="e22"]
-script = ExtResource("entry")
-enemy_data = ExtResource("wasp")
-time = 58.84
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("6_r1i7i")
+time = 58.85
 
 [sub_resource type="Resource" id="e23"]
-script = ExtResource("entry")
-enemy_data = ExtResource("wasp")
-time = 61.82
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("6_r1i7i")
+time = 61.8
 
 [sub_resource type="Resource" id="e24"]
-script = ExtResource("entry")
-enemy_data = ExtResource("wasp")
-time = 62.62
+script = ExtResource("1_o3hiw")
+enemy_data = ExtResource("6_r1i7i")
+time = 62.6
 
 [resource]
-script = ExtResource("wave")
-entries = Array[ExtResource("entry")]([SubResource("e0"), SubResource("e1"), SubResource("e2"), SubResource("e3"), SubResource("e4"), SubResource("e5"), SubResource("e6"), SubResource("e7"), SubResource("e8"), SubResource("e9"), SubResource("e10"), SubResource("e11"), SubResource("e12"), SubResource("e13"), SubResource("e14"), SubResource("e15"), SubResource("e16"), SubResource("e17"), SubResource("e18"), SubResource("e19"), SubResource("e20"), SubResource("e21"), SubResource("e22"), SubResource("e23"), SubResource("e24")])
+script = ExtResource("7_2ciy8")
+entries = Array[ExtResource("1_o3hiw")]([SubResource("e0"), SubResource("e1"), SubResource("e2"), SubResource("e3"), SubResource("e4"), SubResource("e5"), SubResource("e6"), SubResource("e7"), SubResource("e8"), SubResource("e9"), SubResource("e10"), SubResource("e11"), SubResource("e12"), SubResource("e13"), SubResource("e14"), SubResource("e15"), SubResource("e16"), SubResource("e17"), SubResource("e18"), SubResource("e19"), SubResource("e20"), SubResource("e21"), SubResource("e22"), SubResource("e23"), SubResource("e24")])

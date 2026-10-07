@@ -1,13 +1,13 @@
 [gd_resource type="TileSet" format=3 uid="uid://du11y2104lqxj"]
 
-[ext_resource type="Texture2D" uid="uid://cgxccv8jk7l4p" path="res://assets/tile_sets/grass_tileset.png" id="1_6wdsf"]
-[ext_resource type="Texture2D" uid="uid://brf478asb6p1" path="res://assets/tile_sets/stone_tileset.png" id="2_duc57"]
-[ext_resource type="Texture2D" uid="uid://f4k6csacetqe" path="res://assets/tile_sets/plants.png" id="3_8rkia"]
-[ext_resource type="Texture2D" uid="uid://bpmto8qfglp3d" path="res://assets/tile_sets/plants_with_shadow.png" id="4_7bjng"]
-[ext_resource type="Texture2D" uid="uid://cvnuy07ptfpx6" path="res://assets/tile_sets/props.png" id="5_78hsd"]
-[ext_resource type="Texture2D" uid="uid://c8h4swb6xa75m" path="res://assets/tile_sets/props_with_shadow.png" id="6_fdq0t"]
-[ext_resource type="Texture2D" uid="uid://d3ekf8dvxf88n" path="res://assets/tile_sets/structures.png" id="7_ce1cr"]
-[ext_resource type="Texture2D" uid="uid://df7l1vycca844" path="res://assets/tile_sets/walls.png" id="8_6mf6j"]
+[ext_resource type="Texture2D" uid="uid://cgxccv8jk7l4p" path="res://assets/tilesets/grass_tileset.png" id="1_6wdsf"]
+[ext_resource type="Texture2D" uid="uid://brf478asb6p1" path="res://assets/tilesets/stone_tileset.png" id="2_duc57"]
+[ext_resource type="Texture2D" uid="uid://f4k6csacetqe" path="res://assets/tilesets/plants.png" id="3_8rkia"]
+[ext_resource type="Texture2D" uid="uid://bpmto8qfglp3d" path="res://assets/tilesets/plants_with_shadow.png" id="4_7bjng"]
+[ext_resource type="Texture2D" uid="uid://cvnuy07ptfpx6" path="res://assets/tilesets/props.png" id="5_78hsd"]
+[ext_resource type="Texture2D" uid="uid://c8h4swb6xa75m" path="res://assets/tilesets/props_with_shadow.png" id="6_fdq0t"]
+[ext_resource type="Texture2D" uid="uid://d3ekf8dvxf88n" path="res://assets/tilesets/structures.png" id="7_ce1cr"]
+[ext_resource type="Texture2D" uid="uid://df7l1vycca844" path="res://assets/tilesets/walls.png" id="8_6mf6j"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_vw3a3"]
 texture = ExtResource("1_6wdsf")

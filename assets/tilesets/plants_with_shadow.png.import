@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cvnuy07ptfpx6"
-path="res://.godot/imported/props.png-55752045b02943301ab6bca4f9c40faa.ctex"
+uid="uid://bpmto8qfglp3d"
+path="res://.godot/imported/plants_with_shadow.png-7d3fe4171ff72882c27e1a0fab3bcdc7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/tile_sets/props.png"
-dest_files=["res://.godot/imported/props.png-55752045b02943301ab6bca4f9c40faa.ctex"]
+source_file="res://assets/tilesets/plants_with_shadow.png"
+dest_files=["res://.godot/imported/plants_with_shadow.png-7d3fe4171ff72882c27e1a0fab3bcdc7.ctex"]
 
 [params]
 
