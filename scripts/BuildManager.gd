@@ -57,8 +57,8 @@ func _try_place(mouse_pos: Vector2) -> void:
 		return
 
 	var tower := tower_scene.instantiate()
-	tower.data = data  # ajusta al nombre real de la propiedad en tu torre
-	get_tree().current_scene.add_child(tower)
+	tower.data = data
+	add_child(tower)
 	tower.global_position = grid.center(cell)
 
 	grid.register_tower(cell, tower)

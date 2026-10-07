@@ -1,14 +1,18 @@
 [gd_scene format=3 uid="uid://bjlaw340mmmog"]
 
-[node name="GameOver" type="Control" unique_id=592437674]
+[ext_resource type="Script" uid="uid://b6t1efckpeo3y" path="res://scripts/GameOverScreen.gd" id="1_qae0b"]
+[ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="2_vuicl"]
+
+[node name="GameOverScreen" type="Control" unique_id=102313545]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_qae0b")
 
-[node name="Background" type="ColorRect" parent="." unique_id=1727126275]
+[node name="Background" type="ColorRect" parent="." unique_id=203747810]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -17,26 +21,36 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.5882353)
 
-[node name="Caja" type="VBoxContainer" parent="." unique_id=210458407]
+[node name="HBoxContainer" type="VBoxContainer" parent="." unique_id=30459475]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("2_vuicl")
+theme_override_constants/separation = 10
 alignment = 1
 
-[node name="Titulo" type="Label" parent="Caja" unique_id=1114582151]
+[node name="Label" type="Label" parent="HBoxContainer" unique_id=1243934992]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 8
-theme_override_font_sizes/font_size = 58
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 24
 text = "GAME OVER"
 horizontal_alignment = 1
 
-[node name="Reiniciar" type="Label" parent="Caja" unique_id=55884603]
+[node name="RestartButton" type="Button" parent="HBoxContainer" unique_id=43701199]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 24)
 layout_mode = 2
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 4
-text = "Pulsa R para reiniciar"
-horizontal_alignment = 1
+size_flags_horizontal = 4
+text = "Reiniciar"
+
+[node name="QuitButton" type="Button" parent="HBoxContainer" unique_id=1477365320]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 24)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Salir"

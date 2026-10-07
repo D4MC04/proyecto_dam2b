@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://dgetllrlfjnrc" path="res://scenes/Sidebar.tscn" id="3_ln102"]
 
 [node name="LevelUI" type="CanvasLayer" unique_id=245943380]
+process_mode = 3
 follow_viewport_enabled = true
 script = ExtResource("1_3xbq7")
 
@@ -34,10 +35,12 @@ size_flags_horizontal = 3
 mouse_filter = 2
 
 [node name="GameOverScreen" parent="UI/HBoxContainer/GameArea" unique_id=592437674 instance=ExtResource("1_8klgi")]
+unique_name_in_owner = true
 visible = false
 layout_mode = 1
 
 [node name="PauseMenu" parent="UI/HBoxContainer/GameArea" unique_id=102313545 instance=ExtResource("2_3xbq7")]
+unique_name_in_owner = true
 visible = false
 layout_mode = 1
 

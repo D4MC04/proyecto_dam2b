@@ -1,14 +1,16 @@
 [gd_scene format=3 uid="uid://b6hyuslcy228o"]
 
+[ext_resource type="Script" uid="uid://ciic5eb3our4x" path="res://scripts/PauseMenu.gd" id="1_g4jo0"]
 [ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="2_theme"]
 
-[node name="Control" type="Control" unique_id=102313545]
+[node name="PauseMenu" type="Control" unique_id=102313545]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_g4jo0")
 
 [node name="Background" type="ColorRect" parent="." unique_id=203747810]
 layout_mode = 1
@@ -39,19 +41,22 @@ theme_override_font_sizes/font_size = 24
 text = "PAUSA"
 horizontal_alignment = 1
 
-[node name="Continuar" type="Button" parent="Box" unique_id=438037907]
+[node name="ResumeButton" type="Button" parent="Box" unique_id=438037907]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 24)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Continuar"
 
-[node name="Reiniciar" type="Button" parent="Box" unique_id=43701199]
+[node name="RestartButton" type="Button" parent="Box" unique_id=43701199]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 24)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Reiniciar"
 
-[node name="Salir" type="Button" parent="Box" unique_id=1477365320]
+[node name="QuitButton" type="Button" parent="Box" unique_id=1477365320]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 24)
 layout_mode = 2
 size_flags_horizontal = 4

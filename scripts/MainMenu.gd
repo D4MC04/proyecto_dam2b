@@ -1,5 +1,7 @@
 extends Control
 
+var start_on_level_selection: bool = false
+
 @onready var main_panel: VBoxContainer = $TitleScreen
 @onready var level_selection_panel: VBoxContainer = $LevelSelectionScreen
 @onready var level_buttons_container: GridContainer = %LevelButtonsContainer
@@ -9,6 +11,9 @@ extends Control
 const FADE_TIME := 0.25
 
 func _ready():
+	if start_on_level_selection:
+		main_panel.hide()
+		level_selection_panel.show()	
 	_build_level_buttons()
 	volume_slider.set_value_no_signal(MusicManager.volumen)
 	_update_mute_button()
@@ -43,9 +48,6 @@ func _on_play_button_pressed():
 
 func _on_volver_pressed():
 	_transition(level_selection_panel, main_panel)
-
-func _on_nivel_1_pressed():
-	get_tree().change_scene_to_file("res://scenes/Game.tscn")
 
 func _on_quit_button_pressed():
 	get_tree().quit()

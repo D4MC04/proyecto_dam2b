@@ -1,13 +1,13 @@
-[gd_resource type="Resource" script_class="BulletData" format=3]
+[gd_resource type="Resource" script_class="BulletData" format=3 uid="uid://b70ny8bsxiq0j"]
 
 [ext_resource type="Shape2D" uid="uid://bgj2ljgku54hx" path="res://resources/collision_shapes/red_bullet.tres" id="1"]
 [ext_resource type="Script" uid="uid://dufu06mgtfw20" path="res://scripts/models/BulletData.gd" id="2"]
-[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/turret_bullet.tres" id="3"]
+[ext_resource type="SpriteFrames" uid="uid://e2p7t3k1a8ey" path="res://resources/sprite_frames/turret_bullet.tres" id="3"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/turret_impact.tres" id="4"]
 
 [resource]
 script = ExtResource("2")
-damage = 4.0
+damage = 5.0
 speed = 300.0
 sprite_frames = ExtResource("3")
 collision_shape = ExtResource("1")

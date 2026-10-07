@@ -21,5 +21,5 @@ script = ExtResource("4_m0xki")
 
 [node name="BuildManager" type="Node" parent="." unique_id=1876976917 node_paths=PackedStringArray("grid")]
 script = ExtResource("10_p6oy6")
-tower_scene = ExtResource("6_faw0r")
 grid = NodePath("../Grid")
+tower_scene = ExtResource("6_faw0r")
