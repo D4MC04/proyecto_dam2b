@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="TowerData" format=3]
+
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TowerData.gd" id="1"]
+[ext_resource type="Shape2D" path="res://resources/collision_shapes/cryo.tres" id="2"]
+[ext_resource type="Resource" path="res://resources/bullet_data/cryo_frost.tres" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/cryo/cryo_full_up.png" id="4"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/cryo.tres" id="5"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/cryo_wave.tres" id="6"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/cryo_cannon.tres" id="7"]
+
+[resource]
+script = ExtResource("1")
+name = "Cryo"
+cost = 250
+attack_cooldown = 2.0
+icon = ExtResource("4")
+sprite_frames = ExtResource("5")
+attack_range = ExtResource("2")
+bullet_data = ExtResource("3")
+muzzle_flash = ExtResource("6")
+cannon = ExtResource("7")
+metadata/_custom_type_script = "uid://dmo7ci57slbqu"
