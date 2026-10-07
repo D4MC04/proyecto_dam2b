@@ -44,9 +44,6 @@ func _on_play_button_pressed():
 func _on_volver_pressed():
 	_transition(level_selection_panel, main_panel)
 
-func _on_nivel_1_pressed():
-	get_tree().change_scene_to_file("res://scenes/Game.tscn")
-
 func _on_quit_button_pressed():
 	get_tree().quit()
 
