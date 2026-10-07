@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://deo1tg3qjuyh1"]
 
-[ext_resource type="Script" uid="uid://hut21l7kytl6" path="res://scripts/MainMenu.gd" id="1_menu"]
-[ext_resource type="Script" uid="uid://bnok54y84qsmr" path="res://scripts/Starfield.gd" id="2_stars"]
+[ext_resource type="Script" uid="uid://hut21l7kytl6" path="res://scripts/screens/MainMenu.gd" id="1_menu"]
+[ext_resource type="Script" uid="uid://bnok54y84qsmr" path="res://scripts/main_menu/Starfield.gd" id="2_stars"]
 [ext_resource type="Texture2D" uid="uid://c5u3a6vnf6m0d" path="res://assets/sprites/planets/luna.png" id="7_1ajci"]
 [ext_resource type="Texture2D" uid="uid://bs0dfebgax8p0" path="res://assets/sprites/planets/planetagaseoso2.png" id="9_1ajci"]
 [ext_resource type="PackedScene" uid="uid://ds51ueya6tle1" path="res://scenes/SpaceBody.tscn" id="9_body"]
@@ -11,9 +11,9 @@
 [ext_resource type="Texture2D" uid="uid://c1kau8qq2nlhf" path="res://assets/sprites/planets/planetalava1.png" id="11_7b55j"]
 [ext_resource type="Texture2D" uid="uid://7udnrdhnrwfo" path="res://assets/sprites/planets/asteroide_1.png" id="12_asteroide1"]
 [ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="13_theme"]
-[ext_resource type="Script" uid="uid://mb67t4tqyohq" path="res://scripts/Comets.gd" id="14_comets"]
-[ext_resource type="Script" uid="uid://dd6xsyc7ng8u7" path="res://scripts/Asteroids.gd" id="17_asteroids"]
-[ext_resource type="Script" uid="uid://pdd67yive1em" path="res://scripts/Satellites.gd" id="18_satellites"]
+[ext_resource type="Script" uid="uid://mb67t4tqyohq" path="res://scripts/main_menu/Comets.gd" id="14_comets"]
+[ext_resource type="Script" uid="uid://dd6xsyc7ng8u7" path="res://scripts/main_menu/Asteroids.gd" id="17_asteroids"]
+[ext_resource type="Script" uid="uid://pdd67yive1em" path="res://scripts/main_menu/Satellites.gd" id="18_satellites"]
 
 [node name="MainMenu" type="Control" unique_id=576679633]
 texture_filter = 1

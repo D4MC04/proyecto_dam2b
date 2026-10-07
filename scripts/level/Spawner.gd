@@ -5,7 +5,7 @@ signal enemy_died(reward: int)
 signal enemy_reached_end
 signal wave_finished(index: int)
 
-const ENEMY_SCENE: PackedScene = preload("res://scenes/Enemy.tscn")
+const ENEMY_SCENE: PackedScene = preload("res://scenes/entities/Enemy.tscn")
 
 var paths: Array[Path2D]
 var waves: Array[WaveData]

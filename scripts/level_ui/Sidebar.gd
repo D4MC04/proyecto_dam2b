@@ -3,7 +3,7 @@ class_name Sidebar
 
 signal tower_selected(data: TowerData)
 
-const TOWER_BUTTON: PackedScene = preload("res://Scenes/TowerButton.tscn")
+const TOWER_BUTTON: PackedScene = preload("res://scenes/level_ui/TowerButton.tscn")
 
 @onready var money_label: Label = %MoneyLabel
 @onready var tower_buttons: GridContainer = %TowerButtons

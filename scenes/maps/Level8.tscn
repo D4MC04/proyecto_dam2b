@@ -1,6 +1,6 @@
 [gd_scene format=4 uid="uid://b1patmklq1q7s"]
 
-[ext_resource type="Script" uid="uid://cm121ykhp0hl0" path="res://scripts/Map.gd" id="1_0qdur"]
+[ext_resource type="Script" uid="uid://cm121ykhp0hl0" path="res://scripts/level/Map.gd" id="1_0qdur"]
 [ext_resource type="TileSet" uid="uid://du11y2104lqxj" path="res://resources/tilesets/tileset.tres" id="2_pqxra"]
 [ext_resource type="TileSet" uid="uid://bxqhxqo4qdtij" path="res://resources/tilesets/logic_tileset.tres" id="3_h1wx4"]
 [ext_resource type="Texture2D" uid="uid://cj51ia6vifxbt" path="res://assets/sprites/base/space_station.png" id="4_pqxra"]

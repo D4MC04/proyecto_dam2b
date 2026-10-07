@@ -1,11 +1,11 @@
-[gd_resource type="Resource" script_class="TowerData" format=3]
+[gd_resource type="Resource" script_class="TowerData" format=3 uid="uid://cnbuncwscbxtt"]
 
-[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/models/TowerData.gd" id="1"]
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TowerData.gd" id="1"]
 [ext_resource type="Shape2D" path="res://resources/collision_shapes/turret.tres" id="2"]
-[ext_resource type="Resource" path="res://resources/bullet_data/turret_bullet.tres" id="3"]
-[ext_resource type="Texture2D" path="res://assets/sprites/towers/turret/t1_full_up.png" id="4"]
-[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/turret.tres" id="5"]
-[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/turret_cannon.tres" id="7"]
+[ext_resource type="Resource" uid="uid://b70ny8bsxiq0j" path="res://resources/bullet_data/turret_bullet.tres" id="3"]
+[ext_resource type="Texture2D" uid="uid://caajyf16g1kmd" path="res://assets/sprites/towers/turret/t1_full_up.png" id="4"]
+[ext_resource type="SpriteFrames" uid="uid://da4o1mb4kiwkb" path="res://resources/sprite_frames/turret.tres" id="5"]
+[ext_resource type="SpriteFrames" uid="uid://d1negqjjytnj4" path="res://resources/sprite_frames/turret_cannon.tres" id="7"]
 
 [resource]
 script = ExtResource("1")

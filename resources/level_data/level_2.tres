@@ -1,12 +1,12 @@
 [gd_resource type="Resource" script_class="LevelData" format=3 uid="uid://bqvh377bcwk4w"]
 
 [ext_resource type="PackedScene" uid="uid://b8osoxl4m06pm" path="res://scenes/maps/Level2.tscn" id="1_wvv31"]
-[ext_resource type="Script" uid="uid://du40p5btlpgd0" path="res://scripts/models/LevelData.gd" id="2_s45o5"]
-[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/models/TowerData.gd" id="3_k4sjs"]
-[ext_resource type="Resource" path="res://resources/turret_data/turret.tres" id="4_wvv31"]
+[ext_resource type="Script" uid="uid://du40p5btlpgd0" path="res://scripts/resources/LevelData.gd" id="2_s45o5"]
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TowerData.gd" id="3_k4sjs"]
+[ext_resource type="Resource" uid="uid://cnbuncwscbxtt" path="res://resources/turret_data/turret.tres" id="4_wvv31"]
 [ext_resource type="Resource" uid="uid://bh8qdvmr3kaj" path="res://resources/turret_data/rocket_launcher.tres" id="5_s45o5"]
 [ext_resource type="Resource" uid="uid://bi8dmx532elhj" path="res://resources/turret_data/laser.tres" id="6_k4sjs"]
-[ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/models/WaveData.gd" id="7_q5l4p"]
+[ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="7_q5l4p"]
 [ext_resource type="Resource" uid="uid://byedhj4f4e5em" path="res://resources/wave_data/level_2.tres" id="8_wvv31"]
 
 [resource]

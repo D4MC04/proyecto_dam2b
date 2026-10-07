@@ -2,7 +2,7 @@
 
 [ext_resource type="Shape2D" uid="uid://bgj2ljgku54hx" path="res://resources/collision_shapes/red_bullet.tres" id="1_m56mc"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/rocket_launcher_impact.tres" id="2_g10xc"]
-[ext_resource type="Script" uid="uid://dufu06mgtfw20" path="res://scripts/models/BulletData.gd" id="3_ukydi"]
+[ext_resource type="Script" uid="uid://dufu06mgtfw20" path="res://scripts/resources/BulletData.gd" id="3_ukydi"]
 [ext_resource type="SpriteFrames" uid="uid://bb5b8lioud2ua" path="res://resources/sprite_frames/rocket_launcher_bullet.tres" id="4_40h1v"]
 
 [resource]

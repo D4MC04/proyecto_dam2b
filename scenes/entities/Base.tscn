@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dvcktc32n77sy"]
 
-[ext_resource type="Script" uid="uid://dxfl61ybscdyq" path="res://scripts/SpaceStation.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://dxfl61ybscdyq" path="res://scripts/entities/Base.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://dod7xqcavm62n" path="res://assets/sprites/base/station.png" id="2_station"]
 [ext_resource type="Texture2D" uid="uid://8wpj0mqdvc8e" path="res://assets/sprites/base/shield.png" id="3_shield"]
 

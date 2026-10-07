@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://ct17eiklf1sb7"]
 
-[ext_resource type="Script" uid="uid://do62ihbnaitnl" path="res://scripts/models/EnemyData.gd" id="1_bqpnv"]
+[ext_resource type="Script" uid="uid://do62ihbnaitnl" path="res://scripts/resources/EnemyData.gd" id="1_bqpnv"]
 [ext_resource type="Shape2D" uid="uid://ck3c0sk0137bi" path="res://resources/collision_shapes/ufo.tres" id="1_ur7pl"]
 [ext_resource type="SpriteFrames" uid="uid://byjvfrxtgx1av" path="res://resources/sprite_frames/ufo.tres" id="2_qsa1s"]
 

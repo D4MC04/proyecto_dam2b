@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://ctmtdrb4lan53"]
 
-[ext_resource type="Script" uid="uid://bllbcmppgg75b" path="res://scripts/Enemy.gd" id="1_7p1mj"]
+[ext_resource type="Script" uid="uid://bllbcmppgg75b" path="res://scripts/entities/Enemy.gd" id="1_7p1mj"]
 
 [node name="Enemy" type="PathFollow2D" unique_id=987428534]
 rotates = false

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bbvu6bnko6ibb"]
 
-[ext_resource type="Script" uid="uid://bmhbkq2ud5r1c" path="res://scripts/TowerButton.gd" id="1_pc8kw"]
+[ext_resource type="Script" uid="uid://bmhbkq2ud5r1c" path="res://scripts/level_ui/TowerButton.gd" id="1_pc8kw"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pc8kw"]
 bg_color = Color(0.039215688, 0.05882353, 0.101960786, 0.6)

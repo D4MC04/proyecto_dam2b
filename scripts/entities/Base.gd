@@ -1,5 +1,5 @@
 extends Sprite2D
-class_name SpaceStation
+class_name Base
 
 signal health_changed(current: int, maximum: int)
 signal destroyed

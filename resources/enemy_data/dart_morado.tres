@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://cqrl6wryh28bv"]
 
-[ext_resource type="Script" uid="uid://do62ihbnaitnl" path="res://scripts/models/EnemyData.gd" id="1_data"]
+[ext_resource type="Script" uid="uid://do62ihbnaitnl" path="res://scripts/resources/EnemyData.gd" id="1_data"]
 [ext_resource type="Shape2D" path="res://resources/collision_shapes/dart_morado.tres" id="2_shape"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/dart_morado.tres" id="3_frames"]
 

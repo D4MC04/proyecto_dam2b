@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://b4qxa5dcr0sba"]
 
-[ext_resource type="Script" uid="uid://xieoto7ddr6l" path="res://scripts/Tower.gd" id="1_7itwv"]
-[ext_resource type="PackedScene" uid="uid://f2udr7eyp135" path="res://scenes/Bullet.tscn" id="2_kl3vk"]
+[ext_resource type="Script" uid="uid://xieoto7ddr6l" path="res://scripts/entities/Tower.gd" id="1_7itwv"]
+[ext_resource type="PackedScene" uid="uid://f2udr7eyp135" path="res://scenes/entities/Bullet.tscn" id="2_kl3vk"]
 
 [node name="Tower" type="Node2D" unique_id=2084911007]
 script = ExtResource("1_7itwv")

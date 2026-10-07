@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bjlaw340mmmog"]
 
-[ext_resource type="Script" uid="uid://b6t1efckpeo3y" path="res://scripts/GameOverScreen.gd" id="1_qae0b"]
+[ext_resource type="Script" uid="uid://b6t1efckpeo3y" path="res://scripts/level_ui/GameOverScreen.gd" id="1_qae0b"]
 [ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="2_vuicl"]
 
 [node name="GameOverScreen" type="Control" unique_id=102313545]

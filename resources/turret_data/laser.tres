@@ -5,7 +5,7 @@
 [ext_resource type="SpriteFrames" uid="uid://c3wcyf7lbnjs1" path="res://resources/sprite_frames/laser_cannon.tres" id="3_mhepm"]
 [ext_resource type="Texture2D" uid="uid://cnrp2y2yhllbm" path="res://assets/sprites/towers/laser/laser_full_up.png" id="4_dhaqs"]
 [ext_resource type="SpriteFrames" uid="uid://is7gdnp5rg7c" path="res://resources/sprite_frames/laser_flash.tres" id="5_h7gfm"]
-[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/models/TowerData.gd" id="6_ftpj3"]
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TowerData.gd" id="6_ftpj3"]
 [ext_resource type="SpriteFrames" uid="uid://cg6ygh82fxvqy" path="res://resources/sprite_frames/laser.tres" id="7_y14in"]
 
 [resource]
