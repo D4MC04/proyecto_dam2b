@@ -16,3 +16,6 @@ class_name TowerData
 @export var cannon: SpriteFrames
 # Velocidad de giro del cañón en grados por segundo; 0 = apunta al instante.
 @export var turn_speed: float = 0.0
+# Opcional: con esto la torreta no dispara balas ni gira el cañón; lanza una onda en área en cada cooldown.
+# El cañón anima "default" (reposo en loop) y "fire_0" (carga, pulso y enfriamiento, sin loop).
+@export var pulse: PulseData

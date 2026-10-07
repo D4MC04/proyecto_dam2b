@@ -22,7 +22,11 @@ var _pending_shot := false
 func _ready() -> void:
 	sprite.sprite_frames = data.sprite_frames
 	cannon.sprite_frames = data.cannon
-	set_process(data.cannon != null)
+	set_process(data.cannon != null and data.pulse == null)
+	if data.pulse:
+		cannon.play()
+		cannon.frame_changed.connect(_on_cannon_frame_changed)
+		cannon.animation_finished.connect(cannon.play.bind(&"default"))
 	attack_range_shape.shape = data.attack_range
 	attack_timer.wait_time = data.attack_cooldown
 	attack_timer.timeout.connect(_on_attack_timeout)
@@ -65,12 +69,20 @@ func _on_attack_timeout() -> void:
 	var target := _get_target()
 	if target == null:
 		return
+	if data.pulse:
+		cannon.play(&"fire_0")
+		return
 	if _is_aimed(target):
 		_shoot(target)
 	else:
 		# El cooldown no se gasta: dispara en cuanto el cañón quede alineado.
 		_pending_shot = true
 		attack_timer.stop()
+
+# La onda nace en el frame de pulso de la animación de disparo.
+func _on_cannon_frame_changed() -> void:
+	if cannon.animation == &"fire_0" and cannon.frame == data.pulse.fire_frame:
+		Pulse.spawn(self)
 
 func _shoot(target: Enemy) -> void:
 	var bullet: Bullet = bullet_scene.instantiate()

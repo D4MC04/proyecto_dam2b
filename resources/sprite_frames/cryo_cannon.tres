@@ -1,7 +1,9 @@
 [gd_resource type="SpriteFrames" format=3]
 
 [ext_resource type="Texture2D" path="res://assets/sprites/towers/cryo/cryo_cannon_idle_sheet.png" id="1"]
-[ext_resource type="Texture2D" path="res://assets/sprites/towers/cryo/cryo_cannon_pulse_sheet.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/cryo/cryo_cannon_charge_sheet.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/cryo/cryo_cannon_pulse_sheet.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/cryo/cryo_cannon_cool_sheet.png" id="4"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0"]
 atlas = ExtResource("1")
@@ -35,6 +37,26 @@ region = Rect2(0, 0, 32, 32)
 atlas = ExtResource("2")
 region = Rect2(32, 0, 32, 32)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_8"]
+atlas = ExtResource("2")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_9"]
+atlas = ExtResource("3")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_10"]
+atlas = ExtResource("3")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_11"]
+atlas = ExtResource("4")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_12"]
+atlas = ExtResource("4")
+region = Rect2(32, 0, 32, 32)
+
 [resource]
 animations = [{
 "frames": [{
@@ -58,7 +80,7 @@ animations = [{
 }],
 "loop": 1,
 "name": &"default",
-"speed": 8.0
+"speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -68,9 +90,21 @@ animations = [{
 "texture": SubResource("AtlasTexture_7")
 }, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_0")
+"texture": SubResource("AtlasTexture_8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_9")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_10")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_11")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_12")
 }],
 "loop": 0,
 "name": &"fire_0",
-"speed": 10.0
+"speed": 14.0
 }]
