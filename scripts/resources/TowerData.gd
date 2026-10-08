@@ -21,3 +21,6 @@ class_name TowerData
 @export var pulse: PulseData
 # Opcional: igual que pulse (cañón fijo, mismas animaciones), pero lanza un rayo en cadena al objetivo.
 @export var chain: ChainData
+# Opcional: el cañón gira y apunta como siempre, pero en vez de una bala reproduce "fire_0"
+# (carga, disparo y recuperación) y lanza un haz que atraviesa a los enemigos de la línea.
+@export var beam: BeamData

@@ -18,12 +18,17 @@ var _shots := 0
 var _target: Enemy = null
 # Cooldown cumplido, a la espera de que el cañón termine de girar hacia el enemigo.
 var _pending_shot := false
+# Mira de las torretas de haz; solo se ve durante la carga.
+var _sight: Line2D
 
 func _ready() -> void:
 	sprite.sprite_frames = data.sprite_frames
 	cannon.sprite_frames = data.cannon
 	set_process(data.cannon != null and not _is_static())
-	if _is_static():
+	if data.beam:
+		_sight = Beam.make_sight(self)
+		cannon.animation_changed.connect(_on_cannon_frame_changed)
+	if _is_static() or data.beam:
 		cannon.play()
 		cannon.frame_changed.connect(_on_cannon_frame_changed)
 		cannon.animation_finished.connect(cannon.play.bind(&"default"))
@@ -83,9 +88,12 @@ func _on_attack_timeout() -> void:
 func _is_static() -> bool:
 	return data.pulse != null or data.chain != null
 
-# La onda o el rayo salen en su frame de la animación de disparo.
+# La onda, el rayo o el haz salen en su frame de la animación de disparo.
 func _on_cannon_frame_changed() -> void:
-	if cannon.animation != &"fire_0":
+	var firing := cannon.animation == &"fire_0"
+	if _sight:
+		_sight.visible = firing and cannon.frame < data.beam.fire_frame
+	if not firing:
 		return
 	if data.pulse and cannon.frame == data.pulse.fire_frame:
 		Pulse.spawn(self)
@@ -93,8 +101,14 @@ func _on_cannon_frame_changed() -> void:
 		var target := _get_target()
 		if target:
 			Chain.spawn(self, target)
+	elif data.beam and cannon.frame == data.beam.fire_frame:
+		Beam.spawn(self)
 
 func _shoot(target: Enemy) -> void:
+	if data.beam:
+		# Empieza la carga; el haz sale después, hacia donde apunte el cañón en ese momento.
+		cannon.play(&"fire_0")
+		return
 	var bullet: Bullet = bullet_scene.instantiate()
 	get_parent().add_child(bullet)
 	# La boca gira con el cañón (sin cañón, su rotación es 0 y no cambia nada).

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="BeamData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/BeamData.gd" id="1"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/rail_impact.tres" id="2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/rail/rail_laser.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/rail/rail_beam_0.png" id="b0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/rail/rail_beam_1.png" id="b1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/rail/rail_beam_2.png" id="b2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/rail/rail_beam_3.png" id="b3"]
+
+[resource]
+script = ExtResource("1")
+damage = 150.0
+half_width = 12.0
+length = 700.0
+beam_textures = Array[Texture2D]([ExtResource("b0"), ExtResource("b1"), ExtResource("b2"), ExtResource("b3")])
+frame_time = 0.05
+sight_texture = ExtResource("3")
+impact_frames = ExtResource("2")
+fire_frame = 8

@@ -14,13 +14,14 @@
 [ext_resource type="Resource" uid="uid://bi8dmx532elhj" path="res://resources/turret_data/laser.tres" id="11_1wlqr"]
 [ext_resource type="Resource" path="res://resources/turret_data/cryo.tres" id="cryo"]
 [ext_resource type="Resource" path="res://resources/turret_data/tesla.tres" id="tesla"]
+[ext_resource type="Resource" path="res://resources/turret_data/rail.tres" id="rail"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="12_anhds"]
 [ext_resource type="Resource" uid="uid://cn4rx67l013pn" path="res://resources/wave_data/level_5.tres" id="13_6l3k6"]
 
 [sub_resource type="Resource" id="Resource_aj4ja"]
 script = ExtResource("2_5qiqv")
 map = ExtResource("7_hvbbc")
-towers = Array[ExtResource("8_c77oh")]([ExtResource("9_jj5sp"), ExtResource("10_5ltge"), ExtResource("11_1wlqr"), ExtResource("cryo"), ExtResource("tesla")])
+towers = Array[ExtResource("8_c77oh")]([ExtResource("9_jj5sp"), ExtResource("10_5ltge"), ExtResource("11_1wlqr"), ExtResource("cryo"), ExtResource("tesla"), ExtResource("rail")])
 waves = Array[ExtResource("12_anhds")]([ExtResource("13_6l3k6")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"
 
