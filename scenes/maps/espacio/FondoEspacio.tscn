@@ -1,0 +1,75 @@
+[gd_scene format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/espacio/fondo_nebulosa.png" id="1_nbs4u"]
+[ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/espacio/planeta_gigante.png" id="2_fdn61"]
+[ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/espacio/estrellas_0.png" id="3_ypdhm"]
+[ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/espacio/estrellas_1.png" id="4_qapp8"]
+[ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/espacio/estrellas_2.png" id="5_50x6b"]
+[ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/espacio/estrellas_3.png" id="6_05o6p"]
+[ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/espacio/estrellas_4.png" id="7_4rvh5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/espacio/estrellas_5.png" id="8_i3bpr"]
+[ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/espacio/estrellas_6.png" id="9_j6q5d"]
+[ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/espacio/estrellas_7.png" id="10_kgcc8"]
+[ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/espacio/cometa.png" id="11_mssvt"]
+[ext_resource type="Script" path="res://scripts/level/Cometa.gd" id="12_re1t7"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_jgrmf"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_ypdhm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_qapp8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_50x6b")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_05o6p")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_4rvh5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_i3bpr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_j6q5d")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_kgcc8")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="FondoEspacio" type="Node2D" unique_id=1072552545]
+
+[node name="Nebulosa" type="Parallax2D" parent="." unique_id=1252630419]
+repeat_size = Vector2(640, 0)
+autoscroll = Vector2(-3, 0)
+repeat_times = 2
+
+[node name="Imagen" type="Sprite2D" parent="Nebulosa" unique_id=806515116]
+texture = ExtResource("1_nbs4u")
+centered = false
+
+[node name="PlanetaGigante" type="Sprite2D" parent="." unique_id=271819441]
+position = Vector2(442, 312)
+texture = ExtResource("2_fdn61")
+
+[node name="Estrellas" type="Parallax2D" parent="." unique_id=1775423975]
+repeat_size = Vector2(640, 0)
+autoscroll = Vector2(-6, 0)
+repeat_times = 2
+
+[node name="Parpadeo" type="AnimatedSprite2D" parent="Estrellas" unique_id=597199402]
+sprite_frames = SubResource("SpriteFrames_jgrmf")
+autoplay = "default"
+centered = false
+
+[node name="Cometa" type="Sprite2D" parent="." unique_id=1245684862]
+texture = ExtResource("11_mssvt")
+script = ExtResource("12_re1t7")
