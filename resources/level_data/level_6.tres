@@ -11,10 +11,11 @@
 [ext_resource type="Resource" path="res://resources/turret_data/cryo.tres" id="cryo"]
 [ext_resource type="Resource" path="res://resources/turret_data/rail.tres" id="rail"]
 [ext_resource type="Resource" path="res://resources/turret_data/tesla.tres" id="tesla"]
+[ext_resource type="Resource" path="res://resources/turret_data/disintegrator.tres" id="disintegrator"]
 
 [resource]
 script = ExtResource("2_xvb3k")
 map = ExtResource("1_npfra")
-towers = Array[ExtResource("3_j73uf")]([ExtResource("4_npfra"), ExtResource("5_xvb3k"), ExtResource("6_j73uf"), ExtResource("cryo"), ExtResource("tesla"), ExtResource("rail")])
+towers = Array[ExtResource("3_j73uf")]([ExtResource("4_npfra"), ExtResource("5_xvb3k"), ExtResource("6_j73uf"), ExtResource("cryo"), ExtResource("tesla"), ExtResource("rail"), ExtResource("disintegrator")])
 waves = Array[ExtResource("7_4aa7w")]([ExtResource("8_npfra")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"

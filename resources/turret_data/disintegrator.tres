@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="TowerData" format=3]
+
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TowerData.gd" id="1"]
+[ext_resource type="Shape2D" path="res://resources/collision_shapes/disintegrator.tres" id="2"]
+[ext_resource type="Resource" path="res://resources/focus_beam_data/disintegrator.tres" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/disintegrator/disint_full_up.png" id="4"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/disintegrator.tres" id="5"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/disintegrator_cannon.tres" id="7"]
+
+[resource]
+script = ExtResource("1")
+name = "Disintegrator"
+cost = 600
+attack_cooldown = 1.0
+icon = ExtResource("4")
+sprite_frames = ExtResource("5")
+attack_range = ExtResource("2")
+muzzle_offset = Vector2(0, -14)
+cannon = ExtResource("7")
+turn_speed = 140.0
+focus_beam = ExtResource("3")
+metadata/_custom_type_script = "uid://dmo7ci57slbqu"

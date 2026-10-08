@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="FocusBeamData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/FocusBeamData.gd" id="1"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/disintegrator_death.tres" id="death"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/disintegrator_impact_l1.tres" id="i1"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/disintegrator_muzzle_l1.tres" id="m1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/disintegrator/disint_beam_l1_0.png" id="b1_0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/disintegrator/disint_beam_l1_1.png" id="b1_1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/disintegrator/disint_beam_l1_2.png" id="b1_2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/disintegrator/disint_beam_l1_3.png" id="b1_3"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/disintegrator_impact_l2.tres" id="i2"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/disintegrator_muzzle_l2.tres" id="m2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/disintegrator/disint_beam_l2_0.png" id="b2_0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/disintegrator/disint_beam_l2_1.png" id="b2_1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/disintegrator/disint_beam_l2_2.png" id="b2_2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/disintegrator/disint_beam_l2_3.png" id="b2_3"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/disintegrator_impact_l3.tres" id="i3"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/disintegrator_muzzle_l3.tres" id="m3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/disintegrator/disint_beam_l3_0.png" id="b3_0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/disintegrator/disint_beam_l3_1.png" id="b3_1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/disintegrator/disint_beam_l3_2.png" id="b3_2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/towers/disintegrator/disint_beam_l3_3.png" id="b3_3"]
+
+[resource]
+script = ExtResource("1")
+damage_per_second = Array[float]([40.0, 80.0, 160.0])
+level_time = 1.5
+beam_textures = Array[Texture2D]([ExtResource("b1_0"), ExtResource("b1_1"), ExtResource("b1_2"), ExtResource("b1_3"), ExtResource("b2_0"), ExtResource("b2_1"), ExtResource("b2_2"), ExtResource("b2_3"), ExtResource("b3_0"), ExtResource("b3_1"), ExtResource("b3_2"), ExtResource("b3_3")])
+beam_frames = 4
+frame_time = 0.05
+impact_frames = Array[SpriteFrames]([ExtResource("i1"), ExtResource("i2"), ExtResource("i3")])
+muzzle_frames = Array[SpriteFrames]([ExtResource("m1"), ExtResource("m2"), ExtResource("m3")])
+tint = Color(1, 0.35, 0.82, 1)
+tint_amount = Array[float]([0.2, 0.4, 0.6])
+death_frames = ExtResource("death")

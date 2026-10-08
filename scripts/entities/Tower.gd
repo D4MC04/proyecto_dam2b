@@ -38,6 +38,10 @@ func _ready() -> void:
 	attack_range_area.area_entered.connect(_on_area_entered)
 	attack_range_area.area_exited.connect(_on_area_exited)
 	attack_timer.start()
+	if data.focus_beam:
+		# El haz continuo no dispara por cooldown: lo lleva su propio nodo.
+		attack_timer.stop()
+		add_child(FocusBeam.new())
 
 func _process(delta: float) -> void:
 	var target := _get_target()

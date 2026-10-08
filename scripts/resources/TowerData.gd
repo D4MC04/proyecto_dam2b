@@ -24,3 +24,6 @@ class_name TowerData
 # Opcional: el cañón gira y apunta como siempre, pero en vez de una bala reproduce "fire_0"
 # (carga, disparo y recuperación) y lanza un haz que atraviesa a los enemigos de la línea.
 @export var beam: BeamData
+# Opcional: el cañón gira y apunta como siempre, pero en vez de balas mantiene un haz continuo
+# sobre el objetivo que sube de nivel con el tiempo. No usa attack_cooldown.
+@export var focus_beam: FocusBeamData
