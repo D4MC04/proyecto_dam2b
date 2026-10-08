@@ -1,9 +1,9 @@
-[gd_resource type="SpriteFrames" format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://bsiiwspudjsv2"]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/towers/tesla/tesla_cannon_idle_sheet.png" id="1"]
-[ext_resource type="Texture2D" path="res://assets/sprites/towers/tesla/tesla_cannon_charge_sheet.png" id="2"]
-[ext_resource type="Texture2D" path="res://assets/sprites/towers/tesla/tesla_cannon_fire_sheet.png" id="3"]
-[ext_resource type="Texture2D" path="res://assets/sprites/towers/tesla/tesla_cannon_cool_sheet.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://dn580e64rvi8j" path="res://assets/sprites/towers/tesla/tesla_cannon_idle_sheet.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://n2twrplsxex6" path="res://assets/sprites/towers/tesla/tesla_cannon_charge_sheet.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://c1han6w7mayby" path="res://assets/sprites/towers/tesla/tesla_cannon_fire_sheet.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://boww21htfiqlk" path="res://assets/sprites/towers/tesla/tesla_cannon_cool_sheet.png" id="4"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0"]
 atlas = ExtResource("1")
