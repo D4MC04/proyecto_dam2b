@@ -3,7 +3,7 @@ class_name LevelState
 
 signal money_changed(amount: int)
 
-var money := 1000
+var money := 100
 var selected_tower: TowerData
 
 func add_money(amount: int) -> void:
