@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="LevelData" format=3 uid="uid://cqd4c6x6gpivw"]
 
-[ext_resource type="PackedScene" uid="uid://b2cjj73krusj4" path="res://scenes/maps/Level6.tscn" id="1_npfra"]
+[ext_resource type="PackedScene" path="res://scenes/maps/espacio/Level6_espacio.tscn" id="1_npfra"]
 [ext_resource type="Script" uid="uid://du40p5btlpgd0" path="res://scripts/resources/LevelData.gd" id="2_xvb3k"]
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TowerData.gd" id="3_j73uf"]
 [ext_resource type="Resource" uid="uid://cnbuncwscbxtt" path="res://resources/turret_data/turret.tres" id="4_npfra"]
@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="7_4aa7w"]
 [ext_resource type="Resource" uid="uid://ojf1udgbevrh" path="res://resources/wave_data/level_6.tres" id="8_npfra"]
 [ext_resource type="Resource" path="res://resources/turret_data/cryo.tres" id="cryo"]
-[ext_resource type="Resource" path="res://resources/turret_data/rail.tres" id="rail"]
-[ext_resource type="Resource" path="res://resources/turret_data/tesla.tres" id="tesla"]
 [ext_resource type="Resource" path="res://resources/turret_data/disintegrator.tres" id="disintegrator"]
+[ext_resource type="Resource" uid="uid://b8ynt6u20qgqi" path="res://resources/turret_data/rail.tres" id="rail"]
+[ext_resource type="Resource" path="res://resources/turret_data/tesla.tres" id="tesla"]
 
 [resource]
 script = ExtResource("2_xvb3k")

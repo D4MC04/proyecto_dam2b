@@ -6,7 +6,7 @@
 [ext_resource type="Resource" uid="uid://bqvh377bcwk4w" path="res://resources/level_data/level_2.tres" id="4_d0bd5"]
 [ext_resource type="Resource" uid="uid://cdvockyn4xmod" path="res://resources/level_data/level_3.tres" id="5_fvrfv"]
 [ext_resource type="Resource" uid="uid://snokbicbogox" path="res://resources/level_data/level_4.tres" id="6_24vlh"]
-[ext_resource type="PackedScene" uid="uid://bxp3wwvasbihq" path="res://scenes/maps/Level5.tscn" id="7_hvbbc"]
+[ext_resource type="PackedScene" path="res://scenes/maps/espacio/Level5_espacio.tscn" id="7_hvbbc"]
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TowerData.gd" id="8_c77oh"]
 [ext_resource type="Resource" uid="uid://cqd4c6x6gpivw" path="res://resources/level_data/level_6.tres" id="8_huf1t"]
 [ext_resource type="Resource" uid="uid://cnbuncwscbxtt" path="res://resources/turret_data/turret.tres" id="9_jj5sp"]

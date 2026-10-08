@@ -1,17 +1,17 @@
-[gd_resource type="Resource" script_class="LevelData" format=3]
+[gd_resource type="Resource" script_class="LevelData" format=3 uid="uid://ck4r2sfi2w6b4"]
 
-[ext_resource type="PackedScene" uid="uid://bxp3wwvasbihq" path="res://scenes/maps/Level5.tscn" id="1_e7mtc"]
+[ext_resource type="PackedScene" path="res://scenes/maps/espacio/Level5_espacio.tscn" id="1_e7mtc"]
 [ext_resource type="Script" uid="uid://du40p5btlpgd0" path="res://scripts/resources/LevelData.gd" id="2_mhbsq"]
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TowerData.gd" id="3_scr8y"]
 [ext_resource type="Resource" uid="uid://cnbuncwscbxtt" path="res://resources/turret_data/turret.tres" id="4_e7mtc"]
 [ext_resource type="Resource" uid="uid://bh8qdvmr3kaj" path="res://resources/turret_data/rocket_launcher.tres" id="5_mhbsq"]
 [ext_resource type="Resource" uid="uid://bi8dmx532elhj" path="res://resources/turret_data/laser.tres" id="6_scr8y"]
-[ext_resource type="Resource" path="res://resources/turret_data/cryo.tres" id="cryo"]
-[ext_resource type="Resource" path="res://resources/turret_data/tesla.tres" id="tesla"]
-[ext_resource type="Resource" path="res://resources/turret_data/rail.tres" id="rail"]
-[ext_resource type="Resource" path="res://resources/turret_data/disintegrator.tres" id="disintegrator"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="7_867eq"]
 [ext_resource type="Resource" uid="uid://cn4rx67l013pn" path="res://resources/wave_data/level_5.tres" id="8_e7mtc"]
+[ext_resource type="Resource" path="res://resources/turret_data/cryo.tres" id="cryo"]
+[ext_resource type="Resource" path="res://resources/turret_data/disintegrator.tres" id="disintegrator"]
+[ext_resource type="Resource" uid="uid://b8ynt6u20qgqi" path="res://resources/turret_data/rail.tres" id="rail"]
+[ext_resource type="Resource" path="res://resources/turret_data/tesla.tres" id="tesla"]
 
 [resource]
 script = ExtResource("2_mhbsq")
