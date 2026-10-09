@@ -1,3 +1,17 @@
-# Godot 4+ specific ignores
+# Godot 4
 .godot/
 /android/
+
+# Credenciales de exportación
+export_credentials.cfg
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
+
+# Claude Code: ajustes personales (.claude/settings.json sí se commitea)
+.claude/settings.local.json
