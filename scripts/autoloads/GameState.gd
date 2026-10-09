@@ -1,6 +1,6 @@
 extends Node
 
-var current_level: int = 0
+var current_level: int = 50
 
 func is_unlocked(i: int) -> bool:
 	return i <= current_level

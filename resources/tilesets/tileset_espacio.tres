@@ -1,8 +1,8 @@
-[gd_resource type="TileSet" format=3]
+[gd_resource type="TileSet" format=3 uid="uid://xequg026e5xw"]
 
-[ext_resource type="Texture2D" path="res://assets/tilesets/espacio/espacio_rocas.png" id="1_ojfck"]
-[ext_resource type="Texture2D" path="res://assets/tilesets/espacio/espacio_planetas.png" id="2_f2ctp"]
-[ext_resource type="Texture2D" path="res://assets/tilesets/espacio/espacio_animados.png" id="3_1utaq"]
+[ext_resource type="Texture2D" uid="uid://batdeutfwq307" path="res://assets/tilesets/espacio/espacio_rocas.png" id="1_ojfck"]
+[ext_resource type="Texture2D" uid="uid://boa8bfwibn4qw" path="res://assets/tilesets/espacio/espacio_planetas.png" id="2_f2ctp"]
+[ext_resource type="Texture2D" uid="uid://0ppdt08dl6a1" path="res://assets/tilesets/espacio/espacio_animados.png" id="3_1utaq"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_vbt0s"]
 resource_name = "Rocas y chatarra"

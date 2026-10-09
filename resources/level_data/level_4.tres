@@ -9,7 +9,7 @@
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="7_jxj2i"]
 [ext_resource type="Resource" uid="uid://cgaty72q84khx" path="res://resources/wave_data/level_4.tres" id="8_2iph1"]
 [ext_resource type="Resource" path="res://resources/turret_data/cryo.tres" id="cryo"]
-[ext_resource type="Resource" path="res://resources/turret_data/rail.tres" id="rail"]
+[ext_resource type="Resource" uid="uid://b8ynt6u20qgqi" path="res://resources/turret_data/rail.tres" id="rail"]
 [ext_resource type="Resource" path="res://resources/turret_data/tesla.tres" id="tesla"]
 
 [resource]
