@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://b6hyuslcy228o" path="res://scenes/level_ui/PauseMenu.tscn" id="2_3xbq7"]
 [ext_resource type="PackedScene" uid="uid://dgetllrlfjnrc" path="res://scenes/level_ui/Sidebar.tscn" id="3_ln102"]
 [ext_resource type="PackedScene" path="res://scenes/level_ui/InfoPanel.tscn" id="4_info"]
+[ext_resource type="PackedScene" path="res://scenes/level_ui/LevelIndicator.tscn" id="5_indicator"]
 
 [node name="LevelUI" type="CanvasLayer" unique_id=245943380]
 process_mode = 3
@@ -38,6 +39,15 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
+
+[node name="LevelIndicator" parent="UI/HBoxContainer/GameArea" instance=ExtResource("5_indicator")]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_top = 3.0
+grow_horizontal = 2
 
 [node name="GameOverScreen" parent="UI/HBoxContainer/GameArea" unique_id=592437674 instance=ExtResource("1_8klgi")]
 unique_name_in_owner = true

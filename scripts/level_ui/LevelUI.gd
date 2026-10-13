@@ -7,6 +7,7 @@ signal quit_requested
 @onready var game_over_screen: Control = %GameOverScreen
 @onready var pause_menu: Control = %PauseMenu
 @onready var sidebar: Sidebar = %Sidebar
+@onready var level_indicator: LevelIndicator = %LevelIndicator
 
 var _state: LevelState
 
@@ -18,7 +19,8 @@ func _ready() -> void:
 	game_over_screen.quit_requested.connect(_on_quit_requested)
 	sidebar.tower_selected.connect(_on_tower_selected)
 
-func setup(state: LevelState, towers: Array[TowerData]) -> void:
+func setup(state: LevelState, towers: Array[TowerData], level_number: int) -> void:
+	level_indicator.set_level_number(level_number)
 	if is_instance_valid(_state):
 		if _state.money_changed.is_connected(sidebar.set_money):
 			_state.money_changed.disconnect(sidebar.set_money)

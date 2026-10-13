@@ -12,6 +12,8 @@ Estructura: `UI/HBoxContainer` (sin separación) con tres columnas, de izquierda
 - `GameArea`: zona del mapa, ocupa el resto (480 px con el viewport de 640). Contiene `GameOverScreen` y `PauseMenu`, ocultos al empezar, así que el oscurecido y los menús no tapan las barras. El mapa se centra en esta columna desde `Level` (ver [niveles.md](niveles.md)).
 - `Sidebar`: barra derecha, 80 px.
 
+`GameArea` contiene además `LevelIndicator`, declarado antes que `GameOverScreen` y `PauseMenu` para que estos lo tapen.
+
 Las dos barras usan el mismo estilo, `assets/ui/side_panel_style.tres`: `StyleBoxFlat` opaco con el fondo del tema (`#0a0f1a`), borde de 1 px en cian oscuro `#1c7496` y 4 px de margen interior en cada lado.
 
 ## InfoPanel
@@ -20,12 +22,19 @@ Las dos barras usan el mismo estilo, `assets/ui/side_panel_style.tres`: `StyleBo
 
 Funciones:
 
-- `setup(state, towers)`: conecta `state.money_changed` a `sidebar.set_money` y `state.selected_tower_changed` a `sidebar.show_selected`, crea los botones de torre y muestra el dinero inicial. Si había un `LevelState` anterior, desconecta ambas.
+- `setup(state, towers, level_number)`: pasa el número de nivel al `LevelIndicator`, conecta `state.money_changed` a `sidebar.set_money` y `state.selected_tower_changed` a `sidebar.show_selected`, crea los botones de torre y muestra el dinero inicial. Si había un `LevelState` anterior, desconecta ambas.
 - `_on_tower_selected(data)`: recibe `Sidebar.tower_selected` y escribe `selected_tower` en el `LevelState`. Es el único camino de la barra lateral al estado.
 - `show_game_over()`: muestra la pantalla y pausa el árbol. `hide_game_over()` la oculta.
 - Acción `ui_cancel` (Escape): alterna el menú de pausa y la pausa del árbol, salvo si se ve el game over.
 
 Señales: `restart_requested` y `quit_requested`. Las emite cuando se pulsa el botón correspondiente en pausa o en game over, después de quitar la pausa.
+
+## LevelIndicator
+
+`scenes/level_ui/LevelIndicator.tscn` + `scripts/level_ui/LevelIndicator.gd` (clase `LevelIndicator`). `PanelContainer` anclado arriba en el centro de `GameArea` (3 px de margen superior) con un `Label` "NIVEL N" a 8 px. Estilo `assets/ui/level_indicator_style.tres`: mismo fondo y borde que las barras, pero con 4 px de margen horizontal y 2 px vertical (unos 14 px de alto). `mouse_filter = IGNORE` en el panel y en el `Label`.
+
+- Número: `Game` lo calcula como la posición de `level_data` en `GameData.levels` más 1 y lo pasa por `LevelUI.setup`. Si el nivel no está en la lista (0), el indicador se oculta.
+- Se ve con opacidad 0,7. Si el cursor o algún nodo del grupo `enemies` está dentro de su rectángulo (con 4 px de margen), baja a 0,15 con un tween de 0,15 s; al salir, vuelve a 0,7. Se comprueba en `_process`, que sigue activo con el juego en pausa.
 
 ## Sidebar
 
