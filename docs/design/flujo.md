@@ -33,7 +33,7 @@ En `_ready`:
    - `level.setup(level_data)`
    - conecta `level.lost` a `_on_level_lost`
    - conecta `ui.sidebar.tower_selected` a `level.on_tower_selected`
-   - `ui.setup(level.game_state, level.towers)`
+   - `ui.setup(level.game_state, level.towers, level_number, level.spawner)`
 
 ### Derrota
 

@@ -29,4 +29,4 @@
 
 ## Antes de dar algo por terminado
 - Comprobar que el proyecto carga sin errores en headless. Godot: `C:\Users\David\Desktop\Godot.exe` (no está en el PATH).
-- No commitear: lo hacen los humanos.
+- No commitear a menos que el usuario lo pida. Si lo pide, hacer el commit.

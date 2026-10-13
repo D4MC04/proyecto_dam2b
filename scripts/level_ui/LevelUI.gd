@@ -10,6 +10,7 @@ signal quit_requested
 @onready var level_indicator: LevelIndicator = %LevelIndicator
 
 var _state: LevelState
+var _spawner: Spawner
 
 func _ready() -> void:
 	pause_menu.resume_requested.connect(_set_paused.bind(false))
@@ -19,8 +20,15 @@ func _ready() -> void:
 	game_over_screen.quit_requested.connect(_on_quit_requested)
 	sidebar.tower_selected.connect(_on_tower_selected)
 
-func setup(state: LevelState, towers: Array[TowerData], level_number: int) -> void:
+func setup(state: LevelState, towers: Array[TowerData], level_number: int, spawner: Spawner) -> void:
 	level_indicator.set_level_number(level_number)
+	if is_instance_valid(_spawner) and _spawner.wave_started.is_connected(sidebar.set_current_wave):
+		_spawner.wave_started.disconnect(sidebar.set_current_wave)
+	_spawner = spawner
+	# El Spawner arranca la primera oleada en su setup, antes de que la UI se conecte.
+	sidebar.build_waves(spawner.waves)
+	sidebar.set_current_wave(spawner.get_wave_index(), spawner.waves.size())
+	spawner.wave_started.connect(sidebar.set_current_wave)
 	if is_instance_valid(_state):
 		if _state.money_changed.is_connected(sidebar.set_money):
 			_state.money_changed.disconnect(sidebar.set_money)

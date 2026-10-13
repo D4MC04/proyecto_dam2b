@@ -80,3 +80,29 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="WaveHeader" type="PanelContainer" parent="Content/WavesPage"]
+layout_mode = 2
+theme_override_styles/panel = ExtResource("5_money")
+
+[node name="WaveLabel" type="Label" parent="Content/WavesPage/WaveHeader"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
+theme_override_font_sizes/font_size = 8
+horizontal_alignment = 1
+clip_text = true
+
+[node name="WaveScroll" type="ScrollContainer" parent="Content/WavesPage"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
+
+[node name="WaveBlocks" type="VBoxContainer" parent="Content/WavesPage/WaveScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6

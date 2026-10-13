@@ -54,7 +54,7 @@ Cada nivel tiene una sola `WaveData` (`resources/wave_data/level_N.tres`). Los n
 ## Spawner
 
 - `setup(paths, waves)` guarda los datos y llama a `start_next_wave()`.
-- `start_next_wave()` no hace nada si hay una oleada activa o no quedan más. Si arranca, copia las entradas, las ordena por `time` y pone el reloj a 0.
+- `start_next_wave()` no hace nada si hay una oleada activa o no quedan más. Si arranca, copia las entradas, las ordena por `time`, pone el reloj a 0 y emite `wave_started(index, total)` (índice desde 0). Como `setup` arranca la primera oleada, esa emisión ocurre antes de que la UI se conecte: `LevelUI.setup` lee el estado actual con `get_wave_index()` (-1 si no ha empezado ninguna).
 - En `_process` suma el tiempo y crea cada enemigo cuando su `time` se cumple. Al crear el último emite `wave_finished(index)` y se desactiva.
 - `_spawn(entry)` instancia `scenes/entities/Enemy.tscn` como hijo del `Path2D` número `entry.path_index % paths.size()`, llama a `enemy.setup(entry.enemy_data)` y reenvía sus señales `died` y `reached_end` como `enemy_died` y `enemy_reached_end`.
 

@@ -4,6 +4,8 @@ extends Node
 signal enemy_died(reward: int)
 signal enemy_reached_end
 signal wave_finished(index: int)
+## Se emite al empezar cada oleada, con su índice (desde 0) y el total de oleadas.
+signal wave_started(index: int, total: int)
 
 const ENEMY_SCENE: PackedScene = preload("res://scenes/entities/Enemy.tscn")
 
@@ -29,7 +31,12 @@ func start_next_wave() -> bool:
 	_elapsed = 0.0
 	_next_index = 0
 	_active = true
+	wave_started.emit(_wave_index, waves.size())
 	return true
+
+## Índice de la oleada en curso (o de la última que empezó); -1 si aún no ha empezado ninguna.
+func get_wave_index() -> int:
+	return _wave_index
 
 func _process(delta: float) -> void:
 	if not _active:

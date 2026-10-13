@@ -21,7 +21,7 @@ func _setup_level() -> void:
 	level.lost.connect(_on_level_lost)
 	# Posición del nivel en la lista + 1; 0 si no está (no se muestra número)
 	var level_number: int = GameData.levels.find(level_data) + 1
-	ui.setup(level.game_state, level.towers, level_number)
+	ui.setup(level.game_state, level.towers, level_number, level.spawner)
 
 func _on_level_lost() -> void:
 	ui.show_game_over()
