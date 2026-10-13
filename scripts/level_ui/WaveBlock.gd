@@ -1,7 +1,7 @@
 extends VBoxContainer
 class_name WaveBlock
 
-enum State { PAST, CURRENT, FUTURE }
+enum State { PAST, CURRENT, NEXT, FUTURE }
 
 const ENEMY_CELL: PackedScene = preload("res://scenes/level_ui/EnemyCell.tscn")
 
@@ -11,6 +11,8 @@ const TITLE_TEXT_COLOR := Color("#7fa6b8")
 const CURRENT_BG_COLOR := Color("#14304a")
 const CURRENT_BORDER_COLOR := Color("#40e0f0")
 const CURRENT_TEXT_COLOR := Color("#40e0f0")
+const NEXT_BORDER_COLOR := Color("#96641e")
+const NEXT_TEXT_COLOR := Color("#ecb23c")
 const PAST_COLOR := Color(1, 1, 1, 0.4)
 
 @onready var title_panel: PanelContainer = %TitlePanel
@@ -35,9 +37,17 @@ func setup(wave: WaveData, wave_number: int) -> void:
 	set_state(State.FUTURE)
 
 func set_state(state: State) -> void:
-	var current := state == State.CURRENT
-	var bg := CURRENT_BG_COLOR if current else TITLE_BG_COLOR
-	var border := CURRENT_BORDER_COLOR if current else TITLE_BORDER_COLOR
+	var bg := TITLE_BG_COLOR
+	var border := TITLE_BORDER_COLOR
+	var text_color := TITLE_TEXT_COLOR
+	match state:
+		State.CURRENT:
+			bg = CURRENT_BG_COLOR
+			border = CURRENT_BORDER_COLOR
+			text_color = CURRENT_TEXT_COLOR
+		State.NEXT:
+			border = NEXT_BORDER_COLOR
+			text_color = NEXT_TEXT_COLOR
 	var style := StyleBoxFlat.new()
 	style.bg_color = bg
 	style.set_border_width_all(1)
@@ -48,5 +58,5 @@ func set_state(state: State) -> void:
 	style.content_margin_bottom = 1
 	style.anti_aliasing = false
 	title_panel.add_theme_stylebox_override("panel", style)
-	title_label.add_theme_color_override("font_color", CURRENT_TEXT_COLOR if current else TITLE_TEXT_COLOR)
+	title_label.add_theme_color_override("font_color", text_color)
 	modulate = PAST_COLOR if state == State.PAST else Color.WHITE

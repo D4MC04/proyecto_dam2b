@@ -61,14 +61,18 @@ Señales: `restart_requested` y `quit_requested`. Las emite cuando se pulsa el b
 
 ## Pestaña Oleadas
 
-`WavesPage` (dentro de `Sidebar`): `WaveHeader` fijo (mismo estilo que `MoneyHeader`) con `WaveLabel` en cian `#40e0f0`, y debajo `WaveScroll` (scroll vertical sin barra visible) con `WaveBlocks`, un `VBoxContainer` con un `WaveBlock` por oleada (6 px de separación).
+`WavesPage` (dentro de `Sidebar`), de arriba abajo: `WaveHeader` fijo (mismo estilo que `MoneyHeader`) con `WaveLabel` en cian `#40e0f0`; `WaveControls`, una fila fija con los dos controles de oleada; y `WaveScroll` (scroll vertical sin barra visible) con `WaveBlocks`, un `VBoxContainer` con un `WaveBlock` por oleada (6 px de separación).
 
-- **Cabecera:** `"OL. X/Y"` (X = oleada en curso desde 1, Y = total). La forma larga no cabe en 72 px a 8 px de fuente. Antes de que empiece ninguna oleada muestra la 1.
-- `Sidebar.build_waves(waves)`: borra los bloques anteriores y crea uno por `WaveData`. `Sidebar.set_current_wave(index, total)`: actualiza cabecera y estados, y desplaza la lista (`ensure_control_visible`, tras esperar un frame) para que el bloque en curso quede visible; también se hace al volver a la pestaña.
+- **Cabecera:** `"OL. X/Y"` (X = última oleada lanzada desde 1, Y = total). La forma larga no cabe en 72 px a 8 px de fuente. Antes de lanzar ninguna muestra `"OL. 0/Y"`.
+- **Controles** (`WaveControls`, `HBoxContainer` con 4 px de separación y dos botones de 34x18 sin foco). No caben junto a la cabecera, que ya ocupa 56 de los 66 px útiles, así que van en su propia fila, fuera del scroll. Los estilos se crean en `Sidebar._style_wave_controls()` con bordes de 1 px:
+  - `NextWaveButton`: icono `assets/ui/wave_next.png` (▶▶ cian), tooltip "Siguiente oleada". Activo: fondo `#0e1626`, borde `#1c7496`; hover con borde `#40e0f0`. Cuando no se puede lanzar (quedan enemigos de la oleada actual por salir o vivos, o no quedan oleadas) está `disabled`: fondo `#0a0f1a`, borde `#1c4a60` e icono al 30 %. Antes de la primera oleada, si se puede pulsar, su borde parpadea entre `#1c7496` y `#befaff` (0,5 s cada medio ciclo) para invitar a empezar. Emite `Sidebar.next_wave_requested`.
+  - `AutoWaveButton`: `toggle_mode`, icono `assets/ui/wave_auto.png` (rayo ámbar), tooltip sobre AUTO. Apagado: borde `#1c4a60` e icono al 30 %; encendido: fondo `#453d2b` (fondo mezclado al 25 % con ámbar), borde `#ecb23c` e icono a plena luz. Emite `Sidebar.auto_waves_toggled(enabled)`, que es una petición: el estado lo guarda `Spawner.auto_waves` y la barra lo refleja con `show_auto_waves(enabled)` (sin volver a emitir).
+  - `Sidebar.set_next_wave_available(available, inviting)` activa o atenúa el botón y arranca o para el parpadeo.
+- `Sidebar.build_waves(waves)`: borra los bloques anteriores y crea uno por `WaveData`. `Sidebar.set_current_wave(index, total)`: actualiza cabecera y estados, y tras esperar un frame desplaza la lista para que el título del bloque en curso (o el primero, antes de empezar) quede arriba; también se hace al volver a la pestaña.
 - **`WaveBlock`** (`scenes/level_ui/WaveBlock.tscn` + `scripts/level_ui/WaveBlock.gd`): título `"OLEADA N"` en un panel de 72 px y una rejilla de 2 columnas (34 px, 4 px de separación) de `EnemyCell`. Agrupa las entradas por `EnemyData`, con el total de cada tipo, en orden de primera aparición (por `time`). No hay datos de enemigos en la UI.
-- **Estados:** `WaveBlock.set_state`. En curso: título con fondo `#14304a`, borde y texto `#40e0f0`. Pasada: todo el bloque al 40 % de opacidad. Futura: título con fondo `#0e1626`, borde `#1c4a60` y texto `#7fa6b8`.
+- **Estados:** `WaveBlock.set_state`. En curso (la última lanzada): título con fondo `#14304a`, borde y texto `#40e0f0`. Pasada: todo el bloque al 40 % de opacidad. Próxima (la siguiente a la última lanzada; antes de empezar, la primera): título con fondo `#0e1626`, borde `#96641e` y texto `#ecb23c`. Futura: título con fondo `#0e1626`, borde `#1c4a60` y texto `#7fa6b8`.
 - **`EnemyCell`** (`scenes/level_ui/EnemyCell.tscn` + `scripts/level_ui/EnemyCell.gd`): `Button` de 34x44 con los colores de `TowerButton`. Sprite = primer frame de `up` a escala 1, centrado en un área de 34x34 (el Spikey, de 34, ocupa todo el ancho de la celda y pisa el borde), y debajo `"×N"` a 8 px (abreviado con `UiFormat`). Tooltip con el nombre. Emite `enemy_clicked(data)`, que de momento nadie escucha.
-- `LevelUI.setup(..., spawner)` construye los bloques con `spawner.waves`, marca la oleada actual con `spawner.get_wave_index()` y conecta `spawner.wave_started` a `sidebar.set_current_wave`, desconectando el `Spawner` anterior si lo había.
+- `LevelUI.setup(..., spawner)` llama a `_connect_spawner`: desconecta el `Spawner` anterior si lo había, construye los bloques con `spawner.waves`, refleja la oleada (`get_wave_index()`) y AUTO, y conecta `wave_started`, `wave_cleared` y `auto_waves_changed`. Tras cada cambio de oleada, `_refresh_wave_controls()` pide a la barra que active el botón según `spawner.can_start_next_wave()` y que parpadee si aún no ha empezado ninguna. `next_wave_requested` llama a `spawner.start_next_wave()` y `auto_waves_toggled` escribe `spawner.auto_waves`.
 
 ## UiFormat
 
@@ -88,8 +92,12 @@ Señales: `restart_requested` y `quit_requested`. Las emite cuando se pulsa el b
 |---|---|---|
 | `LevelState` | `money_changed` | `Sidebar.set_money` |
 | `LevelState` | `selected_tower_changed` | `Sidebar.show_selected` |
-| `Spawner` | `wave_started` | `Sidebar.set_current_wave` |
+| `Spawner` | `wave_started` | `LevelUI._on_wave_started` (`Sidebar.set_current_wave` y controles) |
+| `Spawner` | `wave_cleared` | `LevelUI._on_wave_cleared` (controles) |
+| `Spawner` | `auto_waves_changed` | `Sidebar.show_auto_waves` |
 | `Sidebar` | `tower_selected` | `LevelUI._on_tower_selected` (escribe en `LevelState`) |
+| `Sidebar` | `next_wave_requested` | `LevelUI._on_next_wave_requested` (`Spawner.start_next_wave`) |
+| `Sidebar` | `auto_waves_toggled` | `LevelUI._on_auto_waves_toggled` (escribe `Spawner.auto_waves`) |
 | `LevelUI` | `restart_requested` | `Game._restart_level` |
 | `LevelUI` | `quit_requested` | `Game._quit_to_menu` |
 | `Game` | llamada directa | `LevelUI.show_game_over` / `hide_game_over` |

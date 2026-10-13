@@ -8,7 +8,7 @@
 |---|---|---|
 | `LevelState` | `scripts/level/LevelState.gd` | Dinero y torre seleccionada |
 | `Grid` | `scripts/level/Grid.gd` | Qué casillas son camino o hueco y cuáles están ocupadas |
-| `Spawner` | `scripts/level/Spawner.gd` | Crea enemigos según la oleada |
+| `Spawner` | `scripts/level/Spawner.gd` | Lanza las oleadas, crea sus enemigos y cuenta los vivos |
 | `BuildManager` | `scripts/level/BuildManager.gd` | Coloca torres; ver [torres.md](torres.md) |
 
 `Level.setup(data: LevelData)`:
@@ -53,10 +53,49 @@ Cada nivel tiene una sola `WaveData` (`resources/wave_data/level_N.tres`). Los n
 
 ## Spawner
 
-- `setup(paths, waves)` guarda los datos y llama a `start_next_wave()`.
-- `start_next_wave()` no hace nada si hay una oleada activa o no quedan más. Si arranca, copia las entradas, las ordena por `time`, pone el reloj a 0 y emite `wave_started(index, total)` (índice desde 0). Como `setup` arranca la primera oleada, esa emisión ocurre antes de que la UI se conecte: `LevelUI.setup` lee el estado actual con `get_wave_index()` (-1 si no ha empezado ninguna).
-- En `_process` suma el tiempo y crea cada enemigo cuando su `time` se cumple. Al crear el último emite `wave_finished(index)` y se desactiva.
-- `_spawn(entry)` instancia `scenes/entities/Enemy.tscn` como hijo del `Path2D` número `entry.path_index % paths.size()`, llama a `enemy.setup(entry.enemy_data)` y reenvía sus señales `died` y `reached_end` como `enemy_died` y `enemy_reached_end`.
+Lleva el ciclo de oleadas del nivel: cuándo se lanzan, qué enemigos quedan vivos y el modo AUTO.
+
+### Ciclo de oleadas
+
+- `setup(paths, waves)` solo guarda los datos. El nivel empieza en espera, sin enemigos, para dejar construir; la primera oleada se lanza con el botón de la pestaña Oleadas o con AUTO.
+- `start_next_wave() -> bool` lanza la siguiente oleada: copia sus entradas, las ordena por `time`, pone el reloj a 0 y emite `wave_started(index, total)` (índice desde 0). Devuelve `false` y no hace nada si el nivel no está limpio (la actual sigue sacando o quedan enemigos vivos) o no quedan oleadas (`can_start_next_wave()`). Así nunca conviven enemigos de dos oleadas.
+- En `_process` suma el tiempo y crea cada enemigo cuando su `time` se cumple. Al crear el último emite `wave_spawn_finished(index)`.
+- `_spawn(entry)` instancia `scenes/entities/Enemy.tscn` como hijo del `Path2D` número `entry.path_index % paths.size()`, llama a `enemy.setup(entry.enemy_data)`, lo apunta como vivo y conecta sus señales `died` y `reached_end`.
+
+### Enemigos vivos
+
+`_alive` es un `Dictionary[Enemy, bool]`. Se añade el enemigo al crearlo y se borra al recibir `died` o `reached_end`; solo la primera de esas señales cuenta, así que cada enemigo se descuenta una vez aunque muera dos veces o muera y llegue al final en el mismo frame. Solo entonces se reenvía como `enemy_died(reward)` o `enemy_reached_end`. No se usa `tree_exiting`: al reiniciar se libera el nivel entero y no se emite nada. `get_alive_count()` devuelve la cuenta.
+
+### Estados
+
+| Función | Significado |
+|---|---|
+| `get_wave_index()` | Última oleada lanzada; -1 antes de la primera |
+| `is_spawning()` | La oleada actual aún tiene entradas pendientes |
+| `has_finished_spawning()` | No quedan entradas (o no se ha lanzado ninguna); puede haber enemigos vivos |
+| `is_clear()` | No quedan entradas ni enemigos vivos |
+| `has_waves_left()` | Quedan oleadas por lanzar |
+| `can_start_next_wave()` | Está limpio y quedan oleadas |
+
+### Señales
+
+| Señal | Cuándo |
+|---|---|
+| `wave_started(index, total)` | Al lanzar una oleada |
+| `wave_spawn_finished(index)` | Al crear el último enemigo de la oleada |
+| `wave_cleared(index)` | Cuando, tras lanzar la oleada `index`, el nivel pasa a limpio |
+| `all_waves_cleared` | Cuando se limpia la última oleada. De momento nadie la escucha; la victoria se conectará aquí |
+| `auto_waves_changed(enabled)` | Al cambiar `auto_waves` |
+| `enemy_died(reward)`, `enemy_reached_end` | Reenvío de las señales del enemigo, una vez por enemigo |
+
+### Modo AUTO
+
+`auto_waves: bool` vive en el `Spawner` y empieza en `false`; como el nivel se instancia de nuevo al reiniciar, también vuelve a `false`. La UI solo lo lee y lo cambia.
+
+- Con AUTO activo, cuando el nivel queda limpio y quedan oleadas, empieza una cuenta atrás de `AUTO_WAVE_DELAY` (1,5 s) y después se lanza la siguiente.
+- Activarlo estando limpio (también antes de la primera oleada) arranca esa misma cuenta atrás.
+- Desactivarlo la cancela. Lanzar una oleada a mano también.
+- La cuenta atrás corre en `_process` del `Spawner`, con `process_mode` heredado, así que la pausa del juego la congela.
 
 ## Mapa
 
@@ -114,8 +153,8 @@ Funciones:
 
 ## Dudas
 
-- `start_next_wave()` solo se llama desde `setup`, y nadie escucha `wave_finished`. Con los datos actuales no afecta porque cada nivel tiene una única oleada, pero una segunda `WaveData` no llegaría a empezar.
-- Al terminar de salir los enemigos no pasa nada más: no hay victoria ni final de nivel.
+- `all_waves_cleared` se emite, pero nadie la escucha: no hay victoria ni final de nivel.
+- Un enemigo que llega al final cuenta como descontado. Si es el último de la última oleada, se emiten a la vez `lost` y `all_waves_cleared`; la victoria tendrá que comprobar que no se ha perdido.
 - `Grid.get_kind` y `Grid.path_cells` no se usan fuera de `Grid`.
 - `tileset.tres` declara una capa de datos `buildable` (bool) que ningún script lee.
 - No hay en el repositorio ningún script que genere los `TileMapLayer` a partir de datos, que es lo que pide `CLAUDE.md`.

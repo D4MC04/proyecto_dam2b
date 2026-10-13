@@ -6,6 +6,8 @@
 [ext_resource type="Texture2D" path="res://assets/ui/tab_towers.png" id="3_tabtowers"]
 [ext_resource type="Texture2D" path="res://assets/ui/tab_waves.png" id="4_tabwaves"]
 [ext_resource type="StyleBox" path="res://assets/ui/money_header_style.tres" id="5_money"]
+[ext_resource type="Texture2D" path="res://assets/ui/wave_next.png" id="6_wavenext"]
+[ext_resource type="Texture2D" path="res://assets/ui/wave_auto.png" id="7_waveauto"]
 
 [node name="Sidebar" type="PanelContainer" unique_id=1395524302]
 theme = ExtResource("1_umq33")
@@ -93,6 +95,31 @@ theme_override_colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
 theme_override_font_sizes/font_size = 8
 horizontal_alignment = 1
 clip_text = true
+
+[node name="WaveControls" type="HBoxContainer" parent="Content/WavesPage"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="NextWaveButton" type="Button" parent="Content/WavesPage/WaveControls"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(34, 18)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+tooltip_text = "Siguiente oleada"
+icon = ExtResource("6_wavenext")
+icon_alignment = 1
+
+[node name="AutoWaveButton" type="Button" parent="Content/WavesPage/WaveControls"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(34, 18)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+tooltip_text = "AUTO: lanzar la siguiente oleada al limpiar el nivel"
+toggle_mode = true
+icon = ExtResource("7_waveauto")
+icon_alignment = 1
 
 [node name="WaveScroll" type="ScrollContainer" parent="Content/WavesPage"]
 unique_name_in_owner = true

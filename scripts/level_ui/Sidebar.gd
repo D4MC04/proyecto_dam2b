@@ -2,6 +2,10 @@ extends PanelContainer
 class_name Sidebar
 
 signal tower_selected(data: TowerData)
+## Petición de lanzar la siguiente oleada.
+signal next_wave_requested
+## Petición de cambiar el modo AUTO; no guarda el estado.
+signal auto_waves_toggled(enabled: bool)
 
 const TOWER_BUTTON: PackedScene = preload("res://scenes/level_ui/TowerButton.tscn")
 
@@ -14,6 +18,18 @@ const TAB_ACTIVE_BORDER_COLOR := Color("#40e0f0")
 const TAB_HOVER_BORDER_COLOR := Color("#1c7496")
 const TAB_ICON_INACTIVE_COLOR := Color(1, 1, 1, 0.45)
 
+const CONTROL_HOVER_BG_COLOR := Color("#16243c")
+const CONTROL_DISABLED_BG_COLOR := Color("#0a0f1a")
+const NEXT_BORDER_COLOR := Color("#1c7496")
+const NEXT_GLOW_COLOR := Color("#befaff")
+const AUTO_HOVER_BORDER_COLOR := Color("#96641e")
+const AUTO_ON_BORDER_COLOR := Color("#ecb23c")
+const AUTO_ON_HOVER_BORDER_COLOR := Color("#ffe082")
+# Fondo de pestaña mezclado al 25 % con el ámbar, como la torre seleccionada.
+const AUTO_ON_BG_COLOR := Color("#453d2b")
+const CONTROL_ICON_DIM_COLOR := Color(1, 1, 1, 0.3)
+# Duración de medio ciclo del parpadeo del botón de siguiente oleada.
+const NEXT_PULSE_TIME := 0.5
 @onready var towers_tab: Button = %TowersTab
 @onready var waves_tab: Button = %WavesTab
 @onready var towers_page: Control = %TowersPage
@@ -23,11 +39,16 @@ const TAB_ICON_INACTIVE_COLOR := Color(1, 1, 1, 0.45)
 @onready var wave_label: Label = %WaveLabel
 @onready var wave_scroll: ScrollContainer = %WaveScroll
 @onready var wave_blocks: VBoxContainer = %WaveBlocks
+@onready var next_wave_button: Button = %NextWaveButton
+@onready var auto_wave_button: Button = %AutoWaveButton
 
 var _money := 0
 var _buttons: Array[TowerButton] = []
 var _wave_blocks: Array[WaveBlock] = []
 var _current_wave := -1
+# Estilo normal del botón de siguiente oleada; su borde parpadea para invitar a pulsarlo.
+var _next_normal_style: StyleBoxFlat
+var _next_pulse: Tween
 
 func _ready() -> void:
 	var tab_group := ButtonGroup.new()
@@ -35,6 +56,9 @@ func _ready() -> void:
 		tab.button_group = tab_group
 		_style_tab(tab)
 	towers_tab.toggled.connect(_on_tab_toggled)
+	_style_wave_controls()
+	next_wave_button.pressed.connect(next_wave_requested.emit)
+	auto_wave_button.toggled.connect(auto_waves_toggled.emit)
 
 func build_buttons(towers: Array[TowerData]) -> void:
 	for b in _buttons:
@@ -74,22 +98,45 @@ func build_waves(waves: Array[WaveData]) -> void:
 ## Marca la oleada en curso (índice desde 0, -1 si ninguna) y actualiza la cabecera.
 func set_current_wave(index: int, total: int) -> void:
 	_current_wave = index
-	wave_label.text = "OL. %d/%d" % [maxi(index + 1, 1), total]
+	wave_label.text = "OL. %d/%d" % [index + 1, total]
 	for i in _wave_blocks.size():
 		if i < index:
 			_wave_blocks[i].set_state(WaveBlock.State.PAST)
 		elif i == index:
 			_wave_blocks[i].set_state(WaveBlock.State.CURRENT)
+		elif i == index + 1:
+			_wave_blocks[i].set_state(WaveBlock.State.NEXT)
 		else:
 			_wave_blocks[i].set_state(WaveBlock.State.FUTURE)
-	if index >= 0 and index < _wave_blocks.size():
-		_scroll_to_block(_wave_blocks[index])
+	var focus_index := maxi(index, 0)
+	if focus_index < _wave_blocks.size():
+		_scroll_to_block(_wave_blocks[focus_index])
+
+## Activa o atenúa el botón de siguiente oleada; con `inviting`, su borde parpadea.
+func set_next_wave_available(available: bool, inviting: bool) -> void:
+	next_wave_button.disabled = not available
+	var pulse := available and inviting
+	if pulse == (_next_pulse != null):
+		return
+	if pulse:
+		_next_pulse = create_tween().set_loops()
+		_next_pulse.tween_property(_next_normal_style, "border_color", NEXT_GLOW_COLOR, NEXT_PULSE_TIME)
+		_next_pulse.tween_property(_next_normal_style, "border_color", NEXT_BORDER_COLOR, NEXT_PULSE_TIME)
+	else:
+		_next_pulse.kill()
+		_next_pulse = null
+		_next_normal_style.border_color = NEXT_BORDER_COLOR
+
+## Refleja el modo AUTO del Spawner sin volver a emitir auto_waves_toggled.
+func show_auto_waves(enabled: bool) -> void:
+	auto_wave_button.set_pressed_no_signal(enabled)
 
 func _scroll_to_block(block: WaveBlock) -> void:
 	# Hay que esperar a que el contenedor calcule las posiciones.
 	await get_tree().process_frame
 	if is_instance_valid(block) and block.is_inside_tree():
-		wave_scroll.ensure_control_visible(block)
+		# Título del bloque arriba del todo, aunque el bloque no quepa entero.
+		wave_scroll.scroll_vertical = int(block.position.y)
 
 func _on_button_selection_changed(data: TowerData, on: bool) -> void:
 	tower_selected.emit(data if on else null)
@@ -97,8 +144,29 @@ func _on_button_selection_changed(data: TowerData, on: bool) -> void:
 func _on_tab_toggled(towers_active: bool) -> void:
 	towers_page.visible = towers_active
 	waves_page.visible = not towers_active
-	if not towers_active and _current_wave >= 0 and _current_wave < _wave_blocks.size():
-		_scroll_to_block(_wave_blocks[_current_wave])
+	var focus_index := maxi(_current_wave, 0)
+	if not towers_active and focus_index < _wave_blocks.size():
+		_scroll_to_block(_wave_blocks[focus_index])
+
+func _style_wave_controls() -> void:
+	_next_normal_style = _make_tab_style(TAB_BG_COLOR, NEXT_BORDER_COLOR)
+	next_wave_button.add_theme_stylebox_override("normal", _next_normal_style)
+	next_wave_button.add_theme_stylebox_override("hover", _make_tab_style(CONTROL_HOVER_BG_COLOR, TAB_ACTIVE_BORDER_COLOR))
+	next_wave_button.add_theme_stylebox_override("pressed", _make_tab_style(TAB_ACTIVE_BG_COLOR, TAB_ACTIVE_BORDER_COLOR))
+	next_wave_button.add_theme_stylebox_override("disabled", _make_tab_style(CONTROL_DISABLED_BG_COLOR, TAB_BORDER_COLOR))
+	next_wave_button.add_theme_color_override("icon_disabled_color", CONTROL_ICON_DIM_COLOR)
+
+	var auto_on := _make_tab_style(AUTO_ON_BG_COLOR, AUTO_ON_BORDER_COLOR)
+	auto_wave_button.add_theme_stylebox_override("normal", _make_tab_style(TAB_BG_COLOR, TAB_BORDER_COLOR))
+	auto_wave_button.add_theme_stylebox_override("hover", _make_tab_style(CONTROL_HOVER_BG_COLOR, AUTO_HOVER_BORDER_COLOR))
+	auto_wave_button.add_theme_stylebox_override("pressed", auto_on)
+	auto_wave_button.add_theme_stylebox_override("hover_pressed", _make_tab_style(AUTO_ON_BG_COLOR, AUTO_ON_HOVER_BORDER_COLOR))
+	auto_wave_button.add_theme_color_override("icon_normal_color", CONTROL_ICON_DIM_COLOR)
+	auto_wave_button.add_theme_color_override("icon_hover_color", Color(1, 1, 1, 0.6))
+	auto_wave_button.add_theme_color_override("icon_pressed_color", Color.WHITE)
+	auto_wave_button.add_theme_color_override("icon_hover_pressed_color", Color.WHITE)
+	for button in [next_wave_button, auto_wave_button]:
+		button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 
 func _style_tab(tab: Button) -> void:
 	var normal := _make_tab_style(TAB_BG_COLOR, TAB_BORDER_COLOR)

@@ -19,16 +19,12 @@ func _ready() -> void:
 	game_over_screen.restart_requested.connect(_on_restart_requested)
 	game_over_screen.quit_requested.connect(_on_quit_requested)
 	sidebar.tower_selected.connect(_on_tower_selected)
+	sidebar.next_wave_requested.connect(_on_next_wave_requested)
+	sidebar.auto_waves_toggled.connect(_on_auto_waves_toggled)
 
 func setup(state: LevelState, towers: Array[TowerData], level_number: int, spawner: Spawner) -> void:
 	level_indicator.set_level_number(level_number)
-	if is_instance_valid(_spawner) and _spawner.wave_started.is_connected(sidebar.set_current_wave):
-		_spawner.wave_started.disconnect(sidebar.set_current_wave)
-	_spawner = spawner
-	# El Spawner arranca la primera oleada en su setup, antes de que la UI se conecte.
-	sidebar.build_waves(spawner.waves)
-	sidebar.set_current_wave(spawner.get_wave_index(), spawner.waves.size())
-	spawner.wave_started.connect(sidebar.set_current_wave)
+	_connect_spawner(spawner)
 	if is_instance_valid(_state):
 		if _state.money_changed.is_connected(sidebar.set_money):
 			_state.money_changed.disconnect(sidebar.set_money)
@@ -43,6 +39,46 @@ func setup(state: LevelState, towers: Array[TowerData], level_number: int, spawn
 func _on_tower_selected(data: TowerData) -> void:
 	if is_instance_valid(_state):
 		_state.selected_tower = data
+
+# Cambia el Spawner que sigue la pestaña Oleadas, desconectando el anterior.
+func _connect_spawner(spawner: Spawner) -> void:
+	if is_instance_valid(_spawner):
+		for connection in _spawner_connections(_spawner):
+			if connection[0].is_connected(connection[1]):
+				connection[0].disconnect(connection[1])
+	_spawner = spawner
+	sidebar.build_waves(spawner.waves)
+	sidebar.set_current_wave(spawner.get_wave_index(), spawner.waves.size())
+	sidebar.show_auto_waves(spawner.auto_waves)
+	_refresh_wave_controls()
+	for connection in _spawner_connections(spawner):
+		connection[0].connect(connection[1])
+
+func _spawner_connections(spawner: Spawner) -> Array[Array]:
+	return [
+		[spawner.wave_started, _on_wave_started],
+		[spawner.wave_cleared, _on_wave_cleared],
+		[spawner.auto_waves_changed, sidebar.show_auto_waves],
+	]
+
+func _on_wave_started(index: int, total: int) -> void:
+	sidebar.set_current_wave(index, total)
+	_refresh_wave_controls()
+
+func _on_wave_cleared(_index: int) -> void:
+	_refresh_wave_controls()
+
+func _refresh_wave_controls() -> void:
+	# Antes de la primera oleada el botón parpadea para invitar a empezar.
+	sidebar.set_next_wave_available(_spawner.can_start_next_wave(), _spawner.get_wave_index() < 0)
+
+func _on_next_wave_requested() -> void:
+	if is_instance_valid(_spawner):
+		_spawner.start_next_wave()
+
+func _on_auto_waves_toggled(enabled: bool) -> void:
+	if is_instance_valid(_spawner):
+		_spawner.auto_waves = enabled
 
 func show_game_over() -> void:
 	game_over_screen.show()
