@@ -7,16 +7,22 @@ signal quit_requested
 @onready var game_over_screen: Control = %GameOverScreen
 @onready var pause_menu: Control = %PauseMenu
 @onready var sidebar: Sidebar = %Sidebar
+@onready var fps_label: Label = %FpsLabel
 
 var _state: LevelState
 
 func _ready() -> void:
+	fps_label.visible = Settings.get_value(&"show_fps")
+	set_process(fps_label.visible)
 	pause_menu.resume_requested.connect(_set_paused.bind(false))
 	pause_menu.restart_requested.connect(_on_restart_requested)
 	pause_menu.quit_requested.connect(_on_quit_requested)
 	game_over_screen.restart_requested.connect(_on_restart_requested)
 	game_over_screen.quit_requested.connect(_on_quit_requested)
 	sidebar.tower_selected.connect(_on_tower_selected)
+
+func _process(_delta: float) -> void:
+	fps_label.text = "%d FPS" % Engine.get_frames_per_second()
 
 func setup(state: LevelState, towers: Array[TowerData]) -> void:
 	if _state and _state.money_changed.is_connected(sidebar.set_money):

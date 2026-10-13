@@ -43,6 +43,11 @@ func _ready() -> void:
 		attack_timer.stop()
 		add_child(FocusBeam.new())
 
+# Con la opción "mostrar rango" activada, cada torre dibuja su alcance bajo sus sprites.
+func _draw() -> void:
+	if Settings.get_value(&"show_tower_range") and data.attack_range:
+		data.attack_range.draw(get_canvas_item(), BuildManager.RANGE_COLOR)
+
 func _process(delta: float) -> void:
 	var target := _get_target()
 	if target == null:

@@ -1,0 +1,211 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/screens/OptionsMenu.gd" id="1_options"]
+[ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="2_theme"]
+
+[node name="OptionsMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_options")
+
+[node name="Box" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="Title" type="Label" parent="Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 16
+text = "OPCIONES"
+horizontal_alignment = 1
+
+[node name="Sections" type="HBoxContainer" parent="Box"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 24
+
+[node name="LeftColumn" type="VBoxContainer" parent="Box/Sections"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="RightColumn" type="VBoxContainer" parent="Box/Sections"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="AudioHeader" type="Label" parent="Box/Sections/LeftColumn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 8
+text = "AUDIO"
+
+[node name="AudioGrid" type="GridContainer" parent="Box/Sections/LeftColumn"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 6
+columns = 2
+
+[node name="MasterLabel" type="Label" parent="Box/Sections/LeftColumn/AudioGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 8
+text = "General"
+
+[node name="MasterSlider" type="HSlider" parent="Box/Sections/LeftColumn/AudioGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 8)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/grabber_offset = -1
+max_value = 1.0
+step = 0.05
+
+[node name="MusicLabel" type="Label" parent="Box/Sections/LeftColumn/AudioGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 8
+text = "Música"
+
+[node name="MusicSlider" type="HSlider" parent="Box/Sections/LeftColumn/AudioGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 8)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/grabber_offset = -1
+max_value = 1.0
+step = 0.05
+
+[node name="SfxLabel" type="Label" parent="Box/Sections/LeftColumn/AudioGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 8
+text = "Efectos"
+
+[node name="SfxSlider" type="HSlider" parent="Box/Sections/LeftColumn/AudioGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(64, 8)
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/grabber_offset = -1
+max_value = 1.0
+step = 0.05
+
+[node name="MuteLabel" type="Label" parent="Box/Sections/LeftColumn/AudioGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 8
+text = "Silenciar"
+
+[node name="MuteButton" type="Button" parent="Box/Sections/LeftColumn/AudioGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 12)
+layout_mode = 2
+size_flags_horizontal = 8
+toggle_mode = true
+text = "OFF"
+
+[node name="DisplayHeader" type="Label" parent="Box/Sections/RightColumn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 8
+text = "PANTALLA"
+
+[node name="DisplayGrid" type="GridContainer" parent="Box/Sections/RightColumn"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 6
+columns = 2
+
+[node name="FullscreenLabel" type="Label" parent="Box/Sections/RightColumn/DisplayGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 8
+text = "Pantalla completa"
+
+[node name="FullscreenButton" type="Button" parent="Box/Sections/RightColumn/DisplayGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 12)
+layout_mode = 2
+size_flags_horizontal = 8
+toggle_mode = true
+text = "OFF"
+
+[node name="VsyncLabel" type="Label" parent="Box/Sections/RightColumn/DisplayGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 8
+text = "VSync"
+
+[node name="VsyncButton" type="Button" parent="Box/Sections/RightColumn/DisplayGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 12)
+layout_mode = 2
+size_flags_horizontal = 8
+toggle_mode = true
+text = "OFF"
+
+[node name="FpsLabel" type="Label" parent="Box/Sections/RightColumn/DisplayGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 8
+text = "Mostrar FPS"
+
+[node name="FpsButton" type="Button" parent="Box/Sections/RightColumn/DisplayGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 12)
+layout_mode = 2
+size_flags_horizontal = 8
+toggle_mode = true
+text = "OFF"
+
+[node name="GameHeader" type="Label" parent="Box/Sections/RightColumn"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 8
+text = "JUEGO"
+
+[node name="GameGrid" type="GridContainer" parent="Box/Sections/RightColumn"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 6
+columns = 2
+
+[node name="TowerRangeLabel" type="Label" parent="Box/Sections/RightColumn/GameGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 8
+text = "Rango de torres"
+
+[node name="TowerRangeButton" type="Button" parent="Box/Sections/RightColumn/GameGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(30, 12)
+layout_mode = 2
+size_flags_horizontal = 8
+toggle_mode = true
+text = "OFF"
+
+[node name="BackButton" type="Button" parent="Box"]
+custom_minimum_size = Vector2(100, 24)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Volver"
+
+[connection signal="pressed" from="Box/BackButton" to="." method="_on_back_button_pressed"]

@@ -8,11 +8,12 @@ Definidos en `project.godot`, en este orden:
 |---|---|---|
 | `GameData` | `scenes/GameData.tscn` + `scripts/autoloads/GameData.gd` | `levels: Array[LevelData]`, la lista de niveles del juego |
 | `GameState` | `scripts/autoloads/GameState.gd` | `current_level: int` y las funciones `is_unlocked(i)` (`i <= current_level`) e `is_completed(i)` (`i < current_level`) |
+| `Settings` | `scripts/autoloads/Settings.gd` | Las opciones del jugador, guardadas en `user://settings.cfg`; ver [menu.md](menu.md) |
 | `MusicManager` | `scripts/autoloads/MusicManager.gd` | La música; ver [menu.md](menu.md) |
 
 `GameData.levels` tiene 6 entradas. Su contenido está en [niveles.md](niveles.md).
 
-`GameState.current_level` vale 50 y ningún script lo modifica. Nada se guarda en disco.
+`GameState.current_level` vale 50 y ningún script lo modifica. Lo único que se guarda en disco son las opciones (`Settings`); el progreso no.
 
 ## Escena Game
 

@@ -8,12 +8,13 @@ Todo cuelga de `scenes/level_ui/LevelUI.tscn`, instanciada dentro de `Game`. Los
 
 Estructura:
 
-- `UI/HBoxContainer/GameArea`: zona del mapa. Contiene `GameOverScreen` y `PauseMenu`, ocultos al empezar.
+- `UI/HBoxContainer/GameArea`: zona del mapa. Contiene `FpsLabel`, `GameOverScreen` y `PauseMenu`, ocultos al empezar.
 - `UI/HBoxContainer/Sidebar`: barra lateral derecha, 96 px de ancho mínimo.
 
 Funciones:
 
 - `setup(state, towers)`: conecta `state.money_changed` a `sidebar.set_money`, crea los botones de torre y muestra el dinero inicial. Si había un `LevelState` anterior, lo desconecta.
+- `FpsLabel`: arriba a la izquierda, muestra `"%d FPS"` cada frame. Solo se ve si la opción `show_fps` de `Settings` está activada al crearse `LevelUI`.
 - `show_game_over()`: muestra la pantalla y pausa el árbol. `hide_game_over()` la oculta.
 - Acción `ui_cancel` (Escape): alterna el menú de pausa y la pausa del árbol, salvo si se ve el game over.
 

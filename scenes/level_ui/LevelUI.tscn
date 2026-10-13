@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://bjlaw340mmmog" path="res://scenes/level_ui/GameOver.tscn" id="1_8klgi"]
 [ext_resource type="PackedScene" uid="uid://b6hyuslcy228o" path="res://scenes/level_ui/PauseMenu.tscn" id="2_3xbq7"]
 [ext_resource type="PackedScene" uid="uid://dgetllrlfjnrc" path="res://scenes/level_ui/Sidebar.tscn" id="3_ln102"]
+[ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="4_theme"]
 
 [node name="LevelUI" type="CanvasLayer" unique_id=245943380]
 process_mode = 3
@@ -33,6 +34,17 @@ theme_override_constants/separation = 0
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
+
+[node name="FpsLabel" type="Label" parent="UI/HBoxContainer/GameArea"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 4.0
+offset_top = 4.0
+theme = ExtResource("4_theme")
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 8
 
 [node name="GameOverScreen" parent="UI/HBoxContainer/GameArea" unique_id=592437674 instance=ExtResource("1_8klgi")]
 unique_name_in_owner = true

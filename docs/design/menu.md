@@ -1,4 +1,4 @@
-# Menú principal y música
+# Menú principal, opciones y música
 
 ## Escena y script
 
@@ -10,11 +10,12 @@ Nodos, de fondo a frente:
 - `StarField`, `Comets`, `Asteroids`, `Satellites`, `Planets`: decoración (ver abajo).
 - `TitleScreen`: título "ASTRO ARTILLERY" y botones "Jugar", "Opciones" y "Salir".
 - `LevelSelectionScreen` (oculto al empezar): texto "SELECCIONA UN NIVEL", `LevelButtonsContainer` (`GridContainer` de 5 columnas) y botón "Volver".
-- `VolumePanel`: etiqueta "MUSICA", botón de silencio ("ON"/"OFF") y deslizador de 0 a 1 en pasos de 0,05.
+- `OptionsMenu` (oculto al empezar): instancia de `scenes/OptionsMenu.tscn` (ver "Opciones").
 
 ## Comportamiento
 
-- "Jugar" y "Volver" cambian entre las dos pantallas con un fundido de 0,25 s de salida y otro de entrada.
+- "Jugar" y "Volver" cambian entre el título y la selección de nivel con un fundido de 0,25 s de salida y otro de entrada.
+- "Opciones" cambia del título a `OptionsMenu` con el mismo fundido; su señal `closed` vuelve al título.
 - "Salir" cierra el juego.
 - Si `start_on_level_selection` es `true` (lo pone `Game` al volver de un nivel), el menú abre directamente en la selección de nivel.
 - `_build_level_buttons()` crea un `LevelButton` de 40x40 por cada entrada de `GameData.levels`, numerado desde 1 y desactivado si `GameState.is_unlocked(i)` es `false`.
@@ -41,13 +42,42 @@ Todos son `Node2D` que dibujan o crean sprites por código, con posiciones y tie
 
 - Carga `assets/audio/music/theme.mp3`, la pone en bucle y la reproduce al arrancar. Si el archivo no existe, avisa y no suena nada.
 - `process_mode = ALWAYS`: sigue sonando con el juego en pausa. Al ser autoload no se corta al cambiar de escena.
-- `set_volume(v)` (0 a 1) y `toggle_mute()`. El estado está en las variables `volumen` y `muteado`.
+- Suena por el bus `Music`. No guarda volumen ni silencio: eso lo lleva `Settings` a través de los buses.
 
-Es el único audio del juego: no hay efectos de sonido.
+Es el único audio del juego: todavía no hay efectos de sonido, así que nada suena por el bus `SFX`.
+
+## Opciones
+
+`scenes/OptionsMenu.tscn` + `scripts/screens/OptionsMenu.gd`. Un solo panel con el título "OPCIONES", dos columnas de secciones y el botón "Volver", que emite `closed`.
+
+| Sección | Control | Opción de `Settings` |
+|---|---|---|
+| AUDIO | Deslizador "General" | `master_volume` |
+| AUDIO | Deslizador "Música" | `music_volume` |
+| AUDIO | Deslizador "Efectos" | `sfx_volume` |
+| AUDIO | Botón "Silenciar" | `muted` |
+| PANTALLA | Botón "Pantalla completa" | `fullscreen` |
+| PANTALLA | Botón "VSync" | `vsync` |
+| PANTALLA | Botón "Mostrar FPS" | `show_fps` |
+| JUEGO | Botón "Rango de torres" | `show_tower_range` |
+
+Los deslizadores van de 0 a 1 en pasos de 0,05. Los botones son de tipo interruptor y muestran "ON" u "OFF". Al abrirse, cada control toma su valor de `Settings`; cada cambio llama a `Settings.set_value`.
+
+### Settings
+
+`scripts/autoloads/Settings.gd`, autoload. Guarda las opciones en `user://settings.cfg` (sección `settings`) con `ConfigFile`.
+
+- Al arrancar carga el archivo y aplica todas las opciones. Si el archivo no existe, falta una clave o su valor no es del tipo esperado, vale el valor por defecto: volúmenes a 1, `vsync` activado y el resto desactivado. Las claves que no conoce (por ejemplo la antigua `ambient_volume`) se ignoran y desaparecen del archivo en el siguiente guardado.
+- `get_value(key)` y `set_value(key, value)`. `set_value` aplica el cambio y guarda el archivo.
+- Los tres volúmenes son lineales y se aplican a los buses `Master`, `Music` y `SFX`, definidos en `default_bus_layout.tres`. El bus `SFX` es para los sonidos de torretas, explosiones y demás efectos.
+- `muted` silencia el bus `Master` sin cambiar los volúmenes, así que al quitarlo los deslizadores conservan su valor.
+- `fullscreen` y `vsync` se aplican con `DisplayServer`.
+- `show_fps` y `show_tower_range` no hacen nada aquí: las leen `LevelUI` (ver [ui.md](ui.md)) y `Tower` (ver [torres.md](torres.md)).
 
 ## Dudas
 
-- El botón "Opciones" (`SettingsButton`) no tiene ninguna señal conectada.
-- El control de volumen solo existe en el menú principal; el menú de pausa no lo tiene.
-- El volumen y el silencio no se guardan entre ejecuciones.
-- Los scripts de `scripts/main_menu/` y `MusicManager.gd` tienen variables sin tipo y nombres en español (`volumen`, `muteado`, `_aplicar`, `_actualizar`), al contrario de lo que pide `CLAUDE.md`. Lo mismo `scripts/level/Cometa.gd`.
+- Las opciones solo se abren desde el menú principal; el menú de pausa no las tiene.
+- `show_fps` y `show_tower_range` se leen al crear `LevelUI` y al dibujarse cada torre: no hay señal de cambio, y hoy no hace falta porque las opciones no se pueden tocar durante una partida.
+- El deslizador "Efectos" no cambia nada audible mientras no haya sonidos en el bus `SFX`.
+- Pantalla completa y VSync no tienen efecto si el juego se ejecuta incrustado en el editor de Godot; hay que ejecutarlo en su propia ventana.
+- Los scripts de `scripts/main_menu/` tienen variables sin tipo y nombres en español (`_actualizar`), al contrario de lo que pide `CLAUDE.md`. Lo mismo `scripts/level/Cometa.gd`. `MainMenu.gd` tiene funciones sin tipo de retorno.
