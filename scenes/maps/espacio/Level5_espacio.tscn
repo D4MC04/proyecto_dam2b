@@ -30,7 +30,7 @@ _data = {
 }
 point_count = 4
 
-[node name="Map2" type="Node2D" unique_id=459859938]
+[node name="Map" type="Node2D" unique_id=459859938]
 position = Vector2(8, 0)
 script = ExtResource("1_3rqqg")
 
