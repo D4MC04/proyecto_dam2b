@@ -19,10 +19,14 @@ func _ready() -> void:
 	sidebar.tower_selected.connect(_on_tower_selected)
 
 func setup(state: LevelState, towers: Array[TowerData]) -> void:
-	if _state and _state.money_changed.is_connected(sidebar.set_money):
-		_state.money_changed.disconnect(sidebar.set_money)
+	if is_instance_valid(_state):
+		if _state.money_changed.is_connected(sidebar.set_money):
+			_state.money_changed.disconnect(sidebar.set_money)
+		if _state.selected_tower_changed.is_connected(sidebar.show_selected):
+			_state.selected_tower_changed.disconnect(sidebar.show_selected)
 	_state = state
 	state.money_changed.connect(sidebar.set_money)
+	state.selected_tower_changed.connect(sidebar.show_selected)
 	sidebar.build_buttons(towers)
 	sidebar.set_money(state.money)
 

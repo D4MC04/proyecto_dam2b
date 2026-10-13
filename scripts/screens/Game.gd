@@ -19,7 +19,6 @@ func _ready() -> void:
 func _setup_level() -> void:
 	level.setup(level_data)
 	level.lost.connect(_on_level_lost)
-	ui.sidebar.tower_selected.connect(level.on_tower_selected)
 	ui.setup(level.game_state, level.towers)
 
 func _on_level_lost() -> void:
@@ -27,7 +26,6 @@ func _on_level_lost() -> void:
 
 func _restart_level() -> void:
 	ui.hide_game_over()
-	ui.sidebar.tower_selected.disconnect(level.on_tower_selected)
 	var index := level.get_index()
 	remove_child(level)
 	level.queue_free()

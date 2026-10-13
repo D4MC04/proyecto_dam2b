@@ -13,7 +13,8 @@ Estructura:
 
 Funciones:
 
-- `setup(state, towers)`: conecta `state.money_changed` a `sidebar.set_money`, crea los botones de torre y muestra el dinero inicial. Si había un `LevelState` anterior, lo desconecta.
+- `setup(state, towers)`: conecta `state.money_changed` a `sidebar.set_money` y `state.selected_tower_changed` a `sidebar.show_selected`, crea los botones de torre y muestra el dinero inicial. Si había un `LevelState` anterior, desconecta ambas.
+- `_on_tower_selected(data)`: recibe `Sidebar.tower_selected` y escribe `selected_tower` en el `LevelState`. Es el único camino de la barra lateral al estado.
 - `show_game_over()`: muestra la pantalla y pausa el árbol. `hide_game_over()` la oculta.
 - Acción `ui_cancel` (Escape): alterna el menú de pausa y la pausa del árbol, salvo si se ve el game over.
 
@@ -27,7 +28,8 @@ Señales: `restart_requested` y `quit_requested`. Las emite cuando se pulsa el b
 - `TowerButtons`: `GridContainer` de 2 columnas.
 - `build_buttons(towers)`: borra los botones anteriores y crea un `TowerButton` por torre, todos en un `ButtonGroup` con `allow_unpress`, de modo que solo hay uno pulsado y se puede soltar.
 - `set_money(amount)`: actualiza la etiqueta y avisa a cada botón.
-- Señal `tower_selected(data)`: con la torre al pulsar un botón, con `null` al soltarlo.
+- Señal `tower_selected(data)`: petición de cambio, con la torre al pulsar un botón y con `null` al soltarlo (no si se suelta porque se pulsa otro). No guarda la selección.
+- `show_selected(data)`: marca como pulsado el botón de esa torre y suelta los demás (todos con `null`), con `set_pressed_no_signal` para no volver a emitir.
 
 ## TowerButton
 
@@ -51,14 +53,13 @@ Señales: `restart_requested` y `quit_requested`. Las emite cuando se pulsa el b
 | Origen | Señal | Destino |
 |---|---|---|
 | `LevelState` | `money_changed` | `Sidebar.set_money` |
-| `Sidebar` | `tower_selected` | `LevelUI._on_tower_selected` y `Level.on_tower_selected` |
+| `LevelState` | `selected_tower_changed` | `Sidebar.show_selected` |
+| `Sidebar` | `tower_selected` | `LevelUI._on_tower_selected` (escribe en `LevelState`) |
 | `LevelUI` | `restart_requested` | `Game._restart_level` |
 | `LevelUI` | `quit_requested` | `Game._quit_to_menu` |
 | `Game` | llamada directa | `LevelUI.show_game_over` / `hide_game_over` |
 
 ## Dudas
 
-- `Sidebar.tower_selected` tiene dos receptores que hacen lo mismo: `LevelUI` y `Level` escriben `selected_tower` en el mismo `LevelState`.
-- Al cancelar la colocación con clic derecho, `BuildManager` borra `selected_tower` pero el botón de la barra lateral sigue pulsado. `Sidebar.reset_selection` existe y no se llama desde ningún sitio.
 - La interfaz no muestra la vida de la base, la oleada ni el nombre o los datos de las torres.
 - El nodo raíz se llama `LevelUI` y el archivo `LevelUI.gd`, pero la clase es `GameUI`. El contenedor vertical de `GameOver.tscn` se llama `HBoxContainer`.

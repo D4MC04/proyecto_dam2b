@@ -28,5 +28,5 @@
 - Pixel art 16x16. Seguir docs/design/art.md y el estilo de los sprites existentes en assets/.
 
 ## Antes de dar algo por terminado
-- Comprobar que el proyecto carga sin errores en headless.
+- Comprobar que el proyecto carga sin errores en headless. Godot: `C:\Users\David\Desktop\Godot.exe` (no está en el PATH).
 - No commitear: lo hacen los humanos.

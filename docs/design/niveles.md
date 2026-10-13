@@ -24,14 +24,12 @@ Conexiones hechas en `_ready`:
 - `spawner.enemy_reached_end` llama a `_lose`, que emite `lost`.
 - `build_manager.state = game_state`.
 
-`Level.on_tower_selected(data)` guarda la torre elegida en `game_state.selected_tower`.
-
 ## LevelState
 
 - `money` empieza en 1000.
 - `add_money(amount)` suma y emite `money_changed(money)`.
 - `spend_money(amount)` devuelve `false` si no alcanza; si alcanza resta, emite `money_changed` y devuelve `true`.
-- `selected_tower: TowerData` es la torre que se colocará al hacer clic.
+- `selected_tower: TowerData` es la torre que se colocará al hacer clic y la única fuente de la selección. Su setter emite `selected_tower_changed(data)` solo si el valor cambia. Lo escribe `LevelUI` cuando la barra lateral lo pide y `BuildManager` (a `null`) al cancelar con clic derecho.
 
 ## Datos de nivel
 

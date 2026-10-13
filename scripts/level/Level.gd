@@ -25,8 +25,5 @@ func setup(data: LevelData) -> void:
 	grid.setup(map.logic_map)
 	spawner.setup(map.get_paths(), data.waves)
 
-func on_tower_selected(data: TowerData) -> void:
-	game_state.selected_tower = data
-
 func _lose() -> void:
 	lost.emit()
