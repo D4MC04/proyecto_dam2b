@@ -3,6 +3,9 @@ class_name Level
 
 signal lost
 
+# Centro horizontal del área de juego: barra izquierda de 80 px más la mitad de 480.
+const GAME_AREA_CENTER_X := 320.0
+
 var map: Map
 var towers: Array[TowerData]
 
@@ -22,8 +25,14 @@ func setup(data: LevelData) -> void:
 	towers = data.towers
 	add_child(map)
 	move_child(map, 0)
+	_center_map()
 	grid.setup(map.logic_map)
 	spawner.setup(map.get_paths(), data.waves)
+
+# Desplaza el mapa en horizontal para que su rectángulo útil quede centrado en el área de juego.
+func _center_map() -> void:
+	var used_center_x := map.position.x + map.get_used_rect().get_center().x
+	map.position.x += roundf(GAME_AREA_CENTER_X - used_center_x)
 
 func _lose() -> void:
 	lost.emit()

@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://bjlaw340mmmog" path="res://scenes/level_ui/GameOver.tscn" id="1_8klgi"]
 [ext_resource type="PackedScene" uid="uid://b6hyuslcy228o" path="res://scenes/level_ui/PauseMenu.tscn" id="2_3xbq7"]
 [ext_resource type="PackedScene" uid="uid://dgetllrlfjnrc" path="res://scenes/level_ui/Sidebar.tscn" id="3_ln102"]
+[ext_resource type="PackedScene" path="res://scenes/level_ui/InfoPanel.tscn" id="4_info"]
 
 [node name="LevelUI" type="CanvasLayer" unique_id=245943380]
 process_mode = 3
@@ -29,6 +30,10 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_constants/separation = 0
 
+[node name="InfoPanel" parent="UI/HBoxContainer" instance=ExtResource("4_info")]
+custom_minimum_size = Vector2(80, 0)
+layout_mode = 2
+
 [node name="GameArea" type="Control" parent="UI/HBoxContainer" unique_id=359146378]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -46,5 +51,5 @@ layout_mode = 1
 
 [node name="Sidebar" parent="UI/HBoxContainer" unique_id=1395524302 instance=ExtResource("3_ln102")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(96, 0)
+custom_minimum_size = Vector2(80, 0)
 layout_mode = 2

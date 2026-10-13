@@ -14,9 +14,10 @@
 `Level.setup(data: LevelData)`:
 
 1. Instancia `data.map`, lo llama `Map` y lo pone como primer hijo.
-2. Guarda `data.towers` en `towers`.
-3. `grid.setup(map.logic_map)`.
-4. `spawner.setup(map.get_paths(), data.waves)`.
+2. `_center_map()`: centra el mapa en horizontal en el área de juego (ver "Centrado del mapa").
+3. Guarda `data.towers` en `towers`.
+4. `grid.setup(map.logic_map)`.
+5. `spawner.setup(map.get_paths(), data.waves)`.
 
 Conexiones hechas en `_ready`:
 
@@ -66,6 +67,25 @@ Base: `scenes/maps/Map.tscn` + `scripts/level/Map.gd` (clase `Map`). Nodos:
 - `Paths` (`Node2D`): sus hijos son los `Path2D`. `Map.get_paths()` los devuelve en orden.
 - `SpaceStation`: instancia de `scenes/entities/Base.tscn`; ver [base.md](base.md).
 
+`Map.get_used_rect()` devuelve el rectángulo útil en coordenadas locales de `Map`: la unión del rectángulo de casillas usadas de `LogicMap` (en píxeles) y del sprite de `SpaceStation` con su escala.
+
+### Centrado del mapa
+
+El área de juego va de x = 80 a x = 560 (ver [ui.md](ui.md)), con centro en `Level.GAME_AREA_CENTER_X` = 320. `Level._center_map()` suma a `map.position.x` la distancia, redondeada a píxeles enteros, entre ese centro y el centro del rectángulo útil (contando la posición propia de `Map`). En vertical no se mueve. Ningún `.tscn` de mapa lleva posiciones de centrado: un mapa nuevo se centra solo, y al reiniciar el nivel se vuelve a centrar.
+
+`Grid`, `BuildManager` y los enemigos no necesitan saberlo: `Grid` convierte con `to_local`/`to_global` de `LogicMap`, las torres y la vista previa se colocan con `grid.center` y los enemigos son hijos de los `Path2D` del mapa.
+
+Resultado con los mapas actuales (px de pantalla):
+
+| Nivel | Posición de `Map` | Rectángulo útil | `VisualMap` |
+|---|---|---|---|
+| 1 | (24, 0) | 136..504 | 24..520 |
+| 2 | (56, 0) | 104..536 | 40..568 |
+| 3 | (88, 0) | 104..536 | 88..584 |
+| 4 | (88, 0) | 104..536 | 88..552 |
+| 5 | (88, 0) | 136..504 | 72..600 |
+| 6 | (88, 0) | 136..504 | 72..600 |
+
 Hay dos familias de mapas:
 
 - **Hierba** (`scenes/maps/Level1.tscn` a `Level10.tscn` y `scenes/maps/redesign/`): `VisualMap` usa `resources/tilesets/tileset.tres` (hierba, piedra, plantas, objetos, estructuras, muros). `LogicMap` es visible con alfa 0,39.
@@ -102,4 +122,5 @@ Funciones:
 - `Level7.tscn` a `Level10.tscn`, `Level2.tscn`, `Level5.tscn`, `Level6.tscn` y la carpeta `redesign/` no están en ningún `LevelData`. Los mapas 7 a 10 usan un `Sprite2D` como estación en vez de `Base.tscn`, y `Level6.tscn` tiene las dos cosas.
 - `resources/level_data/level_5.tres` existe y tiene el mismo contenido que el subrecurso de `GameData.tscn`, pero `GameData` no lo usa.
 - En los niveles 2, 5 y 6 el mapa tiene más caminos de los que usa la oleada.
+- Mapas de hierba que no cubren de lado a lado el área de juego (80..560) y dejan fondo negro: nivel 1, 40 px a la derecha (`VisualMap` acaba en 520); nivel 3, 8 px a la izquierda; nivel 4, 8 px a cada lado. Los de espacio tienen `FondoEspacio` detrás y no dejan huecos.
 - Hay archivos temporales del editor en `scenes/` (`Level.tscn*.tmp`, `MainMenu.tscn*.tmp`).

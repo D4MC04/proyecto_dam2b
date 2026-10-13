@@ -6,10 +6,17 @@ Todo cuelga de `scenes/level_ui/LevelUI.tscn`, instanciada dentro de `Game`. Los
 
 `scripts/level_ui/LevelUI.gd` (clase `GameUI`), raíz `CanvasLayer` con `process_mode = ALWAYS` para seguir respondiendo con el juego en pausa.
 
-Estructura:
+Estructura: `UI/HBoxContainer` (sin separación) con tres columnas, de izquierda a derecha:
 
-- `UI/HBoxContainer/GameArea`: zona del mapa. Contiene `GameOverScreen` y `PauseMenu`, ocultos al empezar.
-- `UI/HBoxContainer/Sidebar`: barra lateral derecha, 96 px de ancho mínimo.
+- `InfoPanel`: barra izquierda, 80 px. De momento vacía.
+- `GameArea`: zona del mapa, ocupa el resto (480 px con el viewport de 640). Contiene `GameOverScreen` y `PauseMenu`, ocultos al empezar, así que el oscurecido y los menús no tapan las barras. El mapa se centra en esta columna desde `Level` (ver [niveles.md](niveles.md)).
+- `Sidebar`: barra derecha, 80 px.
+
+Las dos barras usan el mismo estilo, `assets/ui/side_panel_style.tres`: `StyleBoxFlat` opaco con el fondo del tema (`#0a0f1a`), borde de 1 px en cian oscuro `#1c7496` y 4 px de margen interior en cada lado.
+
+## InfoPanel
+
+`scenes/level_ui/InfoPanel.tscn`: `PanelContainer` con el tema `menu_theme.tres` y el estilo de barra, y un `VBoxContainer` vacío llamado `Content`. Sin script.
 
 Funciones:
 
@@ -24,7 +31,8 @@ Señales: `restart_requested` y `quit_requested`. Las emite cuando se pulsa el b
 
 `scenes/level_ui/Sidebar.tscn` + `scripts/level_ui/Sidebar.gd` (clase `Sidebar`).
 
-- `MoneyLabel`: dinero con el formato `"%s€"`.
+- Estilo de barra compartido con `InfoPanel`. `MarginContainer/Shop` es un `VBoxContainer` con 8 px de separación.
+- `MoneyLabel`: dinero con el formato `"%s€"`, a 8 px de fuente.
 - `TowerButtons`: `GridContainer` de 2 columnas.
 - `build_buttons(towers)`: borra los botones anteriores y crea un `TowerButton` por torre, todos en un `ButtonGroup` con `allow_unpress`, de modo que solo hay uno pulsado y se puede soltar.
 - `set_money(amount)`: actualiza la etiqueta y avisa a cada botón.

@@ -1,0 +1,11 @@
+[gd_scene format=3]
+
+[ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="1_theme"]
+[ext_resource type="StyleBox" path="res://assets/ui/side_panel_style.tres" id="2_style"]
+
+[node name="InfoPanel" type="PanelContainer"]
+theme = ExtResource("1_theme")
+theme_override_styles/panel = ExtResource("2_style")
+
+[node name="Content" type="VBoxContainer" parent="."]
+layout_mode = 2
