@@ -22,4 +22,5 @@ muzzle_flash = ExtResource("5_h7gfm")
 muzzle_offset = Vector2(0, -13)
 cannon = ExtResource("3_mhepm")
 turn_speed = 180.0
+description = "Disparos precisos de largo alcance que persiguen al objetivo."
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

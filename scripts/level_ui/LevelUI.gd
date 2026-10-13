@@ -8,6 +8,7 @@ signal quit_requested
 @onready var pause_menu: Control = %PauseMenu
 @onready var sidebar: Sidebar = %Sidebar
 @onready var level_indicator: LevelIndicator = %LevelIndicator
+@onready var info_panel: InfoPanel = %InfoPanel
 
 var _state: LevelState
 var _spawner: Spawner
@@ -19,6 +20,7 @@ func _ready() -> void:
 	game_over_screen.restart_requested.connect(_on_restart_requested)
 	game_over_screen.quit_requested.connect(_on_quit_requested)
 	sidebar.tower_selected.connect(_on_tower_selected)
+	sidebar.inspect_requested.connect(_on_inspect_requested)
 	sidebar.next_wave_requested.connect(_on_next_wave_requested)
 	sidebar.auto_waves_toggled.connect(_on_auto_waves_toggled)
 
@@ -30,15 +32,24 @@ func setup(state: LevelState, towers: Array[TowerData], level_number: int, spawn
 			_state.money_changed.disconnect(sidebar.set_money)
 		if _state.selected_tower_changed.is_connected(sidebar.show_selected):
 			_state.selected_tower_changed.disconnect(sidebar.show_selected)
+		if _state.inspected_changed.is_connected(info_panel.show_inspected):
+			_state.inspected_changed.disconnect(info_panel.show_inspected)
 	_state = state
 	state.money_changed.connect(sidebar.set_money)
 	state.selected_tower_changed.connect(sidebar.show_selected)
+	state.inspected_changed.connect(info_panel.show_inspected)
 	sidebar.build_buttons(towers)
 	sidebar.set_money(state.money)
+	# Un LevelState nuevo (al empezar o reiniciar) no tiene nada inspeccionado: la ficha vuelve al escáner.
+	info_panel.show_inspected(state.inspected)
 
 func _on_tower_selected(data: TowerData) -> void:
 	if is_instance_valid(_state):
 		_state.selected_tower = data
+
+func _on_inspect_requested(data: Resource) -> void:
+	if is_instance_valid(_state):
+		_state.inspected = data
 
 # Cambia el Spawner que sigue la pestaña Oleadas, desconectando el anterior.
 func _connect_spawner(spawner: Spawner) -> void:

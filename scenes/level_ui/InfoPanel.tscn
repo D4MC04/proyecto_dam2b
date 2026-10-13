@@ -2,10 +2,152 @@
 
 [ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="1_theme"]
 [ext_resource type="StyleBox" path="res://assets/ui/side_panel_style.tres" id="2_style"]
+[ext_resource type="Script" path="res://scripts/level_ui/InfoPanel.gd" id="3_script"]
+[ext_resource type="StyleBox" path="res://assets/ui/money_header_style.tres" id="4_header"]
+[ext_resource type="Script" path="res://scripts/level_ui/ScannerDisplay.gd" id="5_scanner"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_screen"]
 
 [node name="InfoPanel" type="PanelContainer"]
 theme = ExtResource("1_theme")
 theme_override_styles/panel = ExtResource("2_style")
+script = ExtResource("3_script")
 
 [node name="Content" type="VBoxContainer" parent="."]
 layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleHeader" type="PanelContainer" parent="Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = ExtResource("4_header")
+
+[node name="TitleLabel" type="Label" parent="Content/TitleHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
+theme_override_font_sizes/font_size = 8
+text = "FICHA"
+horizontal_alignment = 1
+
+[node name="Screen" type="PanelContainer" parent="Content"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxEmpty_screen")
+
+[node name="IdleView" type="VBoxContainer" parent="Content/Screen"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Scanner" type="Control" parent="Content/Screen/IdleView"]
+custom_minimum_size = Vector2(57, 57)
+layout_mode = 2
+size_flags_horizontal = 4
+mouse_filter = 2
+script = ExtResource("5_scanner")
+
+[node name="IdleTitle" type="Label" parent="Content/Screen/IdleView"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9254902, 0.6980392, 0.23529412, 1)
+theme_override_font_sizes/font_size = 8
+text = "SIN OBJETIVO"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="IdleHint" type="Label" parent="Content/Screen/IdleView"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.49803922, 0.6509804, 0.72156864, 1)
+theme_override_font_sizes/font_size = 8
+text = "Clic derecho para analizar"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="DetailView" type="VBoxContainer" parent="Content/Screen"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 3
+
+[node name="IconPad" type="Control" parent="Content/Screen/DetailView"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="IconRect" type="TextureRect" parent="Content/Screen/DetailView/IconPad"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+mouse_filter = 2
+stretch_mode = 3
+
+[node name="NameLabel" type="Label" parent="Content/Screen/DetailView"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9411765, 0.98039216, 1, 1)
+theme_override_font_sizes/font_size = 8
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="TypeTag" type="PanelContainer" parent="Content/Screen/DetailView"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+
+[node name="TypeLabel" type="Label" parent="Content/Screen/DetailView/TypeTag"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 8
+horizontal_alignment = 1
+
+[node name="StatScroll" type="ScrollContainer" parent="Content/Screen/DetailView"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
+
+[node name="StatList" type="VBoxContainer" parent="Content/Screen/DetailView/StatScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="StatRows" type="VBoxContainer" parent="Content/Screen/DetailView/StatScroll/StatList"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 1
+
+[node name="DescriptionDivider" type="ColorRect" parent="Content/Screen/DetailView/StatScroll/StatList"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.10980392, 0.2901961, 0.3764706, 1)
+
+[node name="DescriptionLabel" type="Label" parent="Content/Screen/DetailView/StatScroll/StatList"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.49803922, 0.6509804, 0.72156864, 1)
+theme_override_font_sizes/font_size = 8
+autowrap_mode = 2
+
+[node name="ScanFlash" type="ColorRect" parent="Content/Screen"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.2509804, 0.8784314, 0.9411765, 0.2)

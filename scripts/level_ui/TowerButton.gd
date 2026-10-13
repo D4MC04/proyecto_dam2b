@@ -3,6 +3,8 @@ class_name TowerButton
 
 ## Petición de cambio de selección: on = seleccionar esta torre, !on = soltarla.
 signal selection_changed(data: TowerData, on: bool)
+## Petición de enseñar esta torre en la ficha (clic derecho o izquierdo, se pueda pagar o no).
+signal inspect_requested(data: TowerData)
 
 const BORDER_COLOR := Color("#1c7496")
 const HOVER_BORDER_COLOR := Color("#40e0f0")
@@ -50,8 +52,15 @@ func set_selected(on: bool) -> void:
 	_selected = on
 	_refresh()
 
+func _gui_input(event: InputEvent) -> void:
+	var click := event as InputEventMouseButton
+	if click != null and click.pressed and click.button_index == MOUSE_BUTTON_RIGHT:
+		inspect_requested.emit(data)
+		accept_event()
+
 func _on_pressed() -> void:
-	# Solo el clic izquierdo llega aquí; el derecho sigue disponible por gui_input.
+	# Solo el clic izquierdo llega aquí; el derecho se recoge en _gui_input.
+	inspect_requested.emit(data)
 	if not _affordable:
 		return
 	selection_changed.emit(data, not _selected)

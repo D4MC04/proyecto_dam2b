@@ -32,6 +32,7 @@ mouse_filter = 2
 theme_override_constants/separation = 0
 
 [node name="InfoPanel" parent="UI/HBoxContainer" instance=ExtResource("4_info")]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 

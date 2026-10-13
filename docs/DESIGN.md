@@ -24,7 +24,7 @@ Tower defense 2D hecho en Godot 4.7 con GDScript. El jugador elige un nivel, com
 - [Enemigos](design/enemigos.md): movimiento por el camino, vida, ralentización, recompensa y los 12 tipos definidos.
 - [Torres](design/torres.md): colocación, apuntado, los 5 tipos de ataque y las 7 torres definidas.
 - [Base](design/base.md): la estación espacial que hay en los mapas, con vida y escudo.
-- [UI de nivel](design/ui.md): columnas, barra lateral de compra, menú de pausa y pantalla de game over.
+- [UI de nivel](design/ui.md): columnas, ficha de la barra izquierda, barra lateral de compra, menú de pausa y pantalla de game over.
 - [Menú principal](design/menu.md): título, selección de nivel, control de música y fondo animado.
 - [Arte](design/art.md): tamaños, paleta, contorno, luz y nombres de los sprites de `assets/`.
 

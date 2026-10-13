@@ -18,4 +18,5 @@ sprite_frames = ExtResource("5")
 attack_range = ExtResource("2")
 cannon = ExtResource("7")
 chain = ExtResource("3")
+description = "Un rayo salta de enemigo en enemigo y alcanza a varios a la vez."
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

@@ -18,4 +18,5 @@ sprite_frames = ExtResource("5")
 attack_range = ExtResource("2")
 cannon = ExtResource("7")
 pulse = ExtResource("3")
+description = "Lanza una onda helada que daña y frena a todos los enemigos cercanos."
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

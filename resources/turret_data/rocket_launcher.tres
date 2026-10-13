@@ -20,4 +20,5 @@ bullet_data = ExtResource("2_o0wnv")
 muzzle_offset = Vector2(0, -14)
 cannon = ExtResource("3_6k8hc")
 turn_speed = 180.0
+description = "Balas lentas y potentes que hacen mucho daño en cada impacto."
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

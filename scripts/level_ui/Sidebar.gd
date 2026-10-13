@@ -2,6 +2,8 @@ extends PanelContainer
 class_name Sidebar
 
 signal tower_selected(data: TowerData)
+## Petición de enseñar algo en la ficha; no guarda qué está inspeccionado.
+signal inspect_requested(data: Resource)
 ## Petición de lanzar la siguiente oleada.
 signal next_wave_requested
 ## Petición de cambiar el modo AUTO; no guarda el estado.
@@ -69,6 +71,7 @@ func build_buttons(towers: Array[TowerData]) -> void:
 		tower_buttons.add_child(button)
 		button.setup(data, _money)
 		button.selection_changed.connect(_on_button_selection_changed)
+		button.inspect_requested.connect(inspect_requested.emit)
 		_buttons.append(button)
 
 func set_money(amount: int) -> void:

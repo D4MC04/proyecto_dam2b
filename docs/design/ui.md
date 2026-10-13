@@ -8,7 +8,7 @@ Todo cuelga de `scenes/level_ui/LevelUI.tscn`, instanciada dentro de `Game`. Los
 
 Estructura: `UI/HBoxContainer` (sin separación) con tres columnas, de izquierda a derecha:
 
-- `InfoPanel`: barra izquierda, 80 px. De momento vacía.
+- `InfoPanel`: barra izquierda, 80 px, con la ficha (ver más abajo).
 - `GameArea`: zona del mapa, ocupa el resto (480 px con el viewport de 640). Contiene `GameOverScreen` y `PauseMenu`, ocultos al empezar, así que el oscurecido y los menús no tapan las barras. El mapa se centra en esta columna desde `Level` (ver [niveles.md](niveles.md)).
 - `Sidebar`: barra derecha, 80 px.
 
@@ -16,18 +16,43 @@ Estructura: `UI/HBoxContainer` (sin separación) con tres columnas, de izquierda
 
 Las dos barras usan el mismo estilo, `assets/ui/side_panel_style.tres`: `StyleBoxFlat` opaco con el fondo del tema (`#0a0f1a`), borde de 1 px en cian oscuro `#1c7496` y 4 px de margen interior en cada lado.
 
-## InfoPanel
+Funciones de `LevelUI`:
 
-`scenes/level_ui/InfoPanel.tscn`: `PanelContainer` con el tema `menu_theme.tres` y el estilo de barra, y un `VBoxContainer` vacío llamado `Content`. Sin script.
-
-Funciones:
-
-- `setup(state, towers, level_number, spawner)`: pasa el número de nivel al `LevelIndicator`, prepara la pestaña Oleadas (ver más abajo), conecta `state.money_changed` a `sidebar.set_money` y `state.selected_tower_changed` a `sidebar.show_selected`, crea los botones de torre y muestra el dinero inicial. Si había un `LevelState` anterior, desconecta ambas.
-- `_on_tower_selected(data)`: recibe `Sidebar.tower_selected` y escribe `selected_tower` en el `LevelState`. Es el único camino de la barra lateral al estado.
+- `setup(state, towers, level_number, spawner)`: pasa el número de nivel al `LevelIndicator`, prepara la pestaña Oleadas (ver más abajo), conecta `state.money_changed` a `sidebar.set_money`, `state.selected_tower_changed` a `sidebar.show_selected` y `state.inspected_changed` a `info_panel.show_inspected`, crea los botones de torre, muestra el dinero inicial y pide a la ficha que enseñe `state.inspected` (null en un `LevelState` nuevo, así que al empezar o reiniciar vuelve al escáner). Si había un `LevelState` anterior, desconecta las tres.
+- `_on_tower_selected(data)`: recibe `Sidebar.tower_selected` y escribe `selected_tower` en el `LevelState`. Es el único camino de la barra lateral a la selección.
+- `_on_inspect_requested(data)`: recibe `Sidebar.inspect_requested` y escribe `inspected` en el `LevelState`. Es el único camino a lo inspeccionado.
 - `show_game_over()`: muestra la pantalla y pausa el árbol. `hide_game_over()` la oculta.
 - Acción `ui_cancel` (Escape): alterna el menú de pausa y la pausa del árbol, salvo si se ve el game over.
 
 Señales: `restart_requested` y `quit_requested`. Las emite cuando se pulsa el botón correspondiente en pausa o en game over, después de quitar la pausa.
+
+## InfoPanel (ficha)
+
+`scenes/level_ui/InfoPanel.tscn` + `scripts/level_ui/InfoPanel.gd` (clase `InfoPanel`). `PanelContainer` con el tema `menu_theme.tres` y el estilo de barra; dentro del margen quedan 72x264 px, unos 9 caracteres por línea a 8 px. Es un marco fijo: la barra no aparece, desaparece ni cambia de tamaño; solo cambia lo de dentro.
+
+Estructura (`Content`, `VBoxContainer` con 4 px de separación):
+
+- `TitleHeader`: cabecera fija "FICHA" en cian `#40e0f0`, con el mismo estilo que `MoneyHeader` (`money_header_style.tres`).
+- `Screen`: el resto de la barra. Contiene las dos vistas, de las que solo una es visible, y `ScanFlash`.
+- **`IdleView` (reposo):** el escáner (`ScannerDisplay`, ver abajo), "SIN OBJETIVO" en ámbar `#ecb23c` y la ayuda "Clic derecho para analizar" en `#7fa6b8`, ambos con salto de línea automático y centrados. Se ve al empezar el nivel y al reiniciar; en cuanto se inspecciona algo no vuelve hasta el siguiente reinicio.
+- **`DetailView`:**
+  - Cabecera fija: `IconPad` (72x38) con el icono a 32x32 centrado, fondo `#060b14` con una rejilla de puntos `#14304a` cada 4 px y esquinas de 4 px en el color de acento (se pinta en el `draw` de `IconPad`); `NameLabel` con el nombre partido por palabras en líneas de 9 caracteres, 2 como mucho (una palabra más larga se corta con guion: "Disinteg-rator"), con alto fijo de 2 líneas para que la cabecera mida siempre lo mismo; y `TypeTag` con la etiqueta del tipo de ataque en el color de acento sobre el fondo mezclado al 20 % con el acento. El nombre no se pasa a mayúsculas porque PressStart2P dibuja mal las mayúsculas con tilde.
+  - `StatScroll`: `ScrollContainer` vertical (sin barra visible, como los de la barra derecha) con las filas de stat, una línea `#1c4a60` y la descripción en `#7fa6b8` con salto de línea automático (la línea y la descripción se ocultan si no hay descripción). La cabecera no entra en el scroll. Al cambiar de ficha vuelve arriba.
+  - Cada fila es un `PanelContainer` (1 px de margen, fondo alterno `#0e1626` / `#0a0f1a`) con el icono de 8x8 a la izquierda y el valor a la derecha en `#befaff`. Su `tooltip_text` es el nombre del stat; `mouse_filter = PASS` para que la rueda siga llegando al scroll.
+- `ScanFlash`: `ColorRect` cian al 20 % que tapa `Screen` durante 2 frames cada vez que cambia el contenido.
+
+`show_inspected(data: Resource)`: con un `TowerData` pinta su icono, `name`, `get_attack_label()`, `accent_color`, `get_stats()` y `description`; con null, el reposo. La ficha no sabe qué stats existen: crea una fila por cada `StatEntry` que recibe.
+
+**`StatEntry`** (`scripts/level_ui/StatEntry.gd`, `RefCounted`): `icon: Texture2D`, `label: String` y `value: String` ya formateado. `StatEntry.new(icon_name, label, value)` carga `assets/ui/stat_icons/<icon_name>.png`. `MAX_VALUE_CHARS = 7` es lo que cabe en el valor. Las filas las dan `TowerData.get_stats()` y los `get_stats()` de cada tipo de ataque (ver [torres.md](torres.md)).
+
+**`ScannerDisplay`** (`scripts/level_ui/ScannerDisplay.gd`, `Control` de 57x57): radar de reposo. Pinta 32 frames del barrido píxel a píxel en `Image` (sin antialiasing) la primera vez y los reparte entre instancias; avanza un frame cada 0,06 s (unos 1,9 s por vuelta) solo mientras es visible. Disco `#0e1626`, anillo `#1c7496` de radio 27 con marcas `#40e0f0` en los cuatro puntos cardinales, anillos interiores y cruz punteados en `#1c4a60`, línea de barrido `#befaff` y estela en dos tramos (`#1c7496` hasta 25°, `#14304a` hasta 70°). Cuatro ecos de 1 px se encienden en `#befaff` al pasar el barrido y se apagan pasando por `#40e0f0`.
+
+**Interacción:**
+
+- Clic derecho en un `TowerButton` (aunque no se pueda pagar y con el juego en pausa): enseña su ficha sin seleccionarla.
+- Clic izquierdo: la selecciona (si se puede pagar) y enseña su ficha.
+- Deseleccionar (clic derecho en el mapa o quedarse sin dinero) no cambia la ficha.
+- `TowerButton.inspect_requested` → `Sidebar.inspect_requested` → `LevelUI` escribe `LevelState.inspected` → `LevelState.inspected_changed` → `InfoPanel.show_inspected`. Nadie más guarda qué está inspeccionado.
 
 ## LevelIndicator
 
@@ -45,6 +70,7 @@ Señales: `restart_requested` y `quit_requested`. Las emite cuando se pulsa el b
 - `build_buttons(towers)`: borra los botones anteriores y crea un `TowerButton` por torre.
 - `set_money(amount)`: actualiza la etiqueta y avisa a cada botón.
 - Señal `tower_selected(data)`: petición de cambio, con la torre al pulsar un botón y con `null` al soltarla. No guarda la selección.
+- Señal `inspect_requested(data)`: reenvía la de cada `TowerButton`; petición de enseñar algo en la ficha.
 - `show_selected(data)`: marca el botón de esa torre y desmarca los demás (todos con `null`). No emite nada.
 
 ## TowerButton
@@ -58,6 +84,7 @@ Señales: `restart_requested` y `quit_requested`. Las emite cuando se pulsa el b
   - Seleccionada: borde con `data.accent_color`, fondo mezclado con el acento (25 %); con el ratón encima, 40 % y borde más claro.
   - Sin dinero: icono al 35 % de opacidad y coste en rojo `#ff3c5a` (con dinero, ámbar `#ecb23c`); sin resalte al pasar el ratón. El botón no está `disabled`, así que recibe todos los eventos de ratón (para el clic derecho de la ficha), pero el clic izquierdo no hace nada.
 - Señal `selection_changed(data, on)`: petición, no estado. El clic izquierdo pide seleccionar (`on = true`) o, si ya estaba seleccionada, soltar. Si estando seleccionada deja de llegarle el dinero, pide soltarla.
+- Señal `inspect_requested(data)`: petición de enseñar la torre en la ficha. La emiten el clic izquierdo (antes de comprobar el dinero) y el clic derecho, que se recoge en `_gui_input` y se marca como gestionado.
 
 ## Pestaña Oleadas
 
@@ -78,6 +105,9 @@ Señales: `restart_requested` y `quit_requested`. Las emite cuando se pulsa el b
 
 `scripts/level_ui/UiFormat.gd` (clase `UiFormat`). `UiFormat.abbreviate(amount: int) -> String`: hasta 9999 tal cual; después `12.3K`, `123K`, `1.2M`, `1.5B`, con 5 caracteres como máximo. Trunca en vez de redondear y quita el decimal si es 0 (`10K`, no `10.0K`). La usan el dinero y los costes.
 
+- `UiFormat.number(value: float)`: para stats. Por debajo de 100 y con decimales, uno como mucho (`2.5`); si no, `abbreviate` del valor redondeado.
+- `UiFormat.seconds(value: float)`: segundos con 2 decimales como mucho, sin ceros sobrantes y en 5 caracteres como máximo (`0.25s`, `1.5s`, `5s`, `123s`).
+
 ## PauseMenu
 
 `scenes/level_ui/PauseMenu.tscn` + `scripts/level_ui/PauseMenu.gd`. Fondo negro al 59 %, título "PAUSA" y botones "Continuar", "Reiniciar" y "Salir". Señales `resume_requested`, `restart_requested` y `quit_requested`.
@@ -92,10 +122,12 @@ Señales: `restart_requested` y `quit_requested`. Las emite cuando se pulsa el b
 |---|---|---|
 | `LevelState` | `money_changed` | `Sidebar.set_money` |
 | `LevelState` | `selected_tower_changed` | `Sidebar.show_selected` |
+| `LevelState` | `inspected_changed` | `InfoPanel.show_inspected` |
 | `Spawner` | `wave_started` | `LevelUI._on_wave_started` (`Sidebar.set_current_wave` y controles) |
 | `Spawner` | `wave_cleared` | `LevelUI._on_wave_cleared` (controles) |
 | `Spawner` | `auto_waves_changed` | `Sidebar.show_auto_waves` |
 | `Sidebar` | `tower_selected` | `LevelUI._on_tower_selected` (escribe en `LevelState`) |
+| `Sidebar` | `inspect_requested` | `LevelUI._on_inspect_requested` (escribe `LevelState.inspected`) |
 | `Sidebar` | `next_wave_requested` | `LevelUI._on_next_wave_requested` (`Spawner.start_next_wave`) |
 | `Sidebar` | `auto_waves_toggled` | `LevelUI._on_auto_waves_toggled` (escribe `Spawner.auto_waves`) |
 | `LevelUI` | `restart_requested` | `Game._restart_level` |
@@ -104,5 +136,7 @@ Señales: `restart_requested` y `quit_requested`. Las emite cuando se pulsa el b
 
 ## Dudas
 
-- La interfaz no muestra la vida de la base, ni los datos de las torres (el nombre solo sale en el tooltip del botón).
+- La interfaz no muestra la vida de la base.
+- La ficha solo enseña torres; `EnemyCell.enemy_clicked` aún no está conectado.
+- El scroll de la ficha no tiene barra visible: en las fichas que no caben (Cryo, Disintegrator) la descripción queda cortada abajo sin otra pista de que se puede bajar.
 - El nodo raíz se llama `LevelUI` y el archivo `LevelUI.gd`, pero la clase es `GameUI`. El contenedor vertical de `GameOver.tscn` se llama `HBoxContainer`.

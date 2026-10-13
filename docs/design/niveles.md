@@ -6,7 +6,7 @@
 
 | Nodo | Script | Función |
 |---|---|---|
-| `LevelState` | `scripts/level/LevelState.gd` | Dinero y torre seleccionada |
+| `LevelState` | `scripts/level/LevelState.gd` | Dinero, torre seleccionada y lo inspeccionado en la ficha |
 | `Grid` | `scripts/level/Grid.gd` | Qué casillas son camino o hueco y cuáles están ocupadas |
 | `Spawner` | `scripts/level/Spawner.gd` | Lanza las oleadas, crea sus enemigos y cuenta los vivos |
 | `BuildManager` | `scripts/level/BuildManager.gd` | Coloca torres; ver [torres.md](torres.md) |
@@ -31,6 +31,7 @@ Conexiones hechas en `_ready`:
 - `add_money(amount)` suma y emite `money_changed(money)`.
 - `spend_money(amount)` devuelve `false` si no alcanza; si alcanza resta, emite `money_changed` y devuelve `true`.
 - `selected_tower: TowerData` es la torre que se colocará al hacer clic y la única fuente de la selección. Su setter emite `selected_tower_changed(data)` solo si el valor cambia. Lo escribe `LevelUI` cuando la barra lateral lo pide y `BuildManager` (a `null`) al cancelar con clic derecho.
+- `inspected: Resource` es lo que enseña la ficha (de momento un `TowerData`; es `Resource` para que valga también para enemigos) y la única fuente de lo inspeccionado. Su setter emite `inspected_changed(data)` solo si el valor cambia. Empieza en null y solo lo escribe `LevelUI`; deseleccionar no lo toca. Al reiniciar se crea un `LevelState` nuevo, así que vuelve a null.
 
 ## Datos de nivel
 
