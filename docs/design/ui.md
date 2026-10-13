@@ -14,7 +14,7 @@ Estructura:
 Funciones:
 
 - `setup(state, towers)`: conecta `state.money_changed` a `sidebar.set_money`, crea los botones de torre y muestra el dinero inicial. Si había un `LevelState` anterior, lo desconecta.
-- `FpsLabel`: arriba a la izquierda, muestra `"%d FPS"` cada frame. Solo se ve si la opción `show_fps` de `Settings` está activada al crearse `LevelUI`.
+- `FpsLabel`: arriba a la izquierda, muestra `"%d FPS"` cada frame. Solo se ve con la opción `show_fps` de `Settings` activada; `LevelUI` escucha `Settings.changed`, así que aparece o desaparece al momento.
 - `show_game_over()`: muestra la pantalla y pausa el árbol. `hide_game_over()` la oculta.
 - Acción `ui_cancel` (Escape): alterna el menú de pausa y la pausa del árbol, salvo si se ve el game over.
 
@@ -41,7 +41,9 @@ Señales: `restart_requested` y `quit_requested`. Las emite cuando se pulsa el b
 
 ## PauseMenu
 
-`scenes/level_ui/PauseMenu.tscn` + `scripts/level_ui/PauseMenu.gd`. Fondo negro al 59 %, título "PAUSA" y botones "Continuar", "Reiniciar" y "Salir". Señales `resume_requested`, `restart_requested` y `quit_requested`.
+`scenes/level_ui/PauseMenu.tscn` + `scripts/level_ui/PauseMenu.gd`. Fondo negro al 59 %, título "PAUSA" y botones "Continuar", "Reiniciar", "Opciones" y "Salir". Señales `resume_requested`, `restart_requested` y `quit_requested`.
+
+"Opciones" abre la instancia de `scenes/OptionsMenu.tscn` que cuelga de `PauseMenu` (ver [menu.md](menu.md)) con `open_from(Box)`: los botones de pausa se funden a las opciones sobre el mismo fondo y "Volver" regresa a ellos. El juego sigue en pausa todo el rato; las opciones funcionan porque heredan `process_mode = ALWAYS` de `LevelUI`. Si la pausa se cierra con las opciones abiertas (Escape), `PauseMenu` llama a `close()` para que la siguiente pausa empiece por los botones.
 
 ## GameOverScreen
 

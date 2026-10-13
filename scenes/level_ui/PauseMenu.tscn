@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://ciic5eb3our4x" path="res://scripts/level_ui/PauseMenu.gd" id="1_g4jo0"]
 [ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="2_theme"]
+[ext_resource type="PackedScene" path="res://scenes/OptionsMenu.tscn" id="3_options"]
 
 [node name="PauseMenu" type="Control" unique_id=102313545]
 layout_mode = 3
@@ -55,9 +56,20 @@ layout_mode = 2
 size_flags_horizontal = 4
 text = "Reiniciar"
 
+[node name="OptionsButton" type="Button" parent="Box"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 24)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Opciones"
+
 [node name="QuitButton" type="Button" parent="Box" unique_id=1477365320]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 24)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Salir"
+
+[node name="OptionsMenu" parent="." instance=ExtResource("3_options")]
+visible = false
+layout_mode = 1

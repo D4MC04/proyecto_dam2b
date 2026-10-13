@@ -1,6 +1,9 @@
 extends Node
 
 # Autoload: opciones del jugador. Se cargan y aplican al arrancar y se guardan en cada cambio.
+# Se emite después de aplicar el cambio, para lo que depende de una opción durante la partida.
+signal changed(key: StringName)
+
 const PATH := "user://settings.cfg"
 const SECTION := "settings"
 
@@ -41,6 +44,7 @@ func set_value(key: StringName, value: Variant) -> void:
 	_values[key] = value
 	_apply(key)
 	_save()
+	changed.emit(key)
 
 func _apply(key: StringName) -> void:
 	var value: Variant = _values[key]

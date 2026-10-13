@@ -12,14 +12,18 @@ signal quit_requested
 var _state: LevelState
 
 func _ready() -> void:
-	fps_label.visible = Settings.get_value(&"show_fps")
-	set_process(fps_label.visible)
+	_update_fps_label()
+	Settings.changed.connect(_update_fps_label.unbind(1))
 	pause_menu.resume_requested.connect(_set_paused.bind(false))
 	pause_menu.restart_requested.connect(_on_restart_requested)
 	pause_menu.quit_requested.connect(_on_quit_requested)
 	game_over_screen.restart_requested.connect(_on_restart_requested)
 	game_over_screen.quit_requested.connect(_on_quit_requested)
 	sidebar.tower_selected.connect(_on_tower_selected)
+
+func _update_fps_label() -> void:
+	fps_label.visible = Settings.get_value(&"show_fps")
+	set_process(fps_label.visible)
 
 func _process(_delta: float) -> void:
 	fps_label.text = "%d FPS" % Engine.get_frames_per_second()

@@ -1,6 +1,11 @@
+class_name OptionsMenu
 extends Control
 
-signal closed
+const FADE_TIME := 0.25
+
+# Panel desde el que se abrió y al que vuelve "Volver" (título o menú de pausa).
+var _opener: Control
+var _tween: Tween
 
 # Opción de Settings -> control que la edita.
 @onready var _sliders: Dictionary[StringName, Slider] = {
@@ -32,5 +37,29 @@ func _ready() -> void:
 func _update_toggle_text(button: Button) -> void:
 	button.text = "ON" if button.button_pressed else "OFF"
 
+func open_from(opener: Control) -> void:
+	_opener = opener
+	_fade(opener, self)
+
+# Vuelve al panel de origen sin fundido, por ejemplo al cerrar la pausa con Escape.
+func close() -> void:
+	if _tween:
+		_tween.kill()
+	hide()
+	if _opener:
+		_opener.modulate.a = 1.0
+		_opener.show()
+
 func _on_back_button_pressed() -> void:
-	closed.emit()
+	_fade(self, _opener)
+
+func _fade(from: Control, to: Control) -> void:
+	if _tween:
+		_tween.kill()
+	_tween = create_tween()
+	_tween.tween_property(from, "modulate:a", 0.0, FADE_TIME)
+	_tween.tween_callback(func() -> void:
+		from.hide()
+		to.modulate.a = 0.0
+		to.show())
+	_tween.tween_property(to, "modulate:a", 1.0, FADE_TIME)

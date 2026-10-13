@@ -15,7 +15,7 @@ Nodos, de fondo a frente:
 ## Comportamiento
 
 - "Jugar" y "Volver" cambian entre el título y la selección de nivel con un fundido de 0,25 s de salida y otro de entrada.
-- "Opciones" cambia del título a `OptionsMenu` con el mismo fundido; su señal `closed` vuelve al título.
+- "Opciones" llama a `OptionsMenu.open_from(TitleScreen)`, que hace el mismo fundido; "Volver" regresa al título.
 - "Salir" cierra el juego.
 - Si `start_on_level_selection` es `true` (lo pone `Game` al volver de un nivel), el menú abre directamente en la selección de nivel.
 - `_build_level_buttons()` crea un `LevelButton` de 40x40 por cada entrada de `GameData.levels`, numerado desde 1 y desactivado si `GameState.is_unlocked(i)` es `false`.
@@ -48,7 +48,11 @@ Es el único audio del juego: todavía no hay efectos de sonido, así que nada s
 
 ## Opciones
 
-`scenes/OptionsMenu.tscn` + `scripts/screens/OptionsMenu.gd`. Un solo panel con el título "OPCIONES", dos columnas de secciones y el botón "Volver", que emite `closed`.
+`scenes/OptionsMenu.tscn` + `scripts/screens/OptionsMenu.gd` (clase `OptionsMenu`). Un solo panel con el título "OPCIONES", dos columnas de secciones y el botón "Volver". La misma escena está instanciada en el menú principal y en el menú de pausa (ver [ui.md](ui.md)).
+
+- `open_from(opener)`: funde de `opener` (el panel que la abre) a las opciones, 0,25 s de salida y 0,25 s de entrada, y recuerda `opener`.
+- "Volver" hace el fundido inverso hacia ese mismo panel.
+- `close()`: oculta las opciones y vuelve a mostrar el panel de origen sin fundido.
 
 | Sección | Control | Opción de `Settings` |
 |---|---|---|
@@ -68,16 +72,15 @@ Los deslizadores van de 0 a 1 en pasos de 0,05. Los botones son de tipo interrup
 `scripts/autoloads/Settings.gd`, autoload. Guarda las opciones en `user://settings.cfg` (sección `settings`) con `ConfigFile`.
 
 - Al arrancar carga el archivo y aplica todas las opciones. Si el archivo no existe, falta una clave o su valor no es del tipo esperado, vale el valor por defecto: volúmenes a 1, `vsync` activado y el resto desactivado. Las claves que no conoce (por ejemplo la antigua `ambient_volume`) se ignoran y desaparecen del archivo en el siguiente guardado.
-- `get_value(key)` y `set_value(key, value)`. `set_value` aplica el cambio y guarda el archivo.
+- `get_value(key)` y `set_value(key, value)`. `set_value` aplica el cambio, guarda el archivo y emite `changed(key)`.
 - Los tres volúmenes son lineales y se aplican a los buses `Master`, `Music` y `SFX`, definidos en `default_bus_layout.tres`. El bus `SFX` es para los sonidos de torretas, explosiones y demás efectos.
 - `muted` silencia el bus `Master` sin cambiar los volúmenes, así que al quitarlo los deslizadores conservan su valor.
 - `fullscreen` y `vsync` se aplican con `DisplayServer`.
-- `show_fps` y `show_tower_range` no hacen nada aquí: las leen `LevelUI` (ver [ui.md](ui.md)) y `Tower` (ver [torres.md](torres.md)).
+- `show_fps` y `show_tower_range` no hacen nada aquí: las leen `LevelUI` (ver [ui.md](ui.md)) y `Tower` (ver [torres.md](torres.md)), que escuchan `changed` para actualizarse al momento.
 
 ## Dudas
 
-- Las opciones solo se abren desde el menú principal; el menú de pausa no las tiene.
-- `show_fps` y `show_tower_range` se leen al crear `LevelUI` y al dibujarse cada torre: no hay señal de cambio, y hoy no hace falta porque las opciones no se pueden tocar durante una partida.
+- El fundido está escrito dos veces: en `MainMenu._transition` (título y selección de nivel) y en `OptionsMenu._fade`.
 - El deslizador "Efectos" no cambia nada audible mientras no haya sonidos en el bus `SFX`.
 - Pantalla completa y VSync no tienen efecto si el juego se ejecuta incrustado en el editor de Godot; hay que ejecutarlo en su propia ventana.
 - Los scripts de `scripts/main_menu/` tienen variables sin tipo y nombres en español (`_actualizar`), al contrario de lo que pide `CLAUDE.md`. Lo mismo `scripts/level/Cometa.gd`. `MainMenu.gd` tiene funciones sin tipo de retorno.

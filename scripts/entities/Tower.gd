@@ -22,6 +22,8 @@ var _pending_shot := false
 var _sight: Line2D
 
 func _ready() -> void:
+	# Si cambia una opción en plena partida, se vuelve a dibujar el rango.
+	Settings.changed.connect(queue_redraw.unbind(1))
 	sprite.sprite_frames = data.sprite_frames
 	cannon.sprite_frames = data.cannon
 	set_process(data.cannon != null and not _is_static())

@@ -5,7 +5,7 @@ var start_on_level_selection: bool = false
 @onready var main_panel: VBoxContainer = $TitleScreen
 @onready var level_selection_panel: VBoxContainer = $LevelSelectionScreen
 @onready var level_buttons_container: GridContainer = %LevelButtonsContainer
-@onready var options_menu: Control = $OptionsMenu
+@onready var options_menu: OptionsMenu = $OptionsMenu
 
 const FADE_TIME := 0.25
 
@@ -34,10 +34,7 @@ func _open_level(data: LevelData):
 	tree.current_scene = game
 
 func _on_settings_button_pressed() -> void:
-	_transition(main_panel, options_menu)
-
-func _on_options_menu_closed() -> void:
-	_transition(options_menu, main_panel)
+	options_menu.open_from(main_panel)
 
 func _on_play_button_pressed():
 	_transition(main_panel, level_selection_panel)
