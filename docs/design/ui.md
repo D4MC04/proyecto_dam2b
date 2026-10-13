@@ -38,24 +38,30 @@ Señales: `restart_requested` y `quit_requested`. Las emite cuando se pulsa el b
 
 ## Sidebar
 
-`scenes/level_ui/Sidebar.tscn` + `scripts/level_ui/Sidebar.gd` (clase `Sidebar`).
+`scenes/level_ui/Sidebar.tscn` + `scripts/level_ui/Sidebar.gd` (clase `Sidebar`). Estilo de barra compartido con `InfoPanel`. Dentro del margen de 4 px quedan 72 px de ancho útil.
 
-- Estilo de barra compartido con `InfoPanel`. `MarginContainer/Shop` es un `VBoxContainer` con 8 px de separación.
-- `MoneyLabel`: dinero con el formato `"%s€"`, a 8 px de fuente.
-- `TowerButtons`: `GridContainer` de 2 columnas.
-- `build_buttons(towers)`: borra los botones anteriores y crea un `TowerButton` por torre, todos en un `ButtonGroup` con `allow_unpress`, de modo que solo hay uno pulsado y se puede soltar.
+- **Pestañas:** `TabBar` con dos botones de icono de 16x16 (`TowersTab` y `WavesTab`, 34x24, en un `ButtonGroup`) y una página por pestaña (`TowersPage`, `WavesPage`) de las que solo una es visible. No hay texto: el nombre ("Torres", "Oleadas") sale en el tooltip. Torres está activa al empezar. Los iconos son `assets/ui/tab_towers.png` y `tab_waves.png`. Los estilos de pestaña se crean en `_ready`: la inactiva tiene borde `#1c4a60` e icono atenuado; la activa, fondo `#14304a`, borde `#40e0f0` e icono a plena luz. `WavesPage` está vacía.
+- **`TowersPage`:** `MoneyHeader` (`PanelContainer` con `assets/ui/money_header_style.tres`) con `MoneyLabel` centrado en ámbar `#ecb23c`, formato `"%s€"` con `UiFormat.abbreviate`. Debajo, `TowerScroll` (`ScrollContainer`, scroll vertical sin barra visible, horizontal desactivado) con `TowerButtons`, un `GridContainer` de 2 columnas con 4 px de separación (2 x 34 + 4 = 72). El dinero no entra en el scroll, así que no se mueve.
+- `build_buttons(towers)`: borra los botones anteriores y crea un `TowerButton` por torre.
 - `set_money(amount)`: actualiza la etiqueta y avisa a cada botón.
-- Señal `tower_selected(data)`: petición de cambio, con la torre al pulsar un botón y con `null` al soltarlo (no si se suelta porque se pulsa otro). No guarda la selección.
-- `show_selected(data)`: marca como pulsado el botón de esa torre y suelta los demás (todos con `null`), con `set_pressed_no_signal` para no volver a emitir.
+- Señal `tower_selected(data)`: petición de cambio, con la torre al pulsar un botón y con `null` al soltarla. No guarda la selección.
+- `show_selected(data)`: marca el botón de esa torre y desmarca los demás (todos con `null`). No emite nada.
 
 ## TowerButton
 
-`scenes/level_ui/TowerButton.tscn` + `scripts/level_ui/TowerButton.gd` (clase `TowerButton`).
+`scenes/level_ui/TowerButton.tscn` + `scripts/level_ui/TowerButton.gd` (clase `TowerButton`). `Button` de 34x44 sin `toggle_mode` ni `ButtonGroup`, sin foco: el estado seleccionado es solo visual y lo dicta `Sidebar.show_selected` mediante `set_selected`.
 
-- Muestra `data.icon` y el coste (`"%s€"`).
-- Se desactiva si el dinero no llega al coste. Si estaba pulsado al desactivarse, se suelta.
-- Mantiene forma cuadrada igualando su alto mínimo a su ancho.
-- Señal `selection_changed(data, on)`.
+- Contenido: `data.icon` a 32x32 (sin escalar) y debajo el coste, a 8 px. El coste se abrevia con `UiFormat.abbreviate` y lleva `€` solo si el texto resultante tiene menos de 4 caracteres (el botón solo tiene sitio para 4 de 8 px). Tooltip con el nombre de la torre.
+- Estados (estilos `StyleBoxFlat` de 1 px, sin antialiasing, creados en `_refresh`):
+  - Normal: fondo `#0e1626`, borde `#1c7496`.
+  - Hover: fondo `#16243c`, borde `#40e0f0`.
+  - Seleccionada: borde con `data.accent_color`, fondo mezclado con el acento (25 %); con el ratón encima, 40 % y borde más claro.
+  - Sin dinero: icono al 35 % de opacidad y coste en rojo `#ff3c5a` (con dinero, ámbar `#ecb23c`); sin resalte al pasar el ratón. El botón no está `disabled`, así que recibe todos los eventos de ratón (para el clic derecho de la ficha), pero el clic izquierdo no hace nada.
+- Señal `selection_changed(data, on)`: petición, no estado. El clic izquierdo pide seleccionar (`on = true`) o, si ya estaba seleccionada, soltar. Si estando seleccionada deja de llegarle el dinero, pide soltarla.
+
+## UiFormat
+
+`scripts/level_ui/UiFormat.gd` (clase `UiFormat`). `UiFormat.abbreviate(amount: int) -> String`: hasta 9999 tal cual; después `12.3K`, `123K`, `1.2M`, `1.5B`, con 5 caracteres como máximo. Trunca en vez de redondear y quita el decimal si es 0 (`10K`, no `10.0K`). La usan el dinero y los costes.
 
 ## PauseMenu
 
@@ -78,5 +84,5 @@ Señales: `restart_requested` y `quit_requested`. Las emite cuando se pulsa el b
 
 ## Dudas
 
-- La interfaz no muestra la vida de la base, la oleada ni el nombre o los datos de las torres.
+- La interfaz no muestra la vida de la base, la oleada ni los datos de las torres (el nombre solo sale en el tooltip del botón).
 - El nodo raíz se llama `LevelUI` y el archivo `LevelUI.gd`, pero la clase es `GameUI`. El contenedor vertical de `GameOver.tscn` se llama `HBoxContainer`.

@@ -13,6 +13,7 @@ name = "Cañón pesado"
 cost = 300
 attack_cooldown = 1.5
 icon = ExtResource("4_5bwje")
+accent_color = Color(0.9254902, 0.6980392, 0.2352941, 1)
 sprite_frames = ExtResource("6_27bij")
 attack_range = ExtResource("1_0boch")
 bullet_data = ExtResource("2_o0wnv")

@@ -44,7 +44,7 @@ Las torres de onda y de cadena no giran el cañón ni usan `_process`.
 
 ## Datos
 
-`TowerData` (`scripts/resources/TowerData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`.
+`TowerData` (`scripts/resources/TowerData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `accent_color` (tono medio del acento de la torre según `art.md`, lo usa la UI para marcarla como seleccionada), `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`.
 
 Recursos en `resources/turret_data/`:
 
@@ -119,7 +119,7 @@ Recursos en `resources/turret_data/`:
 
 - `Tower.fit_to_tile` no se llama desde ningún sitio.
 - No hay forma de vender, quitar ni mejorar una torre colocada.
-- `TowerData.name` no se muestra en la interfaz.
+- `TowerData.name` solo se muestra como tooltip del botón de la tienda.
 - `disintegrator.tres` tiene `attack_cooldown = 1.0`, que el código no usa para esa torre.
 - El objetivo se elige por `progress`, que es la distancia recorrida en su propio camino; en mapas con varios caminos de distinta longitud no equivale a "el más cerca del final".
 - El nombre de archivo `rocket_launcher` corresponde a la torre que se llama "Cañón pesado", y `turret` a "Cañón doble". La carpeta es `turret_data` y la clase `TowerData`.

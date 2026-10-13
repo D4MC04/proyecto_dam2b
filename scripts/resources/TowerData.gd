@@ -5,6 +5,8 @@ class_name TowerData
 @export var cost: int
 @export var attack_cooldown: float
 @export var icon: Texture2D
+# Tono medio del acento de la torre (ver docs/design/art.md); la UI lo usa para marcarla como seleccionada.
+@export var accent_color: Color = Color.WHITE
 @export var sprite_frames: SpriteFrames
 @export var attack_range: Shape2D
 @export var bullet_data: BulletData

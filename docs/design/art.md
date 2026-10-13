@@ -48,6 +48,7 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 - **Escudo de la base**: `#40e0f0`, `#aaf5ff`, `#ebffff`, semitransparente.
 - **Fondo de espacio**: azules y morados muy oscuros (`#0a1226`, `#14102e`, `#1e163e`, `#2a1e50`); estrellas en `#ffecc8`, `#befffa`, `#c8dcff` y blanco.
 - **Interfaz** (`assets/ui/menu_theme.tres`): fondo azul casi negro (`Color(0.04, 0.06, 0.1)`), bordes de 1 px en cian (`#00ffff`), más claro al pasar el ratón y más oscuro al pulsar.
+- **Iconos de interfaz** (`assets/ui/`, 16x16, contorno `#0c0e16`, sombreado plano): `tab_towers.png` (torre con metal gris azulado y núcleo cian) y `tab_waves.png` (tres naves moradas con luz roja de motor), los iconos de las pestañas de la barra derecha.
 
 ## Contorno
 

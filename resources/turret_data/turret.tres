@@ -13,6 +13,7 @@ name = "Cañón doble"
 cost = 100
 attack_cooldown = 0.25
 icon = ExtResource("4")
+accent_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
 sprite_frames = ExtResource("5")
 attack_range = ExtResource("2")
 bullet_data = ExtResource("3")
