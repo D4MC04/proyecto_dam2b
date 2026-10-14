@@ -29,21 +29,21 @@ Funciones de `LevelUI`:
 | `PLAYING` | ninguna | no |
 | `PAUSED` | `PauseMenu` | sí |
 | `LOST` | `GameOverScreen`, tras la cámara lenta | sí, tras la cámara lenta |
-| `WON` | `VictoryScreen` | sí |
+| `WON` | `VictoryScreen`, tras el respiro | sí, tras el respiro |
 
 La relación estado → pantalla está solo en el diccionario `_screens_by_state`; una pantalla nueva se añade ahí. `_ready` conecta `option_chosen` de todas las pantallas del diccionario y empieza en `PLAYING`.
 
-- Acción `ui_cancel` (Escape): en `PLAYING` pasa a `PAUSED` y en `PAUSED` vuelve a `PLAYING`. En `LOST` (también durante la cámara lenta) y `WON` no hace nada (ni marca el evento como gestionado).
-- Bloqueo de la selección: `set_state` es lo único que lo decide. Llama a `sidebar.set_selection_locked(new_state != PLAYING)`, así que con pausa (plegada o no), derrota (desde que empieza la cámara lenta) o victoria no se puede seleccionar torre.
-- `show_run_stats(stats: RunStats)`: pasa el resumen de partida a `GameOverScreen`. Lo llama `Game` antes de `set_state(LOST)`; la UI no lee el `Level` ni el `LevelState` para el resumen.
+- Acción `ui_cancel` (Escape): en `PLAYING` pasa a `PAUSED` y en `PAUSED` vuelve a `PLAYING`. En `LOST` y `WON` (también durante la cámara lenta y el respiro) no hace nada (ni marca el evento como gestionado).
+- Bloqueo de la selección: `set_state` es lo único que lo decide. Llama a `sidebar.set_selection_locked(new_state != PLAYING)`, así que con pausa (plegada o no), derrota (desde que empieza la cámara lenta) o victoria (desde que empieza el respiro) no se puede seleccionar torre.
+- `show_run_stats(stats: RunStats)`: pasa el resumen de partida a `GameOverScreen` y a `VictoryScreen`. Lo llama `Game` antes de `set_state(LOST)` o `set_state(WON)`; la UI no lee el `Level` ni el `LevelState` para el resumen.
 
-**Secuencia de derrota.** `set_state(LOST)` no congela el juego de golpe:
+**Secuencias de derrota y victoria.** `set_state(LOST)` y `set_state(WON)` no congelan el juego de golpe. Las dos usan el mismo tween (`_screen_delay`):
 
 1. Quita cualquier pantalla, deja el árbol sin pausa y bloquea la selección.
-2. Un tween (`_slow_motion`) baja `Engine.time_scale` de 1 a `SLOW_MOTION_MIN_SCALE` (0,2) en `SLOW_MOTION_RAMP_TIME` (1,1 s) con curva seno de entrada y salida, y lo mantiene `SLOW_MOTION_HOLD_TIME` (0,2 s). El tween usa `set_ignore_time_scale()` (tiempo real, no se frena a sí mismo) y `TWEEN_PAUSE_PROCESS`.
-3. Al acabar, `Engine.time_scale` vuelve a 1, el árbol se pausa y se enseña `GameOverScreen`, que arranca su glitch.
+2. En `LOST`, cámara lenta: el tween baja `Engine.time_scale` de 1 a `SLOW_MOTION_MIN_SCALE` (0,2) en `SLOW_MOTION_RAMP_TIME` (1,1 s) con curva seno de entrada y salida, y lo mantiene `SLOW_MOTION_HOLD_TIME` (0,2 s). En `WON`, respiro: el tween espera `VICTORY_BREATH_TIME` (0,6 s) con el juego a velocidad normal, para que se vea explotar al último enemigo; no toca `Engine.time_scale`. El tween usa `set_ignore_time_scale()` (tiempo real, no se frena a sí mismo) y `TWEEN_PAUSE_PROCESS`.
+3. Al acabar, `Engine.time_scale` vuelve a 1, el árbol se pausa y se enseña la pantalla del estado: `GameOverScreen` arranca su glitch y `VictoryScreen` su entrada.
 
-Cada llamada a `set_state` mata la secuencia en curso (si la hay) y pone `Engine.time_scale` a 1 antes de nada, así que cualquier cambio de estado durante la cámara lenta la cancela y `PLAYING` siempre deja la velocidad normal. Las escrituras de `time_scale` y `paused` del tween están en lambdas dentro de `set_state`.
+Cada llamada a `set_state` mata la secuencia en curso (si la hay) y pone `Engine.time_scale` a 1 antes de nada, así que cualquier cambio de estado durante la cámara lenta o el respiro lo cancela y `PLAYING` siempre deja la velocidad normal. Las escrituras de `time_scale` y `paused` del tween están en lambdas dentro de `set_state`.
 - `_on_option_chosen(option)`: `RESUME` pasa a `PLAYING`. `RESTART`, `QUIT` y `NEXT_LEVEL` pasan a `PLAYING` (quitan pantalla y pausa) y después emiten `action_requested`.
 
 Señal: `action_requested(action: Action)`, con el enum `Action { RESTART, QUIT, NEXT_LEVEL }`. Es la única señal de `LevelUI` hacia `Game`.
@@ -153,7 +153,7 @@ Tres `@export` en la base, que cada escena heredada fija en su `.tscn`:
 |---|---|---|---|
 | Pausa | cian `#40e0f0` | negro | 0,35 |
 | Derrota | rojo `#ff3c5a` | rojo muy oscuro `#1a0509` | 0,6 |
-| Victoria | ámbar `#ecb23c` | negro | 0,59 |
+| Victoria | ámbar `#ecb23c` | negro | 0,45 |
 
 `_ready` aplica el acento al marco y a los botones, el oscurecido al fondo, y conecta el `pressed` de cada `OverlayOptionButton` de `Options`. Enum `Option { RESUME, RESTART, QUIT, NEXT_LEVEL, SETTINGS }` y una sola señal, `option_chosen(option)`.
 
@@ -189,8 +189,8 @@ La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Una pantall
 
 `scenes/level_ui/RunSummary.tscn` + `scripts/level_ui/RunSummary.gd` (clase `RunSummary`). Resumen de partida reutilizable; no sabe en qué pantalla está. `PanelContainer` de 136 px de ancho (lo mismo que las opciones), fondo `#0a0f1a`, borde de 1 px en el acento mezclado al 50 % y 2 px de margen. Dentro, el rótulo "RESUMEN" a 8 px en el acento y las filas.
 
-- `@export var accent_color`: color del rótulo y del borde. La derrota lo pone en rojo; la victoria lo usará en ámbar.
-- `show_stats(stats: RunStats)`: sustituye las filas por tres `StatRow` (4 px de margen en horizontal y 2 en vertical):
+- `@export var accent_color`: color del rótulo y del borde. La derrota lo pone en rojo y la victoria en ámbar.
+- `show_stats(stats: RunStats)`: sustituye las filas por tres `StatRow` (4 px de margen en horizontal y 2 en vertical) con los valores finales de golpe (así los enseña la derrota). Corta un conteo en curso:
 
 | Icono | Tooltip | Valor |
 |---|---|---|
@@ -198,11 +198,23 @@ La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Una pantall
 | `kills.png` | Enemigos destruidos | `UiFormat.abbreviate` |
 | `cost.png` | Dinero gastado | `UiFormat.abbreviate` + `€` |
 
+- `count_up(duration, delay = 0.0)`: opcional, después de `show_stats`. Pone enemigos destruidos y dinero gastado a 0 y, tras `delay` segundos, los hace contar hasta su valor en `duration` segundos (tween de tiempo real, curva cuártica que frena al final). Cada paso pasa por `UiFormat.abbreviate`, así que el texto tiene el formato del valor final y las filas (de ancho fijo) no saltan. La oleada no cuenta. `finish_count()` corta el conteo y deja los valores finales; `is_counting()` dice si hay uno en curso. Lo usa la victoria.
+- `StatRow.get_value_label(row)` da la etiqueta del valor de una fila para cambiar su texto sin rehacerla.
+
 `RunStats` está en [niveles.md](niveles.md).
 
 ## VictoryScreen
 
-`scenes/level_ui/VictoryScreen.tscn`, escena heredada de `OverlayScreen.tscn` y sin script propio. Marco en ámbar `#ecb23c` y oscurecido del 59 %. Título "VICTORIA" y opciones "Siguiente nivel" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción que "Salir": lleva a la selección de nivel). `OverlayScreen.set_option_visible(option, visible)` oculta el botón de una opción; `LevelUI.setup` lo usa para quitar "Siguiente nivel" cuando es el último nivel o el nivel no está en la lista.
+`scenes/level_ui/VictoryScreen.tscn` (heredada de `OverlayScreen.tscn`) + `scripts/level_ui/VictoryScreen.gd` (clase `VictoryScreen`, extiende `OverlayScreen`). Pantalla de celebración, contraparte de la derrota. Corre con el árbol en pausa (hereda `process_mode` ALWAYS de `LevelUI`), así que sus tweens y su `delta` son tiempo real.
+
+- **Aspecto:** título "SECTOR" / "ASEGURADO" (dos líneas, sin tildes ni Ñ) en el ámbar del acento `#ecb23c`. Oscurecido negro al 45 %, más ligero que la derrota para que se vea el mapa ganado. Entre el título y las opciones va `RunSummary` (`%RunSummary`) con el acento ámbar. No conecta botones a mano: lo hace la base.
+- **Entrada:** cada vez que se abre (`visibility_changed`), el nodo `Center` (que centra el marco) se coloca justo encima del área de juego y baja hasta su sitio en `SLIDE_TIME` (0,35 s): curva cúbica que frena hasta pasarse `SLIDE_OVERSHOOT_PX` (2 px) y vuelve a su sitio en los últimos `SLIDE_SETTLE_TIME` (0,08 s). La posición se redondea a píxeles enteros en cada paso. A la vez, el oscurecido se funde de 0 a su opacidad en `DIM_FADE_TIME` (0,2 s, con el `modulate` de `Background`).
+- **Conteo:** al abrirse llama a `run_summary.count_up(COUNT_TIME, SLIDE_TIME)`: los números se ven a 0 mientras baja el marco y cuentan en `COUNT_TIME` (0,8 s) cuando llega. La oleada sale directamente ("Y/Y").
+- **Saltar:** clic izquierdo en el oscurecido, el marco o el resumen (no en los botones) durante la entrada o el conteo: lo corta todo y deja el marco en su sitio, el oscurecido entero y los valores finales. Las opciones se pueden pulsar desde el principio. Al cerrarse la pantalla también se deja en su estado final.
+- **Destellos:** tres destellos de cuatro puntas junto al título (a la izquierda y arriba a la derecha de "SECTOR" y a la derecha de "ASEGURADO"), pintados sobre el título con su señal `draw` y colocados según el ancho de cada línea. Son píxeles enteros con `draw_rect`, sin antialiasing: cruz de 1 px en `#ecb23c`, centro de 3x3 en cruz en `#ffe082` y, al tamaño máximo de 4 o más, cuatro píxeles en diagonal en `#96641e`. El largo de las puntas sube y baja en pasos de 1 px con un seno de ritmo y fase propios (máximos de 5, 3 y 4 px). No se reutiliza `_draw_sparkle` del menú porque usa polígonos y un halo suave.
+- `show_run_stats(stats)`: pasa el `RunStats` al `RunSummary`.
+
+Opciones "Siguiente nivel" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción que "Salir": lleva a la selección de nivel). `OverlayScreen.set_option_visible(option, visible)` oculta el botón de una opción; `LevelUI.setup` lo usa para quitar "Siguiente nivel" cuando es el último nivel o el nivel no está en la lista.
 
 ## Comunicación con el resto
 
@@ -221,9 +233,10 @@ La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Una pantall
 | `PauseMenu`, `GameOverScreen`, `VictoryScreen` | `option_chosen` | `LevelUI._on_option_chosen` (`RESUME` lo resuelve ella) |
 | `LevelUI` | `action_requested` | `Game._on_action_requested` (reiniciar, volver al menú o pasar al siguiente nivel) |
 | `LevelUI` | llamada directa | `Sidebar.set_selection_locked` (en cada `set_state`) |
-| `LevelUI` | llamada directa | `GameOverScreen.show_run_stats` (desde `show_run_stats`) |
+| `LevelUI` | llamada directa | `GameOverScreen.show_run_stats` y `VictoryScreen.show_run_stats` (desde `show_run_stats`) |
 | `GameOverScreen` | llamada directa | `RunSummary.show_stats` |
-| `Game` | llamada directa | `LevelUI.show_run_stats(level.get_run_stats())` y `LevelUI.set_state(LOST)` en la derrota; `set_state(WON)` en la victoria |
+| `VictoryScreen` | llamada directa | `RunSummary.show_stats`, `count_up` y `finish_count` |
+| `Game` | llamada directa | `LevelUI.show_run_stats(level.get_run_stats())` y después `LevelUI.set_state(LOST)` en la derrota o `set_state(WON)` en la victoria |
 
 ## Dudas
 

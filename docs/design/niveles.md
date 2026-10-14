@@ -23,11 +23,11 @@ Conexiones hechas en `_ready`:
 
 - `spawner.enemy_died(reward)` llama a `game_state.register_enemy_destroyed`, que cuenta el enemigo y suma la recompensa.
 - `spawner.enemy_reached_end` llama a `_lose`, que llama a `build_manager.stop_building()` y emite `lost`.
-- `spawner.all_waves_cleared` llama a `_win`, que emite `won`.
+- `spawner.all_waves_cleared` llama a `_win`, que llama a `build_manager.stop_building()` y emite `won`.
 - Un nivel acaba una sola vez: `_lose` y `_win` comparten la marca `_finished` y, tras la primera de las dos, ninguna vuelve a emitir. Así `lost` sale una sola vez aunque lleguen más enemigos al final durante la cámara lenta de la derrota (ver [ui.md](ui.md)), y tras perder el nivel ya no puede ganarse. Si el último enemigo de la última oleada llega al final, el `Spawner` emite antes `enemy_reached_end` que `all_waves_cleared`, así que gana la derrota y `won` no se emite.
 - `build_manager.state = game_state`.
 
-Tras perder, el nivel deja de construir por su cuenta, sin depender de la UI: `BuildManager` no coloca torres ni enseña la vista previa (ver [torres.md](torres.md)). Durante la cámara lenta los enemigos siguen moviéndose y las torres disparando; los que mueran aún cuentan y dan dinero, pero el resultado no cambia.
+Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de la UI: `BuildManager` no coloca torres ni enseña la vista previa (ver [torres.md](torres.md)). Durante la cámara lenta de la derrota y el respiro de la victoria el juego sigue corriendo. Durante la cámara lenta los enemigos siguen moviéndose y las torres disparando; los que mueran aún cuentan y dan dinero, pero el resultado no cambia.
 
 `get_run_stats() -> RunStats` construye el resumen de la partida: oleada alcanzada (`spawner.get_wave_index() + 1`, 0 si no se lanzó ninguna), total de oleadas (`spawner.waves.size()`), enemigos destruidos y dinero gastado (de `LevelState`). Lo usa `Game` al perder.
 

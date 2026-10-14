@@ -55,4 +55,6 @@ func _win() -> void:
 	if _finished:
 		return
 	_finished = true
+	# Durante el respiro de la victoria el juego sigue corriendo: el nivel deja de construir ya.
+	build_manager.stop_building()
 	won.emit()

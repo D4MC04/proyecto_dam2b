@@ -10,7 +10,7 @@ En `_unhandled_input`:
 - **Clic izquierdo**: si hay torre seleccionada, `grid.can_build(cell)` y `state.spend_money(data.cost)`, instancia la torre como hija de `BuildManager`, la coloca en el centro de la casilla y la registra en `Grid`.
 - **Clic derecho**: pone `state.selected_tower = null` y oculta la vista previa.
 
-`stop_building()` oculta la vista previa y hace que `_unhandled_input` deje de hacer nada el resto de la partida. Lo llama `Level` al perder.
+`stop_building()` oculta la vista previa y hace que `_unhandled_input` deje de hacer nada el resto de la partida. Lo llama `Level` al perder o ganar.
 
 Tras colocar una torre la selección se mantiene, así que se pueden colocar varias seguidas.
 

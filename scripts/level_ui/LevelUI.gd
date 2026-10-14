@@ -13,9 +13,12 @@ signal action_requested(action: Action)
 const SLOW_MOTION_MIN_SCALE := 0.2
 const SLOW_MOTION_RAMP_TIME := 1.1
 const SLOW_MOTION_HOLD_TIME := 0.2
+# Respiro de la victoria, en segundos de tiempo real: el juego sigue a velocidad normal (se ve
+# explotar al último enemigo) antes de pausarse y enseñar la pantalla.
+const VICTORY_BREATH_TIME := 0.6
 
 @onready var game_over_screen: GameOverScreen = %GameOverScreen
-@onready var victory_screen: OverlayScreen = %VictoryScreen
+@onready var victory_screen: VictoryScreen = %VictoryScreen
 @onready var pause_menu: OverlayScreen = %PauseMenu
 @onready var sidebar: Sidebar = %Sidebar
 @onready var level_indicator: LevelIndicator = %LevelIndicator
@@ -30,8 +33,8 @@ const SLOW_MOTION_HOLD_TIME := 0.2
 var _ui_state: UiState = UiState.PLAYING
 var _level_state: LevelState
 var _spawner: Spawner
-# Secuencia de cámara lenta en curso al entrar en LOST; null si no hay.
-var _slow_motion: Tween
+# Secuencia en curso antes de enseñar la pantalla (cámara lenta de LOST o respiro de WON); null si no hay.
+var _screen_delay: Tween
 
 func _ready() -> void:
 	for screen: OverlayScreen in _screens_by_state.values():
@@ -110,34 +113,43 @@ func _on_auto_waves_toggled(enabled: bool) -> void:
 	if is_instance_valid(_spawner):
 		_spawner.auto_waves = enabled
 
-## Pasa el resumen de la partida a la pantalla de derrota. Game lo llama antes de set_state(LOST).
+## Pasa el resumen de la partida a las pantallas de derrota y victoria. Game lo llama antes de
+## set_state(LOST) o set_state(WON).
 func show_run_stats(stats: RunStats) -> void:
 	game_over_screen.show_run_stats(stats)
+	victory_screen.show_run_stats(stats)
 
 # Única función que cambia qué pantalla se ve, la pausa del árbol y Engine.time_scale.
 func set_state(new_state: UiState) -> void:
 	_ui_state = new_state
-	# Cualquier cambio de estado corta la cámara lenta que hubiera y devuelve la velocidad normal.
-	if _slow_motion != null:
-		_slow_motion.kill()
-		_slow_motion = null
+	# Cualquier cambio de estado corta la cámara lenta o el respiro que hubiera y devuelve la velocidad normal.
+	if _screen_delay != null:
+		_screen_delay.kill()
+		_screen_delay = null
 	Engine.time_scale = 1.0
-	# Con cualquier pantalla abierta (o en camino, durante la cámara lenta) no se puede seleccionar torre.
+	# Con cualquier pantalla abierta (o en camino, durante la cámara lenta o el respiro) no se puede
+	# seleccionar torre.
 	sidebar.set_selection_locked(new_state != UiState.PLAYING)
-	if new_state == UiState.LOST:
-		# Sin pantalla ni pausa todavía: el juego se frena y, al acabar, entra la derrota.
+	if new_state == UiState.LOST or new_state == UiState.WON:
+		# Sin pantalla ni pausa todavía: el juego sigue un momento y, al acabar, entra la pantalla.
 		_show_screen(null)
 		get_tree().paused = false
 		# Tiempo real y activo en pausa, para que la cámara lenta no se frene a sí misma.
-		_slow_motion = create_tween().set_ignore_time_scale().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
-		_slow_motion.tween_method(func(time_scale: float) -> void: Engine.time_scale = time_scale,
-				1.0, SLOW_MOTION_MIN_SCALE, SLOW_MOTION_RAMP_TIME).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		_slow_motion.tween_interval(SLOW_MOTION_HOLD_TIME)
-		_slow_motion.tween_callback(func() -> void:
-			_slow_motion = null
+		_screen_delay = create_tween().set_ignore_time_scale().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		if new_state == UiState.LOST:
+			# Cámara lenta: el juego se frena hasta casi pararse.
+			_screen_delay.tween_method(func(time_scale: float) -> void: Engine.time_scale = time_scale,
+					1.0, SLOW_MOTION_MIN_SCALE, SLOW_MOTION_RAMP_TIME).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+			_screen_delay.tween_interval(SLOW_MOTION_HOLD_TIME)
+		else:
+			# Respiro: el juego sigue a velocidad normal.
+			_screen_delay.tween_interval(VICTORY_BREATH_TIME)
+		var screen: OverlayScreen = _screens_by_state[new_state]
+		_screen_delay.tween_callback(func() -> void:
+			_screen_delay = null
 			Engine.time_scale = 1.0
 			get_tree().paused = true
-			_show_screen(game_over_screen))
+			_show_screen(screen))
 		return
 	_show_screen(_screens_by_state.get(new_state))
 	get_tree().paused = new_state != UiState.PLAYING

@@ -30,6 +30,7 @@ func _on_level_lost() -> void:
 	ui.set_state(LevelUI.UiState.LOST)
 
 func _on_level_won() -> void:
+	ui.show_run_stats(level.get_run_stats())
 	ui.set_state(LevelUI.UiState.WON)
 
 func _on_action_requested(action: LevelUI.Action) -> void:

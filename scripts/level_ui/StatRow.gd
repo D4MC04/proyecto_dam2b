@@ -43,3 +43,7 @@ static func create(entry: StatEntry, index: int, h_margin: int = 1, v_margin: in
 	value.add_theme_color_override("font_color", VALUE_COLOR)
 	box.add_child(value)
 	return row
+
+## Etiqueta del valor de una fila hecha con create(), para cambiar su texto sin rehacerla.
+static func get_value_label(row: PanelContainer) -> Label:
+	return row.get_child(0).get_child(1) as Label

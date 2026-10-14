@@ -44,7 +44,7 @@ En `_ready`:
 
 ### Victoria
 
-`Level` emite `won` al limpiar la última oleada (y solo si no ha emitido `lost`) y `Game` llama a `ui.set_state(LevelUI.UiState.WON)`, que muestra `VictoryScreen` y pausa el árbol. "Siguiente nivel" ejecuta `_next_level()`: cambia `level_data` al siguiente de `GameData.levels` y llama a `_restart_level()`, así que no se cambia de escena y la cabecera, las oleadas, la tienda, el dinero y la ficha se rehacen para el nivel nuevo. "Menú" usa `QUIT`. No se desbloquea ni se guarda progreso.
+`Level` emite `won` al limpiar la última oleada (y solo si no ha emitido `lost`) y `Game` pasa a la UI el resumen de la partida (`ui.show_run_stats(level.get_run_stats())`) y después llama a `ui.set_state(LevelUI.UiState.WON)`. La UI no congela el juego al momento: durante un respiro de 0,6 s sigue a velocidad normal (se ve explotar al último enemigo), sin selección de torre ni Escape, y después pausa el árbol y muestra `VictoryScreen`, que entra deslizando y cuenta los números del resumen (ver [ui.md](ui.md)). "Siguiente nivel" ejecuta `_next_level()`: cambia `level_data` al siguiente de `GameData.levels` y llama a `_restart_level()`, así que no se cambia de escena y la cabecera, las oleadas, la tienda, el dinero y la ficha se rehacen para el nivel nuevo. "Menú" usa `QUIT`. No se desbloquea ni se guarda progreso.
 
 ### Reinicio
 
