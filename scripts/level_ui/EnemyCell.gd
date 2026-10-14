@@ -1,8 +1,8 @@
 extends Button
 class_name EnemyCell
 
-## Clic en la celda. De momento nadie lo escucha (la ficha de enemigos lo usará).
-signal enemy_clicked(data: EnemyData)
+## Petición de enseñar este enemigo en la ficha (clic izquierdo o derecho); no guarda qué está inspeccionado.
+signal inspect_requested(data: EnemyData)
 
 @onready var icon_rect: TextureRect = %IconRect
 @onready var count_label: Label = %CountLabel
@@ -22,11 +22,16 @@ func setup(enemy_data: EnemyData, count: int) -> void:
 	data = enemy_data
 	tooltip_text = data.name
 	count_label.text = "×%s" % UiFormat.abbreviate(count)
-	if data.sprite_frames != null and data.sprite_frames.has_animation("up"):
-		icon_rect.texture = data.sprite_frames.get_frame_texture("up", 0)
+	icon_rect.texture = data.get_inspect_icon()
+
+func _gui_input(event: InputEvent) -> void:
+	var click := event as InputEventMouseButton
+	if click != null and click.pressed and click.button_index == MOUSE_BUTTON_RIGHT:
+		inspect_requested.emit(data)
+		accept_event()
 
 func _on_pressed() -> void:
-	enemy_clicked.emit(data)
+	inspect_requested.emit(data)
 
 func _make_style(bg: Color, border: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()

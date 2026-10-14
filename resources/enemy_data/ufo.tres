@@ -10,6 +10,7 @@ name = "UFO"
 hp = 75
 speed = 50
 reward = 28
+description = "Platillo de exploración de velocidad media."
 sprite_frames = ExtResource("2_qsa1s")
 collision_shape = ExtResource("1_ur7pl")
 metadata/_custom_type_script = "uid://do62ihbnaitnl"

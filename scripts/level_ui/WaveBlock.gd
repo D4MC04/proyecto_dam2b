@@ -1,6 +1,9 @@
 extends VBoxContainer
 class_name WaveBlock
 
+## Reenvía la petición de inspeccionar de cada celda.
+signal inspect_requested(data: EnemyData)
+
 enum State { PAST, CURRENT, NEXT, FUTURE }
 
 const ENEMY_CELL: PackedScene = preload("res://scenes/level_ui/EnemyCell.tscn")
@@ -33,6 +36,7 @@ func setup(wave: WaveData, wave_number: int) -> void:
 	for enemy_data: EnemyData in counts:
 		var cell: EnemyCell = ENEMY_CELL.instantiate()
 		cells.add_child(cell)
+		cell.inspect_requested.connect(inspect_requested.emit)
 		cell.setup(enemy_data, counts[enemy_data])
 	set_state(State.FUTURE)
 

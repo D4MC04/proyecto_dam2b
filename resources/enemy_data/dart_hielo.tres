@@ -10,6 +10,7 @@ name = "Dart de hielo"
 hp = 25
 speed = 90
 reward = 25
+description = "Caza ligero de casco azul. Frágil y veloz."
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 rotate_sprite = true

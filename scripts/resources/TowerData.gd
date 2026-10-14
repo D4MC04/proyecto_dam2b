@@ -1,4 +1,4 @@
-extends Resource
+extends InspectableData
 class_name TowerData
 
 @export var name: String
@@ -71,3 +71,18 @@ func get_attack_label() -> String:
 	if bullet_data != null:
 		return "BALA"
 	return ""
+
+func get_inspect_icon() -> Texture2D:
+	return icon
+
+func get_inspect_name() -> String:
+	return name
+
+func get_inspect_tag() -> String:
+	return get_attack_label()
+
+func get_inspect_accent() -> Color:
+	return accent_color
+
+func get_inspect_description() -> String:
+	return description

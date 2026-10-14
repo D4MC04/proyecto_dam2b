@@ -10,6 +10,7 @@ name = "Nave agresiva"
 hp = 90.0
 speed = 48
 reward = 35
+description = "Nave de combate más blindada y rápida que la normal."
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 rotate_sprite = true

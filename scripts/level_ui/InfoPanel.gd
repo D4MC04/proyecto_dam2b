@@ -46,10 +46,10 @@ func _ready() -> void:
 
 ## Enseña `data` en la ficha; con null vuelve al estado de reposo.
 func show_inspected(data: Resource) -> void:
-	var tower := data as TowerData
-	if tower != null:
-		_show_detail(tower.icon, tower.name, tower.get_attack_label(), tower.accent_color,
-				tower.get_stats(), tower.description)
+	var info := data as InspectableData
+	if info != null:
+		_show_detail(info.get_inspect_icon(), info.get_inspect_name(), info.get_inspect_tag(),
+				info.get_inspect_accent(), info.get_stats(), info.get_inspect_description())
 	else:
 		_show_idle()
 	_flash()

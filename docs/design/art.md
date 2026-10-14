@@ -65,6 +65,8 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 | `pierce.png` | haz que atraviesa una placa | placa `#96a2b6`, haz `#40e0f0` y `#aa78ff` |
 | `dps.png` | llama | magenta `#be30a0`, `#ff5ad2`, `#ffafeb` |
 | `level_time.png` | tres barras de nivel crecientes | magenta `#be30a0`, `#ff5ad2`, `#ffafeb` |
+| `health.png` | corazón | verde `#1c7440`, `#3cb860`, `#c4f5d0` |
+| `reward.png` | lingote de oro | ámbar `#96641e`, `#ecb23c`, `#ffe082` |
 
 - **Escáner de la ficha**: no es un PNG; `ScannerDisplay` lo pinta píxel a píxel en código (57x57, sin antialiasing), con los azules de la interfaz: disco `#0e1626`, anillos y cruz `#1c4a60`, anillo exterior `#1c7496`, marcas y ecos `#40e0f0`, barrido `#befaff`, estela `#1c7496` y `#14304a`. Ver [ui.md](ui.md).
 

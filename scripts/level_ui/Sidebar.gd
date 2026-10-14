@@ -95,6 +95,7 @@ func build_waves(waves: Array[WaveData]) -> void:
 		var block: WaveBlock = WAVE_BLOCK.instantiate()
 		wave_blocks.add_child(block)
 		block.setup(waves[i], i + 1)
+		block.inspect_requested.connect(inspect_requested.emit)
 		_wave_blocks.append(block)
 	set_current_wave(-1, waves.size())
 
