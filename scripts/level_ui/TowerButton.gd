@@ -23,6 +23,8 @@ var data: TowerData
 var _money := 0
 var _selected := false
 var _affordable := true
+# Con una pantalla abierta el clic izquierdo solo enseña la ficha: no selecciona ni suelta.
+var _selection_locked := false
 
 func _ready() -> void:
 	pressed.connect(_on_pressed)
@@ -42,10 +44,17 @@ func set_money(amount: int) -> void:
 	if data == null:
 		return
 	_affordable = _money >= data.cost
-	if not _affordable and _selected:
+	if not _affordable and _selected and not _selection_locked:
 		# Ya no te llega: se pide soltarla. LevelState confirma con show_selected.
 		selection_changed.emit(data, false)
 	_refresh()
+
+## Bloquea o desbloquea la selección con el clic izquierdo; la ficha sigue funcionando.
+func set_selection_locked(locked: bool) -> void:
+	_selection_locked = locked
+	if not locked and _selected and not _affordable:
+		# Se quedó sin dinero mientras estaba bloqueada: se pide soltarla.
+		selection_changed.emit(data, false)
 
 ## Refleja la selección de LevelState; no emite nada.
 func set_selected(on: bool) -> void:
@@ -61,7 +70,7 @@ func _gui_input(event: InputEvent) -> void:
 func _on_pressed() -> void:
 	# Solo el clic izquierdo llega aquí; el derecho se recoge en _gui_input.
 	inspect_requested.emit(data)
-	if not _affordable:
+	if _selection_locked or not _affordable:
 		return
 	selection_changed.emit(data, not _selected)
 

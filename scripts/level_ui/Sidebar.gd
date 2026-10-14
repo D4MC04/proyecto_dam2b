@@ -30,6 +30,8 @@ const AUTO_ON_HOVER_BORDER_COLOR := Color("#ffe082")
 # Fondo de pestaña mezclado al 25 % con el ámbar, como la torre seleccionada.
 const AUTO_ON_BG_COLOR := Color("#453d2b")
 const CONTROL_ICON_DIM_COLOR := Color(1, 1, 1, 0.3)
+# Rejilla de torres con la selección bloqueada.
+const LOCKED_GRID_COLOR := Color(1, 1, 1, 0.5)
 # Duración de medio ciclo del parpadeo del botón de siguiente oleada.
 const NEXT_PULSE_TIME := 0.5
 @onready var towers_tab: Button = %TowersTab
@@ -48,6 +50,7 @@ var _money := 0
 var _buttons: Array[TowerButton] = []
 var _wave_blocks: Array[WaveBlock] = []
 var _current_wave := -1
+var _selection_locked := false
 # Estilo normal del botón de siguiente oleada; su borde parpadea para invitar a pulsarlo.
 var _next_normal_style: StyleBoxFlat
 var _next_pulse: Tween
@@ -70,6 +73,7 @@ func build_buttons(towers: Array[TowerData]) -> void:
 		var button: TowerButton = TOWER_BUTTON.instantiate()
 		tower_buttons.add_child(button)
 		button.setup(data, _money)
+		button.set_selection_locked(_selection_locked)
 		button.selection_changed.connect(_on_button_selection_changed)
 		button.inspect_requested.connect(inspect_requested.emit)
 		_buttons.append(button)
@@ -84,6 +88,13 @@ func set_money(amount: int) -> void:
 func show_selected(data: TowerData) -> void:
 	for b in _buttons:
 		b.set_selected(data != null and b.data == data)
+
+## Con una pantalla abierta la rejilla se atenúa y el clic izquierdo en una torre solo enseña su ficha.
+func set_selection_locked(locked: bool) -> void:
+	_selection_locked = locked
+	tower_buttons.modulate = LOCKED_GRID_COLOR if locked else Color.WHITE
+	for b in _buttons:
+		b.set_selection_locked(locked)
 
 ## Crea un bloque por oleada y borra los anteriores.
 func build_waves(waves: Array[WaveData]) -> void:

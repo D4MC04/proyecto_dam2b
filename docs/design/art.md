@@ -49,6 +49,7 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 - **Fondo de espacio**: azules y morados muy oscuros (`#0a1226`, `#14102e`, `#1e163e`, `#2a1e50`); estrellas en `#ffecc8`, `#befffa`, `#c8dcff` y blanco.
 - **Interfaz** (`assets/ui/menu_theme.tres`): fondo azul casi negro (`Color(0.04, 0.06, 0.1)`), bordes de 1 px en cian (`#00ffff`), más claro al pasar el ratón y más oscuro al pulsar.
 - **Iconos de interfaz** (`assets/ui/`, 16x16, contorno `#0c0e16`, sombreado plano): `tab_towers.png` (torre con metal gris azulado y núcleo cian) y `tab_waves.png` (tres naves moradas con luz roja de motor), los iconos de las pestañas de la barra derecha; `wave_next.png` (doble flecha ▶▶ con la rampa cian del Cañón doble, mitad superior clara y mitad inferior en sombra) y `wave_auto.png` (rayo con la rampa ámbar `#96641e`, `#ecb23c`, `#ffe082`), los controles de la pestaña Oleadas.
+- **Icono de plegar** (`assets/ui/fold.png`, 8x8, sin contorno, cian `#40e0f0` con la diagonal en `#befaff`): una esquina en L arriba a la izquierda y una diagonal hacia ella; es el botón de plegar de la pausa.
 - **Iconos de stat** (`assets/ui/stat_icons/`, 8x8, contorno `#0c0e16` de 1 px solo en cruz alrededor del relleno, sombreado plano), para las filas de la ficha. Cada uno combina una forma y un color propios para distinguirse a 8 px:
 
 | Archivo | Dibujo | Colores |

@@ -34,6 +34,7 @@ Funciones de `LevelUI`:
 La relación estado → pantalla está solo en el diccionario `_screens_by_state`; una pantalla nueva se añade ahí. `_ready` conecta `option_chosen` de todas las pantallas del diccionario y empieza en `PLAYING`.
 
 - Acción `ui_cancel` (Escape): en `PLAYING` pasa a `PAUSED` y en `PAUSED` vuelve a `PLAYING`. En `LOST` y `WON` no hace nada (ni marca el evento como gestionado).
+- Bloqueo de la selección: `set_state` es lo único que lo decide. Llama a `sidebar.set_selection_locked(new_state != PLAYING)`, así que con pausa (plegada o no), game over o victoria no se puede seleccionar torre.
 - `_on_option_chosen(option)`: `RESUME` pasa a `PLAYING`. `RESTART`, `QUIT` y `NEXT_LEVEL` pasan a `PLAYING` (quitan pantalla y pausa) y después emiten `action_requested`.
 
 Señal: `action_requested(action: Action)`, con el enum `Action { RESTART, QUIT, NEXT_LEVEL }`. Es la única señal de `LevelUI` hacia `Game`.
@@ -64,7 +65,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 **Interacción:**
 
 - Clic derecho en un `TowerButton` (aunque no se pueda pagar y con el juego en pausa): enseña su ficha sin seleccionarla.
-- Clic izquierdo: la selecciona (si se puede pagar) y enseña su ficha.
+- Clic izquierdo: la selecciona (si se puede pagar) y enseña su ficha. Con una pantalla abierta (selección bloqueada) solo enseña la ficha, sin seleccionar ni soltar; la torre ya seleccionada se conserva.
 - Clic izquierdo o derecho en una `EnemyCell` de la pestaña Oleadas (también en pausa): enseña la ficha del enemigo sin tocar la selección de torre.
 - Deseleccionar (clic derecho en el mapa o quedarse sin dinero) no cambia la ficha.
 - `TowerButton.inspect_requested` → `Sidebar.inspect_requested` (o `EnemyCell.inspect_requested` → `WaveBlock.inspect_requested` → `Sidebar.inspect_requested`) → `LevelUI` escribe `LevelState.inspected` → `LevelState.inspected_changed` → `InfoPanel.show_inspected`. Nadie más guarda qué está inspeccionado.
@@ -86,6 +87,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 - `set_money(amount)`: actualiza la etiqueta y avisa a cada botón.
 - Señal `tower_selected(data)`: petición de cambio, con la torre al pulsar un botón y con `null` al soltarla. No guarda la selección.
 - Señal `inspect_requested(data)`: reenvía la de cada `TowerButton`; petición de enseñar algo en la ficha.
+- `set_selection_locked(locked)`: guarda el bloqueo, atenúa `TowerButtons` al 50 % (la cabecera del dinero no cambia) y se lo pasa a cada `TowerButton` (también a los que cree `build_buttons`). Solo lo llama `LevelUI.set_state`.
 - `show_selected(data)`: marca el botón de esa torre y desmarca los demás (todos con `null`). No emite nada.
 
 ## TowerButton
@@ -98,7 +100,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
   - Hover: fondo `#16243c`, borde `#40e0f0`.
   - Seleccionada: borde con `data.accent_color`, fondo mezclado con el acento (25 %); con el ratón encima, 40 % y borde más claro.
   - Sin dinero: icono al 35 % de opacidad y coste en rojo `#ff3c5a` (con dinero, ámbar `#ecb23c`); sin resalte al pasar el ratón. El botón no está `disabled`, así que recibe todos los eventos de ratón (para el clic derecho de la ficha), pero el clic izquierdo no hace nada.
-- Señal `selection_changed(data, on)`: petición, no estado. El clic izquierdo pide seleccionar (`on = true`) o, si ya estaba seleccionada, soltar. Si estando seleccionada deja de llegarle el dinero, pide soltarla.
+- Señal `selection_changed(data, on)`: petición, no estado. Con `set_selection_locked(true)` no se emite (ni por clic ni por quedarse sin dinero; al desbloquear, si la torre seleccionada ya no se puede pagar, pide soltarla). El clic izquierdo pide seleccionar (`on = true`) o, si ya estaba seleccionada, soltar. Si estando seleccionada deja de llegarle el dinero, pide soltarla.
 - Señal `inspect_requested(data)`: petición de enseñar la torre en la ficha. La emiten el clic izquierdo (antes de comprobar el dinero) y el clic derecho, que se recoge en `_gui_input` y se marca como gestionado.
 
 ## Pestaña Oleadas
@@ -125,30 +127,45 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
 ## OverlayScreen
 
-`scenes/level_ui/OverlayScreen.tscn` + `scripts/level_ui/OverlayScreen.gd` (clase `OverlayScreen`). Escena base de las pantallas que tapan el área de juego. Contiene lo común:
+`scenes/level_ui/OverlayScreen.tscn` + `scripts/level_ui/OverlayScreen.gd` (clase `OverlayScreen`). Escena base de las pantallas que tapan el área de juego, con el tema `menu_theme.tres`. Contiene lo común:
 
-- `Background`: `ColorRect` negro al 59 % a pantalla completa.
-- `Box`: `VBoxContainer` a pantalla completa, centrado, con el tema `menu_theme.tres` y 10 px de separación.
+- `Background`: `ColorRect` negro que oscurece el área de juego (opacidad = `dim_opacity`).
+- `Center` (`CenterContainer`) → `Frame` (`OverlayFrame`, ver abajo) → `Margin` (20 px a los lados, 16 arriba y abajo) → `Box` (`VBoxContainer`, 10 px de separación):
   - `Title` (`%Title`, `title_label`): fuente de 24 px en `#cce6ff` con contorno negro de 4 px, centrado. En la base no tiene texto.
   - `Options` (`%Options`, `options`): `VBoxContainer` con 10 px de separación, vacío en la base.
 
-Enum `Option { RESUME, RESTART, QUIT }` y una sola señal, `option_chosen(option)`. En `_ready` conecta el `pressed` de cada `OverlayOptionButton` que haya en `Options`, así que las pantallas hijas no tienen script propio.
+**`OverlayFrame`** (`scripts/level_ui/OverlayFrame.gd`, `PanelContainer`): fondo `#0a0f1a` al 96 %, borde de 1 px en `accent_color` y esquinas en L (5 px de largo, 2 de grueso) del mismo color pintadas en `_draw`. También lo usa la etiqueta plegada de la pausa.
 
-La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Para dar a una pantalla un color de acento o una animación de entrada basta con cambiar su escena heredada (o darle un script que extienda `OverlayScreen` y reaccione a `visibility_changed`), sin tocar las otras.
+Dos `@export` en la base, que cada escena heredada fija en su `.tscn`:
 
-**`OverlayOptionButton`** (`scripts/level_ui/OverlayOptionButton.gd`, `Button`): solo tiene `@export var option: OverlayScreen.Option`. En las pantallas actuales miden 100x24 y van centrados en horizontal.
+| Pantalla | `accent_color` | `dim_opacity` |
+|---|---|---|
+| Pausa | cian `#40e0f0` | 0,35 |
+| Game over | rojo `#ff3c5a` | 0,59 |
+| Victoria | ámbar `#ecb23c` | 0,59 |
+
+`_ready` aplica el acento al marco y a los botones, el oscurecido al fondo, y conecta el `pressed` de cada `OverlayOptionButton` de `Options`. Enum `Option { RESUME, RESTART, QUIT, NEXT_LEVEL, SETTINGS }` y una sola señal, `option_chosen(option)`.
+
+
+La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Una pantalla con comportamiento propio extiende `OverlayScreen` con un script (como `PauseScreen`).
+
+**`OverlayOptionButton`** (`scripts/level_ui/OverlayOptionButton.gd`, `Button`): `@export var option` y `@export var accent_color` (se lo pasa la pantalla). Es un juego de ratón: `focus_mode = NONE`, sin teclado salvo Escape (lo gestiona `LevelUI`). Caja de 1 px: fondo `#0e1626` y borde en el acento mezclado al 50 %; con el ratón encima, fondo mezclado al 20 %, borde y texto en el acento y un selector `>` pintado delante (en `_draw`). Texto en `#cce6ff`. Miden 136x24 con 6 px de separación y van centrados en horizontal.
 
 ## PauseMenu
 
-`scenes/level_ui/PauseMenu.tscn`, escena heredada de `OverlayScreen.tscn` y sin script propio. Título "PAUSA" y opciones "Continuar" (`RESUME`), "Reiniciar" (`RESTART`) y "Salir" (`QUIT`).
+`scenes/level_ui/PauseMenu.tscn`, escena heredada de `OverlayScreen.tscn` con el script `scripts/level_ui/PauseScreen.gd` (clase `PauseScreen`). Título "PAUSA" y opciones "Continuar" (`RESUME`), "Ajustes" (`SETTINGS`, de momento sin efecto: `LevelUI` lo ignora hasta que haya menú de ajustes en el nivel), "Reiniciar" (`RESTART`) y "Salir" (`QUIT`). Aparece al instante, sin animación de entrada.
+
+- **Cursor:** el título es "PAUSA" en cian y a su derecha hay un `Label` "_" (creado en `_add_cursor`, en un `HBoxContainer` con el título) que parpadea cada 0,5 s con la opacidad, así el panel no cambia de tamaño. Se enciende cada vez que se abre la pausa.
+- **Plegado:** `FoldButton` (12x12, icono `assets/ui/fold.png`, tooltip "Plegar", sin foco) en la esquina superior derecha del marco. Al pulsarlo se ocultan `Background` y `Frame` y se enseña `FoldedTag`, un `OverlayFrame` cian con "PAUSA" a 8 px, a 3 px de la esquina superior izquierda del área de juego. Plegada no hay oscurecido y el mapa se ve limpio; el juego sigue en pausa. Clic izquierdo en la etiqueta: se despliega. Escape, plegada o no, quita la pausa (lo gestiona `LevelUI`). Al volver a pausar, `_on_shown` la despliega siempre.
+- Plegar y desplegar es solo cosa de `PauseScreen`: `LevelUI` sigue en `PAUSED`.
 
 ## GameOverScreen
 
-`scenes/level_ui/GameOver.tscn` (nodo `GameOverScreen`), escena heredada de `OverlayScreen.tscn` y sin script propio. Título "GAME OVER" y opciones "Reiniciar" (`RESTART`) y "Salir" (`QUIT`).
+`scenes/level_ui/GameOver.tscn` (nodo `GameOverScreen`), escena heredada de `OverlayScreen.tscn` y sin script propio. Marco en rojo `#ff3c5a` y oscurecido del 59 %. Título "GAME OVER" y opciones "Reiniciar" (`RESTART`) y "Salir" (`QUIT`).
 
 ## VictoryScreen
 
-`scenes/level_ui/VictoryScreen.tscn`, escena heredada de `OverlayScreen.tscn` y sin script propio. Título "VICTORIA" y opciones "Siguiente nivel" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción que "Salir": lleva a la selección de nivel). `OverlayScreen.set_option_visible(option, visible)` oculta el botón de una opción; `LevelUI.setup` lo usa para quitar "Siguiente nivel" cuando es el último nivel o el nivel no está en la lista.
+`scenes/level_ui/VictoryScreen.tscn`, escena heredada de `OverlayScreen.tscn` y sin script propio. Marco en ámbar `#ecb23c` y oscurecido del 59 %. Título "VICTORIA" y opciones "Siguiente nivel" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción que "Salir": lleva a la selección de nivel). `OverlayScreen.set_option_visible(option, visible)` oculta el botón de una opción; `LevelUI.setup` lo usa para quitar "Siguiente nivel" cuando es el último nivel o el nivel no está en la lista.
 
 ## Comunicación con el resto
 
@@ -166,6 +183,7 @@ La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Para dar a 
 | `Sidebar` | `auto_waves_toggled` | `LevelUI._on_auto_waves_toggled` (escribe `Spawner.auto_waves`) |
 | `PauseMenu`, `GameOverScreen`, `VictoryScreen` | `option_chosen` | `LevelUI._on_option_chosen` (`RESUME` lo resuelve ella) |
 | `LevelUI` | `action_requested` | `Game._on_action_requested` (reiniciar, volver al menú o pasar al siguiente nivel) |
+| `LevelUI` | llamada directa | `Sidebar.set_selection_locked` (en cada `set_state`) |
 | `Game` | llamada directa | `LevelUI.set_state(LOST)` en la derrota y `set_state(WON)` en la victoria |
 
 ## Dudas

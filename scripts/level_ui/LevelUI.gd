@@ -109,6 +109,8 @@ func set_state(new_state: UiState) -> void:
 	for screen: OverlayScreen in _screens_by_state.values():
 		screen.visible = screen == shown
 	get_tree().paused = new_state != UiState.PLAYING
+	# Con cualquier pantalla abierta no se puede seleccionar torre.
+	sidebar.set_selection_locked(new_state != UiState.PLAYING)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not event.is_action_pressed("ui_cancel"):
@@ -133,6 +135,9 @@ func _on_option_chosen(option: OverlayScreen.Option) -> void:
 			_request_action(Action.QUIT)
 		OverlayScreen.Option.NEXT_LEVEL:
 			_request_action(Action.NEXT_LEVEL)
+		OverlayScreen.Option.SETTINGS:
+			# El menú de ajustes aún no existe en el nivel: el botón está puesto pero no hace nada.
+			pass
 
 # Quita la pausa y la pantalla antes de avisar a Game.
 func _request_action(action: Action) -> void:
