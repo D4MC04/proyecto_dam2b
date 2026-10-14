@@ -14,7 +14,8 @@ La casilla del mapa es de 16x16 px. Los sprites de juego son múltiplos de esa m
 | Enemigos pequeños (Dart, Wasp) | 24x24 |
 | Enemigos medianos y grandes (naves, Acorazado, Ariete, Nodriza, UFO) | 32x32 |
 | Spikey (`spiked_ship`) | 34x34 |
-| Estación y escudo | 64x64 |
+| Estación (`base/estacion/`) | 80x80 centrada en frames de 96x96 |
+| Escudo de la estación | 64x64 (escalado a 1,25 en juego) |
 | Bala del Cañón doble | 4x8 (tira de 8x8 con 2 frames) |
 | Proyectil del Cañón pesado | 8x14 (tira de 16x14) |
 | Impactos de bala | 16x16 y 24x24 |
@@ -79,6 +80,7 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
   - Niveles del Disintegrator: `l1`, `l2`, `l3`.
 - `_sheet`: tira horizontal de frames en una sola fila.
 - `_0`, `_1`, `_2`...: frames o variantes en archivos sueltos.
+- Estación: `estacion_fase_<n>_sheet.png` (fases de daño 0 a 3, 8 frames en bucle), `estacion_explosion_sheet.png` (10 frames) y `estacion_destruida.png` (1 frame).
 - Enemigos nuevos: `<nombre>_<frame>.png`. Los antiguos (`ufo`, `spiked_ship`): `up.png`, `down.png`, `left.png`, `right.png`.
 - Los `SpriteFrames` que agrupan estos PNG están en `resources/sprite_frames/` con el nombre de la torre o el enemigo.
 

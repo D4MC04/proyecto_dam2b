@@ -1,12 +1,10 @@
-extends Sprite2D
+extends AnimatedSprite2D
 class_name Base
 
 signal health_changed(current: int, maximum: int)
 signal destroyed
 
-const SHIELD := preload("res://assets/sprites/base/shield.png")
 const SHIELD_WEAK := preload("res://assets/sprites/base/shield_debil.png")
-const WEAK_THRESHOLD := 0.5  # fracción de vida por debajo de la cual el escudo queda débil
 
 @export var max_health: int = 100
 
@@ -18,6 +16,8 @@ var _tween: Tween
 
 func _ready() -> void:
 	health = max_health
+	# El escudo solo se ve mientras parpadea, para no tapar la estación
+	shield.modulate.a = 0.0
 
 func take_damage(amount: int) -> void:
 	if health <= 0:
@@ -25,13 +25,30 @@ func take_damage(amount: int) -> void:
 	health = maxi(health - amount, 0)
 	health_changed.emit(health, max_health)
 	if health == 0:
+		if _tween:
+			_tween.kill()
 		shield.hide()
+		play("explosion")
+		animation_finished.connect(func() -> void: play("destruida"), CONNECT_ONE_SHOT)
 		destroyed.emit()
 		return
-	_flash(float(health) / max_health <= WEAK_THRESHOLD)
+	var phase: StringName = _phase_for(float(health) / max_health)
+	if phase != animation:
+		play(phase)
+	_flash()
 
-# Parpadea 0,5 s con el escudo débil; con stay_weak se queda débil al terminar.
-func _flash(stay_weak: bool) -> void:
+# Fase de daño según la fracción de vida que queda
+func _phase_for(fraction: float) -> StringName:
+	if fraction > 0.75:
+		return &"fase_0"
+	if fraction > 0.5:
+		return &"fase_1"
+	if fraction > 0.25:
+		return &"fase_2"
+	return &"fase_3"
+
+# Parpadea 0,5 s con el escudo débil y vuelve a ocultarlo al terminar.
+func _flash() -> void:
 	if _tween:
 		_tween.kill()
 	shield.modulate.a = 1.0
@@ -39,5 +56,4 @@ func _flash(stay_weak: bool) -> void:
 	_tween = create_tween().set_loops(3)
 	_tween.tween_property(shield, "modulate:a", 0.2, 0.5 / 6)
 	_tween.tween_property(shield, "modulate:a", 1.0, 0.5 / 6)
-	if not stay_weak:
-		_tween.finished.connect(func(): shield.texture = SHIELD)
+	_tween.finished.connect(func() -> void: shield.modulate.a = 0.0)

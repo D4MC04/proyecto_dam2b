@@ -4,8 +4,16 @@
 
 `scenes/entities/Base.tscn` + `scripts/entities/Base.gd` (clase `Base`).
 
-- Raíz `SpaceStation`: `Sprite2D` con `assets/sprites/base/station.png`.
-- `Shield`: `Sprite2D` con `assets/sprites/base/shield.png`, escalado a 1,25.
+- Raíz `SpaceStation`: `AnimatedSprite2D` con `resources/sprite_frames/estacion.tres` (tiras de `assets/sprites/base/estacion/`), sin escalar. Empieza en `fase_0` con autoplay.
+- `Shield`: `Sprite2D` con `assets/sprites/base/shield.png`, escalado a 1,25. Oculto (`modulate.a = 0`) salvo mientras parpadea.
+
+Animaciones de `estacion.tres`:
+
+| Animación | Frames | Velocidad | Bucle |
+|---|---|---|---|
+| `fase_0` a `fase_3` | 8 | 8 fps | sí |
+| `explosion` | 10 | 12 fps | no |
+| `destruida` | 1 | — | no |
 
 Está instanciada como nodo `SpaceStation` en `scenes/maps/Map.tscn` y en los mapas que usan los 6 niveles, con una posición distinta en cada mapa.
 
@@ -14,8 +22,8 @@ Está instanciada como nodo `SpaceStation` en `scenes/maps/Map.tscn` y en los ma
 - `max_health` (exportado, 100) y `health`, que empieza al máximo.
 - `take_damage(amount)`:
   - Resta vida sin bajar de 0 y emite `health_changed(health, max_health)`.
-  - Si la vida llega a 0, oculta el escudo y emite `destroyed`.
-  - Si no, el escudo parpadea 0,5 s con la textura `shield_debil.png`. Con la vida al 50 % o menos se queda con esa textura; por encima vuelve a `shield.png`.
+  - Si la vida llega a 0, oculta el escudo, reproduce `explosion`, emite `destroyed` y al terminar la explosión pasa a `destruida`.
+  - Si no, elige la fase por fracción de vida (> 0,75 → `fase_0`; > 0,5 → `fase_1`; > 0,25 → `fase_2`; resto → `fase_3`) y cambia de animación solo si la fase cambia. Después el escudo parpadea 0,5 s con la textura `shield_debil.png` y vuelve a ocultarse.
 - Con la vida ya a 0, `take_damage` no hace nada.
 
 ## Comunicación con el resto
