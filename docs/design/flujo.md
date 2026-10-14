@@ -28,20 +28,23 @@ Definidos en `project.godot`, en este orden:
 En `_ready`:
 
 1. Guarda la `PackedScene` de `Level` para poder volver a instanciarla.
-2. Conecta `ui.restart_requested` y `ui.quit_requested`.
+2. Conecta `ui.action_requested` a `_on_action_requested`. Es la única señal de la UI que escucha.
 3. Llama a `_setup_level()`:
    - `level.setup(level_data)`
    - conecta `level.lost` a `_on_level_lost`
-   - conecta `ui.sidebar.tower_selected` a `level.on_tower_selected`
-   - `ui.setup(level.game_state, level.towers, level_number, level.spawner)`
+   - `ui.setup(level.game_state, level.towers, level_number, level.spawner)`, que conecta la UI con el `LevelState` y el `Spawner` del nivel (ver [ui.md](ui.md)).
+
+### Acciones de la UI
+
+`_on_action_requested(action)` decide con un `match` sobre `LevelUI.Action`: `RESTART` llama a `_restart_level()` y `QUIT` a `_quit_to_menu()`. Cuando llega la señal, `LevelUI` ya ha pasado a `PLAYING`, así que no hay pantalla ni pausa.
 
 ### Derrota
 
-`Level` emite `lost` y `Game` llama a `ui.show_game_over()`, que muestra la pantalla y pausa el árbol.
+`Level` emite `lost` y `Game` llama a `ui.set_state(LevelUI.UiState.LOST)`, que muestra el game over y pausa el árbol.
 
 ### Reinicio
 
-`_restart_level()` oculta el game over, desconecta la señal de la barra lateral, quita y libera el `Level` actual, instancia uno nuevo en la misma posición del árbol y repite `_setup_level()`. El dinero vuelve a su valor inicial porque `LevelState` es hijo del `Level` nuevo.
+`_restart_level()` quita y libera el `Level` actual, instancia uno nuevo en la misma posición del árbol y repite `_setup_level()`. El dinero vuelve a su valor inicial porque `LevelState` es hijo del `Level` nuevo. Las conexiones con el `LevelState` y el `Spawner` anteriores las deshace `LevelUI.setup`.
 
 ### Salir al menú
 

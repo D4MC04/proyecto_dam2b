@@ -4,7 +4,7 @@ Todo cuelga de `scenes/level_ui/LevelUI.tscn`, instanciada dentro de `Game`. Los
 
 ## LevelUI
 
-`scripts/level_ui/LevelUI.gd` (clase `GameUI`), raíz `CanvasLayer` con `process_mode = ALWAYS` para seguir respondiendo con el juego en pausa.
+`scripts/level_ui/LevelUI.gd` (clase `LevelUI`), raíz `CanvasLayer` con `process_mode = ALWAYS` para seguir respondiendo con el juego en pausa.
 
 Estructura: `UI/HBoxContainer` (sin separación) con tres columnas, de izquierda a derecha:
 
@@ -21,10 +21,22 @@ Funciones de `LevelUI`:
 - `setup(state, towers, level_number, spawner)`: pasa el número de nivel al `LevelIndicator`, prepara la pestaña Oleadas (ver más abajo), conecta `state.money_changed` a `sidebar.set_money`, `state.selected_tower_changed` a `sidebar.show_selected` y `state.inspected_changed` a `info_panel.show_inspected`, crea los botones de torre, muestra el dinero inicial y pide a la ficha que enseñe `state.inspected` (null en un `LevelState` nuevo, así que al empezar o reiniciar vuelve al escáner). Si había un `LevelState` anterior, desconecta las tres.
 - `_on_tower_selected(data)`: recibe `Sidebar.tower_selected` y escribe `selected_tower` en el `LevelState`. Es el único camino de la barra lateral a la selección.
 - `_on_inspect_requested(data)`: recibe `Sidebar.inspect_requested` y escribe `inspected` en el `LevelState`. Es el único camino a lo inspeccionado.
-- `show_game_over()`: muestra la pantalla y pausa el árbol. `hide_game_over()` la oculta.
-- Acción `ui_cancel` (Escape): alterna el menú de pausa y la pausa del árbol, salvo si se ve el game over.
 
-Señales: `restart_requested` y `quit_requested`. Las emite cuando se pulsa el botón correspondiente en pausa o en game over, después de quitar la pausa.
+**Estado de la UI.** Enum `UiState { PLAYING, PAUSED, LOST, WON }` guardado en `_ui_state`. `set_state(new_state)` es la única función que escribe la visibilidad de las pantallas y `get_tree().paused`:
+
+| Estado | Pantalla | Pausa |
+|---|---|---|
+| `PLAYING` | ninguna | no |
+| `PAUSED` | `PauseMenu` | sí |
+| `LOST` | `GameOverScreen` | sí |
+| `WON` | ninguna (aún no hay pantalla de victoria; nadie usa este estado todavía) | sí |
+
+La relación estado → pantalla está solo en el diccionario `_screens_by_state`; una pantalla nueva se añade ahí. `_ready` conecta `option_chosen` de todas las pantallas del diccionario y empieza en `PLAYING`.
+
+- Acción `ui_cancel` (Escape): en `PLAYING` pasa a `PAUSED` y en `PAUSED` vuelve a `PLAYING`. En `LOST` y `WON` no hace nada (ni marca el evento como gestionado).
+- `_on_option_chosen(option)`: `RESUME` pasa a `PLAYING`. `RESTART` y `QUIT` pasan a `PLAYING` (quitan pantalla y pausa) y después emiten `action_requested`.
+
+Señal: `action_requested(action: Action)`, con el enum `Action { RESTART, QUIT }`. Es la única señal de `LevelUI` hacia `Game`.
 
 ## InfoPanel (ficha)
 
@@ -111,13 +123,28 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 - `UiFormat.number(value: float)`: para stats. Por debajo de 100 y con decimales, uno como mucho (`2.5`); si no, `abbreviate` del valor redondeado.
 - `UiFormat.seconds(value: float)`: segundos con 2 decimales como mucho, sin ceros sobrantes y en 5 caracteres como máximo (`0.25s`, `1.5s`, `5s`, `123s`).
 
+## OverlayScreen
+
+`scenes/level_ui/OverlayScreen.tscn` + `scripts/level_ui/OverlayScreen.gd` (clase `OverlayScreen`). Escena base de las pantallas que tapan el área de juego. Contiene lo común:
+
+- `Background`: `ColorRect` negro al 59 % a pantalla completa.
+- `Box`: `VBoxContainer` a pantalla completa, centrado, con el tema `menu_theme.tres` y 10 px de separación.
+  - `Title` (`%Title`, `title_label`): fuente de 24 px en `#cce6ff` con contorno negro de 4 px, centrado. En la base no tiene texto.
+  - `Options` (`%Options`, `options`): `VBoxContainer` con 10 px de separación, vacío en la base.
+
+Enum `Option { RESUME, RESTART, QUIT }` y una sola señal, `option_chosen(option)`. En `_ready` conecta el `pressed` de cada `OverlayOptionButton` que haya en `Options`, así que las pantallas hijas no tienen script propio.
+
+La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Para dar a una pantalla un color de acento o una animación de entrada basta con cambiar su escena heredada (o darle un script que extienda `OverlayScreen` y reaccione a `visibility_changed`), sin tocar las otras.
+
+**`OverlayOptionButton`** (`scripts/level_ui/OverlayOptionButton.gd`, `Button`): solo tiene `@export var option: OverlayScreen.Option`. En las pantallas actuales miden 100x24 y van centrados en horizontal.
+
 ## PauseMenu
 
-`scenes/level_ui/PauseMenu.tscn` + `scripts/level_ui/PauseMenu.gd`. Fondo negro al 59 %, título "PAUSA" y botones "Continuar", "Reiniciar" y "Salir". Señales `resume_requested`, `restart_requested` y `quit_requested`.
+`scenes/level_ui/PauseMenu.tscn`, escena heredada de `OverlayScreen.tscn` y sin script propio. Título "PAUSA" y opciones "Continuar" (`RESUME`), "Reiniciar" (`RESTART`) y "Salir" (`QUIT`).
 
 ## GameOverScreen
 
-`scenes/level_ui/GameOver.tscn` + `scripts/level_ui/GameOverScreen.gd`. Fondo negro al 59 %, título "GAME OVER" y botones "Reiniciar" y "Salir". Señales `restart_requested` y `quit_requested`.
+`scenes/level_ui/GameOver.tscn` (nodo `GameOverScreen`), escena heredada de `OverlayScreen.tscn` y sin script propio. Título "GAME OVER" y opciones "Reiniciar" (`RESTART`) y "Salir" (`QUIT`).
 
 ## Comunicación con el resto
 
@@ -133,12 +160,11 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 | `Sidebar` | `inspect_requested` | `LevelUI._on_inspect_requested` (escribe `LevelState.inspected`) |
 | `Sidebar` | `next_wave_requested` | `LevelUI._on_next_wave_requested` (`Spawner.start_next_wave`) |
 | `Sidebar` | `auto_waves_toggled` | `LevelUI._on_auto_waves_toggled` (escribe `Spawner.auto_waves`) |
-| `LevelUI` | `restart_requested` | `Game._restart_level` |
-| `LevelUI` | `quit_requested` | `Game._quit_to_menu` |
-| `Game` | llamada directa | `LevelUI.show_game_over` / `hide_game_over` |
+| `PauseMenu`, `GameOverScreen` | `option_chosen` | `LevelUI._on_option_chosen` (`RESUME` lo resuelve ella) |
+| `LevelUI` | `action_requested` | `Game._on_action_requested` (reiniciar o volver al menú) |
+| `Game` | llamada directa | `LevelUI.set_state(LOST)` en la derrota |
 
 ## Dudas
 
 - La interfaz no muestra la vida de la base.
 - El scroll de la ficha no tiene barra visible: en las fichas que no caben (Cryo, Disintegrator) la descripción queda cortada abajo sin otra pista de que se puede bajar.
-- El nodo raíz se llama `LevelUI` y el archivo `LevelUI.gd`, pero la clase es `GameUI`. El contenedor vertical de `GameOver.tscn` se llama `HBoxContainer`.

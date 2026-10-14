@@ -6,14 +6,13 @@ const MAIN_MENU_PATH := "res://scenes/MainMenu.tscn"
 @export var level_data: LevelData
 
 @onready var level: Level = $Level
-@onready var ui: GameUI = $LevelUI
+@onready var ui: LevelUI = $LevelUI
 
 var _level_scene: PackedScene
 
 func _ready() -> void:
 	_level_scene = load(level.scene_file_path)
-	ui.restart_requested.connect(_restart_level)
-	ui.quit_requested.connect(_quit_to_menu)
+	ui.action_requested.connect(_on_action_requested)
 	_setup_level()
 
 func _setup_level() -> void:
@@ -24,10 +23,16 @@ func _setup_level() -> void:
 	ui.setup(level.game_state, level.towers, level_number, level.spawner)
 
 func _on_level_lost() -> void:
-	ui.show_game_over()
+	ui.set_state(LevelUI.UiState.LOST)
+
+func _on_action_requested(action: LevelUI.Action) -> void:
+	match action:
+		LevelUI.Action.RESTART:
+			_restart_level()
+		LevelUI.Action.QUIT:
+			_quit_to_menu()
 
 func _restart_level() -> void:
-	ui.hide_game_over()
 	var index := level.get_index()
 	remove_child(level)
 	level.queue_free()

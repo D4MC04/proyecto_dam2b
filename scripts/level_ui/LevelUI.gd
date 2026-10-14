@@ -1,40 +1,48 @@
 extends CanvasLayer
-class_name GameUI
+class_name LevelUI
 
-signal restart_requested
-signal quit_requested
+# Estado de la UI: decide qué pantalla se ve y si el árbol está en pausa.
+enum UiState { PLAYING, PAUSED, LOST, WON }
+# Peticiones que la UI pasa a Game.
+enum Action { RESTART, QUIT }
 
-@onready var game_over_screen: Control = %GameOverScreen
-@onready var pause_menu: Control = %PauseMenu
+signal action_requested(action: Action)
+
+@onready var game_over_screen: OverlayScreen = %GameOverScreen
+@onready var pause_menu: OverlayScreen = %PauseMenu
 @onready var sidebar: Sidebar = %Sidebar
 @onready var level_indicator: LevelIndicator = %LevelIndicator
 @onready var info_panel: InfoPanel = %InfoPanel
+# Pantalla de cada estado; un estado sin entrada no enseña ninguna. Cada pantalla va en un solo estado.
+@onready var _screens_by_state: Dictionary[UiState, OverlayScreen] = {
+	UiState.PAUSED: pause_menu,
+	UiState.LOST: game_over_screen,
+}
 
-var _state: LevelState
+var _ui_state: UiState = UiState.PLAYING
+var _level_state: LevelState
 var _spawner: Spawner
 
 func _ready() -> void:
-	pause_menu.resume_requested.connect(_set_paused.bind(false))
-	pause_menu.restart_requested.connect(_on_restart_requested)
-	pause_menu.quit_requested.connect(_on_quit_requested)
-	game_over_screen.restart_requested.connect(_on_restart_requested)
-	game_over_screen.quit_requested.connect(_on_quit_requested)
+	for screen: OverlayScreen in _screens_by_state.values():
+		screen.option_chosen.connect(_on_option_chosen)
 	sidebar.tower_selected.connect(_on_tower_selected)
 	sidebar.inspect_requested.connect(_on_inspect_requested)
 	sidebar.next_wave_requested.connect(_on_next_wave_requested)
 	sidebar.auto_waves_toggled.connect(_on_auto_waves_toggled)
+	set_state(UiState.PLAYING)
 
 func setup(state: LevelState, towers: Array[TowerData], level_number: int, spawner: Spawner) -> void:
 	level_indicator.set_level_number(level_number)
 	_connect_spawner(spawner)
-	if is_instance_valid(_state):
-		if _state.money_changed.is_connected(sidebar.set_money):
-			_state.money_changed.disconnect(sidebar.set_money)
-		if _state.selected_tower_changed.is_connected(sidebar.show_selected):
-			_state.selected_tower_changed.disconnect(sidebar.show_selected)
-		if _state.inspected_changed.is_connected(info_panel.show_inspected):
-			_state.inspected_changed.disconnect(info_panel.show_inspected)
-	_state = state
+	if is_instance_valid(_level_state):
+		if _level_state.money_changed.is_connected(sidebar.set_money):
+			_level_state.money_changed.disconnect(sidebar.set_money)
+		if _level_state.selected_tower_changed.is_connected(sidebar.show_selected):
+			_level_state.selected_tower_changed.disconnect(sidebar.show_selected)
+		if _level_state.inspected_changed.is_connected(info_panel.show_inspected):
+			_level_state.inspected_changed.disconnect(info_panel.show_inspected)
+	_level_state = state
 	state.money_changed.connect(sidebar.set_money)
 	state.selected_tower_changed.connect(sidebar.show_selected)
 	state.inspected_changed.connect(info_panel.show_inspected)
@@ -44,12 +52,12 @@ func setup(state: LevelState, towers: Array[TowerData], level_number: int, spawn
 	info_panel.show_inspected(state.inspected)
 
 func _on_tower_selected(data: TowerData) -> void:
-	if is_instance_valid(_state):
-		_state.selected_tower = data
+	if is_instance_valid(_level_state):
+		_level_state.selected_tower = data
 
 func _on_inspect_requested(data: Resource) -> void:
-	if is_instance_valid(_state):
-		_state.inspected = data
+	if is_instance_valid(_level_state):
+		_level_state.inspected = data
 
 # Cambia el Spawner que sigue la pestaña Oleadas, desconectando el anterior.
 func _connect_spawner(spawner: Spawner) -> void:
@@ -91,26 +99,37 @@ func _on_auto_waves_toggled(enabled: bool) -> void:
 	if is_instance_valid(_spawner):
 		_spawner.auto_waves = enabled
 
-func show_game_over() -> void:
-	game_over_screen.show()
-	get_tree().paused = true
-
-func hide_game_over() -> void:
-	game_over_screen.hide()
+# Única función que cambia qué pantalla se ve y la pausa del árbol.
+func set_state(new_state: UiState) -> void:
+	_ui_state = new_state
+	var shown: OverlayScreen = _screens_by_state.get(new_state)
+	for screen: OverlayScreen in _screens_by_state.values():
+		screen.visible = screen == shown
+	get_tree().paused = new_state != UiState.PLAYING
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel") and not game_over_screen.visible:
-		_set_paused(not pause_menu.visible)
-		get_viewport().set_input_as_handled()
+	if not event.is_action_pressed("ui_cancel"):
+		return
+	match _ui_state:
+		UiState.PLAYING:
+			set_state(UiState.PAUSED)
+		UiState.PAUSED:
+			set_state(UiState.PLAYING)
+		_:
+			# En derrota y victoria Escape no hace nada.
+			return
+	get_viewport().set_input_as_handled()
 
-func _set_paused(paused: bool) -> void:
-	pause_menu.visible = paused
-	get_tree().paused = paused
+func _on_option_chosen(option: OverlayScreen.Option) -> void:
+	match option:
+		OverlayScreen.Option.RESUME:
+			set_state(UiState.PLAYING)
+		OverlayScreen.Option.RESTART:
+			_request_action(Action.RESTART)
+		OverlayScreen.Option.QUIT:
+			_request_action(Action.QUIT)
 
-func _on_restart_requested() -> void:
-	_set_paused(false)
-	restart_requested.emit()
-
-func _on_quit_requested() -> void:
-	_set_paused(false)
-	quit_requested.emit()
+# Quita la pausa y la pantalla antes de avisar a Game.
+func _request_action(action: Action) -> void:
+	set_state(UiState.PLAYING)
+	action_requested.emit(action)
