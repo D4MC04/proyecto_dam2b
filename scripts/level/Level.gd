@@ -19,7 +19,7 @@ var _finished: bool = false
 
 func _ready() -> void:
 	build_manager.state = game_state
-	spawner.enemy_died.connect(game_state.add_money)
+	spawner.enemy_died.connect(game_state.register_enemy_destroyed)
 	spawner.enemy_reached_end.connect(_lose)
 	spawner.all_waves_cleared.connect(_win)
 
@@ -33,6 +33,11 @@ func setup(data: LevelData) -> void:
 	grid.setup(map.logic_map)
 	spawner.setup(map.get_paths(), data.waves)
 
+## Resumen de la partida hasta ahora: oleada alcanzada, total, enemigos destruidos y dinero gastado.
+func get_run_stats() -> RunStats:
+	return RunStats.new(spawner.get_wave_index() + 1, spawner.waves.size(),
+			game_state.enemies_destroyed, game_state.money_spent)
+
 # Desplaza el mapa en horizontal para que su rectángulo útil quede centrado en el área de juego.
 func _center_map() -> void:
 	var used_center_x := map.position.x + map.get_used_rect().get_center().x
@@ -42,6 +47,8 @@ func _lose() -> void:
 	if _finished:
 		return
 	_finished = true
+	# Durante la cámara lenta de la derrota el juego sigue corriendo: el nivel deja de construir ya.
+	build_manager.stop_building()
 	lost.emit()
 
 func _win() -> void:

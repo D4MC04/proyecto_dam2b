@@ -6,7 +6,7 @@
 
 | Nodo | Script | Función |
 |---|---|---|
-| `LevelState` | `scripts/level/LevelState.gd` | Dinero, torre seleccionada y lo inspeccionado en la ficha |
+| `LevelState` | `scripts/level/LevelState.gd` | Dinero, torre seleccionada, lo inspeccionado en la ficha y los contadores de la partida |
 | `Grid` | `scripts/level/Grid.gd` | Qué casillas son camino o hueco y cuáles están ocupadas |
 | `Spawner` | `scripts/level/Spawner.gd` | Lanza las oleadas, crea sus enemigos y cuenta los vivos |
 | `BuildManager` | `scripts/level/BuildManager.gd` | Coloca torres; ver [torres.md](torres.md) |
@@ -21,17 +21,24 @@
 
 Conexiones hechas en `_ready`:
 
-- `spawner.enemy_died(reward)` llama a `game_state.add_money`.
-- `spawner.enemy_reached_end` llama a `_lose`, que emite `lost`.
+- `spawner.enemy_died(reward)` llama a `game_state.register_enemy_destroyed`, que cuenta el enemigo y suma la recompensa.
+- `spawner.enemy_reached_end` llama a `_lose`, que llama a `build_manager.stop_building()` y emite `lost`.
 - `spawner.all_waves_cleared` llama a `_win`, que emite `won`.
-- Un nivel acaba una sola vez: `_lose` y `_win` comparten la marca `_finished` y, tras la primera de las dos, ninguna vuelve a emitir. Si el último enemigo de la última oleada llega al final, el `Spawner` emite antes `enemy_reached_end` que `all_waves_cleared`, así que gana la derrota y `won` no se emite.
+- Un nivel acaba una sola vez: `_lose` y `_win` comparten la marca `_finished` y, tras la primera de las dos, ninguna vuelve a emitir. Así `lost` sale una sola vez aunque lleguen más enemigos al final durante la cámara lenta de la derrota (ver [ui.md](ui.md)), y tras perder el nivel ya no puede ganarse. Si el último enemigo de la última oleada llega al final, el `Spawner` emite antes `enemy_reached_end` que `all_waves_cleared`, así que gana la derrota y `won` no se emite.
 - `build_manager.state = game_state`.
+
+Tras perder, el nivel deja de construir por su cuenta, sin depender de la UI: `BuildManager` no coloca torres ni enseña la vista previa (ver [torres.md](torres.md)). Durante la cámara lenta los enemigos siguen moviéndose y las torres disparando; los que mueran aún cuentan y dan dinero, pero el resultado no cambia.
+
+`get_run_stats() -> RunStats` construye el resumen de la partida: oleada alcanzada (`spawner.get_wave_index() + 1`, 0 si no se lanzó ninguna), total de oleadas (`spawner.waves.size()`), enemigos destruidos y dinero gastado (de `LevelState`). Lo usa `Game` al perder.
+
+**`RunStats`** (`scripts/level/RunStats.gd`, `RefCounted`): objeto de datos con `wave_reached`, `wave_total`, `enemies_destroyed` y `money_spent`, todos `int`. Se crea con `RunStats.new(reached, total, destroyed, spent)`. Lo pinta `RunSummary` (ver [ui.md](ui.md)).
 
 ## LevelState
 
 - `money` empieza en 5000.
 - `add_money(amount)` suma y emite `money_changed(money)`.
-- `spend_money(amount)` devuelve `false` si no alcanza; si alcanza resta, emite `money_changed` y devuelve `true`.
+- `spend_money(amount)` devuelve `false` si no alcanza; si alcanza resta, suma `amount` a `money_spent`, emite `money_changed` y devuelve `true`.
+- Contadores de la partida: `enemies_destroyed` y `money_spent`, que empiezan en 0. `register_enemy_destroyed(reward)` suma 1 a `enemies_destroyed` y llama a `add_money(reward)`. No hace falta reiniciarlos: al reiniciar se crea un `LevelState` nuevo.
 - `selected_tower: TowerData` es la torre que se colocará al hacer clic y la única fuente de la selección. Su setter emite `selected_tower_changed(data)` solo si el valor cambia. Lo escribe `LevelUI` cuando la barra lateral lo pide y `BuildManager` (a `null`) al cancelar con clic derecho.
 - `inspected: Resource` es lo que enseña la ficha (de momento un `TowerData`; es `Resource` para que valga también para enemigos) y la única fuente de lo inspeccionado. Su setter emite `inspected_changed(data)` solo si el valor cambia. Empieza en null y solo lo escribe `LevelUI`; deseleccionar no lo toca. Al reiniciar se crea un `LevelState` nuevo, así que vuelve a null.
 

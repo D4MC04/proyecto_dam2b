@@ -40,7 +40,7 @@ En `_ready`:
 
 ### Derrota
 
-`Level` emite `lost` y `Game` llama a `ui.set_state(LevelUI.UiState.LOST)`, que muestra el game over y pausa el árbol.
+`Level` emite `lost` (una sola vez por partida; desde ese momento no construye ni puede ganar). `_on_level_lost()` pasa el resumen a la UI con `ui.show_run_stats(level.get_run_stats())` y después llama a `ui.set_state(LevelUI.UiState.LOST)`. La UI frena el juego con una cámara lenta de algo más de 1 s, vuelve a velocidad normal, pausa el árbol y muestra la pantalla de derrota con un glitch de entrada (ver [ui.md](ui.md)). "Reintentar" usa `RESTART` y "Menú" usa `QUIT`; las dos pasan antes a `PLAYING`, que deja `Engine.time_scale` en 1.
 
 ### Victoria
 

@@ -25,6 +25,8 @@ func _setup_level() -> void:
 	ui.setup(level.game_state, level.towers, level_number, level.spawner, has_next_level)
 
 func _on_level_lost() -> void:
+	# La UI recibe el resumen ya hecho; no lee el nivel por su cuenta.
+	ui.show_run_stats(level.get_run_stats())
 	ui.set_state(LevelUI.UiState.LOST)
 
 func _on_level_won() -> void:

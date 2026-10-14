@@ -10,9 +10,6 @@ const NAME_MAX_LINES := 2
 const FLASH_FRAMES := 2
 
 const NAME_COLOR := Color("#f0faff")
-const VALUE_COLOR := Color("#befaff")
-const ROW_BG_COLOR := Color("#0e1626")
-const ROW_ALT_BG_COLOR := Color("#0a0f1a")
 const TAG_BG_COLOR := Color("#0e1626")
 const PAD_BG_COLOR := Color("#060b14")
 const PAD_GRID_COLOR := Color("#14304a")
@@ -75,45 +72,11 @@ func _show_detail(icon: Texture2D, title: String, tag: String, accent: Color,
 		stat_rows.remove_child(row)
 		row.queue_free()
 	for i in stats.size():
-		stat_rows.add_child(_make_row(stats[i], i))
+		stat_rows.add_child(StatRow.create(stats[i], i))
 	description_label.text = description
 	description_label.visible = description != ""
 	description_divider.visible = description != ""
 	stat_scroll.scroll_vertical = 0
-
-func _make_row(entry: StatEntry, index: int) -> Control:
-	var row := PanelContainer.new()
-	row.tooltip_text = entry.label
-	# PASS: enseña el tooltip pero deja pasar la rueda al ScrollContainer.
-	row.mouse_filter = Control.MOUSE_FILTER_PASS
-	var style := StyleBoxFlat.new()
-	style.bg_color = ROW_BG_COLOR if index % 2 == 0 else ROW_ALT_BG_COLOR
-	style.anti_aliasing = false
-	style.set_content_margin_all(1)
-	row.add_theme_stylebox_override("panel", style)
-
-	var box := HBoxContainer.new()
-	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_theme_constant_override("separation", 2)
-	row.add_child(box)
-
-	var icon := TextureRect.new()
-	icon.texture = entry.icon
-	icon.custom_minimum_size = Vector2(8, 8)
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_child(icon)
-
-	var value := Label.new()
-	value.text = entry.value
-	value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	value.clip_text = true
-	value.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	value.add_theme_font_size_override("font_size", 8)
-	value.add_theme_color_override("font_color", VALUE_COLOR)
-	box.add_child(value)
-	return row
 
 func _make_tag_style(accent: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()

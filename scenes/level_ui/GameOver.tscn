@@ -2,18 +2,43 @@
 
 [ext_resource type="PackedScene" uid="uid://cys8covu6ahy6" path="res://scenes/level_ui/OverlayScreen.tscn" id="1_overlay"]
 [ext_resource type="Script" uid="uid://dls3jq2gexy0j" path="res://scripts/level_ui/OverlayOptionButton.gd" id="2_option"]
+[ext_resource type="Script" path="res://scripts/level_ui/GameOverScreen.gd" id="3_script"]
+[ext_resource type="Shader" path="res://resources/shaders/defeat_glitch.gdshader" id="4_glitch"]
+[ext_resource type="PackedScene" path="res://scenes/level_ui/RunSummary.tscn" id="5_summary"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_glitch"]
+shader = ExtResource("4_glitch")
 
 [node name="GameOverScreen" instance=ExtResource("1_overlay")]
+script = ExtResource("3_script")
 accent_color = Color(1, 0.2352941, 0.3529412, 1)
+dim_color = Color(0.101960786, 0.019607844, 0.03529412, 1)
+dim_opacity = 0.6
+
+[node name="GlitchLayer" type="ColorRect" parent="." index="1"]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_glitch")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="Title" parent="Center/Frame/Margin/Box" index="0"]
-text = "GAME OVER"
+text = "ESTACION
+PERDIDA"
+
+[node name="RunSummary" parent="Center/Frame/Margin/Box" index="1" instance=ExtResource("5_summary")]
+unique_name_in_owner = true
+layout_mode = 2
 
 [node name="RestartButton" type="Button" parent="Center/Frame/Margin/Box/Options" unique_id=43701199]
 custom_minimum_size = Vector2(136, 24)
 layout_mode = 2
 size_flags_horizontal = 4
-text = "Reiniciar"
+text = "Reintentar"
 script = ExtResource("2_option")
 option = 1
 
@@ -21,6 +46,6 @@ option = 1
 custom_minimum_size = Vector2(136, 24)
 layout_mode = 2
 size_flags_horizontal = 4
-text = "Salir"
+text = "Menú"
 script = ExtResource("2_option")
 option = 2

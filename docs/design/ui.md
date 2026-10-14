@@ -22,19 +22,28 @@ Funciones de `LevelUI`:
 - `_on_tower_selected(data)`: recibe `Sidebar.tower_selected` y escribe `selected_tower` en el `LevelState`. Es el único camino de la barra lateral a la selección.
 - `_on_inspect_requested(data)`: recibe `Sidebar.inspect_requested` y escribe `inspected` en el `LevelState`. Es el único camino a lo inspeccionado.
 
-**Estado de la UI.** Enum `UiState { PLAYING, PAUSED, LOST, WON }` guardado en `_ui_state`. `set_state(new_state)` es la única función que escribe la visibilidad de las pantallas y `get_tree().paused`:
+**Estado de la UI.** Enum `UiState { PLAYING, PAUSED, LOST, WON }` guardado en `_ui_state`. `set_state(new_state)` es la única función que escribe la visibilidad de las pantallas, `get_tree().paused` y `Engine.time_scale`:
 
 | Estado | Pantalla | Pausa |
 |---|---|---|
 | `PLAYING` | ninguna | no |
 | `PAUSED` | `PauseMenu` | sí |
-| `LOST` | `GameOverScreen` | sí |
+| `LOST` | `GameOverScreen`, tras la cámara lenta | sí, tras la cámara lenta |
 | `WON` | `VictoryScreen` | sí |
 
 La relación estado → pantalla está solo en el diccionario `_screens_by_state`; una pantalla nueva se añade ahí. `_ready` conecta `option_chosen` de todas las pantallas del diccionario y empieza en `PLAYING`.
 
-- Acción `ui_cancel` (Escape): en `PLAYING` pasa a `PAUSED` y en `PAUSED` vuelve a `PLAYING`. En `LOST` y `WON` no hace nada (ni marca el evento como gestionado).
-- Bloqueo de la selección: `set_state` es lo único que lo decide. Llama a `sidebar.set_selection_locked(new_state != PLAYING)`, así que con pausa (plegada o no), game over o victoria no se puede seleccionar torre.
+- Acción `ui_cancel` (Escape): en `PLAYING` pasa a `PAUSED` y en `PAUSED` vuelve a `PLAYING`. En `LOST` (también durante la cámara lenta) y `WON` no hace nada (ni marca el evento como gestionado).
+- Bloqueo de la selección: `set_state` es lo único que lo decide. Llama a `sidebar.set_selection_locked(new_state != PLAYING)`, así que con pausa (plegada o no), derrota (desde que empieza la cámara lenta) o victoria no se puede seleccionar torre.
+- `show_run_stats(stats: RunStats)`: pasa el resumen de partida a `GameOverScreen`. Lo llama `Game` antes de `set_state(LOST)`; la UI no lee el `Level` ni el `LevelState` para el resumen.
+
+**Secuencia de derrota.** `set_state(LOST)` no congela el juego de golpe:
+
+1. Quita cualquier pantalla, deja el árbol sin pausa y bloquea la selección.
+2. Un tween (`_slow_motion`) baja `Engine.time_scale` de 1 a `SLOW_MOTION_MIN_SCALE` (0,2) en `SLOW_MOTION_RAMP_TIME` (1,1 s) con curva seno de entrada y salida, y lo mantiene `SLOW_MOTION_HOLD_TIME` (0,2 s). El tween usa `set_ignore_time_scale()` (tiempo real, no se frena a sí mismo) y `TWEEN_PAUSE_PROCESS`.
+3. Al acabar, `Engine.time_scale` vuelve a 1, el árbol se pausa y se enseña `GameOverScreen`, que arranca su glitch.
+
+Cada llamada a `set_state` mata la secuencia en curso (si la hay) y pone `Engine.time_scale` a 1 antes de nada, así que cualquier cambio de estado durante la cámara lenta la cancela y `PLAYING` siempre deja la velocidad normal. Las escrituras de `time_scale` y `paused` del tween están en lambdas dentro de `set_state`.
 - `_on_option_chosen(option)`: `RESUME` pasa a `PLAYING`. `RESTART`, `QUIT` y `NEXT_LEVEL` pasan a `PLAYING` (quitan pantalla y pausa) y después emiten `action_requested`.
 
 Señal: `action_requested(action: Action)`, con el enum `Action { RESTART, QUIT, NEXT_LEVEL }`. Es la única señal de `LevelUI` hacia `Game`.
@@ -51,7 +60,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 - **`DetailView`:**
   - Cabecera fija: `IconPad` (72x42) con el icono a escala 1 centrado (cabe el Spikey de 34x34), fondo `#060b14` con una rejilla de puntos `#14304a` cada 4 px y esquinas de 4 px en el color de acento (se pinta en el `draw` de `IconPad`); `NameLabel` con el nombre partido por palabras en líneas de 9 caracteres, 2 como mucho (una palabra más larga se corta con guion: "Disinteg-rator"), con alto fijo de 2 líneas para que la cabecera mida siempre lo mismo; y `TypeTag` con la etiqueta del tipo (de ataque en las torres, "ENEMIGO" en los enemigos) en el color de acento sobre el fondo mezclado al 20 % con el acento. El nombre no se pasa a mayúsculas porque PressStart2P dibuja mal las mayúsculas con tilde.
   - `StatScroll`: `ScrollContainer` vertical (sin barra visible, como los de la barra derecha) con las filas de stat, una línea `#1c4a60` y la descripción en `#7fa6b8` con salto de línea automático (la línea y la descripción se ocultan si no hay descripción). La cabecera no entra en el scroll. Al cambiar de ficha vuelve arriba.
-  - Cada fila es un `PanelContainer` (1 px de margen, fondo alterno `#0e1626` / `#0a0f1a`) con el icono de 8x8 a la izquierda y el valor a la derecha en `#befaff`. Su `tooltip_text` es el nombre del stat; `mouse_filter = PASS` para que la rueda siga llegando al scroll.
+  - Cada fila la crea `StatRow.create(entry, index)` (ver abajo).
 - `ScanFlash`: `ColorRect` cian al 20 % que tapa `Screen` durante 2 frames cada vez que cambia el contenido.
 
 `show_inspected(data: Resource)`: con un `InspectableData` pinta lo que da el contrato común; con null (o cualquier otra cosa), el reposo. La ficha no distingue torres de enemigos ni sabe qué stats existen: crea una fila por cada `StatEntry` que recibe.
@@ -59,6 +68,8 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 **`InspectableData`** (`scripts/resources/InspectableData.gd`, `Resource`): contrato de lo inspeccionable, que cumplen `TowerData` y `EnemyData` y cualquier cosa futura que se quiera enseñar (torres colocadas, enemigos del mapa). Métodos: `get_inspect_icon()`, `get_inspect_name()`, `get_inspect_tag()` (9 caracteres como máximo), `get_inspect_accent()`, `get_stats()` y `get_inspect_description()`. Los valores por defecto están vacíos. Torres: icono, `name`, tipo de ataque, `accent_color` y `description`. Enemigos: primer frame de `up`, `name`, "ENEMIGO", `EnemyData.ACCENT_COLOR` (rojo de motor `#f0323c`), y `description`.
 
 **`StatEntry`** (`scripts/level_ui/StatEntry.gd`, `RefCounted`): `icon: Texture2D`, `label: String` y `value: String` ya formateado. `StatEntry.new(icon_name, label, value)` carga `assets/ui/stat_icons/<icon_name>.png`. `MAX_VALUE_CHARS = 7` es lo que cabe en el valor. Las filas las dan `TowerData.get_stats()` y los `get_stats()` de cada tipo de ataque (ver [torres.md](torres.md)).
+
+**`StatRow`** (`scripts/level_ui/StatRow.gd`): `StatRow.create(entry, index, h_margin = 1, v_margin = 1)` devuelve la fila de un `StatEntry`: `PanelContainer` con fondo alterno según `index` (`#0e1626` / `#0a0f1a`), el icono de 8x8 a la izquierda y el valor a la derecha en `#befaff`. Su `tooltip_text` es el nombre del stat; `mouse_filter = PASS` para que la rueda siga llegando a un scroll. La usan la ficha (márgenes de 1 px) y `RunSummary`.
 
 **`ScannerDisplay`** (`scripts/level_ui/ScannerDisplay.gd`, `Control` de 57x57): radar de reposo. Pinta 32 frames del barrido píxel a píxel en `Image` (sin antialiasing) la primera vez y los reparte entre instancias; avanza un frame cada 0,06 s (unos 1,9 s por vuelta) solo mientras es visible. Disco `#0e1626`, anillo `#1c7496` de radio 27 con marcas `#40e0f0` en los cuatro puntos cardinales, anillos interiores y cruz punteados en `#1c4a60`, línea de barrido `#befaff` y estela en dos tramos (`#1c7496` hasta 25°, `#14304a` hasta 70°). Cuatro ecos de 1 px se encienden en `#befaff` al pasar el barrido y se apagan pasando por `#40e0f0`.
 
@@ -129,25 +140,25 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
 `scenes/level_ui/OverlayScreen.tscn` + `scripts/level_ui/OverlayScreen.gd` (clase `OverlayScreen`). Escena base de las pantallas que tapan el área de juego, con el tema `menu_theme.tres`. Contiene lo común:
 
-- `Background`: `ColorRect` negro que oscurece el área de juego (opacidad = `dim_opacity`).
+- `Background`: `ColorRect` que oscurece el área de juego (color `dim_color`, negro por defecto, con opacidad `dim_opacity`).
 - `Center` (`CenterContainer`) → `Frame` (`OverlayFrame`, ver abajo) → `Margin` (20 px a los lados, 16 arriba y abajo) → `Box` (`VBoxContainer`, 10 px de separación):
   - `Title` (`%Title`, `title_label`): fuente de 24 px en `#cce6ff` con contorno negro de 4 px, centrado. En la base no tiene texto.
   - `Options` (`%Options`, `options`): `VBoxContainer` con 10 px de separación, vacío en la base.
 
 **`OverlayFrame`** (`scripts/level_ui/OverlayFrame.gd`, `PanelContainer`): fondo `#0a0f1a` al 96 %, borde de 1 px en `accent_color` y esquinas en L (5 px de largo, 2 de grueso) del mismo color pintadas en `_draw`. También lo usa la etiqueta plegada de la pausa.
 
-Dos `@export` en la base, que cada escena heredada fija en su `.tscn`:
+Tres `@export` en la base, que cada escena heredada fija en su `.tscn`:
 
-| Pantalla | `accent_color` | `dim_opacity` |
-|---|---|---|
-| Pausa | cian `#40e0f0` | 0,35 |
-| Game over | rojo `#ff3c5a` | 0,59 |
-| Victoria | ámbar `#ecb23c` | 0,59 |
+| Pantalla | `accent_color` | `dim_color` | `dim_opacity` |
+|---|---|---|---|
+| Pausa | cian `#40e0f0` | negro | 0,35 |
+| Derrota | rojo `#ff3c5a` | rojo muy oscuro `#1a0509` | 0,6 |
+| Victoria | ámbar `#ecb23c` | negro | 0,59 |
 
 `_ready` aplica el acento al marco y a los botones, el oscurecido al fondo, y conecta el `pressed` de cada `OverlayOptionButton` de `Options`. Enum `Option { RESUME, RESTART, QUIT, NEXT_LEVEL, SETTINGS }` y una sola señal, `option_chosen(option)`.
 
 
-La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Una pantalla con comportamiento propio extiende `OverlayScreen` con un script (como `PauseScreen`).
+La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Una pantalla con comportamiento propio extiende `OverlayScreen` con un script (como `PauseScreen` y `GameOverScreen`).
 
 **`OverlayOptionButton`** (`scripts/level_ui/OverlayOptionButton.gd`, `Button`): `@export var option` y `@export var accent_color` (se lo pasa la pantalla). Es un juego de ratón: `focus_mode = NONE`, sin teclado salvo Escape (lo gestiona `LevelUI`). Caja de 1 px: fondo `#0e1626` y borde en el acento mezclado al 50 %; con el ratón encima, fondo mezclado al 20 %, borde y texto en el acento y un selector `>` pintado delante (en `_draw`). Texto en `#cce6ff`. Miden 136x24 con 6 px de separación y van centrados en horizontal.
 
@@ -161,7 +172,33 @@ La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Una pantall
 
 ## GameOverScreen
 
-`scenes/level_ui/GameOver.tscn` (nodo `GameOverScreen`), escena heredada de `OverlayScreen.tscn` y sin script propio. Marco en rojo `#ff3c5a` y oscurecido del 59 %. Título "GAME OVER" y opciones "Reiniciar" (`RESTART`) y "Salir" (`QUIT`).
+`scenes/level_ui/GameOver.tscn` (nodo `GameOverScreen`), escena heredada de `OverlayScreen.tscn` con el script `scripts/level_ui/GameOverScreen.gd` (clase `GameOverScreen`). Es la derrota, con personalidad de "señal perdida" en rojo `#ff3c5a`. Entra tras la cámara lenta (ver "Secuencia de derrota" en `LevelUI`).
+
+- **Aspecto:** título "ESTACION" / "PERDIDA" (dos líneas) en el rojo del acento. Se iba a llamar "SEÑAL PERDIDA", pero PressStart2P encoge la Ñ (cuerpo de 5 px frente a los 7 de la N) para que quepa la tilde. Oscurecido con `dim_color` `#1a0509` (rojo muy oscuro) al 60 %. Entre el título y las opciones va `RunSummary` (`%RunSummary`) con el acento rojo. Opciones "Reintentar" (`RESTART`) y "Menú" (`QUIT`). No conecta botones a mano: lo hace la base.
+- **`GlitchLayer`** (`%GlitchLayer`): `ColorRect` entre `Background` y `Center` que tapa el área de juego, con `mouse_filter = IGNORE` y un `ShaderMaterial` con `resources/shaders/defeat_glitch.gdshader`. El shader lee la pantalla ya dibujada (`hint_screen_texture`, filtro nearest), así que trabaja sobre el mapa oscurecido pero no sobre el panel, que se dibuja después. Todo va sobre la rejilla de píxeles de juego (1 px de juego = 1 px del viewport de 640x272), sin desenfoque:
+  - Bandas horizontales de 2, 4, 6 u 8 px; con probabilidad `0,4 × intensity` cada banda se desplaza un número entero de píxeles (hasta 40 × `intensity`) y se tiñe un poco de rojo. Las lecturas se limitan al área de juego, así que no entran trozos de las barras.
+  - Estática: un `8 % × intensity` de los píxeles pasa a `#ffaabe`.
+  - Estática residual (`residual`): algunas filas sueltas con píxeles tenues.
+  - Líneas de barrido: una fila de cada dos algo más oscura.
+  - El patrón cambia con el uniforme `seed`, que pone el script a saltos.
+- **Glitch de entrada** (en `GameOverScreen`, con `delta` real porque la pantalla corre con el árbol en pausa y `time_scale` ya está en 1): cada `GLITCH_STEP_TIME` (0,05 s) cambia `seed`. Durante `INTRO_TIME` (0,5 s) la intensidad baja de 1 a 0,5 con ruido, el marco se ve u oculta al azar (cada vez más probable que se vea) y el título alterna entre visible y tenue. Después la intensidad es 0, `residual` = `RESIDUAL_STATIC` (0,12) y el panel queda estable; cada 2,5 a 5 s el título parpadea durante `TITLE_FLICKER_TIME` (0,15 s). Cada vez que se abre la pantalla, la entrada vuelve a empezar.
+- Las barras no se tocan: el glitch solo cubre `GameArea` y las barras siguen activas para inspeccionar.
+- `show_run_stats(stats)`: pasa el `RunStats` al `RunSummary`.
+
+## RunSummary
+
+`scenes/level_ui/RunSummary.tscn` + `scripts/level_ui/RunSummary.gd` (clase `RunSummary`). Resumen de partida reutilizable; no sabe en qué pantalla está. `PanelContainer` de 136 px de ancho (lo mismo que las opciones), fondo `#0a0f1a`, borde de 1 px en el acento mezclado al 50 % y 2 px de margen. Dentro, el rótulo "RESUMEN" a 8 px en el acento y las filas.
+
+- `@export var accent_color`: color del rótulo y del borde. La derrota lo pone en rojo; la victoria lo usará en ámbar.
+- `show_stats(stats: RunStats)`: sustituye las filas por tres `StatRow` (4 px de margen en horizontal y 2 en vertical):
+
+| Icono | Tooltip | Valor |
+|---|---|---|
+| `wave.png` | Oleada | `"X/Y"` (oleada alcanzada / total) |
+| `kills.png` | Enemigos destruidos | `UiFormat.abbreviate` |
+| `cost.png` | Dinero gastado | `UiFormat.abbreviate` + `€` |
+
+`RunStats` está en [niveles.md](niveles.md).
 
 ## VictoryScreen
 
@@ -184,9 +221,13 @@ La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Una pantall
 | `PauseMenu`, `GameOverScreen`, `VictoryScreen` | `option_chosen` | `LevelUI._on_option_chosen` (`RESUME` lo resuelve ella) |
 | `LevelUI` | `action_requested` | `Game._on_action_requested` (reiniciar, volver al menú o pasar al siguiente nivel) |
 | `LevelUI` | llamada directa | `Sidebar.set_selection_locked` (en cada `set_state`) |
-| `Game` | llamada directa | `LevelUI.set_state(LOST)` en la derrota y `set_state(WON)` en la victoria |
+| `LevelUI` | llamada directa | `GameOverScreen.show_run_stats` (desde `show_run_stats`) |
+| `GameOverScreen` | llamada directa | `RunSummary.show_stats` |
+| `Game` | llamada directa | `LevelUI.show_run_stats(level.get_run_stats())` y `LevelUI.set_state(LOST)` en la derrota; `set_state(WON)` en la victoria |
 
 ## Dudas
 
 - La interfaz no muestra la vida de la base.
+- El título de la derrota es "ESTACION PERDIDA" en vez de "SEÑAL PERDIDA" porque la Ñ de PressStart2P sale encogida.
+- Durante los 0,5 s del glitch de entrada los botones de la derrota pueden estar invisibles (marco a opacidad 0) pero siguen recibiendo clics.
 - El scroll de la ficha no tiene barra visible: en las fichas que no caben (Cryo, Disintegrator) la descripción queda cortada abajo sin otra pista de que se puede bajar.

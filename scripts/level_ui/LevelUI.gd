@@ -8,7 +8,13 @@ enum Action { RESTART, QUIT, NEXT_LEVEL }
 
 signal action_requested(action: Action)
 
-@onready var game_over_screen: OverlayScreen = %GameOverScreen
+# Cámara lenta de la derrota, en segundos de tiempo real: el juego se frena hasta
+# SLOW_MOTION_MIN_SCALE en SLOW_MOTION_RAMP_TIME, se queda ahí SLOW_MOTION_HOLD_TIME y se pausa.
+const SLOW_MOTION_MIN_SCALE := 0.2
+const SLOW_MOTION_RAMP_TIME := 1.1
+const SLOW_MOTION_HOLD_TIME := 0.2
+
+@onready var game_over_screen: GameOverScreen = %GameOverScreen
 @onready var victory_screen: OverlayScreen = %VictoryScreen
 @onready var pause_menu: OverlayScreen = %PauseMenu
 @onready var sidebar: Sidebar = %Sidebar
@@ -24,6 +30,8 @@ signal action_requested(action: Action)
 var _ui_state: UiState = UiState.PLAYING
 var _level_state: LevelState
 var _spawner: Spawner
+# Secuencia de cámara lenta en curso al entrar en LOST; null si no hay.
+var _slow_motion: Tween
 
 func _ready() -> void:
 	for screen: OverlayScreen in _screens_by_state.values():
@@ -102,15 +110,41 @@ func _on_auto_waves_toggled(enabled: bool) -> void:
 	if is_instance_valid(_spawner):
 		_spawner.auto_waves = enabled
 
-# Única función que cambia qué pantalla se ve y la pausa del árbol.
+## Pasa el resumen de la partida a la pantalla de derrota. Game lo llama antes de set_state(LOST).
+func show_run_stats(stats: RunStats) -> void:
+	game_over_screen.show_run_stats(stats)
+
+# Única función que cambia qué pantalla se ve, la pausa del árbol y Engine.time_scale.
 func set_state(new_state: UiState) -> void:
 	_ui_state = new_state
-	var shown: OverlayScreen = _screens_by_state.get(new_state)
+	# Cualquier cambio de estado corta la cámara lenta que hubiera y devuelve la velocidad normal.
+	if _slow_motion != null:
+		_slow_motion.kill()
+		_slow_motion = null
+	Engine.time_scale = 1.0
+	# Con cualquier pantalla abierta (o en camino, durante la cámara lenta) no se puede seleccionar torre.
+	sidebar.set_selection_locked(new_state != UiState.PLAYING)
+	if new_state == UiState.LOST:
+		# Sin pantalla ni pausa todavía: el juego se frena y, al acabar, entra la derrota.
+		_show_screen(null)
+		get_tree().paused = false
+		# Tiempo real y activo en pausa, para que la cámara lenta no se frene a sí misma.
+		_slow_motion = create_tween().set_ignore_time_scale().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+		_slow_motion.tween_method(func(time_scale: float) -> void: Engine.time_scale = time_scale,
+				1.0, SLOW_MOTION_MIN_SCALE, SLOW_MOTION_RAMP_TIME).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		_slow_motion.tween_interval(SLOW_MOTION_HOLD_TIME)
+		_slow_motion.tween_callback(func() -> void:
+			_slow_motion = null
+			Engine.time_scale = 1.0
+			get_tree().paused = true
+			_show_screen(game_over_screen))
+		return
+	_show_screen(_screens_by_state.get(new_state))
+	get_tree().paused = new_state != UiState.PLAYING
+
+func _show_screen(shown: OverlayScreen) -> void:
 	for screen: OverlayScreen in _screens_by_state.values():
 		screen.visible = screen == shown
-	get_tree().paused = new_state != UiState.PLAYING
-	# Con cualquier pantalla abierta no se puede seleccionar torre.
-	sidebar.set_selection_locked(new_state != UiState.PLAYING)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not event.is_action_pressed("ui_cancel"):

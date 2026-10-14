@@ -6,6 +6,9 @@ signal selected_tower_changed(data: TowerData)
 signal inspected_changed(data: Resource)
 
 var money := 5000
+# Recuento de la partida para el resumen. Al reiniciar se crea un LevelState nuevo, así que vuelven a 0.
+var enemies_destroyed := 0
+var money_spent := 0
 var selected_tower: TowerData:
 	set(value):
 		if selected_tower == value:
@@ -28,5 +31,11 @@ func spend_money(amount: int) -> bool:
 	if money < amount:
 		return false
 	money -= amount
+	money_spent += amount
 	money_changed.emit(money)
 	return true
+
+## Un enemigo destruido: suma su recompensa y lo cuenta.
+func register_enemy_destroyed(reward: int) -> void:
+	enemies_destroyed += 1
+	add_money(reward)

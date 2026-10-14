@@ -11,7 +11,9 @@ signal option_chosen(option: Option)
 
 ## Color del marco, las esquinas y el selector de opciones.
 @export var accent_color: Color = Color("#40e0f0")
-## Opacidad del negro que oscurece el área de juego.
+## Color que oscurece el área de juego (negro salvo que la pantalla quiera un tinte).
+@export var dim_color: Color = Color.BLACK
+## Opacidad del oscurecido.
 @export_range(0.0, 1.0) var dim_opacity: float = 0.5882353
 
 @onready var background: ColorRect = %Background
@@ -20,7 +22,7 @@ signal option_chosen(option: Option)
 @onready var options: VBoxContainer = %Options
 
 func _ready() -> void:
-	background.color = Color(0, 0, 0, dim_opacity)
+	background.color = Color(dim_color, dim_opacity)
 	frame.accent_color = accent_color
 	for child: Node in options.get_children():
 		var button := child as OverlayOptionButton

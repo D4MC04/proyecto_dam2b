@@ -1,0 +1,24 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/level_ui/RunSummary.gd" id="1_script"]
+
+[node name="RunSummary" type="PanelContainer"]
+custom_minimum_size = Vector2(136, 0)
+size_flags_horizontal = 4
+script = ExtResource("1_script")
+
+[node name="Box" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Caption" type="Label" parent="Box"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 8
+text = "RESUMEN"
+horizontal_alignment = 1
+
+[node name="Rows" type="VBoxContainer" parent="Box"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 0
