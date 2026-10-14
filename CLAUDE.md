@@ -30,3 +30,4 @@
 ## Antes de dar algo por terminado
 - Comprobar que el proyecto carga sin errores en headless. Godot: `C:\Users\David\Desktop\Godot.exe` (no está en el PATH).
 - No commitear a menos que el usuario lo pida. Si lo pide, hacer el commit.
+- Al acabar una tarea, dar al usuario unos pasos breves para comprobar a mano que funciona en el juego: qué escena abrir, qué hacer y qué debería verse.
