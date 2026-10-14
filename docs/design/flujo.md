@@ -38,7 +38,7 @@ En `_ready`:
 
 ### Derrota
 
-`Level` emite `lost` y `Game` llama a `ui.show_game_over()`, que muestra la pantalla y pausa el árbol.
+Cuando la estación se destruye, `Level` espera a que acabe su explosión y emite `lost`; `Game` llama a `ui.show_game_over()`, que muestra la pantalla y pausa el árbol.
 
 ### Reinicio
 

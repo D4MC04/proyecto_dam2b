@@ -13,5 +13,6 @@ autoplay = "fase_0"
 script = ExtResource("1_script")
 
 [node name="Shield" type="Sprite2D" parent="." unique_id=440980704]
+visible = false
 scale = Vector2(1.25, 1.25)
 texture = ExtResource("3_shield")

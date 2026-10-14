@@ -74,4 +74,4 @@ Según la dirección del último movimiento reproduce `right`, `left`, `down` o 
 
 - `EnemyData.hp` está declarado como `int`, pero varios `.tres` guardan el valor con decimales (`360.0`) y `Enemy.hp` es `float`.
 - `EnemyData.name` no se muestra en ninguna parte.
-- Al llegar al final el enemigo no hace daño a la base: la derrota es inmediata. Ver [base.md](base.md).
+- Al llegar al final, todos los enemigos quitan lo mismo a la base (`Level.ENEMY_BASE_DAMAGE`, 10). Ver [base.md](base.md).

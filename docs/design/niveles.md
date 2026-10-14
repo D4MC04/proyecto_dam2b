@@ -17,12 +17,14 @@
 2. Guarda `data.towers` en `towers`.
 3. `grid.setup(map.logic_map)`.
 4. `spawner.setup(map.get_paths(), data.waves)`.
+5. Guarda en `base` el nodo `SpaceStation` del mapa, conecta `spawner.enemy_reached_end` a `base.take_damage(ENEMY_BASE_DAMAGE)` (10) y `base.destroyed` a `_lose`.
 
 Conexiones hechas en `_ready`:
 
 - `spawner.enemy_died(reward)` llama a `game_state.add_money`.
-- `spawner.enemy_reached_end` llama a `_lose`, que emite `lost`.
 - `build_manager.state = game_state`.
+
+`_lose()` espera a `base.animation_finished` (el final de la explosión) y emite `lost`. Se espera porque el game over pausa el árbol y cortaría la animación.
 
 `Level.on_tower_selected(data)` guarda la torre elegida en `game_state.selected_tower`.
 

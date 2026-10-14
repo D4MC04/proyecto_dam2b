@@ -4,7 +4,7 @@ Describe lo que hace el código hoy. El detalle de cada sistema está en `docs/d
 
 ## Visión general
 
-Tower defense 2D hecho en Godot 4.7 con GDScript. El jugador elige un nivel, compra torres con dinero y las coloca en casillas fijas del mapa. Los enemigos salen según una lista de tiempos y recorren caminos fijos. Matar enemigos da dinero. Si un enemigo llega al final de su camino, se pierde la partida.
+Tower defense 2D hecho en Godot 4.7 con GDScript. El jugador elige un nivel, compra torres con dinero y las coloca en casillas fijas del mapa. Los enemigos salen según una lista de tiempos y recorren caminos fijos. Matar enemigos da dinero. Cada enemigo que llega al final de su camino quita vida a la estación espacial; si la estación llega a 0, se pierde la partida.
 
 - Resolución base: 592x272 px (ventana 1776x816, escalado `canvas_items`, aspecto `keep_width`), filtro de texturas "nearest".
 - Tamaño de casilla: 16x16 px.
