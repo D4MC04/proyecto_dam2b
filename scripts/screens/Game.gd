@@ -18,12 +18,17 @@ func _ready() -> void:
 func _setup_level() -> void:
 	level.setup(level_data)
 	level.lost.connect(_on_level_lost)
+	level.won.connect(_on_level_won)
 	# Posición del nivel en la lista + 1; 0 si no está (no se muestra número)
 	var level_number: int = GameData.levels.find(level_data) + 1
-	ui.setup(level.game_state, level.towers, level_number, level.spawner)
+	var has_next_level: bool = level_number > 0 and level_number < GameData.levels.size()
+	ui.setup(level.game_state, level.towers, level_number, level.spawner, has_next_level)
 
 func _on_level_lost() -> void:
 	ui.set_state(LevelUI.UiState.LOST)
+
+func _on_level_won() -> void:
+	ui.set_state(LevelUI.UiState.WON)
 
 func _on_action_requested(action: LevelUI.Action) -> void:
 	match action:
@@ -31,6 +36,16 @@ func _on_action_requested(action: LevelUI.Action) -> void:
 			_restart_level()
 		LevelUI.Action.QUIT:
 			_quit_to_menu()
+		LevelUI.Action.NEXT_LEVEL:
+			_next_level()
+
+# Monta el siguiente nivel de la lista por el mismo camino que el reinicio.
+func _next_level() -> void:
+	var next_index: int = GameData.levels.find(level_data) + 1
+	if next_index <= 0 or next_index >= GameData.levels.size():
+		return
+	level_data = GameData.levels[next_index]
+	_restart_level()
 
 func _restart_level() -> void:
 	var index := level.get_index()

@@ -5,7 +5,7 @@ signal money_changed(amount: int)
 signal selected_tower_changed(data: TowerData)
 signal inspected_changed(data: Resource)
 
-var money := 1000
+var money := 5000
 var selected_tower: TowerData:
 	set(value):
 		if selected_tower == value:

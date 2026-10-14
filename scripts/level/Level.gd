@@ -2,12 +2,15 @@ extends Node
 class_name Level
 
 signal lost
+signal won
 
 # Centro horizontal del área de juego: barra izquierda de 80 px más la mitad de 480.
 const GAME_AREA_CENTER_X := 320.0
 
 var map: Map
 var towers: Array[TowerData]
+# Un nivel acaba una sola vez: tras emitir lost o won no se emite ninguna de las dos.
+var _finished: bool = false
 
 @onready var grid: Grid = $Grid
 @onready var spawner: Spawner = $Spawner
@@ -18,6 +21,7 @@ func _ready() -> void:
 	build_manager.state = game_state
 	spawner.enemy_died.connect(game_state.add_money)
 	spawner.enemy_reached_end.connect(_lose)
+	spawner.all_waves_cleared.connect(_win)
 
 func setup(data: LevelData) -> void:
 	map = data.map.instantiate()
@@ -35,4 +39,13 @@ func _center_map() -> void:
 	map.position.x += roundf(GAME_AREA_CENTER_X - used_center_x)
 
 func _lose() -> void:
+	if _finished:
+		return
+	_finished = true
 	lost.emit()
+
+func _win() -> void:
+	if _finished:
+		return
+	_finished = true
+	won.emit()

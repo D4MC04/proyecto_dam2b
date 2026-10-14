@@ -9,16 +9,16 @@ Todo cuelga de `scenes/level_ui/LevelUI.tscn`, instanciada dentro de `Game`. Los
 Estructura: `UI/HBoxContainer` (sin separación) con tres columnas, de izquierda a derecha:
 
 - `InfoPanel`: barra izquierda, 80 px, con la ficha (ver más abajo).
-- `GameArea`: zona del mapa, ocupa el resto (480 px con el viewport de 640). Contiene `GameOverScreen` y `PauseMenu`, ocultos al empezar, así que el oscurecido y los menús no tapan las barras. El mapa se centra en esta columna desde `Level` (ver [niveles.md](niveles.md)).
+- `GameArea`: zona del mapa, ocupa el resto (480 px con el viewport de 640). Contiene `GameOverScreen`, `VictoryScreen` y `PauseMenu`, ocultos al empezar, así que el oscurecido y los menús no tapan las barras. El mapa se centra en esta columna desde `Level` (ver [niveles.md](niveles.md)).
 - `Sidebar`: barra derecha, 80 px.
 
-`GameArea` contiene además `LevelIndicator`, declarado antes que `GameOverScreen` y `PauseMenu` para que estos lo tapen.
+`GameArea` contiene además `LevelIndicator`, declarado antes que las pantallas para que estos lo tapen.
 
 Las dos barras usan el mismo estilo, `assets/ui/side_panel_style.tres`: `StyleBoxFlat` opaco con el fondo del tema (`#0a0f1a`), borde de 1 px en cian oscuro `#1c7496` y 4 px de margen interior en cada lado.
 
 Funciones de `LevelUI`:
 
-- `setup(state, towers, level_number, spawner)`: pasa el número de nivel al `LevelIndicator`, prepara la pestaña Oleadas (ver más abajo), conecta `state.money_changed` a `sidebar.set_money`, `state.selected_tower_changed` a `sidebar.show_selected` y `state.inspected_changed` a `info_panel.show_inspected`, crea los botones de torre, muestra el dinero inicial y pide a la ficha que enseñe `state.inspected` (null en un `LevelState` nuevo, así que al empezar o reiniciar vuelve al escáner). Si había un `LevelState` anterior, desconecta las tres.
+- `setup(state, towers, level_number, spawner, has_next_level)`: oculta la opción `NEXT_LEVEL` de `VictoryScreen` si `has_next_level` es false (`LevelUI` no lee `GameData`; se lo dice `Game`), pasa el número de nivel al `LevelIndicator`, prepara la pestaña Oleadas (ver más abajo), conecta `state.money_changed` a `sidebar.set_money`, `state.selected_tower_changed` a `sidebar.show_selected` y `state.inspected_changed` a `info_panel.show_inspected`, crea los botones de torre, muestra el dinero inicial y pide a la ficha que enseñe `state.inspected` (null en un `LevelState` nuevo, así que al empezar o reiniciar vuelve al escáner). Si había un `LevelState` anterior, desconecta las tres.
 - `_on_tower_selected(data)`: recibe `Sidebar.tower_selected` y escribe `selected_tower` en el `LevelState`. Es el único camino de la barra lateral a la selección.
 - `_on_inspect_requested(data)`: recibe `Sidebar.inspect_requested` y escribe `inspected` en el `LevelState`. Es el único camino a lo inspeccionado.
 
@@ -29,14 +29,14 @@ Funciones de `LevelUI`:
 | `PLAYING` | ninguna | no |
 | `PAUSED` | `PauseMenu` | sí |
 | `LOST` | `GameOverScreen` | sí |
-| `WON` | ninguna (aún no hay pantalla de victoria; nadie usa este estado todavía) | sí |
+| `WON` | `VictoryScreen` | sí |
 
 La relación estado → pantalla está solo en el diccionario `_screens_by_state`; una pantalla nueva se añade ahí. `_ready` conecta `option_chosen` de todas las pantallas del diccionario y empieza en `PLAYING`.
 
 - Acción `ui_cancel` (Escape): en `PLAYING` pasa a `PAUSED` y en `PAUSED` vuelve a `PLAYING`. En `LOST` y `WON` no hace nada (ni marca el evento como gestionado).
-- `_on_option_chosen(option)`: `RESUME` pasa a `PLAYING`. `RESTART` y `QUIT` pasan a `PLAYING` (quitan pantalla y pausa) y después emiten `action_requested`.
+- `_on_option_chosen(option)`: `RESUME` pasa a `PLAYING`. `RESTART`, `QUIT` y `NEXT_LEVEL` pasan a `PLAYING` (quitan pantalla y pausa) y después emiten `action_requested`.
 
-Señal: `action_requested(action: Action)`, con el enum `Action { RESTART, QUIT }`. Es la única señal de `LevelUI` hacia `Game`.
+Señal: `action_requested(action: Action)`, con el enum `Action { RESTART, QUIT, NEXT_LEVEL }`. Es la única señal de `LevelUI` hacia `Game`.
 
 ## InfoPanel (ficha)
 
@@ -146,6 +146,10 @@ La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Para dar a 
 
 `scenes/level_ui/GameOver.tscn` (nodo `GameOverScreen`), escena heredada de `OverlayScreen.tscn` y sin script propio. Título "GAME OVER" y opciones "Reiniciar" (`RESTART`) y "Salir" (`QUIT`).
 
+## VictoryScreen
+
+`scenes/level_ui/VictoryScreen.tscn`, escena heredada de `OverlayScreen.tscn` y sin script propio. Título "VICTORIA" y opciones "Siguiente nivel" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción que "Salir": lleva a la selección de nivel). `OverlayScreen.set_option_visible(option, visible)` oculta el botón de una opción; `LevelUI.setup` lo usa para quitar "Siguiente nivel" cuando es el último nivel o el nivel no está en la lista.
+
 ## Comunicación con el resto
 
 | Origen | Señal | Destino |
@@ -160,9 +164,9 @@ La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Para dar a 
 | `Sidebar` | `inspect_requested` | `LevelUI._on_inspect_requested` (escribe `LevelState.inspected`) |
 | `Sidebar` | `next_wave_requested` | `LevelUI._on_next_wave_requested` (`Spawner.start_next_wave`) |
 | `Sidebar` | `auto_waves_toggled` | `LevelUI._on_auto_waves_toggled` (escribe `Spawner.auto_waves`) |
-| `PauseMenu`, `GameOverScreen` | `option_chosen` | `LevelUI._on_option_chosen` (`RESUME` lo resuelve ella) |
-| `LevelUI` | `action_requested` | `Game._on_action_requested` (reiniciar o volver al menú) |
-| `Game` | llamada directa | `LevelUI.set_state(LOST)` en la derrota |
+| `PauseMenu`, `GameOverScreen`, `VictoryScreen` | `option_chosen` | `LevelUI._on_option_chosen` (`RESUME` lo resuelve ella) |
+| `LevelUI` | `action_requested` | `Game._on_action_requested` (reiniciar, volver al menú o pasar al siguiente nivel) |
+| `Game` | llamada directa | `LevelUI.set_state(LOST)` en la derrota y `set_state(WON)` en la victoria |
 
 ## Dudas
 

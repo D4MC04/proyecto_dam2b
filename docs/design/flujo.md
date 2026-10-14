@@ -31,20 +31,24 @@ En `_ready`:
 2. Conecta `ui.action_requested` a `_on_action_requested`. Es la única señal de la UI que escucha.
 3. Llama a `_setup_level()`:
    - `level.setup(level_data)`
-   - conecta `level.lost` a `_on_level_lost`
-   - `ui.setup(level.game_state, level.towers, level_number, level.spawner)`, que conecta la UI con el `LevelState` y el `Spawner` del nivel (ver [ui.md](ui.md)).
+   - conecta `level.lost` a `_on_level_lost` y `level.won` a `_on_level_won`
+   - `ui.setup(level.game_state, level.towers, level_number, level.spawner, has_next_level)` (`has_next_level` es true si el nivel está en `GameData.levels` y no es el último), que conecta la UI con el `LevelState` y el `Spawner` del nivel (ver [ui.md](ui.md)).
 
 ### Acciones de la UI
 
-`_on_action_requested(action)` decide con un `match` sobre `LevelUI.Action`: `RESTART` llama a `_restart_level()` y `QUIT` a `_quit_to_menu()`. Cuando llega la señal, `LevelUI` ya ha pasado a `PLAYING`, así que no hay pantalla ni pausa.
+`_on_action_requested(action)` decide con un `match` sobre `LevelUI.Action`: `RESTART` llama a `_restart_level()`, `QUIT` a `_quit_to_menu()` y `NEXT_LEVEL` a `_next_level()`. Cuando llega la señal, `LevelUI` ya ha pasado a `PLAYING`, así que no hay pantalla ni pausa.
 
 ### Derrota
 
 `Level` emite `lost` y `Game` llama a `ui.set_state(LevelUI.UiState.LOST)`, que muestra el game over y pausa el árbol.
 
+### Victoria
+
+`Level` emite `won` al limpiar la última oleada (y solo si no ha emitido `lost`) y `Game` llama a `ui.set_state(LevelUI.UiState.WON)`, que muestra `VictoryScreen` y pausa el árbol. "Siguiente nivel" ejecuta `_next_level()`: cambia `level_data` al siguiente de `GameData.levels` y llama a `_restart_level()`, así que no se cambia de escena y la cabecera, las oleadas, la tienda, el dinero y la ficha se rehacen para el nivel nuevo. "Menú" usa `QUIT`. No se desbloquea ni se guarda progreso.
+
 ### Reinicio
 
-`_restart_level()` quita y libera el `Level` actual, instancia uno nuevo en la misma posición del árbol y repite `_setup_level()`. El dinero vuelve a su valor inicial porque `LevelState` es hijo del `Level` nuevo. Las conexiones con el `LevelState` y el `Spawner` anteriores las deshace `LevelUI.setup`.
+`_restart_level()` (que también usa el paso al siguiente nivel) quita y libera el `Level` actual, instancia uno nuevo en la misma posición del árbol y repite `_setup_level()`. El dinero vuelve a su valor inicial porque `LevelState` es hijo del `Level` nuevo. Las conexiones con el `LevelState` y el `Spawner` anteriores las deshace `LevelUI.setup`.
 
 ### Salir al menú
 
@@ -58,6 +62,5 @@ Tanto `MainMenu._open_level` como `Game._quit_to_menu` cambian de escena a mano 
 
 - `current_level = 50` deja desbloqueados todos los niveles. No hay código que lo suba al completar un nivel.
 - `GameState.is_completed` no se llama desde ningún sitio.
-- No existe condición de victoria: `Level` solo emite `lost`.
 - El archivo en git es `scenes/level.tscn` (minúscula), pero `Game.tscn` lo referencia como `res://scenes/Level.tscn`. En Windows funciona; en un sistema que distinga mayúsculas la ruta no coincide.
 - `project.godot` tiene `config/name="DAM_Game"`; el título que muestra el menú es "ASTRO ARTILLERY".

@@ -4,11 +4,12 @@ class_name LevelUI
 # Estado de la UI: decide qué pantalla se ve y si el árbol está en pausa.
 enum UiState { PLAYING, PAUSED, LOST, WON }
 # Peticiones que la UI pasa a Game.
-enum Action { RESTART, QUIT }
+enum Action { RESTART, QUIT, NEXT_LEVEL }
 
 signal action_requested(action: Action)
 
 @onready var game_over_screen: OverlayScreen = %GameOverScreen
+@onready var victory_screen: OverlayScreen = %VictoryScreen
 @onready var pause_menu: OverlayScreen = %PauseMenu
 @onready var sidebar: Sidebar = %Sidebar
 @onready var level_indicator: LevelIndicator = %LevelIndicator
@@ -17,6 +18,7 @@ signal action_requested(action: Action)
 @onready var _screens_by_state: Dictionary[UiState, OverlayScreen] = {
 	UiState.PAUSED: pause_menu,
 	UiState.LOST: game_over_screen,
+	UiState.WON: victory_screen,
 }
 
 var _ui_state: UiState = UiState.PLAYING
@@ -32,7 +34,8 @@ func _ready() -> void:
 	sidebar.auto_waves_toggled.connect(_on_auto_waves_toggled)
 	set_state(UiState.PLAYING)
 
-func setup(state: LevelState, towers: Array[TowerData], level_number: int, spawner: Spawner) -> void:
+func setup(state: LevelState, towers: Array[TowerData], level_number: int, spawner: Spawner, has_next_level: bool) -> void:
+	victory_screen.set_option_visible(OverlayScreen.Option.NEXT_LEVEL, has_next_level)
 	level_indicator.set_level_number(level_number)
 	_connect_spawner(spawner)
 	if is_instance_valid(_level_state):
@@ -128,6 +131,8 @@ func _on_option_chosen(option: OverlayScreen.Option) -> void:
 			_request_action(Action.RESTART)
 		OverlayScreen.Option.QUIT:
 			_request_action(Action.QUIT)
+		OverlayScreen.Option.NEXT_LEVEL:
+			_request_action(Action.NEXT_LEVEL)
 
 # Quita la pausa y la pantalla antes de avisar a Game.
 func _request_action(action: Action) -> void:

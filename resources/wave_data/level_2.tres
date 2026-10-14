@@ -13,162 +13,162 @@
 [sub_resource type="Resource" id="e0"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_rojo")
-time = 3.0
+time = 3.00
 
 [sub_resource type="Resource" id="e1"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_rojo")
-time = 7.5
+time = 3.50
 
 [sub_resource type="Resource" id="e2"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_hielo")
-time = 11.97
+time = 4.00
 
 [sub_resource type="Resource" id="e3"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_verde")
-time = 16.4
+time = 4.50
 
 [sub_resource type="Resource" id="e4"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_morado")
-time = 20.79
+time = 7.50
 
 [sub_resource type="Resource" id="e5"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_morado")
-time = 25.16
+time = 8.00
 
 [sub_resource type="Resource" id="e6"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_hielo")
-time = 29.48
+time = 8.50
 
 [sub_resource type="Resource" id="e7"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_hielo")
-time = 33.78
+time = 12.00
 
 [sub_resource type="Resource" id="e8"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_hielo")
-time = 38.04
+time = 12.50
 
 [sub_resource type="Resource" id="e9"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_verde")
-time = 42.26
+time = 13.00
 
 [sub_resource type="Resource" id="e10"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_morado")
-time = 46.45
+time = 13.50
 
 [sub_resource type="Resource" id="e11"]
 script = ExtResource("entry")
 enemy_data = ExtResource("wasp")
-time = 50.61
+time = 14.00
 
 [sub_resource type="Resource" id="e12"]
 script = ExtResource("entry")
 enemy_data = ExtResource("wasp")
-time = 51.61
+time = 16.50
 
 [sub_resource type="Resource" id="e13"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_verde")
-time = 55.73
+time = 17.00
 
 [sub_resource type="Resource" id="e14"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_verde")
-time = 56.73
+time = 17.50
 
 [sub_resource type="Resource" id="e15"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_rojo")
-time = 60.78
+time = 18.00
 
 [sub_resource type="Resource" id="e16"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_rojo")
-time = 61.78
+time = 21.00
 
 [sub_resource type="Resource" id="e17"]
 script = ExtResource("entry")
 enemy_data = ExtResource("wasp")
-time = 65.77
+time = 21.50
 
 [sub_resource type="Resource" id="e18"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_morado")
-time = 66.77
+time = 22.00
 
 [sub_resource type="Resource" id="e19"]
 script = ExtResource("entry")
 enemy_data = ExtResource("wasp")
-time = 70.68
+time = 25.50
 
 [sub_resource type="Resource" id="e20"]
 script = ExtResource("entry")
 enemy_data = ExtResource("ufo")
-time = 71.68
+time = 26.00
 
 [sub_resource type="Resource" id="e21"]
 script = ExtResource("entry")
 enemy_data = ExtResource("nave_normal")
-time = 75.53
+time = 26.50
 
 [sub_resource type="Resource" id="e22"]
 script = ExtResource("entry")
 enemy_data = ExtResource("ufo")
-time = 76.53
+time = 27.00
 
 [sub_resource type="Resource" id="e23"]
 script = ExtResource("entry")
 enemy_data = ExtResource("wasp")
-time = 80.31
+time = 27.50
 
 [sub_resource type="Resource" id="e24"]
 script = ExtResource("entry")
 enemy_data = ExtResource("wasp")
-time = 81.31
+time = 30.00
 
 [sub_resource type="Resource" id="e25"]
 script = ExtResource("entry")
 enemy_data = ExtResource("wasp")
-time = 82.31
+time = 30.50
 
 [sub_resource type="Resource" id="e26"]
 script = ExtResource("entry")
 enemy_data = ExtResource("nave_normal")
-time = 86.02
+time = 31.00
 
 [sub_resource type="Resource" id="e27"]
 script = ExtResource("entry")
 enemy_data = ExtResource("ufo")
-time = 87.02
+time = 31.50
 
 [sub_resource type="Resource" id="e28"]
 script = ExtResource("entry")
 enemy_data = ExtResource("nave_normal")
-time = 88.02
+time = 34.50
 
 [sub_resource type="Resource" id="e29"]
 script = ExtResource("entry")
 enemy_data = ExtResource("nave_normal")
-time = 91.63
+time = 35.00
 
 [sub_resource type="Resource" id="e30"]
 script = ExtResource("entry")
 enemy_data = ExtResource("wasp")
-time = 92.63
+time = 35.50
 
 [sub_resource type="Resource" id="e31"]
 script = ExtResource("entry")
 enemy_data = ExtResource("nave_normal")
-time = 93.63
+time = 36.00
 
 [resource]
 script = ExtResource("wave")

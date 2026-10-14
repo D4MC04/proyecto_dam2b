@@ -4,7 +4,7 @@ Describe lo que hace el código hoy. El detalle de cada sistema está en `docs/d
 
 ## Visión general
 
-Tower defense 2D hecho en Godot 4.7 con GDScript. El jugador elige un nivel, compra torres con dinero y las coloca en casillas fijas del mapa. Los enemigos llegan por oleadas, que el jugador lanza con un botón (o solas en modo AUTO); dentro de cada oleada salen según una lista de tiempos y recorren caminos fijos. Matar enemigos da dinero. Si un enemigo llega al final de su camino, se pierde la partida.
+Tower defense 2D hecho en Godot 4.7 con GDScript. El jugador elige un nivel, compra torres con dinero y las coloca en casillas fijas del mapa. Los enemigos llegan por oleadas, que el jugador lanza con un botón (o solas en modo AUTO); dentro de cada oleada salen según una lista de tiempos y recorren caminos fijos. Matar enemigos da dinero. Si un enemigo llega al final de su camino, se pierde la partida; si se limpia la última oleada, se gana el nivel.
 
 - Resolución base: 640x272 px (ventana 1920x816, escala ×3, escalado `canvas_items`, aspecto `keep_width`), filtro de texturas "nearest".
 - Tamaño de casilla: 16x16 px.
@@ -14,8 +14,8 @@ Tower defense 2D hecho en Godot 4.7 con GDScript. El jugador elige un nivel, com
 ## Flujo de pantallas
 
 1. `MainMenu`: pantalla de título y selección de nivel.
-2. `Game`: contiene un `Level` (mapa, enemigos, torres) y un `LevelUI` en tres columnas: barra izquierda de 80 px, área de juego de 480 px con el mapa centrado (y la pausa y el game over) y barra derecha de 80 px.
-3. Desde pausa o game over se reinicia el nivel o se vuelve a la selección de nivel.
+2. `Game`: contiene un `Level` (mapa, enemigos, torres) y un `LevelUI` en tres columnas: barra izquierda de 80 px, área de juego de 480 px con el mapa centrado (y la pausa, el game over y la victoria) y barra derecha de 80 px.
+3. Desde pausa o game over se reinicia el nivel o se vuelve a la selección de nivel. Al limpiar la última oleada sale la victoria, con "Siguiente nivel" (monta el siguiente nivel sin pasar por el menú; no sale en el último) y "Menú".
 
 ## Sistemas principales
 
@@ -24,7 +24,7 @@ Tower defense 2D hecho en Godot 4.7 con GDScript. El jugador elige un nivel, com
 - [Enemigos](design/enemigos.md): movimiento por el camino, vida, ralentización, recompensa y los 12 tipos definidos.
 - [Torres](design/torres.md): colocación, apuntado, los 5 tipos de ataque y las 7 torres definidas.
 - [Base](design/base.md): la estación espacial que hay en los mapas, con vida y escudo.
-- [UI de nivel](design/ui.md): columnas, ficha de la barra izquierda, barra lateral de compra, menú de pausa y pantalla de game over.
+- [UI de nivel](design/ui.md): columnas, ficha de la barra izquierda, barra lateral de compra, menú de pausa y pantallas de game over y victoria.
 - [Menú principal](design/menu.md): título, selección de nivel, control de música y fondo animado.
 - [Arte](design/art.md): tamaños, paleta, contorno, luz y nombres de los sprites de `assets/`.
 

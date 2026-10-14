@@ -1,0 +1,26 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" uid="uid://cys8covu6ahy6" path="res://scenes/level_ui/OverlayScreen.tscn" id="1_overlay"]
+[ext_resource type="Script" uid="uid://dls3jq2gexy0j" path="res://scripts/level_ui/OverlayOptionButton.gd" id="2_option"]
+
+[node name="VictoryScreen" instance=ExtResource("1_overlay")]
+
+[node name="Title" parent="Box" index="0"]
+text = "VICTORIA"
+
+[node name="NextLevelButton" type="Button" parent="Box/Options" unique_id=718204551]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 24)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Siguiente nivel"
+script = ExtResource("2_option")
+option = 3
+
+[node name="MenuButton" type="Button" parent="Box/Options" unique_id=1204773902]
+custom_minimum_size = Vector2(100, 24)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Menú"
+script = ExtResource("2_option")
+option = 2

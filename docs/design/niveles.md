@@ -23,11 +23,13 @@ Conexiones hechas en `_ready`:
 
 - `spawner.enemy_died(reward)` llama a `game_state.add_money`.
 - `spawner.enemy_reached_end` llama a `_lose`, que emite `lost`.
+- `spawner.all_waves_cleared` llama a `_win`, que emite `won`.
+- Un nivel acaba una sola vez: `_lose` y `_win` comparten la marca `_finished` y, tras la primera de las dos, ninguna vuelve a emitir. Si el último enemigo de la última oleada llega al final, el `Spawner` emite antes `enemy_reached_end` que `all_waves_cleared`, así que gana la derrota y `won` no se emite.
 - `build_manager.state = game_state`.
 
 ## LevelState
 
-- `money` empieza en 1000.
+- `money` empieza en 5000.
 - `add_money(amount)` suma y emite `money_changed(money)`.
 - `spend_money(amount)` devuelve `false` si no alcanza; si alcanza resta, emite `money_changed` y devuelve `true`.
 - `selected_tower: TowerData` es la torre que se colocará al hacer clic y la única fuente de la selección. Su setter emite `selected_tower_changed(data)` solo si el valor cambia. Lo escribe `LevelUI` cuando la barra lateral lo pide y `BuildManager` (a `null`) al cancelar con clic derecho.
@@ -85,7 +87,7 @@ Lleva el ciclo de oleadas del nivel: cuándo se lanzan, qué enemigos quedan viv
 | `wave_started(index, total)` | Al lanzar una oleada |
 | `wave_spawn_finished(index)` | Al crear el último enemigo de la oleada |
 | `wave_cleared(index)` | Cuando, tras lanzar la oleada `index`, el nivel pasa a limpio |
-| `all_waves_cleared` | Cuando se limpia la última oleada. De momento nadie la escucha; la victoria se conectará aquí |
+| `all_waves_cleared` | Cuando se limpia la última oleada. La escucha `Level` (emite `won`) |
 | `auto_waves_changed(enabled)` | Al cambiar `auto_waves` |
 | `enemy_died(reward)`, `enemy_reached_end` | Reenvío de las señales del enemigo, una vez por enemigo |
 
@@ -154,8 +156,6 @@ Funciones:
 
 ## Dudas
 
-- `all_waves_cleared` se emite, pero nadie la escucha: no hay victoria ni final de nivel.
-- Un enemigo que llega al final cuenta como descontado. Si es el último de la última oleada, se emiten a la vez `lost` y `all_waves_cleared`; la victoria tendrá que comprobar que no se ha perdido.
 - `Grid.get_kind` y `Grid.path_cells` no se usan fuera de `Grid`.
 - `tileset.tres` declara una capa de datos `buildable` (bool) que ningún script lee.
 - No hay en el repositorio ningún script que genere los `TileMapLayer` a partir de datos, que es lo que pide `CLAUDE.md`.
