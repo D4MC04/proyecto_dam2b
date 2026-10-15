@@ -2,13 +2,11 @@
 
 [ext_resource type="Script" path="res://scripts/level_ui/LevelIndicator.gd" id="1_script"]
 [ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="2_theme"]
-[ext_resource type="StyleBox" path="res://assets/ui/level_indicator_style.tres" id="3_style"]
 
-[node name="LevelIndicator" type="PanelContainer"]
+[node name="LevelIndicator" type="MarginContainer"]
 modulate = Color(1, 1, 1, 0.7)
 mouse_filter = 2
 theme = ExtResource("2_theme")
-theme_override_styles/panel = ExtResource("3_style")
 script = ExtResource("1_script")
 
 [node name="LevelLabel" type="Label" parent="."]
@@ -16,7 +14,7 @@ unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 32
 text = "NIVEL"
 horizontal_alignment = 1
 vertical_alignment = 1

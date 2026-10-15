@@ -80,7 +80,7 @@ func build_buttons(towers: Array[TowerData]) -> void:
 
 func set_money(amount: int) -> void:
 	_money = amount
-	money_label.text = "%s€" % UiFormat.abbreviate(amount)
+	money_label.text = UiFormat.money(amount)
 	for b in _buttons:
 		b.set_money(amount)
 

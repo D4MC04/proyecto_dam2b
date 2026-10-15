@@ -1,4 +1,4 @@
-extends PanelContainer
+extends MarginContainer
 class_name LevelIndicator
 
 const NORMAL_ALPHA: float = 0.7

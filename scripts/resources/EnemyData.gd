@@ -39,5 +39,5 @@ func get_stats() -> Array[StatEntry]:
 	return [
 		StatEntry.new("health", "Vida", UiFormat.number(hp)),
 		StatEntry.new("speed", "Velocidad", UiFormat.number(speed)),
-		StatEntry.new("reward", "Recompensa", UiFormat.abbreviate(reward) + "€"),
+		StatEntry.new("reward", "Recompensa", UiFormat.money(reward)),
 	]

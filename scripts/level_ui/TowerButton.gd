@@ -13,8 +13,6 @@ const HOVER_BG_COLOR := Color("#16243c")
 const UNAFFORDABLE_COST_COLOR := Color("#ff3c5a")
 const AFFORDABLE_COST_COLOR := Color("#ecb23c")
 const UNAFFORDABLE_ICON_COLOR := Color(1, 1, 1, 0.35)
-# Fuente a 16 px: 6 px por carácter. El botón mide 34 px, así que caben 5.
-const MAX_COST_CHARS_WITH_SYMBOL := 5
 
 @onready var icon_rect: TextureRect = %IconRect
 @onready var cost_label: Label = %CostLabel
@@ -33,10 +31,7 @@ func setup(tower_data: TowerData, money: int) -> void:
 	data = tower_data
 	icon_rect.texture = data.icon
 	tooltip_text = data.name
-	var cost_text := UiFormat.abbreviate(data.cost)
-	if cost_text.length() < MAX_COST_CHARS_WITH_SYMBOL:
-		cost_text += "€"
-	cost_label.text = cost_text
+	cost_label.text = UiFormat.money(data.cost)
 	set_money(money)
 
 func set_money(amount: int) -> void:

@@ -39,7 +39,7 @@ func show_stats(stats: RunStats) -> void:
 	var entries: Array[StatEntry] = [
 		StatEntry.new("wave", "Oleada", "%d/%d" % [stats.wave_reached, stats.wave_total]),
 		StatEntry.new("kills", "Enemigos destruidos", UiFormat.abbreviate(stats.enemies_destroyed)),
-		StatEntry.new("cost", "Dinero gastado", UiFormat.abbreviate(stats.money_spent) + "€"),
+		StatEntry.new("cost", "Dinero gastado", UiFormat.money(stats.money_spent)),
 	]
 	for i in entries.size():
 		rows.add_child(StatRow.create(entries[i], i, ROW_H_MARGIN, ROW_V_MARGIN))
@@ -77,7 +77,7 @@ func _stop_count() -> void:
 # el texto tiene el formato del valor final.
 func _show_counted(progress: float) -> void:
 	_kills_label.text = UiFormat.abbreviate(roundi(_stats.enemies_destroyed * progress))
-	_cost_label.text = UiFormat.abbreviate(roundi(_stats.money_spent * progress)) + "€"
+	_cost_label.text = UiFormat.money(roundi(_stats.money_spent * progress))
 
 func _refresh_style() -> void:
 	var style := StyleBoxFlat.new()

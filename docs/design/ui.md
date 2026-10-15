@@ -85,7 +85,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
 ## LevelIndicator
 
-`scenes/level_ui/LevelIndicator.tscn` + `scripts/level_ui/LevelIndicator.gd` (clase `LevelIndicator`). `PanelContainer` anclado arriba en el centro de `GameArea` (3 px de margen superior) con un `Label` "NIVEL N" a 16 px. Estilo `assets/ui/level_indicator_style.tres`: mismo fondo y borde que las barras, pero con 4 px de margen horizontal y 2 px vertical (unos 14 px de alto). `mouse_filter = IGNORE` en el panel y en el `Label`.
+`scenes/level_ui/LevelIndicator.tscn` + `scripts/level_ui/LevelIndicator.gd` (clase `LevelIndicator`). `MarginContainer` (sin marco ni fondo) anclado arriba en el centro de `GameArea` (3 px de margen superior) con solo el `Label` "NIVEL N" a 32 px (el doble del texto normal), en `#cce6ff` sin contorno. `mouse_filter = IGNORE` en el contenedor y en el `Label`; el área de desvanecido se ajusta sola a su tamaño.
 
 - Número: `Game` lo calcula como la posición de `level_data` en `GameData.levels` más 1 y lo pasa por `LevelUI.setup`. Si el nivel no está en la lista (0), el indicador se oculta.
 - Se ve con opacidad 0,7. Si el cursor o algún nodo del grupo `enemies` está dentro de su rectángulo (con 4 px de margen), baja a 0,15 con un tween de 0,15 s; al salir, vuelve a 0,7. Se comprueba en `_process`, que sigue activo con el juego en pausa.
@@ -95,7 +95,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 `scenes/level_ui/Sidebar.tscn` + `scripts/level_ui/Sidebar.gd` (clase `Sidebar`). Estilo de barra compartido con `InfoPanel`. Dentro del margen de 4 px quedan 120 px de ancho útil. Lo que se estira con los contenedores (cabeceras de dinero y de oleada, títulos de `WaveBlock`) ocupa todo ese ancho; lo de ancho fijo (pestañas, controles de oleada, rejilla de torres y rejillas de enemigos) va centrado en horizontal, con el mismo tamaño que antes.
 
 - **Pestañas:** `TabBar` con dos botones de icono de 16x16 (`TowersTab` y `WavesTab`, 34x24, en un `ButtonGroup`, centrados con 4 px de separación) y una página por pestaña (`TowersPage`, `WavesPage`) de las que solo una es visible. No hay texto: el nombre ("Torres", "Oleadas") sale en el tooltip. Torres está activa al empezar. Los iconos son `assets/ui/tab_towers.png` y `tab_waves.png`. Los estilos de pestaña se crean en `_ready`: la inactiva tiene borde `#1c4a60` e icono atenuado; la activa, fondo `#14304a`, borde `#40e0f0` e icono a plena luz. Ver "Pestaña Oleadas" para `WavesPage`.
-- **`TowersPage`:** `MoneyHeader` (`PanelContainer` con `assets/ui/money_header_style.tres`) con `MoneyLabel` centrado en ámbar `#ecb23c`, formato `"%s€"` con `UiFormat.abbreviate`. Debajo, `TowerScroll` (`ScrollContainer`, scroll vertical sin barra visible, horizontal desactivado) con `TowerCenter` (`CenterContainer` que ocupa el ancho del scroll y centra la rejilla) y dentro `TowerButtons`, un `GridContainer` de 2 columnas con 4 px de separación (2 x 34 + 4 = 72 px de ancho). El dinero no entra en el scroll, así que no se mueve.
+- **`TowersPage`:** `MoneyHeader` (`PanelContainer` con `assets/ui/money_header_style.tres`) con `MoneyLabel` centrado en ámbar `#ecb23c`, formato `UiFormat.money`. Debajo, `TowerScroll` (`ScrollContainer`, scroll vertical sin barra visible, horizontal desactivado) con `TowerCenter` (`CenterContainer` que ocupa el ancho del scroll y centra la rejilla) y dentro `TowerButtons`, un `GridContainer` de 2 columnas con 4 px de separación (2 x 34 + 4 = 72 px de ancho). El dinero no entra en el scroll, así que no se mueve.
 - `build_buttons(towers)`: borra los botones anteriores y crea un `TowerButton` por torre.
 - `set_money(amount)`: actualiza la etiqueta y avisa a cada botón.
 - Señal `tower_selected(data)`: petición de cambio, con la torre al pulsar un botón y con `null` al soltarla. No guarda la selección.
@@ -107,7 +107,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
 `scenes/level_ui/TowerButton.tscn` + `scripts/level_ui/TowerButton.gd` (clase `TowerButton`). `Button` de 34x44 sin `toggle_mode` ni `ButtonGroup`, sin foco: el estado seleccionado es solo visual y lo dicta `Sidebar.show_selected` mediante `set_selected`.
 
-- Contenido: `data.icon` a 32x32 (sin escalar) y debajo el coste, a 16 px. El coste se abrevia con `UiFormat.abbreviate` y lleva `€` solo si el texto resultante tiene menos de 5 caracteres (el botón mide 34 px: caben 5 de 6 px). Tooltip con el nombre de la torre.
+- Contenido: `data.icon` a 32x32 (sin escalar) y debajo el coste, a 16 px. El coste va con `UiFormat.money` (siempre con `€`). Tooltip con el nombre de la torre.
 - Estados (estilos `StyleBoxFlat` de 1 px, sin antialiasing, creados en `_refresh`):
   - Normal: fondo `#0e1626`, borde `#1c7496`.
   - Hover: fondo `#16243c`, borde `#40e0f0`.
@@ -133,7 +133,9 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
 ## UiFormat
 
-`scripts/level_ui/UiFormat.gd` (clase `UiFormat`). `UiFormat.abbreviate(amount: int) -> String`: hasta 9999 tal cual; después `12.3K`, `123K`, `1.2M`, `1.5B`, con 5 caracteres como máximo. Trunca en vez de redondear y quita el decimal si es 0 (`10K`, no `10.0K`). La usan el dinero y los costes.
+`scripts/level_ui/UiFormat.gd` (clase `UiFormat`). `UiFormat.abbreviate(amount: int) -> String`: hasta 999 tal cual; desde 1000 en K (desde un millón M, desde mil millones B) con un decimal sin ".0": `1K`, `1.1K`, `5K`, `12.3K`, `999.9K`, `1M`, `1.2M`, `1B`. Como mucho 6 caracteres. Trunca en vez de redondear (1099 es `1K`, 999999 es `999.9K`).
+
+- `UiFormat.money(amount: int)`: `abbreviate` más `€` (`999€`, `1K€`, `1.1K€`). Todo el dinero de la UI (cabecera, costes, recompensa, dinero gastado) pasa por aquí; nadie añade el `€` a mano.
 
 - `UiFormat.number(value: float)`: para stats. Por debajo de 100 y con decimales, uno como mucho (`2.5`); si no, `abbreviate` del valor redondeado.
 - `UiFormat.seconds(value: float)`: segundos con 2 decimales como mucho, sin ceros sobrantes y en 5 caracteres como máximo (`0.25s`, `1.5s`, `5s`, `123s`).
@@ -199,9 +201,9 @@ La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Una pantall
 |---|---|---|
 | `wave.png` | Oleada | `"X/Y"` (oleada alcanzada / total) |
 | `kills.png` | Enemigos destruidos | `UiFormat.abbreviate` |
-| `cost.png` | Dinero gastado | `UiFormat.abbreviate` + `€` |
+| `cost.png` | Dinero gastado | `UiFormat.money` |
 
-- `count_up(duration, delay = 0.0)`: opcional, después de `show_stats`. Pone enemigos destruidos y dinero gastado a 0 y, tras `delay` segundos, los hace contar hasta su valor en `duration` segundos (tween de tiempo real, curva cuártica que frena al final). Cada paso pasa por `UiFormat.abbreviate`, así que el texto tiene el formato del valor final y las filas (de ancho fijo) no saltan. La oleada no cuenta. `finish_count()` corta el conteo y deja los valores finales; `is_counting()` dice si hay uno en curso. Lo usa la victoria.
+- `count_up(duration, delay = 0.0)`: opcional, después de `show_stats`. Pone enemigos destruidos y dinero gastado a 0 y, tras `delay` segundos, los hace contar hasta su valor en `duration` segundos (tween de tiempo real, curva cuártica que frena al final). Cada paso pasa por `UiFormat.abbreviate` o `UiFormat.money`, así que el texto tiene el formato del valor final y las filas (de ancho fijo) no saltan. La oleada no cuenta. `finish_count()` corta el conteo y deja los valores finales; `is_counting()` dice si hay uno en curso. Lo usa la victoria.
 - `StatRow.get_value_label(row)` da la etiqueta del valor de una fila para cambiar su texto sin rehacerla.
 
 `RunStats` está en [niveles.md](niveles.md).

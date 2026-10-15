@@ -34,7 +34,7 @@ class_name TowerData
 
 ## Filas de la ficha: las comunes a todas las torres y las de su tipo de ataque.
 func get_stats() -> Array[StatEntry]:
-	var stats: Array[StatEntry] = [StatEntry.new("cost", "Coste", UiFormat.abbreviate(cost) + "€")]
+	var stats: Array[StatEntry] = [StatEntry.new("cost", "Coste", UiFormat.money(cost))]
 	var circle := attack_range as CircleShape2D
 	if circle != null:
 		stats.append(StatEntry.new("range", "Alcance", UiFormat.number(circle.radius)))
