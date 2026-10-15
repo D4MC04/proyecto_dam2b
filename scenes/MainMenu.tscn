@@ -127,7 +127,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 48
 text = "ASTRO ARTILLERY"
 horizontal_alignment = 1
 
@@ -169,7 +169,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 32
 text = "SELECCIONA UN NIVEL"
 horizontal_alignment = 1
 

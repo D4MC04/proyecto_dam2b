@@ -39,7 +39,7 @@ static func create(entry: StatEntry, index: int, h_margin: int = 1, v_margin: in
 	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	value.clip_text = true
 	value.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	value.add_theme_font_size_override("font_size", 8)
+	value.add_theme_font_size_override("font_size", 16)
 	value.add_theme_color_override("font_color", VALUE_COLOR)
 	box.add_child(value)
 	return row

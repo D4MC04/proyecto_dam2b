@@ -13,8 +13,8 @@ const HOVER_BG_COLOR := Color("#16243c")
 const UNAFFORDABLE_COST_COLOR := Color("#ff3c5a")
 const AFFORDABLE_COST_COLOR := Color("#ecb23c")
 const UNAFFORDABLE_ICON_COLOR := Color(1, 1, 1, 0.35)
-# Fuente a 8 px: 8 px por carácter. El botón mide 34 px, así que solo caben 4.
-const MAX_COST_CHARS_WITH_SYMBOL := 4
+# Fuente a 16 px: 6 px por carácter. El botón mide 34 px, así que caben 5.
+const MAX_COST_CHARS_WITH_SYMBOL := 5
 
 @onready var icon_rect: TextureRect = %IconRect
 @onready var cost_label: Label = %CostLabel

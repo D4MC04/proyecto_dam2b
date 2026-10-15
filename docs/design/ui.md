@@ -52,7 +52,7 @@ Señal: `action_requested(action: Action)`, con el enum `Action { RESTART, QUIT,
 
 ## InfoPanel (ficha)
 
-`scenes/level_ui/InfoPanel.tscn` + `scripts/level_ui/InfoPanel.gd` (clase `InfoPanel`). `PanelContainer` con el tema `menu_theme.tres` y el estilo de barra; dentro del margen quedan 120x532 px. El nombre sigue partido en líneas de 9 caracteres a 8 px, calculadas para 72 px, que caben de sobra. Es un marco fijo: la barra no aparece, desaparece ni cambia de tamaño; solo cambia lo de dentro.
+`scenes/level_ui/InfoPanel.tscn` + `scripts/level_ui/InfoPanel.gd` (clase `InfoPanel`). `PanelContainer` con el tema `menu_theme.tres` y el estilo de barra; dentro del margen quedan 120x532 px. El nombre va en mayúsculas y partido en líneas de 20 caracteres (Monogram a 16 px, 6 px por carácter, en 120 px útiles). Es un marco fijo: la barra no aparece, desaparece ni cambia de tamaño; solo cambia lo de dentro.
 
 Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
@@ -60,7 +60,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 - `Screen`: el resto de la barra. Contiene las dos vistas, de las que solo una es visible, y `ScanFlash`.
 - **`IdleView` (reposo):** el escáner (`ScannerDisplay`, ver abajo), "SIN OBJETIVO" en ámbar `#ecb23c` y la ayuda "Clic derecho para analizar" en `#7fa6b8`, ambos con salto de línea automático y centrados. Se ve al empezar el nivel y al reiniciar; en cuanto se inspecciona algo no vuelve hasta el siguiente reinicio.
 - **`DetailView`:**
-  - Cabecera fija: `IconPad` (todo el ancho útil, 42 px de alto) con el icono a escala 1 centrado (cabe el Spikey de 34x34), fondo `#060b14` con una rejilla de puntos `#14304a` cada 4 px y esquinas de 4 px en el color de acento (se pinta en el `draw` de `IconPad`); `NameLabel` con el nombre partido por palabras en líneas de 9 caracteres, 2 como mucho (una palabra más larga se corta con guion: "Disinteg-rator"), con alto fijo de 2 líneas para que la cabecera mida siempre lo mismo; y `TypeTag` con la etiqueta del tipo (de ataque en las torres, "ENEMIGO" en los enemigos) en el color de acento sobre el fondo mezclado al 20 % con el acento. El nombre no se pasa a mayúsculas porque PressStart2P dibuja mal las mayúsculas con tilde.
+  - Cabecera fija: `IconPad` (todo el ancho útil, 42 px de alto) con el icono a escala 1 centrado (cabe el Spikey de 34x34), fondo `#060b14` con una rejilla de puntos `#14304a` cada 4 px y esquinas de 4 px en el color de acento (se pinta en el `draw` de `IconPad`); `NameLabel` con el nombre en mayúsculas partido por palabras en líneas de 20 caracteres, 2 como mucho (una palabra más larga se corta con guion: "Disinteg-rator"), con alto fijo de 2 líneas para que la cabecera mida siempre lo mismo; y `TypeTag` con la etiqueta del tipo (de ataque en las torres, "ENEMIGO" en los enemigos) en el color de acento sobre el fondo mezclado al 20 % con el acento. El nombre se pasa a mayúsculas ("CAÑÓN DOBLE", "LÁSER").
   - `StatScroll`: `ScrollContainer` vertical (sin barra visible, como los de la barra derecha) con las filas de stat, una línea `#1c4a60` y la descripción en `#7fa6b8` con salto de línea automático (la línea y la descripción se ocultan si no hay descripción). La cabecera no entra en el scroll. Al cambiar de ficha vuelve arriba.
   - Cada fila la crea `StatRow.create(entry, index)` (ver abajo).
 - `ScanFlash`: `ColorRect` cian al 20 % que tapa `Screen` durante 2 frames cada vez que cambia el contenido.
@@ -69,7 +69,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
 **`InspectableData`** (`scripts/resources/InspectableData.gd`, `Resource`): contrato de lo inspeccionable, que cumplen `TowerData` y `EnemyData` y cualquier cosa futura que se quiera enseñar (torres colocadas, enemigos del mapa). Métodos: `get_inspect_icon()`, `get_inspect_name()`, `get_inspect_tag()` (9 caracteres como máximo), `get_inspect_accent()`, `get_stats()` y `get_inspect_description()`. Los valores por defecto están vacíos. Torres: icono, `name`, tipo de ataque, `accent_color` y `description`. Enemigos: primer frame de `up`, `name`, "ENEMIGO", `EnemyData.ACCENT_COLOR` (rojo de motor `#f0323c`), y `description`.
 
-**`StatEntry`** (`scripts/level_ui/StatEntry.gd`, `RefCounted`): `icon: Texture2D`, `label: String` y `value: String` ya formateado. `StatEntry.new(icon_name, label, value)` carga `assets/ui/stat_icons/<icon_name>.png`. `MAX_VALUE_CHARS = 7` es lo que cabe en el valor. Las filas las dan `TowerData.get_stats()` y los `get_stats()` de cada tipo de ataque (ver [torres.md](torres.md)).
+**`StatEntry`** (`scripts/level_ui/StatEntry.gd`, `RefCounted`): `icon: Texture2D`, `label: String` y `value: String` ya formateado. `StatEntry.new(icon_name, label, value)` carga `assets/ui/stat_icons/<icon_name>.png`. `MAX_VALUE_CHARS = 18` es lo que cabe en el valor (6 px por carácter en los 108 px que quedan al lado del icono). Las filas las dan `TowerData.get_stats()` y los `get_stats()` de cada tipo de ataque (ver [torres.md](torres.md)).
 
 **`StatRow`** (`scripts/level_ui/StatRow.gd`): `StatRow.create(entry, index, h_margin = 1, v_margin = 1)` devuelve la fila de un `StatEntry`: `PanelContainer` con fondo alterno según `index` (`#0e1626` / `#0a0f1a`), el icono de 8x8 a la izquierda y el valor a la derecha en `#befaff`. Su `tooltip_text` es el nombre del stat; `mouse_filter = PASS` para que la rueda siga llegando a un scroll. La usan la ficha (márgenes de 1 px) y `RunSummary`.
 
@@ -85,7 +85,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
 ## LevelIndicator
 
-`scenes/level_ui/LevelIndicator.tscn` + `scripts/level_ui/LevelIndicator.gd` (clase `LevelIndicator`). `PanelContainer` anclado arriba en el centro de `GameArea` (3 px de margen superior) con un `Label` "NIVEL N" a 8 px. Estilo `assets/ui/level_indicator_style.tres`: mismo fondo y borde que las barras, pero con 4 px de margen horizontal y 2 px vertical (unos 14 px de alto). `mouse_filter = IGNORE` en el panel y en el `Label`.
+`scenes/level_ui/LevelIndicator.tscn` + `scripts/level_ui/LevelIndicator.gd` (clase `LevelIndicator`). `PanelContainer` anclado arriba en el centro de `GameArea` (3 px de margen superior) con un `Label` "NIVEL N" a 16 px. Estilo `assets/ui/level_indicator_style.tres`: mismo fondo y borde que las barras, pero con 4 px de margen horizontal y 2 px vertical (unos 14 px de alto). `mouse_filter = IGNORE` en el panel y en el `Label`.
 
 - Número: `Game` lo calcula como la posición de `level_data` en `GameData.levels` más 1 y lo pasa por `LevelUI.setup`. Si el nivel no está en la lista (0), el indicador se oculta.
 - Se ve con opacidad 0,7. Si el cursor o algún nodo del grupo `enemies` está dentro de su rectángulo (con 4 px de margen), baja a 0,15 con un tween de 0,15 s; al salir, vuelve a 0,7. Se comprueba en `_process`, que sigue activo con el juego en pausa.
@@ -107,7 +107,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
 `scenes/level_ui/TowerButton.tscn` + `scripts/level_ui/TowerButton.gd` (clase `TowerButton`). `Button` de 34x44 sin `toggle_mode` ni `ButtonGroup`, sin foco: el estado seleccionado es solo visual y lo dicta `Sidebar.show_selected` mediante `set_selected`.
 
-- Contenido: `data.icon` a 32x32 (sin escalar) y debajo el coste, a 8 px. El coste se abrevia con `UiFormat.abbreviate` y lleva `€` solo si el texto resultante tiene menos de 4 caracteres (el botón solo tiene sitio para 4 de 8 px). Tooltip con el nombre de la torre.
+- Contenido: `data.icon` a 32x32 (sin escalar) y debajo el coste, a 16 px. El coste se abrevia con `UiFormat.abbreviate` y lleva `€` solo si el texto resultante tiene menos de 5 caracteres (el botón mide 34 px: caben 5 de 6 px). Tooltip con el nombre de la torre.
 - Estados (estilos `StyleBoxFlat` de 1 px, sin antialiasing, creados en `_refresh`):
   - Normal: fondo `#0e1626`, borde `#1c7496`.
   - Hover: fondo `#16243c`, borde `#40e0f0`.
@@ -128,7 +128,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 - `Sidebar.build_waves(waves)`: borra los bloques anteriores y crea uno por `WaveData`. `Sidebar.set_current_wave(index, total)`: actualiza cabecera y estados, y tras esperar un frame desplaza la lista para que el título del bloque en curso (o el primero, antes de empezar) quede arriba; también se hace al volver a la pestaña.
 - **`WaveBlock`** (`scenes/level_ui/WaveBlock.tscn` + `scripts/level_ui/WaveBlock.gd`): título `"OLEADA N"` en un panel que ocupa el ancho de la barra y una rejilla `Cells` de 2 columnas (34 px, 4 px de separación) de `EnemyCell`, centrada en horizontal. Agrupa las entradas por `EnemyData`, con el total de cada tipo, en orden de primera aparición (por `time`). No hay datos de enemigos en la UI.
 - **Estados:** `WaveBlock.set_state`. En curso (la última lanzada): título con fondo `#14304a`, borde y texto `#40e0f0`. Pasada: todo el bloque al 40 % de opacidad. Próxima (la siguiente a la última lanzada; antes de empezar, la primera): título con fondo `#0e1626`, borde `#96641e` y texto `#ecb23c`. Futura: título con fondo `#0e1626`, borde `#1c4a60` y texto `#7fa6b8`.
-- **`EnemyCell`** (`scenes/level_ui/EnemyCell.tscn` + `scripts/level_ui/EnemyCell.gd`): `Button` de 34x44 con los colores de `TowerButton`. Sprite = primer frame de `up` a escala 1, centrado en un área de 34x34 (el Spikey, de 34, ocupa todo el ancho de la celda y pisa el borde), y debajo `"×N"` a 8 px (abreviado con `UiFormat`). Tooltip con el nombre. Emite `inspect_requested(data)` con el clic izquierdo y con el derecho (este se recoge en `_gui_input`); `WaveBlock` y `Sidebar` lo reenvían.
+- **`EnemyCell`** (`scenes/level_ui/EnemyCell.tscn` + `scripts/level_ui/EnemyCell.gd`): `Button` de 34x44 con los colores de `TowerButton`. Sprite = primer frame de `up` a escala 1, centrado en un área de 34x34 (el Spikey, de 34, ocupa todo el ancho de la celda y pisa el borde), y debajo `"×N"` a 16 px (abreviado con `UiFormat`). Tooltip con el nombre. Emite `inspect_requested(data)` con el clic izquierdo y con el derecho (este se recoge en `_gui_input`); `WaveBlock` y `Sidebar` lo reenvían.
 - `LevelUI.setup(..., spawner)` llama a `_connect_spawner`: desconecta el `Spawner` anterior si lo había, construye los bloques con `spawner.waves`, refleja la oleada (`get_wave_index()`) y AUTO, y conecta `wave_started`, `wave_cleared` y `auto_waves_changed`. Tras cada cambio de oleada, `_refresh_wave_controls()` pide a la barra que active el botón según `spawner.can_start_next_wave()` y que parpadee si aún no ha empezado ninguna. `next_wave_requested` llama a `spawner.start_next_wave()` y `auto_waves_toggled` escribe `spawner.auto_waves`.
 
 ## UiFormat
@@ -144,7 +144,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
 - `Background`: `ColorRect` que oscurece el área de juego (color `dim_color`, negro por defecto, con opacidad `dim_opacity`).
 - `Center` (`CenterContainer`) → `Frame` (`OverlayFrame`, ver abajo) → `Margin` (20 px a los lados, 16 arriba y abajo) → `Box` (`VBoxContainer`, 10 px de separación):
-  - `Title` (`%Title`, `title_label`): fuente de 24 px en `#cce6ff` con contorno negro de 4 px, centrado. En la base no tiene texto.
+  - `Title` (`%Title`, `title_label`): fuente de 48 px en `#cce6ff` con contorno negro de 4 px, centrado. En la base no tiene texto.
   - `Options` (`%Options`, `options`): `VBoxContainer` con 10 px de separación, vacío en la base.
 
 **`OverlayFrame`** (`scripts/level_ui/OverlayFrame.gd`, `PanelContainer`): fondo `#0a0f1a` al 96 %, borde de 1 px en `accent_color` y esquinas en L (5 px de largo, 2 de grueso) del mismo color pintadas en `_draw`. También lo usa la etiqueta plegada de la pausa.
@@ -169,7 +169,7 @@ La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Una pantall
 `scenes/level_ui/PauseMenu.tscn`, escena heredada de `OverlayScreen.tscn` con el script `scripts/level_ui/PauseScreen.gd` (clase `PauseScreen`). Título "PAUSA" y opciones "Continuar" (`RESUME`), "Opciones" (`SETTINGS`, ver abajo), "Reiniciar" (`RESTART`) y "Salir" (`QUIT`). Aparece al instante, sin animación de entrada.
 
 - **Cursor:** el título es "PAUSA" en cian y a su derecha hay un `Label` "_" (creado en `_add_cursor`, en un `HBoxContainer` con el título) que parpadea cada 0,5 s con la opacidad, así el panel no cambia de tamaño. Se enciende cada vez que se abre la pausa.
-- **Plegado:** `FoldButton` (12x12, icono `assets/ui/fold.png`, tooltip "Plegar", sin foco) en la esquina superior derecha del marco. Al pulsarlo se ocultan `Background` y `Frame` y se enseña `FoldedTag`, un `OverlayFrame` cian con "PAUSA" a 8 px, a 3 px de la esquina superior izquierda del área de juego. Plegada no hay oscurecido y el mapa se ve limpio; el juego sigue en pausa. Clic izquierdo en la etiqueta: se despliega. Escape, plegada o no, quita la pausa (lo gestiona `LevelUI`). Al volver a pausar, `_on_shown` la despliega siempre.
+- **Plegado:** `FoldButton` (12x12, icono `assets/ui/fold.png`, tooltip "Plegar", sin foco) en la esquina superior derecha del marco. Al pulsarlo se ocultan `Background` y `Frame` y se enseña `FoldedTag`, un `OverlayFrame` cian con "PAUSA" a 16 px, a 3 px de la esquina superior izquierda del área de juego. Plegada no hay oscurecido y el mapa se ve limpio; el juego sigue en pausa. Clic izquierdo en la etiqueta: se despliega. Escape, plegada o no, quita la pausa (lo gestiona `LevelUI`). Al volver a pausar, `_on_shown` la despliega siempre.
 - Plegar y desplegar es solo cosa de `PauseScreen`: `LevelUI` sigue en `PAUSED`.
 - **Opciones:** `PauseScreen` escucha su propio `option_chosen` y, con `SETTINGS`, abre la instancia de `scenes/OptionsMenu.tscn` que cuelga de `PauseMenu` (`%OptionsMenu`, ver [menu.md](menu.md)) con `open_from(Center)`: el marco de la pausa se funde a las opciones sobre el mismo oscurecido y "Volver" regresa a él. `LevelUI` ignora `SETTINGS`. El juego sigue en pausa todo el rato; las opciones funcionan porque heredan `process_mode = ALWAYS` de `LevelUI`. Si la pausa se cierra con las opciones abiertas (Escape), `PauseScreen` llama a `close()` para que la siguiente pausa empiece por el marco.
 
@@ -177,7 +177,7 @@ La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Una pantall
 
 `scenes/level_ui/GameOver.tscn` (nodo `GameOverScreen`), escena heredada de `OverlayScreen.tscn` con el script `scripts/level_ui/GameOverScreen.gd` (clase `GameOverScreen`). Es la derrota, con personalidad de "señal perdida" en rojo `#ff3c5a`. Entra tras la cámara lenta (ver "Secuencia de derrota" en `LevelUI`).
 
-- **Aspecto:** título "ESTACION" / "PERDIDA" (dos líneas) en el rojo del acento. Se iba a llamar "SEÑAL PERDIDA", pero PressStart2P encoge la Ñ (cuerpo de 5 px frente a los 7 de la N) para que quepa la tilde. Oscurecido con `dim_color` `#1a0509` (rojo muy oscuro) al 60 %. Entre el título y las opciones va `RunSummary` (`%RunSummary`) con el acento rojo. Opciones "Reintentar" (`RESTART`) y "Menú" (`QUIT`). No conecta botones a mano: lo hace la base.
+- **Aspecto:** título "SEÑAL" / "PERDIDA" (dos líneas) en el rojo del acento. Oscurecido con `dim_color` `#1a0509` (rojo muy oscuro) al 60 %. Entre el título y las opciones va `RunSummary` (`%RunSummary`) con el acento rojo. Opciones "Reintentar" (`RESTART`) y "Menú" (`QUIT`). No conecta botones a mano: lo hace la base.
 - **`GlitchLayer`** (`%GlitchLayer`): `ColorRect` entre `Background` y `Center` que tapa el área de juego, con `mouse_filter = IGNORE` y un `ShaderMaterial` con `resources/shaders/defeat_glitch.gdshader`. El shader lee la pantalla ya dibujada (`hint_screen_texture`, filtro nearest), así que trabaja sobre el mapa oscurecido pero no sobre el panel, que se dibuja después. Todo va sobre la rejilla de píxeles de juego (1 px de juego = 1 px del viewport de 960x540), sin desenfoque:
   - Bandas horizontales de 2, 4, 6 u 8 px; con probabilidad `0,4 × intensity` cada banda se desplaza un número entero de píxeles (hasta 40 × `intensity`) y se tiñe un poco de rojo. Las lecturas se limitan al área de juego, así que no entran trozos de las barras.
   - Estática: un `8 % × intensity` de los píxeles pasa a `#ffaabe`.
@@ -190,7 +190,7 @@ La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Una pantall
 
 ## RunSummary
 
-`scenes/level_ui/RunSummary.tscn` + `scripts/level_ui/RunSummary.gd` (clase `RunSummary`). Resumen de partida reutilizable; no sabe en qué pantalla está. `PanelContainer` de 136 px de ancho (lo mismo que las opciones), fondo `#0a0f1a`, borde de 1 px en el acento mezclado al 50 % y 2 px de margen. Dentro, el rótulo "RESUMEN" a 8 px en el acento y las filas.
+`scenes/level_ui/RunSummary.tscn` + `scripts/level_ui/RunSummary.gd` (clase `RunSummary`). Resumen de partida reutilizable; no sabe en qué pantalla está. `PanelContainer` de 136 px de ancho (lo mismo que las opciones), fondo `#0a0f1a`, borde de 1 px en el acento mezclado al 50 % y 2 px de margen. Dentro, el rótulo "RESUMEN" a 16 px en el acento y las filas.
 
 - `@export var accent_color`: color del rótulo y del borde. La derrota lo pone en rojo y la victoria en ámbar.
 - `show_stats(stats: RunStats)`: sustituye las filas por tres `StatRow` (4 px de margen en horizontal y 2 en vertical) con los valores finales de golpe (así los enseña la derrota). Corta un conteo en curso:
@@ -244,6 +244,5 @@ Opciones "Siguiente nivel" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción qu
 ## Dudas
 
 - La interfaz no muestra la vida de la base.
-- El título de la derrota es "ESTACION PERDIDA" en vez de "SEÑAL PERDIDA" porque la Ñ de PressStart2P sale encogida.
 - Durante los 0,5 s del glitch de entrada los botones de la derrota pueden estar invisibles (marco a opacidad 0) pero siguen recibiendo clics.
 - El scroll de la ficha no tiene barra visible: en las fichas que no caben (Cryo, Disintegrator) la descripción queda cortada abajo sin otra pista de que se puede bajar.

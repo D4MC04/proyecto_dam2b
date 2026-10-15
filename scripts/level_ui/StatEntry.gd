@@ -3,8 +3,8 @@ class_name StatEntry
 ## Una fila de la ficha: icono de 8x8, nombre del stat (sale en el tooltip) y valor ya formateado.
 
 const ICON_DIR := "res://assets/ui/stat_icons/"
-## Caracteres de 8 px que caben en el valor: 72 px de barra menos el icono, el hueco y los márgenes.
-const MAX_VALUE_CHARS := 7
+## Caracteres de 6 px que caben en el valor: 120 px útiles de barra menos el icono, el hueco y los márgenes (108 px).
+const MAX_VALUE_CHARS := 18
 
 var icon: Texture2D
 var label: String

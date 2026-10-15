@@ -3,8 +3,8 @@ class_name InfoPanel
 ## Ficha de la barra izquierda. Enseña lo inspeccionado en LevelState (lo recibe por
 ## show_inspected) y pinta las filas que le dan, sin saber qué stats existen.
 
-# Fuente a 8 px en 72 px de ancho: 9 caracteres por línea.
-const NAME_MAX_CHARS := 9
+# Fuente a 16 px (6 px por carácter) en 120 px útiles de barra: 20 caracteres por línea.
+const NAME_MAX_CHARS := 20
 const NAME_MAX_LINES := 2
 # Frames que dura el parpadeo de escáner al cambiar de contenido.
 const FLASH_FRAMES := 2
@@ -62,8 +62,7 @@ func _show_detail(icon: Texture2D, title: String, tag: String, accent: Color,
 	_accent = accent
 	icon_rect.texture = icon
 	icon_pad.queue_redraw()
-	# Sin pasar a mayúsculas: PressStart2P dibuja mal las mayúsculas con tilde (Ó, Á).
-	name_label.text = _wrap_name(title)
+	name_label.text = _wrap_name(title.to_upper())
 	type_label.text = tag
 	type_label.add_theme_color_override("font_color", accent)
 	type_tag.add_theme_stylebox_override("panel", _make_tag_style(accent))

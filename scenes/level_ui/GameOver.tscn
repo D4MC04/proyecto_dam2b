@@ -27,7 +27,7 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="Title" parent="Center/Frame/Margin/Box" index="0"]
-text = "ESTACION
+text = "SEÑAL
 PERDIDA"
 
 [node name="RunSummary" parent="Center/Frame/Margin/Box" index="1" instance=ExtResource("5_summary")]

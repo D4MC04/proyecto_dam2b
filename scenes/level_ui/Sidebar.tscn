@@ -58,7 +58,7 @@ theme_override_styles/panel = ExtResource("5_money")
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9254902, 0.6980392, 0.2352941, 1)
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 16
 horizontal_alignment = 1
 clip_text = true
 
@@ -95,7 +95,7 @@ theme_override_styles/panel = ExtResource("5_money")
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 16
 horizontal_alignment = 1
 clip_text = true
 

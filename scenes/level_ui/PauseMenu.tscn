@@ -90,7 +90,7 @@ theme_override_constants/margin_bottom = 3
 layout_mode = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 16
 text = "PAUSA"
 
 [node name="OptionsMenu" parent="." instance=ExtResource("6_options")]

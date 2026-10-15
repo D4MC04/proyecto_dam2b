@@ -106,6 +106,10 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 - Enemigos nuevos: `<nombre>_<frame>.png`. Los antiguos (`ufo`, `spiked_ship`): `up.png`, `down.png`, `left.png`, `right.png`.
 - Los `SpriteFrames` que agrupan estos PNG están en `resources/sprite_frames/` con el nombre de la torre o el enemigo.
 
+## Fuente
+
+Monogram (`assets/fonts/Monogram.ttf`) es la única fuente del juego, puesta como `default_font` en `menu_theme.tres`. Su tamaño nativo es 16 px: a 16, 32 y 48 sale nítida y a cualquier otro tamaño sale borrosa, así que solo se usan esos tres (16 el texto normal, 32 los subtítulos, 48 los títulos grandes). A 16 px cada carácter avanza 6 px y la línea mide 13 px. La importación va sin suavizado, sin hinting y sin posición subpíxel para que cada píxel de la fuente caiga en un píxel de pantalla. Tiene tildes, Ñ, €, ×, ◀, ▶, `>` y `_`.
+
 ## Otros estilos presentes
 
 - `assets/tilesets/` (hierba, piedra, plantas, objetos, estructuras, muros): pack de exteriores en verdes oliva y marrones, con miles de colores por hoja y sombras semitransparentes. Lo usan los mapas de hierba (niveles 1, 3 y 4).

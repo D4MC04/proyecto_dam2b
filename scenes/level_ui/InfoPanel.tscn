@@ -25,7 +25,7 @@ theme_override_styles/panel = ExtResource("4_header")
 [node name="TitleLabel" type="Label" parent="Content/TitleHeader"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 16
 text = "FICHA"
 horizontal_alignment = 1
 
@@ -52,7 +52,7 @@ script = ExtResource("5_scanner")
 [node name="IdleTitle" type="Label" parent="Content/Screen/IdleView"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9254902, 0.6980392, 0.23529412, 1)
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 16
 text = "SIN OBJETIVO"
 horizontal_alignment = 1
 autowrap_mode = 2
@@ -60,7 +60,7 @@ autowrap_mode = 2
 [node name="IdleHint" type="Label" parent="Content/Screen/IdleView"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.49803922, 0.6509804, 0.72156864, 1)
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 16
 text = "Clic derecho para analizar"
 horizontal_alignment = 1
 autowrap_mode = 2
@@ -97,7 +97,7 @@ stretch_mode = 3
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9411765, 0.98039216, 1, 1)
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 16
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -109,7 +109,7 @@ mouse_filter = 2
 [node name="TypeLabel" type="Label" parent="Content/Screen/DetailView/TypeTag"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 16
 horizontal_alignment = 1
 
 [node name="StatScroll" type="ScrollContainer" parent="Content/Screen/DetailView"]
@@ -142,7 +142,7 @@ color = Color(0.10980392, 0.2901961, 0.3764706, 1)
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.49803922, 0.6509804, 0.72156864, 1)
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 16
 autowrap_mode = 2
 
 [node name="ScanFlash" type="ColorRect" parent="Content/Screen"]

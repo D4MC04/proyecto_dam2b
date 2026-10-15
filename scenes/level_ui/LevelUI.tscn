@@ -61,7 +61,7 @@ offset_top = 4.0
 theme = ExtResource("4_theme")
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 2
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 16
 
 [node name="GameOverScreen" parent="UI/HBoxContainer/GameArea" unique_id=592437674 instance=ExtResource("1_8klgi")]
 unique_name_in_owner = true

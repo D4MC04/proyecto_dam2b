@@ -12,6 +12,8 @@ Nodos, de fondo a frente:
 - `LevelSelectionScreen` (oculto al empezar): texto "SELECCIONA UN NIVEL", `LevelButtonsContainer` (`GridContainer` de 5 columnas) y botón "Volver".
 - `OptionsMenu` (oculto al empezar): instancia de `scenes/OptionsMenu.tscn` (ver "Opciones").
 
+Textos en Monogram (ver [art.md](art.md)): el título "ASTRO ARTILLERY" a 48 px, "SELECCIONA UN NIVEL" y "OPCIONES" a 32 px y el resto (botones, rótulos, interruptores) a 16 px.
+
 ## Comportamiento
 
 - "Jugar" y "Volver" cambian entre el título y la selección de nivel con un fundido de 0,25 s de salida y otro de entrada.
