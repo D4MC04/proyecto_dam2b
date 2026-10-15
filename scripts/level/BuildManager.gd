@@ -13,6 +13,13 @@ var _range: Node2D
 var _sprite: Sprite2D
 var _last_cell: Vector2i = Vector2i(-9999, -9999)
 var _last_data: TowerData
+# A false cuando el nivel ha acabado: no se coloca nada ni se enseña la vista previa.
+var _building := true
+
+## Deja de colocar torres y oculta la vista previa para el resto de la partida.
+func stop_building() -> void:
+	_building = false
+	_hide_preview()
 
 func _ready() -> void:
 
@@ -30,7 +37,7 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 
-	if state == null:
+	if state == null or not _building:
 		return
 
 	if event is InputEventMouseMotion:

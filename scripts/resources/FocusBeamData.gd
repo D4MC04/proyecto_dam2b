@@ -19,3 +19,19 @@ class_name FocusBeamData
 @export var tint_amount: Array[float]
 # Animación (sin loop) que queda en el sitio cuando el haz mata al enemigo.
 @export var death_frames: SpriteFrames
+
+## Filas de la ficha propias del haz continuo. El daño/s va en una fila ("40/80/160")
+## o, si no cabe, en una por nivel ("N1 40").
+func get_stats() -> Array[StatEntry]:
+	var values := PackedStringArray()
+	for dps in damage_per_second:
+		values.append(UiFormat.number(dps))
+	var stats: Array[StatEntry] = []
+	var joined := "/".join(values)
+	if joined.length() <= StatEntry.MAX_VALUE_CHARS:
+		stats.append(StatEntry.new("dps", "Daño/s por nivel", joined))
+	else:
+		for i in values.size():
+			stats.append(StatEntry.new("dps", "Daño/s (nivel %d)" % (i + 1), "N%d %s" % [i + 1, values[i]]))
+	stats.append(StatEntry.new("level_time", "Tiempo por nivel", UiFormat.seconds(level_time)))
+	return stats

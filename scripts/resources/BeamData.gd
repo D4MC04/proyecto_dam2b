@@ -16,3 +16,10 @@ class_name BeamData
 @export var impact_frames: SpriteFrames
 # Frame de la animación "fire_0" del cañón en el que sale el haz; los anteriores son la carga.
 @export var fire_frame: int = 0
+
+## Filas de la ficha propias del haz.
+func get_stats() -> Array[StatEntry]:
+	return [
+		StatEntry.new("damage", "Daño", UiFormat.number(damage)),
+		StatEntry.new("pierce", "Perfora: todos los enemigos de la línea", "TODOS"),
+	]

@@ -48,6 +48,30 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 - **Escudo de la base**: `#40e0f0`, `#aaf5ff`, `#ebffff`, semitransparente.
 - **Fondo de espacio**: azules y morados muy oscuros (`#0a1226`, `#14102e`, `#1e163e`, `#2a1e50`); estrellas en `#ffecc8`, `#befffa`, `#c8dcff` y blanco.
 - **Interfaz** (`assets/ui/menu_theme.tres`): fondo azul casi negro (`Color(0.04, 0.06, 0.1)`), bordes de 1 px en cian (`#00ffff`), más claro al pasar el ratón y más oscuro al pulsar.
+- **Iconos de interfaz** (`assets/ui/`, 16x16, contorno `#0c0e16`, sombreado plano): `tab_towers.png` (torre con metal gris azulado y núcleo cian) y `tab_waves.png` (tres naves moradas con luz roja de motor), los iconos de las pestañas de la barra derecha; `wave_next.png` (doble flecha ▶▶ con la rampa cian del Cañón doble, mitad superior clara y mitad inferior en sombra) y `wave_auto.png` (rayo con la rampa ámbar `#96641e`, `#ecb23c`, `#ffe082`), los controles de la pestaña Oleadas.
+- **Icono de plegar** (`assets/ui/fold.png`, 8x8, sin contorno, cian `#40e0f0` con la diagonal en `#befaff`): una esquina en L arriba a la izquierda y una diagonal hacia ella; es el botón de plegar de la pausa.
+- **Iconos de stat** (`assets/ui/stat_icons/`, 8x8, contorno `#0c0e16` de 1 px solo en cruz alrededor del relleno, sombreado plano), para las filas de la ficha y del resumen de partida. Cada uno combina una forma y un color propios para distinguirse a 8 px:
+
+| Archivo | Dibujo | Colores |
+|---|---|---|
+| `cost.png` | moneda | ámbar `#96641e`, `#ecb23c`, `#ffe082` |
+| `range.png` | anillo con punto central | cian `#40e0f0`, `#befaff` |
+| `cooldown.png` | reloj con agujas oscuras | metal claro `#8c96aa`, `#d2dceb` |
+| `damage.png` | estallido | rojo `#961432`, `#ff3c5a`, `#ffaabe` |
+| `speed.png` | flecha a la derecha con marca de movimiento | metal claro `#8c96aa`, `#d2dceb` |
+| `slow.png` | copo de nieve | hielo `#54a0e2`, `#a6defa`, `#ecfaff` |
+| `duration.png` | reloj de arena | marco `#96a2b6`, cristal `#a6defa`, arena `#54a0e2` |
+| `targets.png` | tres puntos (enemigos) | rojo `#961432`, `#ff3c5a` |
+| `jump.png` | rayo en zigzag | `#40e0f0`, `#f0faff` |
+| `pierce.png` | haz que atraviesa una placa | placa `#96a2b6`, haz `#40e0f0` y `#aa78ff` |
+| `dps.png` | llama | magenta `#be30a0`, `#ff5ad2`, `#ffafeb` |
+| `level_time.png` | tres barras de nivel crecientes | magenta `#be30a0`, `#ff5ad2`, `#ffafeb` |
+| `health.png` | corazón | verde `#1c7440`, `#3cb860`, `#c4f5d0` |
+| `reward.png` | lingote de oro | ámbar `#96641e`, `#ecb23c`, `#ffe082` |
+| `wave.png` | nave enemiga mirando hacia arriba con la llama del motor (oleada alcanzada, en el resumen de partida) | morado `#221632`, `#462c62`, `#785096`; motor `#f0323c` |
+| `kills.png` | calavera (enemigos destruidos, en el resumen de partida) | metal claro `#8c96aa`, `#d2dceb`; ojos en el contorno |
+
+- **Escáner de la ficha**: no es un PNG; `ScannerDisplay` lo pinta píxel a píxel en código (57x57, sin antialiasing), con los azules de la interfaz: disco `#0e1626`, anillos y cruz `#1c4a60`, anillo exterior `#1c7496`, marcas y ecos `#40e0f0`, barrido `#befaff`, estela `#1c7496` y `#14304a`. Ver [ui.md](ui.md).
 
 ## Contorno
 

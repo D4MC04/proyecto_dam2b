@@ -1,0 +1,36 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" uid="uid://cys8covu6ahy6" path="res://scenes/level_ui/OverlayScreen.tscn" id="1_overlay"]
+[ext_resource type="Script" uid="uid://dls3jq2gexy0j" path="res://scripts/level_ui/OverlayOptionButton.gd" id="2_option"]
+[ext_resource type="Script" path="res://scripts/level_ui/VictoryScreen.gd" id="3_script"]
+[ext_resource type="PackedScene" path="res://scenes/level_ui/RunSummary.tscn" id="4_summary"]
+
+[node name="VictoryScreen" instance=ExtResource("1_overlay")]
+script = ExtResource("3_script")
+accent_color = Color(0.9254902, 0.69803923, 0.23529412, 1)
+dim_opacity = 0.45
+
+[node name="Title" parent="Center/Frame/Margin/Box" index="0"]
+text = "SECTOR
+ASEGURADO"
+
+[node name="RunSummary" parent="Center/Frame/Margin/Box" index="1" instance=ExtResource("4_summary")]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="NextLevelButton" type="Button" parent="Center/Frame/Margin/Box/Options" unique_id=718204551]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(136, 24)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Siguiente nivel"
+script = ExtResource("2_option")
+option = 3
+
+[node name="MenuButton" type="Button" parent="Center/Frame/Margin/Box/Options" unique_id=1204773902]
+custom_minimum_size = Vector2(136, 24)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Menú"
+script = ExtResource("2_option")
+option = 2

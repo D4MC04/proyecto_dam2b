@@ -14,3 +14,11 @@ class_name ChainData
 @export var impact_frames: SpriteFrames
 # Frame de la animación "fire_0" del cañón en el que sale el rayo.
 @export var fire_frame: int = 0
+
+## Filas de la ficha propias de la cadena.
+func get_stats() -> Array[StatEntry]:
+	return [
+		StatEntry.new("damage", "Daño", UiFormat.number(damage)),
+		StatEntry.new("targets", "Objetivos", UiFormat.abbreviate(max_targets)),
+		StatEntry.new("jump", "Salto", UiFormat.number(jump_range)),
+	]

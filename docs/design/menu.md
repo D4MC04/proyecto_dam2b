@@ -32,7 +32,7 @@ Todos son `Node2D` que dibujan o crean sprites por código, con posiciones y tie
 | `Comets` | `scripts/main_menu/Comets.gd` | Cada 1,5 a 4 s cruza un cometa en diagonal suave por la franja superior o inferior, a 220 px/s, con estela |
 | `Asteroids` | `scripts/main_menu/Asteroids.gd` | Hasta 2 asteroides a la vez cruzan de un borde al opuesto a 60 px/s, con estela; aparece uno cada 3 a 7 s |
 | `Satellites` | `scripts/main_menu/Satellites.gd` | Un satélite cada vez, a 20-30 px/s y girando despacio; el siguiente sale entre 8 y 15 s después de irse el anterior |
-| `Planets` | instancias de `scenes/SpaceBody.tscn` | 6 planetas animados fijos y un asteroide oculto |
+| `Planets` | instancias de `scenes/SpaceBody.tscn` | 6 planetas animados fijos, repartidos a lo ancho de los 640 px, y un asteroide oculto |
 
 `scripts/main_menu/SpaceBody.gd` es un `AnimatedSprite2D` con `@tool` que construye su `SpriteFrames` a partir de `sheet`, una tira horizontal de frames cuadrados (lado = alto de la imagen), a la velocidad `fps`. Lo usan los planetas del menú y los asteroides.
 

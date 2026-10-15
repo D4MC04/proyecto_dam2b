@@ -10,6 +10,7 @@ name = "Nodriza"
 hp = 400.0
 speed = 40
 reward = 150
+description = "Gran nave nodriza. Aguanta muchísimo y paga bien."
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 rotate_sprite = true

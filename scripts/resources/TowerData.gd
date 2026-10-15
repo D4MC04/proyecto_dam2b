@@ -1,10 +1,12 @@
-extends Resource
+extends InspectableData
 class_name TowerData
 
 @export var name: String
 @export var cost: int
 @export var attack_cooldown: float
 @export var icon: Texture2D
+# Tono medio del acento de la torre (ver docs/design/art.md); la UI lo usa para marcarla como seleccionada.
+@export var accent_color: Color = Color.WHITE
 @export var sprite_frames: SpriteFrames
 @export var attack_range: Shape2D
 @export var bullet_data: BulletData
@@ -27,3 +29,60 @@ class_name TowerData
 # Opcional: el cañón gira y apunta como siempre, pero en vez de balas mantiene un haz continuo
 # sobre el objetivo que sube de nivel con el tiempo. No usa attack_cooldown.
 @export var focus_beam: FocusBeamData
+# Opcional: frase corta que se enseña al final de la ficha.
+@export_multiline var description: String
+
+## Filas de la ficha: las comunes a todas las torres y las de su tipo de ataque.
+func get_stats() -> Array[StatEntry]:
+	var stats: Array[StatEntry] = [StatEntry.new("cost", "Coste", UiFormat.abbreviate(cost) + "€")]
+	var circle := attack_range as CircleShape2D
+	if circle != null:
+		stats.append(StatEntry.new("range", "Alcance", UiFormat.number(circle.radius)))
+	# El haz continuo no usa el cooldown.
+	if focus_beam == null:
+		stats.append(StatEntry.new("cooldown", "Cadencia", UiFormat.seconds(attack_cooldown)))
+	var attack := get_attack()
+	if attack != null:
+		stats.append_array(attack.get_stats())
+	return stats
+
+## Datos del ataque de la torre (BulletData, PulseData, ChainData, BeamData o FocusBeamData), o null.
+func get_attack() -> Resource:
+	if focus_beam != null:
+		return focus_beam
+	if beam != null:
+		return beam
+	if chain != null:
+		return chain
+	if pulse != null:
+		return pulse
+	return bullet_data
+
+## Etiqueta corta del tipo de ataque para la ficha (9 caracteres como máximo).
+func get_attack_label() -> String:
+	if focus_beam != null:
+		return "HAZ CONT."
+	if beam != null:
+		return "HAZ"
+	if chain != null:
+		return "CADENA"
+	if pulse != null:
+		return "ONDA"
+	if bullet_data != null:
+		return "BALA"
+	return ""
+
+func get_inspect_icon() -> Texture2D:
+	return icon
+
+func get_inspect_name() -> String:
+	return name
+
+func get_inspect_tag() -> String:
+	return get_attack_label()
+
+func get_inspect_accent() -> Color:
+	return accent_color
+
+func get_inspect_description() -> String:
+	return description

@@ -14,3 +14,10 @@ class_name BulletData
 @export var trail_frames: SpriteFrames
 # Animación (sin loop) que se deja en el punto de impacto.
 @export var impact_frames: SpriteFrames
+
+## Filas de la ficha propias de la bala.
+func get_stats() -> Array[StatEntry]:
+	return [
+		StatEntry.new("damage", "Daño", UiFormat.number(damage)),
+		StatEntry.new("speed", "Velocidad del proyectil", UiFormat.number(speed)),
+	]
