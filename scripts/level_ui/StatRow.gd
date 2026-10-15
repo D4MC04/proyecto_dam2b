@@ -1,17 +1,21 @@
 class_name StatRow
-## Fila de un stat con el estilo de la ficha: icono de 8x8 a la izquierda, valor a la derecha,
-## fondo alterno según su posición y el nombre del stat en el tooltip. La usan InfoPanel y RunSummary.
+## Fila de un stat con el estilo de la ficha: icono de 8x8 y nombre a la izquierda, valor a la
+## derecha y fondo alterno según su posición. La usan InfoPanel y RunSummary.
 
-const VALUE_COLOR := Color("#befaff")
-const BG_COLOR := Color("#0e1626")
-const ALT_BG_COLOR := Color("#0a0f1a")
+const LABEL_COLOR := Color("#5a7a96")
+const VALUE_COLOR := Color("#cce6ff")
+const BG_COLOR := Color("#0b2132")
+const ALT_BG_COLOR := Color("#091d2c")
+# Hueco entre icono, nombre y valor.
+const SEPARATION := 2
+# Distancia del borde de arriba de la línea de texto (13 px) al icono de 8x8.
+const ICON_TOP := 3
 
 ## `index` decide el fondo alterno. Los márgenes son el hueco entre el borde de la fila y su contenido.
 static func create(entry: StatEntry, index: int, h_margin: int = 1, v_margin: int = 1) -> PanelContainer:
 	var row := PanelContainer.new()
-	row.tooltip_text = entry.label
-	# PASS: enseña el tooltip pero deja pasar la rueda a un ScrollContainer de encima.
-	row.mouse_filter = Control.MOUSE_FILTER_PASS
+	# IGNORE: la fila no recoge el ratón, así que la rueda llega directa al ScrollContainer de encima.
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var style := StyleBoxFlat.new()
 	style.bg_color = BG_COLOR if index % 2 == 0 else ALT_BG_COLOR
 	style.anti_aliasing = false
@@ -23,27 +27,40 @@ static func create(entry: StatEntry, index: int, h_margin: int = 1, v_margin: in
 
 	var box := HBoxContainer.new()
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_theme_constant_override("separation", 2)
+	box.add_theme_constant_override("separation", SEPARATION)
 	row.add_child(box)
 
+	# El icono va bajado ICON_TOP px dentro de la línea de texto para que su centro caiga
+	# a la altura del centro de las mayúsculas de Monogram.
+	var icon_margin := MarginContainer.new()
+	icon_margin.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	icon_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	icon_margin.add_theme_constant_override("margin_top", ICON_TOP)
+	box.add_child(icon_margin)
 	var icon := TextureRect.new()
 	icon.texture = entry.icon
 	icon.custom_minimum_size = Vector2(8, 8)
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_child(icon)
+	icon_margin.add_child(icon)
 
-	var value := Label.new()
-	value.text = entry.value
+	box.add_child(_make_label(entry.label, LABEL_COLOR))
+
+	var value := _make_label(entry.value, VALUE_COLOR)
 	value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	value.clip_text = true
-	value.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	value.add_theme_font_size_override("font_size", 8)
-	value.add_theme_color_override("font_color", VALUE_COLOR)
 	box.add_child(value)
 	return row
 
 ## Etiqueta del valor de una fila hecha con create(), para cambiar su texto sin rehacerla.
 static func get_value_label(row: PanelContainer) -> Label:
-	return row.get_child(0).get_child(1) as Label
+	return row.get_child(0).get_child(2) as Label
+
+static func _make_label(text: String, color: Color) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.add_theme_font_size_override("font_size", 16)
+	label.add_theme_color_override("font_color", color)
+	return label

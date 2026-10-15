@@ -7,9 +7,12 @@
 [ext_resource type="Script" path="res://scripts/level_ui/OverlayFrame.gd" id="5_frame"]
 [ext_resource type="PackedScene" path="res://scenes/OptionsMenu.tscn" id="6_options"]
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_fold"]
+
 [node name="PauseMenu" instance=ExtResource("1_overlay")]
 script = ExtResource("3_pause")
 dim_opacity = 0.35
+footer_text = "SISTEMA EN ESPERA"
 
 [node name="Title" parent="Center/Frame/Margin/Box" index="0"]
 text = "PAUSA"
@@ -56,13 +59,21 @@ layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -14.0
-offset_top = 2.0
-offset_right = -2.0
-offset_bottom = 14.0
+offset_left = -16.0
+offset_top = 8.0
+offset_right = -4.0
+offset_bottom = 20.0
 grow_horizontal = 0
-tooltip_text = "Plegar"
 focus_mode = 0
+theme_override_colors/icon_normal_color = Color(1, 1, 1, 0.6)
+theme_override_colors/icon_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/icon_hover_pressed_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxEmpty_fold")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_fold")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_fold")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_fold")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_fold")
 icon = ExtResource("4_fold")
 icon_alignment = 1
 expand_icon = false
@@ -73,24 +84,26 @@ visible = false
 layout_mode = 0
 offset_left = 3.0
 offset_top = 3.0
-offset_right = 51.0
-offset_bottom = 17.0
+offset_right = 47.0
+offset_bottom = 26.0
 mouse_default_cursor_shape = 2
 script = ExtResource("5_frame")
+corner_clip = 3
+decorated = false
 
 [node name="Margin" type="MarginContainer" parent="FoldedTag"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 3
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 3
+theme_override_constants/margin_left = 3
+theme_override_constants/margin_top = 1
+theme_override_constants/margin_right = 3
+theme_override_constants/margin_bottom = 1
 
 [node name="Label" type="Label" parent="FoldedTag/Margin"]
 layout_mode = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 16
 text = "PAUSA"
 
 [node name="OptionsMenu" parent="." instance=ExtResource("6_options")]

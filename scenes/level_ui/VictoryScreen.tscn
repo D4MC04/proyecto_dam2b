@@ -8,7 +8,9 @@
 [node name="VictoryScreen" instance=ExtResource("1_overlay")]
 script = ExtResource("3_script")
 accent_color = Color(0.9254902, 0.69803923, 0.23529412, 1)
+accent_light_color = Color(1, 0.8784314, 0.50980395, 1)
 dim_opacity = 0.45
+footer_text = "MISIÓN CUMPLIDA"
 
 [node name="Title" parent="Center/Frame/Margin/Box" index="0"]
 text = "SECTOR

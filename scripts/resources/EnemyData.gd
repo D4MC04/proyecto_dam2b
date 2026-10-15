@@ -37,7 +37,7 @@ func get_inspect_description() -> String:
 ## Filas de la ficha: vida, velocidad (px/s) y recompensa.
 func get_stats() -> Array[StatEntry]:
 	return [
-		StatEntry.new("health", "Vida", UiFormat.number(hp)),
-		StatEntry.new("speed", "Velocidad", UiFormat.number(speed)),
-		StatEntry.new("reward", "Recompensa", UiFormat.abbreviate(reward) + "€"),
+		StatEntry.new("health", "VIDA", UiFormat.number(hp)),
+		StatEntry.new("speed", "VELOCIDAD", UiFormat.number(speed)),
+		StatEntry.new("reward", "BOTÍN", UiFormat.money(reward)),
 	]

@@ -35,7 +35,7 @@ theme_override_constants/separation = 0
 
 [node name="InfoPanel" parent="UI/HBoxContainer" instance=ExtResource("4_info")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(80, 0)
+custom_minimum_size = Vector2(128, 0)
 layout_mode = 2
 
 [node name="GameArea" type="Control" parent="UI/HBoxContainer" unique_id=359146378]
@@ -61,7 +61,7 @@ offset_top = 4.0
 theme = ExtResource("4_theme")
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 2
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 16
 
 [node name="GameOverScreen" parent="UI/HBoxContainer/GameArea" unique_id=592437674 instance=ExtResource("1_8klgi")]
 unique_name_in_owner = true
@@ -80,5 +80,5 @@ layout_mode = 1
 
 [node name="Sidebar" parent="UI/HBoxContainer" unique_id=1395524302 instance=ExtResource("3_ln102")]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(80, 0)
+custom_minimum_size = Vector2(128, 0)
 layout_mode = 2

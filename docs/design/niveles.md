@@ -14,7 +14,7 @@
 `Level.setup(data: LevelData)`:
 
 1. Instancia `data.map`, lo llama `Map` y lo pone como primer hijo.
-2. `_center_map()`: centra el mapa en horizontal en el área de juego (ver "Centrado del mapa").
+2. `_center_map()`: centra el mapa en el área de juego, en horizontal y en vertical (ver "Centrado del mapa").
 3. Guarda `data.towers` en `towers`.
 4. `grid.setup(map.logic_map)`.
 5. `spawner.setup(map.get_paths(), data.waves)`.
@@ -50,16 +50,16 @@ Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de l
 
 Niveles registrados en `GameData.levels`:
 
-| Nivel | Mapa | Torres disponibles | Enemigos en la oleada | Último enemigo (s) | Caminos usados / en el mapa |
+| Nivel | Mapa | Torres disponibles | Enemigos por oleada (1 + 2 + 3) | Último enemigo de cada una (s) | Caminos usados / en el mapa |
 |---|---|---|---|---|---|
-| 1 | `maps/Level1.tscn` | Cañón doble, Cañón pesado, Láser | 25 | 62,6 | 1 / 1 |
-| 2 | `maps/espacio/Level2_espacio.tscn` | las anteriores + Cryo | 32 | 93,63 | 1 / 2 |
-| 3 | `maps/Level3.tscn` | las anteriores + Tesla | 40 | 105,07 | 1 / 1 |
-| 4 | `maps/Level4.tscn` | las anteriores + Rail | 50 | 125,7 | 2 / 2 |
-| 5 | `maps/espacio/Level5_espacio.tscn` | las anteriores + Disintegrator | 60 | 132,83 | 1 / 4 |
-| 6 | `maps/espacio/Level6_espacio.tscn` | las 7 | 75 | 210,96 | 4 / 8 |
+| 1 | `maps/Level1.tscn` | Cañón doble, Cañón pesado, Láser | 7 + 12 + 6 | 8,5 / 12 / 7,5 | 1 / 1 |
+| 2 | `maps/espacio/Level2_espacio.tscn` | las anteriores + Cryo | 7 + 12 + 13 | 8,5 / 12 / 12,5 | 1 / 2 |
+| 3 | `maps/Level3.tscn` | las anteriores + Tesla | 16 + 12 + 12 | 18 / 12,5 / 12,5 | 1 / 1 |
+| 4 | `maps/Level4.tscn` | las anteriores + Rail | 19 + 12 + 19 | 22 / 12 / 21 | 2 / 2 |
+| 5 | `maps/espacio/Level5_espacio.tscn` | las anteriores + Disintegrator | 19 + 24 + 17 | 22 / 25,5 / 17,5 | 1 / 4 |
+| 6 | `maps/espacio/Level6_espacio.tscn` | las 7 | 28 + 24 + 23 | 31,5 / 26 / 25,5 | 4 / 8 |
 
-Cada nivel tiene una sola `WaveData` (`resources/wave_data/level_N.tres`). Los niveles 1, 2, 3, 4 y 6 están en `resources/level_data/level_N.tres`; el 5 está definido como subrecurso dentro de `scenes/GameData.tscn`.
+Cada nivel tiene tres `WaveData` (`resources/wave_data/level_N.tres`, `level_N_2.tres` y `level_N_3.tres`): son la oleada original del nivel partida en tres tramos consecutivos, con los tiempos de cada una desde 3 s (la primera) o 2 s (las otras). Los niveles 1, 2, 3, 4 y 6 están en `resources/level_data/level_N.tres`; el 5 está definido como subrecurso dentro de `scenes/GameData.tscn`.
 
 ## Spawner
 
@@ -120,7 +120,7 @@ Base: `scenes/maps/Map.tscn` + `scripts/level/Map.gd` (clase `Map`). Nodos:
 
 ### Centrado del mapa
 
-El área de juego va de x = 80 a x = 560 (ver [ui.md](ui.md)), con centro en `Level.GAME_AREA_CENTER_X` = 320. `Level._center_map()` suma a `map.position.x` la distancia, redondeada a píxeles enteros, entre ese centro y el centro del rectángulo útil (contando la posición propia de `Map`). En vertical no se mueve. Ningún `.tscn` de mapa lleva posiciones de centrado: un mapa nuevo se centra solo, y al reiniciar el nivel se vuelve a centrar.
+El área de juego va de x = 128 a x = 832 y de y = 0 a y = 540 (ver [ui.md](ui.md)), con centro en `Level.GAME_AREA_CENTER` = (480, 270). `Level._center_map()` suma a `map.position` la distancia, redondeada a píxeles enteros en los dos ejes, entre ese centro y el centro del rectángulo útil (contando la posición propia de `Map`). Ningún `.tscn` de mapa lleva posiciones de centrado: un mapa nuevo se centra solo, y al reiniciar el nivel se vuelve a centrar.
 
 `Grid`, `BuildManager` y los enemigos no necesitan saberlo: `Grid` convierte con `to_local`/`to_global` de `LogicMap`, las torres y la vista previa se colocan con `grid.center` y los enemigos son hijos de los `Path2D` del mapa.
 
@@ -135,10 +135,10 @@ Resultado con los mapas actuales (px de pantalla):
 | 5 | (88, 0) | 136..504 | 72..600 |
 | 6 | (88, 0) | 136..504 | 72..600 |
 
-Hay dos familias de mapas:
+Todos los mapas (y la plantilla `Map.tscn`) llevan `Background`, instancia de `SpaceBackground.tscn`, como primer hijo de `Map`. Hay dos familias de mapas:
 
 - **Hierba** (`scenes/maps/Level1.tscn` a `Level10.tscn` y `scenes/maps/redesign/`): `VisualMap` usa `resources/tilesets/tileset.tres` (hierba, piedra, plantas, objetos, estructuras, muros). `LogicMap` es visible con alfa 0,39.
-- **Espacio** (`scenes/maps/espacio/`): añaden `Fondo` (instancia de `FondoEspacio.tscn`) y las capas `Polvo`, `Planetas` y `Pista`, todas con `resources/tilesets/tileset_espacio.tres`. `LogicMap` tiene `visible = false`. El nodo `Map` está en la posición (8, 0).
+- **Espacio** (`scenes/maps/espacio/`): añaden las capas `Polvo`, `Planetas` y `Pista`, todas con `resources/tilesets/tileset_espacio.tres`. `LogicMap` tiene `visible = false`. El nodo `Map` está en la posición (8, 0).
 
 ### Decoración de los mapas de espacio
 
@@ -157,11 +157,18 @@ godot --headless --path . -s scripts/tools/space_decoration.gd
 
 **La fuente de verdad es el `.tscn`**, que se puede retocar a mano en el editor. Los `.txt` no se actualizan con esos retoques: volver a ejecutar el script sobrescribe la `VisualMap` de los dos niveles con lo que digan los `.txt` y se pierde lo cambiado en el editor. El script solo sustituye el `tile_map_data` de las capas que aparecen en cada `.txt`; no toca el resto de la escena.
 
-### FondoEspacio
+### SpaceBackground
 
-`scenes/maps/espacio/FondoEspacio.tscn`: `Nebulosa` (`Parallax2D` con desplazamiento automático de -3 px/s), `PlanetaGigante`, `Estrellas` (`Parallax2D` a -6 px/s con un `AnimatedSprite2D` de 8 frames) y `Cometa`.
+`scenes/maps/SpaceBackground.tscn` es el fondo común de todos los mapas y cubre los 704x540 px del área de juego. Tiene:
 
-`scripts/level/Cometa.gd`: sprite que espera entre 6 y 15 s, aparece a la izquierda a una altura al azar, cruza con velocidad (150, 22) px/s y vuelve a esperar. Su temporizador se detiene con la pausa.
+- `Nebula`: `Parallax2D` con desplazamiento automático de -3 px/s y la textura `fondo_nebulosa_tall.png` (640x544, repetida solo en horizontal).
+- `GiantPlanet`: planeta de 224x224 abajo a la derecha, cortado por el borde inferior.
+- `Stars`: `Parallax2D` a -6 px/s, repetida en los dos ejes (640x272), con un `AnimatedSprite2D` (`Twinkle`) de 8 frames.
+- `Comet`: `scripts/level/Comet.gd`, sprite que espera entre 6 y 15 s, aparece a la izquierda a una altura al azar de la mitad de arriba (hasta 270 px), cruza los 704 px con velocidad (150, 22) px/s y vuelve a esperar. Su temporizador se detiene con la pausa.
+
+Lo que sobresale del área queda tapado por las barras, que son opacas.
+
+`Background` no cuenta en `Map.get_used_rect()`, así que no afecta al centrado. Como vive dentro de `Map`, `Level._center_map()` llama a `Map.place_background(GAME_AREA_RECT)` después de mover el mapa: coloca `Background` en coordenadas globales en el origen del área de juego, (128, 0). Un mapa sin `Background` no hace nada.
 
 ## Grid
 
@@ -187,5 +194,5 @@ Funciones:
 - `Level7.tscn` a `Level10.tscn`, `Level2.tscn`, `Level5.tscn`, `Level6.tscn` y la carpeta `redesign/` no están en ningún `LevelData`. Los mapas 7 a 10 usan un `Sprite2D` como estación en vez de `Base.tscn`, y `Level6.tscn` tiene las dos cosas.
 - `resources/level_data/level_5.tres` existe y tiene el mismo contenido que el subrecurso de `GameData.tscn`, pero `GameData` no lo usa.
 - En los niveles 2, 5 y 6 el mapa tiene más caminos de los que usa la oleada.
-- Mapas de hierba que no cubren de lado a lado el área de juego (80..560) y dejan fondo negro: nivel 1, 40 px a la derecha (`VisualMap` acaba en 520); nivel 3, 8 px a la izquierda; nivel 4, 8 px a cada lado. Los de espacio tienen `FondoEspacio` detrás y no dejan huecos.
+- Los mapas (como mucho unos 480x272) no llenan el área de juego de 704x540: alrededor se ve el fondo de espacio, y los enemigos aparecen y desaparecen en el borde del mapa.
 - Hay archivos temporales del editor en `scenes/` (`Level.tscn*.tmp`, `MainMenu.tscn*.tmp`).

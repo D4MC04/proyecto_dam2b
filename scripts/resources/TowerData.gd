@@ -34,13 +34,13 @@ class_name TowerData
 
 ## Filas de la ficha: las comunes a todas las torres y las de su tipo de ataque.
 func get_stats() -> Array[StatEntry]:
-	var stats: Array[StatEntry] = [StatEntry.new("cost", "Coste", UiFormat.abbreviate(cost) + "€")]
+	var stats: Array[StatEntry] = [StatEntry.new("cost", "COSTE", UiFormat.money(cost))]
 	var circle := attack_range as CircleShape2D
 	if circle != null:
-		stats.append(StatEntry.new("range", "Alcance", UiFormat.number(circle.radius)))
+		stats.append(StatEntry.new("range", "ALCANCE", UiFormat.number(circle.radius)))
 	# El haz continuo no usa el cooldown.
 	if focus_beam == null:
-		stats.append(StatEntry.new("cooldown", "Cadencia", UiFormat.seconds(attack_cooldown)))
+		stats.append(StatEntry.new("cooldown", "CADENCIA", UiFormat.seconds(attack_cooldown)))
 	var attack := get_attack()
 	if attack != null:
 		stats.append_array(attack.get_stats())

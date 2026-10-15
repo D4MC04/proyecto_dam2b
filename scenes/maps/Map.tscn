@@ -4,9 +4,12 @@
 [ext_resource type="TileSet" uid="uid://du11y2104lqxj" path="res://resources/tilesets/tileset.tres" id="2_w7c4r"]
 [ext_resource type="TileSet" uid="uid://bxqhxqo4qdtij" path="res://resources/tilesets/logic_tileset.tres" id="3_exqhh"]
 [ext_resource type="PackedScene" uid="uid://dvcktc32n77sy" path="res://scenes/entities/Base.tscn" id="4_exqhh"]
+[ext_resource type="PackedScene" uid="uid://dpr7cnr40ft63" path="res://scenes/maps/SpaceBackground.tscn" id="5_bgspm"]
 
 [node name="Map" type="Node2D" unique_id=366159857]
 script = ExtResource("1_w7c4r")
+
+[node name="Background" parent="." unique_id=506758021 instance=ExtResource("5_bgspm")]
 
 [node name="VisualMap" type="TileMapLayer" parent="." unique_id=1985551843]
 tile_set = ExtResource("2_w7c4r")

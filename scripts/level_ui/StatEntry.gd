@@ -1,9 +1,13 @@
 extends RefCounted
 class_name StatEntry
-## Una fila de la ficha: icono de 8x8, nombre del stat (sale en el tooltip) y valor ya formateado.
+## Una fila de la ficha: icono de 8x8, nombre corto del stat en mayúsculas y valor ya formateado.
 
 const ICON_DIR := "res://assets/ui/stat_icons/"
-## Caracteres de 8 px que caben en el valor: 72 px de barra menos el icono, el hueco y los márgenes.
+## Caracteres de 6 px que caben en el nombre ("OBJETIVOS", "VEL. BALA").
+const MAX_LABEL_CHARS := 9
+## Caracteres de 6 px que caben en el valor. La fila de la ficha mide 108 px (los 110 px útiles de
+## la pantalla de la barra menos 1 px de margen a cada lado): icono de 8, hueco de 2, nombre de
+## 9 caracteres (54), hueco de 2 y quedan 42 px para el valor.
 const MAX_VALUE_CHARS := 7
 
 var icon: Texture2D

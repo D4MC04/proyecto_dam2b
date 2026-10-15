@@ -10,11 +10,13 @@ const BORDER_COLOR := Color("#1c7496")
 const HOVER_BORDER_COLOR := Color("#40e0f0")
 const BG_COLOR := Color("#0e1626")
 const HOVER_BG_COLOR := Color("#16243c")
+const SELECTED_COLOR := Color("#ecb23c")
+const SELECTED_HOVER_BORDER_COLOR := Color("#ffe082")
 const UNAFFORDABLE_COST_COLOR := Color("#ff3c5a")
 const AFFORDABLE_COST_COLOR := Color("#ecb23c")
 const UNAFFORDABLE_ICON_COLOR := Color(1, 1, 1, 0.35)
-# Fuente a 8 px: 8 px por carácter. El botón mide 34 px, así que solo caben 4.
-const MAX_COST_CHARS_WITH_SYMBOL := 4
+# Largo de cada brazo de los corchetes que rodean la torre seleccionada por fuera.
+const BRACKET_LENGTH := 4
 
 @onready var icon_rect: TextureRect = %IconRect
 @onready var cost_label: Label = %CostLabel
@@ -32,11 +34,7 @@ func _ready() -> void:
 func setup(tower_data: TowerData, money: int) -> void:
 	data = tower_data
 	icon_rect.texture = data.icon
-	tooltip_text = data.name
-	var cost_text := UiFormat.abbreviate(data.cost)
-	if cost_text.length() < MAX_COST_CHARS_WITH_SYMBOL:
-		cost_text += "€"
-	cost_label.text = cost_text
+	cost_label.text = UiFormat.money(data.cost)
 	set_money(money)
 
 func set_money(amount: int) -> void:
@@ -60,6 +58,7 @@ func set_selection_locked(locked: bool) -> void:
 func set_selected(on: bool) -> void:
 	_selected = on
 	_refresh()
+	queue_redraw()
 
 func _gui_input(event: InputEvent) -> void:
 	var click := event as InputEventMouseButton
@@ -74,14 +73,28 @@ func _on_pressed() -> void:
 		return
 	selection_changed.emit(data, not _selected)
 
+# Corchetes en L en ámbar justo por fuera de las cuatro esquinas de la torre seleccionada.
+func _draw() -> void:
+	if not _selected:
+		return
+	var left := -1
+	var top := -1
+	var right := int(size.x)
+	var bottom := int(size.y)
+	for corner: Vector2i in [Vector2i(left, top), Vector2i(right, top), Vector2i(left, bottom), Vector2i(right, bottom)]:
+		# Los brazos salen de la esquina hacia el centro del botón.
+		var x_start := corner.x if corner.x == left else corner.x - BRACKET_LENGTH + 1
+		var y_start := corner.y if corner.y == top else corner.y - BRACKET_LENGTH + 1
+		draw_rect(Rect2(x_start, corner.y, BRACKET_LENGTH, 1), SELECTED_COLOR)
+		draw_rect(Rect2(corner.x, y_start, 1, BRACKET_LENGTH), SELECTED_COLOR)
+
 func _refresh() -> void:
 	if data == null:
 		return
-	var accent: Color = data.accent_color
-	var normal := _make_style(BG_COLOR, BORDER_COLOR)
-	var hover := _make_style(HOVER_BG_COLOR, HOVER_BORDER_COLOR)
-	var selected := _make_style(BG_COLOR.lerp(accent, 0.25), accent)
-	var selected_hover := _make_style(BG_COLOR.lerp(accent, 0.4), accent.lightened(0.3))
+	var normal := ClippedBoxStyle.create(BG_COLOR, BORDER_COLOR)
+	var hover := ClippedBoxStyle.create(HOVER_BG_COLOR, HOVER_BORDER_COLOR)
+	var selected := ClippedBoxStyle.create(BG_COLOR.lerp(SELECTED_COLOR, 0.25), SELECTED_COLOR)
+	var selected_hover := ClippedBoxStyle.create(BG_COLOR.lerp(SELECTED_COLOR, 0.4), SELECTED_HOVER_BORDER_COLOR)
 	var empty := StyleBoxEmpty.new()
 	if _selected:
 		normal = selected
@@ -97,11 +110,3 @@ func _refresh() -> void:
 	icon_rect.modulate = Color.WHITE if _affordable else UNAFFORDABLE_ICON_COLOR
 	var cost_color := AFFORDABLE_COST_COLOR if _affordable else UNAFFORDABLE_COST_COLOR
 	cost_label.add_theme_color_override("font_color", cost_color)
-
-func _make_style(bg: Color, border: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = bg
-	style.set_border_width_all(1)
-	style.border_color = border
-	style.anti_aliasing = false
-	return style
