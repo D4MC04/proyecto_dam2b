@@ -42,7 +42,7 @@ bg_color = Color(0.078431375, 0.25882354, 0.32156864, 1)
 border_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
 
 [sub_resource type="Gradient" id="Gradient_grabber"]
-colors = PackedColorArray(0.6, 1, 1, 1, 0.6, 1, 1, 1)
+colors = PackedColorArray(0.74509805, 0.98039216, 1, 1, 0.74509805, 0.98039216, 1, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_grabber"]
 gradient = SubResource("Gradient_grabber")
@@ -60,34 +60,34 @@ height = 7
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slider_fill"]
 content_margin_top = 1.5
 content_margin_bottom = 1.5
-bg_color = Color(0, 0.7, 0.75, 1)
+bg_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0, 1, 1, 1)
+border_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slider_track"]
 content_margin_top = 1.5
 content_margin_bottom = 1.5
-bg_color = Color(0.02, 0.03, 0.05, 0.85)
+bg_color = Color(0.03137255, 0.08627451, 0.14901961, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0, 0.7, 0.75, 1)
+border_color = Color(0.10980392, 0.45490196, 0.5882353, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
 content_margin_left = 3.0
 content_margin_top = 2.0
 content_margin_right = 3.0
 content_margin_bottom = 2.0
-bg_color = Color(0.04, 0.06, 0.1, 0.6)
+bg_color = Color(0.039215688, 0.05882353, 0.101960786, 1)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0, 0.7, 0.75, 1)
+border_color = Color(0.10980392, 0.45490196, 0.5882353, 1)
 
 [resource]
 default_font = ExtResource("1_font")
@@ -111,3 +111,6 @@ HSlider/styles/grabber_area = SubResource("StyleBoxFlat_slider_fill")
 HSlider/styles/grabber_area_highlight = SubResource("StyleBoxFlat_slider_fill")
 HSlider/styles/slider = SubResource("StyleBoxFlat_slider_track")
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_panel")
+ToggleButton/base_type = &"Button"
+ToggleButton/styles/hover_pressed = SubResource("ClippedBox_hover")
+ToggleButton/styles/pressed = SubResource("ClippedBox_hover")

@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/screens/OptionsMenu.gd" id="1_options"]
 [ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://scripts/level_ui/OverlayFrame.gd" id="3_frame"]
+[ext_resource type="PackedScene" path="res://scenes/level_ui/ScreenHeader.tscn" id="4_header"]
 
 [node name="OptionsMenu" type="Control"]
 layout_mode = 3
@@ -13,59 +15,70 @@ grow_vertical = 2
 theme = ExtResource("2_theme")
 script = ExtResource("1_options")
 
-[node name="Box" type="VBoxContainer" parent="."]
+[node name="Center" type="CenterContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+
+[node name="Frame" type="PanelContainer" parent="Center"]
+layout_mode = 2
+script = ExtResource("3_frame")
+
+[node name="Margin" type="MarginContainer" parent="Center/Frame"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 6
+
+[node name="Box" type="VBoxContainer" parent="Center/Frame/Margin"]
+layout_mode = 2
 theme_override_constants/separation = 12
 alignment = 1
 
-[node name="Title" type="Label" parent="Box"]
+[node name="Title" type="Label" parent="Center/Frame/Margin/Box"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
+theme_override_colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 32
 text = "OPCIONES"
 horizontal_alignment = 1
 
-[node name="Sections" type="HBoxContainer" parent="Box"]
+[node name="Sections" type="HBoxContainer" parent="Center/Frame/Margin/Box"]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 24
 
-[node name="LeftColumn" type="VBoxContainer" parent="Box/Sections"]
+[node name="LeftColumn" type="VBoxContainer" parent="Center/Frame/Margin/Box/Sections"]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="RightColumn" type="VBoxContainer" parent="Box/Sections"]
+[node name="RightColumn" type="VBoxContainer" parent="Center/Frame/Margin/Box/Sections"]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="AudioHeader" type="Label" parent="Box/Sections/LeftColumn"]
+[node name="AudioHeader" parent="Center/Frame/Margin/Box/Sections/LeftColumn" instance=ExtResource("4_header")]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 2
-theme_override_font_sizes/font_size = 16
-text = "AUDIO"
+title = "AUDIO"
 
-[node name="AudioGrid" type="GridContainer" parent="Box/Sections/LeftColumn"]
+[node name="AudioGrid" type="GridContainer" parent="Center/Frame/Margin/Box/Sections/LeftColumn"]
 layout_mode = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 6
 columns = 2
 
-[node name="MasterLabel" type="Label" parent="Box/Sections/LeftColumn/AudioGrid"]
+[node name="MasterLabel" type="Label" parent="Center/Frame/Margin/Box/Sections/LeftColumn/AudioGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "General"
 
-[node name="MasterSlider" type="HSlider" parent="Box/Sections/LeftColumn/AudioGrid"]
+[node name="MasterSlider" type="HSlider" parent="Center/Frame/Margin/Box/Sections/LeftColumn/AudioGrid"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(64, 8)
 layout_mode = 2
@@ -74,13 +87,13 @@ theme_override_constants/grabber_offset = -1
 max_value = 1.0
 step = 0.05
 
-[node name="MusicLabel" type="Label" parent="Box/Sections/LeftColumn/AudioGrid"]
+[node name="MusicLabel" type="Label" parent="Center/Frame/Margin/Box/Sections/LeftColumn/AudioGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "Música"
 
-[node name="MusicSlider" type="HSlider" parent="Box/Sections/LeftColumn/AudioGrid"]
+[node name="MusicSlider" type="HSlider" parent="Center/Frame/Margin/Box/Sections/LeftColumn/AudioGrid"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(64, 8)
 layout_mode = 2
@@ -89,13 +102,13 @@ theme_override_constants/grabber_offset = -1
 max_value = 1.0
 step = 0.05
 
-[node name="SfxLabel" type="Label" parent="Box/Sections/LeftColumn/AudioGrid"]
+[node name="SfxLabel" type="Label" parent="Center/Frame/Margin/Box/Sections/LeftColumn/AudioGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "Efectos"
 
-[node name="SfxSlider" type="HSlider" parent="Box/Sections/LeftColumn/AudioGrid"]
+[node name="SfxSlider" type="HSlider" parent="Center/Frame/Margin/Box/Sections/LeftColumn/AudioGrid"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(64, 8)
 layout_mode = 2
@@ -104,108 +117,112 @@ theme_override_constants/grabber_offset = -1
 max_value = 1.0
 step = 0.05
 
-[node name="MuteLabel" type="Label" parent="Box/Sections/LeftColumn/AudioGrid"]
+[node name="MuteLabel" type="Label" parent="Center/Frame/Margin/Box/Sections/LeftColumn/AudioGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "Silenciar"
 
-[node name="MuteButton" type="Button" parent="Box/Sections/LeftColumn/AudioGrid"]
+[node name="MuteButton" type="Button" parent="Center/Frame/Margin/Box/Sections/LeftColumn/AudioGrid"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(30, 16)
+custom_minimum_size = Vector2(36, 16)
 layout_mode = 2
 size_flags_horizontal = 8
+theme_type_variation = &"ToggleButton"
 toggle_mode = true
 text = "OFF"
 
-[node name="DisplayHeader" type="Label" parent="Box/Sections/RightColumn"]
+[node name="DisplayHeader" parent="Center/Frame/Margin/Box/Sections/RightColumn" instance=ExtResource("4_header")]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 2
-theme_override_font_sizes/font_size = 16
-text = "PANTALLA"
+title = "PANTALLA"
 
-[node name="DisplayGrid" type="GridContainer" parent="Box/Sections/RightColumn"]
+[node name="DisplayGrid" type="GridContainer" parent="Center/Frame/Margin/Box/Sections/RightColumn"]
 layout_mode = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 6
 columns = 2
 
-[node name="FullscreenLabel" type="Label" parent="Box/Sections/RightColumn/DisplayGrid"]
+[node name="FullscreenLabel" type="Label" parent="Center/Frame/Margin/Box/Sections/RightColumn/DisplayGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "Pantalla completa"
 
-[node name="FullscreenButton" type="Button" parent="Box/Sections/RightColumn/DisplayGrid"]
+[node name="FullscreenButton" type="Button" parent="Center/Frame/Margin/Box/Sections/RightColumn/DisplayGrid"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(30, 16)
+custom_minimum_size = Vector2(36, 16)
 layout_mode = 2
 size_flags_horizontal = 8
+theme_type_variation = &"ToggleButton"
 toggle_mode = true
 text = "OFF"
 
-[node name="VsyncLabel" type="Label" parent="Box/Sections/RightColumn/DisplayGrid"]
+[node name="VsyncLabel" type="Label" parent="Center/Frame/Margin/Box/Sections/RightColumn/DisplayGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "VSync"
 
-[node name="VsyncButton" type="Button" parent="Box/Sections/RightColumn/DisplayGrid"]
+[node name="VsyncButton" type="Button" parent="Center/Frame/Margin/Box/Sections/RightColumn/DisplayGrid"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(30, 16)
+custom_minimum_size = Vector2(36, 16)
 layout_mode = 2
 size_flags_horizontal = 8
+theme_type_variation = &"ToggleButton"
 toggle_mode = true
 text = "OFF"
 
-[node name="FpsLabel" type="Label" parent="Box/Sections/RightColumn/DisplayGrid"]
+[node name="FpsLabel" type="Label" parent="Center/Frame/Margin/Box/Sections/RightColumn/DisplayGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "Mostrar FPS"
 
-[node name="FpsButton" type="Button" parent="Box/Sections/RightColumn/DisplayGrid"]
+[node name="FpsButton" type="Button" parent="Center/Frame/Margin/Box/Sections/RightColumn/DisplayGrid"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(30, 16)
+custom_minimum_size = Vector2(36, 16)
 layout_mode = 2
 size_flags_horizontal = 8
+theme_type_variation = &"ToggleButton"
 toggle_mode = true
 text = "OFF"
 
-[node name="GameHeader" type="Label" parent="Box/Sections/RightColumn"]
+[node name="GameHeader" parent="Center/Frame/Margin/Box/Sections/RightColumn" instance=ExtResource("4_header")]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 2
-theme_override_font_sizes/font_size = 16
-text = "JUEGO"
+title = "JUEGO"
 
-[node name="GameGrid" type="GridContainer" parent="Box/Sections/RightColumn"]
+[node name="GameGrid" type="GridContainer" parent="Center/Frame/Margin/Box/Sections/RightColumn"]
 layout_mode = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 6
 columns = 2
 
-[node name="TowerRangeLabel" type="Label" parent="Box/Sections/RightColumn/GameGrid"]
+[node name="TowerRangeLabel" type="Label" parent="Center/Frame/Margin/Box/Sections/RightColumn/GameGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 16
 text = "Rango de torres"
 
-[node name="TowerRangeButton" type="Button" parent="Box/Sections/RightColumn/GameGrid"]
+[node name="TowerRangeButton" type="Button" parent="Center/Frame/Margin/Box/Sections/RightColumn/GameGrid"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(30, 16)
+custom_minimum_size = Vector2(36, 16)
 layout_mode = 2
 size_flags_horizontal = 8
+theme_type_variation = &"ToggleButton"
 toggle_mode = true
 text = "OFF"
 
-[node name="BackButton" type="Button" parent="Box"]
-custom_minimum_size = Vector2(100, 24)
+[node name="BackButton" type="Button" parent="Center/Frame/Margin/Box"]
+custom_minimum_size = Vector2(136, 24)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Volver"
 
-[connection signal="pressed" from="Box/BackButton" to="." method="_on_back_button_pressed"]
+[node name="Footer" type="Label" parent="Center/Frame/Margin/Box"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.165, 0.549, 0.698, 1)
+theme_override_font_sizes/font_size = 16
+text = "CONFIGURACIÓN"
+
+[connection signal="pressed" from="Center/Frame/Margin/Box/BackButton" to="." method="_on_back_button_pressed"]

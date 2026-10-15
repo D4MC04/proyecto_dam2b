@@ -8,11 +8,11 @@ Nodos, de fondo a frente:
 
 - `Background`: `ColorRect` negro.
 - `StarField`, `Comets`, `Asteroids`, `Satellites`, `Planets`: decoración (ver abajo).
-- `TitleScreen`: título "ASTRO ARTILLERY" y botones "Jugar", "Opciones" y "Salir".
-- `LevelSelectionScreen` (oculto al empezar): texto "SELECCIONA UN NIVEL", `LevelButtonsContainer` (`GridContainer` de 5 columnas) y botón "Volver".
+- `TitleScreen`: título "ASTRO ARTILLERY" y debajo el subtítulo "TOWER DEFENSE" (16 px, `#40e0f0`), flotando sin panel; debajo, `ButtonsPanel`, un panel holograma cian (`OverlayFrame`) con "Jugar", "Opciones" y "Salir" (136x24 todos) y el pie "SISTEMA LISTO".
+- `LevelSelectionScreen` (oculto al empezar): `LevelsPanel`, un panel holograma cian con la cabecera `// SELECCIONA UN NIVEL` (`ScreenHeader`), `LevelButtonsContainer` (`GridContainer` de 5 columnas), el botón "Volver" y el pie `SectorsFooter` "SECTORES X/Y" (X niveles desbloqueados según `GameState.is_unlocked`, Y el total de `GameData.levels`).
 - `OptionsMenu` (oculto al empezar): instancia de `scenes/OptionsMenu.tscn` (ver "Opciones").
 
-Textos en Monogram (ver [art.md](art.md)): el título "ASTRO ARTILLERY" a 48 px, "SELECCIONA UN NIVEL" y "OPCIONES" a 32 px y el resto (botones, rótulos, interruptores) a 16 px.
+Textos en Monogram (ver [art.md](art.md)): el título "ASTRO ARTILLERY" a 48 px, "OPCIONES" a 32 px (en `#40e0f0`) y el resto (botones, rótulos, interruptores) a 16 px.
 
 ## Comportamiento
 
@@ -50,7 +50,7 @@ Es el único audio del juego: todavía no hay efectos de sonido, así que nada s
 
 ## Opciones
 
-`scenes/OptionsMenu.tscn` + `scripts/screens/OptionsMenu.gd` (clase `OptionsMenu`). Un solo panel con el título "OPCIONES", dos columnas de secciones y el botón "Volver". La misma escena está instanciada en el menú principal y en el menú de pausa (ver [ui.md](ui.md)).
+`scenes/OptionsMenu.tscn` + `scripts/screens/OptionsMenu.gd` (clase `OptionsMenu`). Un panel holograma cian (`OverlayFrame`, pie "CONFIGURACIÓN") centrado, con el título "OPCIONES", dos columnas de secciones con cabeceras `// AUDIO`, `// PANTALLA` y `// JUEGO`, y el botón "Volver". La misma escena está instanciada en el menú principal y en el menú de pausa (ver [ui.md](ui.md)).
 
 - `open_from(opener)`: funde de `opener` (el panel que la abre) a las opciones, 0,25 s de salida y 0,25 s de entrada, y recuerda `opener`.
 - "Volver" hace el fundido inverso hacia ese mismo panel.
@@ -67,7 +67,7 @@ Es el único audio del juego: todavía no hay efectos de sonido, así que nada s
 | PANTALLA | Botón "Mostrar FPS" | `show_fps` |
 | JUEGO | Botón "Rango de torres" | `show_tower_range` |
 
-Los deslizadores van de 0 a 1 en pasos de 0,05. Los botones son de tipo interruptor y muestran "ON" u "OFF". Al abrirse, cada control toma su valor de `Settings`; cada cambio llama a `Settings.set_value`.
+Los deslizadores van de 0 a 1 en pasos de 0,05 (colores de la paleta en `menu_theme.tres`, ver [art.md](art.md)). Los botones son interruptores de 36x16 con la variación de tema `ToggleButton`: en ON van rellenos de cian (como el ratón encima) y muestran "ON"; en OFF van con el estilo normal y muestran "OFF". Al abrirse, cada control toma su valor de `Settings`; cada cambio llama a `Settings.set_value`.
 
 ### Settings
 
