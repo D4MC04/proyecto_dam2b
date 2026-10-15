@@ -12,8 +12,10 @@ shader = ExtResource("4_glitch")
 [node name="GameOverScreen" instance=ExtResource("1_overlay")]
 script = ExtResource("3_script")
 accent_color = Color(1, 0.2352941, 0.3529412, 1)
+accent_light_color = Color(1, 0.6666667, 0.74509805, 1)
 dim_color = Color(0.101960786, 0.019607844, 0.03529412, 1)
 dim_opacity = 0.6
+footer_text = "SIN SEÑAL"
 
 [node name="GlitchLayer" type="ColorRect" parent="." index="1"]
 unique_name_in_owner = true

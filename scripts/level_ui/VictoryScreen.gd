@@ -60,9 +60,9 @@ func _start_intro() -> void:
 	if _intro != null:
 		_intro.kill()
 	_time = 0.0
-	# Desde donde el borde de abajo del marco (centrado) queda justo encima del área de juego.
+	# Desde donde el marco (centrado), con sus corchetes, queda justo encima del área de juego.
 	var area_height := size.y if size.y > 0.0 else get_viewport_rect().size.y
-	var start_y := -roundf((area_height + frame.get_combined_minimum_size().y) / 2.0)
+	var start_y := -roundf((area_height + frame.get_combined_minimum_size().y) / 2.0) - OverlayFrame.OUTSIDE_MARGIN
 	_set_slide(start_y)
 	background.modulate.a = 0.0
 	_intro = create_tween().set_ignore_time_scale()

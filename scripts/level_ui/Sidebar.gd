@@ -71,7 +71,7 @@ var _current_wave := -1
 var _viewed_wave := 0
 var _selection_locked := false
 # Estilo normal del botón de siguiente oleada; su borde parpadea para invitar a pulsarlo.
-var _next_normal_style: StyleBoxFlat
+var _next_normal_style: ClippedBoxStyle
 var _next_pulse: Tween
 
 func _ready() -> void:
@@ -189,35 +189,35 @@ func _on_tab_toggled(towers_active: bool) -> void:
 	waves_page.visible = not towers_active
 
 func _style_wave_controls() -> void:
-	_next_normal_style = _make_tab_style(TAB_BG_COLOR, NEXT_BORDER_COLOR)
+	_next_normal_style = ClippedBoxStyle.create(TAB_BG_COLOR, NEXT_BORDER_COLOR)
 	next_wave_button.add_theme_stylebox_override("normal", _next_normal_style)
-	next_wave_button.add_theme_stylebox_override("hover", _make_tab_style(CONTROL_HOVER_BG_COLOR, TAB_ACTIVE_BORDER_COLOR))
-	next_wave_button.add_theme_stylebox_override("pressed", _make_tab_style(TAB_ACTIVE_BG_COLOR, TAB_ACTIVE_BORDER_COLOR))
-	next_wave_button.add_theme_stylebox_override("disabled", _make_tab_style(CONTROL_DISABLED_BG_COLOR, TAB_BORDER_COLOR))
+	next_wave_button.add_theme_stylebox_override("hover", ClippedBoxStyle.create(CONTROL_HOVER_BG_COLOR, TAB_ACTIVE_BORDER_COLOR))
+	next_wave_button.add_theme_stylebox_override("pressed", ClippedBoxStyle.create(TAB_ACTIVE_BG_COLOR, TAB_ACTIVE_BORDER_COLOR))
+	next_wave_button.add_theme_stylebox_override("disabled", ClippedBoxStyle.create(CONTROL_DISABLED_BG_COLOR, TAB_BORDER_COLOR))
 	next_wave_button.add_theme_color_override("font_disabled_color", CONTROL_ICON_DIM_COLOR)
 
-	var auto_on := _make_tab_style(AUTO_ON_BG_COLOR, AUTO_ON_BORDER_COLOR)
-	auto_wave_button.add_theme_stylebox_override("normal", _make_tab_style(TAB_BG_COLOR, TAB_BORDER_COLOR))
-	auto_wave_button.add_theme_stylebox_override("hover", _make_tab_style(CONTROL_HOVER_BG_COLOR, AUTO_HOVER_BORDER_COLOR))
+	var auto_on := ClippedBoxStyle.create(AUTO_ON_BG_COLOR, AUTO_ON_BORDER_COLOR)
+	auto_wave_button.add_theme_stylebox_override("normal", ClippedBoxStyle.create(TAB_BG_COLOR, TAB_BORDER_COLOR))
+	auto_wave_button.add_theme_stylebox_override("hover", ClippedBoxStyle.create(CONTROL_HOVER_BG_COLOR, AUTO_HOVER_BORDER_COLOR))
 	auto_wave_button.add_theme_stylebox_override("pressed", auto_on)
-	auto_wave_button.add_theme_stylebox_override("hover_pressed", _make_tab_style(AUTO_ON_BG_COLOR, AUTO_ON_HOVER_BORDER_COLOR))
+	auto_wave_button.add_theme_stylebox_override("hover_pressed", ClippedBoxStyle.create(AUTO_ON_BG_COLOR, AUTO_ON_HOVER_BORDER_COLOR))
 	auto_wave_button.add_theme_color_override("font_color", CONTROL_ICON_DIM_COLOR)
 	auto_wave_button.add_theme_color_override("font_hover_color", Color(1, 1, 1, 0.6))
 	auto_wave_button.add_theme_color_override("font_pressed_color", Color.WHITE)
 	auto_wave_button.add_theme_color_override("font_hover_pressed_color", Color.WHITE)
 	for arrow in [prev_wave_arrow, next_wave_arrow]:
-		arrow.add_theme_stylebox_override("normal", _make_tab_style(TAB_BG_COLOR, NEXT_BORDER_COLOR))
-		arrow.add_theme_stylebox_override("hover", _make_tab_style(CONTROL_HOVER_BG_COLOR, TAB_ACTIVE_BORDER_COLOR))
-		arrow.add_theme_stylebox_override("pressed", _make_tab_style(TAB_ACTIVE_BG_COLOR, TAB_ACTIVE_BORDER_COLOR))
-		arrow.add_theme_stylebox_override("disabled", _make_tab_style(CONTROL_DISABLED_BG_COLOR, TAB_BORDER_COLOR))
+		arrow.add_theme_stylebox_override("normal", ClippedBoxStyle.create(TAB_BG_COLOR, NEXT_BORDER_COLOR))
+		arrow.add_theme_stylebox_override("hover", ClippedBoxStyle.create(CONTROL_HOVER_BG_COLOR, TAB_ACTIVE_BORDER_COLOR))
+		arrow.add_theme_stylebox_override("pressed", ClippedBoxStyle.create(TAB_ACTIVE_BG_COLOR, TAB_ACTIVE_BORDER_COLOR))
+		arrow.add_theme_stylebox_override("disabled", ClippedBoxStyle.create(CONTROL_DISABLED_BG_COLOR, TAB_BORDER_COLOR))
 		arrow.add_theme_color_override("font_disabled_color", CONTROL_ICON_DIM_COLOR)
 	for button: Button in [next_wave_button, auto_wave_button, prev_wave_arrow, next_wave_arrow]:
 		button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 
 func _style_tab(tab: Button) -> void:
-	var normal := _make_tab_style(TAB_BG_COLOR, TAB_BORDER_COLOR)
-	var hover := _make_tab_style(TAB_BG_COLOR, TAB_HOVER_BORDER_COLOR)
-	var active := _make_tab_style(TAB_ACTIVE_BG_COLOR, TAB_ACTIVE_BORDER_COLOR)
+	var normal := ClippedBoxStyle.create(TAB_BG_COLOR, TAB_BORDER_COLOR)
+	var hover := ClippedBoxStyle.create(TAB_BG_COLOR, TAB_HOVER_BORDER_COLOR)
+	var active := ClippedBoxStyle.create(TAB_ACTIVE_BG_COLOR, TAB_ACTIVE_BORDER_COLOR)
 	tab.add_theme_stylebox_override("normal", normal)
 	tab.add_theme_stylebox_override("hover", hover)
 	tab.add_theme_stylebox_override("pressed", active)
@@ -227,11 +227,3 @@ func _style_tab(tab: Button) -> void:
 	tab.add_theme_color_override("icon_hover_color", Color(1, 1, 1, 0.8))
 	tab.add_theme_color_override("font_pressed_color", Color.WHITE)
 	tab.add_theme_color_override("font_hover_pressed_color", Color.WHITE)
-
-func _make_tab_style(bg: Color, border: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = bg
-	style.set_border_width_all(1)
-	style.border_color = border
-	style.anti_aliasing = false
-	return style

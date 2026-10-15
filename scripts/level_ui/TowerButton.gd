@@ -91,10 +91,10 @@ func _draw() -> void:
 func _refresh() -> void:
 	if data == null:
 		return
-	var normal := _make_style(BG_COLOR, BORDER_COLOR)
-	var hover := _make_style(HOVER_BG_COLOR, HOVER_BORDER_COLOR)
-	var selected := _make_style(BG_COLOR.lerp(SELECTED_COLOR, 0.25), SELECTED_COLOR)
-	var selected_hover := _make_style(BG_COLOR.lerp(SELECTED_COLOR, 0.4), SELECTED_HOVER_BORDER_COLOR)
+	var normal := ClippedBoxStyle.create(BG_COLOR, BORDER_COLOR)
+	var hover := ClippedBoxStyle.create(HOVER_BG_COLOR, HOVER_BORDER_COLOR)
+	var selected := ClippedBoxStyle.create(BG_COLOR.lerp(SELECTED_COLOR, 0.25), SELECTED_COLOR)
+	var selected_hover := ClippedBoxStyle.create(BG_COLOR.lerp(SELECTED_COLOR, 0.4), SELECTED_HOVER_BORDER_COLOR)
 	var empty := StyleBoxEmpty.new()
 	if _selected:
 		normal = selected
@@ -110,11 +110,3 @@ func _refresh() -> void:
 	icon_rect.modulate = Color.WHITE if _affordable else UNAFFORDABLE_ICON_COLOR
 	var cost_color := AFFORDABLE_COST_COLOR if _affordable else UNAFFORDABLE_COST_COLOR
 	cost_label.add_theme_color_override("font_color", cost_color)
-
-func _make_style(bg: Color, border: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = bg
-	style.set_border_width_all(1)
-	style.border_color = border
-	style.anti_aliasing = false
-	return style

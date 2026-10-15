@@ -47,7 +47,29 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 - **Variantes de Dart**: mismo dibujo con el casco en azul hielo, morado, rojo o verde.
 - **Escudo de la base**: `#40e0f0`, `#aaf5ff`, `#ebffff`, semitransparente.
 - **Fondo de espacio**: azules y morados muy oscuros (`#0a1226`, `#14102e`, `#1e163e`, `#2a1e50`); estrellas en `#ffecc8`, `#befffa`, `#c8dcff` y blanco.
-- **Interfaz** (`assets/ui/menu_theme.tres`): fondo azul casi negro (`Color(0.04, 0.06, 0.1)`), bordes de 1 px en cian (`#00ffff`), más claro al pasar el ratón y más oscuro al pulsar.
+- **Interfaz** (`assets/ui/menu_theme.tres`): fondo azul casi negro y bordes de 1 px en la rampa cian. Los botones no son PNG: `ClippedBoxStyle` los pinta en código, en píxeles enteros, como una caja con las esquinas de arriba a la izquierda y de abajo a la derecha recortadas 3 px en diagonal (escalera de 1 px por fila). Sin corchetes ni `>`. Ver [ui.md](ui.md).
+
+| Botón del tema | Fondo | Borde | Texto |
+|---|---|---|---|
+| Normal | `#081626` | `#1c7496` | `#cce6ff` |
+| Ratón encima | `#1c5d6d` (`#081626` mezclado al 35 % con `#40e0f0`) | `#40e0f0` | `#befaff` |
+| Pulsado (o interruptor en ON) | `#144252` (mezclado al 22 %) | `#40e0f0` | `#befaff` |
+| Desactivado | `#060b14` | `#1c4a60` | `#5a7a96` |
+
+  Las opciones de las pantallas superpuestas son el mismo botón en el acento de su pantalla (fondos y bordes de `#060b14` mezclado con el acento, relleno al 35 % con el ratón encima y texto en el tono claro del acento). Los botones de las barras (pestañas, LANZAR, AUTO, flechas, torres y celdas de enemigo) tienen la misma forma con sus propios colores.
+
+- **Panel holograma** (pausa, derrota y victoria): no es PNG; lo pinta `OverlayFrame` en código, en píxeles enteros, a partir del acento de cada pantalla (cian `#40e0f0`, rojo `#ff3c5a`, ámbar `#ecb23c`) y de su tono claro (`#befaff`, `#ffaabe`, `#ffe082`). Esquinas de arriba a la izquierda y de abajo a la derecha recortadas 6 px en diagonal. Ver [ui.md](ui.md).
+
+| Parte | Color |
+|---|---|
+| Brillo exterior (1 px) | `#0a0f1a` mezclado al 25 % con el acento |
+| Borde exterior (1 px) | acento |
+| Hueco (1 px) | color del fondo |
+| Borde interior (1 px) | `#0a0f1a` mezclado al 35 % |
+| Fondo | `#0a0f1a` mezclado al 15 %, al 85 % de opacidad; líneas de barrido con una fila de cada dos un 25 % más oscura |
+| Regla de marcas | `#0a0f1a` mezclado al 50 % |
+| Corchetes de fuera (L de 6 px a 3 px del panel) | tono claro del acento |
+| Pie ("SISTEMA EN ESPERA", "SIN SEÑAL", "MISIÓN CUMPLIDA") | `#0a0f1a` mezclado al 60 % |
 - **Iconos de interfaz** (`assets/ui/`, 16x16, contorno `#0c0e16`, sombreado plano): `tab_towers.png` (torre con metal gris azulado y núcleo cian) y `tab_waves.png` (tres naves moradas con luz roja de motor), los iconos de las pestañas de la barra derecha; `wave_next.png` (doble flecha ▶▶ con la rampa cian del Cañón doble, mitad superior clara y mitad inferior en sombra) y `wave_auto.png` (rayo con la rampa ámbar `#96641e`, `#ecb23c`, `#ffe082`), los controles de la pestaña Oleadas.
 - **Icono de plegar** (`assets/ui/fold.png`, 8x8, sin contorno, cian `#40e0f0` con la diagonal en `#befaff`): una esquina en L arriba a la izquierda y una diagonal hacia ella; es el botón de plegar de la pausa.
 - **Iconos de stat** (`assets/ui/stat_icons/`, 8x8, contorno `#0c0e16` de 1 px solo en cruz alrededor del relleno, sombreado plano), para las filas de la ficha y del resumen de partida. Cada uno combina una forma y un color propios para distinguirse a 8 px:

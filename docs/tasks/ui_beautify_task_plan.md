@@ -89,3 +89,6 @@ Se apuntan aquí conforme aparecen.
 
 - Barras (`barras`): la maqueta no estaba en el repo al hacer la tarea, así que el marco se hizo solo con las medidas y colores del md; falta compararlo con `maqueta_juego.png`.
 - Barras: en las filas de stat de la ficha el hueco entre icono y nombre es de 2 px, justo para que quepan 9 + 7 caracteres en 108 px. Se ve algo apretado; si se quiere más aire hay que bajar `MAX_VALUE_CHARS` o acortar algún nombre.
+- Pantallas (`pantallas`): `maqueta_pausa.png` tampoco estaba en el repo, así que el holograma y el botón se hicieron solo con las medidas y colores del md; falta compararlos con la maqueta.
+- Pantallas: en Opciones, un interruptor en ON (estilo `pressed`, relleno al 22 %) se parece bastante a uno en OFF con el ratón encima (relleno al 35 %). Si confunde, el ON podría llevar otro color o texto.
+- Pantallas: `RunSummary` y el título de oleada de la barra siguen siendo cajas rectas; no son botones, pero se podrían recortar para que todo case.

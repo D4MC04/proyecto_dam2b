@@ -24,7 +24,7 @@ Las dos barras son una tablet: un marco de metal y, dentro, una pantalla oscura.
 - **Pantalla:** líneas de barrido (filas alternas `#08111f` y `#060d18`) y corchetes en L de 4 px en `#40e0f0` en las cuatro esquinas.
 - **Margen de contenido:** 3 px dentro de la pantalla (`SCREEN_PADDING`). En una barra de 128x540 el contenido queda en 110x508 px, empezando en (9, 11).
 
-**`ScreenHeader`** (`scenes/level_ui/ScreenHeader.tscn` + `scripts/level_ui/ScreenHeader.gd`, `VBoxContainer` con `@tool`): cabecera de pantalla reutilizable. `@export var title` (sin el prefijo); enseña `"// " + title` en `#40e0f0` a 16 px y debajo una regla de marcas pintada en `_draw` de su hijo `Ruler`: línea de 1 px `#1c7496` a todo el ancho con marcas hacia abajo de 2 px cada 4 px y de 3 px cada 16 px (4 px de alto). Se usa en tres sitios: `// ANÁLISIS` arriba de la barra izquierda, `// TORRES` entre los créditos y la rejilla de torres y `// OLEADAS` arriba de la pestaña Oleadas.
+**`ScreenHeader`** (`scenes/level_ui/ScreenHeader.tscn` + `scripts/level_ui/ScreenHeader.gd`, `VBoxContainer` con `@tool`): cabecera de pantalla reutilizable. `@export var title` (sin el prefijo); enseña `"// " + title` en `#40e0f0` a 16 px y debajo una regla de marcas pintada en `_draw` de su hijo `Ruler`: línea de 1 px `#1c7496` a todo el ancho con marcas hacia abajo de 2 px cada 4 px y de 3 px cada 16 px (4 px de alto). Se usa en tres sitios: `// ANÁLISIS` arriba de la barra izquierda, `// TORRES` entre los créditos y la rejilla de torres y `// OLEADAS` arriba de la pestaña Oleadas. La regla se pinta con `ScreenHeader.draw_ruler(item, origin, width, color)` (estática), que también usa el panel holograma de `OverlayFrame`.
 
 **Pies:** cada barra acaba con una fila de texto a 16 px dentro de la pantalla. La izquierda, `ScanFooter`, es decorativa: "SCAN OK" a la izquierda y "MK3" a la derecha, en `#1c7496`. La derecha es el pie de oleadas (ver "Pie de la barra").
 
@@ -109,7 +109,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
 `scenes/level_ui/Sidebar.tscn` + `scripts/level_ui/Sidebar.gd` (clase `Sidebar`). Estilo de tablet compartido con `InfoPanel`: quedan 110 px de ancho útil. Lo que se estira con los contenedores (pestañas, cabecera de créditos, cabeceras `//`, título de oleada) ocupa todo ese ancho; lo de ancho fijo (controles de oleada, rejilla de torres y rejilla de enemigos) va centrado en horizontal.
 
-- **Pestañas:** `TabBar` con dos botones de icono de 16x16 (`TowersTab` y `WavesTab`, 24 px de alto, en un `ButtonGroup`, 4 px de separación) que se reparten todo el ancho a partes iguales (53 px cada uno), y una página por pestaña (`TowersPage`, `WavesPage`) de las que solo una es visible. No hay texto ni tooltip. Torres está activa al empezar. Los iconos son `assets/ui/tab_towers.png` y `tab_waves.png`. Los estilos de pestaña se crean en `_ready`: la inactiva tiene borde `#1c4a60` e icono atenuado; la activa, fondo `#14304a`, borde `#40e0f0` e icono a plena luz. Ver "Pestaña Oleadas" para `WavesPage`.
+- **Pestañas:** `TabBar` con dos botones de icono de 16x16 (`TowersTab` y `WavesTab`, 24 px de alto, en un `ButtonGroup`, 4 px de separación) que se reparten todo el ancho a partes iguales (53 px cada uno), y una página por pestaña (`TowersPage`, `WavesPage`) de las que solo una es visible. No hay texto ni tooltip. Torres está activa al empezar. Los iconos son `assets/ui/tab_towers.png` y `tab_waves.png`. Los estilos de pestaña se crean en `_ready` con `ClippedBoxStyle.create` (forma recortada, ver "Botones"): la inactiva tiene borde `#1c4a60` e icono atenuado; la activa, fondo `#14304a`, borde `#40e0f0` e icono a plena luz. Ver "Pestaña Oleadas" para `WavesPage`.
 - **`TowersPage`**, de arriba abajo:
   - `CreditsHeader`: `PanelContainer` con un `StyleBoxFlat` propio de la escena (fondo `#221e19`, borde de 1 px `#96641e`, 2 px de margen). A la izquierda la moneda (`stat_icons/cost.png`, el icono de COSTE, bajada 3 px como en las filas de stat) y "CRÉDITOS" en `#ecb23c`; a la derecha `MoneyLabel` con la cantidad en `#ffe082`, formato `UiFormat.money`.
   - `TowersHeader`: `ScreenHeader` con `// TORRES`.
@@ -126,7 +126,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 `scenes/level_ui/TowerButton.tscn` + `scripts/level_ui/TowerButton.gd` (clase `TowerButton`). `Button` de 52x56 sin `toggle_mode` ni `ButtonGroup`, sin foco: el estado seleccionado es solo visual y lo dicta `Sidebar.show_selected` mediante `set_selected`.
 
 - Contenido: `data.icon` a 32x32 (sin escalar) centrado arriba, con 3 px de hueco hasta el borde de arriba y 9 a cada lado, y debajo (2 px más abajo) el coste centrado, a 16 px. El coste va con `UiFormat.money` (siempre con `€`); con 52 px caben sus 7 caracteres, así que no se limita. Sin tooltip: el nombre se ve en la ficha.
-- Estados (estilos `StyleBoxFlat` de 1 px, sin antialiasing, creados en `_refresh`):
+- Estados (cajas recortadas de `ClippedBoxStyle.create`, borde de 1 px, creadas en `_refresh`):
   - Normal: fondo `#0e1626`, borde `#1c7496`.
   - Hover: fondo `#16243c`, borde `#40e0f0`.
   - Seleccionada: borde ámbar `#ecb23c` y fondo mezclado con el ámbar (25 %); con el ratón encima, 40 % y borde `#ffe082`. Además, corchetes en L de 4 px en `#ecb23c` justo por fuera de las cuatro esquinas, pintados en `_draw`.
@@ -142,14 +142,14 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 - **`WaveBlocks`**: contenedor con un `WaveBlock` por oleada, de los que solo es visible el que se mira (`Sidebar.view_wave`).
 - **`Sidebar.view_wave(index)`**: enseña esa oleada, colorea el título según su estado respecto a la oleada en curso y actualiza las flechas. `Sidebar.set_current_wave(index)` guarda la oleada en curso (-1 si ninguna) y pasa a ver `max(index, 0)`.
 - **Cuándo vuelve sola la vista** (`LevelUI`): al empezar un nivel (la 1), al empezar una oleada (`set_current_wave`: la que acaba de empezar) y al limpiar una (`view_wave(index + 1)` si quedan más: la que se va a lanzar). Si el jugador miraba otra con las flechas, la vista se la lleva.
-- **Controles** (`WaveControls`, `HBoxContainer` centrado, debajo de la oleada, con 4 px de separación y texto a 16; entre los dos miden 108 px, dentro de los 110 útiles). Ninguno tiene tooltip. Los estilos se crean en `Sidebar._style_wave_controls()` con bordes de 1 px:
+- **Controles** (`WaveControls`, `HBoxContainer` centrado, debajo de la oleada, con 4 px de separación y texto a 16; entre los dos miden 108 px, dentro de los 110 útiles). Ninguno tiene tooltip. Los estilos se crean en `Sidebar._style_wave_controls()` con `ClippedBoxStyle.create` (forma recortada y bordes de 1 px; también los de las flechas):
   - `NextWaveButton` ("LANZAR", 56x18). Activo: fondo `#0e1626`, borde `#1c7496`; hover con borde `#40e0f0`. Cuando no se puede lanzar (quedan enemigos de la oleada actual por salir o vivos, o no quedan oleadas) está `disabled`: fondo `#0a0f1a`, borde `#1c4a60` y texto al 30 %. Antes de la primera oleada, si se puede pulsar, su borde parpadea entre `#1c7496` y `#befaff` (0,5 s cada medio ciclo) para invitar a empezar. Emite `Sidebar.next_wave_requested`.
   - `AutoWaveButton` ("AUTO", 48x18, `toggle_mode`). Apagado: borde `#1c4a60` y texto al 30 %; encendido: fondo `#453d2b` (fondo mezclado al 25 % con ámbar), borde `#ecb23c` y texto a plena luz. Emite `Sidebar.auto_waves_toggled(enabled)`, que es una petición: el estado lo guarda `Spawner.auto_waves` y la barra lo refleja con `show_auto_waves(enabled)` (sin volver a emitir).
   - `Sidebar.set_next_wave_available(available, inviting)` activa o atenúa el botón y arranca o para el parpadeo.
 - `Sidebar.build_waves(waves)`: borra los bloques anteriores y crea uno por `WaveData`.
 - **`WaveBlock`** (`scenes/level_ui/WaveBlock.tscn` + `scripts/level_ui/WaveBlock.gd`): solo la rejilla `Cells` de 2 columnas (34 px, 4 px de separación) de `EnemyCell`, centrada en horizontal. Agrupa las entradas por `EnemyData`, con el total de cada tipo, en orden de primera aparición (por `time`). No hay datos de enemigos en la UI. El título vive en `WaveNav`; `WaveBlock.apply_title_style(panel, label, state)` (estático) lo pinta.
 - **Estados:** `WaveBlock.State`, respecto a la oleada en curso (la última lanzada). En curso: título con fondo `#14304a`, borde y texto `#40e0f0`. Pasada: todo atenuado al 40 % de opacidad (bloque y título). Próxima (la siguiente a la en curso; antes de empezar, la primera): fondo `#0e1626`, borde `#96641e` y texto `#ecb23c`. Futura: fondo `#0e1626`, borde `#1c4a60` y texto `#7fa6b8`.
-- **`EnemyCell`** (`scenes/level_ui/EnemyCell.tscn` + `scripts/level_ui/EnemyCell.gd`): `Button` de 34x44 con los colores de `TowerButton`. Sprite = primer frame de `up` a escala 1, centrado en un área de 34x34 (el Spikey, de 34, ocupa todo el ancho de la celda y pisa el borde), y debajo `"×N"` a 16 px (abreviado con `UiFormat`). Sin tooltip: el nombre se ve en la ficha. Emite `inspect_requested(data)` con el clic izquierdo y con el derecho (este se recoge en `_gui_input`); `WaveBlock` y `Sidebar` lo reenvían.
+- **`EnemyCell`** (`scenes/level_ui/EnemyCell.tscn` + `scripts/level_ui/EnemyCell.gd`): `Button` de 34x44 con la forma recortada (`ClippedBoxStyle.create`) y los colores de `TowerButton`. Sprite = primer frame de `up` a escala 1, centrado en un área de 34x34 (el Spikey, de 34, ocupa todo el ancho de la celda y pisa el borde), y debajo `"×N"` a 16 px (abreviado con `UiFormat`). Sin tooltip: el nombre se ve en la ficha. Emite `inspect_requested(data)` con el clic izquierdo y con el derecho (este se recoge en `_gui_input`); `WaveBlock` y `Sidebar` lo reenvían.
 - `LevelUI.setup(..., spawner)` llama a `_connect_spawner`: desconecta el `Spawner` anterior si lo había, construye los bloques con `spawner.waves`, refleja la oleada (`get_wave_index()`) y AUTO, y conecta `wave_started`, `wave_cleared` y `auto_waves_changed`. `next_wave_requested` llama a `spawner.start_next_wave()` y `auto_waves_toggled` escribe `spawner.auto_waves`.
 
 ### Pie de la barra
@@ -173,38 +173,84 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 - `UiFormat.number(value: float)`: para stats. Por debajo de 100 y con decimales, uno como mucho (`2.5`); si no, `abbreviate` del valor redondeado.
 - `UiFormat.seconds(value: float)`: segundos con 2 decimales como mucho, sin ceros sobrantes y en 5 caracteres como máximo (`0.25s`, `1.5s`, `5s`, `123s`).
 
+## Botones
+
+Todos los botones del juego son una **caja con esquinas recortadas**: la esquina de arriba a la izquierda y la de abajo a la derecha cortadas en diagonal, fondo y borde de 1 px. Sin corchetes ni `>` en ningún estado.
+
+**`ClippedBoxStyle`** (`scripts/level_ui/ClippedBoxStyle.gd`, `StyleBox` propio con `@tool`): dibuja esa caja en `_draw` con rectángulos de píxeles enteros, sin antialiasing; cada diagonal es una escalera de 1 px por fila. Propiedades: `bg_color`, `border_color` y `clip` (píxeles recortados, 3 en los botones, `BUTTON_CLIP`); al cambiarlas emite `changed`, así que se pueden animar con un tween (el parpadeo de LANZAR). Márgenes de contenido por defecto: 4 px a los lados y 1 arriba y abajo.
+
+- `ClippedBoxStyle.create(bg, border, clip = 3)`: caja nueva. Es el sitio común donde se crean los estilos de los botones de las barras.
+- `recolored(bg, border)`: copia con la misma forma y márgenes y otros colores (la usa `OverlayOptionButton`).
+- `row_span`, `draw_outline` y `fill_inside` (estáticas): las piezas de dibujo, que también usa el panel holograma de `OverlayFrame`.
+
+**Tema** (`assets/ui/menu_theme.tres`): los estilos de `Button` son `ClippedBoxStyle` con recorte de 3 px. Los usan el menú principal, la selección de nivel, `OptionsMenu` (también sus interruptores ON/OFF de 30x16) y, recoloreados, las opciones de las pantallas superpuestas.
+
+| Estado | Fondo | Borde | Texto |
+|---|---|---|---|
+| `normal` | `#081626` | `#1c7496` | `#cce6ff` |
+| `hover` y `hover_pressed` | `#1c5d6d` (`#081626` mezclado al 35 % con `#40e0f0`) | `#40e0f0` | `#befaff` |
+| `pressed` (y un interruptor en ON) | `#144252` (mezclado al 22 %) | `#40e0f0` | `#befaff` |
+| `disabled` | `#060b14` | `#1c4a60` | `#5a7a96` |
+| `focus` | `StyleBoxEmpty`: sin marca, el juego es de ratón | | |
+
+**Botones de las barras** (pestañas, LANZAR, AUTO, flechas `<` `>`, `TowerButton` y `EnemyCell`): crean sus estilos por código con `ClippedBoxStyle.create`, con sus propios colores y estados (ver cada uno). `FoldButton` (plegar la pausa) es un botón de icono sin caja.
+
 ## OverlayScreen
 
 `scenes/level_ui/OverlayScreen.tscn` + `scripts/level_ui/OverlayScreen.gd` (clase `OverlayScreen`). Escena base de las pantallas que tapan el área de juego, con el tema `menu_theme.tres`. Contiene lo común:
 
 - `Background`: `ColorRect` que oscurece el área de juego (color `dim_color`, negro por defecto, con opacidad `dim_opacity`).
-- `Center` (`CenterContainer`) → `Frame` (`OverlayFrame`, ver abajo) → `Margin` (20 px a los lados, 16 arriba y abajo) → `Box` (`VBoxContainer`, 10 px de separación):
-  - `Title` (`%Title`, `title_label`): fuente de 48 px en `#cce6ff` con contorno negro de 4 px, centrado. En la base no tiene texto.
-  - `Options` (`%Options`, `options`): `VBoxContainer` con 10 px de separación, vacío en la base.
+- `Center` (`CenterContainer`) → `Frame` (`OverlayFrame`, ver abajo) → `Margin` (16 px a los lados, 14 arriba y 6 abajo, dentro de los 4 px del marco) → `Box` (`VBoxContainer`, 12 px de separación):
+  - `Title` (`%Title`, `title_label`): fuente de 48 px en `#cce6ff` con contorno negro de 4 px, centrado. En la base no tiene texto; cada pantalla lo pinta en su acento.
+  - `Options` (`%Options`, `options`): `VBoxContainer` con 6 px de separación, vacío en la base.
+  - `Footer` (`%Footer`, `footer_label`): pie tenue a 16 px, abajo a la izquierda, en el fondo del panel (`#0a0f1a`) mezclado al 60 % con el acento. Su texto es `footer_text`; si está vacío, se oculta.
 
-**`OverlayFrame`** (`scripts/level_ui/OverlayFrame.gd`, `PanelContainer`): fondo `#0a0f1a` al 96 %, borde de 1 px en `accent_color` y esquinas en L (5 px de largo, 2 de grueso) del mismo color pintadas en `_draw`. También lo usa la etiqueta plegada de la pausa.
+**`OverlayFrame`** (`scripts/level_ui/OverlayFrame.gd`, `PanelContainer`): el **panel holograma**. Su estilo `panel` es un `StyleBoxEmpty` que solo deja 4 px de margen (`FRAME_THICKNESS`); todo se pinta en `_draw` en píxeles enteros a partir de `accent_color`. De fuera hacia dentro:
 
-Tres `@export` en la base, que cada escena heredada fija en su `.tscn`:
+1. **Brillo:** contorno de 1 px en `#0a0f1a` mezclado al 25 % con el acento.
+2. **Borde exterior:** 1 px en el acento.
+3. **Hueco:** 1 px en el color del fondo.
+4. **Borde interior:** 1 px en `#0a0f1a` mezclado al 35 %.
+5. **Fondo:** `#0a0f1a` mezclado al 15 % con el acento, al 85 % de opacidad (se intuye el mapa detrás), con **líneas de barrido**: una fila de cada dos un 25 % más oscura.
 
-| Pantalla | `accent_color` | `dim_color` | `dim_opacity` |
-|---|---|---|---|
-| Pausa | cian `#40e0f0` | negro | 0,35 |
-| Derrota | rojo `#ff3c5a` | rojo muy oscuro `#1a0509` | 0,6 |
-| Victoria | ámbar `#ecb23c` | negro | 0,45 |
+Las esquinas de arriba a la izquierda y de abajo a la derecha van **recortadas en diagonal**: `corner_clip` px en el borde exterior (6 por defecto). Cada capa está 1 px más adentro y con 1 px menos de recorte, así las diagonales de las capas se tocan como los bordes rectos. Se dibujan con las funciones estáticas de `ClippedBoxStyle` (ver "Botones").
 
-`_ready` aplica el acento al marco y a los botones, el oscurecido al fondo, y conecta el `pressed` de cada `OverlayOptionButton` de `Options`. Enum `Option { RESUME, RESTART, QUIT, NEXT_LEVEL, SETTINGS }` y una sola señal, `option_chosen(option)`.
+Con `decorated` (por defecto), además:
 
+- **Regla de marcas** arriba, a 7 px del borde y 8 de los lados, en `#0a0f1a` mezclado al 50 %. Es la de `ScreenHeader` (`ScreenHeader.draw_ruler`).
+- **Corchetes** en L de 6 px por fuera de las cuatro esquinas, separados 3 px del panel, en `accent_light_color`. Sobresalen `OUTSIDE_MARGIN` (4 px) del panel.
+
+`FoldedTag` (la etiqueta plegada de la pausa) es otro `OverlayFrame` con `corner_clip = 3` y `decorated = false`: mismo doble borde, recortes y barrido, sin regla ni corchetes.
+
+Cinco `@export` en la base, que cada escena heredada fija en su `.tscn`:
+
+| Pantalla | `accent_color` | `accent_light_color` | `dim_color` | `dim_opacity` | `footer_text` |
+|---|---|---|---|---|---|
+| Pausa | cian `#40e0f0` | `#befaff` | negro | 0,35 | SISTEMA EN ESPERA |
+| Derrota | rojo `#ff3c5a` | `#ffaabe` | rojo muy oscuro `#1a0509` | 0,6 | SIN SEÑAL |
+| Victoria | ámbar `#ecb23c` | `#ffe082` | negro | 0,45 | MISIÓN CUMPLIDA |
+
+`_ready` aplica el acento y su tono claro al marco y a los botones, el oscurecido al fondo y el pie, y conecta el `pressed` de cada `OverlayOptionButton` de `Options`. Enum `Option { RESUME, RESTART, QUIT, NEXT_LEVEL, SETTINGS }` y una sola señal, `option_chosen(option)`.
 
 La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Una pantalla con comportamiento propio extiende `OverlayScreen` con un script (como `PauseScreen` y `GameOverScreen`).
 
-**`OverlayOptionButton`** (`scripts/level_ui/OverlayOptionButton.gd`, `Button`): `@export var option` y `@export var accent_color` (se lo pasa la pantalla). Es un juego de ratón: `focus_mode = NONE`, sin teclado salvo Escape (lo gestiona `LevelUI`). Caja de 1 px: fondo `#0e1626` y borde en el acento mezclado al 50 %; con el ratón encima, fondo mezclado al 20 %, borde y texto en el acento y un selector `>` pintado delante (en `_draw`). Texto en `#cce6ff`. Miden 136x24 con 6 px de separación y van centrados en horizontal.
+**`OverlayOptionButton`** (`scripts/level_ui/OverlayOptionButton.gd`, `Button`): `@export var option`, `@export var accent_color` y `@export var accent_light_color` (se los pasa la pantalla). Es un juego de ratón: `focus_mode = NONE`, sin teclado salvo Escape (lo gestiona `LevelUI`). Es el botón recortado del tema en el acento de su pantalla: toma cada estilo del tema (`normal`, `hover`, `pressed`, `hover_pressed`, `disabled`) y lo copia con `ClippedBoxStyle.recolored`, así que la forma y los márgenes son los del tema y solo cambian los colores, que salen de `#060b14` mezclado con el acento:
+
+| Estado | Fondo | Borde | Texto |
+|---|---|---|---|
+| Normal | base mezclada al 7 % | base mezclada al 45 % | `#cce6ff` |
+| Ratón encima | fondo normal mezclado al 35 % (relleno con el acento) | acento | `accent_light_color` |
+| Pulsado | fondo normal mezclado al 22 % | acento | `accent_light_color` |
+| Desactivado | `#060b14` | base mezclada al 25 % | `#5a7a96` |
+
+No dibuja nada propio en `_draw`. Miden 136x24 con 6 px de separación y van centrados en horizontal.
 
 ## PauseMenu
 
 `scenes/level_ui/PauseMenu.tscn`, escena heredada de `OverlayScreen.tscn` con el script `scripts/level_ui/PauseScreen.gd` (clase `PauseScreen`). Título "PAUSA" y opciones "Continuar" (`RESUME`), "Opciones" (`SETTINGS`, ver abajo), "Reiniciar" (`RESTART`) y "Salir" (`QUIT`). Aparece al instante, sin animación de entrada.
 
 - **Cursor:** el título es "PAUSA" en cian y a su derecha hay un `Label` "_" (creado en `_add_cursor`, en un `HBoxContainer` con el título) que parpadea cada 0,5 s con la opacidad, así el panel no cambia de tamaño. Se enciende cada vez que se abre la pausa.
-- **Plegado:** `FoldButton` (12x12, icono `assets/ui/fold.png`, sin tooltip ni foco) en la esquina superior derecha del marco. Al pulsarlo se ocultan `Background` y `Frame` y se enseña `FoldedTag`, un `OverlayFrame` cian con "PAUSA" a 16 px, a 3 px de la esquina superior izquierda del área de juego. Plegada no hay oscurecido y el mapa se ve limpio; el juego sigue en pausa. Clic izquierdo en la etiqueta: se despliega. Escape, plegada o no, quita la pausa (lo gestiona `LevelUI`). Al volver a pausar, `_on_shown` la despliega siempre.
+- **Plegado:** `FoldButton` (12x12, icono `assets/ui/fold.png`, sin tooltip ni foco) arriba a la derecha dentro del marco, debajo de la regla. Es un botón de icono sin caja (todos sus estilos son `StyleBoxEmpty`): el icono se ve al 60 % y a plena luz con el ratón encima. Al pulsarlo se ocultan `Background` y `Frame` y se enseña `FoldedTag`, un `OverlayFrame` pequeño (ver `OverlayFrame`) con "PAUSA" a 16 px en cian, a 3 px de la esquina superior izquierda del área de juego. Plegada no hay oscurecido y el mapa se ve limpio; el juego sigue en pausa. Clic izquierdo en la etiqueta: se despliega. Escape, plegada o no, quita la pausa (lo gestiona `LevelUI`). Al volver a pausar, `_on_shown` la despliega siempre.
 - Plegar y desplegar es solo cosa de `PauseScreen`: `LevelUI` sigue en `PAUSED`.
 - **Opciones:** `PauseScreen` escucha su propio `option_chosen` y, con `SETTINGS`, abre la instancia de `scenes/OptionsMenu.tscn` que cuelga de `PauseMenu` (`%OptionsMenu`, ver [menu.md](menu.md)) con `open_from(Center)`: el marco de la pausa se funde a las opciones sobre el mismo oscurecido y "Volver" regresa a él. `LevelUI` ignora `SETTINGS`. El juego sigue en pausa todo el rato; las opciones funcionan porque heredan `process_mode = ALWAYS` de `LevelUI`. Si la pausa se cierra con las opciones abiertas (Escape), `PauseScreen` llama a `close()` para que la siguiente pausa empiece por el marco.
 
@@ -246,7 +292,7 @@ La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Una pantall
 `scenes/level_ui/VictoryScreen.tscn` (heredada de `OverlayScreen.tscn`) + `scripts/level_ui/VictoryScreen.gd` (clase `VictoryScreen`, extiende `OverlayScreen`). Pantalla de celebración, contraparte de la derrota. Corre con el árbol en pausa (hereda `process_mode` ALWAYS de `LevelUI`), así que sus tweens y su `delta` son tiempo real.
 
 - **Aspecto:** título "SECTOR" / "ASEGURADO" (dos líneas, sin tildes ni Ñ) en el ámbar del acento `#ecb23c`. Oscurecido negro al 45 %, más ligero que la derrota para que se vea el mapa ganado. Entre el título y las opciones va `RunSummary` (`%RunSummary`) con el acento ámbar. No conecta botones a mano: lo hace la base.
-- **Entrada:** cada vez que se abre (`visibility_changed`), el nodo `Center` (que centra el marco) se coloca justo encima del área de juego y baja hasta su sitio en `SLIDE_TIME` (0,35 s): curva cúbica que frena hasta pasarse `SLIDE_OVERSHOOT_PX` (2 px) y vuelve a su sitio en los últimos `SLIDE_SETTLE_TIME` (0,08 s). La posición se redondea a píxeles enteros en cada paso. A la vez, el oscurecido se funde de 0 a su opacidad en `DIM_FADE_TIME` (0,2 s, con el `modulate` de `Background`).
+- **Entrada:** cada vez que se abre (`visibility_changed`), el nodo `Center` (que centra el marco) se coloca justo encima del área de juego (con los corchetes del marco, `OverlayFrame.OUTSIDE_MARGIN`, también fuera) y baja hasta su sitio en `SLIDE_TIME` (0,35 s): curva cúbica que frena hasta pasarse `SLIDE_OVERSHOOT_PX` (2 px) y vuelve a su sitio en los últimos `SLIDE_SETTLE_TIME` (0,08 s). La posición se redondea a píxeles enteros en cada paso. A la vez, el oscurecido se funde de 0 a su opacidad en `DIM_FADE_TIME` (0,2 s, con el `modulate` de `Background`).
 - **Conteo:** al abrirse llama a `run_summary.count_up(COUNT_TIME, SLIDE_TIME)`: los números se ven a 0 mientras baja el marco y cuentan en `COUNT_TIME` (0,8 s) cuando llega. La oleada sale directamente ("Y/Y").
 - **Saltar:** clic izquierdo en el oscurecido, el marco o el resumen (no en los botones) durante la entrada o el conteo: lo corta todo y deja el marco en su sitio, el oscurecido entero y los valores finales. Las opciones se pueden pulsar desde el principio. Al cerrarse la pantalla también se deja en su estado final.
 - **Destellos:** tres destellos de cuatro puntas junto al título (a la izquierda y arriba a la derecha de "SECTOR" y a la derecha de "ASEGURADO"), pintados sobre el título con su señal `draw` y colocados según el ancho de cada línea. Son píxeles enteros con `draw_rect`, sin antialiasing: cruz de 1 px en `#ecb23c`, centro de 3x3 en cruz en `#ffe082` y, al tamaño máximo de 4 o más, cuatro píxeles en diagonal en `#96641e`. El largo de las puntas sube y baja en pasos de 1 px con un seno de ritmo y fase propios (máximos de 5, 3 y 4 px). No se reutiliza `_draw_sparkle` del menú porque usa polígonos y un halo suave.

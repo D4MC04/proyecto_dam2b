@@ -30,8 +30,12 @@ func _ready() -> void:
 	ruler.draw.connect(_draw_ruler)
 
 func _draw_ruler() -> void:
-	var width := int(ruler.size.x)
-	ruler.draw_rect(Rect2(0, 0, width, 1), RULER_COLOR)
+	draw_ruler(ruler, Vector2i.ZERO, int(ruler.size.x), RULER_COLOR)
+
+## Pinta una regla de marcas en `item`: línea de `width` px desde `origin` y marcas hacia abajo.
+## Mide 1 + MAJOR_TICK_LENGTH px de alto. También la usa el panel holograma (OverlayFrame).
+static func draw_ruler(item: CanvasItem, origin: Vector2i, width: int, color: Color) -> void:
+	item.draw_rect(Rect2(origin.x, origin.y, width, 1), color)
 	for x in range(0, width, TICK_STEP):
 		var length := MAJOR_TICK_LENGTH if x % MAJOR_TICK_STEP == 0 else TICK_LENGTH
-		ruler.draw_rect(Rect2(x, 1, 1, length), RULER_COLOR)
+		item.draw_rect(Rect2(origin.x + x, origin.y + 1, 1, length), color)
