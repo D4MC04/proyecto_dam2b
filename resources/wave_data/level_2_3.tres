@@ -1,0 +1,76 @@
+[gd_resource type="Resource" script_class="WaveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/SpawnEntry.gd" id="1_n16wg"]
+[ext_resource type="Resource" path="res://resources/enemy_data/wasp.tres" id="2_d4mm0"]
+[ext_resource type="Resource" path="res://resources/enemy_data/ufo.tres" id="3_6uv8m"]
+[ext_resource type="Resource" path="res://resources/enemy_data/nave_normal.tres" id="4_kk5vp"]
+[ext_resource type="Script" path="res://scripts/resources/WaveData.gd" id="5_h7amr"]
+
+[sub_resource type="Resource" id="Resource_88wfo"]
+script = ExtResource("1_n16wg")
+enemy_data = ExtResource("2_d4mm0")
+time = 2.0
+
+[sub_resource type="Resource" id="Resource_h7gmc"]
+script = ExtResource("1_n16wg")
+enemy_data = ExtResource("3_6uv8m")
+time = 2.5
+
+[sub_resource type="Resource" id="Resource_mlfck"]
+script = ExtResource("1_n16wg")
+enemy_data = ExtResource("4_kk5vp")
+time = 3.0
+
+[sub_resource type="Resource" id="Resource_emrvl"]
+script = ExtResource("1_n16wg")
+enemy_data = ExtResource("3_6uv8m")
+time = 3.5
+
+[sub_resource type="Resource" id="Resource_i75dt"]
+script = ExtResource("1_n16wg")
+enemy_data = ExtResource("2_d4mm0")
+time = 4.0
+
+[sub_resource type="Resource" id="Resource_cr7g2"]
+script = ExtResource("1_n16wg")
+enemy_data = ExtResource("2_d4mm0")
+time = 6.5
+
+[sub_resource type="Resource" id="Resource_2tem1"]
+script = ExtResource("1_n16wg")
+enemy_data = ExtResource("2_d4mm0")
+time = 7.0
+
+[sub_resource type="Resource" id="Resource_13ary"]
+script = ExtResource("1_n16wg")
+enemy_data = ExtResource("4_kk5vp")
+time = 7.5
+
+[sub_resource type="Resource" id="Resource_avdo7"]
+script = ExtResource("1_n16wg")
+enemy_data = ExtResource("3_6uv8m")
+time = 8.0
+
+[sub_resource type="Resource" id="Resource_uieig"]
+script = ExtResource("1_n16wg")
+enemy_data = ExtResource("4_kk5vp")
+time = 11.0
+
+[sub_resource type="Resource" id="Resource_64iof"]
+script = ExtResource("1_n16wg")
+enemy_data = ExtResource("4_kk5vp")
+time = 11.5
+
+[sub_resource type="Resource" id="Resource_r5mnl"]
+script = ExtResource("1_n16wg")
+enemy_data = ExtResource("2_d4mm0")
+time = 12.0
+
+[sub_resource type="Resource" id="Resource_vlbxf"]
+script = ExtResource("1_n16wg")
+enemy_data = ExtResource("4_kk5vp")
+time = 12.5
+
+[resource]
+script = ExtResource("5_h7amr")
+entries = Array[ExtResource("1_n16wg")]([SubResource("Resource_88wfo"), SubResource("Resource_h7gmc"), SubResource("Resource_mlfck"), SubResource("Resource_emrvl"), SubResource("Resource_i75dt"), SubResource("Resource_cr7g2"), SubResource("Resource_2tem1"), SubResource("Resource_13ary"), SubResource("Resource_avdo7"), SubResource("Resource_uieig"), SubResource("Resource_64iof"), SubResource("Resource_r5mnl"), SubResource("Resource_vlbxf")])

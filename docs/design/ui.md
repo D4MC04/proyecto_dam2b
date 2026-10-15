@@ -92,7 +92,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
 ## Sidebar
 
-`scenes/level_ui/Sidebar.tscn` + `scripts/level_ui/Sidebar.gd` (clase `Sidebar`). Estilo de barra compartido con `InfoPanel`. Dentro del margen de 4 px quedan 120 px de ancho útil. Lo que se estira con los contenedores (cabeceras de dinero y de oleada, títulos de `WaveBlock`) ocupa todo ese ancho; lo de ancho fijo (pestañas, controles de oleada, rejilla de torres y rejillas de enemigos) va centrado en horizontal, con el mismo tamaño que antes.
+`scenes/level_ui/Sidebar.tscn` + `scripts/level_ui/Sidebar.gd` (clase `Sidebar`). Estilo de barra compartido con `InfoPanel`. Dentro del margen de 4 px quedan 120 px de ancho útil. Lo que se estira con los contenedores (cabecera de dinero, título de oleada) ocupa todo ese ancho; lo de ancho fijo (pestañas, controles de oleada, rejilla de torres y rejilla de enemigos) va centrado en horizontal, con el mismo tamaño que antes.
 
 - **Pestañas:** `TabBar` con dos botones de icono de 16x16 (`TowersTab` y `WavesTab`, 34x24, en un `ButtonGroup`, centrados con 4 px de separación) y una página por pestaña (`TowersPage`, `WavesPage`) de las que solo una es visible. No hay texto: el nombre ("Torres", "Oleadas") sale en el tooltip. Torres está activa al empezar. Los iconos son `assets/ui/tab_towers.png` y `tab_waves.png`. Los estilos de pestaña se crean en `_ready`: la inactiva tiene borde `#1c4a60` e icono atenuado; la activa, fondo `#14304a`, borde `#40e0f0` e icono a plena luz. Ver "Pestaña Oleadas" para `WavesPage`.
 - **`TowersPage`:** `MoneyHeader` (`PanelContainer` con `assets/ui/money_header_style.tres`) con `MoneyLabel` centrado en ámbar `#ecb23c`, formato `UiFormat.money`. Debajo, `TowerScroll` (`ScrollContainer`, scroll vertical sin barra visible, horizontal desactivado) con `TowerCenter` (`CenterContainer` que ocupa el ancho del scroll y centra la rejilla) y dentro `TowerButtons`, un `GridContainer` de 2 columnas con 4 px de separación (2 x 34 + 4 = 72 px de ancho). El dinero no entra en el scroll, así que no se mueve.
@@ -118,18 +118,33 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
 ## Pestaña Oleadas
 
-`WavesPage` (dentro de `Sidebar`), de arriba abajo: `WaveHeader` fijo (mismo estilo que `MoneyHeader`) con `WaveLabel` en cian `#40e0f0`; `WaveControls`, una fila fija con los dos controles de oleada; y `WaveScroll` (scroll vertical sin barra visible) con `WaveBlocks`, un `VBoxContainer` con un `WaveBlock` por oleada (6 px de separación).
+`WavesPage` (dentro de `Sidebar`), de arriba abajo: `WaveNav`, `WaveBlocks` y `WaveControls`. Enseña **una sola oleada** a la vez, sin scroll. El pie con el estado no está en la página, sino en `Content` (ver "Pie de la barra").
 
-- **Cabecera:** `"OL. X/Y"` (X = última oleada lanzada desde 1, Y = total). La forma corta viene de cuando la barra tenía 72 px útiles; se revisa con la fuente nueva. Antes de lanzar ninguna muestra `"OL. 0/Y"`.
-- **Controles** (`WaveControls`, `HBoxContainer` centrado con 4 px de separación y dos botones de 34x18 sin foco). Van en su propia fila, fuera del scroll. Los estilos se crean en `Sidebar._style_wave_controls()` con bordes de 1 px:
-  - `NextWaveButton`: icono `assets/ui/wave_next.png` (▶▶ cian), tooltip "Siguiente oleada". Activo: fondo `#0e1626`, borde `#1c7496`; hover con borde `#40e0f0`. Cuando no se puede lanzar (quedan enemigos de la oleada actual por salir o vivos, o no quedan oleadas) está `disabled`: fondo `#0a0f1a`, borde `#1c4a60` e icono al 30 %. Antes de la primera oleada, si se puede pulsar, su borde parpadea entre `#1c7496` y `#befaff` (0,5 s cada medio ciclo) para invitar a empezar. Emite `Sidebar.next_wave_requested`.
-  - `AutoWaveButton`: `toggle_mode`, icono `assets/ui/wave_auto.png` (rayo ámbar), tooltip sobre AUTO. Apagado: borde `#1c4a60` e icono al 30 %; encendido: fondo `#453d2b` (fondo mezclado al 25 % con ámbar), borde `#ecb23c` e icono a plena luz. Emite `Sidebar.auto_waves_toggled(enabled)`, que es una petición: el estado lo guarda `Spawner.auto_waves` y la barra lo refleja con `show_auto_waves(enabled)` (sin volver a emitir).
+- **`WaveNav`** (fila de 120 px): `PrevWaveArrow` (`<`, 16x18), `WaveTitlePanel` con `WaveTitleLabel` ("OLEADA N", ocupa el resto) y `NextWaveArrow` (`>`). Las flechas no tienen foco, funcionan con el juego en pausa y se desactivan en la primera y la última oleada (borde `#1c4a60`, texto al 30 %). Son `<` y `>` en vez de ◀ ▶ porque son glifos seguros en Monogram.
+- **`WaveBlocks`**: contenedor con un `WaveBlock` por oleada, de los que solo es visible el que se mira (`Sidebar.view_wave`).
+- **`Sidebar.view_wave(index)`**: enseña esa oleada, colorea el título según su estado respecto a la oleada en curso y actualiza las flechas. `Sidebar.set_current_wave(index)` guarda la oleada en curso (-1 si ninguna) y pasa a ver `max(index, 0)`.
+- **Cuándo vuelve sola la vista** (`LevelUI`): al empezar un nivel (la 1), al empezar una oleada (`set_current_wave`: la que acaba de empezar) y al limpiar una (`view_wave(index + 1)` si quedan más: la que se va a lanzar). Si el jugador miraba otra con las flechas, la vista se la lleva.
+- **Controles** (`WaveControls`, `HBoxContainer` centrado, debajo de la oleada, con 4 px de separación y texto a 16; entre los dos no pasan de los 120 px). Los estilos se crean en `Sidebar._style_wave_controls()` con bordes de 1 px:
+  - `NextWaveButton` ("LANZAR", 60x18), tooltip "Lanzar la siguiente oleada". Activo: fondo `#0e1626`, borde `#1c7496`; hover con borde `#40e0f0`. Cuando no se puede lanzar (quedan enemigos de la oleada actual por salir o vivos, o no quedan oleadas) está `disabled`: fondo `#0a0f1a`, borde `#1c4a60` y texto al 30 %. Antes de la primera oleada, si se puede pulsar, su borde parpadea entre `#1c7496` y `#befaff` (0,5 s cada medio ciclo) para invitar a empezar. Emite `Sidebar.next_wave_requested`.
+  - `AutoWaveButton` ("AUTO", 48x18, `toggle_mode`), tooltip sobre AUTO. Apagado: borde `#1c4a60` y texto al 30 %; encendido: fondo `#453d2b` (fondo mezclado al 25 % con ámbar), borde `#ecb23c` y texto a plena luz. Emite `Sidebar.auto_waves_toggled(enabled)`, que es una petición: el estado lo guarda `Spawner.auto_waves` y la barra lo refleja con `show_auto_waves(enabled)` (sin volver a emitir).
   - `Sidebar.set_next_wave_available(available, inviting)` activa o atenúa el botón y arranca o para el parpadeo.
-- `Sidebar.build_waves(waves)`: borra los bloques anteriores y crea uno por `WaveData`. `Sidebar.set_current_wave(index, total)`: actualiza cabecera y estados, y tras esperar un frame desplaza la lista para que el título del bloque en curso (o el primero, antes de empezar) quede arriba; también se hace al volver a la pestaña.
-- **`WaveBlock`** (`scenes/level_ui/WaveBlock.tscn` + `scripts/level_ui/WaveBlock.gd`): título `"OLEADA N"` en un panel que ocupa el ancho de la barra y una rejilla `Cells` de 2 columnas (34 px, 4 px de separación) de `EnemyCell`, centrada en horizontal. Agrupa las entradas por `EnemyData`, con el total de cada tipo, en orden de primera aparición (por `time`). No hay datos de enemigos en la UI.
-- **Estados:** `WaveBlock.set_state`. En curso (la última lanzada): título con fondo `#14304a`, borde y texto `#40e0f0`. Pasada: todo el bloque al 40 % de opacidad. Próxima (la siguiente a la última lanzada; antes de empezar, la primera): título con fondo `#0e1626`, borde `#96641e` y texto `#ecb23c`. Futura: título con fondo `#0e1626`, borde `#1c4a60` y texto `#7fa6b8`.
+- `Sidebar.build_waves(waves)`: borra los bloques anteriores y crea uno por `WaveData`.
+- **`WaveBlock`** (`scenes/level_ui/WaveBlock.tscn` + `scripts/level_ui/WaveBlock.gd`): solo la rejilla `Cells` de 2 columnas (34 px, 4 px de separación) de `EnemyCell`, centrada en horizontal. Agrupa las entradas por `EnemyData`, con el total de cada tipo, en orden de primera aparición (por `time`). No hay datos de enemigos en la UI. El título vive en `WaveNav`; `WaveBlock.apply_title_style(panel, label, state)` (estático) lo pinta.
+- **Estados:** `WaveBlock.State`, respecto a la oleada en curso (la última lanzada). En curso: título con fondo `#14304a`, borde y texto `#40e0f0`. Pasada: todo atenuado al 40 % de opacidad (bloque y título). Próxima (la siguiente a la en curso; antes de empezar, la primera): fondo `#0e1626`, borde `#96641e` y texto `#ecb23c`. Futura: fondo `#0e1626`, borde `#1c4a60` y texto `#7fa6b8`.
 - **`EnemyCell`** (`scenes/level_ui/EnemyCell.tscn` + `scripts/level_ui/EnemyCell.gd`): `Button` de 34x44 con los colores de `TowerButton`. Sprite = primer frame de `up` a escala 1, centrado en un área de 34x34 (el Spikey, de 34, ocupa todo el ancho de la celda y pisa el borde), y debajo `"×N"` a 16 px (abreviado con `UiFormat`). Tooltip con el nombre. Emite `inspect_requested(data)` con el clic izquierdo y con el derecho (este se recoge en `_gui_input`); `WaveBlock` y `Sidebar` lo reenvían.
-- `LevelUI.setup(..., spawner)` llama a `_connect_spawner`: desconecta el `Spawner` anterior si lo había, construye los bloques con `spawner.waves`, refleja la oleada (`get_wave_index()`) y AUTO, y conecta `wave_started`, `wave_cleared` y `auto_waves_changed`. Tras cada cambio de oleada, `_refresh_wave_controls()` pide a la barra que active el botón según `spawner.can_start_next_wave()` y que parpadee si aún no ha empezado ninguna. `next_wave_requested` llama a `spawner.start_next_wave()` y `auto_waves_toggled` escribe `spawner.auto_waves`.
+- `LevelUI.setup(..., spawner)` llama a `_connect_spawner`: desconecta el `Spawner` anterior si lo había, construye los bloques con `spawner.waves`, refleja la oleada (`get_wave_index()`) y AUTO, y conecta `wave_started`, `wave_cleared` y `auto_waves_changed`. `next_wave_requested` llama a `spawner.start_next_wave()` y `auto_waves_toggled` escribe `spawner.auto_waves`.
+
+### Pie de la barra
+
+`WaveFooter` (fila al final de `Content`, fuera de las páginas, así que se ve en Torres y en Oleadas), con texto a 16: a la izquierda `FooterWaveLabel` "OL. X/Y" y a la derecha `FooterStatusLabel`. X es la oleada en curso o, si no hay ninguna, la siguiente que se va a lanzar (antes de empezar, "OL. 1/Y"; nunca 0).
+
+| `Sidebar.WaveStatus` | Texto | Color | Cuándo |
+|---|---|---|---|
+| `IN_PROGRESS` | EN CURSO | `#40e0f0` | Hay una oleada lanzada con enemigos por salir o vivos |
+| `READY` | LISTA | `#ecb23c` | No hay oleada en curso y se puede lanzar la siguiente (también antes de la primera) |
+| `COMPLETE` | COMPLETA | `#7fa6b8` | No quedan oleadas por lanzar y la última está limpia |
+
+**Quién decide:** `LevelUI._refresh_wave_controls()` calcula el estado y el número a partir del `Spawner` (`is_clear()`, `has_waves_left()`, `get_wave_index()`) y llama a `Sidebar.set_wave_status(status, wave_number, total)`; la barra solo lo enseña. Se llama al conectar el `Spawner`, en `wave_started` y en `wave_cleared`.
 
 ## UiFormat
 
@@ -228,8 +243,8 @@ Opciones "Siguiente nivel" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción qu
 | `LevelState` | `money_changed` | `Sidebar.set_money` |
 | `LevelState` | `selected_tower_changed` | `Sidebar.show_selected` |
 | `LevelState` | `inspected_changed` | `InfoPanel.show_inspected` |
-| `Spawner` | `wave_started` | `LevelUI._on_wave_started` (`Sidebar.set_current_wave` y controles) |
-| `Spawner` | `wave_cleared` | `LevelUI._on_wave_cleared` (controles) |
+| `Spawner` | `wave_started` | `LevelUI._on_wave_started` (`Sidebar.set_current_wave`, controles y pie) |
+| `Spawner` | `wave_cleared` | `LevelUI._on_wave_cleared` (`Sidebar.view_wave` a la siguiente, controles y pie) |
 | `Spawner` | `auto_waves_changed` | `Sidebar.show_auto_waves` |
 | `Sidebar` | `tower_selected` | `LevelUI._on_tower_selected` (escribe en `LevelState`) |
 | `Sidebar` | `inspect_requested` | `LevelUI._on_inspect_requested` (escribe `LevelState.inspected`) |
@@ -238,6 +253,7 @@ Opciones "Siguiente nivel" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción qu
 | `PauseMenu`, `GameOverScreen`, `VictoryScreen` | `option_chosen` | `LevelUI._on_option_chosen` (`RESUME` lo resuelve ella) |
 | `LevelUI` | `action_requested` | `Game._on_action_requested` (reiniciar, volver al menú o pasar al siguiente nivel) |
 | `LevelUI` | llamada directa | `Sidebar.set_selection_locked` (en cada `set_state`) |
+| `LevelUI` | llamada directa | `Sidebar.set_wave_status` (pie "OL. X/Y" y estado, desde `_refresh_wave_controls`) |
 | `LevelUI` | llamada directa | `GameOverScreen.show_run_stats` y `VictoryScreen.show_run_stats` (desde `show_run_stats`) |
 | `GameOverScreen` | llamada directa | `RunSummary.show_stats` |
 | `VictoryScreen` | llamada directa | `RunSummary.show_stats`, `count_up` y `finish_count` |

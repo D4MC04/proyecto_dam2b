@@ -92,7 +92,7 @@ func _connect_spawner(spawner: Spawner) -> void:
 				connection[0].disconnect(connection[1])
 	_spawner = spawner
 	sidebar.build_waves(spawner.waves)
-	sidebar.set_current_wave(spawner.get_wave_index(), spawner.waves.size())
+	sidebar.set_current_wave(spawner.get_wave_index())
 	sidebar.show_auto_waves(spawner.auto_waves)
 	_refresh_wave_controls()
 	for connection in _spawner_connections(spawner):
@@ -105,16 +105,27 @@ func _spawner_connections(spawner: Spawner) -> Array[Array]:
 		[spawner.auto_waves_changed, sidebar.show_auto_waves],
 	]
 
-func _on_wave_started(index: int, total: int) -> void:
-	sidebar.set_current_wave(index, total)
+func _on_wave_started(index: int, _total: int) -> void:
+	sidebar.set_current_wave(index)
 	_refresh_wave_controls()
 
-func _on_wave_cleared(_index: int) -> void:
+func _on_wave_cleared(index: int) -> void:
+	# Si quedan oleadas, la vista pasa a la siguiente, que es la que se va a lanzar.
+	if _spawner.has_waves_left():
+		sidebar.view_wave(index + 1)
 	_refresh_wave_controls()
 
 func _refresh_wave_controls() -> void:
 	# Antes de la primera oleada el botón parpadea para invitar a empezar.
 	sidebar.set_next_wave_available(_spawner.can_start_next_wave(), _spawner.get_wave_index() < 0)
+	var index := _spawner.get_wave_index()
+	var total := _spawner.waves.size()
+	if not _spawner.is_clear():
+		sidebar.set_wave_status(Sidebar.WaveStatus.IN_PROGRESS, index + 1, total)
+	elif _spawner.has_waves_left():
+		sidebar.set_wave_status(Sidebar.WaveStatus.READY, index + 2, total)
+	else:
+		sidebar.set_wave_status(Sidebar.WaveStatus.COMPLETE, index + 1, total)
 
 func _on_next_wave_requested() -> void:
 	if is_instance_valid(_spawner):

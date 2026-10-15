@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="WaveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/SpawnEntry.gd" id="1_q180v"]
+[ext_resource type="Resource" path="res://resources/enemy_data/wasp.tres" id="2_3amxn"]
+[ext_resource type="Script" path="res://scripts/resources/WaveData.gd" id="3_iihy1"]
+
+[sub_resource type="Resource" id="Resource_43vmx"]
+script = ExtResource("1_q180v")
+enemy_data = ExtResource("2_3amxn")
+time = 2.0
+
+[sub_resource type="Resource" id="Resource_br2cg"]
+script = ExtResource("1_q180v")
+enemy_data = ExtResource("2_3amxn")
+time = 2.5
+
+[sub_resource type="Resource" id="Resource_htyeg"]
+script = ExtResource("1_q180v")
+enemy_data = ExtResource("2_3amxn")
+time = 3.0
+
+[sub_resource type="Resource" id="Resource_p5e5j"]
+script = ExtResource("1_q180v")
+enemy_data = ExtResource("2_3amxn")
+time = 6.5
+
+[sub_resource type="Resource" id="Resource_3jpk8"]
+script = ExtResource("1_q180v")
+enemy_data = ExtResource("2_3amxn")
+time = 7.0
+
+[sub_resource type="Resource" id="Resource_7x72o"]
+script = ExtResource("1_q180v")
+enemy_data = ExtResource("2_3amxn")
+time = 7.5
+
+[resource]
+script = ExtResource("3_iihy1")
+entries = Array[ExtResource("1_q180v")]([SubResource("Resource_43vmx"), SubResource("Resource_br2cg"), SubResource("Resource_htyeg"), SubResource("Resource_p5e5j"), SubResource("Resource_3jpk8"), SubResource("Resource_7x72o")])

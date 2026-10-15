@@ -18,13 +18,10 @@ const NEXT_BORDER_COLOR := Color("#96641e")
 const NEXT_TEXT_COLOR := Color("#ecb23c")
 const PAST_COLOR := Color(1, 1, 1, 0.4)
 
-@onready var title_panel: PanelContainer = %TitlePanel
-@onready var title_label: Label = %TitleLabel
 @onready var cells: GridContainer = %Cells
 
 ## Rellena el bloque con una celda por tipo de enemigo, en orden de primera aparición.
-func setup(wave: WaveData, wave_number: int) -> void:
-	title_label.text = "OLEADA %d" % wave_number
+func setup(wave: WaveData) -> void:
 	var entries: Array[SpawnEntry] = wave.entries.duplicate()
 	entries.sort_custom(func(a: SpawnEntry, b: SpawnEntry) -> bool: return a.time < b.time)
 	# Un Dictionary conserva el orden de inserción: la primera aparición manda.
@@ -38,9 +35,13 @@ func setup(wave: WaveData, wave_number: int) -> void:
 		cells.add_child(cell)
 		cell.inspect_requested.connect(inspect_requested.emit)
 		cell.setup(enemy_data, counts[enemy_data])
-	set_state(State.FUTURE)
 
+## Una pasada se atenúa entera.
 func set_state(state: State) -> void:
+	modulate = PAST_COLOR if state == State.PAST else Color.WHITE
+
+## Pinta el título de la oleada (panel y texto) con los colores del estado.
+static func apply_title_style(panel: PanelContainer, label: Label, state: State) -> void:
 	var bg := TITLE_BG_COLOR
 	var border := TITLE_BORDER_COLOR
 	var text_color := TITLE_TEXT_COLOR
@@ -61,6 +62,6 @@ func set_state(state: State) -> void:
 	style.content_margin_top = 1
 	style.content_margin_bottom = 1
 	style.anti_aliasing = false
-	title_panel.add_theme_stylebox_override("panel", style)
-	title_label.add_theme_color_override("font_color", text_color)
-	modulate = PAST_COLOR if state == State.PAST else Color.WHITE
+	panel.add_theme_stylebox_override("panel", style)
+	label.add_theme_color_override("font_color", text_color)
+	panel.modulate = PAST_COLOR if state == State.PAST else Color.WHITE

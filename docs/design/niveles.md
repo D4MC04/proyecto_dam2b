@@ -50,16 +50,16 @@ Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de l
 
 Niveles registrados en `GameData.levels`:
 
-| Nivel | Mapa | Torres disponibles | Enemigos en la oleada | Último enemigo (s) | Caminos usados / en el mapa |
+| Nivel | Mapa | Torres disponibles | Enemigos por oleada (1 + 2 + 3) | Último enemigo de cada una (s) | Caminos usados / en el mapa |
 |---|---|---|---|---|---|
-| 1 | `maps/Level1.tscn` | Cañón doble, Cañón pesado, Láser | 25 | 62,6 | 1 / 1 |
-| 2 | `maps/espacio/Level2_espacio.tscn` | las anteriores + Cryo | 32 | 93,63 | 1 / 2 |
-| 3 | `maps/Level3.tscn` | las anteriores + Tesla | 40 | 105,07 | 1 / 1 |
-| 4 | `maps/Level4.tscn` | las anteriores + Rail | 50 | 125,7 | 2 / 2 |
-| 5 | `maps/espacio/Level5_espacio.tscn` | las anteriores + Disintegrator | 60 | 132,83 | 1 / 4 |
-| 6 | `maps/espacio/Level6_espacio.tscn` | las 7 | 75 | 210,96 | 4 / 8 |
+| 1 | `maps/Level1.tscn` | Cañón doble, Cañón pesado, Láser | 7 + 12 + 6 | 8,5 / 12 / 7,5 | 1 / 1 |
+| 2 | `maps/espacio/Level2_espacio.tscn` | las anteriores + Cryo | 7 + 12 + 13 | 8,5 / 12 / 12,5 | 1 / 2 |
+| 3 | `maps/Level3.tscn` | las anteriores + Tesla | 16 + 12 + 12 | 18 / 12,5 / 12,5 | 1 / 1 |
+| 4 | `maps/Level4.tscn` | las anteriores + Rail | 19 + 12 + 19 | 22 / 12 / 21 | 2 / 2 |
+| 5 | `maps/espacio/Level5_espacio.tscn` | las anteriores + Disintegrator | 19 + 24 + 17 | 22 / 25,5 / 17,5 | 1 / 4 |
+| 6 | `maps/espacio/Level6_espacio.tscn` | las 7 | 28 + 24 + 23 | 31,5 / 26 / 25,5 | 4 / 8 |
 
-Cada nivel tiene una sola `WaveData` (`resources/wave_data/level_N.tres`). Los niveles 1, 2, 3, 4 y 6 están en `resources/level_data/level_N.tres`; el 5 está definido como subrecurso dentro de `scenes/GameData.tscn`.
+Cada nivel tiene tres `WaveData` (`resources/wave_data/level_N.tres`, `level_N_2.tres` y `level_N_3.tres`): son la oleada original del nivel partida en tres tramos consecutivos, con los tiempos de cada una desde 3 s (la primera) o 2 s (las otras). Los niveles 1, 2, 3, 4 y 6 están en `resources/level_data/level_N.tres`; el 5 está definido como subrecurso dentro de `scenes/GameData.tscn`.
 
 ## Spawner
 
