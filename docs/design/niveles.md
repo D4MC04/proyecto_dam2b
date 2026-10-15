@@ -14,7 +14,7 @@
 `Level.setup(data: LevelData)`:
 
 1. Instancia `data.map`, lo llama `Map` y lo pone como primer hijo.
-2. `_center_map()`: centra el mapa en horizontal en el área de juego (ver "Centrado del mapa").
+2. `_center_map()`: centra el mapa en el área de juego, en horizontal y en vertical (ver "Centrado del mapa").
 3. Guarda `data.towers` en `towers`.
 4. `grid.setup(map.logic_map)`.
 5. `spawner.setup(map.get_paths(), data.waves)`.
@@ -120,7 +120,7 @@ Base: `scenes/maps/Map.tscn` + `scripts/level/Map.gd` (clase `Map`). Nodos:
 
 ### Centrado del mapa
 
-El área de juego va de x = 80 a x = 560 (ver [ui.md](ui.md)), con centro en `Level.GAME_AREA_CENTER_X` = 320. `Level._center_map()` suma a `map.position.x` la distancia, redondeada a píxeles enteros, entre ese centro y el centro del rectángulo útil (contando la posición propia de `Map`). En vertical no se mueve. Ningún `.tscn` de mapa lleva posiciones de centrado: un mapa nuevo se centra solo, y al reiniciar el nivel se vuelve a centrar.
+El área de juego va de x = 128 a x = 832 y de y = 0 a y = 540 (ver [ui.md](ui.md)), con centro en `Level.GAME_AREA_CENTER` = (480, 270). `Level._center_map()` suma a `map.position` la distancia, redondeada a píxeles enteros en los dos ejes, entre ese centro y el centro del rectángulo útil (contando la posición propia de `Map`). Ningún `.tscn` de mapa lleva posiciones de centrado: un mapa nuevo se centra solo, y al reiniciar el nivel se vuelve a centrar.
 
 `Grid`, `BuildManager` y los enemigos no necesitan saberlo: `Grid` convierte con `to_local`/`to_global` de `LogicMap`, las torres y la vista previa se colocan con `grid.center` y los enemigos son hijos de los `Path2D` del mapa.
 
@@ -187,5 +187,5 @@ Funciones:
 - `Level7.tscn` a `Level10.tscn`, `Level2.tscn`, `Level5.tscn`, `Level6.tscn` y la carpeta `redesign/` no están en ningún `LevelData`. Los mapas 7 a 10 usan un `Sprite2D` como estación en vez de `Base.tscn`, y `Level6.tscn` tiene las dos cosas.
 - `resources/level_data/level_5.tres` existe y tiene el mismo contenido que el subrecurso de `GameData.tscn`, pero `GameData` no lo usa.
 - En los niveles 2, 5 y 6 el mapa tiene más caminos de los que usa la oleada.
-- Mapas de hierba que no cubren de lado a lado el área de juego (80..560) y dejan fondo negro: nivel 1, 40 px a la derecha (`VisualMap` acaba en 520); nivel 3, 8 px a la izquierda; nivel 4, 8 px a cada lado. Los de espacio tienen `FondoEspacio` detrás y no dejan huecos.
+- Los mapas (como mucho unos 480x272) no llenan el área de juego de 704x540: alrededor queda fondo vacío, y los enemigos aparecen y desaparecen en el borde del mapa. Los de espacio (niveles 2, 5 y 6) llevan `FondoEspacio` (640 px de ancho), que solo cubre su franja.
 - Hay archivos temporales del editor en `scenes/` (`Level.tscn*.tmp`, `MainMenu.tscn*.tmp`).

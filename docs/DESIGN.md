@@ -6,7 +6,7 @@ Describe lo que hace el código hoy. El detalle de cada sistema está en `docs/d
 
 Tower defense 2D hecho en Godot 4.7 con GDScript. El jugador elige un nivel, compra torres con dinero y las coloca en casillas fijas del mapa. Los enemigos llegan por oleadas, que el jugador lanza con un botón (o solas en modo AUTO); dentro de cada oleada salen según una lista de tiempos y recorren caminos fijos. Matar enemigos da dinero. Si un enemigo llega al final de su camino, se pierde la partida; si se limpia la última oleada, se gana el nivel.
 
-- Resolución base: 640x272 px (ventana 1920x816, escala ×3, escalado `canvas_items`, aspecto `keep_width`), filtro de texturas "nearest".
+- Resolución base: 960x540 px (ventana 1920x1080, escala ×2, escalado `canvas_items` con `scale_mode` entero y aspecto `keep`: en pantallas mayores salen bandas negras en vez de estirar), filtro de texturas "nearest".
 - Tamaño de casilla: 16x16 px.
 - Escena inicial: `scenes/MainMenu.tscn`.
 - Los datos de juego (niveles, oleadas, enemigos, torres, ataques) son `Resource` en `resources/`; los scripts de `scripts/resources/` definen sus campos.
@@ -14,7 +14,7 @@ Tower defense 2D hecho en Godot 4.7 con GDScript. El jugador elige un nivel, com
 ## Flujo de pantallas
 
 1. `MainMenu`: pantalla de título y selección de nivel.
-2. `Game`: contiene un `Level` (mapa, enemigos, torres) y un `LevelUI` en tres columnas: barra izquierda de 80 px, área de juego de 480 px con el mapa centrado (y la pausa, la derrota y la victoria) y barra derecha de 80 px.
+2. `Game`: contiene un `Level` (mapa, enemigos, torres) y un `LevelUI` en tres columnas: barra izquierda de 128 px, área de juego de 704x540 px con el mapa centrado en los dos ejes (y la pausa, la derrota y la victoria) y barra derecha de 128 px.
 3. Desde pausa o derrota se reinicia el nivel o se vuelve a la selección de nivel; la derrota llega tras una cámara lenta y un glitch, con un resumen de la partida. Al limpiar la última oleada, tras un breve respiro, entra la victoria deslizando, con un resumen que cuenta hacia arriba, "Siguiente nivel" (monta el siguiente nivel sin pasar por el menú; no sale en el último) y "Menú".
 
 ## Sistemas principales

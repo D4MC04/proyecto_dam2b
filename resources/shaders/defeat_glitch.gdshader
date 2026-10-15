@@ -1,13 +1,13 @@
 // Glitch de la derrota: corta el área de juego con bandas horizontales desplazadas y estática.
 // Va en un ColorRect que tapa el área de juego, encima del oscurecido y debajo del panel.
-// Todo se calcula sobre la rejilla de píxeles de juego (1 px = 1 píxel del viewport de 640x272),
+// Todo se calcula sobre la rejilla de píxeles de juego (1 px = 1 píxel del viewport de 960x540),
 // así que no hay desenfoque ni bordes suaves. El patrón lo cambia el script a saltos con `seed`.
 shader_type canvas_item;
 render_mode unshaded;
 
 uniform sampler2D screen_texture : hint_screen_texture, filter_nearest;
 // Tamaño del rectángulo en píxeles de juego.
-uniform vec2 rect_size = vec2(480.0, 272.0);
+uniform vec2 rect_size = vec2(704.0, 540.0);
 // 1 = corte fuerte de la entrada; 0 = sin bandas ni estática fuerte.
 uniform float intensity : hint_range(0.0, 1.0) = 0.0;
 // Estática tenue que queda con el panel estable.

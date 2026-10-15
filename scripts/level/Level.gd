@@ -4,8 +4,9 @@ class_name Level
 signal lost
 signal won
 
-# Centro horizontal del área de juego: barra izquierda de 80 px más la mitad de 480.
-const GAME_AREA_CENTER_X := 320.0
+# Centro del área de juego: en horizontal, barra izquierda de 128 px más la mitad de 704;
+# en vertical, la mitad de los 540 px de alto.
+const GAME_AREA_CENTER := Vector2(480.0, 270.0)
 
 var map: Map
 var towers: Array[TowerData]
@@ -38,10 +39,10 @@ func get_run_stats() -> RunStats:
 	return RunStats.new(spawner.get_wave_index() + 1, spawner.waves.size(),
 			game_state.enemies_destroyed, game_state.money_spent)
 
-# Desplaza el mapa en horizontal para que su rectángulo útil quede centrado en el área de juego.
+# Desplaza el mapa para que su rectángulo útil quede centrado en el área de juego en los dos ejes.
 func _center_map() -> void:
-	var used_center_x := map.position.x + map.get_used_rect().get_center().x
-	map.position.x += roundf(GAME_AREA_CENTER_X - used_center_x)
+	var used_center := map.position + map.get_used_rect().get_center()
+	map.position += (GAME_AREA_CENTER - used_center).round()
 
 func _lose() -> void:
 	if _finished:
