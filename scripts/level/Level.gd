@@ -7,6 +7,8 @@ signal won
 # Centro del área de juego: en horizontal, barra izquierda de 128 px más la mitad de 704;
 # en vertical, la mitad de los 540 px de alto.
 const GAME_AREA_CENTER := Vector2(480.0, 270.0)
+# Área de juego completa: entre las dos barras de 128 px.
+const GAME_AREA_RECT := Rect2(128.0, 0.0, 704.0, 540.0)
 
 var map: Map
 var towers: Array[TowerData]
@@ -43,6 +45,7 @@ func get_run_stats() -> RunStats:
 func _center_map() -> void:
 	var used_center := map.position + map.get_used_rect().get_center()
 	map.position += (GAME_AREA_CENTER - used_center).round()
+	map.place_background(GAME_AREA_RECT)
 
 func _lose() -> void:
 	if _finished:

@@ -17,3 +17,12 @@ func get_used_rect() -> Rect2:
 	var cells_rect := Rect2(Vector2(cells.position) * tile_size, Vector2(cells.size) * tile_size)
 	var result := logic_map.transform * cells_rect
 	return result.merge(space_station.transform * space_station.get_rect())
+
+
+## Coloca el fondo (si lo hay) en el origen del área de juego, en coordenadas globales.
+## Así no se mueve con el centrado del mapa y siempre cubre el área.
+func place_background(area_rect: Rect2) -> void:
+	var background := get_node_or_null("Background") as Node2D
+	if background == null:
+		return
+	background.global_position = area_rect.position

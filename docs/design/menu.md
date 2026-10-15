@@ -83,4 +83,4 @@ Los deslizadores van de 0 a 1 en pasos de 0,05. Los botones son de tipo interrup
 - El fundido está escrito dos veces: en `MainMenu._transition` (título y selección de nivel) y en `OptionsMenu._fade`.
 - El deslizador "Efectos" no cambia nada audible mientras no haya sonidos en el bus `SFX`.
 - Pantalla completa y VSync no tienen efecto si el juego se ejecuta incrustado en el editor de Godot; hay que ejecutarlo en su propia ventana.
-- Los scripts de `scripts/main_menu/` tienen variables sin tipo y nombres en español (`_actualizar`), al contrario de lo que pide `CLAUDE.md`. Lo mismo `scripts/level/Cometa.gd`. `MainMenu.gd` tiene funciones sin tipo de retorno.
+- Los scripts de `scripts/main_menu/` tienen variables sin tipo y nombres en español (`_actualizar`), al contrario de lo que pide `CLAUDE.md`. `MainMenu.gd` tiene funciones sin tipo de retorno.

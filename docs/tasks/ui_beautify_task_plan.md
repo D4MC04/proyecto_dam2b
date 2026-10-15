@@ -15,7 +15,7 @@ Igual que en el plan anterior:
 ## Estado y contexto para retomar
 
 - **Rama:** `ui-beautify` en `D4MC04/proyecto_dam2b`, creada desde `main` después de mergear `level-ui-upgrade` y el menú de Opciones del compañero. David copia cada md a `docs/tasks/ui-beautify/<nombre>.md`.
-- **Hecho:** la 1 (`resolucion`). **Siguiente md a redactar:** la 3 (`fuente.md`); `fondo.md` ya está redactado.
+- **Hecho:** la 1 (`resolucion`) y la 2 (`fondo`). **Siguiente md a redactar:** la 3 (`fuente.md`).
 - Esta conversación solo diseña. Se responde en español.
 - **Referencia visual:** [maqueta/maqueta_juego.png](maqueta/maqueta_juego.png) y [maqueta/maqueta_pausa.png](maqueta/maqueta_pausa.png). Las aprobó David el 15/10, con dos cambios: los botones no llevan corchetes ni `>`, y el mapa de la maqueta es relleno.
 

@@ -114,6 +114,7 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 - `bullets/red_bullet.png` (16x16, 129 colores) y `bullets/bullets.png` (1536x1024).
 - `base/space_station.png` (48x48, 41 colores).
 - `backgrounds/fondo_1` a `fondo_6` y `fondo_nebula_1` y `_2`: 480x272, 9 a 34 colores.
+- `backgrounds/espacio/fondo_nebulosa_tall.png` (640x544): la `fondo_nebulosa.png` (640x272) arriba y la misma volteada en vertical debajo, para que case consigo misma por arriba y por abajo. Generada con `scripts/tools/make_tall_nebula.gd` (`godot --headless --path . -s scripts/tools/make_tall_nebula.gd`).
 
 ## Dudas
 

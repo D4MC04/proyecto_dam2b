@@ -135,10 +135,10 @@ Resultado con los mapas actuales (px de pantalla):
 | 5 | (88, 0) | 136..504 | 72..600 |
 | 6 | (88, 0) | 136..504 | 72..600 |
 
-Hay dos familias de mapas:
+Todos los mapas (y la plantilla `Map.tscn`) llevan `Background`, instancia de `SpaceBackground.tscn`, como primer hijo de `Map`. Hay dos familias de mapas:
 
 - **Hierba** (`scenes/maps/Level1.tscn` a `Level10.tscn` y `scenes/maps/redesign/`): `VisualMap` usa `resources/tilesets/tileset.tres` (hierba, piedra, plantas, objetos, estructuras, muros). `LogicMap` es visible con alfa 0,39.
-- **Espacio** (`scenes/maps/espacio/`): añaden `Fondo` (instancia de `FondoEspacio.tscn`) y las capas `Polvo`, `Planetas` y `Pista`, todas con `resources/tilesets/tileset_espacio.tres`. `LogicMap` tiene `visible = false`. El nodo `Map` está en la posición (8, 0).
+- **Espacio** (`scenes/maps/espacio/`): añaden las capas `Polvo`, `Planetas` y `Pista`, todas con `resources/tilesets/tileset_espacio.tres`. `LogicMap` tiene `visible = false`. El nodo `Map` está en la posición (8, 0).
 
 ### Decoración de los mapas de espacio
 
@@ -157,11 +157,18 @@ godot --headless --path . -s scripts/tools/space_decoration.gd
 
 **La fuente de verdad es el `.tscn`**, que se puede retocar a mano en el editor. Los `.txt` no se actualizan con esos retoques: volver a ejecutar el script sobrescribe la `VisualMap` de los dos niveles con lo que digan los `.txt` y se pierde lo cambiado en el editor. El script solo sustituye el `tile_map_data` de las capas que aparecen en cada `.txt`; no toca el resto de la escena.
 
-### FondoEspacio
+### SpaceBackground
 
-`scenes/maps/espacio/FondoEspacio.tscn`: `Nebulosa` (`Parallax2D` con desplazamiento automático de -3 px/s), `PlanetaGigante`, `Estrellas` (`Parallax2D` a -6 px/s con un `AnimatedSprite2D` de 8 frames) y `Cometa`.
+`scenes/maps/SpaceBackground.tscn` es el fondo común de todos los mapas y cubre los 704x540 px del área de juego. Tiene:
 
-`scripts/level/Cometa.gd`: sprite que espera entre 6 y 15 s, aparece a la izquierda a una altura al azar, cruza con velocidad (150, 22) px/s y vuelve a esperar. Su temporizador se detiene con la pausa.
+- `Nebula`: `Parallax2D` con desplazamiento automático de -3 px/s y la textura `fondo_nebulosa_tall.png` (640x544, repetida solo en horizontal).
+- `GiantPlanet`: planeta de 224x224 abajo a la derecha, cortado por el borde inferior.
+- `Stars`: `Parallax2D` a -6 px/s, repetida en los dos ejes (640x272), con un `AnimatedSprite2D` (`Twinkle`) de 8 frames.
+- `Comet`: `scripts/level/Comet.gd`, sprite que espera entre 6 y 15 s, aparece a la izquierda a una altura al azar de la mitad de arriba (hasta 270 px), cruza los 704 px con velocidad (150, 22) px/s y vuelve a esperar. Su temporizador se detiene con la pausa.
+
+Lo que sobresale del área queda tapado por las barras, que son opacas.
+
+`Background` no cuenta en `Map.get_used_rect()`, así que no afecta al centrado. Como vive dentro de `Map`, `Level._center_map()` llama a `Map.place_background(GAME_AREA_RECT)` después de mover el mapa: coloca `Background` en coordenadas globales en el origen del área de juego, (128, 0). Un mapa sin `Background` no hace nada.
 
 ## Grid
 
@@ -187,5 +194,5 @@ Funciones:
 - `Level7.tscn` a `Level10.tscn`, `Level2.tscn`, `Level5.tscn`, `Level6.tscn` y la carpeta `redesign/` no están en ningún `LevelData`. Los mapas 7 a 10 usan un `Sprite2D` como estación en vez de `Base.tscn`, y `Level6.tscn` tiene las dos cosas.
 - `resources/level_data/level_5.tres` existe y tiene el mismo contenido que el subrecurso de `GameData.tscn`, pero `GameData` no lo usa.
 - En los niveles 2, 5 y 6 el mapa tiene más caminos de los que usa la oleada.
-- Los mapas (como mucho unos 480x272) no llenan el área de juego de 704x540: alrededor queda fondo vacío, y los enemigos aparecen y desaparecen en el borde del mapa. Los de espacio (niveles 2, 5 y 6) llevan `FondoEspacio` (640 px de ancho), que solo cubre su franja.
+- Los mapas (como mucho unos 480x272) no llenan el área de juego de 704x540: alrededor se ve el fondo de espacio, y los enemigos aparecen y desaparecen en el borde del mapa.
 - Hay archivos temporales del editor en `scenes/` (`Level.tscn*.tmp`, `MainMenu.tscn*.tmp`).
