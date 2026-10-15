@@ -15,7 +15,7 @@ Igual que en el plan anterior:
 ## Estado y contexto para retomar
 
 - **Rama:** `ui-beautify` en `D4MC04/proyecto_dam2b`, creada desde `main` después de mergear `level-ui-upgrade` y el menú de Opciones del compañero. David copia cada md a `docs/tasks/ui-beautify/<nombre>.md`.
-- **Hecho:** nada todavía. **Siguiente md a redactar:** la 1 (`resolucion.md`).
+- **Hecho:** la 1 (`resolucion`). **Siguiente md a redactar:** la 3 (`fuente.md`); `fondo.md` ya está redactado.
 - Esta conversación solo diseña. Se responde en español.
 - **Referencia visual:** [maqueta/maqueta_juego.png](maqueta/maqueta_juego.png) y [maqueta/maqueta_pausa.png](maqueta/maqueta_pausa.png). Las aprobó David el 15/10, con dos cambios: los botones no llevan corchetes ni `>`, y el mapa de la maqueta es relleno.
 
@@ -23,8 +23,8 @@ Igual que en el plan anterior:
 
 - **Resolución:** viewport de 960x540 con ventana de 1920x1080 y escalado entero a 2x. En monitores más grandes salen bandas negras en vez de estirar.
 - **Columnas:** dos barras de 128 px y un área de juego de 704x540 en medio.
-- **Mapas: no se tocan de momento.** Se quedan como están y se centran en el área de juego, en horizontal y en vertical. Se ampliarán cuando el tamaño final esté asegurado, para no rehacerlos otra vez.
-- **Fondo:** uno solo de espacio para toda el área de juego, el mismo en todos los niveles, detrás del mapa.
+- **Mapas: no se tocan de momento** (salvo añadirles el nodo del fondo). Se quedan como están y se centran en el área de juego, en horizontal y en vertical. Se ampliarán cuando el tamaño final esté asegurado, para no rehacerlos otra vez.
+- **Fondo:** el mismo fondo de espacio en todos los niveles, detrás de todo y cubriendo toda el área de juego. Es parte del visual del mapa: cada mapa (y la plantilla `Map.tscn`) lo lleva como nodo `Background`, que no se mueve al centrar el mapa.
 - **Fuente:** solo Monogram, en todo el juego. PressStart2P desaparece. Los títulos grandes (PAUSA, ESTACION PERDIDA, SECTOR ASEGURADO) usan Monogram a un múltiplo entero de su tamaño base. David descarga Monogram y la pone en `assets/fonts/`.
 - **Barras = tablet física:**
   - Marco de metal con la rampa gris azulada de `docs/design/art.md` (`#343a4a`, `#606a7c`, `#96a2b6`), contorno `#0c0e16`, tornillos en las esquinas y rejilla de altavoz abajo.
@@ -55,9 +55,8 @@ Cada una se prueba y se commitea por separado.
    - El menú principal y el de Opciones se recolocan para que funcionen a 960x540, sin cambiar todavía su estilo.
    - Hay que revisar los 6 niveles y el menú.
 2. **Fondo de espacio** (`fondo.md`). Modelo: Sonnet.
-   - Un fondo de 704x540 que se pinta detrás del mapa en todos los niveles, con estrellas animadas y cometa al estilo de `scenes/maps/espacio/FondoEspacio.tscn`.
-   - Vive en `Level` o en `Game`, no dentro de cada mapa.
-   - Revisar que no se pise con los fondos que ya llevan algunos mapas.
+   - `FondoEspacio` pasa a ser `scenes/maps/SpaceBackground.tscn` y cubre 704x540, con estrellas animadas y cometa.
+   - Cada mapa y la plantilla `Map.tscn` lo llevan como primer hijo `Background`. `Map` lo coloca en el origen del área de juego después de centrar el mapa.
 3. **Fuente** (`fuente.md`). Modelo: Sonnet.
    - Monogram como única fuente en `menu_theme.tres` y en todas las escenas. PressStart2P se borra de `assets/fonts/`.
    - Los `font_size` actuales (8, 16 y 24, en unos 16 archivos) están pensados para PressStart2P. Se cambian a múltiplos enteros del tamaño nativo de Monogram para que no salga borrosa; los títulos van a 2x o 3x.
