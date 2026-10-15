@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://scenes/level_ui/InfoPanel.tscn" id="4_info"]
 [ext_resource type="PackedScene" path="res://scenes/level_ui/LevelIndicator.tscn" id="5_indicator"]
 [ext_resource type="PackedScene" path="res://scenes/level_ui/VictoryScreen.tscn" id="6_victory"]
+[ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="4_theme"]
 
 [node name="LevelUI" type="CanvasLayer" unique_id=245943380]
 process_mode = 3
@@ -50,6 +51,17 @@ anchor_left = 0.5
 anchor_right = 0.5
 offset_top = 3.0
 grow_horizontal = 2
+
+[node name="FpsLabel" type="Label" parent="UI/HBoxContainer/GameArea"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 4.0
+offset_top = 4.0
+theme = ExtResource("4_theme")
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 8
 
 [node name="GameOverScreen" parent="UI/HBoxContainer/GameArea" unique_id=592437674 instance=ExtResource("1_8klgi")]
 unique_name_in_owner = true

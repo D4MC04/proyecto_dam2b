@@ -3,12 +3,15 @@ class_name PauseScreen
 
 # Pantalla de pausa: título con cursor parpadeante y modo plegado, que deja solo una etiqueta
 # en la esquina para ver el mapa limpio. Plegar no cambia el estado de LevelUI (sigue en PAUSED).
+# La opción SETTINGS abre aquí mismo el menú de opciones, en lugar del marco y también sin salir de PAUSED.
 
 const CURSOR := "_"
 const CURSOR_BLINK_TIME := 0.5
 
 @onready var fold_button: Button = %FoldButton
 @onready var folded_tag: OverlayFrame = %FoldedTag
+@onready var options_menu: OptionsMenu = %OptionsMenu
+@onready var center: CenterContainer = $Center
 
 var _folded := false
 var _cursor_timer := 0.0
@@ -22,6 +25,7 @@ func _ready() -> void:
 	fold_button.pressed.connect(_set_folded.bind(true))
 	folded_tag.gui_input.connect(_on_folded_tag_gui_input)
 	visibility_changed.connect(_on_visibility_changed)
+	option_chosen.connect(_on_option_chosen)
 	_set_folded(false)
 
 # El cursor es una etiqueta aparte que parpadea con la opacidad, así el panel nunca cambia de tamaño.
@@ -49,6 +53,13 @@ func _on_visibility_changed() -> void:
 	if is_visible_in_tree():
 		_cursor_timer = 0.0
 		_set_folded(false)
+	else:
+		# Si se quita la pausa con las opciones abiertas, la siguiente empieza por el marco.
+		options_menu.close()
+
+func _on_option_chosen(option: Option) -> void:
+	if option == Option.SETTINGS:
+		options_menu.open_from(center)
 
 func _set_folded(folded: bool) -> void:
 	_folded = folded

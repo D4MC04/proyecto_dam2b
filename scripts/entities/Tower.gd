@@ -22,6 +22,8 @@ var _pending_shot := false
 var _sight: Line2D
 
 func _ready() -> void:
+	# Si cambia una opción en plena partida, se vuelve a dibujar el rango.
+	Settings.changed.connect(queue_redraw.unbind(1))
 	sprite.sprite_frames = data.sprite_frames
 	cannon.sprite_frames = data.cannon
 	set_process(data.cannon != null and not _is_static())
@@ -42,6 +44,11 @@ func _ready() -> void:
 		# El haz continuo no dispara por cooldown: lo lleva su propio nodo.
 		attack_timer.stop()
 		add_child(FocusBeam.new())
+
+# Con la opción "mostrar rango" activada, cada torre dibuja su alcance bajo sus sprites.
+func _draw() -> void:
+	if Settings.get_value(&"show_tower_range") and data.attack_range:
+		data.attack_range.draw(get_canvas_item(), BuildManager.RANGE_COLOR)
 
 func _process(delta: float) -> void:
 	var target := _get_target()

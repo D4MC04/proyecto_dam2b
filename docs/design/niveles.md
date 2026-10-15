@@ -140,6 +140,23 @@ Hay dos familias de mapas:
 - **Hierba** (`scenes/maps/Level1.tscn` a `Level10.tscn` y `scenes/maps/redesign/`): `VisualMap` usa `resources/tilesets/tileset.tres` (hierba, piedra, plantas, objetos, estructuras, muros). `LogicMap` es visible con alfa 0,39.
 - **Espacio** (`scenes/maps/espacio/`): añaden `Fondo` (instancia de `FondoEspacio.tscn`) y las capas `Polvo`, `Planetas` y `Pista`, todas con `resources/tilesets/tileset_espacio.tres`. `LogicMap` tiene `visible = false`. El nodo `Map` está en la posición (8, 0).
 
+### Decoración de los mapas de espacio
+
+La decoración (rocas, chatarra, piezas animadas) está en la capa `VisualMap`. En los niveles 2, 5 y 6 sigue las mismas reglas:
+
+- El camino y las casillas pegadas a él quedan sin rocas: ese hueco es el corredor que se ve en pantalla.
+- A 2 casillas del camino hay una hilera de rocas casi continua a cada lado, salvo donde hay un planeta de torre.
+- En el nivel 5 los tramos de las filas 1 y 15 van pegados al borde: en las filas 0 y 16 solo hay chatarra y piedras pequeñas.
+- Los tiles se dibujan centrados en su casilla: una pieza de 2x2 anclada en (x, y) ocupa de x-0,5 a x+1,5.
+
+La `VisualMap` de los niveles 5 y 6 se generó una vez con `scripts/tools/space_decoration.gd` a partir de las cuadrículas de texto `resources/map_data/level_5_decor.txt` y `level_6_decor.txt` (el formato está descrito en la cabecera del script):
+
+```
+godot --headless --path . -s scripts/tools/space_decoration.gd
+```
+
+**La fuente de verdad es el `.tscn`**, que se puede retocar a mano en el editor. Los `.txt` no se actualizan con esos retoques: volver a ejecutar el script sobrescribe la `VisualMap` de los dos niveles con lo que digan los `.txt` y se pierde lo cambiado en el editor. El script solo sustituye el `tile_map_data` de las capas que aparecen en cada `.txt`; no toca el resto de la escena.
+
 ### FondoEspacio
 
 `scenes/maps/espacio/FondoEspacio.tscn`: `Nebulosa` (`Parallax2D` con desplazamiento automático de -3 px/s), `PlanetaGigante`, `Estrellas` (`Parallax2D` a -6 px/s con un `AnimatedSprite2D` de 8 frames) y `Cometa`.
@@ -165,7 +182,8 @@ Funciones:
 
 - `Grid.get_kind` y `Grid.path_cells` no se usan fuera de `Grid`.
 - `tileset.tres` declara una capa de datos `buildable` (bool) que ningún script lee.
-- No hay en el repositorio ningún script que genere los `TileMapLayer` a partir de datos, que es lo que pide `CLAUDE.md`.
+- Solo la `VisualMap` de los niveles 5 y 6 tiene script y datos de generación; el resto de capas y mapas no.
+- En el nivel 6 hay un planeta de torre en la casilla (15, 9), debajo de la estación.
 - `Level7.tscn` a `Level10.tscn`, `Level2.tscn`, `Level5.tscn`, `Level6.tscn` y la carpeta `redesign/` no están en ningún `LevelData`. Los mapas 7 a 10 usan un `Sprite2D` como estación en vez de `Base.tscn`, y `Level6.tscn` tiene las dos cosas.
 - `resources/level_data/level_5.tres` existe y tiene el mismo contenido que el subrecurso de `GameData.tscn`, pero `GameData` no lo usa.
 - En los niveles 2, 5 y 6 el mapa tiene más caminos de los que usa la oleada.

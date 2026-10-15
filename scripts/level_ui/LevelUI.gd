@@ -23,6 +23,7 @@ const VICTORY_BREATH_TIME := 0.6
 @onready var sidebar: Sidebar = %Sidebar
 @onready var level_indicator: LevelIndicator = %LevelIndicator
 @onready var info_panel: InfoPanel = %InfoPanel
+@onready var fps_label: Label = %FpsLabel
 # Pantalla de cada estado; un estado sin entrada no enseña ninguna. Cada pantalla va en un solo estado.
 @onready var _screens_by_state: Dictionary[UiState, OverlayScreen] = {
 	UiState.PAUSED: pause_menu,
@@ -37,6 +38,8 @@ var _spawner: Spawner
 var _screen_delay: Tween
 
 func _ready() -> void:
+	_update_fps_label()
+	Settings.changed.connect(_update_fps_label.unbind(1))
 	for screen: OverlayScreen in _screens_by_state.values():
 		screen.option_chosen.connect(_on_option_chosen)
 	sidebar.tower_selected.connect(_on_tower_selected)
@@ -44,6 +47,14 @@ func _ready() -> void:
 	sidebar.next_wave_requested.connect(_on_next_wave_requested)
 	sidebar.auto_waves_toggled.connect(_on_auto_waves_toggled)
 	set_state(UiState.PLAYING)
+
+# El contador de FPS solo se ve (y solo se actualiza) con la opción show_fps activada.
+func _update_fps_label() -> void:
+	fps_label.visible = Settings.get_value(&"show_fps")
+	set_process(fps_label.visible)
+
+func _process(_delta: float) -> void:
+	fps_label.text = "%d FPS" % Engine.get_frames_per_second()
 
 func setup(state: LevelState, towers: Array[TowerData], level_number: int, spawner: Spawner, has_next_level: bool) -> void:
 	victory_screen.set_option_visible(OverlayScreen.Option.NEXT_LEVEL, has_next_level)
@@ -182,7 +193,7 @@ func _on_option_chosen(option: OverlayScreen.Option) -> void:
 		OverlayScreen.Option.NEXT_LEVEL:
 			_request_action(Action.NEXT_LEVEL)
 		OverlayScreen.Option.SETTINGS:
-			# El menú de ajustes aún no existe en el nivel: el botón está puesto pero no hace nada.
+			# Las opciones las abre PauseScreen dentro de la propia pausa: LevelUI sigue en PAUSED.
 			pass
 
 # Quita la pausa y la pantalla antes de avisar a Game.

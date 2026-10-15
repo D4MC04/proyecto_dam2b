@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://scripts/level_ui/PauseScreen.gd" id="3_pause"]
 [ext_resource type="Texture2D" path="res://assets/ui/fold.png" id="4_fold"]
 [ext_resource type="Script" path="res://scripts/level_ui/OverlayFrame.gd" id="5_frame"]
+[ext_resource type="PackedScene" path="res://scenes/OptionsMenu.tscn" id="6_options"]
 
 [node name="PauseMenu" instance=ExtResource("1_overlay")]
 script = ExtResource("3_pause")
@@ -25,7 +26,7 @@ option = 0
 custom_minimum_size = Vector2(136, 24)
 layout_mode = 2
 size_flags_horizontal = 4
-text = "Ajustes"
+text = "Opciones"
 script = ExtResource("2_option")
 option = 4
 
@@ -91,3 +92,8 @@ mouse_filter = 2
 theme_override_colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
 theme_override_font_sizes/font_size = 8
 text = "PAUSA"
+
+[node name="OptionsMenu" parent="." instance=ExtResource("6_options")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
