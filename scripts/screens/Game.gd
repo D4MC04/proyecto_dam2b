@@ -6,28 +6,51 @@ const MAIN_MENU_PATH := "res://scenes/MainMenu.tscn"
 @export var level_data: LevelData
 
 @onready var level: Level = $Level
-@onready var ui: GameUI = $LevelUI
+@onready var ui: LevelUI = $LevelUI
 
 var _level_scene: PackedScene
 
 func _ready() -> void:
 	_level_scene = load(level.scene_file_path)
-	ui.restart_requested.connect(_restart_level)
-	ui.quit_requested.connect(_quit_to_menu)
+	ui.action_requested.connect(_on_action_requested)
 	_setup_level()
 
 func _setup_level() -> void:
 	level.setup(level_data)
 	level.lost.connect(_on_level_lost)
-	ui.sidebar.tower_selected.connect(level.on_tower_selected)
-	ui.setup(level.game_state, level.towers)
+	level.won.connect(_on_level_won)
+	# Posición del nivel en la lista + 1; 0 si no está (no se muestra número)
+	var level_number: int = GameData.levels.find(level_data) + 1
+	var has_next_level: bool = level_number > 0 and level_number < GameData.levels.size()
+	ui.setup(level.game_state, level.towers, level_number, level.spawner, has_next_level)
 
 func _on_level_lost() -> void:
-	ui.show_game_over()
+	# La UI recibe el resumen ya hecho; no lee el nivel por su cuenta.
+	ui.show_run_stats(level.get_run_stats())
+	ui.set_state(LevelUI.UiState.LOST)
+
+func _on_level_won() -> void:
+	ui.show_run_stats(level.get_run_stats())
+	ui.set_state(LevelUI.UiState.WON)
+
+func _on_action_requested(action: LevelUI.Action) -> void:
+	match action:
+		LevelUI.Action.RESTART:
+			_restart_level()
+		LevelUI.Action.QUIT:
+			_quit_to_menu()
+		LevelUI.Action.NEXT_LEVEL:
+			_next_level()
+
+# Monta el siguiente nivel de la lista por el mismo camino que el reinicio.
+func _next_level() -> void:
+	var next_index: int = GameData.levels.find(level_data) + 1
+	if next_index <= 0 or next_index >= GameData.levels.size():
+		return
+	level_data = GameData.levels[next_index]
+	_restart_level()
 
 func _restart_level() -> void:
-	ui.hide_game_over()
-	ui.sidebar.tower_selected.disconnect(level.on_tower_selected)
 	var index := level.get_index()
 	remove_child(level)
 	level.queue_free()

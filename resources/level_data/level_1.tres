@@ -8,10 +8,11 @@
 [ext_resource type="Resource" uid="uid://bh8qdvmr3kaj" path="res://resources/turret_data/rocket_launcher.tres" id="5_0wb63"]
 [ext_resource type="Resource" uid="uid://bi8dmx532elhj" path="res://resources/turret_data/laser.tres" id="6_ismlj"]
 [ext_resource type="Resource" uid="uid://5hge2mvmeyue" path="res://resources/wave_data/level_1.tres" id="8_ismlj"]
+[ext_resource type="Resource" path="res://resources/wave_data/level_1_2.tres" id="wave_1_2"][ext_resource type="Resource" path="res://resources/wave_data/level_1_3.tres" id="wave_1_3"]
 
 [resource]
 script = ExtResource("1_obkt0")
 map = ExtResource("1_jcob0")
 towers = Array[ExtResource("3_ismlj")]([ExtResource("4_jcob0"), ExtResource("5_0wb63"), ExtResource("6_ismlj")])
-waves = Array[ExtResource("2_ujpww")]([ExtResource("8_ismlj")])
+waves = Array[ExtResource("2_ujpww")]([ExtResource("8_ismlj"), ExtResource("wave_1_2"), ExtResource("wave_1_3")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"

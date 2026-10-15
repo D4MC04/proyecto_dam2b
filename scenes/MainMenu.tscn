@@ -15,6 +15,8 @@
 [ext_resource type="Script" uid="uid://dd6xsyc7ng8u7" path="res://scripts/main_menu/Asteroids.gd" id="17_asteroids"]
 [ext_resource type="Script" uid="uid://pdd67yive1em" path="res://scripts/main_menu/Satellites.gd" id="18_satellites"]
 [ext_resource type="PackedScene" path="res://scenes/OptionsMenu.tscn" id="19_options"]
+[ext_resource type="Script" path="res://scripts/level_ui/OverlayFrame.gd" id="20_frame"]
+[ext_resource type="PackedScene" path="res://scenes/level_ui/ScreenHeader.tscn" id="21_header"]
 
 [node name="MainMenu" type="Control" unique_id=576679633]
 texture_filter = 1
@@ -51,7 +53,7 @@ script = ExtResource("18_satellites")
 [node name="Planets" type="Node2D" parent="." unique_id=1569682466]
 
 [node name="Planeta1" parent="Planets" unique_id=603984696 instance=ExtResource("9_body")]
-position = Vector2(477.10352, 242.0957)
+position = Vector2(774, 480.6)
 rotation = 0.2268928
 scale = Vector2(1.8779294, 1.598086)
 frame_progress = 0.72376406
@@ -60,7 +62,7 @@ sheet = ExtResource("10_planeta1")
 fps = 3.0
 
 [node name="Planeta5" parent="Planets" unique_id=1965250712 instance=ExtResource("9_body")]
-position = Vector2(411.52454, 38.20743)
+position = Vector2(667.5, 75.9)
 rotation = 0.46251225
 scale = Vector2(0.47721493, 0.46993628)
 frame_progress = 0.021975154
@@ -69,7 +71,7 @@ sheet = ExtResource("7_1ajci")
 fps = 7.0
 
 [node name="Planeta6" parent="Planets" unique_id=2016053893 instance=ExtResource("9_body")]
-position = Vector2(82.99999, 165.99998)
+position = Vector2(135, 329.6)
 rotation = 3.822271
 scale = Vector2(1.5076561, 1.4725642)
 frame_progress = 0.025729375
@@ -78,7 +80,7 @@ sheet = ExtResource("9_rcqid")
 fps = 60.0
 
 [node name="Planeta7" parent="Planets" unique_id=1255540921 instance=ExtResource("9_body")]
-position = Vector2(143, 33.59999)
+position = Vector2(232.5, 66.7)
 rotation = 3.822271
 scale = Vector2(0.51869583, 0.47507852)
 frame_progress = 0.025729375
@@ -87,7 +89,7 @@ sheet = ExtResource("9_1ajci")
 fps = 60.0
 
 [node name="Planeta8" parent="Planets" unique_id=865614892 instance=ExtResource("9_body")]
-position = Vector2(196.00002, 222.00002)
+position = Vector2(318, 440.7)
 rotation = 3.132866
 scale = Vector2(0.40685415, 0.3730729)
 frame_progress = 0.025729375
@@ -96,7 +98,7 @@ sheet = ExtResource("10_1ajci")
 fps = 60.0
 
 [node name="Planeta9" parent="Planets" unique_id=606652752 instance=ExtResource("9_body")]
-position = Vector2(311.00003, 235.00002)
+position = Vector2(504, 466.5)
 rotation = 3.132866
 scale = Vector2(0.3549205, 0.3730729)
 frame_progress = 0.025729375
@@ -106,7 +108,7 @@ fps = 60.0
 
 [node name="Asteroide1" parent="Planets" unique_id=359384108 instance=ExtResource("9_body")]
 visible = false
-position = Vector2(50.25, 230.75)
+position = Vector2(81, 458.1)
 scale = Vector2(0.355, 0.33500007)
 frame_progress = 0.4903853
 sheet = ExtResource("12_asteroide1")
@@ -119,7 +121,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 32
+theme_override_constants/separation = 4
 alignment = 1
 
 [node name="Title" type="Label" parent="TitleScreen" unique_id=337636773]
@@ -127,31 +129,68 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 48
 text = "ASTRO ARTILLERY"
 horizontal_alignment = 1
 
-[node name="Buttons" type="VBoxContainer" parent="TitleScreen" unique_id=203701852]
+[node name="Subtitle" type="Label" parent="TitleScreen"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 16
+text = "TOWER DEFENSE"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="TitleScreen"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+
+[node name="ButtonsPanel" type="PanelContainer" parent="TitleScreen"]
+layout_mode = 2
+size_flags_horizontal = 4
+script = ExtResource("20_frame")
+
+[node name="Margin" type="MarginContainer" parent="TitleScreen/ButtonsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 6
+
+[node name="Content" type="VBoxContainer" parent="TitleScreen/ButtonsPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Buttons" type="VBoxContainer" parent="TitleScreen/ButtonsPanel/Margin/Content" unique_id=203701852]
+layout_mode = 2
+theme_override_constants/separation = 6
 alignment = 1
 
-[node name="PlayButton" type="Button" parent="TitleScreen/Buttons" unique_id=1180300128]
-custom_minimum_size = Vector2(100, 24)
+[node name="PlayButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons" unique_id=1180300128]
+custom_minimum_size = Vector2(136, 24)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Jugar"
 
-[node name="SettingsButton" type="Button" parent="TitleScreen/Buttons" unique_id=528850060]
-custom_minimum_size = Vector2(100, 24)
+[node name="SettingsButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons" unique_id=528850060]
+custom_minimum_size = Vector2(136, 24)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Opciones"
 
-[node name="QuitButton" type="Button" parent="TitleScreen/Buttons" unique_id=1613827906]
-custom_minimum_size = Vector2(100, 24)
+[node name="QuitButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons" unique_id=1613827906]
+custom_minimum_size = Vector2(136, 24)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Salir"
+
+[node name="Footer" type="Label" parent="TitleScreen/ButtonsPanel/Margin/Content"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.165, 0.549, 0.698, 1)
+theme_override_font_sizes/font_size = 16
+text = "SISTEMA LISTO"
 
 [node name="LevelSelectionScreen" type="VBoxContainer" parent="." unique_id=2135136794]
 visible = false
@@ -161,19 +200,29 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 12
 alignment = 1
 
-[node name="Label" type="Label" parent="LevelSelectionScreen" unique_id=1293381837]
+[node name="LevelsPanel" type="PanelContainer" parent="LevelSelectionScreen"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 16
-text = "SELECCIONA UN NIVEL"
-horizontal_alignment = 1
+size_flags_horizontal = 4
+script = ExtResource("20_frame")
 
-[node name="LevelButtonsContainer" type="GridContainer" parent="LevelSelectionScreen" unique_id=1866487335]
+[node name="Margin" type="MarginContainer" parent="LevelSelectionScreen/LevelsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 6
+
+[node name="Content" type="VBoxContainer" parent="LevelSelectionScreen/LevelsPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Header" parent="LevelSelectionScreen/LevelsPanel/Margin/Content" instance=ExtResource("21_header")]
+layout_mode = 2
+title = "SELECCIONA UN NIVEL"
+
+[node name="LevelButtonsContainer" type="GridContainer" parent="LevelSelectionScreen/LevelsPanel/Margin/Content" unique_id=1866487335]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
@@ -181,17 +230,25 @@ theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 columns = 5
 
-[node name="VolverButton" type="Button" parent="LevelSelectionScreen" unique_id=555534078]
-custom_minimum_size = Vector2(100, 24)
+[node name="VolverButton" type="Button" parent="LevelSelectionScreen/LevelsPanel/Margin/Content" unique_id=555534078]
+custom_minimum_size = Vector2(136, 24)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Volver"
+
+[node name="SectorsFooter" type="Label" parent="LevelSelectionScreen/LevelsPanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.165, 0.549, 0.698, 1)
+theme_override_font_sizes/font_size = 16
+text = "SECTORES 0/0"
 
 [node name="OptionsMenu" parent="." instance=ExtResource("19_options")]
 visible = false
 layout_mode = 1
 
-[connection signal="pressed" from="TitleScreen/Buttons/PlayButton" to="." method="_on_play_button_pressed"]
-[connection signal="pressed" from="TitleScreen/Buttons/SettingsButton" to="." method="_on_settings_button_pressed"]
-[connection signal="pressed" from="TitleScreen/Buttons/QuitButton" to="." method="_on_quit_button_pressed"]
-[connection signal="pressed" from="LevelSelectionScreen/VolverButton" to="." method="_on_volver_pressed"]
+[connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/PlayButton" to="." method="_on_play_button_pressed"]
+[connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/SettingsButton" to="." method="_on_settings_button_pressed"]
+[connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/QuitButton" to="." method="_on_quit_button_pressed"]
+[connection signal="pressed" from="LevelSelectionScreen/LevelsPanel/Margin/Content/VolverButton" to="." method="_on_volver_pressed"]

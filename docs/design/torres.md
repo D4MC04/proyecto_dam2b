@@ -10,6 +10,8 @@ En `_unhandled_input`:
 - **Clic izquierdo**: si hay torre seleccionada, `grid.can_build(cell)` y `state.spend_money(data.cost)`, instancia la torre como hija de `BuildManager`, la coloca en el centro de la casilla y la registra en `Grid`.
 - **Clic derecho**: pone `state.selected_tower = null` y oculta la vista previa.
 
+`stop_building()` oculta la vista previa y hace que `_unhandled_input` deje de hacer nada el resto de la partida. Lo llama `Level` al perder o ganar.
+
 Tras colocar una torre la selección se mantiene, así que se pueden colocar varias seguidas.
 
 ## Escena y script
@@ -46,7 +48,24 @@ Las torres de onda y de cadena no giran el cañón ni usan `_process`.
 
 ## Datos
 
-`TowerData` (`scripts/resources/TowerData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`.
+`TowerData` (`scripts/resources/TowerData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `accent_color` (tono medio del acento de la torre según `art.md`, lo usa la ficha para el marco del icono y la etiqueta de tipo), `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`. Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 7 torres la tienen.
+
+Funciones para la ficha:
+
+- `get_stats() -> Array[StatEntry]`: filas comunes (COSTE con `€`, ALCANCE = radio del `CircleShape2D` de `attack_range`, CADENCIA = `attack_cooldown` en segundos salvo en el haz continuo) seguidas de las del ataque. Los nombres de fila son cortos y en mayúsculas (9 caracteres como mucho, ver `StatEntry` en [ui.md](ui.md)).
+- `get_attack() -> Resource`: el `*Data` de ataque que tenga (o null).
+- `get_attack_label()`: "BALA", "ONDA", "CADENA", "HAZ" o "HAZ CONT.".
+- Cada `*Data` de ataque tiene su `get_stats()`:
+
+| Clase | Filas |
+|---|---|
+| `BulletData` | DAÑO, VEL. BALA |
+| `PulseData` | DAÑO, FRENADO (`-45%` con `slow_factor` 0,55), DURACIÓN (de la ralentización) |
+| `ChainData` | DAÑO, OBJETIVOS (`max_targets`), SALTO (`jump_range`) |
+| `BeamData` | DAÑO, PERFORA ("TODOS") |
+| `FocusBeamData` | DPS (`40/80` si cabe en `StatEntry.MAX_VALUE_CHARS`, 7 caracteres; si no, una fila por nivel: DPS N1 `40`, DPS N2 `80`, DPS N3 `160`), T. NIVEL |
+
+Los valores usan `UiFormat.abbreviate`, `UiFormat.number` y `UiFormat.seconds`. Un stat nuevo es una entrada más en el `get_stats()` que toque; la ficha no cambia.
 
 Recursos en `resources/turret_data/`:
 
@@ -121,7 +140,6 @@ Recursos en `resources/turret_data/`:
 
 - `Tower.fit_to_tile` no se llama desde ningún sitio.
 - No hay forma de vender, quitar ni mejorar una torre colocada.
-- `TowerData.name` no se muestra en la interfaz.
 - `disintegrator.tres` tiene `attack_cooldown = 1.0`, que el código no usa para esa torre.
 - El objetivo se elige por `progress`, que es la distancia recorrida en su propio camino; en mapas con varios caminos de distinta longitud no equivale a "el más cerca del final".
 - El nombre de archivo `rocket_launcher` corresponde a la torre que se llama "Cañón pesado", y `turret` a "Cañón doble". La carpeta es `turret_data` y la clase `TowerData`.

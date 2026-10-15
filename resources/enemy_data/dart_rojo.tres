@@ -10,6 +10,7 @@ name = "Dart rojo"
 hp = 25
 speed = 90
 reward = 25
+description = "Caza ligero y rápido. Frágil, pero llega en enjambres."
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 rotate_sprite = true

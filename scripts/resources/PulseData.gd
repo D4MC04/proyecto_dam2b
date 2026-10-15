@@ -15,3 +15,11 @@ class_name PulseData
 @export var growth: float
 # Frame de la animación "fire_0" del cañón en el que nace la onda.
 @export var fire_frame: int = 0
+
+## Filas de la ficha propias de la onda. La ralentización es cuánto baja la velocidad (0.55 = -45%).
+func get_stats() -> Array[StatEntry]:
+	return [
+		StatEntry.new("damage", "DAÑO", UiFormat.number(damage)),
+		StatEntry.new("slow", "FRENADO", "-%d%%" % roundi((1.0 - slow_factor) * 100.0)),
+		StatEntry.new("duration", "DURACIÓN", UiFormat.seconds(slow_time)),
+	]

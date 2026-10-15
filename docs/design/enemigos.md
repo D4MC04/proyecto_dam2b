@@ -12,7 +12,7 @@ El `Spawner` lo añade como hijo de un `Path2D` del mapa y llama a `setup(enemy_
 
 ## Datos
 
-`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados).
+`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados) y `description` (frase corta para la ficha, ya rellena en los 12). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da VIDA, VELOCIDAD (px/s) y BOTÍN (la recompensa, con €); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
 
 Recursos en `resources/enemy_data/`:
 
@@ -73,5 +73,4 @@ Según la dirección del último movimiento reproduce `right`, `left`, `down` o 
 ## Dudas
 
 - `EnemyData.hp` está declarado como `int`, pero varios `.tres` guardan el valor con decimales (`360.0`) y `Enemy.hp` es `float`.
-- `EnemyData.name` no se muestra en ninguna parte.
 - Al llegar al final, todos los enemigos quitan lo mismo a la base (`Level.ENEMY_BASE_DAMAGE`, 10). Ver [base.md](base.md).

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dpr7cnr40ft63"]
 
-[ext_resource type="Texture2D" uid="uid://cgqu4hy1tjys8" path="res://assets/sprites/backgrounds/espacio/fondo_nebulosa.png" id="1_nbs4u"]
+[ext_resource type="Texture2D" uid="uid://l7clf73pj6xj" path="res://assets/sprites/backgrounds/espacio/fondo_nebulosa_tall.png" id="1_nbs4u"]
 [ext_resource type="Texture2D" uid="uid://dquowqo5fdcn4" path="res://assets/sprites/backgrounds/espacio/planeta_gigante.png" id="2_fdn61"]
 [ext_resource type="Texture2D" uid="uid://diiexbapw1ebb" path="res://assets/sprites/backgrounds/espacio/estrellas_0.png" id="3_ypdhm"]
 [ext_resource type="Texture2D" uid="uid://dux73ym3cpfll" path="res://assets/sprites/backgrounds/espacio/estrellas_1.png" id="4_qapp8"]
@@ -11,7 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://bs4ng3vesg3sp" path="res://assets/sprites/backgrounds/espacio/estrellas_6.png" id="9_j6q5d"]
 [ext_resource type="Texture2D" uid="uid://c3ahi3tll51rr" path="res://assets/sprites/backgrounds/espacio/estrellas_7.png" id="10_kgcc8"]
 [ext_resource type="Texture2D" uid="uid://8u0oxfwb5s16" path="res://assets/sprites/backgrounds/espacio/cometa.png" id="11_mssvt"]
-[ext_resource type="Script" uid="uid://fkqc2s1bei5f" path="res://scripts/level/Cometa.gd" id="12_re1t7"]
+[ext_resource type="Script" uid="uid://fkqc2s1bei5f" path="res://scripts/level/Comet.gd" id="12_re1t7"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_jgrmf"]
 animations = [{
@@ -45,32 +45,32 @@ animations = [{
 "speed": 5.0
 }]
 
-[node name="FondoEspacio" type="Node2D" unique_id=1072552545]
+[node name="SpaceBackground" type="Node2D" unique_id=1072552545]
 
-[node name="Nebulosa" type="Parallax2D" parent="." unique_id=1252630419]
+[node name="Nebula" type="Parallax2D" parent="." unique_id=1252630419]
 repeat_size = Vector2(640, 0)
 autoscroll = Vector2(-3, 0)
 repeat_times = 2
 
-[node name="Imagen" type="Sprite2D" parent="Nebulosa" unique_id=806515116]
+[node name="Image" type="Sprite2D" parent="Nebula" unique_id=806515116]
 texture = ExtResource("1_nbs4u")
 centered = false
 
-[node name="PlanetaGigante" type="Sprite2D" parent="." unique_id=271819441]
-position = Vector2(442, 312)
+[node name="GiantPlanet" type="Sprite2D" parent="." unique_id=271819441]
+position = Vector2(490, 500)
 texture = ExtResource("2_fdn61")
 
-[node name="Estrellas" type="Parallax2D" parent="." unique_id=1775423975]
-repeat_size = Vector2(640, 0)
+[node name="Stars" type="Parallax2D" parent="." unique_id=1775423975]
+repeat_size = Vector2(640, 272)
 autoscroll = Vector2(-6, 0)
 repeat_times = 2
 
-[node name="Parpadeo" type="AnimatedSprite2D" parent="Estrellas" unique_id=597199402]
+[node name="Twinkle" type="AnimatedSprite2D" parent="Stars" unique_id=597199402]
 position = Vector2(-12, 0)
 sprite_frames = SubResource("SpriteFrames_jgrmf")
 autoplay = "default"
 centered = false
 
-[node name="Cometa" type="Sprite2D" parent="." unique_id=1245684862]
+[node name="Comet" type="Sprite2D" parent="." unique_id=1245684862]
 texture = ExtResource("11_mssvt")
 script = ExtResource("12_re1t7")

@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://jbamokon2oqp"
-path="res://.godot/imported/PressStart2P-Regular.ttf-e20d5ff307f5ecfa1e9984f5c6184197.fontdata"
+uid="uid://cqdi4r0a56156"
+path="res://.godot/imported/Monogram.ttf-83594e42465b05522cd36b9b7d7f9e31.fontdata"
 
 [deps]
 
-source_file="res://assets/fonts/PressStart2P-Regular.ttf"
-dest_files=["res://.godot/imported/PressStart2P-Regular.ttf-e20d5ff307f5ecfa1e9984f5c6184197.fontdata"]
+source_file="res://assets/fonts/Monogram.ttf"
+dest_files=["res://.godot/imported/Monogram.ttf-83594e42465b05522cd36b9b7d7f9e31.fontdata"]
 
 [params]
 

@@ -1,75 +1,112 @@
 [gd_scene format=3 uid="uid://b6hyuslcy228o"]
 
-[ext_resource type="Script" uid="uid://ciic5eb3our4x" path="res://scripts/level_ui/PauseMenu.gd" id="1_g4jo0"]
-[ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="2_theme"]
-[ext_resource type="PackedScene" path="res://scenes/OptionsMenu.tscn" id="3_options"]
+[ext_resource type="PackedScene" uid="uid://cys8covu6ahy6" path="res://scenes/level_ui/OverlayScreen.tscn" id="1_overlay"]
+[ext_resource type="Script" uid="uid://dls3jq2gexy0j" path="res://scripts/level_ui/OverlayOptionButton.gd" id="2_option"]
+[ext_resource type="Script" path="res://scripts/level_ui/PauseScreen.gd" id="3_pause"]
+[ext_resource type="Texture2D" path="res://assets/ui/fold.png" id="4_fold"]
+[ext_resource type="Script" path="res://scripts/level_ui/OverlayFrame.gd" id="5_frame"]
+[ext_resource type="PackedScene" path="res://scenes/OptionsMenu.tscn" id="6_options"]
 
-[node name="PauseMenu" type="Control" unique_id=102313545]
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-script = ExtResource("1_g4jo0")
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_fold"]
 
-[node name="Background" type="ColorRect" parent="." unique_id=203747810]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 0, 0, 0.5882353)
+[node name="PauseMenu" instance=ExtResource("1_overlay")]
+script = ExtResource("3_pause")
+dim_opacity = 0.35
+footer_text = "SISTEMA EN ESPERA"
 
-[node name="Box" type="VBoxContainer" parent="." unique_id=30459475]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme = ExtResource("2_theme")
-theme_override_constants/separation = 10
-alignment = 1
-
-[node name="Title" type="Label" parent="Box" unique_id=1243934992]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 24
+[node name="Title" parent="Center/Frame/Margin/Box" index="0"]
 text = "PAUSA"
-horizontal_alignment = 1
 
-[node name="ResumeButton" type="Button" parent="Box" unique_id=438037907]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 24)
+[node name="ResumeButton" type="Button" parent="Center/Frame/Margin/Box/Options" unique_id=438037907]
+custom_minimum_size = Vector2(136, 24)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Continuar"
+script = ExtResource("2_option")
+option = 0
 
-[node name="RestartButton" type="Button" parent="Box" unique_id=43701199]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 24)
-layout_mode = 2
-size_flags_horizontal = 4
-text = "Reiniciar"
-
-[node name="OptionsButton" type="Button" parent="Box"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 24)
+[node name="SettingsButton" type="Button" parent="Center/Frame/Margin/Box/Options"]
+custom_minimum_size = Vector2(136, 24)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Opciones"
+script = ExtResource("2_option")
+option = 4
 
-[node name="QuitButton" type="Button" parent="Box" unique_id=1477365320]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 24)
+[node name="RestartButton" type="Button" parent="Center/Frame/Margin/Box/Options" unique_id=43701199]
+custom_minimum_size = Vector2(136, 24)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Reiniciar"
+script = ExtResource("2_option")
+option = 1
+
+[node name="QuitButton" type="Button" parent="Center/Frame/Margin/Box/Options" unique_id=1477365320]
+custom_minimum_size = Vector2(136, 24)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Salir"
+script = ExtResource("2_option")
+option = 2
 
-[node name="OptionsMenu" parent="." instance=ExtResource("3_options")]
+[node name="FoldAnchor" type="Control" parent="Center/Frame" index="1"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="FoldButton" type="Button" parent="Center/Frame/FoldAnchor"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -16.0
+offset_top = 8.0
+offset_right = -4.0
+offset_bottom = 20.0
+grow_horizontal = 0
+focus_mode = 0
+theme_override_colors/icon_normal_color = Color(1, 1, 1, 0.6)
+theme_override_colors/icon_hover_color = Color(1, 1, 1, 1)
+theme_override_colors/icon_pressed_color = Color(1, 1, 1, 1)
+theme_override_colors/icon_hover_pressed_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxEmpty_fold")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_fold")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_fold")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_fold")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_fold")
+icon = ExtResource("4_fold")
+icon_alignment = 1
+expand_icon = false
+
+[node name="FoldedTag" type="PanelContainer" parent="." index="2"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 3.0
+offset_top = 3.0
+offset_right = 47.0
+offset_bottom = 26.0
+mouse_default_cursor_shape = 2
+script = ExtResource("5_frame")
+corner_clip = 3
+decorated = false
+
+[node name="Margin" type="MarginContainer" parent="FoldedTag"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 3
+theme_override_constants/margin_top = 1
+theme_override_constants/margin_right = 3
+theme_override_constants/margin_bottom = 1
+
+[node name="Label" type="Label" parent="FoldedTag/Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
+theme_override_font_sizes/font_size = 16
+text = "PAUSA"
+
+[node name="OptionsMenu" parent="." instance=ExtResource("6_options")]
+unique_name_in_owner = true
 visible = false
 layout_mode = 1
