@@ -87,4 +87,5 @@ Cada una se prueba y se commitea por separado.
 
 Se apuntan aquí conforme aparecen.
 
-- (vacío)
+- Barras (`barras`): la maqueta no estaba en el repo al hacer la tarea, así que el marco se hizo solo con las medidas y colores del md; falta compararlo con `maqueta_juego.png`.
+- Barras: en las filas de stat de la ficha el hueco entre icono y nombre es de 2 px, justo para que quepan 9 + 7 caracteres en 108 px. Se ve algo apretado; si se quiere más aire hay que bajar `MAX_VALUE_CHARS` o acortar algún nombre.

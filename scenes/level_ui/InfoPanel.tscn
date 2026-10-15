@@ -1,10 +1,10 @@
 [gd_scene format=3]
 
 [ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="1_theme"]
-[ext_resource type="StyleBox" path="res://assets/ui/side_panel_style.tres" id="2_style"]
+[ext_resource type="StyleBox" path="res://assets/ui/tablet_frame_style.tres" id="2_style"]
 [ext_resource type="Script" path="res://scripts/level_ui/InfoPanel.gd" id="3_script"]
-[ext_resource type="StyleBox" path="res://assets/ui/money_header_style.tres" id="4_header"]
 [ext_resource type="Script" path="res://scripts/level_ui/ScannerDisplay.gd" id="5_scanner"]
+[ext_resource type="PackedScene" path="res://scenes/level_ui/ScreenHeader.tscn" id="6_header"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_screen"]
 
@@ -17,17 +17,9 @@ script = ExtResource("3_script")
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="TitleHeader" type="PanelContainer" parent="Content"]
+[node name="TitleHeader" parent="Content" instance=ExtResource("6_header")]
 layout_mode = 2
-mouse_filter = 2
-theme_override_styles/panel = ExtResource("4_header")
-
-[node name="TitleLabel" type="Label" parent="Content/TitleHeader"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
-theme_override_font_sizes/font_size = 16
-text = "FICHA"
-horizontal_alignment = 1
+title = "ANÁLISIS"
 
 [node name="Screen" type="PanelContainer" parent="Content"]
 layout_mode = 2
@@ -96,7 +88,7 @@ stretch_mode = 3
 [node name="NameLabel" type="Label" parent="Content/Screen/DetailView"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9411765, 0.98039216, 1, 1)
+theme_override_colors/font_color = Color(0.74509805, 0.98039216, 1, 1)
 theme_override_font_sizes/font_size = 16
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -141,7 +133,7 @@ color = Color(0.10980392, 0.2901961, 0.3764706, 1)
 [node name="DescriptionLabel" type="Label" parent="Content/Screen/DetailView/StatScroll/StatList"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.49803922, 0.6509804, 0.72156864, 1)
+theme_override_colors/font_color = Color(0.3529412, 0.47843137, 0.5882353, 1)
 theme_override_font_sizes/font_size = 16
 autowrap_mode = 2
 
@@ -151,3 +143,21 @@ visible = false
 layout_mode = 2
 mouse_filter = 2
 color = Color(0.2509804, 0.8784314, 0.9411765, 0.2)
+
+[node name="ScanFooter" type="HBoxContainer" parent="Content"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="ScanStatusLabel" type="Label" parent="Content/ScanFooter"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.10980392, 0.45490196, 0.5882353, 1)
+theme_override_font_sizes/font_size = 16
+text = "SCAN OK"
+
+[node name="ModelLabel" type="Label" parent="Content/ScanFooter"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.10980392, 0.45490196, 0.5882353, 1)
+theme_override_font_sizes/font_size = 16
+text = "MK3"
+horizontal_alignment = 2

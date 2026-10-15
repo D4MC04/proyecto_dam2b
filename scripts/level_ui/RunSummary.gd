@@ -37,9 +37,9 @@ func show_stats(stats: RunStats) -> void:
 		rows.remove_child(row)
 		row.queue_free()
 	var entries: Array[StatEntry] = [
-		StatEntry.new("wave", "Oleada", "%d/%d" % [stats.wave_reached, stats.wave_total]),
-		StatEntry.new("kills", "Enemigos destruidos", UiFormat.abbreviate(stats.enemies_destroyed)),
-		StatEntry.new("cost", "Dinero gastado", UiFormat.money(stats.money_spent)),
+		StatEntry.new("wave", "OLEADA", "%d/%d" % [stats.wave_reached, stats.wave_total]),
+		StatEntry.new("kills", "BAJAS", UiFormat.abbreviate(stats.enemies_destroyed)),
+		StatEntry.new("cost", "GASTADO", UiFormat.money(stats.money_spent)),
 	]
 	for i in entries.size():
 		rows.add_child(StatRow.create(entries[i], i, ROW_H_MARGIN, ROW_V_MARGIN))

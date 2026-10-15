@@ -61,7 +61,6 @@ offset_top = 2.0
 offset_right = -2.0
 offset_bottom = 14.0
 grow_horizontal = 0
-tooltip_text = "Plegar"
 focus_mode = 0
 icon = ExtResource("4_fold")
 icon_alignment = 1

@@ -3,13 +3,14 @@ class_name InfoPanel
 ## Ficha de la barra izquierda. Enseña lo inspeccionado en LevelState (lo recibe por
 ## show_inspected) y pinta las filas que le dan, sin saber qué stats existen.
 
-# Fuente a 16 px (6 px por carácter) en 120 px útiles de barra: 20 caracteres por línea.
-const NAME_MAX_CHARS := 20
+# Fuente a 16 px (6 px por carácter) en los 110 px útiles de la pantalla de la barra
+# (128 px menos 6 de marco y 3 de margen a cada lado): 18 caracteres por línea (108 px).
+const NAME_MAX_CHARS := 18
 const NAME_MAX_LINES := 2
 # Frames que dura el parpadeo de escáner al cambiar de contenido.
 const FLASH_FRAMES := 2
 
-const NAME_COLOR := Color("#f0faff")
+const NAME_COLOR := Color("#befaff")
 const TAG_BG_COLOR := Color("#0e1626")
 const PAD_BG_COLOR := Color("#060b14")
 const PAD_GRID_COLOR := Color("#14304a")
@@ -36,6 +37,7 @@ var _flash_id := 0
 
 func _ready() -> void:
 	icon_pad.draw.connect(_draw_icon_pad)
+	name_label.add_theme_color_override("font_color", NAME_COLOR)
 	# Alto fijo de dos líneas para que la cabecera no cambie de tamaño entre fichas.
 	name_label.text = "A\nA"
 	name_label.custom_minimum_size.y = name_label.get_combined_minimum_size().y

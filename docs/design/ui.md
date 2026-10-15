@@ -14,7 +14,21 @@ Estructura: `UI/HBoxContainer` (sin separación) con tres columnas, de izquierda
 
 `GameArea` contiene además `LevelIndicator`, declarado antes que las pantallas para que estos lo tapen.
 
-Las dos barras usan el mismo estilo, `assets/ui/side_panel_style.tres`: `StyleBoxFlat` opaco con el fondo del tema (`#0a0f1a`), borde de 1 px en cian oscuro `#1c7496` y 4 px de margen interior en cada lado.
+### Barras: tablet física
+
+Las dos barras son una tablet: un marco de metal y, dentro, una pantalla oscura. Usan el mismo estilo, `assets/ui/tablet_frame_style.tres`, un `TabletFrameStyle` (`scripts/level_ui/TabletFrameStyle.gd`, `StyleBox` propio con `@tool`) que lo dibuja todo en `_draw` con rectángulos de píxeles enteros, sin texturas ni antialiasing:
+
+- **Marco**, de fuera hacia dentro: contorno de 1 px `#0c0e16`; metal `#606a7c` con bisel de 1 px de luz `#96a2b6` arriba y a la izquierda y 1 px de sombra `#343a4a` abajo y a la derecha; y otro contorno de 1 px `#0c0e16` contra la pantalla. Grosor total: 6 px a los lados, 8 arriba y 18 abajo (`FRAME_SIDE`, `FRAME_TOP`, `FRAME_BOTTOM`).
+- **Tornillos** de 3x3 en las cuatro esquinas del metal, a 2 px del borde: cruz con luz `#96a2b6` arriba y a la izquierda y el centro y el resto en `#343a4a`.
+- **Rejilla de altavoz** centrada en la franja de abajo: dos filas de 12 puntos `#343a4a` de 1x1, cada 2 px (24 px de ancho).
+- **Pantalla:** líneas de barrido (filas alternas `#08111f` y `#060d18`) y corchetes en L de 4 px en `#40e0f0` en las cuatro esquinas.
+- **Margen de contenido:** 3 px dentro de la pantalla (`SCREEN_PADDING`). En una barra de 128x540 el contenido queda en 110x508 px, empezando en (9, 11).
+
+**`ScreenHeader`** (`scenes/level_ui/ScreenHeader.tscn` + `scripts/level_ui/ScreenHeader.gd`, `VBoxContainer` con `@tool`): cabecera de pantalla reutilizable. `@export var title` (sin el prefijo); enseña `"// " + title` en `#40e0f0` a 16 px y debajo una regla de marcas pintada en `_draw` de su hijo `Ruler`: línea de 1 px `#1c7496` a todo el ancho con marcas hacia abajo de 2 px cada 4 px y de 3 px cada 16 px (4 px de alto). Se usa en tres sitios: `// ANÁLISIS` arriba de la barra izquierda, `// TORRES` entre los créditos y la rejilla de torres y `// OLEADAS` arriba de la pestaña Oleadas.
+
+**Pies:** cada barra acaba con una fila de texto a 16 px dentro de la pantalla. La izquierda, `ScanFooter`, es decorativa: "SCAN OK" a la izquierda y "MK3" a la derecha, en `#1c7496`. La derecha es el pie de oleadas (ver "Pie de la barra").
+
+**Sin tooltips:** ningún control del juego tiene `tooltip_text`. Los nombres que antes salían en tooltip están escritos (filas de stat) o se ven en la ficha (torres y enemigos).
 
 - `FpsLabel`: arriba a la izquierda del área de juego, muestra `"%d FPS"` cada frame. Solo se ve con la opción `show_fps` de `Settings` activada; `LevelUI` escucha `Settings.changed`, así que aparece o desaparece al momento. `_process` solo está activo mientras se ve.
 
@@ -52,16 +66,17 @@ Señal: `action_requested(action: Action)`, con el enum `Action { RESTART, QUIT,
 
 ## InfoPanel (ficha)
 
-`scenes/level_ui/InfoPanel.tscn` + `scripts/level_ui/InfoPanel.gd` (clase `InfoPanel`). `PanelContainer` con el tema `menu_theme.tres` y el estilo de barra; dentro del margen quedan 120x532 px. El nombre va en mayúsculas y partido en líneas de 20 caracteres (Monogram a 16 px, 6 px por carácter, en 120 px útiles). Es un marco fijo: la barra no aparece, desaparece ni cambia de tamaño; solo cambia lo de dentro.
+`scenes/level_ui/InfoPanel.tscn` + `scripts/level_ui/InfoPanel.gd` (clase `InfoPanel`). `PanelContainer` con el tema `menu_theme.tres` y el estilo de tablet; dentro quedan 110x508 px. El nombre va en mayúsculas y partido en líneas de 18 caracteres (`NAME_MAX_CHARS`: Monogram a 16 px, 6 px por carácter, en 110 px útiles). Es un marco fijo: la barra no aparece, desaparece ni cambia de tamaño; solo cambia lo de dentro.
 
 Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
-- `TitleHeader`: cabecera fija "FICHA" en cian `#40e0f0`, con el mismo estilo que `MoneyHeader` (`money_header_style.tres`).
+- `TitleHeader`: `ScreenHeader` fijo con `// ANÁLISIS`.
 - `Screen`: el resto de la barra. Contiene las dos vistas, de las que solo una es visible, y `ScanFlash`.
+- `ScanFooter`: el pie decorativo "SCAN OK" / "MK3" (ver "Barras: tablet física").
 - **`IdleView` (reposo):** el escáner (`ScannerDisplay`, ver abajo), "SIN OBJETIVO" en ámbar `#ecb23c` y la ayuda "Clic derecho para analizar" en `#7fa6b8`, ambos con salto de línea automático y centrados. Se ve al empezar el nivel y al reiniciar; en cuanto se inspecciona algo no vuelve hasta el siguiente reinicio.
 - **`DetailView`:**
-  - Cabecera fija: `IconPad` (todo el ancho útil, 42 px de alto) con el icono a escala 1 centrado (cabe el Spikey de 34x34), fondo `#060b14` con una rejilla de puntos `#14304a` cada 4 px y esquinas de 4 px en el color de acento (se pinta en el `draw` de `IconPad`); `NameLabel` con el nombre en mayúsculas partido por palabras en líneas de 20 caracteres, 2 como mucho (una palabra más larga se corta con guion: "Disinteg-rator"), con alto fijo de 2 líneas para que la cabecera mida siempre lo mismo; y `TypeTag` con la etiqueta del tipo (de ataque en las torres, "ENEMIGO" en los enemigos) en el color de acento sobre el fondo mezclado al 20 % con el acento. El nombre se pasa a mayúsculas ("CAÑÓN DOBLE", "LÁSER").
-  - `StatScroll`: `ScrollContainer` vertical (sin barra visible, como los de la barra derecha) con las filas de stat, una línea `#1c4a60` y la descripción en `#7fa6b8` con salto de línea automático (la línea y la descripción se ocultan si no hay descripción). La cabecera no entra en el scroll. Al cambiar de ficha vuelve arriba.
+  - Cabecera fija: `IconPad` (todo el ancho útil, 42 px de alto) con el icono a escala 1 centrado (cabe el Spikey de 34x34), fondo `#060b14` con una rejilla de puntos `#14304a` cada 4 px y esquinas de 4 px en el color de acento (se pinta en el `draw` de `IconPad`); `NameLabel` con el nombre en `#befaff`, en mayúsculas y partido por palabras en líneas de 18 caracteres, 2 como mucho (una palabra más larga se corta con guion: "Disinteg-rator"), con alto fijo de 2 líneas para que la cabecera mida siempre lo mismo; y `TypeTag` con la etiqueta del tipo (de ataque en las torres, "ENEMIGO" en los enemigos) en el color de acento sobre el fondo mezclado al 20 % con el acento. El nombre se pasa a mayúsculas ("CAÑÓN DOBLE", "LÁSER").
+  - `StatScroll`: `ScrollContainer` vertical (sin barra visible, como los de la barra derecha) con las filas de stat, una línea `#1c4a60` y la descripción en `#5a7a96` con salto de línea automático (la línea y la descripción se ocultan si no hay descripción). La cabecera no entra en el scroll. Al cambiar de ficha vuelve arriba.
   - Cada fila la crea `StatRow.create(entry, index)` (ver abajo).
 - `ScanFlash`: `ColorRect` cian al 20 % que tapa `Screen` durante 2 frames cada vez que cambia el contenido.
 
@@ -69,9 +84,9 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
 **`InspectableData`** (`scripts/resources/InspectableData.gd`, `Resource`): contrato de lo inspeccionable, que cumplen `TowerData` y `EnemyData` y cualquier cosa futura que se quiera enseñar (torres colocadas, enemigos del mapa). Métodos: `get_inspect_icon()`, `get_inspect_name()`, `get_inspect_tag()` (9 caracteres como máximo), `get_inspect_accent()`, `get_stats()` y `get_inspect_description()`. Los valores por defecto están vacíos. Torres: icono, `name`, tipo de ataque, `accent_color` y `description`. Enemigos: primer frame de `up`, `name`, "ENEMIGO", `EnemyData.ACCENT_COLOR` (rojo de motor `#f0323c`), y `description`.
 
-**`StatEntry`** (`scripts/level_ui/StatEntry.gd`, `RefCounted`): `icon: Texture2D`, `label: String` y `value: String` ya formateado. `StatEntry.new(icon_name, label, value)` carga `assets/ui/stat_icons/<icon_name>.png`. `MAX_VALUE_CHARS = 18` es lo que cabe en el valor (6 px por carácter en los 108 px que quedan al lado del icono). Las filas las dan `TowerData.get_stats()` y los `get_stats()` de cada tipo de ataque (ver [torres.md](torres.md)).
+**`StatEntry`** (`scripts/level_ui/StatEntry.gd`, `RefCounted`): `icon: Texture2D`, `label: String` (nombre corto en mayúsculas: COSTE, DAÑO, VEL. BALA, BOTÍN…) y `value: String` ya formateado. `StatEntry.new(icon_name, label, value)` carga `assets/ui/stat_icons/<icon_name>.png`. Una fila de la ficha mide 108 px (110 útiles menos 1 px de margen a cada lado): icono de 8, hueco de 2, nombre, hueco de 2 y valor. Con 6 px por carácter, `MAX_LABEL_CHARS = 9` (54 px) y `MAX_VALUE_CHARS = 7` (42 px). Las filas las dan `TowerData.get_stats()`, los `get_stats()` de cada tipo de ataque (ver [torres.md](torres.md)) y `EnemyData.get_stats()` (ver [enemigos.md](enemigos.md)).
 
-**`StatRow`** (`scripts/level_ui/StatRow.gd`): `StatRow.create(entry, index, h_margin = 1, v_margin = 1)` devuelve la fila de un `StatEntry`: `PanelContainer` con fondo alterno según `index` (`#0e1626` / `#0a0f1a`), el icono de 8x8 a la izquierda y el valor a la derecha en `#befaff`. Su `tooltip_text` es el nombre del stat; `mouse_filter = PASS` para que la rueda siga llegando a un scroll. La usan la ficha (márgenes de 1 px) y `RunSummary`.
+**`StatRow`** (`scripts/level_ui/StatRow.gd`): `StatRow.create(entry, index, h_margin = 1, v_margin = 1)` devuelve la fila de un `StatEntry`: `PanelContainer` con fondo alterno según `index` (`#0b2132` / `#091d2c`), el icono de 8x8, el nombre en `#5a7a96` y el valor a la derecha en `#cce6ff` (se recorta si no cabe). El icono va 3 px por debajo del borde de arriba de la línea de texto (`ICON_TOP`) para quedar centrado con las mayúsculas. La fila y todo lo de dentro tienen `mouse_filter = IGNORE`: no recogen el ratón y la rueda llega directa al scroll de la ficha (y el clic, al `RunSummary` de debajo). La usan la ficha (márgenes de 1 px) y `RunSummary`.
 
 **`ScannerDisplay`** (`scripts/level_ui/ScannerDisplay.gd`, `Control` de 57x57): radar de reposo. Pinta 32 frames del barrido píxel a píxel en `Image` (sin antialiasing) la primera vez y los reparte entre instancias; avanza un frame cada 0,06 s (unos 1,9 s por vuelta) solo mientras es visible. Disco `#0e1626`, anillo `#1c7496` de radio 27 con marcas `#40e0f0` en los cuatro puntos cardinales, anillos interiores y cruz punteados en `#1c4a60`, línea de barrido `#befaff` y estela en dos tramos (`#1c7496` hasta 25°, `#14304a` hasta 70°). Cuatro ecos de 1 px se encienden en `#befaff` al pasar el barrido y se apagan pasando por `#40e0f0`.
 
@@ -92,46 +107,49 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
 ## Sidebar
 
-`scenes/level_ui/Sidebar.tscn` + `scripts/level_ui/Sidebar.gd` (clase `Sidebar`). Estilo de barra compartido con `InfoPanel`. Dentro del margen de 4 px quedan 120 px de ancho útil. Lo que se estira con los contenedores (cabecera de dinero, título de oleada) ocupa todo ese ancho; lo de ancho fijo (pestañas, controles de oleada, rejilla de torres y rejilla de enemigos) va centrado en horizontal, con el mismo tamaño que antes.
+`scenes/level_ui/Sidebar.tscn` + `scripts/level_ui/Sidebar.gd` (clase `Sidebar`). Estilo de tablet compartido con `InfoPanel`: quedan 110 px de ancho útil. Lo que se estira con los contenedores (pestañas, cabecera de créditos, cabeceras `//`, título de oleada) ocupa todo ese ancho; lo de ancho fijo (controles de oleada, rejilla de torres y rejilla de enemigos) va centrado en horizontal.
 
-- **Pestañas:** `TabBar` con dos botones de icono de 16x16 (`TowersTab` y `WavesTab`, 34x24, en un `ButtonGroup`, centrados con 4 px de separación) y una página por pestaña (`TowersPage`, `WavesPage`) de las que solo una es visible. No hay texto: el nombre ("Torres", "Oleadas") sale en el tooltip. Torres está activa al empezar. Los iconos son `assets/ui/tab_towers.png` y `tab_waves.png`. Los estilos de pestaña se crean en `_ready`: la inactiva tiene borde `#1c4a60` e icono atenuado; la activa, fondo `#14304a`, borde `#40e0f0` e icono a plena luz. Ver "Pestaña Oleadas" para `WavesPage`.
-- **`TowersPage`:** `MoneyHeader` (`PanelContainer` con `assets/ui/money_header_style.tres`) con `MoneyLabel` centrado en ámbar `#ecb23c`, formato `UiFormat.money`. Debajo, `TowerScroll` (`ScrollContainer`, scroll vertical sin barra visible, horizontal desactivado) con `TowerCenter` (`CenterContainer` que ocupa el ancho del scroll y centra la rejilla) y dentro `TowerButtons`, un `GridContainer` de 2 columnas con 4 px de separación (2 x 34 + 4 = 72 px de ancho). El dinero no entra en el scroll, así que no se mueve.
+- **Pestañas:** `TabBar` con dos botones de icono de 16x16 (`TowersTab` y `WavesTab`, 24 px de alto, en un `ButtonGroup`, 4 px de separación) que se reparten todo el ancho a partes iguales (53 px cada uno), y una página por pestaña (`TowersPage`, `WavesPage`) de las que solo una es visible. No hay texto ni tooltip. Torres está activa al empezar. Los iconos son `assets/ui/tab_towers.png` y `tab_waves.png`. Los estilos de pestaña se crean en `_ready`: la inactiva tiene borde `#1c4a60` e icono atenuado; la activa, fondo `#14304a`, borde `#40e0f0` e icono a plena luz. Ver "Pestaña Oleadas" para `WavesPage`.
+- **`TowersPage`**, de arriba abajo:
+  - `CreditsHeader`: `PanelContainer` con un `StyleBoxFlat` propio de la escena (fondo `#221e19`, borde de 1 px `#96641e`, 2 px de margen). A la izquierda la moneda (`stat_icons/cost.png`, el icono de COSTE, bajada 3 px como en las filas de stat) y "CRÉDITOS" en `#ecb23c`; a la derecha `MoneyLabel` con la cantidad en `#ffe082`, formato `UiFormat.money`.
+  - `TowersHeader`: `ScreenHeader` con `// TORRES`.
+  - `TowerScroll` (`ScrollContainer`, scroll vertical sin barra visible, horizontal desactivado) con `TowerMargin` (`MarginContainer` con 1 px arriba y abajo, para que los corchetes de la torre seleccionada no se recorten) y dentro `TowerButtons`, un `GridContainer` de 2 columnas con 4 px de separación (2 x 52 + 4 = 108 px de ancho), centrado. Los créditos y la cabecera no entran en el scroll, así que no se mueven.
 - `build_buttons(towers)`: borra los botones anteriores y crea un `TowerButton` por torre.
 - `set_money(amount)`: actualiza la etiqueta y avisa a cada botón.
 - Señal `tower_selected(data)`: petición de cambio, con la torre al pulsar un botón y con `null` al soltarla. No guarda la selección.
 - Señal `inspect_requested(data)`: reenvía la de cada `TowerButton`; petición de enseñar algo en la ficha.
-- `set_selection_locked(locked)`: guarda el bloqueo, atenúa `TowerButtons` al 50 % (la cabecera del dinero no cambia) y se lo pasa a cada `TowerButton` (también a los que cree `build_buttons`). Solo lo llama `LevelUI.set_state`.
+- `set_selection_locked(locked)`: guarda el bloqueo, atenúa `TowerButtons` al 50 % (la cabecera de créditos no cambia) y se lo pasa a cada `TowerButton` (también a los que cree `build_buttons`). Solo lo llama `LevelUI.set_state`.
 - `show_selected(data)`: marca el botón de esa torre y desmarca los demás (todos con `null`). No emite nada.
 
 ## TowerButton
 
-`scenes/level_ui/TowerButton.tscn` + `scripts/level_ui/TowerButton.gd` (clase `TowerButton`). `Button` de 34x44 sin `toggle_mode` ni `ButtonGroup`, sin foco: el estado seleccionado es solo visual y lo dicta `Sidebar.show_selected` mediante `set_selected`.
+`scenes/level_ui/TowerButton.tscn` + `scripts/level_ui/TowerButton.gd` (clase `TowerButton`). `Button` de 52x56 sin `toggle_mode` ni `ButtonGroup`, sin foco: el estado seleccionado es solo visual y lo dicta `Sidebar.show_selected` mediante `set_selected`.
 
-- Contenido: `data.icon` a 32x32 (sin escalar) y debajo el coste, a 16 px. El coste va con `UiFormat.money` (siempre con `€`). Tooltip con el nombre de la torre.
+- Contenido: `data.icon` a 32x32 (sin escalar) centrado arriba, con 3 px de hueco hasta el borde de arriba y 9 a cada lado, y debajo (2 px más abajo) el coste centrado, a 16 px. El coste va con `UiFormat.money` (siempre con `€`); con 52 px caben sus 7 caracteres, así que no se limita. Sin tooltip: el nombre se ve en la ficha.
 - Estados (estilos `StyleBoxFlat` de 1 px, sin antialiasing, creados en `_refresh`):
   - Normal: fondo `#0e1626`, borde `#1c7496`.
   - Hover: fondo `#16243c`, borde `#40e0f0`.
-  - Seleccionada: borde con `data.accent_color`, fondo mezclado con el acento (25 %); con el ratón encima, 40 % y borde más claro.
+  - Seleccionada: borde ámbar `#ecb23c` y fondo mezclado con el ámbar (25 %); con el ratón encima, 40 % y borde `#ffe082`. Además, corchetes en L de 4 px en `#ecb23c` justo por fuera de las cuatro esquinas, pintados en `_draw`.
   - Sin dinero: icono al 35 % de opacidad y coste en rojo `#ff3c5a` (con dinero, ámbar `#ecb23c`); sin resalte al pasar el ratón. El botón no está `disabled`, así que recibe todos los eventos de ratón (para el clic derecho de la ficha), pero el clic izquierdo no hace nada.
 - Señal `selection_changed(data, on)`: petición, no estado. Con `set_selection_locked(true)` no se emite (ni por clic ni por quedarse sin dinero; al desbloquear, si la torre seleccionada ya no se puede pagar, pide soltarla). El clic izquierdo pide seleccionar (`on = true`) o, si ya estaba seleccionada, soltar. Si estando seleccionada deja de llegarle el dinero, pide soltarla.
 - Señal `inspect_requested(data)`: petición de enseñar la torre en la ficha. La emiten el clic izquierdo (antes de comprobar el dinero) y el clic derecho, que se recoge en `_gui_input` y se marca como gestionado.
 
 ## Pestaña Oleadas
 
-`WavesPage` (dentro de `Sidebar`), de arriba abajo: `WaveNav`, `WaveBlocks` y `WaveControls`. Enseña **una sola oleada** a la vez, sin scroll. El pie con el estado no está en la página, sino en `Content` (ver "Pie de la barra").
+`WavesPage` (dentro de `Sidebar`), de arriba abajo: `WavesHeader` (`ScreenHeader` con `// OLEADAS`), `WaveNav`, `WaveBlocks` y `WaveControls`. Enseña **una sola oleada** a la vez, sin scroll. El pie con el estado no está en la página, sino en `Content` (ver "Pie de la barra").
 
-- **`WaveNav`** (fila de 120 px): `PrevWaveArrow` (`<`, 16x18), `WaveTitlePanel` con `WaveTitleLabel` ("OLEADA N", ocupa el resto) y `NextWaveArrow` (`>`). Las flechas no tienen foco, funcionan con el juego en pausa y se desactivan en la primera y la última oleada (borde `#1c4a60`, texto al 30 %). Son `<` y `>` en vez de ◀ ▶ porque son glifos seguros en Monogram.
+- **`WaveNav`** (fila de 110 px): `PrevWaveArrow` (`<`, 16x18), `WaveTitlePanel` con `WaveTitleLabel` ("OLEADA N", ocupa el resto) y `NextWaveArrow` (`>`). Las flechas no tienen foco, funcionan con el juego en pausa y se desactivan en la primera y la última oleada (borde `#1c4a60`, texto al 30 %). Son `<` y `>` en vez de ◀ ▶ porque son glifos seguros en Monogram.
 - **`WaveBlocks`**: contenedor con un `WaveBlock` por oleada, de los que solo es visible el que se mira (`Sidebar.view_wave`).
 - **`Sidebar.view_wave(index)`**: enseña esa oleada, colorea el título según su estado respecto a la oleada en curso y actualiza las flechas. `Sidebar.set_current_wave(index)` guarda la oleada en curso (-1 si ninguna) y pasa a ver `max(index, 0)`.
 - **Cuándo vuelve sola la vista** (`LevelUI`): al empezar un nivel (la 1), al empezar una oleada (`set_current_wave`: la que acaba de empezar) y al limpiar una (`view_wave(index + 1)` si quedan más: la que se va a lanzar). Si el jugador miraba otra con las flechas, la vista se la lleva.
-- **Controles** (`WaveControls`, `HBoxContainer` centrado, debajo de la oleada, con 4 px de separación y texto a 16; entre los dos no pasan de los 120 px). Los estilos se crean en `Sidebar._style_wave_controls()` con bordes de 1 px:
-  - `NextWaveButton` ("LANZAR", 60x18), tooltip "Lanzar la siguiente oleada". Activo: fondo `#0e1626`, borde `#1c7496`; hover con borde `#40e0f0`. Cuando no se puede lanzar (quedan enemigos de la oleada actual por salir o vivos, o no quedan oleadas) está `disabled`: fondo `#0a0f1a`, borde `#1c4a60` y texto al 30 %. Antes de la primera oleada, si se puede pulsar, su borde parpadea entre `#1c7496` y `#befaff` (0,5 s cada medio ciclo) para invitar a empezar. Emite `Sidebar.next_wave_requested`.
-  - `AutoWaveButton` ("AUTO", 48x18, `toggle_mode`), tooltip sobre AUTO. Apagado: borde `#1c4a60` y texto al 30 %; encendido: fondo `#453d2b` (fondo mezclado al 25 % con ámbar), borde `#ecb23c` y texto a plena luz. Emite `Sidebar.auto_waves_toggled(enabled)`, que es una petición: el estado lo guarda `Spawner.auto_waves` y la barra lo refleja con `show_auto_waves(enabled)` (sin volver a emitir).
+- **Controles** (`WaveControls`, `HBoxContainer` centrado, debajo de la oleada, con 4 px de separación y texto a 16; entre los dos miden 108 px, dentro de los 110 útiles). Ninguno tiene tooltip. Los estilos se crean en `Sidebar._style_wave_controls()` con bordes de 1 px:
+  - `NextWaveButton` ("LANZAR", 56x18). Activo: fondo `#0e1626`, borde `#1c7496`; hover con borde `#40e0f0`. Cuando no se puede lanzar (quedan enemigos de la oleada actual por salir o vivos, o no quedan oleadas) está `disabled`: fondo `#0a0f1a`, borde `#1c4a60` y texto al 30 %. Antes de la primera oleada, si se puede pulsar, su borde parpadea entre `#1c7496` y `#befaff` (0,5 s cada medio ciclo) para invitar a empezar. Emite `Sidebar.next_wave_requested`.
+  - `AutoWaveButton` ("AUTO", 48x18, `toggle_mode`). Apagado: borde `#1c4a60` y texto al 30 %; encendido: fondo `#453d2b` (fondo mezclado al 25 % con ámbar), borde `#ecb23c` y texto a plena luz. Emite `Sidebar.auto_waves_toggled(enabled)`, que es una petición: el estado lo guarda `Spawner.auto_waves` y la barra lo refleja con `show_auto_waves(enabled)` (sin volver a emitir).
   - `Sidebar.set_next_wave_available(available, inviting)` activa o atenúa el botón y arranca o para el parpadeo.
 - `Sidebar.build_waves(waves)`: borra los bloques anteriores y crea uno por `WaveData`.
 - **`WaveBlock`** (`scenes/level_ui/WaveBlock.tscn` + `scripts/level_ui/WaveBlock.gd`): solo la rejilla `Cells` de 2 columnas (34 px, 4 px de separación) de `EnemyCell`, centrada en horizontal. Agrupa las entradas por `EnemyData`, con el total de cada tipo, en orden de primera aparición (por `time`). No hay datos de enemigos en la UI. El título vive en `WaveNav`; `WaveBlock.apply_title_style(panel, label, state)` (estático) lo pinta.
 - **Estados:** `WaveBlock.State`, respecto a la oleada en curso (la última lanzada). En curso: título con fondo `#14304a`, borde y texto `#40e0f0`. Pasada: todo atenuado al 40 % de opacidad (bloque y título). Próxima (la siguiente a la en curso; antes de empezar, la primera): fondo `#0e1626`, borde `#96641e` y texto `#ecb23c`. Futura: fondo `#0e1626`, borde `#1c4a60` y texto `#7fa6b8`.
-- **`EnemyCell`** (`scenes/level_ui/EnemyCell.tscn` + `scripts/level_ui/EnemyCell.gd`): `Button` de 34x44 con los colores de `TowerButton`. Sprite = primer frame de `up` a escala 1, centrado en un área de 34x34 (el Spikey, de 34, ocupa todo el ancho de la celda y pisa el borde), y debajo `"×N"` a 16 px (abreviado con `UiFormat`). Tooltip con el nombre. Emite `inspect_requested(data)` con el clic izquierdo y con el derecho (este se recoge en `_gui_input`); `WaveBlock` y `Sidebar` lo reenvían.
+- **`EnemyCell`** (`scenes/level_ui/EnemyCell.tscn` + `scripts/level_ui/EnemyCell.gd`): `Button` de 34x44 con los colores de `TowerButton`. Sprite = primer frame de `up` a escala 1, centrado en un área de 34x34 (el Spikey, de 34, ocupa todo el ancho de la celda y pisa el borde), y debajo `"×N"` a 16 px (abreviado con `UiFormat`). Sin tooltip: el nombre se ve en la ficha. Emite `inspect_requested(data)` con el clic izquierdo y con el derecho (este se recoge en `_gui_input`); `WaveBlock` y `Sidebar` lo reenvían.
 - `LevelUI.setup(..., spawner)` llama a `_connect_spawner`: desconecta el `Spawner` anterior si lo había, construye los bloques con `spawner.waves`, refleja la oleada (`get_wave_index()`) y AUTO, y conecta `wave_started`, `wave_cleared` y `auto_waves_changed`. `next_wave_requested` llama a `spawner.start_next_wave()` y `auto_waves_toggled` escribe `spawner.auto_waves`.
 
 ### Pie de la barra
@@ -186,7 +204,7 @@ La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Una pantall
 `scenes/level_ui/PauseMenu.tscn`, escena heredada de `OverlayScreen.tscn` con el script `scripts/level_ui/PauseScreen.gd` (clase `PauseScreen`). Título "PAUSA" y opciones "Continuar" (`RESUME`), "Opciones" (`SETTINGS`, ver abajo), "Reiniciar" (`RESTART`) y "Salir" (`QUIT`). Aparece al instante, sin animación de entrada.
 
 - **Cursor:** el título es "PAUSA" en cian y a su derecha hay un `Label` "_" (creado en `_add_cursor`, en un `HBoxContainer` con el título) que parpadea cada 0,5 s con la opacidad, así el panel no cambia de tamaño. Se enciende cada vez que se abre la pausa.
-- **Plegado:** `FoldButton` (12x12, icono `assets/ui/fold.png`, tooltip "Plegar", sin foco) en la esquina superior derecha del marco. Al pulsarlo se ocultan `Background` y `Frame` y se enseña `FoldedTag`, un `OverlayFrame` cian con "PAUSA" a 16 px, a 3 px de la esquina superior izquierda del área de juego. Plegada no hay oscurecido y el mapa se ve limpio; el juego sigue en pausa. Clic izquierdo en la etiqueta: se despliega. Escape, plegada o no, quita la pausa (lo gestiona `LevelUI`). Al volver a pausar, `_on_shown` la despliega siempre.
+- **Plegado:** `FoldButton` (12x12, icono `assets/ui/fold.png`, sin tooltip ni foco) en la esquina superior derecha del marco. Al pulsarlo se ocultan `Background` y `Frame` y se enseña `FoldedTag`, un `OverlayFrame` cian con "PAUSA" a 16 px, a 3 px de la esquina superior izquierda del área de juego. Plegada no hay oscurecido y el mapa se ve limpio; el juego sigue en pausa. Clic izquierdo en la etiqueta: se despliega. Escape, plegada o no, quita la pausa (lo gestiona `LevelUI`). Al volver a pausar, `_on_shown` la despliega siempre.
 - Plegar y desplegar es solo cosa de `PauseScreen`: `LevelUI` sigue en `PAUSED`.
 - **Opciones:** `PauseScreen` escucha su propio `option_chosen` y, con `SETTINGS`, abre la instancia de `scenes/OptionsMenu.tscn` que cuelga de `PauseMenu` (`%OptionsMenu`, ver [menu.md](menu.md)) con `open_from(Center)`: el marco de la pausa se funde a las opciones sobre el mismo oscurecido y "Volver" regresa a él. `LevelUI` ignora `SETTINGS`. El juego sigue en pausa todo el rato; las opciones funcionan porque heredan `process_mode = ALWAYS` de `LevelUI`. Si la pausa se cierra con las opciones abiertas (Escape), `PauseScreen` llama a `close()` para que la siguiente pausa empiece por el marco.
 
@@ -212,11 +230,11 @@ La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Una pantall
 - `@export var accent_color`: color del rótulo y del borde. La derrota lo pone en rojo y la victoria en ámbar.
 - `show_stats(stats: RunStats)`: sustituye las filas por tres `StatRow` (4 px de margen en horizontal y 2 en vertical) con los valores finales de golpe (así los enseña la derrota). Corta un conteo en curso:
 
-| Icono | Tooltip | Valor |
+| Icono | Nombre | Valor |
 |---|---|---|
-| `wave.png` | Oleada | `"X/Y"` (oleada alcanzada / total) |
-| `kills.png` | Enemigos destruidos | `UiFormat.abbreviate` |
-| `cost.png` | Dinero gastado | `UiFormat.money` |
+| `wave.png` | OLEADA | `"X/Y"` (oleada alcanzada / total) |
+| `kills.png` | BAJAS (enemigos destruidos) | `UiFormat.abbreviate` |
+| `cost.png` | GASTADO (dinero gastado) | `UiFormat.money` |
 
 - `count_up(duration, delay = 0.0)`: opcional, después de `show_stats`. Pone enemigos destruidos y dinero gastado a 0 y, tras `delay` segundos, los hace contar hasta su valor en `duration` segundos (tween de tiempo real, curva cuártica que frena al final). Cada paso pasa por `UiFormat.abbreviate` o `UiFormat.money`, así que el texto tiene el formato del valor final y las filas (de ancho fijo) no saltan. La oleada no cuenta. `finish_count()` corta el conteo y deja los valores finales; `is_counting()` dice si hay uno en curso. Lo usa la victoria.
 - `StatRow.get_value_label(row)` da la etiqueta del valor de una fila para cambiar su texto sin rehacerla.

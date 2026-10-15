@@ -48,22 +48,22 @@ Las torres de onda y de cadena no giran el cañón ni usan `_process`.
 
 ## Datos
 
-`TowerData` (`scripts/resources/TowerData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `accent_color` (tono medio del acento de la torre según `art.md`, lo usa la UI para marcarla como seleccionada), `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`. Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 7 torres la tienen.
+`TowerData` (`scripts/resources/TowerData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `accent_color` (tono medio del acento de la torre según `art.md`, lo usa la ficha para el marco del icono y la etiqueta de tipo), `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`. Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 7 torres la tienen.
 
 Funciones para la ficha:
 
-- `get_stats() -> Array[StatEntry]`: filas comunes (Coste con `€`, Alcance = radio del `CircleShape2D` de `attack_range`, Cadencia = `attack_cooldown` en segundos salvo en el haz continuo) seguidas de las del ataque.
+- `get_stats() -> Array[StatEntry]`: filas comunes (COSTE con `€`, ALCANCE = radio del `CircleShape2D` de `attack_range`, CADENCIA = `attack_cooldown` en segundos salvo en el haz continuo) seguidas de las del ataque. Los nombres de fila son cortos y en mayúsculas (9 caracteres como mucho, ver `StatEntry` en [ui.md](ui.md)).
 - `get_attack() -> Resource`: el `*Data` de ataque que tenga (o null).
 - `get_attack_label()`: "BALA", "ONDA", "CADENA", "HAZ" o "HAZ CONT.".
 - Cada `*Data` de ataque tiene su `get_stats()`:
 
 | Clase | Filas |
 |---|---|
-| `BulletData` | Daño, Velocidad del proyectil |
-| `PulseData` | Daño, Ralentización (`-45%` con `slow_factor` 0,55), Duración de la ralentización |
-| `ChainData` | Daño, Objetivos (`max_targets`), Salto (`jump_range`) |
-| `BeamData` | Daño, Perfora ("TODOS") |
-| `FocusBeamData` | Daño/s por nivel (`40/80/160` si cabe en 7 caracteres; si no, una fila por nivel: `N1 40`, `N2 80`, `N3 160`), Tiempo por nivel |
+| `BulletData` | DAÑO, VEL. BALA |
+| `PulseData` | DAÑO, FRENADO (`-45%` con `slow_factor` 0,55), DURACIÓN (de la ralentización) |
+| `ChainData` | DAÑO, OBJETIVOS (`max_targets`), SALTO (`jump_range`) |
+| `BeamData` | DAÑO, PERFORA ("TODOS") |
+| `FocusBeamData` | DPS (`40/80` si cabe en `StatEntry.MAX_VALUE_CHARS`, 7 caracteres; si no, una fila por nivel: DPS N1 `40`, DPS N2 `80`, DPS N3 `160`), T. NIVEL |
 
 Los valores usan `UiFormat.abbreviate`, `UiFormat.number` y `UiFormat.seconds`. Un stat nuevo es una entrada más en el `get_stats()` que toque; la ficha no cambia.
 

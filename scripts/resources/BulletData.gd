@@ -18,6 +18,6 @@ class_name BulletData
 ## Filas de la ficha propias de la bala.
 func get_stats() -> Array[StatEntry]:
 	return [
-		StatEntry.new("damage", "Daño", UiFormat.number(damage)),
-		StatEntry.new("speed", "Velocidad del proyectil", UiFormat.number(speed)),
+		StatEntry.new("damage", "DAÑO", UiFormat.number(damage)),
+		StatEntry.new("speed", "VEL. BALA", UiFormat.number(speed)),
 	]

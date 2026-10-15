@@ -12,7 +12,7 @@ El `Spawner` lo añade como hijo de un `Path2D` del mapa y llama a `setup(enemy_
 
 ## Datos
 
-`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados) y `description` (frase corta para la ficha, ya rellena en los 12). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da vida, velocidad (px/s) y recompensa (con €); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
+`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados) y `description` (frase corta para la ficha, ya rellena en los 12). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da VIDA, VELOCIDAD (px/s) y BOTÍN (la recompensa, con €); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
 
 Recursos en `resources/enemy_data/`:
 

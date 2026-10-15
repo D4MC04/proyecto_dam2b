@@ -20,7 +20,6 @@ func _ready() -> void:
 
 func setup(enemy_data: EnemyData, count: int) -> void:
 	data = enemy_data
-	tooltip_text = data.name
 	count_label.text = "×%s" % UiFormat.abbreviate(count)
 	icon_rect.texture = data.get_inspect_icon()
 

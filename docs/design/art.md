@@ -71,6 +71,20 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 | `wave.png` | nave enemiga mirando hacia arriba con la llama del motor (oleada alcanzada, en el resumen de partida) | morado `#221632`, `#462c62`, `#785096`; motor `#f0323c` |
 | `kills.png` | calavera (enemigos destruidos, en el resumen de partida) | metal claro `#8c96aa`, `#d2dceb`; ojos en el contorno |
 
+- **Barras laterales (tablet)**: no son PNG; `TabletFrameStyle`, `ScreenHeader`, `StatRow` y la cabecera de créditos las pintan en código, en píxeles enteros. Ver [ui.md](ui.md).
+
+| Parte | Colores |
+|---|---|
+| Marco de metal | contorno `#0c0e16`; rampa del metal gris azulado: luz `#96a2b6` arriba y a la izquierda, cuerpo `#606a7c`, sombra `#343a4a` abajo y a la derecha |
+| Tornillos (3x3) y rejilla de altavoz | `#343a4a`, con luz `#96a2b6` en los tornillos |
+| Pantalla | líneas de barrido alternas `#08111f` y `#060d18`; corchetes de las esquinas `#40e0f0` |
+| Cabeceras `// TEXTO` | texto `#40e0f0`; regla de marcas `#1c7496` |
+| Pie de la barra izquierda ("SCAN OK", "MK3") | `#1c7496` |
+| Filas de stat | fondos alternos `#0b2132` y `#091d2c`; nombre `#5a7a96`; valor `#cce6ff` |
+| Ficha | nombre del objetivo `#befaff`; descripción `#5a7a96` |
+| Cabecera de créditos | fondo `#221e19`, borde `#96641e`, "CRÉDITOS" `#ecb23c`, cantidad `#ffe082` |
+| Torre seleccionada en la tienda | borde y corchetes exteriores `#ecb23c`, fondo `#0e1626` mezclado al 25 % con ese ámbar |
+
 - **Escáner de la ficha**: no es un PNG; `ScannerDisplay` lo pinta píxel a píxel en código (57x57, sin antialiasing), con los azules de la interfaz: disco `#0e1626`, anillos y cruz `#1c4a60`, anillo exterior `#1c7496`, marcas y ecos `#40e0f0`, barrido `#befaff`, estela `#1c7496` y `#14304a`. Ver [ui.md](ui.md).
 
 ## Contorno
