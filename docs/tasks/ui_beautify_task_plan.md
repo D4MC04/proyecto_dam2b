@@ -25,7 +25,7 @@ Igual que en el plan anterior:
 - **Columnas:** dos barras de 128 px y un área de juego de 704x540 en medio.
 - **Mapas: no se tocan de momento.** Se quedan como están y se centran en el área de juego, en horizontal y en vertical. Se ampliarán cuando el tamaño final esté asegurado, para no rehacerlos otra vez.
 - **Fondo:** uno solo de espacio para toda el área de juego, el mismo en todos los niveles, detrás del mapa.
-- **Fuente:** Monogram para todo el texto y PressStart2P solo en títulos grandes (PAUSA, ESTACION PERDIDA, SECTOR ASEGURADO). David descarga Monogram y la pone en `assets/fonts/`.
+- **Fuente:** solo Monogram, en todo el juego. PressStart2P desaparece. Los títulos grandes (PAUSA, ESTACION PERDIDA, SECTOR ASEGURADO) usan Monogram a un múltiplo entero de su tamaño base. David descarga Monogram y la pone en `assets/fonts/`.
 - **Barras = tablet física:**
   - Marco de metal con la rampa gris azulada de `docs/design/art.md` (`#343a4a`, `#606a7c`, `#96a2b6`), contorno `#0c0e16`, tornillos en las esquinas y rejilla de altavoz abajo.
   - Dentro, una pantalla oscura con líneas de barrido, corchetes en las esquinas y cabeceras tipo `// TORRES` con una regla de marcas debajo.
@@ -59,8 +59,9 @@ Cada una se prueba y se commitea por separado.
    - Vive en `Level` o en `Game`, no dentro de cada mapa.
    - Revisar que no se pise con los fondos que ya llevan algunos mapas.
 3. **Fuente** (`fuente.md`). Modelo: Sonnet.
-   - Monogram como fuente por defecto en `menu_theme.tres` y PressStart2P solo en los títulos grandes.
-   - Revisar los tamaños de letra de todas las escenas, porque los `font_size` actuales están pensados para PressStart2P.
+   - Monogram como única fuente en `menu_theme.tres` y en todas las escenas. PressStart2P se borra de `assets/fonts/`.
+   - Los `font_size` actuales (8, 16 y 24, en unos 16 archivos) están pensados para PressStart2P. Se cambian a múltiplos enteros del tamaño nativo de Monogram para que no salga borrosa; los títulos van a 2x o 3x.
+   - Se quitan los apaños por las tildes de PressStart2P: el comentario de `InfoPanel` y el título de la derrota, que vuelve a ser "SEÑAL PERDIDA" si Monogram dibuja bien la Ñ.
 4. **Números y nivel** (`numeros.md`). Modelo: Sonnet.
    - `UiFormat.abbreviate` con la regla nueva, usada en todos los números de la UI.
    - Indicador de nivel sin marco y al doble de tamaño.
