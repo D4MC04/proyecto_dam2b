@@ -200,10 +200,9 @@ Todos los botones del juego son una **caja con esquinas recortadas**: la esquina
 `scenes/level_ui/OverlayScreen.tscn` + `scripts/level_ui/OverlayScreen.gd` (clase `OverlayScreen`). Escena base de las pantallas que tapan el área de juego, con el tema `menu_theme.tres`. Contiene lo común:
 
 - `Background`: `ColorRect` que oscurece el área de juego (color `dim_color`, negro por defecto, con opacidad `dim_opacity`).
-- `Center` (`CenterContainer`) → `Frame` (`OverlayFrame`, ver abajo) → `Margin` (16 px a los lados, 14 arriba y 6 abajo, dentro de los 4 px del marco) → `Box` (`VBoxContainer`, 12 px de separación):
-  - `Title` (`%Title`, `title_label`): fuente de 48 px en `#cce6ff` con contorno negro de 4 px, centrado. En la base no tiene texto; cada pantalla lo pinta en su acento.
-  - `Options` (`%Options`, `options`): `VBoxContainer` con 6 px de separación, vacío en la base.
-  - `Footer` (`%Footer`, `footer_label`): pie tenue a 16 px, abajo a la izquierda, en el fondo del panel (`#0a0f1a`) mezclado al 60 % con el acento. Su texto es `footer_text`; si está vacío, se oculta.
+- `Center` (`CenterContainer`) → `Frame` (`OverlayFrame`, ver abajo) → `Margin` (24 px a los lados, 21 arriba y 21 abajo, dentro de los 4 px del marco) → `Box` (`VBoxContainer`, 18 px de separación):
+  - `Title` (`%Title`, `title_label`): fuente de 72 px en `#cce6ff` con contorno negro de 4 px, centrado. En la base no tiene texto; cada pantalla lo pinta en su acento.
+  - `Options` (`%Options`, `options`): `VBoxContainer` con 9 px de separación, vacío en la base.
 
 **`OverlayFrame`** (`scripts/level_ui/OverlayFrame.gd`, `PanelContainer`): el **panel holograma**. Su estilo `panel` es un `StyleBoxEmpty` que solo deja 4 px de margen (`FRAME_THICKNESS`); todo se pinta en `_draw` en píxeles enteros a partir de `accent_color`. De fuera hacia dentro:
 
@@ -222,15 +221,15 @@ Con `decorated` (por defecto), además:
 
 `FoldedTag` (la etiqueta plegada de la pausa) es otro `OverlayFrame` con `corner_clip = 3` y `decorated = false`: mismo doble borde, recortes y barrido, sin regla ni corchetes.
 
-Cinco `@export` en la base, que cada escena heredada fija en su `.tscn`:
+Cuatro `@export` en la base, que cada escena heredada fija en su `.tscn`:
 
-| Pantalla | `accent_color` | `accent_light_color` | `dim_color` | `dim_opacity` | `footer_text` |
-|---|---|---|---|---|---|
-| Pausa | cian `#40e0f0` | `#befaff` | negro | 0,35 | SISTEMA EN ESPERA |
-| Derrota | rojo `#ff3c5a` | `#ffaabe` | rojo muy oscuro `#1a0509` | 0,6 | SIN SEÑAL |
-| Victoria | ámbar `#ecb23c` | `#ffe082` | negro | 0,45 | MISIÓN CUMPLIDA |
+| Pantalla | `accent_color` | `accent_light_color` | `dim_color` | `dim_opacity` |
+|---|---|---|---|---|
+| Pausa | cian `#40e0f0` | `#befaff` | negro | 0,35 |
+| Derrota | rojo `#ff3c5a` | `#ffaabe` | rojo muy oscuro `#1a0509` | 0,6 |
+| Victoria | ámbar `#ecb23c` | `#ffe082` | negro | 0,45 |
 
-`_ready` aplica el acento y su tono claro al marco y a los botones, el oscurecido al fondo y el pie, y conecta el `pressed` de cada `OverlayOptionButton` de `Options`. Enum `Option { RESUME, RESTART, QUIT, NEXT_LEVEL, SETTINGS }` y una sola señal, `option_chosen(option)`.
+`_ready` aplica el acento y su tono claro al marco y a los botones, el oscurecido al fondo, y conecta el `pressed` de cada `OverlayOptionButton` de `Options`. Enum `Option { RESUME, RESTART, QUIT, NEXT_LEVEL, SETTINGS }` y una sola señal, `option_chosen(option)`.
 
 La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Una pantalla con comportamiento propio extiende `OverlayScreen` con un script (como `PauseScreen` y `GameOverScreen`).
 
@@ -243,7 +242,7 @@ La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Una pantall
 | Pulsado | fondo normal mezclado al 22 % | acento | `accent_light_color` |
 | Desactivado | `#060b14` | base mezclada al 25 % | `#5a7a96` |
 
-No dibuja nada propio en `_draw`. Miden 136x24 con 6 px de separación y van centrados en horizontal.
+No dibuja nada propio en `_draw`. Miden 204x36 (texto a 24) con 9 px de separación y van centrados en horizontal.
 
 ## PauseMenu
 
@@ -271,7 +270,7 @@ No dibuja nada propio en `_draw`. Miden 136x24 con 6 px de separación y van cen
 
 ## RunSummary
 
-`scenes/level_ui/RunSummary.tscn` + `scripts/level_ui/RunSummary.gd` (clase `RunSummary`). Resumen de partida reutilizable; no sabe en qué pantalla está. `PanelContainer` de 136 px de ancho (lo mismo que las opciones), fondo `#0a0f1a`, borde de 1 px en el acento mezclado al 50 % y 2 px de margen. Dentro, el rótulo "RESUMEN" a 16 px en el acento y las filas.
+`scenes/level_ui/RunSummary.tscn` + `scripts/level_ui/RunSummary.gd` (clase `RunSummary`). Resumen de partida reutilizable; no sabe en qué pantalla está. `PanelContainer` de 204 px de ancho (lo mismo que los botones), fondo `#0a0f1a`, borde de 1 px en el acento mezclado al 50 % y 3 px de margen. Dentro, el rótulo "RESUMEN" a 24 px en el acento y las filas. Las filas (`StatRow.create` con `font_size` 24, hueco de icono de 12 y márgenes de 6 y 3) también van a 24 px.
 
 - `@export var accent_color`: color del rótulo y del borde. La derrota lo pone en rojo y la victoria en ámbar.
 - `show_stats(stats: RunStats)`: sustituye las filas por tres `StatRow` (4 px de margen en horizontal y 2 en vertical) con los valores finales de golpe (así los enseña la derrota). Corta un conteo en curso:

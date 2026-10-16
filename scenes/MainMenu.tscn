@@ -121,7 +121,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 6
 alignment = 1
 
 [node name="Title" type="Label" parent="TitleScreen" unique_id=337636773]
@@ -129,7 +129,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 48
+theme_override_font_sizes/font_size = 72
 text = "ASTRO ARTILLERY"
 horizontal_alignment = 1
 
@@ -138,12 +138,12 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 2
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 24
 text = "TOWER DEFENSE"
 horizontal_alignment = 1
 
 [node name="Spacer" type="Control" parent="TitleScreen"]
-custom_minimum_size = Vector2(0, 24)
+custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 
 [node name="ButtonsPanel" type="PanelContainer" parent="TitleScreen"]
@@ -153,44 +153,40 @@ script = ExtResource("20_frame")
 
 [node name="Margin" type="MarginContainer" parent="TitleScreen/ButtonsPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 6
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 21
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 21
 
 [node name="Content" type="VBoxContainer" parent="TitleScreen/ButtonsPanel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 18
 
 [node name="Buttons" type="VBoxContainer" parent="TitleScreen/ButtonsPanel/Margin/Content" unique_id=203701852]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 9
 alignment = 1
 
 [node name="PlayButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons" unique_id=1180300128]
-custom_minimum_size = Vector2(136, 24)
+custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
 text = "Jugar"
 
 [node name="SettingsButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons" unique_id=528850060]
-custom_minimum_size = Vector2(136, 24)
+custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
 text = "Opciones"
 
 [node name="QuitButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons" unique_id=1613827906]
-custom_minimum_size = Vector2(136, 24)
+custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
 text = "Salir"
-
-[node name="Footer" type="Label" parent="TitleScreen/ButtonsPanel/Margin/Content"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.165, 0.549, 0.698, 1)
-theme_override_font_sizes/font_size = 16
-text = "SISTEMA LISTO"
 
 [node name="LevelSelectionScreen" type="VBoxContainer" parent="." unique_id=2135136794]
 visible = false
@@ -209,40 +205,34 @@ script = ExtResource("20_frame")
 
 [node name="Margin" type="MarginContainer" parent="LevelSelectionScreen/LevelsPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 6
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 21
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 21
 
 [node name="Content" type="VBoxContainer" parent="LevelSelectionScreen/LevelsPanel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 18
 
 [node name="Header" parent="LevelSelectionScreen/LevelsPanel/Margin/Content" instance=ExtResource("21_header")]
 layout_mode = 2
-title = "SELECCIONA UN NIVEL"
+title = "SECTORES DISPONIBLES"
+text_size = 24
 
 [node name="LevelButtonsContainer" type="GridContainer" parent="LevelSelectionScreen/LevelsPanel/Margin/Content" unique_id=1866487335]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/h_separation = 8
-theme_override_constants/v_separation = 8
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 12
 columns = 5
 
 [node name="VolverButton" type="Button" parent="LevelSelectionScreen/LevelsPanel/Margin/Content" unique_id=555534078]
-custom_minimum_size = Vector2(136, 24)
+custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
 text = "Volver"
-
-[node name="SectorsFooter" type="Label" parent="LevelSelectionScreen/LevelsPanel/Margin/Content"]
-unique_name_in_owner = true
-layout_mode = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.165, 0.549, 0.698, 1)
-theme_override_font_sizes/font_size = 16
-text = "SECTORES 0/0"
 
 [node name="OptionsMenu" parent="." instance=ExtResource("19_options")]
 visible = false

@@ -12,39 +12,42 @@
 [node name="PauseMenu" instance=ExtResource("1_overlay")]
 script = ExtResource("3_pause")
 dim_opacity = 0.35
-footer_text = "SISTEMA EN ESPERA"
 
 [node name="Title" parent="Center/Frame/Margin/Box" index="0"]
 text = "PAUSA"
 
 [node name="ResumeButton" type="Button" parent="Center/Frame/Margin/Box/Options" unique_id=438037907]
-custom_minimum_size = Vector2(136, 24)
+custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
 text = "Continuar"
 script = ExtResource("2_option")
 option = 0
 
 [node name="SettingsButton" type="Button" parent="Center/Frame/Margin/Box/Options"]
-custom_minimum_size = Vector2(136, 24)
+custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
 text = "Opciones"
 script = ExtResource("2_option")
 option = 4
 
 [node name="RestartButton" type="Button" parent="Center/Frame/Margin/Box/Options" unique_id=43701199]
-custom_minimum_size = Vector2(136, 24)
+custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
 text = "Reiniciar"
 script = ExtResource("2_option")
 option = 1
 
 [node name="QuitButton" type="Button" parent="Center/Frame/Margin/Box/Options" unique_id=1477365320]
-custom_minimum_size = Vector2(136, 24)
+custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
 text = "Salir"
 script = ExtResource("2_option")
 option = 2
@@ -94,16 +97,16 @@ decorated = false
 [node name="Margin" type="MarginContainer" parent="FoldedTag"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 3
-theme_override_constants/margin_top = 1
-theme_override_constants/margin_right = 3
-theme_override_constants/margin_bottom = 1
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 2
 
 [node name="Label" type="Label" parent="FoldedTag/Margin"]
 layout_mode = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 24
 text = "PAUSA"
 
 [node name="OptionsMenu" parent="." instance=ExtResource("6_options")]

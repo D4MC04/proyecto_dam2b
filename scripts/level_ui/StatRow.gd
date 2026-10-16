@@ -12,7 +12,8 @@ const SEPARATION := 2
 const ICON_TOP := 3
 
 ## `index` decide el fondo alterno. Los márgenes son el hueco entre el borde de la fila y su contenido.
-static func create(entry: StatEntry, index: int, h_margin: int = 1, v_margin: int = 1) -> PanelContainer:
+## `font_size`, `icon_box` (lado del hueco del icono, que sigue siendo de 8x8 centrado) e `icon_top` escalan la fila.
+static func create(entry: StatEntry, index: int, h_margin: int = 1, v_margin: int = 1, font_size: int = 16, icon_box: int = 8, icon_top: int = ICON_TOP) -> PanelContainer:
 	var row := PanelContainer.new()
 	# IGNORE: la fila no recoge el ratón, así que la rueda llega directa al ScrollContainer de encima.
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -35,18 +36,18 @@ static func create(entry: StatEntry, index: int, h_margin: int = 1, v_margin: in
 	var icon_margin := MarginContainer.new()
 	icon_margin.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	icon_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon_margin.add_theme_constant_override("margin_top", ICON_TOP)
+	icon_margin.add_theme_constant_override("margin_top", icon_top)
 	box.add_child(icon_margin)
 	var icon := TextureRect.new()
 	icon.texture = entry.icon
-	icon.custom_minimum_size = Vector2(8, 8)
+	icon.custom_minimum_size = Vector2(icon_box, icon_box)
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	icon_margin.add_child(icon)
 
-	box.add_child(_make_label(entry.label, LABEL_COLOR))
+	box.add_child(_make_label(entry.label, LABEL_COLOR, font_size))
 
-	var value := _make_label(entry.value, VALUE_COLOR)
+	var value := _make_label(entry.value, VALUE_COLOR, font_size)
 	value.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	value.clip_text = true
@@ -57,10 +58,10 @@ static func create(entry: StatEntry, index: int, h_margin: int = 1, v_margin: in
 static func get_value_label(row: PanelContainer) -> Label:
 	return row.get_child(0).get_child(2) as Label
 
-static func _make_label(text: String, color: Color) -> Label:
+static func _make_label(text: String, color: Color, font_size: int) -> Label:
 	var label := Label.new()
 	label.text = text
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.add_theme_font_size_override("font_size", 16)
+	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", color)
 	return label

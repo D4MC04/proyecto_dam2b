@@ -40,14 +40,14 @@ script = ExtResource("3_frame")
 
 [node name="Margin" type="MarginContainer" parent="Center/Frame" unique_id=1649027317]
 layout_mode = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 14
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 6
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 21
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 21
 
 [node name="Box" type="VBoxContainer" parent="Center/Frame/Margin" unique_id=1649027318]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 18
 alignment = 1
 
 [node name="Title" type="Label" parent="Center/Frame/Margin/Box" unique_id=1243934992]
@@ -56,16 +56,11 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 48
+theme_override_font_sizes/font_size = 72
 horizontal_alignment = 1
 
 [node name="Options" type="VBoxContainer" parent="Center/Frame/Margin/Box" unique_id=1649027315]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 9
 
-[node name="Footer" type="Label" parent="Center/Frame/Margin/Box"]
-unique_name_in_owner = true
-layout_mode = 2
-mouse_filter = 2
-theme_override_font_sizes/font_size = 16

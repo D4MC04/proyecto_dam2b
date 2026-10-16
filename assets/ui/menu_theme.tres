@@ -46,20 +46,20 @@ colors = PackedColorArray(0.74509805, 0.98039216, 1, 1, 0.74509805, 0.98039216, 
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_grabber"]
 gradient = SubResource("Gradient_grabber")
-width = 3
-height = 7
+width = 5
+height = 11
 
 [sub_resource type="Gradient" id="Gradient_grabber_hover"]
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 1)
 
 [sub_resource type="GradientTexture2D" id="GradientTexture2D_grabber_hover"]
 gradient = SubResource("Gradient_grabber_hover")
-width = 3
-height = 7
+width = 5
+height = 11
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slider_fill"]
-content_margin_top = 1.5
-content_margin_bottom = 1.5
+content_margin_top = 2.0
+content_margin_bottom = 2.0
 bg_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
 border_width_left = 1
 border_width_top = 1
@@ -68,8 +68,8 @@ border_width_bottom = 1
 border_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slider_track"]
-content_margin_top = 1.5
-content_margin_bottom = 1.5
+content_margin_top = 2.0
+content_margin_bottom = 2.0
 bg_color = Color(0.03137255, 0.08627451, 0.14901961, 1)
 border_width_left = 1
 border_width_top = 1

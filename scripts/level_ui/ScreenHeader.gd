@@ -20,10 +20,18 @@ const MAJOR_TICK_LENGTH := 3
 		if is_node_ready():
 			title_label.text = TEXT_PREFIX + title
 
+## Tamaño de la fuente (Monogram solo se ve nítida a 16, 32 o 48).
+@export var text_size := 16:
+	set(value):
+		text_size = value
+		if is_node_ready():
+			title_label.add_theme_font_size_override("font_size", text_size)
+
 @onready var title_label: Label = %TitleLabel
 @onready var ruler: Control = %Ruler
 
 func _ready() -> void:
+	title_label.add_theme_font_size_override("font_size", text_size)
 	title_label.text = TEXT_PREFIX + title
 	title_label.add_theme_color_override("font_color", TEXT_COLOR)
 	ruler.custom_minimum_size.y = 1 + MAJOR_TICK_LENGTH

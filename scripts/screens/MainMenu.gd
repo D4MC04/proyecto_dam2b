@@ -6,7 +6,6 @@ var start_on_level_selection: bool = false
 @onready var level_selection_panel: VBoxContainer = $LevelSelectionScreen
 @onready var level_buttons_container: GridContainer = %LevelButtonsContainer
 @onready var options_menu: OptionsMenu = $OptionsMenu
-@onready var sectors_footer: Label = %SectorsFooter
 
 const FADE_TIME := 0.25
 
@@ -17,18 +16,15 @@ func _ready() -> void:
 	_build_level_buttons()
 
 func _build_level_buttons() -> void:
-	var unlocked: int = 0
 	for i in GameData.levels.size():
 		var button := LevelButton.new()
 		button.level = GameData.levels[i]
 		button.text = str(i + 1)
-		button.custom_minimum_size = Vector2(40, 40)
+		button.custom_minimum_size = Vector2(60, 60)
+		button.add_theme_font_size_override("font_size", 24)
 		button.disabled = not GameState.is_unlocked(i)
-		if not button.disabled:
-			unlocked += 1
 		button.level_selected.connect(_open_level)
 		level_buttons_container.add_child(button)
-	sectors_footer.text = "SECTORES %d/%d" % [unlocked, GameData.levels.size()]
 
 func _open_level(data: LevelData):
 	var game = preload("res://scenes/Game.tscn").instantiate()

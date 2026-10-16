@@ -6,8 +6,11 @@ class_name RunSummary
 
 const BG_COLOR := Color("#0a0f1a")
 # Las filas son más anchas que en la ficha: algo más de aire alrededor del icono y el valor.
-const ROW_H_MARGIN := 4
-const ROW_V_MARGIN := 2
+const ROW_H_MARGIN := 6
+const ROW_V_MARGIN := 3
+const ROW_FONT_SIZE := 24
+const ROW_ICON_BOX := 12
+const ROW_ICON_TOP := 5
 
 ## Color del rótulo y del borde.
 @export var accent_color: Color = Color("#40e0f0"):
@@ -42,7 +45,7 @@ func show_stats(stats: RunStats) -> void:
 		StatEntry.new("cost", "GASTADO", UiFormat.money(stats.money_spent)),
 	]
 	for i in entries.size():
-		rows.add_child(StatRow.create(entries[i], i, ROW_H_MARGIN, ROW_V_MARGIN))
+		rows.add_child(StatRow.create(entries[i], i, ROW_H_MARGIN, ROW_V_MARGIN, ROW_FONT_SIZE, ROW_ICON_BOX, ROW_ICON_TOP))
 	_kills_label = StatRow.get_value_label(rows.get_child(1) as PanelContainer)
 	_cost_label = StatRow.get_value_label(rows.get_child(2) as PanelContainer)
 
@@ -85,6 +88,6 @@ func _refresh_style() -> void:
 	style.set_border_width_all(1)
 	style.border_color = BG_COLOR.lerp(accent_color, 0.5)
 	style.anti_aliasing = false
-	style.set_content_margin_all(2)
+	style.set_content_margin_all(3)
 	add_theme_stylebox_override("panel", style)
 	caption.add_theme_color_override("font_color", accent_color)

@@ -9,9 +9,6 @@ enum Option { RESUME, RESTART, QUIT, NEXT_LEVEL, SETTINGS }
 
 signal option_chosen(option: Option)
 
-# Mezcla del acento con el fondo oscuro del panel para el pie.
-const FOOTER_ACCENT_MIX := 0.6
-
 ## Color del panel holograma y de las opciones.
 @export var accent_color: Color = Color("#40e0f0")
 ## Tono claro del acento: corchetes del panel y texto de las opciones con el ratón encima.
@@ -20,22 +17,16 @@ const FOOTER_ACCENT_MIX := 0.6
 @export var dim_color: Color = Color.BLACK
 ## Opacidad del oscurecido.
 @export_range(0.0, 1.0) var dim_opacity: float = 0.5882353
-## Texto tenue abajo a la izquierda del panel ("SISTEMA EN ESPERA"...).
-@export var footer_text := ""
 
 @onready var background: ColorRect = %Background
 @onready var frame: OverlayFrame = %Frame
 @onready var title_label: Label = %Title
 @onready var options: VBoxContainer = %Options
-@onready var footer_label: Label = %Footer
 
 func _ready() -> void:
 	background.color = Color(dim_color, dim_opacity)
 	frame.accent_color = accent_color
 	frame.accent_light_color = accent_light_color
-	footer_label.text = footer_text
-	footer_label.visible = not footer_text.is_empty()
-	footer_label.add_theme_color_override("font_color", OverlayFrame.BG_COLOR.lerp(accent_color, FOOTER_ACCENT_MIX))
 	for child: Node in options.get_children():
 		var button := child as OverlayOptionButton
 		if button:
