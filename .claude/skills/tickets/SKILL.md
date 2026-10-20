@@ -11,10 +11,13 @@ Lista los tickets pendientes. No modifiques ningún archivo.
 1. Lee todos los `docs/tasks/*.md` menos `_plantilla.md`.
 2. Devuelve una tabla: ticket (nombre del archivo sin `.md`), estado, modelo recomendado, archivos que toca (de la sección "Archivos que toca", sin contar `docs/`).
 3. Debajo, **Chocan**: cada pareja de tickets que comparte algún archivo (sin contar `docs/`), con el archivo en común. Si ninguna choca, "Ninguno choca".
-4. **A la vez**: el grupo más grande de tickets `aceptada` que no chocan entre sí. Esos se pueden repartir en chats con worktree.
+4. **Orden propuesto**: reparte todos los tickets (aceptados y propuestos) en tandas. Dentro de una tanda ninguno choca con otro, así que se hacen a la vez en chats con worktree. Cada tanda empieza cuando la anterior ya está en main. Usa las menos tandas posible. Entre dos tickets que chocan, va primero el que deja algo que el otro aprovecha (por ejemplo, el que añade un campo o una función que el otro usa) y, si no, el más pequeño. Una línea por tanda con el porqué de cada orden:
+   - Tanda 1: A, B, C
+   - Tanda 2: D (después de C porque los dos tocan Enemy.gd y D aprovecha...)
 5. Si no hay tickets, dilo.
 
 Termina con una línea con el comando que toca:
 - Sin tickets aceptados → aceptar alguno ("acepto X") o `/proponer`.
 - Uno aceptado → `/hacer X` en Sonnet.
 - Varios aceptados que no chocan → "abre sesiones en worktree para X e Y" y `/hacer` en cada una. Antes, los tickets tienen que estar commiteados en main.
+- Hay tanda propuesta sin aceptar → "acepto la tanda 1".

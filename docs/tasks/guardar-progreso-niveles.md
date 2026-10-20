@@ -1,6 +1,6 @@
 # Desbloquear niveles al ganar y guardar el progreso
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 
 ## Por qué

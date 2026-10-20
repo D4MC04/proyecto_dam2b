@@ -1,6 +1,6 @@
 # Mostrar la vida de la estación en la interfaz
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 
 ## Por qué

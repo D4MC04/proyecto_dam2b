@@ -1,6 +1,6 @@
 # Cada tipo de enemigo quita una vida distinta a la estación
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 
 ## Por qué
