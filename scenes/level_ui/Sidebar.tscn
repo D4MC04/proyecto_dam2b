@@ -197,6 +197,16 @@ theme_override_font_sizes/font_size = 16
 toggle_mode = true
 text = "AUTO"
 
+[node name="SpeedButton" type="Button" parent="Content/WavesPage/WaveControls"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(108, 24)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+theme_override_font_sizes/font_size = 16
+toggle_mode = true
+text = "×1"
+
 [node name="StationMargin" type="MarginContainer" parent="Content"]
 layout_mode = 2
 theme_override_constants/margin_left = 4

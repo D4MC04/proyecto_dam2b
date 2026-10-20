@@ -8,6 +8,8 @@ signal inspect_requested(data: Resource)
 signal next_wave_requested
 ## Petición de cambiar el modo AUTO; no guarda el estado.
 signal auto_waves_toggled(enabled: bool)
+## Petición de cambiar la velocidad ×1 / ×2; no guarda el estado.
+signal fast_speed_toggled(enabled: bool)
 
 ## Estado de la oleada que enseña el pie; lo decide LevelUI.
 enum WaveStatus { READY, IN_PROGRESS, COMPLETE }
@@ -70,6 +72,7 @@ const STATUS_COLORS: Dictionary[WaveStatus, Color] = {
 @onready var footer_status_label: Label = %FooterStatusLabel
 @onready var next_wave_button: Button = %NextWaveButton
 @onready var auto_wave_button: Button = %AutoWaveButton
+@onready var speed_button: Button = %SpeedButton
 
 var _money := 0
 var _buttons: Array[TowerButton] = []
@@ -91,6 +94,7 @@ func _ready() -> void:
 	station_bar.add_theme_stylebox_override("background", _station_style(TAB_BG_COLOR, TAB_BORDER_COLOR))
 	next_wave_button.pressed.connect(next_wave_requested.emit)
 	auto_wave_button.toggled.connect(auto_waves_toggled.emit)
+	speed_button.toggled.connect(fast_speed_toggled.emit)
 	prev_wave_arrow.pressed.connect(func() -> void: view_wave(_viewed_wave - 1))
 	next_wave_arrow.pressed.connect(func() -> void: view_wave(_viewed_wave + 1))
 
@@ -206,6 +210,11 @@ func set_next_wave_available(available: bool, inviting: bool) -> void:
 func show_auto_waves(enabled: bool) -> void:
 	auto_wave_button.set_pressed_no_signal(enabled)
 
+## Refleja la velocidad de LevelUI (×1 / ×2) sin volver a emitir fast_speed_toggled.
+func show_fast_speed(enabled: bool) -> void:
+	speed_button.set_pressed_no_signal(enabled)
+	speed_button.text = "×2" if enabled else "×1"
+
 func _on_button_selection_changed(data: TowerData, on: bool) -> void:
 	tower_selected.emit(data if on else null)
 
@@ -222,21 +231,23 @@ func _style_wave_controls() -> void:
 	next_wave_button.add_theme_color_override("font_disabled_color", CONTROL_ICON_DIM_COLOR)
 
 	var auto_on := ClippedBoxStyle.create(AUTO_ON_BG_COLOR, AUTO_ON_BORDER_COLOR)
-	auto_wave_button.add_theme_stylebox_override("normal", ClippedBoxStyle.create(TAB_BG_COLOR, TAB_BORDER_COLOR))
-	auto_wave_button.add_theme_stylebox_override("hover", ClippedBoxStyle.create(CONTROL_HOVER_BG_COLOR, AUTO_HOVER_BORDER_COLOR))
-	auto_wave_button.add_theme_stylebox_override("pressed", auto_on)
-	auto_wave_button.add_theme_stylebox_override("hover_pressed", ClippedBoxStyle.create(AUTO_ON_BG_COLOR, AUTO_ON_HOVER_BORDER_COLOR))
-	auto_wave_button.add_theme_color_override("font_color", CONTROL_ICON_DIM_COLOR)
-	auto_wave_button.add_theme_color_override("font_hover_color", Color(1, 1, 1, 0.6))
-	auto_wave_button.add_theme_color_override("font_pressed_color", Color.WHITE)
-	auto_wave_button.add_theme_color_override("font_hover_pressed_color", Color.WHITE)
+	# AUTO y ×2 comparten estilo: apagado gris azulado, encendido ámbar.
+	for toggle: Button in [auto_wave_button, speed_button]:
+		toggle.add_theme_stylebox_override("normal", ClippedBoxStyle.create(TAB_BG_COLOR, TAB_BORDER_COLOR))
+		toggle.add_theme_stylebox_override("hover", ClippedBoxStyle.create(CONTROL_HOVER_BG_COLOR, AUTO_HOVER_BORDER_COLOR))
+		toggle.add_theme_stylebox_override("pressed", auto_on)
+		toggle.add_theme_stylebox_override("hover_pressed", ClippedBoxStyle.create(AUTO_ON_BG_COLOR, AUTO_ON_HOVER_BORDER_COLOR))
+		toggle.add_theme_color_override("font_color", CONTROL_ICON_DIM_COLOR)
+		toggle.add_theme_color_override("font_hover_color", Color(1, 1, 1, 0.6))
+		toggle.add_theme_color_override("font_pressed_color", Color.WHITE)
+		toggle.add_theme_color_override("font_hover_pressed_color", Color.WHITE)
 	for arrow in [prev_wave_arrow, next_wave_arrow]:
 		arrow.add_theme_stylebox_override("normal", ClippedBoxStyle.create(TAB_BG_COLOR, NEXT_BORDER_COLOR))
 		arrow.add_theme_stylebox_override("hover", ClippedBoxStyle.create(CONTROL_HOVER_BG_COLOR, TAB_ACTIVE_BORDER_COLOR))
 		arrow.add_theme_stylebox_override("pressed", ClippedBoxStyle.create(TAB_ACTIVE_BG_COLOR, TAB_ACTIVE_BORDER_COLOR))
 		arrow.add_theme_stylebox_override("disabled", ClippedBoxStyle.create(CONTROL_DISABLED_BG_COLOR, TAB_BORDER_COLOR))
 		arrow.add_theme_color_override("font_disabled_color", CONTROL_ICON_DIM_COLOR)
-	for button: Button in [next_wave_button, auto_wave_button, prev_wave_arrow, next_wave_arrow]:
+	for button: Button in [next_wave_button, auto_wave_button, speed_button, prev_wave_arrow, next_wave_arrow]:
 		button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 
 func _style_tab(tab: Button) -> void:
