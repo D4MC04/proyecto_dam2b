@@ -19,4 +19,11 @@ Reglas:
 - Pon el modelo recomendado según `docs/CLAUDE-CODE.md` (haiku mecánico, sonnet normal, opus varios sistemas o diseño).
 - No toques código ni otros archivos. Solo crear tickets.
 
-Al acabar, da al usuario una lista de una línea por ticket (nombre del archivo + qué aporta) y recuérdale: para aceptar, cambiar a `Estado: aceptada` o decir "acepto X", y luego `/hacer X`.
+Al acabar, da al usuario una lista de una línea por ticket (nombre del archivo + qué aporta).
+
+## Aceptar con casillas
+Si hay tickets en `Estado: propuesta`, termina con la herramienta AskUserQuestion en modo multiSelect para que el usuario los marque con un clic:
+- Una opción por ticket propuesto. Etiqueta: el nombre del ticket. Descripción: qué aporta en una frase, el modelo y su tanda.
+- Máximo 4 opciones por pregunta: si hay más tickets, usa varias preguntas (hasta 4) agrupadas por tanda.
+- Los que marque pasan a `Estado: aceptada` (solo cambias esa línea). Los no marcados se quedan como están.
+- Después ofrece subirlos a main y abrir un chat con worktree por cada ticket aceptado que no choque con otro.

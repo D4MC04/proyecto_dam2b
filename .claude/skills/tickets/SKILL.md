@@ -3,10 +3,10 @@ name: tickets
 description: Lista los tickets de docs/tasks/ con su estado y archivos, y dice cuáles chocan entre sí y cuáles se pueden hacer a la vez en worktrees.
 model: haiku
 disable-model-invocation: true
-allowed-tools: Read, Glob, Grep
+allowed-tools: Read, Glob, Grep, Edit, AskUserQuestion
 ---
 
-Lista los tickets pendientes. No modifiques ningún archivo.
+Lista los tickets pendientes. No modifiques ningún archivo, salvo la línea `Estado:` de los tickets que el usuario acepte en las casillas.
 
 1. Lee todos los `docs/tasks/*.md` menos `_plantilla.md`.
 2. Devuelve una tabla: ticket (nombre del archivo sin `.md`), estado, modelo recomendado, archivos que toca (de la sección "Archivos que toca", sin contar `docs/`).
@@ -20,4 +20,11 @@ Termina con una línea con el comando que toca:
 - Sin tickets aceptados → aceptar alguno ("acepto X") o `/proponer`.
 - Uno aceptado → `/hacer X` en Sonnet.
 - Varios aceptados que no chocan → "abre sesiones en worktree para X e Y" y `/hacer` en cada una. Antes, los tickets tienen que estar commiteados en main.
-- Hay tanda propuesta sin aceptar → "acepto la tanda 1".
+- Hay tanda propuesta sin aceptar → las casillas de abajo.
+
+## Aceptar con casillas
+Si hay tickets en `Estado: propuesta`, termina con la herramienta AskUserQuestion en modo multiSelect para que el usuario los marque con un clic:
+- Una opción por ticket propuesto. Etiqueta: el nombre del ticket. Descripción: qué aporta en una frase, el modelo y su tanda.
+- Máximo 4 opciones por pregunta: si hay más tickets, usa varias preguntas (hasta 4) agrupadas por tanda.
+- Los que marque pasan a `Estado: aceptada` (solo cambias esa línea). Los no marcados se quedan como están.
+- Después ofrece subirlos a main y abrir un chat con worktree por cada ticket aceptado que no choque con otro.

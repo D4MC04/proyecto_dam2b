@@ -35,6 +35,7 @@
   - Ticket aceptado → `/hacer nombre`, en Sonnet.
   - Tras `/hacer` → probar a mano en Godot y luego `/revisar`.
   - `/revisar` en OK → "commitea" (luego, PR o merge directo).
+  - Ticket ya en main y probado a mano por el usuario → preguntar si archiva el chat de ese ticket (si dice que sí, archivarlo; si es el chat actual, archivarse a sí mismo al final).
   - Chat largo o tema distinto al del chat → abrir chat nuevo.
   - Tarea mecánica en Opus → bajar a Sonnet o Haiku. Sonnet atascado dos veces → subir a Opus.
 
