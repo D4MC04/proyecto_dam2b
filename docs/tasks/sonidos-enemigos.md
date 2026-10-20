@@ -1,6 +1,6 @@
 # Sonido al destruir enemigos
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 

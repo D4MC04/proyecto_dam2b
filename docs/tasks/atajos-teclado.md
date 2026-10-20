@@ -1,6 +1,6 @@
 # Atajos de teclado en el nivel
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 
