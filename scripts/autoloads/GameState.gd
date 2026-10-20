@@ -19,7 +19,9 @@ func _ready() -> void:
 
 # i es el índice (desde 0) del nivel en GameData.levels.
 func is_unlocked(i: int) -> bool:
-	return i < current_level
+	# Temporal: todos los niveles abiertos para probar mientras el juego no está terminado.
+	# Para volver a la progresión normal: `return i < current_level`.
+	return true
 
 func is_completed(i: int) -> bool:
 	return i < current_level - 1
