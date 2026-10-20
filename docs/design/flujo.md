@@ -7,13 +7,13 @@ Definidos en `project.godot`, en este orden:
 | Nombre | Origen | Qué guarda |
 |---|---|---|
 | `GameData` | `scenes/GameData.tscn` + `scripts/autoloads/GameData.gd` | `levels: Array[LevelData]`, la lista de niveles del juego |
-| `GameState` | `scripts/autoloads/GameState.gd` | `current_level: int` y las funciones `is_unlocked(i)` (`i <= current_level`) e `is_completed(i)` (`i < current_level`) |
+| `GameState` | `scripts/autoloads/GameState.gd` | `current_level: int` (número, desde 1, del nivel más alto desbloqueado; empieza en 1), `is_unlocked(i)` (`i < current_level`), `is_completed(i)` (`i < current_level - 1`) y `complete_level(number)`; `i` es el índice desde 0 en `GameData.levels` |
 | `Settings` | `scripts/autoloads/Settings.gd` | Las opciones del jugador, guardadas en `user://settings.cfg`; ver [menu.md](menu.md) |
 | `MusicManager` | `scripts/autoloads/MusicManager.gd` | La música; ver [menu.md](menu.md) |
 
 `GameData.levels` tiene 6 entradas. Su contenido está en [niveles.md](niveles.md).
 
-`GameState.current_level` vale 50 y ningún script lo modifica. Lo único que se guarda en disco son las opciones (`Settings`); el progreso no.
+`GameState` carga `current_level` de `user://progress.cfg` (`ConfigFile`, sección `progress`; solo acepta un entero >= 1) y lo guarda en `complete_level`. `Settings` guarda las opciones en su propio archivo.
 
 ## Escena Game
 
@@ -45,7 +45,7 @@ Cuando la estación se destruye, `Level` deja de construir y ya no puede ganar, 
 
 ### Victoria
 
-`Level` emite `won` al limpiar la última oleada (y solo si no ha emitido `lost`) y `Game` pasa a la UI el resumen de la partida (`ui.show_run_stats(level.get_run_stats())`) y después llama a `ui.set_state(LevelUI.UiState.WON)`. La UI no congela el juego al momento: durante un respiro de 0,6 s sigue a velocidad normal (se ve explotar al último enemigo), sin selección de torre ni Escape, y después pausa el árbol y muestra `VictoryScreen`, que entra deslizando y cuenta los números del resumen (ver [ui.md](ui.md)). "Siguiente nivel" ejecuta `_next_level()`: cambia `level_data` al siguiente de `GameData.levels` y llama a `_restart_level()`, así que no se cambia de escena y la cabecera, las oleadas, la tienda, el dinero y la ficha se rehacen para el nivel nuevo. "Menú" usa `QUIT`. No se desbloquea ni se guarda progreso.
+`Level` emite `won` al limpiar la última oleada (y solo si no ha emitido `lost`) y `Game` pasa a la UI el resumen de la partida (`ui.show_run_stats(level.get_run_stats())`) y después llama a `ui.set_state(LevelUI.UiState.WON)`. La UI no congela el juego al momento: durante un respiro de 0,6 s sigue a velocidad normal (se ve explotar al último enemigo), sin selección de torre ni Escape, y después pausa el árbol y muestra `VictoryScreen`, que entra deslizando y cuenta los números del resumen (ver [ui.md](ui.md)). "Siguiente nivel" ejecuta `_next_level()`: cambia `level_data` al siguiente de `GameData.levels` y llama a `_restart_level()`, así que no se cambia de escena y la cabecera, las oleadas, la tienda, el dinero y la ficha se rehacen para el nivel nuevo. "Menú" usa `QUIT`. `_on_level_won` llama antes a `GameState.complete_level(número del nivel)`: si era el más alto desbloqueado y no es el último, sube `current_level` y guarda; si no, no hace nada. Así "Siguiente nivel" ya está desbloqueado.
 
 ### Reinicio
 
@@ -61,6 +61,6 @@ Tanto `MainMenu._open_level` como `Game._quit_to_menu` cambian de escena a mano 
 
 ## Dudas
 
-- `current_level = 50` deja desbloqueados todos los niveles. No hay código que lo suba al completar un nivel.
+- No hay botón "Borrar progreso" en Opciones: de momento hay que borrar `user://progress.cfg` a mano.
 - `GameState.is_completed` no se llama desde ningún sitio.
 - `project.godot` tiene `config/name="DAM_Game"`; el título que muestra el menú es "ASTRO ARTILLERY".
