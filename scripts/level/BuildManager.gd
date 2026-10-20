@@ -52,11 +52,16 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _try_place(mouse_pos: Vector2) -> void:
 
+	var cell := grid.cell(mouse_pos)
+	# Clic en una torre ya colocada: se selecciona (ficha y botón de vender).
+	if grid.towers.has(cell):
+		state.inspect_placed(grid.towers[cell])
+		return
+
 	var data := state.selected_tower
 	if data == null:
 		return
 
-	var cell := grid.cell(mouse_pos)
 	if not grid.can_build(cell):
 		return
 

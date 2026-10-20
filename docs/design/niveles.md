@@ -18,7 +18,7 @@
 3. Guarda `data.towers` en `towers`.
 4. `grid.setup(map.logic_map)`.
 5. `spawner.setup(map.get_paths(), data.waves)`.
-6. Guarda en `base` el nodo `SpaceStation` del mapa, conecta `spawner.enemy_reached_end` a `base.take_damage(ENEMY_BASE_DAMAGE)` (10) y `base.destroyed` a `_lose`.
+6. Guarda en `base` el nodo `SpaceStation` del mapa, conecta `spawner.enemy_reached_end` a `base.take_damage` (el daño lo trae la señal, de `EnemyData.base_damage`) y `base.destroyed` a `_lose`.
 
 Conexiones hechas en `_ready`:
 
@@ -77,7 +77,7 @@ Lleva el ciclo de oleadas del nivel: cuándo se lanzan, qué enemigos quedan viv
 
 ### Enemigos vivos
 
-`_alive` es un `Dictionary[Enemy, bool]`. Se añade el enemigo al crearlo y se borra al recibir `died` o `reached_end`; solo la primera de esas señales cuenta, así que cada enemigo se descuenta una vez aunque muera dos veces o muera y llegue al final en el mismo frame. Solo entonces se reenvía como `enemy_died(reward)` o `enemy_reached_end`. No se usa `tree_exiting`: al reiniciar se libera el nivel entero y no se emite nada. `get_alive_count()` devuelve la cuenta.
+`_alive` es un `Dictionary[Enemy, bool]`. Se añade el enemigo al crearlo y se borra al recibir `died` o `reached_end`; solo la primera de esas señales cuenta, así que cada enemigo se descuenta una vez aunque muera dos veces o muera y llegue al final en el mismo frame. Solo entonces se reenvía como `enemy_died(reward)` o `enemy_reached_end(damage)`. No se usa `tree_exiting`: al reiniciar se libera el nivel entero y no se emite nada. `get_alive_count()` devuelve la cuenta.
 
 ### Estados
 
@@ -99,7 +99,7 @@ Lleva el ciclo de oleadas del nivel: cuándo se lanzan, qué enemigos quedan viv
 | `wave_cleared(index)` | Cuando, tras lanzar la oleada `index`, el nivel pasa a limpio |
 | `all_waves_cleared` | Cuando se limpia la última oleada. La escucha `Level` (emite `won`) |
 | `auto_waves_changed(enabled)` | Al cambiar `auto_waves` |
-| `enemy_died(reward)`, `enemy_reached_end` | Reenvío de las señales del enemigo, una vez por enemigo |
+| `enemy_died(reward)`, `enemy_reached_end(damage)` | Reenvío de las señales del enemigo, una vez por enemigo |
 
 ### Modo AUTO
 
@@ -195,6 +195,7 @@ Funciones:
 - Solo la `VisualMap` de los niveles 5 y 6 tiene script y datos de generación; el resto de capas y mapas no.
 - En el nivel 6 hay un planeta de torre en la casilla (15, 9), debajo de la estación.
 - `Level7.tscn` a `Level10.tscn`, `Level2.tscn`, `Level5.tscn`, `Level6.tscn` y la carpeta `redesign/` no están en ningún `LevelData`. Los mapas 7 a 10 usan un `Sprite2D` como estación en vez de `Base.tscn`, y `Level6.tscn` tiene las dos cosas.
+- `redesign/Level6.tscn` tenía el mismo uid que `Level6.tscn` y Godot avisaba `UID duplicate`. Se le dio un uid nuevo; la carpeta `redesign/` se conserva sin cambios.
 - `resources/level_data/level_5.tres` existe y tiene el mismo contenido que el subrecurso de `GameData.tscn`, pero `GameData` no lo usa.
 - En los niveles 2, 5 y 6 el mapa tiene más caminos de los que usa la oleada.
 - Los mapas (como mucho unos 480x272) no llenan el área de juego de 704x540: alrededor se ve el fondo de espacio, y los enemigos aparecen y desaparecen en el borde del mapa.

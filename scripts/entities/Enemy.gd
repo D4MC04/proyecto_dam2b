@@ -23,7 +23,7 @@ var _slow := 1.0
 var _slow_tween: Tween
 var _frost: AnimatedSprite2D
 
-signal reached_end
+signal reached_end(damage: int)
 
 func setup(enemy_data: EnemyData):
 	data = enemy_data
@@ -39,8 +39,12 @@ func _process(delta):
 	_update_animation()
 	if progress_ratio >= 1.0:
 		set_process(false)
-		reached_end.emit()
+		reached_end.emit(data.base_damage)
 		queue_free()
+
+# Distancia que le falta para llegar al final de su camino.
+func get_remaining_distance() -> float:
+	return (get_parent() as Path2D).curve.get_baked_length() - progress
 
 func _update_animation():
 	var direction := global_position - _last_position

@@ -10,6 +10,7 @@ name = "Ariete"
 hp = 200.0
 speed = 40
 reward = 70
+base_damage = 20
 description = "Nave de embestida con casco reforzado."
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")

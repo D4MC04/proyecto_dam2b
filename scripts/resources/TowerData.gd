@@ -33,6 +33,10 @@ const ACCENT_COLOR := Color("#40e0f0")
 # Opcional: frase corta que se enseña al final de la ficha.
 @export_multiline var description: String
 
+## Dinero que devuelve vender la torre: la mitad del coste, redondeada hacia abajo.
+func get_sell_value() -> int:
+	return floori(cost / 2.0)
+
 ## Filas de la ficha: las comunes a todas las torres y las de su tipo de ataque.
 func get_stats() -> Array[StatEntry]:
 	var stats: Array[StatEntry] = [StatEntry.new("cost", "COSTE", UiFormat.money(cost))]

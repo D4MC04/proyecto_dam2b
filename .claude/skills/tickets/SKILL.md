@@ -1,0 +1,30 @@
+---
+name: tickets
+description: Lista los tickets de docs/tasks/ con su estado y archivos, y dice cuáles chocan entre sí y cuáles se pueden hacer a la vez en worktrees.
+model: haiku
+disable-model-invocation: true
+allowed-tools: Read, Glob, Grep, Edit, AskUserQuestion
+---
+
+Lista los tickets pendientes. No modifiques ningún archivo, salvo la línea `Estado:` de los tickets que el usuario acepte en las casillas.
+
+1. Lee todos los `docs/tasks/*.md` menos `_plantilla.md`.
+2. Devuelve una tabla: ticket (nombre del archivo sin `.md`), estado, modelo recomendado, archivos que toca (de la sección "Archivos que toca", sin contar `docs/`).
+3. Debajo, **Chocan**: cada pareja de tickets que comparte algún archivo (sin contar `docs/`), con el archivo en común. Si ninguna choca, "Ninguno choca".
+4. **Orden propuesto**: reparte todos los tickets (aceptados y propuestos) en tandas. Dentro de una tanda ninguno choca con otro, así que se hacen a la vez en chats con worktree. Cada tanda empieza cuando la anterior ya está en main. Usa las menos tandas posible. Entre dos tickets que chocan, va primero el que deja algo que el otro aprovecha (por ejemplo, el que añade un campo o una función que el otro usa) y, si no, el más pequeño. Una línea por tanda con el porqué de cada orden:
+   - Tanda 1: A, B, C
+   - Tanda 2: D (después de C porque los dos tocan Enemy.gd y D aprovecha...)
+5. Si no hay tickets, dilo.
+
+Termina con una línea con el comando que toca:
+- Sin tickets aceptados → aceptar alguno ("acepto X") o `/proponer`.
+- Uno aceptado → `/hacer X` en Sonnet.
+- Varios aceptados que no chocan → "abre sesiones en worktree para X e Y" y `/hacer` en cada una. Antes, los tickets tienen que estar commiteados en main.
+- Hay tanda propuesta sin aceptar → las casillas de abajo.
+
+## Aceptar con casillas
+Si hay tickets en `Estado: propuesta`, termina con la herramienta AskUserQuestion en modo multiSelect para que el usuario los marque con un clic:
+- Una opción por ticket propuesto. Etiqueta: el nombre del ticket. Descripción: qué aporta en una frase, el modelo y su tanda.
+- Máximo 4 opciones por pregunta: si hay más tickets, usa varias preguntas (hasta 4) agrupadas por tanda.
+- Los que marque pasan a `Estado: aceptada` (solo cambias esa línea). Los no marcados se quedan como están.
+- Después ofrece subirlos a main y abrir un chat con worktree por cada ticket aceptado que no choque con otro.

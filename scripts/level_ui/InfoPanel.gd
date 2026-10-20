@@ -3,6 +3,9 @@ class_name InfoPanel
 ## Ficha de la barra izquierda. Enseña lo inspeccionado en LevelState (lo recibe por
 ## show_inspected) y pinta las filas que le dan, sin saber qué stats existen.
 
+## El jugador pulsa "Vender"; es una petición, el dinero y la torre los gestiona LevelState.
+signal sell_requested
+
 # Fuente a 16 px (6 px por carácter) en los 110 px útiles de la pantalla de la barra
 # (128 px menos 6 de marco y 3 de margen a cada lado): 18 caracteres por línea (108 px).
 const NAME_MAX_CHARS := 18
@@ -18,6 +21,9 @@ const PAD_GRID_COLOR := Color("#14304a")
 const PAD_CORNER := 4
 const PAD_GRID_STEP := 4
 const PAD_GRID_OFFSET := 2
+const HINT_COLOR := Color("#40e0f0")
+# Tolerancia en px para dar el scroll por llegado al final.
+const HINT_END_MARGIN := 1.0
 
 @onready var idle_view: Control = %IdleView
 @onready var detail_view: Control = %DetailView
@@ -30,7 +36,9 @@ const PAD_GRID_OFFSET := 2
 @onready var stat_rows: VBoxContainer = %StatRows
 @onready var description_divider: Control = %DescriptionDivider
 @onready var description_label: Label = %DescriptionLabel
+@onready var scroll_hint: Control = %ScrollHint
 @onready var scan_flash: Control = %ScanFlash
+@onready var sell_button: Button = %SellButton
 
 var _accent := Color.WHITE
 var _flash_id := 0
@@ -41,7 +49,20 @@ func _ready() -> void:
 	# Alto fijo de dos líneas para que la cabecera no cambie de tamaño entre fichas.
 	name_label.text = "A\nA"
 	name_label.custom_minimum_size.y = name_label.get_combined_minimum_size().y
+	sell_button.pressed.connect(sell_requested.emit)
+	scroll_hint.draw.connect(_draw_scroll_hint)
+	scroll_hint.modulate.a = 0.0
+	var scroll_bar := stat_scroll.get_v_scroll_bar()
+	scroll_bar.value_changed.connect(_update_scroll_hint.unbind(1))
+	scroll_bar.changed.connect(_update_scroll_hint)
+	show_sellable(null)
 	_show_idle()
+
+## Enseña el botón "Vender (+X)" de una torre colocada; con null lo oculta.
+func show_sellable(tower: Tower) -> void:
+	sell_button.visible = tower != null
+	if tower != null:
+		sell_button.text = "Vender (+%s)" % UiFormat.money(tower.data.get_sell_value())
 
 ## Enseña `data` en la ficha; con null vuelve al estado de reposo.
 func show_inspected(data: Resource) -> void:
@@ -105,6 +126,19 @@ func _draw_icon_pad() -> void:
 		var y_start := corner.y if corner.y == 0 else corner.y - PAD_CORNER + 1
 		icon_pad.draw_rect(Rect2(x_start, corner.y, PAD_CORNER, 1), _accent)
 		icon_pad.draw_rect(Rect2(corner.x, y_start, 1, PAD_CORNER), _accent)
+
+# La pista ▼ solo se ve si queda contenido por debajo del scroll.
+func _update_scroll_hint() -> void:
+	var scroll_bar := stat_scroll.get_v_scroll_bar()
+	# Se oculta con la transparencia (no con visible) para que su hueco no cambie el alto del scroll.
+	var has_more := scroll_bar.value + scroll_bar.page < scroll_bar.max_value - HINT_END_MARGIN
+	scroll_hint.modulate.a = 1.0 if has_more else 0.0
+
+# Triángulo de 7x4 px centrado (no se usa el glifo ▼ porque Monogram no lo trae seguro).
+func _draw_scroll_hint() -> void:
+	var center_x := floori(scroll_hint.size.x / 2.0)
+	for row in 4:
+		scroll_hint.draw_rect(Rect2(center_x - 3 + row, row, 7 - row * 2, 1), HINT_COLOR)
 
 # Parte el nombre por palabras en líneas de NAME_MAX_CHARS. Una palabra que no cabe
 # en una línea se corta con guion. Si sobran líneas, se quedan las primeras.

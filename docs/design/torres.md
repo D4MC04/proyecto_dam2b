@@ -8,11 +8,16 @@ En `_unhandled_input`:
 
 - **Mover el ratón**: si hay torre seleccionada y la casilla bajo el cursor es construible, muestra una vista previa en el centro de la casilla: el icono de la torre al 60 % de opacidad y su rango dibujado en blanco al 15 %. Si no, la oculta.
 - **Clic izquierdo**: si hay torre seleccionada, `grid.can_build(cell)` y `state.spend_money(data.cost)`, instancia la torre como hija de `BuildManager`, la coloca en el centro de la casilla y la registra en `Grid`.
+- **Clic izquierdo sobre una torre ya colocada** (se mira antes que lo de colocar): `state.inspect_placed(tower)`; la ficha enseña la torre y aparece el botón de vender (ver abajo).
 - **Clic derecho**: pone `state.selected_tower = null` y oculta la vista previa.
 
 `stop_building()` oculta la vista previa y hace que `_unhandled_input` deje de hacer nada el resto de la partida. Lo llama `Level` al perder o ganar.
 
 Tras colocar una torre la selección se mantiene, así que se pueden colocar varias seguidas.
+
+## Vender
+
+`LevelState.sellable_tower` es la torre colocada seleccionada. `inspect_placed` la fija junto con `inspected`; cualquier otro cambio de `inspected` la suelta. `LevelState.sell_selected_tower()` suma `TowerData.get_sell_value()` (mitad del coste, redondeada hacia abajo), hace `queue_free` de la torre (al salir del árbol `Grid.register_tower` libera la casilla) y suelta la selección. Sin efecto visual al vender. No cuenta en el resumen de partida. Solo vende en `PLAYING` (lo comprueba `LevelUI`).
 
 ## Escena y script
 
@@ -30,7 +35,7 @@ Si la opción `show_tower_range` de `Settings` está activada, `_draw` pinta el 
 ### Objetivo
 
 - `enemies_in_range` se mantiene con las señales `area_entered` y `area_exited` del detector.
-- `_get_target()` conserva el objetivo mientras siga vivo y dentro del rango. Si no, elige el enemigo con mayor `progress`.
+- `_get_target()` conserva el objetivo mientras siga vivo y dentro del rango. Si no, elige el enemigo al que menos le falta para llegar a la estación (`Enemy.get_remaining_distance()`), aunque esté en otro camino.
 
 ### Apuntado
 
@@ -139,7 +144,6 @@ Recursos en `resources/turret_data/`:
 ## Dudas
 
 - `Tower.fit_to_tile` no se llama desde ningún sitio.
-- No hay forma de vender, quitar ni mejorar una torre colocada.
+- No hay forma de mejorar una torre colocada.
 - `disintegrator.tres` tiene `attack_cooldown = 1.0`, que el código no usa para esa torre.
-- El objetivo se elige por `progress`, que es la distancia recorrida en su propio camino; en mapas con varios caminos de distinta longitud no equivale a "el más cerca del final".
 - El nombre de archivo `rocket_launcher` corresponde a la torre que se llama "Cañón pesado", y `turret` a "Cañón doble". La carpeta es `turret_data` y la clase `TowerData`.

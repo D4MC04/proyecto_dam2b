@@ -34,7 +34,7 @@ Las dos barras son una tablet: un marco de metal y, dentro, una pantalla oscura.
 
 Funciones de `LevelUI`:
 
-- `setup(state, towers, level_number, spawner, has_next_level)`: oculta la opción `NEXT_LEVEL` de `VictoryScreen` si `has_next_level` es false (`LevelUI` no lee `GameData`; se lo dice `Game`), pasa el número de nivel al `LevelIndicator`, prepara la pestaña Oleadas (ver más abajo), conecta `state.money_changed` a `sidebar.set_money`, `state.selected_tower_changed` a `sidebar.show_selected` y `state.inspected_changed` a `info_panel.show_inspected`, crea los botones de torre, muestra el dinero inicial y pide a la ficha que enseñe `state.inspected` (null en un `LevelState` nuevo, así que al empezar o reiniciar vuelve al escáner). Si había un `LevelState` anterior, desconecta las tres.
+- `setup(state, towers, level_number, spawner, has_next_level, base)`: oculta la opción `NEXT_LEVEL` de `VictoryScreen` si `has_next_level` es false (`LevelUI` no lee `GameData`; se lo dice `Game`), pasa el número de nivel al `LevelIndicator`, prepara la pestaña Oleadas (ver más abajo), conecta la vida de la base (ver "Vida de la estación"), conecta `state.money_changed` a `sidebar.set_money`, `state.selected_tower_changed` a `sidebar.show_selected` y `state.inspected_changed` a `info_panel.show_inspected`, crea los botones de torre, muestra el dinero inicial y pide a la ficha que enseñe `state.inspected` (null en un `LevelState` nuevo, así que al empezar o reiniciar vuelve al escáner). Si había un `LevelState` anterior, desconecta las tres.
 - `_on_tower_selected(data)`: recibe `Sidebar.tower_selected` y escribe `selected_tower` en el `LevelState`. Es el único camino de la barra lateral a la selección.
 - `_on_inspect_requested(data)`: recibe `Sidebar.inspect_requested` y escribe `inspected` en el `LevelState`. Es el único camino a lo inspeccionado.
 
@@ -76,8 +76,10 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 - **`IdleView` (reposo):** el escáner (`ScannerDisplay`, ver abajo), "SIN OBJETIVO" en ámbar `#ecb23c` y la ayuda "Clic derecho para analizar" en `#7fa6b8`, ambos con salto de línea automático y centrados. Se ve al empezar el nivel y al reiniciar; en cuanto se inspecciona algo no vuelve hasta el siguiente reinicio.
 - **`DetailView`:**
   - Cabecera fija: `IconPad` (todo el ancho útil, 42 px de alto) con el icono a escala 1 centrado (cabe el Spikey de 34x34), fondo `#060b14` con una rejilla de puntos `#14304a` cada 4 px y esquinas de 4 px en el color de acento (se pinta en el `draw` de `IconPad`). El acento es fijo por clase: cian `#40e0f0` en todas las torres y rojo en todos los enemigos; `NameLabel` con el nombre en `#befaff`, en mayúsculas y partido por palabras en líneas de 18 caracteres, 2 como mucho (una palabra más larga se corta con guion: "Disinteg-rator"), con alto fijo de 2 líneas para que la cabecera mida siempre lo mismo; y `TypeTag` con la etiqueta del tipo (de ataque en las torres, "ENEMIGO" en los enemigos) en el color de acento sobre el fondo mezclado al 20 % con el acento. El nombre se pasa a mayúsculas ("CAÑÓN DOBLE", "LÁSER").
-  - `StatScroll`: `ScrollContainer` vertical (sin barra visible, como los de la barra derecha) con las filas de stat, una línea `#1c4a60` y la descripción en `#5a7a96` con salto de línea automático (la línea y la descripción se ocultan si no hay descripción). La cabecera no entra en el scroll. Al cambiar de ficha vuelve arriba.
+  - `StatScroll`: `ScrollContainer` vertical (sin barra visible, como los de la barra derecha; la pista de que hay más abajo es `ScrollHint`, ver abajo) con las filas de stat, una línea `#1c4a60` y la descripción en `#5a7a96` con salto de línea automático (la línea y la descripción se ocultan si no hay descripción). La cabecera no entra en el scroll. Al cambiar de ficha vuelve arriba.
+  - `ScrollHint`: `Control` de 5 px de alto entre `StatScroll` y `SellButton` que pinta un triángulo ▼ de 7x4 px en `#40e0f0` centrado. Solo es visible (por transparencia, para que su hueco no cambie el alto del scroll) cuando queda contenido por debajo: `_update_scroll_hint()` mira la `VScrollBar` interna (`value_changed` y `changed`) y lo apaga al llegar al final o si la ficha cabe entera. Se eligió la flecha y no una barra fina porque cabe en el estilo de las esquinas y las marcas del holograma, no roba ancho a los 110 px y se dibuja con rects como el resto; no se usa el glifo ▼ de texto porque Monogram no lo trae seguro.
   - Cada fila la crea `StatRow.create(entry, index)` (ver abajo).
+  - `SellButton`: botón del tema (esquinas recortadas) al final de `DetailView`, "Vender (+X€)". Solo se ve con una torre colocada seleccionada: `show_sellable(tower)` (null lo oculta), conectado a `LevelState.sellable_tower_changed`. Emite `sell_requested`; `LevelUI._on_sell_requested` llama a `LevelState.sell_selected_tower()` solo en `PLAYING`. Ver [torres.md](torres.md).
 - `ScanFlash`: `ColorRect` cian al 20 % que tapa `Screen` durante 2 frames cada vez que cambia el contenido.
 
 `show_inspected(data: Resource)`: con un `InspectableData` pinta lo que da el contrato común; con null (o cualquier otra cosa), el reposo. La ficha no distingue torres de enemigos ni sabe qué stats existen: crea una fila por cada `StatEntry` que recibe.
@@ -163,6 +165,13 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 | `COMPLETE` | COMPLETA | `#7fa6b8` | No quedan oleadas por lanzar y la última está limpia |
 
 **Quién decide:** `LevelUI._refresh_wave_controls()` calcula el estado y el número a partir del `Spawner` (`is_clear()`, `has_waves_left()`, `get_wave_index()`) y llama a `Sidebar.set_wave_status(status, wave_number, total)`; la barra solo lo enseña. Se llama al conectar el `Spawner`, en `wave_started` y en `wave_cleared`.
+
+## Vida de la estación
+
+`StationBox` (dentro de `StationMargin`, `MarginContainer` con 4 px a cada lado como el pie, al final de `Content` y justo encima del pie, así que se ve en Torres y en Oleadas): "ESTACIÓN" a 16 y debajo `StationBar` (`ProgressBar` de 8 px de alto, sin porcentaje) con `StationValueLabel` `actual/máximo` a su derecha. Fondo de la barra `#0e1626` con borde `#1c4a60`; relleno `#40e0f0`. Con menos del 30 % de vida (`Sidebar.STATION_DANGER_FRACTION`) relleno y número pasan al rojo de peligro `#ff3c5a`.
+
+- `Sidebar.set_station_health(current, maximum)`: lo único que toca la barra.
+- `LevelUI.setup(..., base)` conecta `Base.health_changed` a `set_station_health` y la pone con la vida inicial. `Game` pasa `level.base`; como la base es nueva en cada nivel o reinicio, no hay conexión anterior que quitar.
 
 ## UiFormat
 
@@ -264,7 +273,7 @@ No dibuja nada propio en `_draw`. Miden 204x36 (texto a 24) con 9 px de separaci
   - Estática residual (`residual`): algunas filas sueltas con píxeles tenues.
   - Líneas de barrido: una fila de cada dos algo más oscura.
   - El patrón cambia con el uniforme `seed`, que pone el script a saltos.
-- **Glitch de entrada** (en `GameOverScreen`, con `delta` real porque la pantalla corre con el árbol en pausa y `time_scale` ya está en 1): cada `GLITCH_STEP_TIME` (0,05 s) cambia `seed`. Durante `INTRO_TIME` (0,5 s) la intensidad baja de 1 a 0,5 con ruido, el marco se ve u oculta al azar (cada vez más probable que se vea) y el título alterna entre visible y tenue. Después la intensidad es 0, `residual` = `RESIDUAL_STATIC` (0,12) y el panel queda estable; cada 2,5 a 5 s el título parpadea durante `TITLE_FLICKER_TIME` (0,15 s). Cada vez que se abre la pantalla, la entrada vuelve a empezar.
+- **Glitch de entrada** (en `GameOverScreen`, con `delta` real porque la pantalla corre con el árbol en pausa y `time_scale` ya está en 1): cada `GLITCH_STEP_TIME` (0,05 s) cambia `seed`. Durante `INTRO_TIME` (0,5 s) la intensidad baja de 1 a 0,5 con ruido, el marco se ve u oculta al azar (cada vez más probable que se vea) y el título alterna entre visible y tenue. Después la intensidad es 0, `residual` = `RESIDUAL_STATIC` (0,12) y el panel queda estable; cada 2,5 a 5 s el título parpadea durante `TITLE_FLICKER_TIME` (0,15 s). Durante `INTRO_TIME` los botones tienen `mouse_filter = IGNORE` (no `disabled`, para que no cambien de aspecto) y pasan a `STOP` al acabar, así que no se pueden pulsar invisibles. Cada vez que se abre la pantalla, la entrada vuelve a empezar.
 - Las barras no se tocan: el glitch solo cubre `GameArea` y las barras siguen activas para inspeccionar.
 - `show_run_stats(stats)`: pasa el `RunStats` al `RunSummary`.
 
@@ -306,6 +315,8 @@ Opciones "Siguiente nivel" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción qu
 | `LevelState` | `money_changed` | `Sidebar.set_money` |
 | `LevelState` | `selected_tower_changed` | `Sidebar.show_selected` |
 | `LevelState` | `inspected_changed` | `InfoPanel.show_inspected` |
+| `LevelState` | `sellable_tower_changed` | `InfoPanel.show_sellable` |
+| `InfoPanel` | `sell_requested` | `LevelUI._on_sell_requested` (`LevelState.sell_selected_tower`) |
 | `Spawner` | `wave_started` | `LevelUI._on_wave_started` (`Sidebar.set_current_wave`, controles y pie) |
 | `Spawner` | `wave_cleared` | `LevelUI._on_wave_cleared` (`Sidebar.view_wave` a la siguiente, controles y pie) |
 | `Spawner` | `auto_waves_changed` | `Sidebar.show_auto_waves` |
@@ -321,9 +332,3 @@ Opciones "Siguiente nivel" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción qu
 | `GameOverScreen` | llamada directa | `RunSummary.show_stats` |
 | `VictoryScreen` | llamada directa | `RunSummary.show_stats`, `count_up` y `finish_count` |
 | `Game` | llamada directa | `LevelUI.show_run_stats(level.get_run_stats())` y después `LevelUI.set_state(LOST)` en la derrota o `set_state(WON)` en la victoria |
-
-## Dudas
-
-- La interfaz no muestra la vida de la base.
-- Durante los 0,5 s del glitch de entrada los botones de la derrota pueden estar invisibles (marco a opacidad 0) pero siguen recibiendo clics.
-- El scroll de la ficha no tiene barra visible: en las fichas que no caben (Cryo, Disintegrator) la descripción queda cortada abajo sin otra pista de que se puede bajar.

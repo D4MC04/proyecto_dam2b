@@ -36,7 +36,7 @@ Todos son `Node2D` que dibujan o crean sprites por código, con posiciones y tie
 | `Satellites` | `scripts/main_menu/Satellites.gd` | Un satélite cada vez, a 20-30 px/s y girando despacio; el siguiente sale entre 8 y 15 s después de irse el anterior |
 | `Planets` | instancias de `scenes/SpaceBody.tscn` | 6 planetas animados fijos, repartidos por los 960x540 (posiciones proporcionales a las que tenían en 640x272, con sus escalas), y un asteroide oculto |
 
-`scripts/main_menu/SpaceBody.gd` es un `AnimatedSprite2D` con `@tool` que construye su `SpriteFrames` a partir de `sheet`, una tira horizontal de frames cuadrados (lado = alto de la imagen), a la velocidad `fps`. Lo usan los planetas del menú y los asteroides.
+`scripts/main_menu/SpaceBody.gd` (clase `SpaceBody`) es un `AnimatedSprite2D` con `@tool` que construye su `SpriteFrames` a partir de `sheet`, una tira horizontal de frames cuadrados (lado = alto de la imagen), a la velocidad `fps`. Lo usan los planetas del menú y los asteroides.
 
 ## Música
 
@@ -66,6 +66,9 @@ Es el único audio del juego: todavía no hay efectos de sonido, así que nada s
 | PANTALLA | Botón "VSync" | `vsync` |
 | PANTALLA | Botón "Mostrar FPS" | `show_fps` |
 | JUEGO | Botón "Rango de torres" | `show_tower_range` |
+| JUEGO | Botón "Borrar progreso" | Ninguna: llama a `GameState.reset_progress()` |
+
+"Borrar progreso" es un botón normal (no interruptor). La primera pulsación cambia su texto a "¿Seguro? Pulsa otra vez" durante `CONFIRM_TIME` (3 s); si se pulsa de nuevo en ese tiempo, `GameState.reset_progress()` vuelve `current_level` a 1, guarda y emite `progress_reset`, y el menú principal reconstruye los botones de nivel. Pasados los 3 s sin pulsar, el texto vuelve a "Borrar".
 
 Los deslizadores (96x12, tirador de 5x11) van de 0 a 1 en pasos de 0,05 (colores de la paleta en `menu_theme.tres`, ver [art.md](art.md)). Los botones son interruptores de 54x24 (texto a 24) con la variación de tema `ToggleButton`: en ON van rellenos de cian (como el ratón encima) y muestran "ON"; en OFF van con el estilo normal y muestran "OFF". Al abrirse, cada control toma su valor de `Settings`; cada cambio llama a `Settings.set_value`.
 
@@ -85,4 +88,4 @@ Los deslizadores (96x12, tirador de 5x11) van de 0 a 1 en pasos de 0,05 (colores
 - El fundido está escrito dos veces: en `MainMenu._transition` (título y selección de nivel) y en `OptionsMenu._fade`.
 - El deslizador "Efectos" no cambia nada audible mientras no haya sonidos en el bus `SFX`.
 - Pantalla completa y VSync no tienen efecto si el juego se ejecuta incrustado en el editor de Godot; hay que ejecutarlo en su propia ventana.
-- Los scripts de `scripts/main_menu/` tienen variables sin tipo y nombres en español (`_actualizar`), al contrario de lo que pide `CLAUDE.md`. `MainMenu.gd` tiene funciones sin tipo de retorno.
+- `MainMenu.gd` tiene funciones sin tipo de retorno.

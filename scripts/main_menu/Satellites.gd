@@ -3,24 +3,24 @@ extends Node2D
 # Satélite decorativo que cruza el menú de borde a borde, como los asteroides pero más lento
 # y de uno en uno: el siguiente no se programa hasta que el anterior ha salido y se ha borrado.
 
-const FRAMES = preload("res://resources/sprite_frames/satelite.tres")
-const SCALE = 0.5           # frame de 66x34 -> ~33x17 en pantalla
-const MARGIN = 20.0         # aparece/desaparece fuera de pantalla
+const FRAMES: SpriteFrames = preload("res://resources/sprite_frames/satelite.tres")
+const SCALE: float = 0.5           # frame de 66x34 -> ~33x17 en pantalla
+const MARGIN: float = 20.0         # aparece/desaparece fuera de pantalla
 
 var viewport_size: Vector2
-var rng = RandomNumberGenerator.new()
+var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var satellite: AnimatedSprite2D  # null mientras no hay ninguno cruzando
 var dir: Vector2
-var speed = 0.0
-var spin = 0.0  # giro sobre sí mismo, en rad/s
-var wait = 0.0
+var speed: float = 0.0
+var spin: float = 0.0  # giro sobre sí mismo, en rad/s
+var wait: float = 0.0
 
-func _ready():
+func _ready() -> void:
 	viewport_size = get_viewport_rect().size
 	rng.randomize()
 	wait = rng.randf_range(3.0, 6.0)
 
-func _process(delta):
+func _process(delta: float) -> void:
 	if satellite == null:
 		wait -= delta
 		if wait <= 0.0:
@@ -34,10 +34,10 @@ func _process(delta):
 		wait = rng.randf_range(8.0, 15.0)
 
 func _is_outside() -> bool:
-	var p = satellite.position
+	var p: Vector2 = satellite.position
 	return p.x < -MARGIN or p.x > viewport_size.x + MARGIN or p.y < -MARGIN or p.y > viewport_size.y + MARGIN
 
-func _spawn():
+func _spawn() -> void:
 	# De un borde al opuesto, en horizontal o vertical, con punto de entrada/salida al azar
 	var start: Vector2
 	var end: Vector2
@@ -48,7 +48,7 @@ func _spawn():
 		start = Vector2(rng.randf_range(0, viewport_size.x), -MARGIN)
 		end = Vector2(rng.randf_range(0, viewport_size.x), viewport_size.y + MARGIN)
 	if rng.randf() < 0.5:
-		var tmp = start
+		var tmp: Vector2 = start
 		start = end
 		end = tmp
 	dir = (end - start).normalized()

@@ -29,12 +29,10 @@ Está instanciada como nodo `SpaceStation` en `scenes/maps/Map.tscn` y en los ma
 ## Comunicación con el resto
 
 - Todos los mapas de nivel tienen la estación como nodo `SpaceStation`. `Level` la busca por ese nombre.
-- Cada enemigo que llega al final del camino le quita 10 de vida (`Level.ENEMY_BASE_DAMAGE`): con 100 de vida, la estación aguanta 9 y el décimo la destruye.
+- Cada enemigo que llega al final del camino le quita su `EnemyData.base_damage` (5, 10, 20 o 40 según el tipo; ver [enemigos.md](enemigos.md)): `Level` conecta `spawner.enemy_reached_end(damage)` directamente a `take_damage`.
 - `destroyed` llama a `Level._lose`, que espera al final de la explosión antes de emitir `lost`.
 
 ## Dudas
 
-- La vida de la base no se muestra en la interfaz: solo se ve por la fase de daño. Nadie escucha `health_changed`.
-- Todos los enemigos quitan lo mismo; no hay daño por tipo de enemigo.
 - Los caminos no terminan en la posición de la base. En `Level1.tscn` el camino acaba en (376, 216) y la base está en (440, 216); no he comprobado el resto de mapas.
 - `assets/sprites/base/space_station.png` (48x48) solo lo usan mapas que no están en ningún nivel (`Level6.tscn` a `Level10.tscn`).

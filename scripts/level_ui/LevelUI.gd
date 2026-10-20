@@ -44,6 +44,7 @@ func _ready() -> void:
 		screen.option_chosen.connect(_on_option_chosen)
 	sidebar.tower_selected.connect(_on_tower_selected)
 	sidebar.inspect_requested.connect(_on_inspect_requested)
+	info_panel.sell_requested.connect(_on_sell_requested)
 	sidebar.next_wave_requested.connect(_on_next_wave_requested)
 	sidebar.auto_waves_toggled.connect(_on_auto_waves_toggled)
 	set_state(UiState.PLAYING)
@@ -56,10 +57,13 @@ func _update_fps_label() -> void:
 func _process(_delta: float) -> void:
 	fps_label.text = "%d FPS" % Engine.get_frames_per_second()
 
-func setup(state: LevelState, towers: Array[TowerData], level_number: int, spawner: Spawner, has_next_level: bool) -> void:
+func setup(state: LevelState, towers: Array[TowerData], level_number: int, spawner: Spawner, has_next_level: bool, base: Base) -> void:
 	victory_screen.set_option_visible(OverlayScreen.Option.NEXT_LEVEL, has_next_level)
 	level_indicator.set_level_number(level_number)
 	_connect_spawner(spawner)
+	# La base es nueva en cada nivel o reinicio, así que no hay conexión anterior que quitar.
+	base.health_changed.connect(sidebar.set_station_health)
+	sidebar.set_station_health(base.health, base.max_health)
 	if is_instance_valid(_level_state):
 		if _level_state.money_changed.is_connected(sidebar.set_money):
 			_level_state.money_changed.disconnect(sidebar.set_money)
@@ -67,14 +71,18 @@ func setup(state: LevelState, towers: Array[TowerData], level_number: int, spawn
 			_level_state.selected_tower_changed.disconnect(sidebar.show_selected)
 		if _level_state.inspected_changed.is_connected(info_panel.show_inspected):
 			_level_state.inspected_changed.disconnect(info_panel.show_inspected)
+		if _level_state.sellable_tower_changed.is_connected(info_panel.show_sellable):
+			_level_state.sellable_tower_changed.disconnect(info_panel.show_sellable)
 	_level_state = state
 	state.money_changed.connect(sidebar.set_money)
 	state.selected_tower_changed.connect(sidebar.show_selected)
 	state.inspected_changed.connect(info_panel.show_inspected)
+	state.sellable_tower_changed.connect(info_panel.show_sellable)
 	sidebar.build_buttons(towers)
 	sidebar.set_money(state.money)
 	# Un LevelState nuevo (al empezar o reiniciar) no tiene nada inspeccionado: la ficha vuelve al escáner.
 	info_panel.show_inspected(state.inspected)
+	info_panel.show_sellable(state.sellable_tower)
 
 func _on_tower_selected(data: TowerData) -> void:
 	if is_instance_valid(_level_state):
@@ -83,6 +91,11 @@ func _on_tower_selected(data: TowerData) -> void:
 func _on_inspect_requested(data: Resource) -> void:
 	if is_instance_valid(_level_state):
 		_level_state.inspected = data
+
+# Solo se vende jugando: con pausa, derrota o victoria el botón no hace nada.
+func _on_sell_requested() -> void:
+	if is_instance_valid(_level_state) and _ui_state == UiState.PLAYING:
+		_level_state.sell_selected_tower()
 
 # Cambia el Spawner que sigue la pestaña Oleadas, desconectando el anterior.
 func _connect_spawner(spawner: Spawner) -> void:
