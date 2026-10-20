@@ -24,10 +24,16 @@
 - Al terminar una tarea: actualizar el docs/design/ afectado (y DESIGN.md si cambia algo general) y borrar el archivo de la tarea.
 - No crear otros .md sin que se pida.
 
+## Flujo de tickets
+- Guía completa para el usuario: docs/CLAUDE-CODE.md. Formato de ticket: docs/tasks/_plantilla.md.
+- `/proponer` crea tickets con `Estado: propuesta`. Solo se implementan los `Estado: aceptada`, con `/hacer nombre`.
+- Cada ticket en su rama `ticket/nombre` desde main. Nunca trabajar en main. Al terminar, preguntar al usuario: ¿PR o merge directo a main?
+- Para probar, usar el agente `probador`. Antes del PR, `/revisar`.
+
 ## Sprites
 - Pixel art 16x16. Seguir docs/design/art.md y el estilo de los sprites existentes en assets/.
 
 ## Antes de dar algo por terminado
-- Comprobar que el proyecto carga sin errores en headless. Godot: `C:\Users\David\Desktop\Godot.exe` (no está en el PATH).
+- Comprobar que el proyecto carga sin errores en headless. Godot (no está en el PATH): `C:\Users\renzo\Downloads\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64.exe` o `C:\Users\David\Desktop\Godot.exe`, el que exista en el equipo.
 - No commitear a menos que el usuario lo pida. Si lo pide, hacer el commit.
 - Al acabar una tarea, dar al usuario unos pasos breves para comprobar a mano que funciona en el juego: qué escena abrir, qué hacer y qué debería verse.
