@@ -212,6 +212,9 @@ func _show_screen(shown: OverlayScreen) -> void:
 		screen.visible = screen == shown
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _ui_state == UiState.PLAYING and _handle_shortcut(event):
+		get_viewport().set_input_as_handled()
+		return
 	if not event.is_action_pressed("ui_cancel"):
 		return
 	match _ui_state:
@@ -223,6 +226,22 @@ func _unhandled_input(event: InputEvent) -> void:
 			# En derrota y victoria Escape no hace nada.
 			return
 	get_viewport().set_input_as_handled()
+
+# Atajos de teclado: pasan por los mismos botones que el ratón. Solo se llaman jugando.
+func _handle_shortcut(event: InputEvent) -> bool:
+	for i in Sidebar.TOWER_SHORTCUT_COUNT:
+		if event.is_action_pressed("select_tower_%d" % (i + 1)):
+			sidebar.press_tower_button(i)
+			return true
+	if event.is_action_pressed("next_wave"):
+		sidebar.next_wave_button.pressed.emit()
+	elif event.is_action_pressed("toggle_auto"):
+		sidebar.auto_wave_button.button_pressed = not sidebar.auto_wave_button.button_pressed
+	elif event.is_action_pressed("toggle_speed"):
+		sidebar.speed_button.button_pressed = not sidebar.speed_button.button_pressed
+	else:
+		return false
+	return true
 
 func _on_option_chosen(option: OverlayScreen.Option) -> void:
 	match option:
