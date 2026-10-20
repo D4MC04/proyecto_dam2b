@@ -49,6 +49,7 @@ func _on_visibility_changed() -> void:
 	if is_visible_in_tree():
 		_time = 0.0
 		_step_timer = 0.0
+		_set_options_clickable(false)
 		_next_title_flicker = INTRO_TIME + randf_range(TITLE_FLICKER_MIN_GAP, TITLE_FLICKER_MAX_GAP)
 		_glitch_material.set_shader_parameter("rect_size", glitch_layer.size)
 		_step_glitch()
@@ -57,10 +58,21 @@ func _process(delta: float) -> void:
 	if not is_visible_in_tree():
 		return
 	_time += delta
+	# Los botones no reciben clics hasta que acaba el glitch de entrada.
+	if _time >= INTRO_TIME and options.get_child(0).mouse_filter != Control.MOUSE_FILTER_STOP:
+		_set_options_clickable(true)
 	_step_timer -= delta
 	if _step_timer <= 0.0:
 		_step_timer = GLITCH_STEP_TIME
 		_step_glitch()
+
+# Los botones ignoran el ratón mientras el marco puede estar invisible (mouse_filter, no disabled,
+# para que no se vean con el aspecto de desactivados).
+func _set_options_clickable(clickable: bool) -> void:
+	for child: Node in options.get_children():
+		var button := child as OverlayOptionButton
+		if button:
+			button.mouse_filter = Control.MOUSE_FILTER_STOP if clickable else Control.MOUSE_FILTER_IGNORE
 
 # Nuevo patrón del glitch y estado del panel y el título para este paso.
 func _step_glitch() -> void:

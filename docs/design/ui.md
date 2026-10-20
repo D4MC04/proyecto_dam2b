@@ -266,7 +266,7 @@ No dibuja nada propio en `_draw`. Miden 136x24 con 6 px de separación y van cen
   - Estática residual (`residual`): algunas filas sueltas con píxeles tenues.
   - Líneas de barrido: una fila de cada dos algo más oscura.
   - El patrón cambia con el uniforme `seed`, que pone el script a saltos.
-- **Glitch de entrada** (en `GameOverScreen`, con `delta` real porque la pantalla corre con el árbol en pausa y `time_scale` ya está en 1): cada `GLITCH_STEP_TIME` (0,05 s) cambia `seed`. Durante `INTRO_TIME` (0,5 s) la intensidad baja de 1 a 0,5 con ruido, el marco se ve u oculta al azar (cada vez más probable que se vea) y el título alterna entre visible y tenue. Después la intensidad es 0, `residual` = `RESIDUAL_STATIC` (0,12) y el panel queda estable; cada 2,5 a 5 s el título parpadea durante `TITLE_FLICKER_TIME` (0,15 s). Cada vez que se abre la pantalla, la entrada vuelve a empezar.
+- **Glitch de entrada** (en `GameOverScreen`, con `delta` real porque la pantalla corre con el árbol en pausa y `time_scale` ya está en 1): cada `GLITCH_STEP_TIME` (0,05 s) cambia `seed`. Durante `INTRO_TIME` (0,5 s) la intensidad baja de 1 a 0,5 con ruido, el marco se ve u oculta al azar (cada vez más probable que se vea) y el título alterna entre visible y tenue. Después la intensidad es 0, `residual` = `RESIDUAL_STATIC` (0,12) y el panel queda estable; cada 2,5 a 5 s el título parpadea durante `TITLE_FLICKER_TIME` (0,15 s). Durante `INTRO_TIME` los botones tienen `mouse_filter = IGNORE` (no `disabled`, para que no cambien de aspecto) y pasan a `STOP` al acabar, así que no se pueden pulsar invisibles. Cada vez que se abre la pantalla, la entrada vuelve a empezar.
 - Las barras no se tocan: el glitch solo cubre `GameArea` y las barras siguen activas para inspeccionar.
 - `show_run_stats(stats)`: pasa el `RunStats` al `RunSummary`.
 
@@ -329,5 +329,4 @@ Opciones "Siguiente nivel" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción qu
 ## Dudas
 
 - La interfaz no muestra la vida de la base.
-- Durante los 0,5 s del glitch de entrada los botones de la derrota pueden estar invisibles (marco a opacidad 0) pero siguen recibiendo clics.
 - El scroll de la ficha no tiene barra visible: en las fichas que no caben (Cryo, Disintegrator) la descripción queda cortada abajo sin otra pista de que se puede bajar.
