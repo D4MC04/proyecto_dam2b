@@ -106,4 +106,16 @@ func effect_scale() -> float:
 
 func die():
 	died.emit(data.reward)
+	_play_death_sound()
 	queue_free()
+
+# El reproductor cuelga del padre (el camino) porque el enemigo se libera enseguida.
+func _play_death_sound() -> void:
+	if data.death_sound == null:
+		return
+	var player := AudioStreamPlayer.new()
+	player.stream = data.death_sound
+	player.bus = &"SFX"
+	player.finished.connect(player.queue_free)
+	get_parent().add_child(player)
+	player.play()
