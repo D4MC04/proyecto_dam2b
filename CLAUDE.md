@@ -38,7 +38,7 @@
   2. Commit en la rama del ticket y `git push origin <rama>:main`.
   3. Borrar la rama remota del ticket: `git push origin --delete <rama>`.
   4. Dejar lo local en solo `main`: el chat que trabaja en la carpeta principal hace `git fetch --prune`, `git pull --ff-only` (si hay cambios locales sin commitear que lo bloquean, no descartarlos: avisar), `git branch -d <rama>` (solo con `-d`, nunca borra ramas sin fusionar) y `git worktree prune`. Un chat en worktree no puede tocar la carpeta principal: avisa al chat central de que subió y este hace el paso 4; si el chat entró con `EnterWorktree`, sale con `ExitWorktree` (`remove`) y lo hace él.
-  5. Preguntar si archiva el chat del ticket (ver abajo).
+  5. Limpiar todo lo del ticket sin preguntar (ya no sirve): archivar su chat, quitar su worktree con `git worktree remove <carpeta>` (sin `--force`; si Godot está abierto en esa carpeta, cerrarlo antes o pedir al usuario que lo cierre) y borrar su rama local con `git branch -d`. Al final no queda ni carpeta en `.claude/worktrees/` ni rama del ticket, solo `main`. Lo hace el chat central.
 - **Chat central** (se abre con `/new`): trabaja en la carpeta principal sobre `main`, en Opus. Propone y reparte tickets en chats con worktree, revisa lo que suben y hace el paso 4 de "Subir a main" para que el usuario nunca tenga que hacer `git pull` a mano. Cada vez que arranca o recibe un aviso de subida, deja `main` local al día.
 - Con el visto bueno ("sube todo", "commitea"…), el chat central puede subir él mismo los tickets listos: hace "Subir a main" (pasos 1-4) en cada worktree de `.claude/worktrees/`, uno detrás de otro, sin esperar a que cada chat de ticket lo haga.
 - `/new`: crea el chat central y archiva el chat donde se escribió (se puede recuperar desde Archivados).
@@ -49,7 +49,7 @@
   - Ticket aceptado → `/hacer nombre`, con el modelo y el esfuerzo que pone el ticket (`Modelo recomendado` y `Esfuerzo recomendado`).
   - Tras `/hacer` → probar a mano en Godot y luego `/revisar`.
   - `/revisar` en OK → "commitea" (con el visto bueno, commit y subida directa a main).
-  - Ticket ya en main y probado a mano por el usuario → preguntar si archiva el chat de ese ticket (si dice que sí, archivarlo; si es el chat actual, archivarse a sí mismo al final).
+  - Ticket ya en main → decir que su chat, su worktree y su rama ya se borraron (paso 5 de "Subir a main").
   - Chat largo o tema distinto al del chat → abrir chat nuevo.
   - Tarea mecánica en Opus → bajar a Sonnet o Haiku. Sonnet atascado dos veces → subir a Opus.
 

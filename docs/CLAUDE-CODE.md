@@ -9,7 +9,7 @@
 | 4 | Pruebas en Godot con esos pasos | Si algo falla, se lo dices en el mismo chat y lo arregla |
 | 5 | Escribes `/revisar` | Repasa la rama y te explica qué cambia |
 | 6 | Dices "commitea" (o "sube") | Pasa el `probador`, hace el commit, lo sube directo a main y borra la rama del ticket. Así cualquiera que descargue `main` lo abre sin errores. Solo hace PR si lo pides |
-| 7 | — (no haces `git pull`) | El chat central deja tu `main` local al día y solo queda `main`. Después te pregunta si archiva el chat del ticket. Archivar no borra nada del proyecto y el chat se puede recuperar desde Archivados |
+| 7 | — (no haces `git pull`) | El chat central deja tu `main` local al día y borra todo lo del ticket sin preguntar: archiva su chat (se puede recuperar desde Archivados) y quita su carpeta de worktree y su rama. Solo queda `main`. Si Godot está abierto en esa carpeta, ciérralo |
 
 Ir más rápido: al aceptar tickets, Claude empieza solo, sin preguntar: sube el cambio de `Estado:` a main (los worktrees salen de lo que hay en main) y abre un chat con worktree por cada ticket que no choque con otro, ya con `/hacer`. Los que chocan esperan a que el anterior esté en main.
 
