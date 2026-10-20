@@ -1,6 +1,6 @@
 # Sonidos de interfaz, victoria y derrota
 
-Estado: aceptada
+Estado: propuesta
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 
@@ -8,6 +8,7 @@ Esfuerzo recomendado: medium
 `assets/audio/effects/SFXs/` tiene 5 clics, `GameOver.wav` y `Victory.wav`, y `LevelAmbience/` dos ambientes; nada los reproduce. Los botones no suenan y la derrota y la victoria llegan en silencio (aparte de la música).
 
 ## Qué hay que hacer
+- Primer intento descartado (2026-10-21): al usuario no le gustó el clic de los botones con `Click1`/`Click2`. Antes de implementar, elegir con el usuario qué clic usar (o ninguno).
 - Clic en los botones: un solo sitio que lo haga para todos, sin tocar cada botón (por ejemplo, un autoload pequeño que escuche `get_tree().node_added` y conecte `pressed` de cada `BaseButton`). Elegir uno de los `Click*.wav` (o dos: uno para botones normales y otro para comprar/colocar torre). Bus `SFX`, y que suene también con el árbol en pausa (`process_mode = ALWAYS`).
 - `GameOver.wav` cuando aparece `GameOverScreen` y `Victory.wav` cuando entra `VictoryScreen` (tras la cámara lenta / el respiro, no antes).
 - Opcional si es fácil: un ambiente de `LevelAmbience/` en bucle muy bajo durante el nivel, en el bus `SFX`. Si choca con `MusicManager`, dejarlo fuera y avisar.
