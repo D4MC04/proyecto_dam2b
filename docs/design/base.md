@@ -34,5 +34,4 @@ Está instanciada como nodo `SpaceStation` en `scenes/maps/Map.tscn` y en los ma
 
 ## Dudas
 
-- Los caminos no terminan en la posición de la base. En `Level1.tscn` el camino acaba en (376, 216) y la base está en (440, 216); no he comprobado el resto de mapas.
 - `assets/sprites/base/space_station.png` (48x48) solo lo usan mapas que no están en ningún nivel (`Level6.tscn` a `Level10.tscn`).
