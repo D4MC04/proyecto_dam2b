@@ -10,6 +10,7 @@ name = "Spikey"
 hp = 150
 speed = 25
 reward = 40
+base_damage = 10
 description = "Nave con pinchos. Lenta, pero muy robusta."
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")

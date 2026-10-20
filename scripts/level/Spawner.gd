@@ -2,7 +2,7 @@ class_name Spawner
 extends Node
 
 signal enemy_died(reward: int)
-signal enemy_reached_end
+signal enemy_reached_end(damage: int)
 ## Se emite al empezar cada oleada, con su índice (desde 0) y el total de oleadas.
 signal wave_started(index: int, total: int)
 ## Se emite cuando la oleada `index` ha sacado su último enemigo; puede haber enemigos vivos.
@@ -116,10 +116,10 @@ func _on_enemy_died(reward: int, enemy: Enemy) -> void:
 	enemy_died.emit(reward)
 	_check_cleared()
 
-func _on_enemy_reached_end(enemy: Enemy) -> void:
+func _on_enemy_reached_end(damage: int, enemy: Enemy) -> void:
 	if not _alive.erase(enemy):
 		return
-	enemy_reached_end.emit()
+	enemy_reached_end.emit(damage)
 	_check_cleared()
 
 func _check_cleared() -> void:

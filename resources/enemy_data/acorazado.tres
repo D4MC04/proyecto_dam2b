@@ -10,6 +10,7 @@ name = "Acorazado"
 hp = 360.0
 speed = 25
 reward = 110
+base_damage = 20
 description = "Blindaje pesado. Muy lento y difícil de abatir."
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")

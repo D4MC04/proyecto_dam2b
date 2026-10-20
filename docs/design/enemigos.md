@@ -12,24 +12,24 @@ El `Spawner` lo añade como hijo de un `Path2D` del mapa y llama a `setup(enemy_
 
 ## Datos
 
-`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados) y `description` (frase corta para la ficha, ya rellena en los 12). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da VIDA, VELOCIDAD (px/s) y BOTÍN (la recompensa, con €); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
+`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `base_damage` (vida que quita a la estación al llegar al final, 10 por defecto), `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados) y `description` (frase corta para la ficha, ya rellena en los 12). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da VIDA, VELOCIDAD (px/s), BOTÍN (la recompensa, con €) y DAÑO (`base_damage`); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
 
 Recursos en `resources/enemy_data/`:
 
-| Archivo | Nombre | Vida | Velocidad | Recompensa | Radio de colisión | Primer nivel en que sale |
-|---|---|---|---|---|---|---|
-| `dart_hielo` | Dart de hielo | 25 | 90 | 25 | 8 | 1 |
-| `dart_morado` | Dart morado | 25 | 90 | 25 | 8 | 1 |
-| `dart_rojo` | Dart rojo | 25 | 90 | 25 | 8 | 1 |
-| `dart_verde` | Dart verde | 25 | 90 | 25 | 8 | 1 |
-| `wasp` | Wasp | 75 | 60 | 40 | 9 | 1 |
-| `nave_normal` | Nave normal | 60 | 36 | 25 | 12 | 2 |
-| `ufo` | UFO | 75 | 50 | 28 | 12 | 2 |
-| `nave_agresiva` | Nave agresiva | 90 | 48 | 35 | 12 | 3 |
-| `spiked_ship` | Spikey | 150 | 25 | 40 | 14 | 3 |
-| `acorazado` | Acorazado | 360 | 25 | 110 | 14 | 4 |
-| `ariete` | Ariete | 200 | 40 | 70 | 13 | 5 |
-| `nodriza` | Nodriza | 400 | 40 | 150 | 14 | 6 |
+| Archivo | Nombre | Vida | Velocidad | Recompensa | Daño a la estación | Radio de colisión | Primer nivel en que sale |
+|---|---|---|---|---|---|---|---|
+| `dart_hielo` | Dart de hielo | 25 | 90 | 25 | 5 | 8 | 1 |
+| `dart_morado` | Dart morado | 25 | 90 | 25 | 5 | 8 | 1 |
+| `dart_rojo` | Dart rojo | 25 | 90 | 25 | 5 | 8 | 1 |
+| `dart_verde` | Dart verde | 25 | 90 | 25 | 5 | 8 | 1 |
+| `wasp` | Wasp | 75 | 60 | 40 | 5 | 9 | 1 |
+| `nave_normal` | Nave normal | 60 | 36 | 25 | 10 | 12 | 2 |
+| `ufo` | UFO | 75 | 50 | 28 | 10 | 12 | 2 |
+| `nave_agresiva` | Nave agresiva | 90 | 48 | 35 | 10 | 12 | 3 |
+| `spiked_ship` | Spikey | 150 | 25 | 40 | 10 | 14 | 3 |
+| `acorazado` | Acorazado | 360 | 25 | 110 | 20 | 14 | 4 |
+| `ariete` | Ariete | 200 | 40 | 70 | 20 | 13 | 5 |
+| `nodriza` | Nodriza | 400 | 40 | 150 | 40 | 14 | 6 |
 
 Los cuatro Dart tienen los mismos valores; solo cambia el sprite.
 
@@ -37,7 +37,7 @@ Los cuatro Dart tienen los mismos valores; solo cambia el sprite.
 
 ### Movimiento
 
-Cada frame: `progress += speed * _slow * delta`. Cuando `progress_ratio >= 1.0` emite `reached_end` y se libera.
+Cada frame: `progress += speed * _slow * delta`. Cuando `progress_ratio >= 1.0` emite `reached_end(data.base_damage)` y se libera.
 
 ### Animación
 
@@ -65,7 +65,7 @@ Según la dirección del último movimiento reproduce `right`, `left`, `down` o 
 
 ## Comunicación con el resto
 
-- Señales `died(reward)` y `reached_end`: las recoge `Spawner` y las reenvía a `Level` (dinero y derrota).
+- Señales `died(reward)` y `reached_end(damage)`: las recoge `Spawner` y las reenvía a `Level` (dinero y derrota).
 - Grupo `enemies`: lo consultan `Beam` y `Chain` para buscar objetivos.
 - Las torres lo detectan por el `Area2D` y leen `progress`, `hp` y `global_position`.
 - `FocusBeam` modifica directamente `sprite.modulate` y llama a `_rest_color()`.
@@ -73,4 +73,3 @@ Según la dirección del último movimiento reproduce `right`, `left`, `down` o 
 ## Dudas
 
 - `EnemyData.hp` está declarado como `int`, pero varios `.tres` guardan el valor con decimales (`360.0`) y `Enemy.hp` es `float`.
-- Al llegar al final, todos los enemigos quitan lo mismo a la base (`Level.ENEMY_BASE_DAMAGE`, 10). Ver [base.md](base.md).
