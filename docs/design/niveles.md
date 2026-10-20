@@ -195,6 +195,7 @@ Funciones:
 - Solo la `VisualMap` de los niveles 5 y 6 tiene script y datos de generación; el resto de capas y mapas no.
 - En el nivel 6 hay un planeta de torre en la casilla (15, 9), debajo de la estación.
 - `Level7.tscn` a `Level10.tscn`, `Level2.tscn`, `Level5.tscn`, `Level6.tscn` y la carpeta `redesign/` no están en ningún `LevelData`. Los mapas 7 a 10 usan un `Sprite2D` como estación en vez de `Base.tscn`, y `Level6.tscn` tiene las dos cosas.
+- `redesign/Level6.tscn` tenía el mismo uid que `Level6.tscn` y Godot avisaba `UID duplicate`. Se le dio un uid nuevo; la carpeta `redesign/` se conserva sin cambios.
 - `resources/level_data/level_5.tres` existe y tiene el mismo contenido que el subrecurso de `GameData.tscn`, pero `GameData` no lo usa.
 - En los niveles 2, 5 y 6 el mapa tiene más caminos de los que usa la oleada.
 - Los mapas (como mucho unos 480x272) no llenan el área de juego de 704x540: alrededor se ve el fondo de espacio, y los enemigos aparecen y desaparecen en el borde del mapa.
