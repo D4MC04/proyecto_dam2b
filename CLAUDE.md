@@ -27,14 +27,16 @@
 ## Flujo de tickets
 - Guía completa para el usuario: docs/CLAUDE-CODE.md. Formato de ticket: docs/tasks/_plantilla.md.
 - `/proponer` crea tickets con `Estado: propuesta`. Solo se implementan los `Estado: aceptada`, con `/hacer nombre`.
-- Cada ticket en su rama `ticket/nombre` desde main. Nunca trabajar en main. Al terminar, preguntar al usuario: ¿PR o merge directo a main?
+- Cada ticket en su rama `ticket/nombre` desde main. Nunca trabajar en main.
+- Subir a main: cuando el usuario da el visto bueno ("sube", "va bien", "listo", "commitea"), hacerlo sin preguntar más: commit en la rama del ticket y `git push origin <rama>:main` (avance rápido; si main avanzó, primero traer `origin/main` a la rama, nunca `--force`). Solo hacer PR si el usuario lo pide. Los tickets propuestos o aceptados que estén sin commitear también se suben cuando el usuario lo dice.
+- Un ticket nuevo (`/proponer`) o aceptado (`/tickets`) solo cambia la línea `Estado:`; no se sube nada sin visto bueno.
 - Para probar, usar el agente `probador`. Antes de commitear o subir, `/revisar` (prueba, revisa y mira conflictos con main).
 - Avisar al usuario de qué comando toca, al final de la respuesta, en una línea:
   - Pregunta qué tickets quedan o cuáles se pueden hacer a la vez → `/tickets`.
   - Sin tickets aceptados o pide ideas → `/proponer`.
-  - Ticket aceptado → `/hacer nombre`, en Sonnet.
+  - Ticket aceptado → `/hacer nombre`, con el modelo y el esfuerzo que pone el ticket (`Modelo recomendado` y `Esfuerzo recomendado`).
   - Tras `/hacer` → probar a mano en Godot y luego `/revisar`.
-  - `/revisar` en OK → "commitea" (luego, PR o merge directo).
+  - `/revisar` en OK → "commitea" (con el visto bueno, commit y subida directa a main).
   - Ticket ya en main y probado a mano por el usuario → preguntar si archiva el chat de ese ticket (si dice que sí, archivarlo; si es el chat actual, archivarse a sí mismo al final).
   - Chat largo o tema distinto al del chat → abrir chat nuevo.
   - Tarea mecánica en Opus → bajar a Sonnet o Haiku. Sonnet atascado dos veces → subir a Opus.
@@ -44,5 +46,5 @@
 
 ## Antes de dar algo por terminado
 - Comprobar que el proyecto carga sin errores en headless. Godot (no está en el PATH): `C:\Users\renzo\Downloads\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64.exe` o `C:\Users\David\Desktop\Godot.exe`, el que exista en el equipo.
-- No commitear a menos que el usuario lo pida. Si lo pide, hacer el commit.
+- No commitear ni subir a menos que el usuario lo pida o dé el visto bueno. Si lo hace, hacer el commit y subirlo a main como dice "Flujo de tickets".
 - Al acabar una tarea, dar al usuario unos pasos breves para comprobar a mano que funciona en el juego: qué escena abrir, qué hacer y qué debería verse.

@@ -16,4 +16,4 @@ Implementa el ticket `docs/tasks/$ARGUMENTS.md`.
 7. No hagas commit. Termina con:
    - Qué has cambiado, en 2-3 líneas claras.
    - Los pasos para probarlo a mano en Godot (escena, qué hacer, qué debería verse).
-   - "Si te vale, dime 'commitea' y te pregunto si PR o merge directo a main. Si no, dime qué falla."
+   - "Si te vale, dime 'commitea' (o 'sube') y lo commiteo y lo subo directo a main. Si no, dime qué falla."

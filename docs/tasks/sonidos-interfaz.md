@@ -2,6 +2,7 @@
 
 Estado: propuesta
 Modelo recomendado: sonnet
+Esfuerzo recomendado: medium
 
 ## Por qué
 `assets/audio/effects/SFXs/` tiene 5 clics, `GameOver.wav` y `Victory.wav`, y `LevelAmbience/` dos ambientes; nada los reproduce. Los botones no suenan y la derrota y la victoria llegan en silencio (aparte de la música).

@@ -2,6 +2,7 @@
 
 Estado: propuesta
 Modelo recomendado: sonnet
+Esfuerzo recomendado: low
 
 ## Por qué
 Ahora "Borrar progreso" está en la rejilla de `// JUEGO`, al lado de los interruptores ON/OFF y con su mismo aspecto, aunque es una acción destructiva que no se puede deshacer. Además, al pedir confirmación el botón cambia a "¿Seguro? Pulsa otra vez", se estira para que quepa el texto y el panel de Opciones entero se ensancha y se recoloca durante 3 s.

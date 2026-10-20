@@ -2,6 +2,7 @@
 
 Estado: propuesta
 Modelo recomendado: sonnet
+Esfuerzo recomendado: medium
 
 ## Por qué
 Cada nave tiene su sonido en `assets/audio/effects/SpaceShips/` (9 carpetas) y no se usa. Oír la explosión al matar da respuesta inmediata a lo que hacen las torres.

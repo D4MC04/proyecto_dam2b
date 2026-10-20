@@ -2,6 +2,7 @@
 
 Estado: propuesta
 Modelo recomendado: sonnet
+Esfuerzo recomendado: medium
 
 ## Por qué
 Los caminos terminan antes de la estación: en el nivel 1 el camino acaba en (376, 216) y la estación está en (440, 216) (docs/design/base.md, "Dudas"). Los enemigos desaparecen a 64 px de la estación y parece que la estación pierde vida por nada.

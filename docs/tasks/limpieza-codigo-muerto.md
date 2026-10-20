@@ -2,6 +2,7 @@
 
 Estado: propuesta
 Modelo recomendado: haiku
+Esfuerzo recomendado: low
 
 ## Por qué
 Los docs de diseño apuntan varias cosas sueltas que sobran o están a medias. Ninguna rompe el juego, pero confunden a quien lee el código y algunas van contra CLAUDE.md.

@@ -2,6 +2,7 @@
 
 Estado: propuesta
 Modelo recomendado: sonnet
+Esfuerzo recomendado: medium
 
 ## Por qué
 Ahora todo se hace con el ratón: elegir torre, lanzar oleada, AUTO y ×2. Con teclas se juega más rápido, sobre todo en oleadas largas.
