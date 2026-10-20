@@ -57,10 +57,13 @@ func _update_fps_label() -> void:
 func _process(_delta: float) -> void:
 	fps_label.text = "%d FPS" % Engine.get_frames_per_second()
 
-func setup(state: LevelState, towers: Array[TowerData], level_number: int, spawner: Spawner, has_next_level: bool) -> void:
+func setup(state: LevelState, towers: Array[TowerData], level_number: int, spawner: Spawner, has_next_level: bool, base: Base) -> void:
 	victory_screen.set_option_visible(OverlayScreen.Option.NEXT_LEVEL, has_next_level)
 	level_indicator.set_level_number(level_number)
 	_connect_spawner(spawner)
+	# La base es nueva en cada nivel o reinicio, así que no hay conexión anterior que quitar.
+	base.health_changed.connect(sidebar.set_station_health)
+	sidebar.set_station_health(base.health, base.max_health)
 	if is_instance_valid(_level_state):
 		if _level_state.money_changed.is_connected(sidebar.set_money):
 			_level_state.money_changed.disconnect(sidebar.set_money)
