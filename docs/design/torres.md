@@ -8,16 +8,32 @@ En `_unhandled_input`:
 
 - **Mover el ratón**: si hay torre seleccionada y la casilla bajo el cursor es construible, muestra una vista previa en el centro de la casilla: el icono de la torre al 60 % de opacidad y su rango dibujado en blanco al 15 %. Si no, la oculta.
 - **Clic izquierdo**: si hay torre seleccionada, `grid.can_build(cell)` y `state.spend_money(data.cost)`, instancia la torre como hija de `BuildManager`, la coloca en el centro de la casilla y la registra en `Grid`.
-- **Clic izquierdo sobre una torre ya colocada** (se mira antes que lo de colocar): `state.inspect_placed(tower)`; la ficha enseña la torre y aparece el botón de vender (ver abajo).
+- **Clic izquierdo sobre una torre ya colocada** (se mira antes que lo de colocar): si hay torre seleccionada en la tienda, es la misma que la colocada y tiene `fusion`, se fusiona (ver abajo). Si no, `state.inspect_placed(tower)`; la ficha enseña la torre y aparece el botón de vender.
 - **Clic derecho**: pone `state.selected_tower = null` y oculta la vista previa.
 
 `stop_building()` oculta la vista previa y hace que `_unhandled_input` deje de hacer nada el resto de la partida. Lo llama `Level` al perder o ganar.
 
 Tras colocar una torre la selección se mantiene, así que se pueden colocar varias seguidas.
 
+## Fusionar
+
+Con una torre seleccionada en la tienda, clic sobre una torre igual ya colocada (`placed.data == selected_tower`) que tenga `TowerData.fusion`. `BuildManager._fuse` gasta `fusion.cost` (sin dinero no hace nada), quita la torre vieja (`remove_child` + `queue_free`, para que `Grid` libere la casilla antes de registrar la nueva), instancia la fusionada en la misma casilla con `invested = vieja.invested + fusion.cost`, la registra en `Grid` y la inspecciona. La selección de la tienda se mantiene. Sobre una torre fusionable la vista previa enseña el icono de la fusionada al 60 % y su rango. La fusionada no tiene `fusion`, así que no se vuelve a fusionar, y no sale en la tienda.
+
+La fusionada es otro `TowerData` (`resources/turret_data/<x>_fusion.tres`) con sprites en `assets/sprites/towers/<x>_fusion/` y ataque propio; el campo `fusion` de la base la enlaza:
+
+| Fusionada | Sustituye a | Coste | Daño | Alcance | Cadencia (s) | Diferencia |
+|---|---|---|---|---|---|---|
+| Cañón cuádruple | Cañón doble | 160 | 6 | 64 | 0,15 | Cuatro cañones, ráfaga rápida |
+| Láser doble | Láser | 320 | 22 | 128 | 0,4 | La bala perfora a 1 enemigo extra (`pierce`) |
+| Cryo ventisca | Cryo | 400 | 8 | 96 | 2,0 | Onda mayor (`wave_scale` 1,5), frena al 35 % durante 4,5 s |
+| Cañón de asedio | Cañón pesado | 480 | 90 | 96 | 1,6 | Explota en área de 32 px (`splash_radius`) |
+| Tormenta | Tesla | 560 | 35 | 120 | 1,3 | Cadena de 6 objetivos, saltos de 80 px |
+| Rail Gauss | Rail | 800 | 300 | 176 | 4,5 | Haz de 900 px y `half_width` 16 |
+| Aniquilador | Disintegrator | 960 | 70/150/320 por s | 128 | no se usa | Sube de nivel en la mitad de tiempo (`level_time` 0,75) |
+
 ## Vender
 
-`LevelState.sellable_tower` es la torre colocada seleccionada. `inspect_placed` la fija junto con `inspected`; cualquier otro cambio de `inspected` la suelta. `LevelState.sell_selected_tower()` suma `TowerData.get_sell_value()` (mitad del coste, redondeada hacia abajo), hace `queue_free` de la torre (al salir del árbol `Grid.register_tower` libera la casilla) y suelta la selección. Sin efecto visual al vender. No cuenta en el resumen de partida. Solo vende en `PLAYING` (lo comprueba `LevelUI`).
+`LevelState.sellable_tower` es la torre colocada seleccionada. `inspect_placed` la fija junto con `inspected`; cualquier otro cambio de `inspected` la suelta. `LevelState.sell_selected_tower()` suma `Tower.get_sell_value()` (mitad de `Tower.invested`, redondeada hacia abajo; `invested` es el coste al colocar y suma `fusion.cost` al fusionar), hace `queue_free` de la torre (al salir del árbol `Grid.register_tower` libera la casilla) y suelta la selección. Sin efecto visual al vender. No cuenta en el resumen de partida. Solo vende en `PLAYING` (lo comprueba `LevelUI`).
 
 ## Escena y script
 
@@ -53,7 +69,7 @@ Las torres de onda y de cadena no giran el cañón ni usan `_process`.
 
 ## Datos
 
-`TowerData` (`scripts/resources/TowerData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`. Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 7 torres la tienen. La ficha pinta todas las torres en cian `#40e0f0` (`TowerData.ACCENT_COLOR`, ver [ui.md](ui.md)).
+`TowerData` (`scripts/resources/TowerData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`. `fusion`: el `TowerData` en el que se convierte al fusionarla con otra igual (null en las fusionadas). Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 7 torres la tienen. La ficha pinta todas las torres en cian `#40e0f0` (`TowerData.ACCENT_COLOR`, ver [ui.md](ui.md)).
 
 Funciones para la ficha:
 
@@ -64,7 +80,7 @@ Funciones para la ficha:
 
 | Clase | Filas |
 |---|---|
-| `BulletData` | DAÑO, VEL. BALA |
+| `BulletData` | DAÑO, VEL. BALA, y PERFORA (`pierce`) y ÁREA (`splash_radius`) solo si son > 0 |
 | `PulseData` | DAÑO, FRENADO (`-45%` con `slow_factor` 0,55), DURACIÓN (de la ralentización) |
 | `ChainData` | DAÑO, OBJETIVOS (`max_targets`), SALTO (`jump_range`) |
 | `BeamData` | DAÑO, PERFORA ("TODOS") |
@@ -144,6 +160,6 @@ Recursos en `resources/turret_data/`:
 ## Dudas
 
 - `Tower.fit_to_tile` no se llama desde ningún sitio.
-- No hay forma de mejorar una torre colocada.
+- Una torre colocada solo se puede fusionar o vender; no hay más mejoras.
 - `disintegrator.tres` tiene `attack_cooldown = 1.0`, que el código no usa para esa torre.
 - El nombre de archivo `rocket_launcher` corresponde a la torre que se llama "Cañón pesado", y `turret` a "Cañón doble". La carpeta es `turret_data` y la clase `TowerData`.

@@ -62,7 +62,7 @@ func _ready() -> void:
 func show_sellable(tower: Tower) -> void:
 	sell_button.visible = tower != null
 	if tower != null:
-		sell_button.text = "Vender (+%s)" % UiFormat.money(tower.data.get_sell_value())
+		sell_button.text = "Vender (+%s)" % UiFormat.money(tower.get_sell_value())
 
 ## Enseña `data` en la ficha; con null vuelve al estado de reposo.
 func show_inspected(data: Resource) -> void:

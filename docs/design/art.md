@@ -44,6 +44,18 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 | Rail | ámbar `#ecb23c`; haz `#1c7496`, `#40e0f0`, `#f0faff` con borde `#aa78ff` |
 | Disintegrator | magenta `#6e1a64`, `#be30a0`, `#ff5ad2`, `#ffafeb`, `#fff5fc` |
 
+- **Torres fusionadas** (`assets/sprites/towers/<torre>_fusion/`, mismos tamaños, frames y nombres que la base, p. ej. `turret_fusion/t1_base.png`): misma familia que la base, más detalladas, con acento nuevo.
+
+| Fusionada | Acento nuevo |
+|---|---|
+| Cañón cuádruple | verde `#1c7440`, `#3cb860`; cuatro cañones |
+| Láser doble | magenta (desde el rojo); dos cañones paralelos |
+| Cryo ventisca | blanco azulado; cristales diagonales |
+| Cañón de asedio | rojo `#dc461e`; boca ancha, vainas laterales; impactos de 32x32 |
+| Tormenta | violeta `#5a3caa`; cuatro bobinas, rayos lilas |
+| Rail Gauss | cian; segundo capacitor; haz dorado de 32x15 |
+| Aniquilador | dorado y blanco; aletas exteriores |
+
 - **Motores y luces de enemigos**: `#8c1628`, `#f0323c`, `#ff8c5a`, `#ffdc78`.
 - **Variantes de Dart**: mismo dibujo con el casco en azul hielo, morado, rojo o verde.
 - **Escudo de la base**: `#40e0f0`, `#aaf5ff`, `#ebffff`, semitransparente.
@@ -92,6 +104,7 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 | `jump.png` | rayo en zigzag | `#40e0f0`, `#f0faff` |
 | `pierce.png` | haz que atraviesa una placa | placa `#96a2b6`, haz `#40e0f0` y `#aa78ff` |
 | `dps.png` | llama | magenta `#be30a0`, `#ff5ad2`, `#ffafeb` |
+| `splash.png` | explosión en disco (daño en área) | rojo `#dc461e`, naranja `#ff8c32`, crema `#ffe28c` |
 | `level_time.png` | tres barras de nivel crecientes | magenta `#be30a0`, `#ff5ad2`, `#ffafeb` |
 | `health.png` | corazón | verde `#1c7440`, `#3cb860`, `#c4f5d0` |
 | `reward.png` | lingote de oro | ámbar `#96641e`, `#ecb23c`, `#ffe082` |

@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://caajyf16g1kmd" path="res://assets/sprites/towers/turret/t1_full_up.png" id="4"]
 [ext_resource type="SpriteFrames" uid="uid://da4o1mb4kiwkb" path="res://resources/sprite_frames/turret.tres" id="5"]
 [ext_resource type="SpriteFrames" uid="uid://d1negqjjytnj4" path="res://resources/sprite_frames/turret_cannon.tres" id="7"]
+[ext_resource type="Resource" path="res://resources/turret_data/turret_fusion.tres" id="fusion"]
 
 [resource]
 script = ExtResource("1")
@@ -19,5 +20,6 @@ bullet_data = ExtResource("3")
 muzzle_offset = Vector2(-3, -12)
 cannon = ExtResource("7")
 turn_speed = 240.0
+fusion = ExtResource("fusion")
 description = "Dispara ráfagas rápidas con sus dos cañones. Barata y fiable."
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

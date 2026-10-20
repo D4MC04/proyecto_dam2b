@@ -39,12 +39,12 @@ func inspect_placed(tower: Tower) -> void:
 	inspected = tower.data
 	sellable_tower = tower
 
-## Vende la torre colocada seleccionada: devuelve la mitad del coste y la quita del mapa
+## Vende la torre colocada seleccionada: devuelve la mitad de lo invertido y la quita del mapa
 ## (al salir del árbol, Grid libera su casilla).
 func sell_selected_tower() -> void:
 	if not is_instance_valid(sellable_tower):
 		return
-	add_money(sellable_tower.data.get_sell_value())
+	add_money(sellable_tower.get_sell_value())
 	sellable_tower.queue_free()
 	sellable_tower = null
 

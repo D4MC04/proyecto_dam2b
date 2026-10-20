@@ -1,0 +1,58 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://bgg5hlu3qnu68"]
+
+[ext_resource type="Texture2D" uid="uid://dltxj4b3yk1cq" path="res://assets/sprites/towers/turret2_fusion/t2_impact_0.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://bokb42sn10owv" path="res://assets/sprites/towers/turret2_fusion/t2_impact_1.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://d16wdb75gip3i" path="res://assets/sprites/towers/turret2_fusion/t2_impact_2.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://crlyrq3xt01dr" path="res://assets/sprites/towers/turret2_fusion/t2_impact_3.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://bgq0h1uh2spm8" path="res://assets/sprites/towers/turret2_fusion/t2_impact_4.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://y8js3vgnow7l" path="res://assets/sprites/towers/turret2_fusion/t2_impact_5.png" id="6"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0"]
+atlas = ExtResource("1")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1"]
+atlas = ExtResource("2")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2"]
+atlas = ExtResource("3")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3"]
+atlas = ExtResource("4")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4"]
+atlas = ExtResource("5")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5"]
+atlas = ExtResource("6")
+region = Rect2(0, 0, 32, 32)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5")
+}],
+"loop": 0,
+"name": &"default",
+"speed": 16.0
+}]

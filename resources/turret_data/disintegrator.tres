@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://7lhd758bwg7m" path="res://assets/sprites/towers/disintegrator/disint_full_up.png" id="4"]
 [ext_resource type="SpriteFrames" uid="uid://cxl7hyp4bct3b" path="res://resources/sprite_frames/disintegrator.tres" id="5"]
 [ext_resource type="SpriteFrames" uid="uid://djce4qf67ye71" path="res://resources/sprite_frames/disintegrator_cannon.tres" id="7"]
+[ext_resource type="Resource" path="res://resources/turret_data/disintegrator_fusion.tres" id="fusion"]
 
 [resource]
 script = ExtResource("1")
@@ -19,5 +20,6 @@ muzzle_offset = Vector2(0, -14)
 cannon = ExtResource("7")
 turn_speed = 140.0
 focus_beam = ExtResource("3")
+fusion = ExtResource("fusion")
 description = "Haz continuo que hace más daño cuanto más tiempo sigue al mismo enemigo."
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

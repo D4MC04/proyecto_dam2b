@@ -13,6 +13,8 @@ const AIM_TOLERANCE := deg_to_rad(12.0)
 @onready var attack_range_shape: CollisionShape2D = $RangeDetector/CollisionShape2D
 @onready var attack_timer: Timer = $Timer
 
+# Dinero total gastado en esta torre (colocación y fusiones); la venta devuelve la mitad.
+var invested := 0
 var enemies_in_range: Array[Enemy] = []
 var _shots := 0
 var _target: Enemy = null
@@ -150,6 +152,10 @@ func _best_enemy() -> Enemy:
 			best_remaining = remaining
 			best = enemy
 	return best
+
+## Dinero que devuelve vender la torre: la mitad de lo invertido, redondeada hacia abajo.
+func get_sell_value() -> int:
+	return floori(invested / 2.0)
 
 func fit_to_tile(tile_size: Vector2) -> void:
 	var frame_size: Vector2 = sprite.sprite_frames.get_frame_texture(sprite.animation, 0).get_size()
