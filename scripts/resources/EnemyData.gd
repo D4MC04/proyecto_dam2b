@@ -6,7 +6,7 @@ const ACCENT_COLOR := Color("#f0323c")
 const INSPECT_TAG := "ENEMIGO"
 
 @export var name: String
-@export var hp: int
+@export var hp: float
 @export var speed: int
 @export var reward: int
 # Vida que quita a la estación al llegar al final del camino.

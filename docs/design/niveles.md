@@ -177,20 +177,17 @@ Lo que sobresale del área queda tapado por las barras, que son opacas.
 
 `Grid.setup(logic_map)` recorre las casillas usadas de `LogicMap` y lee el dato personalizado `kind` de cada tile:
 
-- `"path"`: se guarda en `path_cells`.
 - `"slot"`: se guarda en `slot_cells`.
-- cualquier otro valor (el tileset define también `"scenery"`): no se guarda.
+- cualquier otro valor (`"path"` y `"scenery"`, que define el tileset): no se guarda.
 
 Funciones:
 
 - `can_build(c)`: la casilla es `slot` y no tiene torre.
 - `register_tower(c, t)`: apunta la torre y la borra del registro cuando el nodo sale del árbol.
 - `cell(p)` y `center(c)`: conversión entre posición global y casilla.
-- `get_kind(c)`: devuelve `"path"`, `"slot"` o `"scenery"`.
 
 ## Dudas
 
-- `Grid.get_kind` y `Grid.path_cells` no se usan fuera de `Grid`.
 - `tileset.tres` declara una capa de datos `buildable` (bool) que ningún script lee.
 - Solo la `VisualMap` de los niveles 5 y 6 tiene script y datos de generación; el resto de capas y mapas no.
 - En el nivel 6 hay un planeta de torre en la casilla (15, 9), debajo de la estación.
@@ -199,4 +196,3 @@ Funciones:
 - `resources/level_data/level_5.tres` existe y tiene el mismo contenido que el subrecurso de `GameData.tscn`, pero `GameData` no lo usa.
 - En los niveles 2, 5 y 6 el mapa tiene más caminos de los que usa la oleada.
 - Los mapas (como mucho unos 480x272) no llenan el área de juego de 704x540: alrededor se ve el fondo de espacio, y los enemigos aparecen y desaparecen en el borde del mapa.
-- Hay archivos temporales del editor en `scenes/` (`Level.tscn*.tmp`, `MainMenu.tscn*.tmp`).

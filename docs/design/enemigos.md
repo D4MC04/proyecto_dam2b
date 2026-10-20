@@ -69,7 +69,3 @@ Según la dirección del último movimiento reproduce `right`, `left`, `down` o 
 - Grupo `enemies`: lo consultan `Beam` y `Chain` para buscar objetivos.
 - Las torres lo detectan por el `Area2D` y leen `get_remaining_distance()` (longitud del camino - `progress`), `hp` y `global_position`.
 - `FocusBeam` modifica directamente `sprite.modulate` y llama a `_rest_color()`.
-
-## Dudas
-
-- `EnemyData.hp` está declarado como `int`, pero varios `.tres` guardan el valor con decimales (`360.0`) y `Enemy.hp` es `float`.
