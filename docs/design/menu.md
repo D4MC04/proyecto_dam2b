@@ -36,7 +36,7 @@ Todos son `Node2D` que dibujan o crean sprites por código, con posiciones y tie
 | `Satellites` | `scripts/main_menu/Satellites.gd` | Un satélite cada vez, a 20-30 px/s y girando despacio; el siguiente sale entre 8 y 15 s después de irse el anterior |
 | `Planets` | instancias de `scenes/SpaceBody.tscn` | 6 planetas animados fijos, repartidos por los 960x540 (posiciones proporcionales a las que tenían en 640x272, con sus escalas), y un asteroide oculto |
 
-`scripts/main_menu/SpaceBody.gd` es un `AnimatedSprite2D` con `@tool` que construye su `SpriteFrames` a partir de `sheet`, una tira horizontal de frames cuadrados (lado = alto de la imagen), a la velocidad `fps`. Lo usan los planetas del menú y los asteroides.
+`scripts/main_menu/SpaceBody.gd` (clase `SpaceBody`) es un `AnimatedSprite2D` con `@tool` que construye su `SpriteFrames` a partir de `sheet`, una tira horizontal de frames cuadrados (lado = alto de la imagen), a la velocidad `fps`. Lo usan los planetas del menú y los asteroides.
 
 ## Música
 
@@ -85,4 +85,4 @@ Los deslizadores van de 0 a 1 en pasos de 0,05 (colores de la paleta en `menu_th
 - El fundido está escrito dos veces: en `MainMenu._transition` (título y selección de nivel) y en `OptionsMenu._fade`.
 - El deslizador "Efectos" no cambia nada audible mientras no haya sonidos en el bus `SFX`.
 - Pantalla completa y VSync no tienen efecto si el juego se ejecuta incrustado en el editor de Godot; hay que ejecutarlo en su propia ventana.
-- Los scripts de `scripts/main_menu/` tienen variables sin tipo y nombres en español (`_actualizar`), al contrario de lo que pide `CLAUDE.md`. `MainMenu.gd` tiene funciones sin tipo de retorno.
+- `MainMenu.gd` tiene funciones sin tipo de retorno.
