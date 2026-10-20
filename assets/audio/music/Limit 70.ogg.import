@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://c45tskuvf61lr"
+path="res://.godot/imported/Limit 70.ogg-c08ed2f8f15b6bb7e00b9a8fea8b0326.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/music/Limit 70.ogg"
+dest_files=["res://.godot/imported/Limit 70.ogg-c08ed2f8f15b6bb7e00b9a8fea8b0326.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
