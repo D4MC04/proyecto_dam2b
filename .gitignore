@@ -15,3 +15,8 @@ Thumbs.db
 
 # Claude Code: ajustes personales (.claude/settings.json sí se commitea)
 .claude/settings.local.json
+# Trailer (escena de demo y vídeo)
+trailer/
+
+# Archivos temporales que deja el editor de Godot
+*.tmp
