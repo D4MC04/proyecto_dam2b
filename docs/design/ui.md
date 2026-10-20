@@ -78,6 +78,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
   - Cabecera fija: `IconPad` (todo el ancho útil, 42 px de alto) con el icono a escala 1 centrado (cabe el Spikey de 34x34), fondo `#060b14` con una rejilla de puntos `#14304a` cada 4 px y esquinas de 4 px en el color de acento (se pinta en el `draw` de `IconPad`); `NameLabel` con el nombre en `#befaff`, en mayúsculas y partido por palabras en líneas de 18 caracteres, 2 como mucho (una palabra más larga se corta con guion: "Disinteg-rator"), con alto fijo de 2 líneas para que la cabecera mida siempre lo mismo; y `TypeTag` con la etiqueta del tipo (de ataque en las torres, "ENEMIGO" en los enemigos) en el color de acento sobre el fondo mezclado al 20 % con el acento. El nombre se pasa a mayúsculas ("CAÑÓN DOBLE", "LÁSER").
   - `StatScroll`: `ScrollContainer` vertical (sin barra visible, como los de la barra derecha) con las filas de stat, una línea `#1c4a60` y la descripción en `#5a7a96` con salto de línea automático (la línea y la descripción se ocultan si no hay descripción). La cabecera no entra en el scroll. Al cambiar de ficha vuelve arriba.
   - Cada fila la crea `StatRow.create(entry, index)` (ver abajo).
+  - `SellButton`: botón del tema (esquinas recortadas) al final de `DetailView`, "Vender (+X€)". Solo se ve con una torre colocada seleccionada: `show_sellable(tower)` (null lo oculta), conectado a `LevelState.sellable_tower_changed`. Emite `sell_requested`; `LevelUI._on_sell_requested` llama a `LevelState.sell_selected_tower()` solo en `PLAYING`. Ver [torres.md](torres.md).
 - `ScanFlash`: `ColorRect` cian al 20 % que tapa `Screen` durante 2 frames cada vez que cambia el contenido.
 
 `show_inspected(data: Resource)`: con un `InspectableData` pinta lo que da el contrato común; con null (o cualquier otra cosa), el reposo. La ficha no distingue torres de enemigos ni sabe qué stats existen: crea una fila por cada `StatEntry` que recibe.
@@ -307,6 +308,8 @@ Opciones "Siguiente nivel" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción qu
 | `LevelState` | `money_changed` | `Sidebar.set_money` |
 | `LevelState` | `selected_tower_changed` | `Sidebar.show_selected` |
 | `LevelState` | `inspected_changed` | `InfoPanel.show_inspected` |
+| `LevelState` | `sellable_tower_changed` | `InfoPanel.show_sellable` |
+| `InfoPanel` | `sell_requested` | `LevelUI._on_sell_requested` (`LevelState.sell_selected_tower`) |
 | `Spawner` | `wave_started` | `LevelUI._on_wave_started` (`Sidebar.set_current_wave`, controles y pie) |
 | `Spawner` | `wave_cleared` | `LevelUI._on_wave_cleared` (`Sidebar.view_wave` a la siguiente, controles y pie) |
 | `Spawner` | `auto_waves_changed` | `Sidebar.show_auto_waves` |
