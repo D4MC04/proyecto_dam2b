@@ -11,7 +11,7 @@
 | 6 | Dices "commitea" (o "sube") | Pasa el `probador`, hace el commit, lo sube directo a main y borra la rama del ticket. Así cualquiera que descargue `main` lo abre sin errores. Solo hace PR si lo pides |
 | 7 | — (no haces `git pull`) | El chat central deja tu `main` local al día y solo queda `main`. Después te pregunta si archiva el chat del ticket. Archivar no borra nada del proyecto y el chat se puede recuperar desde Archivados |
 
-Ir más rápido: con varios tickets aceptados que no chocan (`/tickets` lo dice), súbelos a main y pide "abre sesiones en worktree para X e Y": un chat por ticket, cada uno en su copia del proyecto. En cada uno, `/hacer`. Los worktrees salen de lo commiteado en main: tickets sin commitear no los ven.
+Ir más rápido: al aceptar tickets, Claude empieza solo, sin preguntar: sube el cambio de `Estado:` a main (los worktrees salen de lo que hay en main) y abre un chat con worktree por cada ticket que no choque con otro, ya con `/hacer`. Los que chocan esperan a que el anterior esté en main.
 
 **`/new`**: abre el chat central (Opus, en la carpeta principal, sobre `main`) y archiva el chat donde lo escribiste. El chat central propone y reparte tickets, revisa lo que suben y mantiene `main` local actualizado. Los chats de ticket van en worktree y no pueden tocar la carpeta principal, por eso lo hace él.
 

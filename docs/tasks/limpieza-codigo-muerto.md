@@ -1,6 +1,6 @@
 # Limpieza: código que no se usa y detalles pequeños
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: haiku
 Esfuerzo recomendado: low
 

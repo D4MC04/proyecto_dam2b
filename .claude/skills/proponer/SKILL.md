@@ -26,4 +26,4 @@ Si hay tickets en `Estado: propuesta`, termina con la herramienta AskUserQuestio
 - Una opción por ticket propuesto. Etiqueta: el nombre del ticket. Descripción: qué aporta en una frase, el modelo, el esfuerzo y su tanda.
 - Máximo 4 opciones por pregunta: si hay más tickets, usa varias preguntas (hasta 4) agrupadas por tanda.
 - Los que marque pasan a `Estado: aceptada` (solo cambias esa línea). Los no marcados se quedan como están.
-- Después ofrece subirlos a main y abrir un chat con worktree por cada ticket aceptado que no choque con otro.
+- Si marca alguno, no preguntes más: sigue "Aceptar es la orden de empezar" de CLAUDE.md (subir el `Estado:` a main y abrir ya los chats con worktree).

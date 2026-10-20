@@ -28,7 +28,11 @@
 - Guía completa para el usuario: docs/CLAUDE-CODE.md. Formato de ticket: docs/tasks/_plantilla.md.
 - `/proponer` crea tickets con `Estado: propuesta`. Solo se implementan los `Estado: aceptada`, con `/hacer nombre`.
 - Cada ticket en su rama `ticket/nombre` desde main. Nunca trabajar en main.
-- Un ticket nuevo (`/proponer`) o aceptado (`/tickets`) solo cambia la línea `Estado:`; no se sube nada sin visto bueno.
+- Un ticket nuevo (`/proponer`) solo cambia la línea `Estado:`; no se sube nada sin visto bueno.
+- **Aceptar es la orden de empezar** (casillas o "acepto X"), sin esperar otro visto bueno:
+  1. Commit en `main` solo del cambio de `Estado:` de los `docs/tasks/` (única excepción a no trabajar en main; sin probador) y `git push origin main`. Si `origin/main` avanzó, antes `git pull --ff-only`.
+  2. Enseguida, un chat con worktree (`start_session`, `user_asked`) por cada ticket aceptado de la primera tanda que no choque con otro, con `/hacer nombre` y su modelo y esfuerzo.
+  3. Los que chocan esperan a que el anterior esté en main; el chat central los lanza al recibir el aviso de subida.
 - **Subir a main** (tras el visto bueno: "sube", "va bien", "listo", "commitea"; sin preguntar más ni hacer PR, salvo que el usuario lo pida). `main` de GitHub tiene que poder descargarse y abrirse sin errores, así que antes de subir:
   1. Pasar el agente `probador` (OK) y `git fetch origin`; si `origin/main` avanzó, traerlo a la rama y volver a probar. Nunca `--force`.
   2. Commit en la rama del ticket y `git push origin <rama>:main`.

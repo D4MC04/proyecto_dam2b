@@ -1,6 +1,6 @@
 # Reubicar el botón "Borrar progreso" en Opciones
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: low
 

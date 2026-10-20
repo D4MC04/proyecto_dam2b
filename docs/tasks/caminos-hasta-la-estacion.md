@@ -1,6 +1,6 @@
 # Que los enemigos lleguen hasta la estación
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 

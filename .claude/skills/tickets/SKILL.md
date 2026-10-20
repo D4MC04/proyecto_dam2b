@@ -6,7 +6,7 @@ disable-model-invocation: true
 allowed-tools: Read, Glob, Grep, Edit, AskUserQuestion
 ---
 
-Lista los tickets pendientes. No modifiques ningún archivo, salvo la línea `Estado:` de los tickets que el usuario acepte en las casillas.
+Lista los tickets pendientes. No modifiques ningún archivo, salvo la línea `Estado:` de los tickets que el usuario acepte en las casillas (y luego súbela y arráncalos, ver abajo).
 
 1. Lee todos los `docs/tasks/*.md` menos `_plantilla.md`.
 2. Devuelve una tabla: ticket (nombre del archivo sin `.md`), estado, modelo recomendado, esfuerzo recomendado, archivos que toca (de la sección "Archivos que toca", sin contar `docs/`).
@@ -19,7 +19,7 @@ Lista los tickets pendientes. No modifiques ningún archivo, salvo la línea `Es
 Termina con una línea con el comando que toca:
 - Sin tickets aceptados → aceptar alguno ("acepto X") o `/proponer`.
 - Uno aceptado → `/hacer X` con el modelo y el esfuerzo que pone el ticket.
-- Varios aceptados que no chocan → "abre sesiones en worktree para X e Y" y `/hacer` en cada una. Antes, los tickets tienen que estar commiteados en main.
+- Varios aceptados que no chocan → los arrancas tú como dice "Aceptar es la orden de empezar" en CLAUDE.md.
 - Hay tanda propuesta sin aceptar → las casillas de abajo.
 
 ## Aceptar con casillas
@@ -28,4 +28,4 @@ Si hay tickets en `Estado: propuesta`, termina con la herramienta AskUserQuestio
 - Máximo 4 opciones por pregunta: si hay más tickets, usa varias preguntas (hasta 4) agrupadas por tanda.
 - Los que marque pasan a `Estado: aceptada` (solo cambias esa línea). Los no marcados se quedan como están.
 - Si no marca ninguno, no cambies nada.
-- Después ofrece subirlos a main y abrir un chat con worktree por cada ticket aceptado que no choque con otro.
+- Si marca alguno, no preguntes más: sigue "Aceptar es la orden de empezar" de CLAUDE.md (subir el `Estado:` a main y abrir ya los chats con worktree).
