@@ -143,10 +143,11 @@ func _get_target() -> Enemy:
 func _best_enemy() -> Enemy:
 	enemies_in_range = enemies_in_range.filter(func(e): return is_instance_valid(e))
 	var best: Enemy = null
-	var best_progress: float = -INF
+	var best_remaining: float = INF
 	for enemy in enemies_in_range:
-		if enemy.progress > best_progress:
-			best_progress = enemy.progress
+		var remaining := enemy.get_remaining_distance()
+		if remaining < best_remaining:
+			best_remaining = remaining
 			best = enemy
 	return best
 

@@ -42,6 +42,10 @@ func _process(delta):
 		reached_end.emit(data.base_damage)
 		queue_free()
 
+# Distancia que le falta para llegar al final de su camino.
+func get_remaining_distance() -> float:
+	return (get_parent() as Path2D).curve.get_baked_length() - progress
+
 func _update_animation():
 	var direction := global_position - _last_position
 	_last_position = global_position

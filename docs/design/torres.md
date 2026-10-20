@@ -35,7 +35,7 @@ Si la opción `show_tower_range` de `Settings` está activada, `_draw` pinta el 
 ### Objetivo
 
 - `enemies_in_range` se mantiene con las señales `area_entered` y `area_exited` del detector.
-- `_get_target()` conserva el objetivo mientras siga vivo y dentro del rango. Si no, elige el enemigo con mayor `progress`.
+- `_get_target()` conserva el objetivo mientras siga vivo y dentro del rango. Si no, elige el enemigo al que menos le falta para llegar a la estación (`Enemy.get_remaining_distance()`), aunque esté en otro camino.
 
 ### Apuntado
 
@@ -146,5 +146,4 @@ Recursos en `resources/turret_data/`:
 - `Tower.fit_to_tile` no se llama desde ningún sitio.
 - No hay forma de mejorar una torre colocada.
 - `disintegrator.tres` tiene `attack_cooldown = 1.0`, que el código no usa para esa torre.
-- El objetivo se elige por `progress`, que es la distancia recorrida en su propio camino; en mapas con varios caminos de distinta longitud no equivale a "el más cerca del final".
 - El nombre de archivo `rocket_launcher` corresponde a la torre que se llama "Cañón pesado", y `turret` a "Cañón doble". La carpeta es `turret_data` y la clase `TowerData`.

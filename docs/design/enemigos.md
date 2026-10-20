@@ -67,7 +67,7 @@ Según la dirección del último movimiento reproduce `right`, `left`, `down` o 
 
 - Señales `died(reward)` y `reached_end(damage)`: las recoge `Spawner` y las reenvía a `Level` (dinero y derrota).
 - Grupo `enemies`: lo consultan `Beam` y `Chain` para buscar objetivos.
-- Las torres lo detectan por el `Area2D` y leen `progress`, `hp` y `global_position`.
+- Las torres lo detectan por el `Area2D` y leen `get_remaining_distance()` (longitud del camino - `progress`), `hp` y `global_position`.
 - `FocusBeam` modifica directamente `sprite.modulate` y llama a `_rest_color()`.
 
 ## Dudas
