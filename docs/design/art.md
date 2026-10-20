@@ -68,6 +68,8 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 | Ratón encima | `#1c5d6d` (`#081626` mezclado al 35 % con `#40e0f0`) | `#40e0f0` | `#befaff` |
 | Pulsado | `#144252` (mezclado al 22 %) | `#40e0f0` | `#befaff` |
 | Desactivado | `#060b14` | `#1c4a60` | `#5a7a96` |
+| `DangerButton` normal | `#081626` | `#ff3c5a` | `#ff3c5a` |
+| `DangerButton` ratón encima / armado | `#961432` | `#ff3c5a` | `#ffaabe` |
 
   Los interruptores de Opciones (variación de tema `ToggleButton`) usan el relleno del ratón encima cuando están en ON y el normal en OFF.
 

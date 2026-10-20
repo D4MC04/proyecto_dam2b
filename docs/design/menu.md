@@ -66,9 +66,8 @@ Es el único audio del juego: todavía no hay efectos de sonido, así que nada s
 | PANTALLA | Botón "VSync" | `vsync` |
 | PANTALLA | Botón "Mostrar FPS" | `show_fps` |
 | JUEGO | Botón "Rango de torres" | `show_tower_range` |
-| JUEGO | Botón "Borrar progreso" | Ninguna: llama a `GameState.reset_progress()` |
 
-"Borrar progreso" es un botón normal (no interruptor). La primera pulsación cambia su texto a "¿Seguro? Pulsa otra vez" durante `CONFIRM_TIME` (3 s); si se pulsa de nuevo en ese tiempo (cada aviso lleva un número, así que el temporizador de un aviso anterior no cancela el nuevo), `GameState.reset_progress()` vuelve `current_level` a 1, guarda y emite `progress_reset`, y el menú principal reconstruye los botones de nivel. Pasados los 3 s sin pulsar, el texto vuelve a "Borrar".
+"Borrar progreso" no es un ajuste: es un botón propio (204x30, variación de tema `DangerButton`: borde y texto `#ff3c5a`, y en hover relleno `#961432` con texto `#ffaabe`), centrado debajo de las columnas y encima de "Volver". No guarda ninguna opción: llama a `GameState.reset_progress()`. La primera pulsación cambia su texto a "¿Seguro?" y lo deja relleno de rojo (armado) durante `CONFIRM_TIME` (3 s); el ancho es fijo, así que ni el botón ni el panel cambian de tamaño. Si se pulsa de nuevo en ese tiempo (cada aviso lleva un número, así que el temporizador de un aviso anterior no cancela el nuevo), `GameState.reset_progress()` vuelve `current_level` a 1, guarda y emite `progress_reset`, y el menú principal reconstruye los botones de nivel. Pasados los 3 s sin pulsar, vuelve a "Borrar progreso". Se oculta cuando Opciones se abre desde la pausa (`open_from(opener, allow_reset = false)`).
 
 Los deslizadores (96x12, tirador de 5x11) van de 0 a 1 en pasos de 0,05 (colores de la paleta en `menu_theme.tres`, ver [art.md](art.md)). Los botones son interruptores de 54x24 (texto a 24) con la variación de tema `ToggleButton`: en ON van rellenos de cian (como el ratón encima) y muestran "ON"; en OFF van con el estilo normal y muestran "OFF". Al abrirse, cada control toma su valor de `Settings`; cada cambio llama a `Settings.set_value`.
 

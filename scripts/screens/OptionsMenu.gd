@@ -4,6 +4,7 @@ extends Control
 const FADE_TIME := 0.25
 # Segundos que dura el aviso "¿Seguro?" antes de cancelarse solo.
 const CONFIRM_TIME := 3.0
+const RESET_TEXT := "Borrar progreso"
 
 # Panel desde el que se abrió y al que vuelve "Volver" (título o menú de pausa).
 var _opener: Control
@@ -45,7 +46,8 @@ func _on_reset_progress_button_pressed() -> void:
 	if not _confirming_reset:
 		_confirming_reset = true
 		_confirm_id += 1
-		_reset_button.text = "¿Seguro? Pulsa otra vez"
+		_reset_button.text = "¿Seguro?"
+		_set_reset_armed(true)
 		get_tree().create_timer(CONFIRM_TIME).timeout.connect(_expire_reset_confirmation.bind(_confirm_id))
 		return
 	GameState.reset_progress()
@@ -58,13 +60,26 @@ func _expire_reset_confirmation(id: int) -> void:
 
 func _cancel_reset_confirmation() -> void:
 	_confirming_reset = false
-	_reset_button.text = "Borrar"
+	_reset_button.text = RESET_TEXT
+	_set_reset_armed(false)
+
+# Armado: el botón se ve relleno de rojo como en hover.
+func _set_reset_armed(armed: bool) -> void:
+	if armed:
+		_reset_button.add_theme_stylebox_override("normal", _reset_button.get_theme_stylebox("hover"))
+		_reset_button.add_theme_color_override("font_color", _reset_button.get_theme_color("font_hover_color"))
+	else:
+		_reset_button.remove_theme_stylebox_override("normal")
+		_reset_button.remove_theme_color_override("font_color")
 
 func _update_toggle_text(button: Button) -> void:
 	button.text = "ON" if button.button_pressed else "OFF"
 
-func open_from(opener: Control) -> void:
+# allow_reset: false desde la pausa, donde borrar el progreso a mitad de un nivel no tiene sentido.
+func open_from(opener: Control, allow_reset: bool = true) -> void:
 	_opener = opener
+	_reset_button.visible = allow_reset
+	_cancel_reset_confirmation()
 	_fade(opener, self)
 
 # Vuelve al panel de origen sin fundido, por ejemplo al cerrar la pausa con Escape.

@@ -59,7 +59,7 @@ func _on_visibility_changed() -> void:
 
 func _on_option_chosen(option: Option) -> void:
 	if option == Option.SETTINGS:
-		options_menu.open_from(center)
+		options_menu.open_from(center, false)
 
 func _set_folded(folded: bool) -> void:
 	_folded = folded
