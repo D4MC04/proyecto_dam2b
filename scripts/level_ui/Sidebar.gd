@@ -14,6 +14,9 @@ signal fast_speed_toggled(enabled: bool)
 ## Estado de la oleada que enseña el pie; lo decide LevelUI.
 enum WaveStatus { READY, IN_PROGRESS, COMPLETE }
 
+# Torres con atajo de teclado (1-7), en el orden de la rejilla.
+const TOWER_SHORTCUT_COUNT := 7
+
 const TOWER_BUTTON: PackedScene = preload("res://scenes/level_ui/TowerButton.tscn")
 
 const WAVE_BLOCK: PackedScene = preload("res://scenes/level_ui/WaveBlock.tscn")
@@ -110,6 +113,11 @@ func build_buttons(towers: Array[TowerData]) -> void:
 		button.selection_changed.connect(_on_button_selection_changed)
 		button.inspect_requested.connect(inspect_requested.emit)
 		_buttons.append(button)
+
+## Pulsa el botón de torre número `index` (desde 0) como un clic; no hace nada si no existe.
+func press_tower_button(index: int) -> void:
+	if index < _buttons.size():
+		_buttons[index].pressed.emit()
 
 func set_money(amount: int) -> void:
 	_money = amount
