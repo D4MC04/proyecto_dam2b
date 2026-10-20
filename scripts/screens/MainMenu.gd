@@ -15,8 +15,11 @@ func _ready() -> void:
 		main_panel.hide()
 		level_selection_panel.show()
 	_build_level_buttons()
+	GameState.progress_reset.connect(_build_level_buttons)
 
 func _build_level_buttons() -> void:
+	for child in level_buttons_container.get_children():
+		child.queue_free()
 	var unlocked: int = 0
 	for i in GameData.levels.size():
 		var button := LevelButton.new()

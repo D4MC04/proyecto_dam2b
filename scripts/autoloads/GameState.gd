@@ -4,6 +4,8 @@ extends Node
 const PATH := "user://progress.cfg"
 const SECTION := "progress"
 
+signal progress_reset
+
 # Número (desde 1) del nivel más alto desbloqueado.
 var current_level: int = 1
 
@@ -27,6 +29,15 @@ func complete_level(number: int) -> void:
 	if number != current_level or number >= GameData.levels.size():
 		return
 	current_level += 1
+	_save()
+
+# Vuelve al nivel 1, guarda y avisa para que el menú de niveles se reconstruya.
+func reset_progress() -> void:
+	current_level = 1
+	_save()
+	progress_reset.emit()
+
+func _save() -> void:
 	var file := ConfigFile.new()
 	file.set_value(SECTION, "current_level", current_level)
 	if file.save(PATH) != OK:

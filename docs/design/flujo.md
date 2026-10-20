@@ -7,13 +7,13 @@ Definidos en `project.godot`, en este orden:
 | Nombre | Origen | Qué guarda |
 |---|---|---|
 | `GameData` | `scenes/GameData.tscn` + `scripts/autoloads/GameData.gd` | `levels: Array[LevelData]`, la lista de niveles del juego |
-| `GameState` | `scripts/autoloads/GameState.gd` | `current_level: int` (número, desde 1, del nivel más alto desbloqueado; empieza en 1), `is_unlocked(i)` (`i < current_level`), `is_completed(i)` (`i < current_level - 1`) y `complete_level(number)`; `i` es el índice desde 0 en `GameData.levels` |
+| `GameState` | `scripts/autoloads/GameState.gd` | `current_level: int` (número, desde 1, del nivel más alto desbloqueado; empieza en 1), `is_unlocked(i)` (`i < current_level`), `is_completed(i)` (`i < current_level - 1`) y `complete_level(number)` y `reset_progress()` (vuelve a 1, guarda y emite la señal `progress_reset`); `i` es el índice desde 0 en `GameData.levels` |
 | `Settings` | `scripts/autoloads/Settings.gd` | Las opciones del jugador, guardadas en `user://settings.cfg`; ver [menu.md](menu.md) |
 | `MusicManager` | `scripts/autoloads/MusicManager.gd` | La música; ver [menu.md](menu.md) |
 
 `GameData.levels` tiene 6 entradas. Su contenido está en [niveles.md](niveles.md).
 
-`GameState` carga `current_level` de `user://progress.cfg` (`ConfigFile`, sección `progress`; solo acepta un entero >= 1) y lo guarda en `complete_level`. `Settings` guarda las opciones en su propio archivo.
+`GameState` carga `current_level` de `user://progress.cfg` (`ConfigFile`, sección `progress`; solo acepta un entero >= 1) y lo guarda en `complete_level` y `reset_progress`. `Settings` guarda las opciones en su propio archivo.
 
 ## Escena Game
 
@@ -61,6 +61,5 @@ Tanto `MainMenu._open_level` como `Game._quit_to_menu` cambian de escena a mano 
 
 ## Dudas
 
-- No hay botón "Borrar progreso" en Opciones: de momento hay que borrar `user://progress.cfg` a mano.
 - `GameState.is_completed` no se llama desde ningún sitio.
 - `project.godot` tiene `config/name="DAM_Game"`; el título que muestra el menú es "ASTRO ARTILLERY".

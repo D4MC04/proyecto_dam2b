@@ -212,6 +212,19 @@ theme_type_variation = &"ToggleButton"
 toggle_mode = true
 text = "OFF"
 
+[node name="ResetProgressLabel" type="Label" parent="Center/Frame/Margin/Box/Sections/RightColumn/GameGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 16
+text = "Borrar progreso"
+
+[node name="ResetProgressButton" type="Button" parent="Center/Frame/Margin/Box/Sections/RightColumn/GameGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(36, 16)
+layout_mode = 2
+size_flags_horizontal = 8
+text = "Borrar"
+
 [node name="BackButton" type="Button" parent="Center/Frame/Margin/Box"]
 custom_minimum_size = Vector2(136, 24)
 layout_mode = 2
@@ -225,4 +238,5 @@ theme_override_colors/font_color = Color(0.165, 0.549, 0.698, 1)
 theme_override_font_sizes/font_size = 16
 text = "CONFIGURACIÓN"
 
+[connection signal="pressed" from="Center/Frame/Margin/Box/Sections/RightColumn/GameGrid/ResetProgressButton" to="." method="_on_reset_progress_button_pressed"]
 [connection signal="pressed" from="Center/Frame/Margin/Box/BackButton" to="." method="_on_back_button_pressed"]
