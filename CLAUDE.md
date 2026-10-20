@@ -28,8 +28,15 @@
 - Guía completa para el usuario: docs/CLAUDE-CODE.md. Formato de ticket: docs/tasks/_plantilla.md.
 - `/proponer` crea tickets con `Estado: propuesta`. Solo se implementan los `Estado: aceptada`, con `/hacer nombre`.
 - Cada ticket en su rama `ticket/nombre` desde main. Nunca trabajar en main.
-- Subir a main: cuando el usuario da el visto bueno ("sube", "va bien", "listo", "commitea"), hacerlo sin preguntar más: commit en la rama del ticket y `git push origin <rama>:main` (avance rápido; si main avanzó, primero traer `origin/main` a la rama, nunca `--force`). Solo hacer PR si el usuario lo pide. Los tickets propuestos o aceptados que estén sin commitear también se suben cuando el usuario lo dice.
 - Un ticket nuevo (`/proponer`) o aceptado (`/tickets`) solo cambia la línea `Estado:`; no se sube nada sin visto bueno.
+- **Subir a main** (tras el visto bueno: "sube", "va bien", "listo", "commitea"; sin preguntar más ni hacer PR, salvo que el usuario lo pida). `main` de GitHub tiene que poder descargarse y abrirse sin errores, así que antes de subir:
+  1. Pasar el agente `probador` (OK) y `git fetch origin`; si `origin/main` avanzó, traerlo a la rama y volver a probar. Nunca `--force`.
+  2. Commit en la rama del ticket y `git push origin <rama>:main`.
+  3. Borrar la rama remota del ticket: `git push origin --delete <rama>`.
+  4. Dejar lo local en solo `main`: el chat que trabaja en la carpeta principal hace `git fetch --prune`, `git pull --ff-only` (si hay cambios locales sin commitear que lo bloquean, no descartarlos: avisar), `git branch -d <rama>` (solo con `-d`, nunca borra ramas sin fusionar) y `git worktree prune`. Un chat en worktree no puede tocar la carpeta principal: avisa al chat central de que subió y este hace el paso 4; si el chat entró con `EnterWorktree`, sale con `ExitWorktree` (`remove`) y lo hace él.
+  5. Preguntar si archiva el chat del ticket (ver abajo).
+- **Chat central** (se abre con `/new`): trabaja en la carpeta principal sobre `main`, en Opus. Propone y reparte tickets en chats con worktree, revisa lo que suben y hace el paso 4 de "Subir a main" para que el usuario nunca tenga que hacer `git pull` a mano. Cada vez que arranca o recibe un aviso de subida, deja `main` local al día.
+- `/new`: crea el chat central y archiva el chat donde se escribió (se puede recuperar desde Archivados).
 - Para probar, usar el agente `probador`. Antes de commitear o subir, `/revisar` (prueba, revisa y mira conflictos con main).
 - Avisar al usuario de qué comando toca, al final de la respuesta, en una línea:
   - Pregunta qué tickets quedan o cuáles se pueden hacer a la vez → `/tickets`.
