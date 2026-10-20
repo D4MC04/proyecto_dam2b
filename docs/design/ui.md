@@ -173,7 +173,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
 `StationBox` (dentro de `StationMargin`, `MarginContainer` con 4 px a cada lado como el pie, al final de `Content` y justo encima del pie, así que se ve en Torres y en Oleadas): "ESTACIÓN" a 16 y debajo `StationBar` (`ProgressBar` de 8 px de alto, sin porcentaje) con `StationValueLabel` `actual/máximo` a su derecha. Fondo de la barra `#0e1626` con borde `#1c4a60`; relleno `#40e0f0`. Con menos del 30 % de vida (`Sidebar.STATION_DANGER_FRACTION`) relleno y número pasan al rojo de peligro `#ff3c5a`.
 
-- `Sidebar.set_station_health(current, maximum)`: lo único que toca la barra.
+- `Sidebar.set_station_health(current, maximum)`: lo único que toca la barra. Si la vida baja respecto a la anterior (la primera llamada no cuenta), relleno y número parten del rojo de peligro y vuelven a su color en `STATION_HIT_TIME` (0,3 s).
 - `LevelUI.setup(..., base)` conecta `Base.health_changed` a `set_station_health` y la pone con la vida inicial. `Game` pasa `level.base`; como la base es nueva en cada nivel o reinicio, no hay conexión anterior que quitar.
 
 ## UiFormat

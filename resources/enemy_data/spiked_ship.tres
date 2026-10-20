@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://do62ihbnaitnl" path="res://scripts/resources/EnemyData.gd" id="1_data"]
 [ext_resource type="Shape2D" path="res://resources/collision_shapes/spiked_ship.tres" id="2_shape"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/spiked_ship.tres" id="3_frames"]
-[ext_resource type="AudioStream" path="res://assets/audio/effects/SpaceShips/SpikedUFO/SpikedUFO.wav" id="death_sound"]
 
 [resource]
 script = ExtResource("1_data")
@@ -15,5 +14,4 @@ base_damage = 10
 description = "Nave con pinchos. Lenta, pero muy robusta."
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
-death_sound = ExtResource("death_sound")
 metadata/_custom_type_script = "uid://do62ihbnaitnl"

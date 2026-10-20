@@ -47,7 +47,8 @@ Según la dirección del último movimiento reproduce `right`, `left`, `down` o 
 
 - `take_damage(amount)` resta vida; con vida <= 0 llama a `die()`.
 - `die()` emite `died(data.reward)`, reproduce `data.death_sound` en el bus `SFX` y libera el nodo. El `AudioStreamPlayer` se crea como hijo del padre (el `Path2D`) porque el enemigo se libera enseguida, y se libera solo al terminar (`finished`). Si llega a la estación (`reached_end`) no suena.
-- Sonidos en `assets/audio/effects/SpaceShips/`: los 4 `dart_*` comparten `DartShip.wav`; el resto usa el de su carpeta.
+- Decidido: las naves no suenan al morir (el usuario lo pidió: sonaba demasiado fuerte y tapaba el resto). Las 12 `resources/enemy_data/*.tres` ya no asignan `death_sound`, así que `_play_death_sound()` no hace nada. El campo `death_sound` de `EnemyData` y el código siguen por si se quiere volver a poner.
+- Los `.wav` de `assets/audio/effects/SpaceShips/` se quedan en `assets/` sin usar (los 4 `dart_*` compartían `DartShip.wav`).
 
 ### Ralentización
 
