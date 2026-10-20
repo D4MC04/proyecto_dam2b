@@ -23,6 +23,11 @@ const TAB_ACTIVE_BORDER_COLOR := Color("#40e0f0")
 const TAB_HOVER_BORDER_COLOR := Color("#1c7496")
 const TAB_ICON_INACTIVE_COLOR := Color(1, 1, 1, 0.45)
 
+const STATION_BAR_COLOR := Color("#40e0f0")
+const STATION_DANGER_COLOR := Color("#ff3c5a")
+# Por debajo de esta fracción de vida la barra de la estación pasa al color de peligro.
+const STATION_DANGER_FRACTION := 0.3
+
 const CONTROL_HOVER_BG_COLOR := Color("#16243c")
 const CONTROL_DISABLED_BG_COLOR := Color("#0a0f1a")
 const NEXT_BORDER_COLOR := Color("#1c7496")
@@ -59,6 +64,8 @@ const STATUS_COLORS: Dictionary[WaveStatus, Color] = {
 @onready var next_wave_arrow: Button = %NextWaveArrow
 @onready var wave_title_panel: PanelContainer = %WaveTitlePanel
 @onready var wave_title_label: Label = %WaveTitleLabel
+@onready var station_bar: ProgressBar = %StationBar
+@onready var station_value_label: Label = %StationValueLabel
 @onready var footer_wave_label: Label = %FooterWaveLabel
 @onready var footer_status_label: Label = %FooterStatusLabel
 @onready var next_wave_button: Button = %NextWaveButton
@@ -81,6 +88,7 @@ func _ready() -> void:
 		_style_tab(tab)
 	towers_tab.toggled.connect(_on_tab_toggled)
 	_style_wave_controls()
+	station_bar.add_theme_stylebox_override("background", _station_style(TAB_BG_COLOR, TAB_BORDER_COLOR))
 	next_wave_button.pressed.connect(next_wave_requested.emit)
 	auto_wave_button.toggled.connect(auto_waves_toggled.emit)
 	prev_wave_arrow.pressed.connect(func() -> void: view_wave(_viewed_wave - 1))
@@ -104,6 +112,23 @@ func set_money(amount: int) -> void:
 	money_label.text = UiFormat.money(amount)
 	for b in _buttons:
 		b.set_money(amount)
+
+## Enseña la vida de la estación; con menos del 30 % la barra cambia al color de peligro.
+func set_station_health(current: int, maximum: int) -> void:
+	station_bar.max_value = maximum
+	station_bar.value = current
+	station_value_label.text = "%d/%d" % [current, maximum]
+	var danger := current < maximum * STATION_DANGER_FRACTION
+	var color := STATION_DANGER_COLOR if danger else STATION_BAR_COLOR
+	station_bar.add_theme_stylebox_override("fill", _station_style(color, color))
+	station_value_label.add_theme_color_override("font_color", color if danger else NEXT_GLOW_COLOR)
+
+func _station_style(bg: Color, border: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = bg
+	style.set_border_width_all(1)
+	style.border_color = border
+	return style
 
 ## Refleja la selección de LevelState sin volver a emitir tower_selected.
 func show_selected(data: TowerData) -> void:

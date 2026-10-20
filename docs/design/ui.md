@@ -34,7 +34,7 @@ Las dos barras son una tablet: un marco de metal y, dentro, una pantalla oscura.
 
 Funciones de `LevelUI`:
 
-- `setup(state, towers, level_number, spawner, has_next_level)`: oculta la opción `NEXT_LEVEL` de `VictoryScreen` si `has_next_level` es false (`LevelUI` no lee `GameData`; se lo dice `Game`), pasa el número de nivel al `LevelIndicator`, prepara la pestaña Oleadas (ver más abajo), conecta `state.money_changed` a `sidebar.set_money`, `state.selected_tower_changed` a `sidebar.show_selected` y `state.inspected_changed` a `info_panel.show_inspected`, crea los botones de torre, muestra el dinero inicial y pide a la ficha que enseñe `state.inspected` (null en un `LevelState` nuevo, así que al empezar o reiniciar vuelve al escáner). Si había un `LevelState` anterior, desconecta las tres.
+- `setup(state, towers, level_number, spawner, has_next_level, base)`: oculta la opción `NEXT_LEVEL` de `VictoryScreen` si `has_next_level` es false (`LevelUI` no lee `GameData`; se lo dice `Game`), pasa el número de nivel al `LevelIndicator`, prepara la pestaña Oleadas (ver más abajo), conecta la vida de la base (ver "Vida de la estación"), conecta `state.money_changed` a `sidebar.set_money`, `state.selected_tower_changed` a `sidebar.show_selected` y `state.inspected_changed` a `info_panel.show_inspected`, crea los botones de torre, muestra el dinero inicial y pide a la ficha que enseñe `state.inspected` (null en un `LevelState` nuevo, así que al empezar o reiniciar vuelve al escáner). Si había un `LevelState` anterior, desconecta las tres.
 - `_on_tower_selected(data)`: recibe `Sidebar.tower_selected` y escribe `selected_tower` en el `LevelState`. Es el único camino de la barra lateral a la selección.
 - `_on_inspect_requested(data)`: recibe `Sidebar.inspect_requested` y escribe `inspected` en el `LevelState`. Es el único camino a lo inspeccionado.
 
@@ -164,6 +164,13 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 | `COMPLETE` | COMPLETA | `#7fa6b8` | No quedan oleadas por lanzar y la última está limpia |
 
 **Quién decide:** `LevelUI._refresh_wave_controls()` calcula el estado y el número a partir del `Spawner` (`is_clear()`, `has_waves_left()`, `get_wave_index()`) y llama a `Sidebar.set_wave_status(status, wave_number, total)`; la barra solo lo enseña. Se llama al conectar el `Spawner`, en `wave_started` y en `wave_cleared`.
+
+## Vida de la estación
+
+`StationBox` (fila al final de `Content`, justo encima del pie, así que se ve en Torres y en Oleadas): "ESTACIÓN" a 16 y debajo `StationBar` (`ProgressBar` de 8 px de alto, sin porcentaje) con `StationValueLabel` `actual/máximo` a su derecha. Fondo de la barra `#0e1626` con borde `#1c4a60`; relleno `#40e0f0`. Con menos del 30 % de vida (`Sidebar.STATION_DANGER_FRACTION`) relleno y número pasan al rojo de peligro `#ff3c5a`.
+
+- `Sidebar.set_station_health(current, maximum)`: lo único que toca la barra.
+- `LevelUI.setup(..., base)` conecta `Base.health_changed` a `set_station_health` y la pone con la vida inicial. `Game` pasa `level.base`; como la base es nueva en cada nivel o reinicio, no hay conexión anterior que quitar.
 
 ## UiFormat
 
@@ -328,5 +335,4 @@ Opciones "Siguiente nivel" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción qu
 
 ## Dudas
 
-- La interfaz no muestra la vida de la base.
 - El scroll de la ficha no tiene barra visible: en las fichas que no caben (Cryo, Disintegrator) la descripción queda cortada abajo sin otra pista de que se puede bajar.
