@@ -1,6 +1,6 @@
 # Las torres apuntan al enemigo más cerca de la estación
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 
 ## Por qué
