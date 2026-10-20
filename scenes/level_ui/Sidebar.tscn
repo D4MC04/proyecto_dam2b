@@ -9,9 +9,9 @@
 [ext_resource type="PackedScene" path="res://scenes/level_ui/ScreenHeader.tscn" id="7_header"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_credits"]
-content_margin_left = 2.0
+content_margin_left = 4.0
 content_margin_top = 2.0
-content_margin_right = 2.0
+content_margin_right = 4.0
 content_margin_bottom = 2.0
 bg_color = Color(0.13333334, 0.11764706, 0.09803922, 1)
 border_width_left = 1
@@ -69,7 +69,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_credits")
 [node name="CreditsRow" type="HBoxContainer" parent="Content/TowersPage/CreditsHeader"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 2
+theme_override_constants/separation = 4
 
 [node name="CoinMargin" type="MarginContainer" parent="Content/TowersPage/CreditsHeader/CreditsRow"]
 layout_mode = 2
@@ -174,32 +174,38 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="WaveControls" type="HBoxContainer" parent="Content/WavesPage"]
+[node name="WaveControls" type="VBoxContainer" parent="Content/WavesPage"]
 layout_mode = 2
 theme_override_constants/separation = 4
-alignment = 1
 
 [node name="NextWaveButton" type="Button" parent="Content/WavesPage/WaveControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(56, 18)
+custom_minimum_size = Vector2(108, 24)
 layout_mode = 2
+size_flags_horizontal = 4
 focus_mode = 0
 theme_override_font_sizes/font_size = 16
-text = "LANZAR"
+text = "INICIAR"
 
 [node name="AutoWaveButton" type="Button" parent="Content/WavesPage/WaveControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(48, 18)
+custom_minimum_size = Vector2(108, 24)
 layout_mode = 2
+size_flags_horizontal = 4
 focus_mode = 0
 theme_override_font_sizes/font_size = 16
 toggle_mode = true
 text = "AUTO"
 
-[node name="WaveFooter" type="HBoxContainer" parent="Content"]
+[node name="WaveFooter" type="MarginContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_right = 4
+
+[node name="FooterRow" type="HBoxContainer" parent="Content/WaveFooter"]
 layout_mode = 2
 
-[node name="FooterWaveLabel" type="Label" parent="Content/WaveFooter"]
+[node name="FooterWaveLabel" type="Label" parent="Content/WaveFooter/FooterRow"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -208,7 +214,7 @@ theme_override_font_sizes/font_size = 16
 text = "OL. 1/1"
 clip_text = true
 
-[node name="FooterStatusLabel" type="Label" parent="Content/WaveFooter"]
+[node name="FooterStatusLabel" type="Label" parent="Content/WaveFooter/FooterRow"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 16

@@ -13,7 +13,6 @@ name = "Tesla"
 cost = 350
 attack_cooldown = 1.3
 icon = ExtResource("4")
-accent_color = Color(0.8078431, 0.454902, 0.2352941, 1)
 sprite_frames = ExtResource("5")
 attack_range = ExtResource("2")
 cannon = ExtResource("7")

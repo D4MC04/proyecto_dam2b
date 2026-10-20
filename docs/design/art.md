@@ -61,7 +61,7 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 
   Deslizadores (`HSlider`): pista `#081626` con borde `#1c7496`, parte llena `#40e0f0` y tirador de 3x7 en `#befaff` (blanco con el ratón encima). `PanelContainer` del tema: fondo `#0a0f1a` y borde `#1c7496`.
 
-  Las opciones de las pantallas superpuestas son el mismo botón en el acento de su pantalla (fondos y bordes de `#060b14` mezclado con el acento, relleno al 35 % con el ratón encima y texto en el tono claro del acento). Los botones de las barras (pestañas, LANZAR, AUTO, flechas, torres y celdas de enemigo) tienen la misma forma con sus propios colores.
+  Las opciones de las pantallas superpuestas son el mismo botón en el acento de su pantalla (fondos y bordes de `#060b14` mezclado con el acento, relleno al 35 % con el ratón encima y texto en el tono claro del acento). Los botones de las barras (pestañas, INICIAR, AUTO, flechas, torres y celdas de enemigo) tienen la misma forma con sus propios colores.
 
 - **Panel holograma** (pausa, derrota, victoria, y en el menú principal los botones, la selección de nivel y Opciones): no es PNG; lo pinta `OverlayFrame` en código, en píxeles enteros, a partir del acento de cada pantalla (cian `#40e0f0`, rojo `#ff3c5a`, ámbar `#ecb23c`) y de su tono claro (`#befaff`, `#ffaabe`, `#ffe082`). Esquinas de arriba a la izquierda y de abajo a la derecha recortadas 6 px en diagonal. Ver [ui.md](ui.md).
 
@@ -75,7 +75,7 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 | Regla de marcas | `#0a0f1a` mezclado al 50 % |
 | Corchetes de fuera (L de 6 px a 3 px del panel) | tono claro del acento |
 | Pie ("SISTEMA EN ESPERA", "SIN SEÑAL", "MISIÓN CUMPLIDA", "SISTEMA LISTO", "SECTORES X/Y", "CONFIGURACIÓN") | `#0a0f1a` mezclado al 60 % |
-- **Iconos de interfaz** (`assets/ui/`, 16x16, contorno `#0c0e16`, sombreado plano): `tab_towers.png` (torre con metal gris azulado y núcleo cian) y `tab_waves.png` (tres naves moradas con luz roja de motor), los iconos de las pestañas de la barra derecha; `wave_next.png` (doble flecha ▶▶ con la rampa cian del Cañón doble, mitad superior clara y mitad inferior en sombra) y `wave_auto.png` (rayo con la rampa ámbar `#96641e`, `#ecb23c`, `#ffe082`), los controles de la pestaña Oleadas.
+- **Iconos de interfaz** (`assets/ui/`, 16x16, contorno `#0c0e16`, sombreado plano): `tab_towers.png` (cañón de artillería de perfil: base ancha abajo, torreta redonda y cañón largo inclinado hacia arriba a la derecha en pendiente 2:1, en la rampa de metal gris azulado `#343a4a`, `#606a7c`, `#96a2b6`, con un anillo cian cerca de la boca y una mirilla y dos luces cian en `#1c7496`, `#40e0f0`, `#befaff`) y `tab_waves.png` (una sola nave enemiga roja apuntando hacia abajo que ocupa casi todo el icono, alas en flecha y cabina oscura, en `#961432`, `#ff3c5a` y `#ffaabe`, con tres líneas de estela detrás, sin contorno, que se oscurecen al alejarse), los iconos de las pestañas de la barra derecha; `wave_next.png` (doble flecha ▶▶ con la rampa cian del Cañón doble, mitad superior clara y mitad inferior en sombra) y `wave_auto.png` (rayo con la rampa ámbar `#96641e`, `#ecb23c`, `#ffe082`), los controles de la pestaña Oleadas.
 - **Icono de plegar** (`assets/ui/fold.png`, 8x8, sin contorno, cian `#40e0f0` con la diagonal en `#befaff`): una esquina en L arriba a la izquierda y una diagonal hacia ella; es el botón de plegar de la pausa.
 - **Iconos de stat** (`assets/ui/stat_icons/`, 8x8, contorno `#0c0e16` de 1 px solo en cruz alrededor del relleno, sombreado plano), para las filas de la ficha y del resumen de partida. Cada uno combina una forma y un color propios para distinguirse a 8 px:
 
@@ -106,7 +106,8 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 | Tornillos (3x3) y rejilla de altavoz | `#343a4a`, con luz `#96a2b6` en los tornillos |
 | Pantalla | líneas de barrido alternas `#08111f` y `#060d18`; corchetes de las esquinas `#40e0f0` |
 | Cabeceras `// TEXTO` | texto `#40e0f0`; regla de marcas `#1c7496` |
-| Pie de la barra izquierda ("SCAN OK", "MK3") | `#1c7496` |
+| Pie de la barra izquierda ("MK3") | `#1c7496` |
+| Ficha: esquinas del icono y etiqueta de tipo | cian `#40e0f0` en todas las torres, rojo `#f0323c` en todos los enemigos |
 | Filas de stat | fondos alternos `#0b2132` y `#091d2c`; nombre `#5a7a96`; valor `#cce6ff` |
 | Ficha | nombre del objetivo `#befaff`; descripción `#5a7a96` |
 | Cabecera de créditos | fondo `#221e19`, borde `#96641e`, "CRÉDITOS" `#ecb23c`, cantidad `#ffe082` |

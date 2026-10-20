@@ -1,12 +1,13 @@
 extends InspectableData
 class_name TowerData
 
+# Color de la ficha de todas las torres (marco del icono y etiqueta de tipo).
+const ACCENT_COLOR := Color("#40e0f0")
+
 @export var name: String
 @export var cost: int
 @export var attack_cooldown: float
 @export var icon: Texture2D
-# Tono medio del acento de la torre (ver docs/design/art.md); la UI lo usa para marcarla como seleccionada.
-@export var accent_color: Color = Color.WHITE
 @export var sprite_frames: SpriteFrames
 @export var attack_range: Shape2D
 @export var bullet_data: BulletData
@@ -82,7 +83,7 @@ func get_inspect_tag() -> String:
 	return get_attack_label()
 
 func get_inspect_accent() -> Color:
-	return accent_color
+	return ACCENT_COLOR
 
 func get_inspect_description() -> String:
 	return description

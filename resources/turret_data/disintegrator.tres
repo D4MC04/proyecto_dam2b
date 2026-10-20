@@ -13,7 +13,6 @@ name = "Disintegrator"
 cost = 600
 attack_cooldown = 1.0
 icon = ExtResource("4")
-accent_color = Color(1, 0.3529412, 0.8235294, 1)
 sprite_frames = ExtResource("5")
 attack_range = ExtResource("2")
 muzzle_offset = Vector2(0, -14)

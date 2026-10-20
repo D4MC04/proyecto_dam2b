@@ -48,7 +48,7 @@ Las torres de onda y de cadena no giran el cañón ni usan `_process`.
 
 ## Datos
 
-`TowerData` (`scripts/resources/TowerData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `accent_color` (tono medio del acento de la torre según `art.md`, lo usa la ficha para el marco del icono y la etiqueta de tipo), `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`. Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 7 torres la tienen.
+`TowerData` (`scripts/resources/TowerData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`. Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 7 torres la tienen. La ficha pinta todas las torres en cian `#40e0f0` (`TowerData.ACCENT_COLOR`, ver [ui.md](ui.md)).
 
 Funciones para la ficha:
 

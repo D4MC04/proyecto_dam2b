@@ -14,7 +14,6 @@ name = "Láser"
 cost = 200
 attack_cooldown = 0.5
 icon = ExtResource("4_dhaqs")
-accent_color = Color(1, 0.2352941, 0.3529412, 1)
 sprite_frames = ExtResource("7_y14in")
 attack_range = ExtResource("1_goypw")
 bullet_data = ExtResource("2_01ijj")

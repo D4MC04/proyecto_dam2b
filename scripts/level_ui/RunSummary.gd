@@ -11,6 +11,8 @@ const ROW_V_MARGIN := 3
 const ROW_FONT_SIZE := 24
 const ROW_ICON_BOX := 12
 const ROW_ICON_TOP := 5
+# Hueco entre icono, nombre y valor: el de la ficha (StatRow.SEPARATION) a ×1,5.
+const ROW_SEPARATION := 6
 
 ## Color del rótulo y del borde.
 @export var accent_color: Color = Color("#40e0f0"):
@@ -45,7 +47,7 @@ func show_stats(stats: RunStats) -> void:
 		StatEntry.new("cost", "GASTADO", UiFormat.money(stats.money_spent)),
 	]
 	for i in entries.size():
-		rows.add_child(StatRow.create(entries[i], i, ROW_H_MARGIN, ROW_V_MARGIN, ROW_FONT_SIZE, ROW_ICON_BOX, ROW_ICON_TOP))
+		rows.add_child(StatRow.create(entries[i], i, ROW_H_MARGIN, ROW_V_MARGIN, ROW_FONT_SIZE, ROW_ICON_BOX, ROW_ICON_TOP, ROW_SEPARATION))
 	_kills_label = StatRow.get_value_label(rows.get_child(1) as PanelContainer)
 	_cost_label = StatRow.get_value_label(rows.get_child(2) as PanelContainer)
 

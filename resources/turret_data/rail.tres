@@ -14,7 +14,6 @@ name = "Rail"
 cost = 500
 attack_cooldown = 5.0
 icon = ExtResource("4")
-accent_color = Color(0.6666667, 0.4705882, 1, 1)
 sprite_frames = ExtResource("5")
 attack_range = ExtResource("2")
 muzzle_flash = ExtResource("6")

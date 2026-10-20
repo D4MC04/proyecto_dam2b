@@ -7,13 +7,14 @@ const VALUE_COLOR := Color("#cce6ff")
 const BG_COLOR := Color("#0b2132")
 const ALT_BG_COLOR := Color("#091d2c")
 # Hueco entre icono, nombre y valor.
-const SEPARATION := 2
+const SEPARATION := 4
 # Distancia del borde de arriba de la línea de texto (13 px) al icono de 8x8.
 const ICON_TOP := 3
 
 ## `index` decide el fondo alterno. Los márgenes son el hueco entre el borde de la fila y su contenido.
-## `font_size`, `icon_box` (lado del hueco del icono, que sigue siendo de 8x8 centrado) e `icon_top` escalan la fila.
-static func create(entry: StatEntry, index: int, h_margin: int = 1, v_margin: int = 1, font_size: int = 16, icon_box: int = 8, icon_top: int = ICON_TOP) -> PanelContainer:
+## `font_size`, `icon_box` (lado del hueco del icono, que sigue siendo de 8x8 centrado), `icon_top`
+## y `separation` escalan la fila.
+static func create(entry: StatEntry, index: int, h_margin: int = 3, v_margin: int = 1, font_size: int = 16, icon_box: int = 8, icon_top: int = ICON_TOP, separation: int = SEPARATION) -> PanelContainer:
 	var row := PanelContainer.new()
 	# IGNORE: la fila no recoge el ratón, así que la rueda llega directa al ScrollContainer de encima.
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -28,7 +29,7 @@ static func create(entry: StatEntry, index: int, h_margin: int = 1, v_margin: in
 
 	var box := HBoxContainer.new()
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	box.add_theme_constant_override("separation", SEPARATION)
+	box.add_theme_constant_override("separation", separation)
 	row.add_child(box)
 
 	# El icono va bajado ICON_TOP px dentro de la línea de texto para que su centro caiga

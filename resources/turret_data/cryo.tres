@@ -13,7 +13,6 @@ name = "Cryo"
 cost = 250
 attack_cooldown = 2.0
 icon = ExtResource("4")
-accent_color = Color(0.3294118, 0.627451, 0.8862745, 1)
 sprite_frames = ExtResource("5")
 attack_range = ExtResource("2")
 cannon = ExtResource("7")
