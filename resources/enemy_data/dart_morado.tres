@@ -10,6 +10,7 @@ name = "Dart morado"
 hp = 25
 speed = 90
 reward = 25
+base_damage = 5
 description = "Caza ligero de casco morado. Frágil y veloz."
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")

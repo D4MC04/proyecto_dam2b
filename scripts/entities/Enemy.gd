@@ -23,7 +23,7 @@ var _slow := 1.0
 var _slow_tween: Tween
 var _frost: AnimatedSprite2D
 
-signal reached_end
+signal reached_end(damage: int)
 
 func setup(enemy_data: EnemyData):
 	data = enemy_data
@@ -39,7 +39,7 @@ func _process(delta):
 	_update_animation()
 	if progress_ratio >= 1.0:
 		set_process(false)
-		reached_end.emit()
+		reached_end.emit(data.base_damage)
 		queue_free()
 
 func _update_animation():

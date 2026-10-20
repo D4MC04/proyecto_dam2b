@@ -10,8 +10,6 @@ const GAME_AREA_CENTER := Vector2(480.0, 270.0)
 # Área de juego completa: entre las dos barras de 128 px.
 const GAME_AREA_RECT := Rect2(128.0, 0.0, 704.0, 540.0)
 
-const ENEMY_BASE_DAMAGE := 10  # vida que quita a la base cada enemigo que llega al final
-
 var map: Map
 var towers: Array[TowerData]
 var base: Base
@@ -38,7 +36,7 @@ func setup(data: LevelData) -> void:
 	grid.setup(map.logic_map)
 	spawner.setup(map.get_paths(), data.waves)
 	base = map.get_node("SpaceStation")
-	spawner.enemy_reached_end.connect(base.take_damage.bind(ENEMY_BASE_DAMAGE))
+	spawner.enemy_reached_end.connect(base.take_damage)
 	base.destroyed.connect(_lose)
 
 ## Resumen de la partida hasta ahora: oleada alcanzada, total, enemigos destruidos y dinero gastado.

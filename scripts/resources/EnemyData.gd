@@ -9,6 +9,8 @@ const INSPECT_TAG := "ENEMIGO"
 @export var hp: int
 @export var speed: int
 @export var reward: int
+# Vida que quita a la estación al llegar al final del camino.
+@export var base_damage: int = 10
 @export var sprite_frames: SpriteFrames
 @export var collision_shape: Shape2D
 @export var rotate_sprite: bool = false
@@ -34,10 +36,11 @@ func get_inspect_accent() -> Color:
 func get_inspect_description() -> String:
 	return description
 
-## Filas de la ficha: vida, velocidad (px/s) y recompensa.
+## Filas de la ficha: vida, velocidad (px/s), recompensa y daño a la estación.
 func get_stats() -> Array[StatEntry]:
 	return [
 		StatEntry.new("health", "VIDA", UiFormat.number(hp)),
 		StatEntry.new("speed", "VELOCIDAD", UiFormat.number(speed)),
 		StatEntry.new("reward", "BOTÍN", UiFormat.money(reward)),
+		StatEntry.new("damage", "DAÑO", UiFormat.number(base_damage)),
 	]

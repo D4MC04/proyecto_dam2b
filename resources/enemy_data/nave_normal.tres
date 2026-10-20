@@ -10,6 +10,7 @@ name = "Nave normal"
 hp = 60.0
 speed = 36
 reward = 25
+base_damage = 10
 description = "Nave de transporte lenta y resistente."
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
