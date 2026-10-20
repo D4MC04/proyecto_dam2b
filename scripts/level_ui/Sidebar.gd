@@ -32,6 +32,8 @@ const STATION_BAR_COLOR := Color("#40e0f0")
 const STATION_DANGER_COLOR := Color("#ff3c5a")
 # Por debajo de esta fracción de vida la barra de la estación pasa al color de peligro.
 const STATION_DANGER_FRACTION := 0.3
+# Duración del parpadeo de la barra al perder vida.
+const STATION_HIT_TIME := 0.3
 
 const CONTROL_HOVER_BG_COLOR := Color("#16243c")
 const CONTROL_DISABLED_BG_COLOR := Color("#0a0f1a")
@@ -86,6 +88,9 @@ var _selection_locked := false
 # Estilo normal del botón de siguiente oleada; su borde parpadea para invitar a pulsarlo.
 var _next_normal_style: ClippedBoxStyle
 var _next_pulse: Tween
+# Vida anterior de la estación (-1 si aún no se ha puesto) para detectar golpes.
+var _station_health := -1
+var _station_hit_tween: Tween
 
 func _ready() -> void:
 	var tab_group := ButtonGroup.new()
@@ -132,8 +137,22 @@ func set_station_health(current: int, maximum: int) -> void:
 	station_value_label.text = "%d/%d" % [current, maximum]
 	var danger := current < maximum * STATION_DANGER_FRACTION
 	var color := STATION_DANGER_COLOR if danger else STATION_BAR_COLOR
-	station_bar.add_theme_stylebox_override("fill", _station_style(color, color))
-	station_value_label.add_theme_color_override("font_color", color if danger else NEXT_GLOW_COLOR)
+	var label_color := color if danger else NEXT_GLOW_COLOR
+	var fill := _station_style(color, color)
+	station_bar.add_theme_stylebox_override("fill", fill)
+	station_value_label.add_theme_color_override("font_color", label_color)
+	if _station_hit_tween:
+		_station_hit_tween.kill()
+	# Si la vida baja, barra y número parpadean en peligro y vuelven a su color
+	if _station_health >= 0 and current < _station_health:
+		fill.bg_color = STATION_DANGER_COLOR
+		fill.border_color = STATION_DANGER_COLOR
+		station_value_label.add_theme_color_override("font_color", STATION_DANGER_COLOR)
+		_station_hit_tween = create_tween().set_parallel()
+		_station_hit_tween.tween_property(fill, "bg_color", color, STATION_HIT_TIME)
+		_station_hit_tween.tween_property(fill, "border_color", color, STATION_HIT_TIME)
+		_station_hit_tween.tween_method(func(c: Color) -> void: station_value_label.add_theme_color_override("font_color", c), STATION_DANGER_COLOR, label_color, STATION_HIT_TIME)
+	_station_health = current
 
 func _station_style(bg: Color, border: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()

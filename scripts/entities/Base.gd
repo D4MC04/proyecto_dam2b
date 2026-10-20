@@ -11,6 +11,7 @@ const SHIELD_WEAK := preload("res://assets/sprites/base/shield_debil.png")
 var health: int
 
 var _tween: Tween
+var _hit_tween: Tween
 
 @onready var shield: Sprite2D = $Shield
 
@@ -36,6 +37,7 @@ func take_damage(amount: int) -> void:
 	if phase != animation:
 		play(phase)
 	_flash()
+	_hit_flash()
 
 # Fase de daño según la fracción de vida que queda
 func _phase_for(fraction: float) -> StringName:
@@ -57,3 +59,11 @@ func _flash() -> void:
 	_tween.tween_property(shield, "modulate:a", 0.2, 0.5 / 6)
 	_tween.tween_property(shield, "modulate:a", 1.0, 0.5 / 6)
 	_tween.finished.connect(func() -> void: shield.modulate.a = 0.0)
+
+# Destello rojo del sprite de la estación (~0,2 s) al recibir daño.
+func _hit_flash() -> void:
+	if _hit_tween:
+		_hit_tween.kill()
+	modulate = Color(1, 0.2, 0.2)
+	_hit_tween = create_tween()
+	_hit_tween.tween_property(self, "modulate", Color.WHITE, 0.2)
