@@ -29,7 +29,7 @@ func _build_level_buttons() -> void:
 		button.level_selected.connect(_open_level)
 		level_buttons_container.add_child(button)
 
-func _open_level(data: LevelData):
+func _open_level(data: LevelData) -> void:
 	var game = preload("res://scenes/Game.tscn").instantiate()
 	game.level_data = data
 	var tree = get_tree()
@@ -40,16 +40,16 @@ func _open_level(data: LevelData):
 func _on_settings_button_pressed() -> void:
 	options_menu.open_from(main_panel)
 
-func _on_play_button_pressed():
+func _on_play_button_pressed() -> void:
 	_transition(main_panel, level_selection_panel)
 
-func _on_volver_pressed():
+func _on_volver_pressed() -> void:
 	_transition(level_selection_panel, main_panel)
 
-func _on_quit_button_pressed():
+func _on_quit_button_pressed() -> void:
 	get_tree().quit()
 
-func _transition(from: Control, to: Control):
+func _transition(from: Control, to: Control) -> void:
 	var tween := create_tween()
 	tween.tween_property(from, "modulate:a", 0.0, FADE_TIME)
 	tween.tween_callback(func():

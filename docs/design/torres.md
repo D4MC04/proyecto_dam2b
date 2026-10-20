@@ -159,7 +159,6 @@ Recursos en `resources/turret_data/`:
 
 ## Dudas
 
-- `Tower.fit_to_tile` no se llama desde ningún sitio.
 - Una torre colocada solo se puede fusionar o vender; no hay más mejoras.
 - `disintegrator.tres` tiene `attack_cooldown = 1.0`, que el código no usa para esa torre.
 - El nombre de archivo `rocket_launcher` corresponde a la torre que se llama "Cañón pesado", y `turret` a "Cañón doble". La carpeta es `turret_data` y la clase `TowerData`.

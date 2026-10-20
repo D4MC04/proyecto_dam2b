@@ -156,7 +156,3 @@ func _best_enemy() -> Enemy:
 ## Dinero que devuelve vender la torre: la mitad de lo invertido, redondeada hacia abajo.
 func get_sell_value() -> int:
 	return floori(invested / 2.0)
-
-func fit_to_tile(tile_size: Vector2) -> void:
-	var frame_size: Vector2 = sprite.sprite_frames.get_frame_texture(sprite.animation, 0).get_size()
-	sprite.scale = tile_size / frame_size

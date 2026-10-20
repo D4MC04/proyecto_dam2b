@@ -23,9 +23,6 @@ func is_unlocked(i: int) -> bool:
 	# Para volver a la progresión normal: `return i < current_level`.
 	return true
 
-func is_completed(i: int) -> bool:
-	return i < current_level - 1
-
 # Se llama al ganar el nivel número `number` (desde 1): si era el más alto desbloqueado, abre el siguiente.
 func complete_level(number: int) -> void:
 	if number != current_level or number >= GameData.levels.size():

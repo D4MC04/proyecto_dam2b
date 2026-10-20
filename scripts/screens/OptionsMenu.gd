@@ -9,6 +9,8 @@ const CONFIRM_TIME := 3.0
 var _opener: Control
 var _tween: Tween
 var _confirming_reset: bool = false
+# Sube con cada aviso "¿Seguro?": un temporizador viejo no cancela uno nuevo.
+var _confirm_id: int = 0
 
 @onready var _reset_button: Button = %ResetProgressButton
 
@@ -42,11 +44,17 @@ func _ready() -> void:
 func _on_reset_progress_button_pressed() -> void:
 	if not _confirming_reset:
 		_confirming_reset = true
+		_confirm_id += 1
 		_reset_button.text = "¿Seguro? Pulsa otra vez"
-		get_tree().create_timer(CONFIRM_TIME).timeout.connect(_cancel_reset_confirmation)
+		get_tree().create_timer(CONFIRM_TIME).timeout.connect(_expire_reset_confirmation.bind(_confirm_id))
 		return
 	GameState.reset_progress()
 	_cancel_reset_confirmation()
+
+# Solo cancela el aviso si sigue siendo el mismo que lanzó este temporizador.
+func _expire_reset_confirmation(id: int) -> void:
+	if id == _confirm_id:
+		_cancel_reset_confirmation()
 
 func _cancel_reset_confirmation() -> void:
 	_confirming_reset = false

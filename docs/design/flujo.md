@@ -7,7 +7,7 @@ Definidos en `project.godot`, en este orden:
 | Nombre | Origen | Qué guarda |
 |---|---|---|
 | `GameData` | `scenes/GameData.tscn` + `scripts/autoloads/GameData.gd` | `levels: Array[LevelData]`, la lista de niveles del juego |
-| `GameState` | `scripts/autoloads/GameState.gd` | `current_level: int` (número, desde 1, del nivel más alto desbloqueado; empieza en 1), `is_unlocked(i)` (`i < current_level`), `is_completed(i)` (`i < current_level - 1`) y `complete_level(number)` y `reset_progress()` (vuelve a 1, guarda y emite la señal `progress_reset`); `i` es el índice desde 0 en `GameData.levels` |
+| `GameState` | `scripts/autoloads/GameState.gd` | `current_level: int` (número, desde 1, del nivel más alto desbloqueado; empieza en 1), `is_unlocked(i)` (`i < current_level`), `complete_level(number)` y `reset_progress()` (vuelve a 1, guarda y emite la señal `progress_reset`); `i` es el índice desde 0 en `GameData.levels` |
 | `Settings` | `scripts/autoloads/Settings.gd` | Las opciones del jugador, guardadas en `user://settings.cfg`; ver [menu.md](menu.md) |
 | `MusicManager` | `scripts/autoloads/MusicManager.gd` | La música; ver [menu.md](menu.md) |
 
@@ -58,8 +58,3 @@ Cuando la estación se destruye, `Level` deja de construir y ya no puede ganar, 
 ## Cambio de escena
 
 Tanto `MainMenu._open_level` como `Game._quit_to_menu` cambian de escena a mano (añadir a `root`, asignar `current_scene`, `queue_free` de la anterior) porque necesitan asignar una propiedad a la escena nueva antes de que entre en el árbol. No se usa `change_scene_to_file`.
-
-## Dudas
-
-- `GameState.is_completed` no se llama desde ningún sitio.
-- `project.godot` tiene `config/name="DAM_Game"`; el título que muestra el menú es "ASTRO ARTILLERY".
