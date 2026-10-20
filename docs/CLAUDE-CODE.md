@@ -4,13 +4,13 @@
 | Paso | Tú | Claude |
 |---|---|---|
 | 1 | Escribes `/proponer` (o `/proponer enemigos`) | Escribe 3-5 tickets en `docs/tasks/` con `Estado: propuesta` |
-| 2 | Lees los tickets. Aceptas: cambias a `Estado: aceptada` o dices "acepto X". Borras los que no quieras | — |
+| 2 | Lees los tickets (`/tickets` te los lista y dice cuáles chocan). Aceptas: cambias a `Estado: aceptada` o dices "acepto X". Borras los que no quieras | — |
 | 3 | Escribes `/hacer nombre-del-ticket` | Crea la rama `ticket/nombre`, implementa, lo prueba con el agente `probador`, actualiza docs, borra el ticket y te da pasos para probar |
 | 4 | Pruebas en Godot con esos pasos | Si algo falla, se lo dices en el mismo chat y lo arregla |
 | 5 | Escribes `/revisar` | Repasa la rama y te explica qué cambia |
 | 6 | Dices "commitea" | Hace el commit, sube la rama y te pregunta: ¿PR (tus compañeros lo revisan) o merge directo a main? Hace lo que elijas |
 
-Ir más rápido: con varios tickets aceptados, abre una sesión nueva por ticket (cada una trabaja en su rama, en paralelo) y lanza `/hacer` en cada una.
+Ir más rápido: con varios tickets aceptados que no chocan (`/tickets` lo dice), súbelos a main y pide "abre sesiones en worktree para X e Y": un chat por ticket, cada uno en su copia del proyecto. En cada uno, `/hacer`. Los worktrees salen de lo commiteado en main: tickets sin commitear no los ven.
 
 Los tickets siguen el formato de `docs/tasks/_plantilla.md`. Puedes escribir tú uno a mano y lanzar `/hacer` igual.
 

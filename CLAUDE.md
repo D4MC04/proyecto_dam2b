@@ -30,6 +30,7 @@
 - Cada ticket en su rama `ticket/nombre` desde main. Nunca trabajar en main. Al terminar, preguntar al usuario: ¿PR o merge directo a main?
 - Para probar, usar el agente `probador`. Antes de commitear o subir, `/revisar` (prueba, revisa y mira conflictos con main).
 - Avisar al usuario de qué comando toca, al final de la respuesta, en una línea:
+  - Pregunta qué tickets quedan o cuáles se pueden hacer a la vez → `/tickets`.
   - Sin tickets aceptados o pide ideas → `/proponer`.
   - Ticket aceptado → `/hacer nombre`, en Sonnet.
   - Tras `/hacer` → probar a mano en Godot y luego `/revisar`.
