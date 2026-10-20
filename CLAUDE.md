@@ -40,6 +40,7 @@
   4. Dejar lo local en solo `main`: el chat que trabaja en la carpeta principal hace `git fetch --prune`, `git pull --ff-only` (si hay cambios locales sin commitear que lo bloquean, no descartarlos: avisar), `git branch -d <rama>` (solo con `-d`, nunca borra ramas sin fusionar) y `git worktree prune`. Un chat en worktree no puede tocar la carpeta principal: avisa al chat central de que subió y este hace el paso 4; si el chat entró con `EnterWorktree`, sale con `ExitWorktree` (`remove`) y lo hace él.
   5. Preguntar si archiva el chat del ticket (ver abajo).
 - **Chat central** (se abre con `/new`): trabaja en la carpeta principal sobre `main`, en Opus. Propone y reparte tickets en chats con worktree, revisa lo que suben y hace el paso 4 de "Subir a main" para que el usuario nunca tenga que hacer `git pull` a mano. Cada vez que arranca o recibe un aviso de subida, deja `main` local al día.
+- Con el visto bueno ("sube todo", "commitea"…), el chat central puede subir él mismo los tickets listos: hace "Subir a main" (pasos 1-4) en cada worktree de `.claude/worktrees/`, uno detrás de otro, sin esperar a que cada chat de ticket lo haga.
 - `/new`: crea el chat central y archiva el chat donde se escribió (se puede recuperar desde Archivados).
 - Para probar, usar el agente `probador`. Antes de commitear o subir, `/revisar` (prueba, revisa y mira conflictos con main).
 - Avisar al usuario de qué comando toca, al final de la respuesta, en una línea:
