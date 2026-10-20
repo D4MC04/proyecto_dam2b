@@ -7,9 +7,11 @@
 [ext_resource type="SpriteFrames" uid="uid://div55a8it87po" path="res://resources/sprite_frames/cryo.tres" id="5"]
 [ext_resource type="SpriteFrames" uid="uid://cmw10e08iqwex" path="res://resources/sprite_frames/cryo_cannon.tres" id="7"]
 [ext_resource type="Resource" path="res://resources/turret_data/cryo_fusion.tres" id="fusion"]
+[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Cryo/IceShoot.wav" id="snd"]
 
 [resource]
 script = ExtResource("1")
+shoot_sound = ExtResource("snd")
 name = "Cryo"
 cost = 250
 attack_cooldown = 2.0

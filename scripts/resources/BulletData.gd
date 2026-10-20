@@ -18,6 +18,8 @@ class_name BulletData
 @export var pierce: int = 0
 # Radio (px) del daño en área al impactar; 0 = solo daña al enemigo golpeado.
 @export var splash_radius: float = 0.0
+# Opcional: sonido (en el bus SFX) al impactar.
+@export var hit_sound: AudioStream
 
 ## Filas de la ficha propias de la bala.
 func get_stats() -> Array[StatEntry]:

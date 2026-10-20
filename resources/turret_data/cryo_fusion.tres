@@ -6,9 +6,11 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/towers/cryo_fusion/cryo_full_up.png" id="4"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/cryo_fusion.tres" id="5"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/cryo_fusion_cannon.tres" id="7"]
+[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Cryo/IceShoot.wav" id="snd"]
 
 [resource]
 script = ExtResource("1")
+shoot_sound = ExtResource("snd")
 name = "Cryo ventisca"
 cost = 400
 attack_cooldown = 2.0

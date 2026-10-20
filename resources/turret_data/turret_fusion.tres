@@ -6,9 +6,11 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/towers/turret_fusion/t1_full_up.png" id="4"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/turret_fusion.tres" id="5"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/turret_fusion_cannon.tres" id="7"]
+[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Turret/DobleLaserShoot.wav" id="snd"]
 
 [resource]
 script = ExtResource("1")
+shoot_sound = ExtResource("snd")
 name = "Cañón cuádruple"
 cost = 160
 attack_cooldown = 0.15

@@ -52,6 +52,16 @@ func _process(delta: float) -> void:
 		_aim()
 	global_position += direction * data.speed * delta
 
+# El sonido va en un nodo aparte porque la bala se libera al impactar.
+func _play_hit_sound() -> void:
+	var player := AudioStreamPlayer2D.new()
+	player.stream = data.hit_sound
+	player.bus = &"SFX"
+	player.finished.connect(player.queue_free)
+	get_parent().add_child(player)
+	player.global_position = global_position
+	player.play()
+
 func _on_area_entered(area: Area2D) -> void:
 	var enemy := area.get_parent()
 	if enemy is Enemy and not _hit.has(enemy):
@@ -64,6 +74,8 @@ func _on_area_entered(area: Area2D) -> void:
 					other.take_damage(data.damage)
 		else:
 			enemy.take_damage(data.damage)
+		if data.hit_sound:
+			_play_hit_sound()
 		if data.impact_frames:
 			Effect.spawn(get_parent(), data.impact_frames, global_position, data.sprite_scale)
 		if _hit.size() > data.pierce:

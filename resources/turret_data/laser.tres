@@ -8,9 +8,11 @@
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TowerData.gd" id="6_ftpj3"]
 [ext_resource type="SpriteFrames" uid="uid://cg6ygh82fxvqy" path="res://resources/sprite_frames/laser.tres" id="7_y14in"]
 [ext_resource type="Resource" path="res://resources/turret_data/laser_fusion.tres" id="fusion"]
+[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Laser/LaserShoot.wav" id="snd"]
 
 [resource]
 script = ExtResource("6_ftpj3")
+shoot_sound = ExtResource("snd")
 name = "Láser"
 cost = 200
 attack_cooldown = 0.5

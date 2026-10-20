@@ -6,9 +6,11 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/towers/tesla_fusion/tesla_full_up.png" id="4"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/tesla_fusion.tres" id="5"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/tesla_fusion_cannon.tres" id="7"]
+[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Tesla/ElectricZap.wav" id="snd"]
 
 [resource]
 script = ExtResource("1")
+shoot_sound = ExtResource("snd")
 name = "Tormenta"
 cost = 560
 attack_cooldown = 1.3

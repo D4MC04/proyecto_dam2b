@@ -65,11 +65,15 @@ Al cumplirse el cooldown:
 - Si el cañón está alineado: dispara.
 - Si no lo está: para el temporizador y dispara en cuanto se alinee (`_pending_shot`), y entonces lo reinicia.
 
+### Sonido
+
+`Tower` crea un `AudioStreamPlayer2D` (bus `SFX`, polifonía 2) con `TowerData.shoot_sound`. Suena en cada disparo: al lanzar la bala, y en el `fire_frame` de la onda, la cadena y el haz (así el sonido va con el efecto, no con la carga). En el haz continuo (`FocusBeam`) suena mientras el haz está activo: se repite si el audio acaba antes y se corta al soltar. `BulletData.hit_sound` (opcional, solo el Cañón pesado y su fusión) suena al impactar, en un reproductor aparte porque la bala se libera. No se usan aún los sonidos de carga (`RailgunCharging`, `IceCharging`, `CharginTower`).
+
 Las torres de onda y de cadena no giran el cañón ni usan `_process`.
 
 ## Datos
 
-`TowerData` (`scripts/resources/TowerData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`. `fusion`: el `TowerData` en el que se convierte al fusionarla con otra igual (null en las fusionadas). Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 7 torres la tienen. La ficha pinta todas las torres en cian `#40e0f0` (`TowerData.ACCENT_COLOR`, ver [ui.md](ui.md)).
+`TowerData` (`scripts/resources/TowerData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`. `shoot_sound`: sonido del disparo. `fusion`: el `TowerData` en el que se convierte al fusionarla con otra igual (null en las fusionadas). Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 7 torres la tienen. La ficha pinta todas las torres en cian `#40e0f0` (`TowerData.ACCENT_COLOR`, ver [ui.md](ui.md)).
 
 Funciones para la ficha:
 

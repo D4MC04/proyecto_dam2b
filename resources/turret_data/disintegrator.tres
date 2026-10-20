@@ -7,9 +7,11 @@
 [ext_resource type="SpriteFrames" uid="uid://cxl7hyp4bct3b" path="res://resources/sprite_frames/disintegrator.tres" id="5"]
 [ext_resource type="SpriteFrames" uid="uid://djce4qf67ye71" path="res://resources/sprite_frames/disintegrator_cannon.tres" id="7"]
 [ext_resource type="Resource" path="res://resources/turret_data/disintegrator_fusion.tres" id="fusion"]
+[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Desintegrator/IncrementalRay.wav" id="snd"]
 
 [resource]
 script = ExtResource("1")
+shoot_sound = ExtResource("snd")
 name = "Disintegrator"
 cost = 600
 attack_cooldown = 1.0

@@ -6,9 +6,11 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/towers/disintegrator_fusion/disint_full_up.png" id="4"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/disintegrator_fusion.tres" id="5"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/disintegrator_fusion_cannon.tres" id="7"]
+[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Desintegrator/IncrementalRay.wav" id="snd"]
 
 [resource]
 script = ExtResource("1")
+shoot_sound = ExtResource("snd")
 name = "Aniquilador"
 cost = 960
 attack_cooldown = 1.0

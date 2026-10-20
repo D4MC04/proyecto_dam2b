@@ -85,5 +85,4 @@ Los deslizadores (96x12, tirador de 5x11) van de 0 a 1 en pasos de 0,05 (colores
 ## Dudas
 
 - El fundido está escrito dos veces: en `MainMenu._transition` (título y selección de nivel) y en `OptionsMenu._fade`.
-- El deslizador "Efectos" no cambia nada audible mientras no haya sonidos en el bus `SFX`.
 - Pantalla completa y VSync no tienen efecto si el juego se ejecuta incrustado en el editor de Godot; hay que ejecutarlo en su propia ventana.

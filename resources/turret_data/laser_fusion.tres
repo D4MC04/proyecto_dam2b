@@ -7,9 +7,11 @@
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/laser_fusion.tres" id="5"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/laser_fusion_cannon.tres" id="7"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/laser_fusion_flash.tres" id="6"]
+[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Laser/LaserShoot.wav" id="snd"]
 
 [resource]
 script = ExtResource("1")
+shoot_sound = ExtResource("snd")
 name = "Láser doble"
 cost = 320
 attack_cooldown = 0.4

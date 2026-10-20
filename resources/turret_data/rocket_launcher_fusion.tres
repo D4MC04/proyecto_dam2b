@@ -6,9 +6,11 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/towers/turret2_fusion/t2_full_up.png" id="4"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/rocket_launcher_fusion.tres" id="5"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/rocket_launcher_fusion_cannon.tres" id="7"]
+[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Rocket/RocketShoot.wav" id="snd"]
 
 [resource]
 script = ExtResource("1")
+shoot_sound = ExtResource("snd")
 name = "Cañón de asedio"
 cost = 480
 attack_cooldown = 1.6

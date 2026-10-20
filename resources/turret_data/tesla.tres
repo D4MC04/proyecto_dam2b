@@ -7,9 +7,11 @@
 [ext_resource type="SpriteFrames" uid="uid://b7yknmuje1jst" path="res://resources/sprite_frames/tesla.tres" id="5"]
 [ext_resource type="SpriteFrames" uid="uid://bsiiwspudjsv2" path="res://resources/sprite_frames/tesla_cannon.tres" id="7"]
 [ext_resource type="Resource" path="res://resources/turret_data/tesla_fusion.tres" id="fusion"]
+[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Tesla/ElectricZap.wav" id="snd"]
 
 [resource]
 script = ExtResource("1")
+shoot_sound = ExtResource("snd")
 name = "Tesla"
 cost = 350
 attack_cooldown = 1.3

@@ -7,9 +7,11 @@
 [ext_resource type="SpriteFrames" uid="uid://da4o1mb4kiwkb" path="res://resources/sprite_frames/turret.tres" id="5"]
 [ext_resource type="SpriteFrames" uid="uid://d1negqjjytnj4" path="res://resources/sprite_frames/turret_cannon.tres" id="7"]
 [ext_resource type="Resource" path="res://resources/turret_data/turret_fusion.tres" id="fusion"]
+[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Turret/DobleLaserShoot.wav" id="snd"]
 
 [resource]
 script = ExtResource("1")
+shoot_sound = ExtResource("snd")
 name = "Cañón doble"
 cost = 100
 attack_cooldown = 0.25

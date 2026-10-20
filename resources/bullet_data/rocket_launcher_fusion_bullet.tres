@@ -4,9 +4,11 @@
 [ext_resource type="Script" uid="uid://dufu06mgtfw20" path="res://scripts/resources/BulletData.gd" id="2"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/rocket_launcher_fusion_bullet.tres" id="3"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/rocket_launcher_fusion_impact.tres" id="5"]
+[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Rocket/RocketExplosion.wav" id="snd"]
 
 [resource]
 script = ExtResource("2")
+hit_sound = ExtResource("snd")
 damage = 90.0
 speed = 200.0
 sprite_frames = ExtResource("3")

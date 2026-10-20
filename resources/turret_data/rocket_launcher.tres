@@ -7,9 +7,11 @@
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TowerData.gd" id="5_5io4s"]
 [ext_resource type="SpriteFrames" uid="uid://br1xj5sv70s4u" path="res://resources/sprite_frames/rocket_launcher.tres" id="6_27bij"]
 [ext_resource type="Resource" path="res://resources/turret_data/rocket_launcher_fusion.tres" id="fusion"]
+[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Rocket/RocketShoot.wav" id="snd"]
 
 [resource]
 script = ExtResource("5_5io4s")
+shoot_sound = ExtResource("snd")
 name = "Cañón pesado"
 cost = 300
 attack_cooldown = 1.5
