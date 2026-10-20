@@ -12,7 +12,7 @@ El `Spawner` lo añade como hijo de un `Path2D` del mapa y llama a `setup(enemy_
 
 ## Datos
 
-`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `base_damage` (vida que quita a la estación al llegar al final, 10 por defecto), `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados) y `description` (frase corta para la ficha, ya rellena en los 12). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da VIDA, VELOCIDAD (px/s), BOTÍN (la recompensa, con €) y DAÑO (`base_damage`); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
+`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `base_damage` (vida que quita a la estación al llegar al final, 10 por defecto), `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados), `death_sound` (`AudioStream`, ver Daño y muerte) y `description` (frase corta para la ficha, ya rellena en los 12). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da VIDA, VELOCIDAD (px/s), BOTÍN (la recompensa, con €) y DAÑO (`base_damage`); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
 
 Recursos en `resources/enemy_data/`:
 
@@ -46,7 +46,8 @@ Según la dirección del último movimiento reproduce `right`, `left`, `down` o 
 ### Daño y muerte
 
 - `take_damage(amount)` resta vida; con vida <= 0 llama a `die()`.
-- `die()` emite `died(data.reward)` y libera el nodo.
+- `die()` emite `died(data.reward)`, reproduce `data.death_sound` en el bus `SFX` y libera el nodo. El `AudioStreamPlayer` se crea como hijo del padre (el `Path2D`) porque el enemigo se libera enseguida, y se libera solo al terminar (`finished`). Si llega a la estación (`reached_end`) no suena.
+- Sonidos en `assets/audio/effects/SpaceShips/`: los 4 `dart_*` comparten `DartShip.wav`; el resto usa el de su carpeta.
 
 ### Ralentización
 
