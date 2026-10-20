@@ -180,7 +180,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
 `scripts/level_ui/UiFormat.gd` (clase `UiFormat`). `UiFormat.abbreviate(amount: int) -> String`: hasta 999 tal cual; desde 1000 en K (desde un millón M, desde mil millones B) con un decimal sin ".0": `1K`, `1.1K`, `5K`, `12.3K`, `999.9K`, `1M`, `1.2M`, `1B`. Como mucho 6 caracteres. Trunca en vez de redondear (1099 es `1K`, 999999 es `999.9K`).
 
-- `UiFormat.money(amount: int)`: `abbreviate` más `€` (`999€`, `1K€`, `1.1K€`). Todo el dinero de la UI (cabecera, costes, recompensa, dinero gastado) pasa por aquí; nadie añade el `€` a mano.
+- `UiFormat.money(amount: int)`: `abbreviate` más `€` (`999€`, `1K€`, `1.1K€`). Todo el dinero de la UI (cabecera, costes, recompensa, dinero gastado) pasa por aquí; nadie añade el `€` a mano. También lo usa el `+X€` flotante (`FloatingText`) de matar y vender.
 
 - `UiFormat.number(value: float)`: para stats. Por debajo de 100 y con decimales, uno como mucho (`2.5`); si no, `abbreviate` del valor redondeado.
 - `UiFormat.seconds(value: float)`: segundos con 2 decimales como mucho, sin ceros sobrantes y en 5 caracteres como máximo (`0.25s`, `1.5s`, `5s`, `123s`).

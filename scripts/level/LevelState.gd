@@ -44,7 +44,9 @@ func inspect_placed(tower: Tower) -> void:
 func sell_selected_tower() -> void:
 	if not is_instance_valid(sellable_tower):
 		return
-	add_money(sellable_tower.get_sell_value())
+	var value := sellable_tower.get_sell_value()
+	add_money(value)
+	FloatingText.spawn(sellable_tower.get_parent(), sellable_tower.global_position, "+" + UiFormat.money(value))
 	sellable_tower.queue_free()
 	sellable_tower = null
 

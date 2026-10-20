@@ -33,7 +33,7 @@ La fusionada es otro `TowerData` (`resources/turret_data/<x>_fusion.tres`) con s
 
 ## Vender
 
-`LevelState.sellable_tower` es la torre colocada seleccionada. `inspect_placed` la fija junto con `inspected`; cualquier otro cambio de `inspected` la suelta. `LevelState.sell_selected_tower()` suma `Tower.get_sell_value()` (mitad de `Tower.invested`, redondeada hacia abajo; `invested` es el coste al colocar y suma `fusion.cost` al fusionar), hace `queue_free` de la torre (al salir del árbol `Grid.register_tower` libera la casilla) y suelta la selección. Sin efecto visual al vender. No cuenta en el resumen de partida. Solo vende en `PLAYING` (lo comprueba `LevelUI`).
+`LevelState.sellable_tower` es la torre colocada seleccionada. `inspect_placed` la fija junto con `inspected`; cualquier otro cambio de `inspected` la suelta. `LevelState.sell_selected_tower()` suma `Tower.get_sell_value()` (mitad de `Tower.invested`, redondeada hacia abajo; `invested` es el coste al colocar y suma `fusion.cost` al fusionar), hace `queue_free` de la torre (al salir del árbol `Grid.register_tower` libera la casilla) y suelta la selección. Al vender sale un `+X€` flotante sobre la casilla (`FloatingText`, ver [enemigos.md](enemigos.md)). No cuenta en el resumen de partida. Solo vende en `PLAYING` (lo comprueba `LevelUI`).
 
 ## Escena y script
 

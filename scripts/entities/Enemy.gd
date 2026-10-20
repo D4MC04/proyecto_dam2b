@@ -107,6 +107,7 @@ func effect_scale() -> float:
 func die():
 	died.emit(data.reward)
 	_play_death_sound()
+	FloatingText.spawn(get_parent(), global_position, "+" + UiFormat.money(data.reward))
 	queue_free()
 
 # El reproductor cuelga del padre (el camino) porque el enemigo se libera enseguida.
