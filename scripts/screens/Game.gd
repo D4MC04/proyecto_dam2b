@@ -30,6 +30,8 @@ func _on_level_lost() -> void:
 	ui.set_state(LevelUI.UiState.LOST)
 
 func _on_level_won() -> void:
+	# Si no está en la lista, find devuelve -1 y el número es 0: no desbloquea nada.
+	GameState.complete_level(GameData.levels.find(level_data) + 1)
 	ui.show_run_stats(level.get_run_stats())
 	ui.set_state(LevelUI.UiState.WON)
 
