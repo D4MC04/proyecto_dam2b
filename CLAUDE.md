@@ -28,7 +28,14 @@
 - Guía completa para el usuario: docs/CLAUDE-CODE.md. Formato de ticket: docs/tasks/_plantilla.md.
 - `/proponer` crea tickets con `Estado: propuesta`. Solo se implementan los `Estado: aceptada`, con `/hacer nombre`.
 - Cada ticket en su rama `ticket/nombre` desde main. Nunca trabajar en main. Al terminar, preguntar al usuario: ¿PR o merge directo a main?
-- Para probar, usar el agente `probador`. Antes del PR, `/revisar`.
+- Para probar, usar el agente `probador`. Antes de commitear o subir, `/revisar` (prueba, revisa y mira conflictos con main).
+- Avisar al usuario de qué comando toca, al final de la respuesta, en una línea:
+  - Sin tickets aceptados o pide ideas → `/proponer`.
+  - Ticket aceptado → `/hacer nombre`, en Sonnet.
+  - Tras `/hacer` → probar a mano en Godot y luego `/revisar`.
+  - `/revisar` en OK → "commitea" (luego, PR o merge directo).
+  - Chat largo o tema distinto al del chat → abrir chat nuevo.
+  - Tarea mecánica en Opus → bajar a Sonnet o Haiku. Sonnet atascado dos veces → subir a Opus.
 
 ## Sprites
 - Pixel art 16x16. Seguir docs/design/art.md y el estilo de los sprites existentes en assets/.
