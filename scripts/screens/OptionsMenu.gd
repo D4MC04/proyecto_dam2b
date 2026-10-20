@@ -2,10 +2,15 @@ class_name OptionsMenu
 extends Control
 
 const FADE_TIME := 0.25
+# Segundos que dura el aviso "¿Seguro?" antes de cancelarse solo.
+const CONFIRM_TIME := 3.0
 
 # Panel desde el que se abrió y al que vuelve "Volver" (título o menú de pausa).
 var _opener: Control
 var _tween: Tween
+var _confirming_reset: bool = false
+
+@onready var _reset_button: Button = %ResetProgressButton
 
 # Opción de Settings -> control que la edita.
 @onready var _sliders: Dictionary[StringName, Slider] = {
@@ -33,6 +38,19 @@ func _ready() -> void:
 		button.toggled.connect(func(on: bool) -> void:
 			Settings.set_value(key, on)
 			_update_toggle_text(button))
+
+func _on_reset_progress_button_pressed() -> void:
+	if not _confirming_reset:
+		_confirming_reset = true
+		_reset_button.text = "¿Seguro? Pulsa otra vez"
+		get_tree().create_timer(CONFIRM_TIME).timeout.connect(_cancel_reset_confirmation)
+		return
+	GameState.reset_progress()
+	_cancel_reset_confirmation()
+
+func _cancel_reset_confirmation() -> void:
+	_confirming_reset = false
+	_reset_button.text = "Borrar"
 
 func _update_toggle_text(button: Button) -> void:
 	button.text = "ON" if button.button_pressed else "OFF"

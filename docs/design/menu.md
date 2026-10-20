@@ -66,6 +66,9 @@ Es el único audio del juego: todavía no hay efectos de sonido, así que nada s
 | PANTALLA | Botón "VSync" | `vsync` |
 | PANTALLA | Botón "Mostrar FPS" | `show_fps` |
 | JUEGO | Botón "Rango de torres" | `show_tower_range` |
+| JUEGO | Botón "Borrar progreso" | Ninguna: llama a `GameState.reset_progress()` |
+
+"Borrar progreso" es un botón normal (no interruptor). La primera pulsación cambia su texto a "¿Seguro? Pulsa otra vez" durante `CONFIRM_TIME` (3 s); si se pulsa de nuevo en ese tiempo, `GameState.reset_progress()` vuelve `current_level` a 1, guarda y emite `progress_reset`, y el menú principal reconstruye los botones de nivel. Pasados los 3 s sin pulsar, el texto vuelve a "Borrar".
 
 Los deslizadores van de 0 a 1 en pasos de 0,05 (colores de la paleta en `menu_theme.tres`, ver [art.md](art.md)). Los botones son interruptores de 36x16 con la variación de tema `ToggleButton`: en ON van rellenos de cian (como el ratón encima) y muestran "ON"; en OFF van con el estilo normal y muestran "OFF". Al abrirse, cada control toma su valor de `Settings`; cada cambio llama a `Settings.set_value`.
 
