@@ -63,5 +63,4 @@ Tanto `MainMenu._open_level` como `Game._quit_to_menu` cambian de escena a mano 
 
 - `current_level = 50` deja desbloqueados todos los niveles. No hay código que lo suba al completar un nivel.
 - `GameState.is_completed` no se llama desde ningún sitio.
-- El archivo en git es `scenes/level.tscn` (minúscula), pero `Game.tscn` lo referencia como `res://scenes/Level.tscn`. En Windows funciona; en un sistema que distinga mayúsculas la ruta no coincide.
 - `project.godot` tiene `config/name="DAM_Game"`; el título que muestra el menú es "ASTRO ARTILLERY".
