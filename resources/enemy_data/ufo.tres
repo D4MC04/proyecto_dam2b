@@ -3,7 +3,6 @@
 [ext_resource type="Script" uid="uid://do62ihbnaitnl" path="res://scripts/resources/EnemyData.gd" id="1_bqpnv"]
 [ext_resource type="Shape2D" uid="uid://ck3c0sk0137bi" path="res://resources/collision_shapes/ufo.tres" id="1_ur7pl"]
 [ext_resource type="SpriteFrames" uid="uid://byjvfrxtgx1av" path="res://resources/sprite_frames/ufo.tres" id="2_qsa1s"]
-[ext_resource type="AudioStream" path="res://assets/audio/effects/SpaceShips/UFO/UfoShip.wav" id="death_sound"]
 
 [resource]
 script = ExtResource("1_bqpnv")
@@ -15,5 +14,4 @@ base_damage = 10
 description = "Platillo de exploración de velocidad media."
 sprite_frames = ExtResource("2_qsa1s")
 collision_shape = ExtResource("1_ur7pl")
-death_sound = ExtResource("death_sound")
 metadata/_custom_type_script = "uid://do62ihbnaitnl"
