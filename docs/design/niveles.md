@@ -91,7 +91,11 @@ Lleva el ciclo de oleadas del nivel: cuándo se lanzan, qué enemigos quedan viv
 - `setup(paths, waves)` solo guarda los datos. El nivel empieza en espera, sin enemigos, para dejar construir; la primera oleada se lanza con el botón de la pestaña Oleadas o con AUTO.
 - `start_next_wave() -> bool` lanza la siguiente oleada: copia sus entradas, las ordena por `time`, pone el reloj a 0 y emite `wave_started(index, total)` (índice desde 0). Devuelve `false` y no hace nada si el nivel no está limpio (la actual sigue sacando o quedan enemigos vivos) o no quedan oleadas (`can_start_next_wave()`). Así nunca conviven enemigos de dos oleadas.
 - En `_process` suma el tiempo y crea cada enemigo cuando su `time` se cumple. Al crear el último emite `wave_spawn_finished(index)`.
-- `_spawn(entry)` instancia `scenes/entities/Enemy.tscn` como hijo del `Path2D` número `entry.path_index % paths.size()`, llama a `enemy.setup(entry.enemy_data)`, lo apunta como vivo y conecta sus señales `died` y `reached_end`.
+- `_spawn(entry)` instancia `scenes/entities/Enemy.tscn` como hijo del `Path2D` número `entry.path_index % paths.size()`, llama a `enemy.setup(entry.enemy_data)` y `enemy.spawn_in()` (escala 0→1 en 0,2 s con destello), lo apunta como vivo y conecta sus señales `died` y `reached_end`.
+
+### Portales
+
+Al lanzar una oleada, `_open_portals()` crea un `Portal` (`scripts/entities/Portal.gd`) como hijo de cada `Path2D` que use la oleada, en el primer punto de su curva (uno por camino, guardados en `_portals`). El portal es una grieta horizontal en forma de ojo (30x10 px abierta, acabada en punta a los dos lados), pintada con `draw_rect` columna a columna en píxeles enteros: interior casi negro (`#1a0614`) con píxeles magenta que entran hacia el centro, borde liso de 1 px que late entre `#be30a0` y `#ff5ad2`, halo de 1 px `#be30a0` por fuera y puntas rojas `#f0323c`. Al abrirse (0,3 s) primero es una línea que se alarga y luego se abre en alto; entonces tiembla 1 px durante 0,25 s con un destello. Al cerrarse (0,3 s) se cierra en una línea y desaparece. Al crear el último enemigo, `_close_portals()` los cierra y los libera. Usan tweens, así que siguen `Engine.time_scale` y se paran con la pausa.
 
 ### Enemigos vivos
 

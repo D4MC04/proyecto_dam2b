@@ -43,7 +43,7 @@ func _on_visibility_changed() -> void:
 	_show_detail(_cells.keys()[0])
 
 func _show_detail(data: EnemyData) -> void:
-	var seen := GameState.has_seen_enemy(data)
+	var seen: bool = GameState.has_seen_enemy(data)
 	sprite.sprite_frames = data.sprite_frames
 	sprite.modulate = Color.WHITE if seen else Color.BLACK
 	sprite.play(&"up")
