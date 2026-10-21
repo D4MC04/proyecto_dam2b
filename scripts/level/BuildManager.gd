@@ -3,6 +3,8 @@ class_name BuildManager
 
 @export var grid: Grid
 @export var tower_scene: PackedScene
+# Mientras se apunta el meteorito no se coloca ni se selecciona nada.
+@export var powers: Powers
 
 const RANGE_COLOR := Color(1, 1, 1, 0.15)
 
@@ -37,7 +39,7 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 
-	if state == null or not _building:
+	if state == null or not _building or powers.is_aiming():
 		return
 
 	if event is InputEventMouseMotion:

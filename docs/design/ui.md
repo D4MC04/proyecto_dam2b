@@ -50,7 +50,7 @@ Funciones de `LevelUI`:
 La relación estado → pantalla está solo en el diccionario `_screens_by_state`; una pantalla nueva se añade ahí. `_ready` conecta `option_chosen` de todas las pantallas del diccionario y empieza en `PLAYING`.
 
 - Acción `ui_cancel` (Escape): en `PLAYING` pasa a `PAUSED` y en `PAUSED` vuelve a `PLAYING`. En `LOST` y `WON` (también durante la cámara lenta y el respiro) no hace nada (ni marca el evento como gestionado).
-- **Atajos de teclado** (solo en `PLAYING`; en pausa, derrota y victoria `_handle_shortcut` ni se llama). Acciones del Input Map en `project.godot`: `select_tower_1`…`select_tower_7` (teclas 1-7), `next_wave` (Espacio), `toggle_auto` (A) y `toggle_speed` (F), por tecla física. `LevelUI._unhandled_input` las traduce a los mismos botones que el ratón: 1-7 llaman a `Sidebar.press_tower_button(i)` (emite `pressed` del i-ésimo `TowerButton` en el orden de la rejilla, así que sin dinero o con selección bloqueada no hacen nada); Espacio emite `pressed` de `NextWaveButton` (el `Spawner` solo lanza si la anterior acabó); A y F invierten `button_pressed` de `AutoWaveButton` y `SpeedButton`. No se escribe la tecla en los botones.
+- **Atajos de teclado** (solo en `PLAYING`; en pausa, derrota y victoria `_handle_shortcut` ni se llama). Acciones del Input Map en `project.godot`: `select_tower_1`…`select_tower_7` (teclas 1-7), `next_wave` (Espacio), `toggle_auto` (A), `toggle_speed` (F), `power_meteor` (Q) y `power_freeze` (E), por tecla física. `LevelUI._unhandled_input` las traduce a los mismos botones que el ratón: 1-7 llaman a `Sidebar.press_tower_button(i)` (emite `pressed` del i-ésimo `TowerButton` en el orden de la rejilla, así que sin dinero o con selección bloqueada no hacen nada); Espacio emite `pressed` de `NextWaveButton` (el `Spawner` solo lanza si la anterior acabó); A y F invierten `button_pressed` de `AutoWaveButton` y `SpeedButton`; Q y E llaman a `_use_power` como los botones de poder. No se escribe la tecla en los botones (salvo en los de poder, ver "Poderes").
 - Bloqueo de la selección: `set_state` es lo único que lo decide. Llama a `sidebar.set_selection_locked(new_state != PLAYING)`, así que con pausa (plegada o no), derrota (desde que empieza la cámara lenta) o victoria (desde que empieza el respiro) no se puede seleccionar torre.
 - `show_run_stats(stats: RunStats)`: pasa el resumen de partida a `GameOverScreen` y a `VictoryScreen`. Lo llama `Game` antes de `set_state(LOST)` o `set_state(WON)`; la UI no lee el `Level` ni el `LevelState` para el resumen.
 
@@ -83,6 +83,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
   - Cada fila la crea `StatRow.create(entry, index)` (ver abajo).
   - `SellButton`: botón del tema (esquinas recortadas) al final de `DetailView`, "Vender (+X€)", con X = la mitad de lo invertido en la torre (`Tower.get_sell_value()`, también tras fusionarla). Solo se ve con una torre colocada seleccionada: `show_sellable(tower)` (null lo oculta), conectado a `LevelState.sellable_tower_changed`. Emite `sell_requested`; `LevelUI._on_sell_requested` llama a `LevelState.sell_selected_tower()` solo en `PLAYING`. Ver [torres.md](torres.md).
 - `ScanFlash`: `ColorRect` cian al 20 % que tapa `Screen` durante 2 frames cada vez que cambia el contenido.
+- `PowersHeader` (`ScreenHeader` con `// PODERES`) y `PowersRow` (4 px de separación), entre `Screen` y `ScanFooter`, con `MeteorButton` y `FreezeButton` (ver "Poderes").
 
 `show_inspected(data: Resource)`: con un `InspectableData` pinta lo que da el contrato común; con null (o cualquier otra cosa), el reposo. La ficha no distingue torres de enemigos ni sabe qué stats existen: crea una fila por cada `StatEntry` que recibe.
 
@@ -101,6 +102,16 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 - Clic izquierdo o derecho en una `EnemyCell` de la pestaña Oleadas (también en pausa): enseña la ficha del enemigo sin tocar la selección de torre.
 - Deseleccionar (clic derecho en el mapa o quedarse sin dinero) no cambia la ficha.
 - `TowerButton.inspect_requested` → `Sidebar.inspect_requested` (o `EnemyCell.inspect_requested` → `WaveBlock.inspect_requested` → `Sidebar.inspect_requested`) → `LevelUI` escribe `LevelState.inspected` → `LevelState.inspected_changed` → `InfoPanel.show_inspected`. Nadie más guarda qué está inspeccionado.
+
+## Poderes
+
+Dos `PowerButton` (`scripts/level_ui/PowerButton.gd`) en `InfoPanel/Content/PowersRow`, de 53x24 cada uno (se reparten los 110 px útiles), sin foco ni tooltip: `MeteorButton` (icono `assets/ui/power_meteor.png`, tecla Q) y `FreezeButton` (`power_freeze.png`, tecla E). La lógica está en `Powers` (ver [niveles.md](niveles.md)).
+
+- Icono de 16x16 centrado y la letra de la tecla (`key_label`) a 5 px del borde izquierdo en `#5a7a96`.
+- Estilos con `ClippedBoxStyle.create`: normal fondo `#0e1626` y borde `#1c7496`; hover borde `#40e0f0`; mientras se apunta el meteorito, el normal pasa al ámbar de AUTO (fondo `#453d2b`, borde `#ecb23c`).
+- En recarga el botón está `disabled` (fondo `#0a0f1a`, borde `#1c4a60`, icono al 50 %) y lleva encima un oscurecido negro al 45 % recortado a la forma del botón, anclado arriba y con alto proporcional a lo que falta, y los segundos que faltan (redondeados hacia arriba) centrados en `#cce6ff`.
+- Cada botón lee `Powers` en `_process` (`get_cooldown_left`, `is_aiming`) y solo se redibuja si algo cambia. `LevelUI.setup_powers(powers)`, que `Game` llama tras `setup` con el `Powers` del nivel, se lo pasa a los dos.
+- Al pulsarlos (o con Q y E) `LevelUI._use_power(power)` llama a `Powers.use` solo en `PLAYING`. Cualquier `set_state` que no sea `PLAYING` cancela el apuntado.
 
 ## LevelIndicator
 
@@ -327,6 +338,7 @@ Opciones "Siguiente nivel" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción qu
 | `Sidebar` | `inspect_requested` | `LevelUI._on_inspect_requested` (escribe `LevelState.inspected`) |
 | `Sidebar` | `next_wave_requested` | `LevelUI._on_next_wave_requested` (`Spawner.start_next_wave`) |
 | `Sidebar` | `auto_waves_toggled` | `LevelUI._on_auto_waves_toggled` (escribe `Spawner.auto_waves`) |
+| `MeteorButton`, `FreezeButton` | `pressed` | `LevelUI._use_power` (`Powers.use`, solo en `PLAYING`) |
 | `Sidebar` | `fast_speed_toggled` | `LevelUI._on_fast_speed_toggled` (cambia `_fast_speed` y reaplica `time_scale`) |
 | `PauseMenu`, `GameOverScreen`, `VictoryScreen` | `option_chosen` | `LevelUI._on_option_chosen` (`RESUME` lo resuelve ella) |
 | `LevelUI` | `action_requested` | `Game._on_action_requested` (reiniciar, volver al menú o pasar al siguiente nivel) |

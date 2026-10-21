@@ -23,6 +23,7 @@ func _setup_level() -> void:
 	var level_number: int = GameData.levels.find(level_data) + 1
 	var has_next_level: bool = level_number > 0 and level_number < GameData.levels.size()
 	ui.setup(level.game_state, level.towers, level_number, level.spawner, has_next_level, level.base)
+	ui.setup_powers(level.get_node(^"Powers"))
 
 func _on_level_lost() -> void:
 	# La UI recibe el resumen ya hecho; no lee el nivel por su cuenta.

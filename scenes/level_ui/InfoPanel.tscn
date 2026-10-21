@@ -5,6 +5,9 @@
 [ext_resource type="Script" path="res://scripts/level_ui/InfoPanel.gd" id="3_script"]
 [ext_resource type="Script" path="res://scripts/level_ui/ScannerDisplay.gd" id="5_scanner"]
 [ext_resource type="PackedScene" path="res://scenes/level_ui/ScreenHeader.tscn" id="6_header"]
+[ext_resource type="Script" path="res://scripts/level_ui/PowerButton.gd" id="7_power_button"]
+[ext_resource type="Texture2D" path="res://assets/ui/power_meteor.png" id="8_meteor_icon"]
+[ext_resource type="Texture2D" path="res://assets/ui/power_freeze.png" id="9_freeze_icon"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_screen"]
 
@@ -157,6 +160,37 @@ visible = false
 layout_mode = 2
 mouse_filter = 2
 color = Color(0.2509804, 0.8784314, 0.9411765, 0.2)
+
+[node name="PowersHeader" parent="Content" instance=ExtResource("6_header")]
+layout_mode = 2
+title = "PODERES"
+
+[node name="PowersRow" type="HBoxContainer" parent="Content"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="MeteorButton" type="Button" parent="Content/PowersRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+icon = ExtResource("8_meteor_icon")
+icon_alignment = 1
+script = ExtResource("7_power_button")
+key_label = "Q"
+
+[node name="FreezeButton" type="Button" parent="Content/PowersRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+icon = ExtResource("9_freeze_icon")
+icon_alignment = 1
+script = ExtResource("7_power_button")
+power = 1
+key_label = "E"
 
 [node name="ScanFooter" type="MarginContainer" parent="Content"]
 layout_mode = 2

@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://b4qxa5dcr0sba" path="res://scenes/entities/Tower.tscn" id="6_4qegb"]
 [ext_resource type="Script" uid="uid://dc50n7b1msh6v" path="res://scripts/level/BuildManager.gd" id="10_p6oy6"]
 [ext_resource type="Script" uid="uid://6uasy1h7h8ho" path="res://scripts/level/LevelState.gd" id="11_ax7ne"]
+[ext_resource type="Script" path="res://scripts/level/Powers.gd" id="12_powers"]
 
 [node name="Level" type="Node2D" unique_id=1048914466]
 script = ExtResource("1_dke22")
@@ -19,7 +20,13 @@ script = ExtResource("3_sv41r")
 [node name="Spawner" type="Node" parent="." unique_id=132358068]
 script = ExtResource("4_m0xki")
 
-[node name="BuildManager" type="Node" parent="." unique_id=1876976917 node_paths=PackedStringArray("grid")]
+[node name="BuildManager" type="Node" parent="." unique_id=1876976917 node_paths=PackedStringArray("grid", "powers")]
 script = ExtResource("10_p6oy6")
 grid = NodePath("../Grid")
 tower_scene = ExtResource("6_4qegb")
+powers = NodePath("../Powers")
+
+[node name="Powers" type="Node2D" parent="." node_paths=PackedStringArray("state")]
+z_index = 1
+script = ExtResource("12_powers")
+state = NodePath("../LevelState")

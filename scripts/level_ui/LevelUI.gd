@@ -36,6 +36,7 @@ const FAST_SPEED := 2.0
 var _ui_state: UiState = UiState.PLAYING
 var _level_state: LevelState
 var _spawner: Spawner
+var _powers: Powers
 # Secuencia en curso antes de enseñar la pantalla (cámara lenta de LOST o respiro de WON); null si no hay.
 var _screen_delay: Tween
 # Velocidad ×2 elegida con el botón; vuelve a false al perder, ganar, reiniciar o salir.
@@ -52,6 +53,8 @@ func _ready() -> void:
 	sidebar.next_wave_requested.connect(_on_next_wave_requested)
 	sidebar.auto_waves_toggled.connect(_on_auto_waves_toggled)
 	sidebar.fast_speed_toggled.connect(_on_fast_speed_toggled)
+	info_panel.meteor_button.pressed.connect(_use_power.bind(Powers.Power.METEOR))
+	info_panel.freeze_button.pressed.connect(_use_power.bind(Powers.Power.FREEZE))
 	set_state(UiState.PLAYING)
 
 # El contador de FPS solo se ve (y solo se actualiza) con la opción show_fps activada.
@@ -88,6 +91,17 @@ func setup(state: LevelState, towers: Array[TowerData], level_number: int, spawn
 	# Un LevelState nuevo (al empezar o reiniciar) no tiene nada inspeccionado: la ficha vuelve al escáner.
 	info_panel.show_inspected(state.inspected)
 	info_panel.show_sellable(state.sellable_tower)
+
+## Powers es nuevo en cada nivel o reinicio: los botones pasan a leer el nuevo.
+func setup_powers(powers: Powers) -> void:
+	_powers = powers
+	info_panel.meteor_button.powers = powers
+	info_panel.freeze_button.powers = powers
+
+# Los poderes solo se usan jugando.
+func _use_power(power: Powers.Power) -> void:
+	if is_instance_valid(_powers) and _ui_state == UiState.PLAYING:
+		_powers.use(power)
 
 func _on_tower_selected(data: TowerData) -> void:
 	if is_instance_valid(_level_state):
@@ -183,6 +197,9 @@ func set_state(new_state: UiState) -> void:
 	# Con cualquier pantalla abierta (o en camino, durante la cámara lenta o el respiro) no se puede
 	# seleccionar torre.
 	sidebar.set_selection_locked(new_state != UiState.PLAYING)
+	# Tampoco se sigue apuntando el meteorito.
+	if new_state != UiState.PLAYING and is_instance_valid(_powers):
+		_powers.cancel_aiming()
 	if new_state == UiState.LOST or new_state == UiState.WON:
 		# Sin pantalla ni pausa todavía: el juego sigue un momento y, al acabar, entra la pantalla.
 		_show_screen(null)
@@ -239,6 +256,10 @@ func _handle_shortcut(event: InputEvent) -> bool:
 		sidebar.auto_wave_button.button_pressed = not sidebar.auto_wave_button.button_pressed
 	elif event.is_action_pressed("toggle_speed"):
 		sidebar.speed_button.button_pressed = not sidebar.speed_button.button_pressed
+	elif event.is_action_pressed("power_meteor"):
+		_use_power(Powers.Power.METEOR)
+	elif event.is_action_pressed("power_freeze"):
+		_use_power(Powers.Power.FREEZE)
 	else:
 		return false
 	return true

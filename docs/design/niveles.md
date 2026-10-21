@@ -10,6 +10,7 @@
 | `Grid` | `scripts/level/Grid.gd` | Qué casillas son camino o hueco y cuáles están ocupadas |
 | `Spawner` | `scripts/level/Spawner.gd` | Lanza las oleadas, crea sus enemigos y cuenta los vivos |
 | `BuildManager` | `scripts/level/BuildManager.gd` | Coloca torres; ver [torres.md](torres.md) |
+| `Powers` | `scripts/level/Powers.gd` | Poderes del jugador (meteorito y congelar); ver "Poderes" |
 
 `Level.setup(data: LevelData)`:
 
@@ -35,6 +36,19 @@ Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de l
 `get_run_stats() -> RunStats` construye el resumen de la partida: oleada alcanzada (`spawner.get_wave_index() + 1`, 0 si no se lanzó ninguna), total de oleadas (`spawner.waves.size()`), enemigos destruidos y dinero gastado (de `LevelState`). Lo usa `Game` al perder.
 
 **`RunStats`** (`scripts/level/RunStats.gd`, `RefCounted`): objeto de datos con `wave_reached`, `wave_total`, `enemies_destroyed` y `money_spent`, todos `int`. Se crea con `RunStats.new(reached, total, destroyed, spent)`. Lo pinta `RunSummary` (ver [ui.md](ui.md)).
+
+## Poderes
+
+`Powers` (`scripts/level/Powers.gd`, `Node2D` con `z_index = 1`, último hijo de `Level`): los poderes del jugador. Su `state` (`LevelState`) se asigna en `Level.tscn`. Como el nivel se crea de nuevo al empezar y al reiniciar, los dos poderes empiezan listos. Las recargas bajan en `_process`, así que siguen `Engine.time_scale` (×2 las acelera) y se paran con la pausa. Los botones están en la ficha (ver [ui.md](ui.md)).
+
+| Poder (`Powers.Power`) | Tecla | Efecto | Recarga |
+|---|---|---|---|
+| `METEOR` | Q | Modo apuntar; al hacer clic cae un meteorito: `METEOR_DAMAGE` (150) a todos los enemigos a `METEOR_RADIUS` (40 px) o menos del punto | 45 s |
+| `FREEZE` | E | Todos los enemigos vivos a `FREEZE_FACTOR` (30 %) de velocidad durante `FREEZE_TIME` (4 s), con `Enemy.slow` y la escarcha del Cryo (`cryo_frost.tres`) | 60 s |
+
+- `use(power)`: si el poder no está listo no hace nada. Meteorito: si ya se apuntaba, cancela; si no, suelta la torre seleccionada (`state.selected_tower = null`) y entra en modo apuntar. Congelar se lanza ya.
+- **Apuntado:** pinta en `_draw` un círculo del radio del área en el cursor (relleno ámbar al 15 % y borde de 1 px `#ecb23c`, sin antialiasing). En `_unhandled_input`, clic izquierdo lanza el meteorito ahí y clic derecho cancela; los dos marcan el evento como gestionado. Mientras se apunta, `BuildManager` ignora la entrada (su `powers`, asignado en la escena), así que no coloca ni selecciona torres. Elegir torre (`selected_tower_changed` con una torre) cancela el apuntado. `cancel_aiming()` lo quita.
+- **Meteorito:** la recarga empieza al hacer clic. El cometa del fondo (`cometa.png`) cae en `METEOR_FALL_TIME` (0,3 s) desde `METEOR_FALL_OFFSET` (-90, -150) respecto al punto; al llegar, explosión del lanzacohetes (`rocket_launcher_impact.tres`) a ×3 y `RocketExplosion.wav` (bus SFX), y el daño a los enemigos del área con `hp > 0`.
 
 ## LevelState
 

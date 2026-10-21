@@ -39,6 +39,8 @@ const HINT_END_MARGIN := 1.0
 @onready var scroll_hint: Control = %ScrollHint
 @onready var scan_flash: Control = %ScanFlash
 @onready var sell_button: Button = %SellButton
+@onready var meteor_button: PowerButton = %MeteorButton
+@onready var freeze_button: PowerButton = %FreezeButton
 
 var _accent := Color.WHITE
 var _flash_id := 0
