@@ -32,7 +32,7 @@ func setup(enemy_data: EnemyData):
 	hp = data.hp
 	sprite.sprite_frames = data.sprite_frames
 	collision_shape.shape = data.collision_shape
-	_last_position = global_position
+	_last_position = position
 	add_to_group(&"enemies")
 
 ## Sale del portal: crece de escala 0 a 1 con un destello.
@@ -56,8 +56,9 @@ func get_remaining_distance() -> float:
 	return (get_parent() as Path2D).curve.get_baked_length() - progress
 
 func _update_animation():
-	var direction := global_position - _last_position
-	_last_position = global_position
+	# Posición local en el camino: el temblor del mapa mueve la global y no debe girar la nave.
+	var direction := position - _last_position
+	_last_position = position
 	if direction.length() < 0.01:
 		return
 	if abs(direction.x) > abs(direction.y):

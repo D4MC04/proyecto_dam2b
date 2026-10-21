@@ -18,6 +18,7 @@
 [ext_resource type="Script" path="res://scripts/level_ui/OverlayFrame.gd" id="20_frame"]
 [ext_resource type="PackedScene" path="res://scenes/level_ui/ScreenHeader.tscn" id="21_header"]
 [ext_resource type="PackedScene" path="res://scenes/Navedex.tscn" id="22_navedex"]
+[ext_resource type="Script" path="res://scripts/main_menu/Skirmish.gd" id="23_skirmish"]
 
 [node name="MainMenu" type="Control" unique_id=576679633]
 texture_filter = 1
@@ -114,6 +115,9 @@ scale = Vector2(0.355, 0.33500007)
 frame_progress = 0.4903853
 sheet = ExtResource("12_asteroide1")
 fps = 10.0
+
+[node name="Skirmish" type="Node2D" parent="."]
+script = ExtResource("23_skirmish")
 
 [node name="TitleScreen" type="VBoxContainer" parent="." unique_id=1853329339]
 layout_mode = 1

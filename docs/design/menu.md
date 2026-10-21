@@ -7,7 +7,7 @@
 Nodos, de fondo a frente:
 
 - `Background`: `ColorRect` negro.
-- `StarField`, `Comets`, `Asteroids`, `Satellites`, `Planets`: decoración (ver abajo).
+- `StarField`, `Comets`, `Asteroids`, `Satellites`, `Planets`, `Skirmish`: decoración (ver abajo).
 - `TitleScreen`: título "ASTRO ARTILLERY" y debajo el subtítulo "TOWER DEFENSE" (24 px, `#40e0f0`), flotando sin panel; debajo, `ButtonsPanel`, un panel holograma cian (`OverlayFrame`) con "Jugar", "ARCHIVO", "Opciones" y "Salir" (204x36 todos, texto a 24). Márgenes del panel de 24 a los lados y 21 arriba y abajo, 18 de separación en `Content` y 9 entre botones.
 - `LevelSelectionScreen` (oculto al empezar): `LevelsPanel`, un panel holograma cian con la cabecera `// SECTORES DISPONIBLES` (`ScreenHeader`), `LevelButtonsContainer` (`GridContainer` de 5 columnas, 12 px de separación) y el botón "Volver" (204x36). Cabecera y botones a 24 px. Mismos márgenes y separación que `ButtonsPanel`.
 - `Navedex` (oculto al empezar): instancia de `scenes/Navedex.tscn` (ver "Navedex").
@@ -36,6 +36,7 @@ Todos son `Node2D` que dibujan o crean sprites por código, con posiciones y tie
 | `Asteroids` | `scripts/main_menu/Asteroids.gd` | Hasta 2 asteroides a la vez cruzan de un borde al opuesto a 60 px/s, con estela; aparece uno cada 3 a 7 s |
 | `Satellites` | `scripts/main_menu/Satellites.gd` | Un satélite cada vez, a 20-30 px/s y girando despacio; el siguiente sale entre 8 y 15 s después de irse el anterior |
 | `Planets` | instancias de `scenes/SpaceBody.tscn` | 6 planetas animados fijos, repartidos por los 960x540 (posiciones proporcionales a las que tenían en 640x272, con sus escalas), y un asteroide oculto |
+| `Skirmish` | `scripts/main_menu/Skirmish.gd` | Entre `Planets` y el panel. Cada 6-12 s cruza un grupo de 2-4 naves enemigas en V (mismo sprite, ×0,5, 60 % de opacidad, 60 px/s, siempre en horizontal y giradas hacia donde avanzan igual que `Enemy._update_animation`) por las franjas de arriba o abajo, lejos de los botones. Cada 1,5-4 s un disparo (línea cian de 1 px) llega desde fuera de la pantalla por arriba o abajo apuntando a una nave; siempre hace un impacto (`laser_impact`) y el 40 % de las veces la nave se destruye |
 
 `scripts/main_menu/SpaceBody.gd` (clase `SpaceBody`) es un `AnimatedSprite2D` con `@tool` que construye su `SpriteFrames` a partir de `sheet`, una tira horizontal de frames cuadrados (lado = alto de la imagen), a la velocidad `fps`. Lo usan los planetas del menú y los asteroides.
 
