@@ -9,6 +9,7 @@ signal died(reward: int)
 var data: EnemyData
 var speed: float
 var hp: float
+var max_hp: float
 var _last_position: Vector2
 
 # Los efectos que se pintan encima del enemigo son de 32 px; se escalan a su tamaño.
@@ -41,10 +42,11 @@ const CLOAK_DISSOLVE_TIME := 0.3
 
 signal reached_end(damage: int)
 
-func setup(enemy_data: EnemyData):
+func setup(enemy_data: EnemyData, health_multiplier: float = 1.0):
 	data = enemy_data
 	speed = data.speed
-	hp = data.hp
+	max_hp = data.hp * health_multiplier
+	hp = max_hp
 	sprite.sprite_frames = data.sprite_frames
 	collision_shape.shape = data.collision_shape
 	_last_position = position
@@ -100,17 +102,17 @@ func _update_animation():
 
 func take_damage(amount: float):
 	hp -= amount
-	_health_bar.update(hp, data.hp)
+	_health_bar.update(hp, max_hp)
 	if hp <= 0:
 		die()
 
 ## Cura sin pasar de la vida máxima, con el número en verde, un destello y chispas. Con la vida llena no hace nada.
 func heal(amount: float) -> void:
-	var healed := minf(amount, data.hp - hp)
+	var healed := minf(amount, max_hp - hp)
 	if healed <= 0.0 or hp <= 0.0:
 		return
 	hp += healed
-	_health_bar.update(hp, data.hp)
+	_health_bar.update(hp, max_hp)
 	FloatingText.spawn(get_parent(), global_position, "+" + UiFormat.number(healed), FloatingText.DURATION, HEAL_TEXT_COLOR)
 	HealEffect.spawn_sparks(self, effect_scale() * EFFECT_SIZE)
 	var tween := create_tween()
@@ -123,7 +125,7 @@ func _heal_nearby() -> void:
 	for node: Node in get_tree().get_nodes_in_group(&"enemies"):
 		var enemy := node as Enemy
 		if enemy != self and enemy.global_position.distance_to(global_position) <= HEAL_RADIUS:
-			enemy.heal(data.hp * HEAL_RATIO)
+			enemy.heal(max_hp * HEAL_RATIO)
 
 # Ralentiza durante `duration` segundos con un destello y la escarcha encima.
 # Si ya estaba ralentizado se renueva la duración, no se acumula.

@@ -58,6 +58,7 @@ El sprite (`assets/sprites/enemies/espectro/espectro_0` a `_2`, 32x32, mirando h
 
 ### Daño y muerte
 
+- `setup(data, health_multiplier = 1.0)` fija `max_hp = data.hp * multiplicador` y `hp = max_hp`; la barra de vida y la curación de la Reparadora usan `max_hp`. La ficha de la pestaña Oleadas sigue enseñando la vida base (`data.hp`); las naves en juego no son inspeccionables.
 - `take_damage(amount)` resta vida; con vida <= 0 llama a `die()`.
 - `die()` emite `died(data.reward)`, reproduce `data.death_sound` en el bus `SFX` y libera el nodo. El `AudioStreamPlayer` se crea como hijo del padre (el `Path2D`) porque el enemigo se libera enseguida, y se libera solo al terminar (`finished`). Si llega a la estación (`reached_end`) no suena.
 - Decidido: las naves no suenan al morir (el usuario lo pidió: sonaba demasiado fuerte y tapaba el resto). Las `resources/enemy_data/*.tres` no asignan `death_sound`, así que `_play_death_sound()` no hace nada. El campo `death_sound` de `EnemyData` y el código siguen por si se quiere volver a poner.

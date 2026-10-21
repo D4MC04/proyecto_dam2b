@@ -66,7 +66,7 @@ Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de l
 ## Datos de nivel
 
 - `LevelData` (`scripts/resources/LevelData.gd`): `map: PackedScene`, `towers: Array[TowerData]`, `waves: Array[WaveData]`.
-- `WaveData`: `entries: Array[SpawnEntry]`.
+- `WaveData`: `entries: Array[SpawnEntry]` y `health_multiplier: float` (1.0 por defecto; multiplica la vida máxima de todos los enemigos de la oleada, también los trozos de la Divisora; la recompensa no cambia).
 - `SpawnEntry`: `enemy_data: EnemyData`, `time: float` (segundos desde el inicio de la oleada), `path_index: int`.
 
 Niveles registrados en `GameData.levels`:
@@ -88,6 +88,8 @@ Cada nivel tiene tres `WaveData` (`resources/wave_data/level_N.tres`, `level_N_2
 Todas las oleadas usan todos los caminos de su mapa. En los niveles 2, 3 y 5 a 9, las entradas de cada oleada, ordenadas por tiempo, van por turnos a los caminos 0, 1, 2… (`path_index` = posición % número de caminos). El nivel 4 conserva su reparto propio entre sus dos caminos.
 
 ## Spawner
+
+`_spawn_enemy` llama a `Enemy.setup(data, health_multiplier)` con el multiplicador de la oleada en curso (`waves[_wave_index]`).
 
 Lleva el ciclo de oleadas del nivel: cuándo se lanzan, qué enemigos quedan vivos y el modo AUTO.
 
