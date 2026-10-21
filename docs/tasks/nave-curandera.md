@@ -23,7 +23,7 @@ Una nave nueva, con su propio dibujo, que cura a las demás: se convierte en obj
   - Al curar, la Reparadora suelta un anillo verde que se expande (pixel art, sin antialiasing).
   - En cada nave curada:
     - Sale cuánto se ha curado ("+9") en verde con `FloatingText`.
-    - Hay una animación de curación: un destello verde sobre el sprite y unas chispas o cruces pequeñas de píxeles verdes que suben y se desvanecen (0,4 s).
+    - Hay una animación de curación: un destello verde sobre el sprite y unas chispas pequeñas de píxeles verdes (sin cruces) que suben y se desvanecen (0,4 s).
     - Su barra de vida (`HealthBar`) sube.
   - Se puede hacer con un campo en `EnemyData` (por ejemplo `heal_aura: bool`) o como mejor encaje, sin montar un sistema general.
 - **Oleadas:** añadirla a las del nivel 6, en medio de grupos.
