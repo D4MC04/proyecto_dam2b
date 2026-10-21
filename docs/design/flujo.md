@@ -22,7 +22,7 @@ Definidos en `project.godot`, en este orden:
 - `LevelUI`: instancia de `scenes/level_ui/LevelUI.tscn`.
 - `Level`: instancia de `scenes/Level.tscn`.
 
-`Game` tiene la propiedad `level_data: LevelData`, que le asigna el menú antes de añadirlo al árbol.
+`Game` tiene la propiedad `level_data: LevelData`, que le asigna el menú antes de añadirlo al árbol, y `from_hyperspace: bool`: si es true, el mapa entra con un fundido desde blanco de 0,2 s (`_fade_in_from_white`, `CanvasLayer` 100 temporal) tras el salto al hiperespacio del menú.
 
 ### Arranque
 

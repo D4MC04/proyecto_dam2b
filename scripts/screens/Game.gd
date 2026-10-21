@@ -1,9 +1,11 @@
 extends Node
 class_name Game
 
+const ENTER_FADE_TIME := 0.2
 const MAIN_MENU_PATH := "res://scenes/MainMenu.tscn"
 
 @export var level_data: LevelData
+var from_hyperspace: bool = false
 
 @onready var level: Level = $Level
 @onready var ui: LevelUI = $LevelUI
@@ -14,6 +16,22 @@ func _ready() -> void:
 	_level_scene = load(level.scene_file_path)
 	ui.action_requested.connect(_on_action_requested)
 	_setup_level()
+	if from_hyperspace:
+		_fade_in_from_white()
+
+# Fundido desde blanco al llegar del salto al hiperespacio.
+func _fade_in_from_white() -> void:
+	var layer := CanvasLayer.new()
+	layer.layer = 100
+	var white := ColorRect.new()
+	white.color = Color.WHITE
+	white.set_anchors_preset(Control.PRESET_FULL_RECT)
+	white.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(white)
+	add_child(layer)
+	var tween := create_tween()
+	tween.tween_property(white, "color:a", 0.0, ENTER_FADE_TIME)
+	tween.finished.connect(layer.queue_free)
 
 func _setup_level() -> void:
 	level.setup(level_data)
