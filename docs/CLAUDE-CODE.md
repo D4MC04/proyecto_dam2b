@@ -13,7 +13,7 @@
 
 Ir más rápido: al aceptar tickets, Claude empieza solo, sin preguntar: sube el cambio de `Estado:` a main (los worktrees salen de lo que hay en main) y abre un chat con worktree por cada ticket que no choque con otro, ya con `/hacer`. Los que chocan esperan a que el anterior esté en main.
 
-**`/new`**: abre el chat central (Opus, en la carpeta principal, sobre `main`) y archiva el chat donde lo escribiste. El chat central propone y reparte tickets, revisa lo que suben y mantiene `main` local actualizado. Los chats de ticket van en worktree y no pueden tocar la carpeta principal, por eso lo hace él.
+**`/new`**: abre el chat central (Opus, en la carpeta principal, sobre `main`) y borra el chat donde lo escribiste (la app te pide confirmar el borrado). El chat central propone y reparte tickets, revisa lo que suben y mantiene `main` local actualizado. Los chats de ticket van en worktree y no pueden tocar la carpeta principal, por eso lo hace él.
 
 Los tickets siguen el formato de `docs/tasks/_plantilla.md`. Puedes escribir tú uno a mano y lanzar `/hacer` igual.
 
