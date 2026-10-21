@@ -140,7 +140,7 @@ Dos `PowerButton` (`scripts/level_ui/PowerButton.gd`) en `InfoPanel/Content/Powe
 - Tinte rojo `#f0323c` sobre el área (hasta 35 % de opacidad) que late 4 veces, y borde rojo de 12 px que late con él.
 - Franja de lado a lado del área, centrada en vertical, de 120 px (`#7a0f18`), con rayas diagonales rojas y negras de 14 px arriba y abajo.
 - En el centro, "ALERTA" a 48 px y debajo "NODRIZA ACERCÁNDOSE" a 32 px (Monogram), en un `CenterContainer`.
-- Sirena en el bus `SFX`: `AudioStreamWAV` generado por código en `_make_siren` (seno cuyo tono sube y baja entre 600 y 900 Hz, 2 ciclos en 2 s, volumen 0,35, con fundido corto). No hay archivo de audio.
+- Sin sonido (se quitó la sirena a petición del usuario).
 
 El `Portal` de un camino que saca la Nodriza tiembla con más fuerza (`Portal.BOSS_SHAKE`, 3 px frente a 1).
 
