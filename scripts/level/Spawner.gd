@@ -14,6 +14,7 @@ signal all_waves_cleared
 ## Se emite al cambiar `auto_waves`.
 signal auto_waves_changed(enabled: bool)
 
+const NODRIZA: EnemyData = preload("res://resources/enemy_data/nodriza.tres")
 const ENEMY_SCENE: PackedScene = preload("res://scenes/entities/Enemy.tscn")
 ## Pausa entre que el nivel queda limpio y el arranque de la siguiente oleada con AUTO.
 const AUTO_WAVE_DELAY := 1.5
@@ -66,6 +67,10 @@ func start_next_wave() -> bool:
 	_open_portals()
 	wave_started.emit(_wave_index, waves.size())
 	return true
+
+## La oleada `index` trae la Nodriza (el jefe).
+func wave_has_boss(index: int) -> bool:
+	return waves[index].entries.any(func(entry: SpawnEntry) -> bool: return entry.enemy_data == NODRIZA)
 
 func can_start_next_wave() -> bool:
 	return is_clear() and has_waves_left()
@@ -132,6 +137,9 @@ func _open_portals() -> void:
 		portal.position = curve.sample_baked(PORTAL_OFFSET)
 		# La grieta (horizontal en Portal) queda atravesada al camino; girada en múltiplos de 90° para no deformar los píxeles.
 		var direction := curve.sample_baked(PORTAL_OFFSET + 1.0) - portal.position
+		# La Nodriza sale con un temblor más fuerte.
+		if _entries.any(func(e: SpawnEntry) -> bool: return e.path_index % paths.size() == index and e.enemy_data == NODRIZA):
+			portal.shake_strength = Portal.BOSS_SHAKE
 		portal.rotation = snappedf(direction.angle() + PI / 2.0, PI / 2.0)
 		paths[index].add_child(portal)
 		_portals[index] = portal

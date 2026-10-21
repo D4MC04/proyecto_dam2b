@@ -25,6 +25,7 @@ const FAST_SPEED := 2.0
 @onready var sidebar: Sidebar = %Sidebar
 @onready var level_indicator: LevelIndicator = %LevelIndicator
 @onready var info_panel: InfoPanel = %InfoPanel
+@onready var boss_alert: BossAlert = %BossAlert
 @onready var fps_label: Label = %FpsLabel
 @onready var tutorial_hints: TutorialHints = %TutorialHints
 # Pantalla de cada estado; un estado sin entrada no enseña ninguna. Cada pantalla va en un solo estado.
@@ -146,6 +147,8 @@ func _spawner_connections(spawner: Spawner) -> Array[Array]:
 	]
 
 func _on_wave_started(index: int, _total: int) -> void:
+	if _spawner.wave_has_boss(index):
+		boss_alert.show_alert("Nodriza")
 	sidebar.set_current_wave(index)
 	_refresh_wave_controls()
 

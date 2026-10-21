@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://scenes/level_ui/LevelIndicator.tscn" id="5_indicator"]
 [ext_resource type="PackedScene" path="res://scenes/level_ui/VictoryScreen.tscn" id="6_victory"]
 [ext_resource type="PackedScene" path="res://scenes/level_ui/TutorialHints.tscn" id="7_tutorial"]
+[ext_resource type="Script" path="res://scripts/level_ui/BossAlert.gd" id="8_bossalert"]
 [ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="4_theme"]
 
 [node name="LevelUI" type="CanvasLayer" unique_id=245943380]
@@ -63,6 +64,18 @@ theme = ExtResource("4_theme")
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 2
 theme_override_font_sizes/font_size = 16
+
+[node name="BossAlert" type="Control" parent="UI/HBoxContainer/GameArea"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("4_theme")
+script = ExtResource("8_bossalert")
 
 [node name="GameOverScreen" parent="UI/HBoxContainer/GameArea" unique_id=592437674 instance=ExtResource("1_8klgi")]
 unique_name_in_owner = true

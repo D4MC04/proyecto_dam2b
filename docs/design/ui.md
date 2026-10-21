@@ -133,6 +133,17 @@ Dos `PowerButton` (`scripts/level_ui/PowerButton.gd`) en `InfoPanel/Content/Powe
 - Al acabar o con "Saltar" llama a `GameState.complete_tutorial()` y se esconde.
 - `LevelUI.set_state` lo esconde fuera de `PLAYING` (no tapa la pausa ni señala por encima de ella).
 
+## BossAlert
+
+`scripts/level_ui/BossAlert.gd` (clase `BossAlert`), `Control` a pantalla completa dentro de `GameArea` (declarado antes que las pantallas, ignora el ratón, oculto hasta que se usa). `LevelUI._on_wave_started` llama a `show_alert("Nodriza")` cuando `Spawner.wave_has_boss(index)` es true (la oleada tiene alguna entrada con la Nodriza). Dura 2 s en tiempo real, sin pausar el juego ni tapar las barras. Todo se pinta en `_draw`, sin antialiasing:
+
+- Tinte rojo `#f0323c` sobre el área (hasta 35 % de opacidad) que late 4 veces, y borde rojo de 12 px que late con él.
+- Franja de lado a lado del área, centrada en vertical, de 120 px (`#7a0f18`), con rayas diagonales rojas y negras de 14 px arriba y abajo.
+- En el centro, "ALERTA" a 48 px y debajo "NODRIZA ACERCÁNDOSE" a 32 px (Monogram), en un `CenterContainer`.
+- Sirena en el bus `SFX`: `AudioStreamWAV` generado por código en `_make_siren` (seno cuyo tono sube y baja entre 600 y 900 Hz, 2 ciclos en 2 s, volumen 0,35, con fundido corto). No hay archivo de audio.
+
+El `Portal` de un camino que saca la Nodriza tiembla con más fuerza (`Portal.BOSS_SHAKE`, 3 px frente a 1).
+
 ## LevelIndicator
 
 `scenes/level_ui/LevelIndicator.tscn` + `scripts/level_ui/LevelIndicator.gd` (clase `LevelIndicator`). `MarginContainer` (sin marco ni fondo) anclado arriba en el centro de `GameArea` (3 px de margen superior) con solo el `Label` "NIVEL N" a 32 px (el doble del texto normal), en `#cce6ff` sin contorno. `mouse_filter = IGNORE` en el contenedor y en el `Label`; el área de desvanecido se ajusta sola a su tamaño.
