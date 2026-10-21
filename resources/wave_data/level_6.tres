@@ -17,11 +17,13 @@ time = 3.0
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_morado")
 time = 3.5
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_mdxxb"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_morado")
 time = 4.0
+path_index = 2
 
 [sub_resource type="Resource" id="Resource_ydm61"]
 script = ExtResource("entry")
@@ -32,11 +34,13 @@ time = 4.5
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_morado")
 time = 7.5
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_vqqpl"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_rojo")
 time = 8.0
+path_index = 2
 
 [sub_resource type="Resource" id="Resource_qd1t8"]
 script = ExtResource("entry")
@@ -47,11 +51,13 @@ time = 8.5
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_verde")
 time = 12.0
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_513ym"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_morado")
 time = 12.5
+path_index = 2
 
 [sub_resource type="Resource" id="Resource_ipl6n"]
 script = ExtResource("entry")
@@ -62,11 +68,13 @@ time = 13.0
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_verde")
 time = 13.5
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_2mxu1"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_verde")
 time = 14.0
+path_index = 2
 
 [sub_resource type="Resource" id="Resource_g43kl"]
 script = ExtResource("entry")
@@ -77,11 +85,13 @@ time = 16.5
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_rojo")
 time = 17.0
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_hjrfu"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_rojo")
 time = 17.5
+path_index = 2
 
 [sub_resource type="Resource" id="Resource_wfrso"]
 script = ExtResource("entry")
@@ -92,11 +102,13 @@ time = 18.0
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_hielo")
 time = 21.0
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_e6tyy"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_morado")
 time = 21.5
+path_index = 2
 
 [sub_resource type="Resource" id="Resource_gnr0k"]
 script = ExtResource("entry")
@@ -107,11 +119,13 @@ time = 22.0
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_verde")
 time = 25.5
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_p3w0a"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_hielo")
 time = 26.0
+path_index = 2
 
 [sub_resource type="Resource" id="Resource_penvs"]
 script = ExtResource("entry")
@@ -122,11 +136,13 @@ time = 26.5
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_verde")
 time = 27.0
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_xui6r"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_rojo")
 time = 27.5
+path_index = 2
 
 [sub_resource type="Resource" id="Resource_4disi"]
 script = ExtResource("entry")
@@ -137,11 +153,13 @@ time = 30.0
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_rojo")
 time = 30.5
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_pt7pr"]
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_morado")
 time = 31.0
+path_index = 2
 
 [sub_resource type="Resource" id="Resource_6ga7u"]
 script = ExtResource("entry")

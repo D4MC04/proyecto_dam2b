@@ -16,6 +16,7 @@ time = 3.0
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_rojo")
 time = 3.5
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_levk6"]
 script = ExtResource("entry")
@@ -26,6 +27,7 @@ time = 4.0
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_verde")
 time = 4.5
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_2rpqw"]
 script = ExtResource("entry")
@@ -36,6 +38,7 @@ time = 7.5
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_morado")
 time = 8.0
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_mdjro"]
 script = ExtResource("entry")

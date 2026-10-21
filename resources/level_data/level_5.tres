@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="LevelData" format=3 uid="uid://ck4r2sfi2w6b4"]
 
-[ext_resource type="PackedScene" path="res://scenes/maps/espacio/Level5_espacio.tscn" id="1_e7mtc"]
+[ext_resource type="PackedScene" uid="uid://csp2bvvtlr7ym" path="res://scenes/maps/levels/Level5.tscn" id="1_e7mtc"]
 [ext_resource type="Script" uid="uid://du40p5btlpgd0" path="res://scripts/resources/LevelData.gd" id="2_mhbsq"]
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TowerData.gd" id="3_scr8y"]
 [ext_resource type="Resource" uid="uid://cnbuncwscbxtt" path="res://resources/turret_data/turret.tres" id="4_e7mtc"]

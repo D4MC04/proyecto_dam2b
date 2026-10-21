@@ -1,0 +1,15 @@
+# Nivel 9: cuatro esquinas y ocho rutas, simétrico en los dos ejes; estación en el centro.
+# Datos de scripts/tools/map_generator.gd (formato en su cabecera).
+
+seed = 909
+rocks = dark crystal lava ice
+station = 21 16
+path = 3,-2 3,6 21,6 21,16
+path = 3,-2 3,16 21,16
+path = 39,-2 39,6 21,6 21,16
+path = 39,-2 39,16 21,16
+path = 3,34 3,26 21,26 21,16
+path = 3,34 3,16 21,16
+path = 39,34 39,26 21,26 21,16
+path = 39,34 39,16 21,16
+planets = 5,3 37,3 21,4 1,8 6,8 18,8 24,8 36,8 41,8 5,13 37,13 5,19 37,19 1,24 6,24 18,24 24,24 36,24 41,24 21,28 5,29 37,29

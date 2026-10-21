@@ -1,0 +1,8 @@
+# Nivel 1: un camino con curvas; estación en el centro a la izquierda.
+# Datos de scripts/tools/map_generator.gd (formato en su cabecera).
+
+seed = 101
+rocks = grey brown ice
+station = 5 16
+path = 44,4 11,4 11,10 37,10 37,28 13,28 13,22 29,22 29,16 5,16
+planets = 13,6 23,6 18,8 30,8 35,8 11,12 35,13 17,14 26,14 31,17 11,20 16,20 26,20 23,24 31,24 11,25 16,26

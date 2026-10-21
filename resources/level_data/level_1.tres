@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="LevelData" format=3 uid="uid://dm8v13vfersya"]
 
-[ext_resource type="PackedScene" uid="uid://cmokyxicevl04" path="res://scenes/maps/Level1.tscn" id="1_jcob0"]
+[ext_resource type="PackedScene" uid="uid://do3pmt6pq3dvs" path="res://scenes/maps/levels/Level1.tscn" id="1_jcob0"]
 [ext_resource type="Script" uid="uid://du40p5btlpgd0" path="res://scripts/resources/LevelData.gd" id="1_obkt0"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="2_ujpww"]
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TowerData.gd" id="3_ismlj"]
@@ -8,7 +8,8 @@
 [ext_resource type="Resource" uid="uid://bh8qdvmr3kaj" path="res://resources/turret_data/rocket_launcher.tres" id="5_0wb63"]
 [ext_resource type="Resource" uid="uid://bi8dmx532elhj" path="res://resources/turret_data/laser.tres" id="6_ismlj"]
 [ext_resource type="Resource" uid="uid://5hge2mvmeyue" path="res://resources/wave_data/level_1.tres" id="8_ismlj"]
-[ext_resource type="Resource" path="res://resources/wave_data/level_1_2.tres" id="wave_1_2"][ext_resource type="Resource" path="res://resources/wave_data/level_1_3.tres" id="wave_1_3"]
+[ext_resource type="Resource" uid="uid://c8o7xttuhxo68" path="res://resources/wave_data/level_1_2.tres" id="wave_1_2"]
+[ext_resource type="Resource" uid="uid://dn7bxkkle6bma" path="res://resources/wave_data/level_1_3.tres" id="wave_1_3"]
 
 [resource]
 script = ExtResource("1_obkt0")

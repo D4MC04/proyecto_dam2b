@@ -69,16 +69,21 @@ Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de l
 
 Niveles registrados en `GameData.levels`:
 
-| Nivel | Mapa | Torres disponibles | Enemigos por oleada (1 + 2 + 3) | Último enemigo de cada una (s) | Caminos usados / en el mapa |
+| Nivel | Mapa | Torres disponibles | Enemigos por oleada (1 + 2 + 3) | Último enemigo de cada una (s) | Caminos |
 |---|---|---|---|---|---|
-| 1 | `maps/Level1.tscn` | Cañón doble, Cañón pesado, Láser | 7 + 12 + 6 | 8,5 / 12 / 7,5 | 1 / 1 |
-| 2 | `maps/espacio/Level2_espacio.tscn` | las anteriores + Cryo | 7 + 12 + 13 | 8,5 / 12 / 12,5 | 1 / 2 |
-| 3 | `maps/Level3.tscn` | las anteriores + Tesla | 16 + 12 + 12 | 18 / 12,5 / 12,5 | 1 / 1 |
-| 4 | `maps/Level4.tscn` | las anteriores + Rail | 19 + 12 + 19 | 22 / 12 / 21 | 2 / 2 |
-| 5 | `maps/espacio/Level5_espacio.tscn` | las anteriores + Disintegrator | 19 + 24 + 17 | 22 / 25,5 / 17,5 | 1 / 4 |
-| 6 | `maps/espacio/Level6_espacio.tscn` | las 7 | 28 + 24 + 23 | 31,5 / 26 / 25,5 | 4 / 8 |
+| 1 | `maps/levels/Level1.tscn` | Cañón doble, Cañón pesado, Láser | 7 + 12 + 6 | 8,5 / 12 / 7,5 | 1 |
+| 2 | `maps/levels/Level2.tscn` | las anteriores + Cryo | 7 + 12 + 13 | 8,5 / 12 / 12,5 | 2 |
+| 3 | `maps/levels/Level3.tscn` | las anteriores + Tesla | 16 + 12 + 12 | 18 / 12,5 / 12,5 | 2 |
+| 4 | `maps/levels/Level4.tscn` | las anteriores + Rail | 19 + 12 + 19 | 22 / 12 / 21 | 2 |
+| 5 | `maps/levels/Level5.tscn` | las anteriores + Disintegrator | 19 + 24 + 17 | 22 / 25,5 / 17,5 | 2 |
+| 6 | `maps/levels/Level6.tscn` | las 7 | 28 + 24 + 23 | 31,5 / 26 / 25,5 | 3 |
+| 7 | `maps/levels/Level7.tscn` | las 7 | 28 + 24 + 23 | 31,5 / 26 / 25,5 | 4 |
+| 8 | `maps/levels/Level8.tscn` | las 7 | 28 + 24 + 23 | 31,5 / 26 / 25,5 | 4 |
+| 9 | `maps/levels/Level9.tscn` | las 7 | 28 + 24 + 23 | 31,5 / 26 / 25,5 | 8 |
 
-Cada nivel tiene tres `WaveData` (`resources/wave_data/level_N.tres`, `level_N_2.tres` y `level_N_3.tres`): son la oleada original del nivel partida en tres tramos consecutivos, con los tiempos de cada una desde 3 s (la primera) o 2 s (las otras). Los niveles 1, 2, 3, 4 y 6 están en `resources/level_data/level_N.tres`; el 5 está definido como subrecurso dentro de `scenes/GameData.tscn`.
+Cada nivel tiene tres `WaveData` (`resources/wave_data/level_N.tres`, `level_N_2.tres` y `level_N_3.tres`): son la oleada original del nivel partida en tres tramos consecutivos, con los tiempos de cada una desde 3 s (la primera) o 2 s (las otras). Las oleadas de los niveles 7, 8 y 9 son, de momento, copias de las del nivel 6. Los niveles 1 a 4 y 6 a 9 están en `resources/level_data/level_N.tres`; el 5 está definido como subrecurso dentro de `scenes/GameData.tscn`.
+
+Todas las oleadas usan todos los caminos de su mapa. En los niveles 2, 3 y 5 a 9, las entradas de cada oleada, ordenadas por tiempo, van por turnos a los caminos 0, 1, 2… (`path_index` = posición % número de caminos). El nivel 4 conserva su reparto propio entre sus dos caminos.
 
 ## Spawner
 
@@ -143,38 +148,71 @@ El área de juego va de x = 128 a x = 832 y de y = 0 a y = 540 (ver [ui.md](ui.m
 
 `Grid`, `BuildManager` y los enemigos no necesitan saberlo: `Grid` convierte con `to_local`/`to_global` de `LogicMap`, las torres y la vista previa se colocan con `grid.center` y los enemigos son hijos de los `Path2D` del mapa.
 
-Resultado con los mapas actuales (px de pantalla):
+Todos los mapas de nivel miden 43x33 casillas (688x528 px), así que todos quedan igual: `Map` en (136, 6) y rectángulo útil de x = 136 a 824 y de y = 6 a 534. Sobran 8 px a cada lado y 6 px arriba y abajo, que cubre la decoración del margen (ver abajo).
 
-| Nivel | Posición de `Map` | Rectángulo útil | `VisualMap` |
-|---|---|---|---|
-| 1 | (24, 0) | 136..504 | 24..520 |
-| 2 | (56, 0) | 104..536 | 40..568 |
-| 3 | (88, 0) | 104..536 | 88..584 |
-| 4 | (88, 0) | 104..536 | 88..552 |
-| 5 | (88, 0) | 136..504 | 72..600 |
-| 6 | (88, 0) | 136..504 | 72..600 |
+Todos los mapas (y la plantilla `Map.tscn`) llevan `Background`, instancia de `SpaceBackground.tscn`, como primer hijo de `Map`.
 
-Todos los mapas (y la plantilla `Map.tscn`) llevan `Background`, instancia de `SpaceBackground.tscn`, como primer hijo de `Map`. Hay dos familias de mapas:
+### Mapas de los niveles
 
-- **Hierba** (`scenes/maps/Level1.tscn` a `Level10.tscn` y `scenes/maps/redesign/`): `VisualMap` usa `resources/tilesets/tileset.tres` (hierba, piedra, plantas, objetos, estructuras, muros). `LogicMap` es visible con alfa 0,39.
-- **Espacio** (`scenes/maps/espacio/`): añaden las capas `Polvo`, `Planetas` y `Pista`, todas con `resources/tilesets/tileset_espacio.tres`. `LogicMap` tiene `visible = false`. El nodo `Map` está en la posición (8, 0).
+Los 9 mapas están en `scenes/maps/levels/` (`Level1.tscn` a `Level9.tscn`). Los caminos no se dibujan: cada camino es un **pasillo de espacio libre** de 3 casillas que atraviesa un campo de asteroides que llena todo lo demás. El campo tiene gravilla de roca por el suelo y el pasillo no, así que el pasillo se ve limpio y oscuro y cualquier claro del campo se ve sucio. Sus capas, de abajo arriba, todas con `resources/tilesets/tileset_espacio.tres` menos `LogicMap`:
 
-### Decoración de los mapas de espacio
+| Capa | Contenido |
+|---|---|
+| `Gravel` | Gravilla y estrellas que parpadean en todo el campo; nada en el pasillo |
+| `Lights` | Luces del centro del pasillo en los tramos rectos |
+| `VisualMap` | Rocas, chatarra, piezas especiales y balizas |
+| `Planets` | Los planetas de las casillas de torre |
+| `LogicMap` | `visible = false`; cubre las 43x33 casillas: camino (`path`), hueco de torre (`slot`) o decorado (`scenery`) |
 
-La decoración (rocas, chatarra, piezas animadas) está en la capa `VisualMap`. En los niveles 2, 5 y 6 sigue las mismas reglas:
+| Nivel | Idea | Estación (casilla del centro) | Caminos | Rocas (`rocks`) |
+|---|---|---|---|---|
+| 1 | Un camino en zigzag por toda la pantalla | centro izquierda (5, 16) | 1 | grey, brown, ice |
+| 2 | Un camino que se parte en dos rutas largas (norte en eses verticales, sur en eses horizontales) y se junta bajo la estación | arriba derecha (37, 4) | 2 | brown, grey, ore |
+| 3 | Un camino que entra arriba a la derecha y se divide en dos ramas en espejo que no se vuelven a juntar | abajo izquierda (5, 28) | 2 | grey, ice, crystal |
+| 4 | Dos caminos simétricos desde las esquinas de arriba que se juntan abajo en el centro y suben juntos por la columna central | arriba centro (21, 4) | 2 | dark, lava, grey |
+| 5 | Dos caminos que entran por la izquierda y se cruzan dos veces sin juntarse | centro derecha (37, 16) | 2 | brown, ore, ice |
+| 6 | Un anillo exterior (A) y dos caminos (B por la derecha, C por abajo) que lo cruzan y se juntan en el centro | arriba izquierda (5, 4) | 3 | grey, crystal, dark |
+| 7 | Dos caminos, cada uno partido en una ruta recta y otra en eses | abajo derecha (37, 28) | 4 | dark, ice, brown |
+| 8 | Dos entradas arriba que se parten en un atajo y una vuelta larga, con caminos simétricos | abajo centro (21, 28) | 4 | dark, lava, crystal |
+| 9 | Una entrada en cada esquina partida en dos rutas, con caminos simétricos en los dos ejes | centro (21, 16) | 8 | dark, crystal, lava, ice |
 
-- El camino y las casillas pegadas a él quedan sin rocas: ese hueco es el corredor que se ve en pantalla.
-- A 2 casillas del camino hay una hilera de rocas casi continua a cada lado, salvo donde hay un planeta de torre.
-- En el nivel 5 los tramos de las filas 1 y 15 van pegados al borde: en las filas 0 y 16 solo hay chatarra y piedras pequeñas.
-- Los tiles se dibujan centrados en su casilla: una pieza de 2x2 anclada en (x, y) ocupa de x-0,5 a x+1,5.
+En los niveles 4, 8 y 9 los caminos y las casillas de torre son simétricos; la decoración y la pieza de cada planeta, no.
 
-La `VisualMap` de los niveles 5 y 6 se generó una vez con `scripts/tools/space_decoration.gd` a partir de las cuadrículas de texto `resources/map_data/level_5_decor.txt` y `level_6_decor.txt` (el formato está descrito en la cabecera del script):
+Los caminos empiezan 2 casillas fuera del mapa (los enemigos entran desde fuera de la pantalla, tapados por las barras o el borde) y acaban 40 px antes del centro de la estación, dentro de su borde. Los caminos que comparten tramo pasan por los mismos puntos.
+
+Los mapas anteriores (los de hierba, los de espacio `Level2_espacio`, `Level5_espacio` y `Level6_espacio`, y los de `redesign/`) están en `scenes/maps/archive/` y no los usa ningún nivel.
+
+### Generador de mapas
+
+Los 9 mapas los genera `scripts/tools/map_generator.gd` a partir de `resources/map_data/level_N.txt` (el formato está en la cabecera del script):
 
 ```
-godot --headless --path . -s scripts/tools/space_decoration.gd
+godot --headless --path . -s scripts/tools/map_generator.gd -- [N ...]
 ```
 
-**La fuente de verdad es el `.tscn`**, que se puede retocar a mano en el editor. Los `.txt` no se actualizan con esos retoques: volver a ejecutar el script sobrescribe la `VisualMap` de los dos niveles con lo que digan los `.txt` y se pierde lo cambiado en el editor. El script solo sustituye el `tile_map_data` de las capas que aparecen en cada `.txt`; no toca el resto de la escena.
+Sin números genera los 9. **La fuente de verdad es el `.txt`**: el script reescribe el `.tscn` entero (conserva su uid), así que los retoques hechos en el editor se pierden al regenerar. Cada `.txt` da la semilla de la decoración, las familias de roca del nivel (`rocks`; la primera es la principal), la casilla de la estación, los caminos (puntos en casillas, con tramos horizontales o verticales) y las casillas de los planetas.
+
+Con eso, el script:
+
+- Pone la estación en el centro de su casilla. Mide 96x96 px, así que sobresale media casilla por cada lado.
+- Llena `LogicMap` y pone un planeta (pieza de 2x2 del atlas de planetas) en cada casilla de torre; los planetas a 8 casillas o menos usan piezas distintas.
+- Calcula el **pasillo** (las casillas a 1 casilla o menos de un camino, en distancia de Chebyshev) y la **orilla** (las que están a 2, justo al lado del pasillo). Todo lo que no es pasillo es **campo**. Donde dos caminos se juntan o se cruzan, los pasillos se funden.
+- La **densidad** del campo sale de un ruido (de 0,65 a 1), no baja de 0,9 en las 2 casillas del borde del mapa y se multiplica por 1,25 a 3 casillas del camino y por 1,5 a 4 o más: el campo se espesa al alejarse del pasillo, para que ninguna bolsa de campo rodeada de orilla parezca vacía.
+- En `Lights`, una luz cada 2 casillas en los tramos rectos del centro del pasillo (dos piezas que alternan en los horizontales y otras dos en los verticales), sin luces en esquinas, cruces ni dentro de la estación.
+- En `VisualMap` no pone nada en el pasillo ni en la estación ni en los planetas (ni en sus 8 casillas de alrededor). En el campo, por este orden:
+  1. **Balizas** a los dos lados de la boca de cada pasillo, en la casilla del borde.
+  2. **Piezas especiales**: 3 o 4 entre la nave estrellada, el satélite con astronauta, la roca con ovni y el satélite animado, a 3 casillas o más del camino, fuera de las 2 casillas del borde, a 10 o más entre ellas y con una casilla libre alrededor.
+  3. **Restos**: de 1 a 3 restos grandes (casco roto, contenedor, depósito, viga o antena), a 3 casillas o más del camino, fuera del borde y a 8 o más entre ellos, con chatarra pequeña alrededor, cada vez menos al alejarse.
+  4. **Rocas de 3x3**: en el margen y la casilla del borde, de la familia principal (o su pareja), asomando desde fuera del mapa; en el resto, de la familia de la zona (o su pareja) y más cuanto más denso es el campo.
+  5. **Rocas de 2x2** de la familia de la zona: en la orilla con probabilidad fija (para que el pasillo no quede bordeado solo de piedras pequeñas) y en el resto según la densidad.
+  6. **Rocas pequeñas y piedrecitas**: la orilla casi llena y el resto según la densidad.
+  7. **Huecos**: en cada cuadrado de 3x3 del campo con menos de 2 casillas tapadas por algo que se vea bien (todo menos las piedrecitas) pone rocas pequeñas hasta llegar a 2, para que ningún claro parezca un pasillo.
+- La familia de cada roca sale de la zona en la que cae: el mapa se parte en 6 zonas alrededor de puntos al azar, y cada familia del nivel tiene al menos una. Las rocas sueltas son a veces de la familia pareja (`grey` y `brown` con `dark`; `dark`, `ore` e `ice` con `grey`; `crystal` y `lava` con `dark`).
+- En `Gravel`, una pieza de gravilla (`espacio_gravilla.png`, ver [art.md](art.md)) en cada casilla del campo y del margen, con la paleta de la familia de su zona (`grey`, `ore` e `ice` gris; `brown` marrón; `dark`, `crystal` y `lava` oscura): en la orilla, una de las de poca gravilla; en el resto, una de las de mucha con probabilidad igual a la densidad. Alguna casilla (1,4 %) lleva en su lugar una estrella que parpadea. El pasillo queda limpio.
+
+Las piezas se ponen tapando casillas enteras: las de lado impar se anclan en su casilla central y las de lado par (2x2, 2x1, 1x2, 3x2) usan la alternativa 1 del tileset, desplazada media casilla, anclada en su primera casilla. Así una roca de 2x2 puede quedar pegada al borde del pasillo sin taparlo. Las piezas de 1x1 del atlas de rocas usan al azar la alternativa 0 o una de la 1 a la 4, desplazadas 2 o 3 px, para que no queden en filas; no se usan las que las acercarían al pasillo. La decoración llega una casilla más allá del mapa (de -1 a 43 y de -1 a 33) para cubrir el margen, y las rocas grandes del borde pueden salirse más; solo `LogicMap` cuenta para el centrado.
+
+Familias de roca (`rocks`), del atlas de rocas: `grey`, `brown` y `dark` (1x1, 2x2 y 3x3), `ore` (gris con vetas doradas), `ice` (hielo), `crystal` (cristal morado, con una de 2x2 animada) y `lava` (con una de 2x2 animada); estas cuatro sin 3x3.
 
 ### SpaceBackground
 
@@ -205,11 +243,9 @@ Funciones:
 ## Dudas
 
 - `tileset.tres` declara una capa de datos `buildable` (bool) que ningún script lee.
-- Solo la `VisualMap` de los niveles 5 y 6 tiene script y datos de generación; el resto de capas y mapas no.
-- En el nivel 6 hay un planeta de torre en la casilla (15, 9), debajo de la estación.
-- `Level7.tscn` a `Level10.tscn`, `Level2.tscn`, `Level5.tscn`, `Level6.tscn` y la carpeta `redesign/` no están en ningún `LevelData`. Los mapas 7 a 10 usan un `Sprite2D` como estación en vez de `Base.tscn`, y `Level6.tscn` tiene las dos cosas.
-- `redesign/Level6.tscn` tenía el mismo uid que `Level6.tscn` y Godot avisaba `UID duplicate`. Se le dio un uid nuevo; la carpeta `redesign/` se conserva sin cambios.
+- En `scenes/maps/archive/`, los mapas de hierba 7 a 10 usan un `Sprite2D` como estación en vez de `Base.tscn`, y `Level6.tscn` tiene las dos cosas.
+- `archive/redesign/Level6.tscn` tenía el mismo uid que `archive/Level6.tscn` y Godot avisaba `UID duplicate`. Se le dio un uid nuevo.
 - `resources/level_data/level_5.tres` existe y tiene el mismo contenido que el subrecurso de `GameData.tscn`, pero `GameData` no lo usa.
-- Todos los caminos de los niveles 1 a 6 (`Level1`, `Level3`, `Level4`, `espacio/Level2_espacio`, `Level5_espacio`, `Level6_espacio`) acaban en la posición de `SpaceStation`: se alargó el último punto de cada curva.
-- En los niveles 2, 5 y 6 el mapa tiene más caminos de los que usa la oleada.
-- Los mapas (como mucho unos 480x272) no llenan el área de juego de 704x540: alrededor se ve el fondo de espacio, y los enemigos aparecen y desaparecen en el borde del mapa.
+- Las oleadas de los niveles 7 a 9 son copias de las del nivel 6, solo con los `path_index` repartidos: falta equilibrarlas. Tampoco se ha revisado el equilibrio de los niveles 1 a 6 con los mapas nuevos, que tienen caminos mucho más largos.
+- Al regenerar un mapa cambian los `id` de sus `ext_resource` y los `unique_id` de sus nodos, aunque el contenido sea el mismo.
+- En los mapas con caminos que se cruzan (5 y 6) los pasillos se funden en los cruces: el espacio libre enseña por dónde pasan enemigos, no qué camino sigue cada uno.

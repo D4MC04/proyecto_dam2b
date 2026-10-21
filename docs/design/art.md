@@ -22,7 +22,7 @@ La casilla del mapa es de 16x16 px. Los sprites de juego son múltiplos de esa m
 | Efectos sobre un enemigo (impacto, escarcha, muerte) | 32x32 |
 | Onda del Cryo | 128x128 |
 | Texturas de haz y rayo (se repiten a lo largo de una línea) | 32 px de ancho y 3 a 15 de alto |
-| Tiles de espacio | 16x16, con piezas de 2x2 y 3x3 casillas |
+| Tiles de espacio | 16x16, con piezas de 2x1, 1x2, 2x2, 3x2 y 3x3 casillas |
 | Fondos de espacio | 640x272; planeta gigante 224x224 |
 
 ## Paleta
@@ -60,6 +60,8 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 - **Variantes de Dart**: mismo dibujo con el casco en azul hielo, morado, rojo o verde.
 - **Escudo de la base**: `#40e0f0`, `#aaf5ff`, `#ebffff`, semitransparente.
 - **Fondo de espacio**: azules y morados muy oscuros (`#0a1226`, `#14102e`, `#1e163e`, `#2a1e50`); estrellas en `#ffecc8`, `#befffa`, `#c8dcff` y blanco.
+- **Gravilla** (`assets/tilesets/espacio/espacio_gravilla.png`, 128x48, fuente 3 de `tileset_espacio.tres`): el suelo del campo de asteroides de los mapas; el pasillo de los caminos no lleva. No se dibuja a mano: la genera `scripts/tools/make_gravel_tiles.gd` (`godot --headless --path . -s scripts/tools/make_gravel_tiles.gd`). Granos de 1 px y esquirlas de 2x2 (luz arriba a la izquierda, sombra abajo a la derecha), sin contorno y sin transparencia, separados al menos 1 px entre sí y del borde de la pieza. Una fila por paleta, con los tres tonos más oscuros de la roca pequeña de esa familia: gris (`#2c2a38`, `#444252`, `#625e70`), marrón (`#382622`, `#583c30`, `#7c5842`) y oscura (`#1c1c28`, `#2a2a38`, `#3c3c4e`). En cada fila, las columnas 0 a 3 tienen poca gravilla (3 a 5 granos y hasta 1 esquirla) y las 4 a 7, mucha (7 a 10 granos y 2 o 3 esquirlas).
+- **Alternativas del tileset de espacio**: en el atlas de rocas y en el de animados, las piezas con algún lado par (2x2, 2x1, 1x2 y 3x2) tienen la alternativa 1 desplazada media casilla (`texture_origin` de -8 en ese eje), para que tapen casillas enteras. Las piezas de 1x1 del atlas de rocas (rocas, piedrecitas y chatarra; el polvo no) tienen las alternativas 1 a 4 desplazadas (3, 2), (-3, 3), (2, -3) y (-3, -2) px.
 - **Interfaz** (`assets/ui/menu_theme.tres`): fondo azul casi negro y bordes de 1 px en la rampa cian. Los botones no son PNG: `ClippedBoxStyle` los pinta en código, en píxeles enteros, como una caja con las esquinas de arriba a la izquierda y de abajo a la derecha recortadas 3 px en diagonal (escalera de 1 px por fila). Sin corchetes ni `>`. Ver [ui.md](ui.md).
 
 | Botón del tema | Fondo | Borde | Texto |

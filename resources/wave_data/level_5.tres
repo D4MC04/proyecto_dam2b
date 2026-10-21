@@ -18,6 +18,7 @@ time = 3.0
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_hielo")
 time = 3.5
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_yp7hu"]
 script = ExtResource("entry")
@@ -28,6 +29,7 @@ time = 4.0
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_verde")
 time = 4.5
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_y883x"]
 script = ExtResource("entry")
@@ -38,6 +40,7 @@ time = 7.5
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_morado")
 time = 8.0
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_dodu5"]
 script = ExtResource("entry")
@@ -48,6 +51,7 @@ time = 8.5
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_rojo")
 time = 12.0
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_g1mj2"]
 script = ExtResource("entry")
@@ -58,6 +62,7 @@ time = 12.5
 script = ExtResource("entry")
 enemy_data = ExtResource("wasp")
 time = 13.0
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_mrki0"]
 script = ExtResource("entry")
@@ -68,6 +73,7 @@ time = 13.5
 script = ExtResource("entry")
 enemy_data = ExtResource("dart_rojo")
 time = 14.0
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_8lm3x"]
 script = ExtResource("entry")
@@ -78,6 +84,7 @@ time = 16.5
 script = ExtResource("entry")
 enemy_data = ExtResource("wasp")
 time = 17.0
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_0lawd"]
 script = ExtResource("entry")
@@ -88,6 +95,7 @@ time = 17.5
 script = ExtResource("entry")
 enemy_data = ExtResource("wasp")
 time = 18.0
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_nfwtt"]
 script = ExtResource("entry")
@@ -98,6 +106,7 @@ time = 21.0
 script = ExtResource("entry")
 enemy_data = ExtResource("nave_normal")
 time = 21.5
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_tac10"]
 script = ExtResource("entry")

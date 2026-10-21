@@ -1,0 +1,9 @@
+# Nivel 4: dos caminos simétricos que se juntan abajo en el centro y suben juntos; estación arriba en el centro.
+# Datos de scripts/tools/map_generator.gd (formato en su cabecera).
+
+seed = 404
+rocks = dark lava grey
+station = 21 4
+path = 3,-2 3,24 9,24 9,8 15,8 15,28 21,28 21,4
+path = 39,-2 39,24 33,24 33,8 27,8 27,28 21,28 21,4
+planets = 11,6 31,6 7,11 13,11 29,11 35,11 17,16 25,16 1,21 7,21 35,21 41,21 11,24 31,24 17,25 25,25 5,26 37,26 16,30 26,30

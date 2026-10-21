@@ -15,7 +15,7 @@ Animaciones de `estacion.tres`:
 | `explosion` | 10 | 12 fps | no |
 | `destruida` | 1 | — | no |
 
-Está instanciada como nodo `SpaceStation` en `scenes/maps/Map.tscn` y en los mapas que usan los 6 niveles, con una posición distinta en cada mapa.
+Está instanciada como nodo `SpaceStation` en `scenes/maps/Map.tscn` y en los 9 mapas de nivel (`scenes/maps/levels/`), con una posición distinta en cada uno; el generador de mapas la coloca centrada en una casilla (ver [niveles.md](niveles.md)).
 
 ## Qué hace el script
 
@@ -34,4 +34,4 @@ Está instanciada como nodo `SpaceStation` en `scenes/maps/Map.tscn` y en los ma
 
 ## Dudas
 
-- `assets/sprites/base/space_station.png` (48x48) solo lo usan mapas que no están en ningún nivel (`Level6.tscn` a `Level10.tscn`).
+- `assets/sprites/base/space_station.png` (48x48) solo lo usan mapas archivados que no están en ningún nivel (`scenes/maps/archive/Level6.tscn` a `Level10.tscn`).

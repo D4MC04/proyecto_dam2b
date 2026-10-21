@@ -19,11 +19,13 @@ time = 2.0
 script = ExtResource("1_6lo08")
 enemy_data = ExtResource("3_yk325")
 time = 2.5
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_gf33x"]
 script = ExtResource("1_6lo08")
 enemy_data = ExtResource("2_i6vha")
 time = 3.0
+path_index = 2
 
 [sub_resource type="Resource" id="Resource_k4mtb"]
 script = ExtResource("1_6lo08")
@@ -34,11 +36,13 @@ time = 6.5
 script = ExtResource("1_6lo08")
 enemy_data = ExtResource("2_i6vha")
 time = 7.0
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_xs8kx"]
 script = ExtResource("1_6lo08")
 enemy_data = ExtResource("5_ium0y")
 time = 7.5
+path_index = 2
 
 [sub_resource type="Resource" id="Resource_0fxq8"]
 script = ExtResource("1_6lo08")
@@ -49,17 +53,18 @@ time = 8.0
 script = ExtResource("1_6lo08")
 enemy_data = ExtResource("5_ium0y")
 time = 8.5
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_acs3e"]
 script = ExtResource("1_6lo08")
 enemy_data = ExtResource("7_m62hi")
 time = 11.0
+path_index = 2
 
 [sub_resource type="Resource" id="Resource_ei5um"]
 script = ExtResource("1_6lo08")
 enemy_data = ExtResource("7_m62hi")
 time = 11.5
-path_index = 1
 
 [sub_resource type="Resource" id="Resource_3n78c"]
 script = ExtResource("1_6lo08")
@@ -71,7 +76,7 @@ path_index = 1
 script = ExtResource("1_6lo08")
 enemy_data = ExtResource("6_i36iu")
 time = 12.5
-path_index = 1
+path_index = 2
 
 [sub_resource type="Resource" id="Resource_4bnl4"]
 script = ExtResource("1_6lo08")
@@ -82,17 +87,18 @@ time = 15.5
 script = ExtResource("1_6lo08")
 enemy_data = ExtResource("5_ium0y")
 time = 16.0
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_f8yqg"]
 script = ExtResource("1_6lo08")
 enemy_data = ExtResource("8_pd60j")
 time = 16.5
+path_index = 2
 
 [sub_resource type="Resource" id="Resource_ggi3j"]
 script = ExtResource("1_6lo08")
 enemy_data = ExtResource("6_i36iu")
 time = 20.0
-path_index = 1
 
 [sub_resource type="Resource" id="Resource_wa8au"]
 script = ExtResource("1_6lo08")
@@ -104,7 +110,7 @@ path_index = 1
 script = ExtResource("1_6lo08")
 enemy_data = ExtResource("7_m62hi")
 time = 21.0
-path_index = 1
+path_index = 2
 
 [sub_resource type="Resource" id="Resource_7id6u"]
 script = ExtResource("1_6lo08")
@@ -115,11 +121,13 @@ time = 21.5
 script = ExtResource("1_6lo08")
 enemy_data = ExtResource("5_ium0y")
 time = 22.0
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_tc0jn"]
 script = ExtResource("1_6lo08")
 enemy_data = ExtResource("5_ium0y")
 time = 24.5
+path_index = 2
 
 [sub_resource type="Resource" id="Resource_lleh6"]
 script = ExtResource("1_6lo08")
@@ -136,7 +144,7 @@ path_index = 1
 script = ExtResource("1_6lo08")
 enemy_data = ExtResource("7_m62hi")
 time = 26.0
-path_index = 1
+path_index = 2
 
 [resource]
 script = ExtResource("9_tt6p7")
