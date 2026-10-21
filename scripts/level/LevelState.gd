@@ -6,6 +6,9 @@ signal selected_tower_changed(data: TowerData)
 signal inspected_changed(data: Resource)
 signal sellable_tower_changed(tower: Tower)
 
+# Premio al limpiar una oleada (menos la última) sin que llegue ningún enemigo a la estación.
+const PERFECT_WAVE_BONUS := 25
+
 var money := 5000
 # Recuento de la partida para el resumen. Al reiniciar se crea un LevelState nuevo, así que vuelven a 0.
 var enemies_destroyed := 0

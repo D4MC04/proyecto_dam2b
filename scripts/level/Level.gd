@@ -8,6 +8,8 @@ signal won
 # en vertical, la mitad de los 540 px de alto.
 const GAME_AREA_CENTER := Vector2(480.0, 270.0)
 # Área de juego completa: entre las dos barras de 128 px.
+# El premio de oleada se queda en pantalla más que el +X€ de un enemigo.
+const AWARD_TEXT_DURATION := 4.0
 const GAME_AREA_RECT := Rect2(128.0, 0.0, 704.0, 540.0)
 
 var map: Map
@@ -15,6 +17,8 @@ var towers: Array[TowerData]
 var base: Base
 # Un nivel acaba una sola vez: tras emitir lost o won no se emite ninguna de las dos.
 var _finished: bool = false
+# Enemigos que han llegado a la estación en la oleada actual (para el bonus de oleada perfecta).
+var _leaks_this_wave := 0
 
 @onready var grid: Grid = $Grid
 @onready var spawner: Spawner = $Spawner
@@ -25,6 +29,9 @@ func _ready() -> void:
 	build_manager.state = game_state
 	spawner.enemy_died.connect(game_state.register_enemy_destroyed)
 	spawner.all_waves_cleared.connect(_win)
+	spawner.wave_started.connect(func(_index: int, _total: int) -> void: _leaks_this_wave = 0)
+	spawner.enemy_reached_end.connect(func(_damage: int) -> void: _leaks_this_wave += 1)
+	spawner.wave_cleared.connect(_on_wave_cleared)
 
 func setup(data: LevelData) -> void:
 	map = data.map.instantiate()
@@ -49,6 +56,19 @@ func _center_map() -> void:
 	var used_center := map.position + map.get_used_rect().get_center()
 	map.position += (GAME_AREA_CENTER - used_center).round()
 	map.place_background(GAME_AREA_RECT)
+
+# Al limpiar una oleada (menos la última) sin que entre nadie, da el bonus de oleada perfecta.
+func _on_wave_cleared(_index: int) -> void:
+	if _finished or not spawner.has_waves_left():
+		return
+	if _leaks_this_wave == 0:
+		_award("PERFECTA", LevelState.PERFECT_WAVE_BONUS)
+
+# Suma el premio y lo enseña sobre la estación.
+func _award(label: String, amount: int) -> void:
+	game_state.add_money(amount)
+	var pos := base.global_position + Vector2(0.0, -20.0)
+	FloatingText.spawn(base.get_parent(), pos, "%s +%s" % [label, UiFormat.money(amount)], AWARD_TEXT_DURATION)
 
 func _lose() -> void:
 	if _finished:
