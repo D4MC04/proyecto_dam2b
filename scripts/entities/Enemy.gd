@@ -18,6 +18,13 @@ const SLOW_FLASH_TIME := 0.1
 const SLOW_TINT := Color(0.65, 0.85, 1.0)
 const HIT_FLASH_TIME := 0.15
 const SPAWN_IN_TIME := 0.2
+# Reparadora: cada HEAL_INTERVAL s cura HEAL_RATIO de su vida máxima a los enemigos a HEAL_RADIUS px o menos.
+const HEAL_INTERVAL := 3.0
+const HEAL_RATIO := 0.1
+const HEAL_RADIUS := 48.0
+const HEAL_TEXT_COLOR := Color("#7ee89a")
+const HEAL_FLASH := Color(0.8, 2.5, 1.0)
+const HEAL_FLASH_TIME := 0.4
 
 # Multiplicador de velocidad mientras está ralentizado.
 var _slow := 1.0
@@ -48,6 +55,12 @@ func setup(enemy_data: EnemyData):
 	add_to_group(&"enemies")
 	if data.cloak_interval > 0.0:
 		_start_cloak_cycle()
+	if data.heal_aura:
+		var timer := Timer.new()
+		timer.wait_time = HEAL_INTERVAL
+		timer.autostart = true
+		timer.timeout.connect(_heal_nearby)
+		add_child(timer)
 
 ## Sale del portal: crece de escala 0 a 1 con un destello.
 func spawn_in() -> void:
@@ -88,6 +101,27 @@ func take_damage(amount: float):
 	_health_bar.update(hp, data.hp)
 	if hp <= 0:
 		die()
+
+## Cura sin pasar de la vida máxima, con el número en verde, un destello y chispas. Con la vida llena no hace nada.
+func heal(amount: float) -> void:
+	var healed := minf(amount, data.hp - hp)
+	if healed <= 0.0 or hp <= 0.0:
+		return
+	hp += healed
+	_health_bar.update(hp, data.hp)
+	FloatingText.spawn(get_parent(), global_position, "+" + UiFormat.number(healed), FloatingText.DURATION, HEAL_TEXT_COLOR)
+	HealEffect.spawn_sparks(self, effect_scale() * EFFECT_SIZE)
+	var tween := create_tween()
+	tween.tween_property(sprite, "modulate", _rest_color(), HEAL_FLASH_TIME).from(HEAL_FLASH)
+	tween.tween_callback(func(): sprite.modulate = _rest_color())
+
+# Reparadora: suelta el anillo y cura a los demás enemigos a HEAL_RADIUS px o menos (a sí misma no).
+func _heal_nearby() -> void:
+	HealEffect.spawn_ring(get_parent(), global_position, HEAL_RADIUS)
+	for node: Node in get_tree().get_nodes_in_group(&"enemies"):
+		var enemy := node as Enemy
+		if enemy != self and enemy.global_position.distance_to(global_position) <= HEAL_RADIUS:
+			enemy.heal(data.hp * HEAL_RATIO)
 
 # Ralentiza durante `duration` segundos con un destello y la escarcha encima.
 # Si ya estaba ralentizado se renueva la duración, no se acumula.
