@@ -131,7 +131,7 @@ func _spawn_enemy(data: EnemyData, path: Path2D, progress: float) -> Enemy:
 	path.add_child(enemy)
 	# El avance antes de setup(), para que su primer giro salga del camino y no de un salto.
 	enemy.progress = progress
-	enemy.setup(data)
+	enemy.setup(data, waves[_wave_index].health_multiplier)
 	GameState.mark_enemy_seen(data)
 	_alive[enemy] = true
 	enemy.reached_end.connect(_on_enemy_reached_end.bind(enemy))
