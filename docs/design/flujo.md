@@ -58,3 +58,7 @@ Cuando la estación se destruye, `Level` deja de construir y ya no puede ganar, 
 ## Cambio de escena
 
 Tanto `MainMenu._open_level` como `Game._quit_to_menu` cambian de escena a mano (añadir a `root`, asignar `current_scene`, `queue_free` de la anterior) porque necesitan asignar una propiedad a la escena nueva antes de que entre en el árbol. No se usa `change_scene_to_file`.
+
+## Enemigos vistos
+
+`Spawner._spawn` llama a `GameState.mark_enemy_seen(data)`, que guarda en `user://progress.cfg` (clave `seen_enemies`) el nombre de archivo del `EnemyData` la primera vez que sale. `reset_progress` los borra. Los usa el Navedex (ver [menu.md](menu.md)).
