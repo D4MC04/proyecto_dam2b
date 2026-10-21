@@ -24,6 +24,7 @@ Conexiones hechas en `_ready`:
 
 - `spawner.enemy_died(reward)` llama a `game_state.register_enemy_destroyed`, que cuenta el enemigo y suma la recompensa.
 - `spawner.all_waves_cleared` llama a `_win`, que llama a `build_manager.stop_building()` y emite `won`.
+- `spawner.wave_cleared` llama a `_on_wave_cleared`: menos en la última oleada, si no llegó ningún enemigo a la estación (`_leaks_this_wave`, que `wave_started` pone a 0 y `enemy_reached_end` incrementa) suma `PERFECT_WAVE_BONUS` y enseña "PERFECTA +25€" como `FloatingText` sobre la estación durante 4 s.
 - `build_manager.state = game_state`.
 
 `_lose()` llama a `build_manager.stop_building()`, espera a `base.animation_finished` (el final de la explosión) y emite `lost`. Se espera porque la derrota acaba pausando el árbol y cortaría la animación.
@@ -41,6 +42,7 @@ Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de l
 - `money` empieza en 5000.
 - `add_money(amount)` suma y emite `money_changed(money)`.
 - `spend_money(amount)` devuelve `false` si no alcanza; si alcanza resta, suma `amount` a `money_spent`, emite `money_changed` y devuelve `true`.
+- `PERFECT_WAVE_BONUS` (25): premio por limpiar una oleada sin que llegue ningún enemigo a la estación. Lo aplica `Level._on_wave_cleared` (ver "Escena Level").
 - Contadores de la partida: `enemies_destroyed` y `money_spent`, que empiezan en 0. `register_enemy_destroyed(reward)` suma 1 a `enemies_destroyed` y llama a `add_money(reward)`. No hace falta reiniciarlos: al reiniciar se crea un `LevelState` nuevo.
 - `selected_tower: TowerData` es la torre que se colocará al hacer clic y la única fuente de la selección. Su setter emite `selected_tower_changed(data)` solo si el valor cambia. Lo escribe `LevelUI` cuando la barra lateral lo pide y `BuildManager` (a `null`) al cancelar con clic derecho.
 - `inspected: Resource` es lo que enseña la ficha (de momento un `TowerData`; es `Resource` para que valga también para enemigos) y la única fuente de lo inspeccionado. Su setter emite `inspected_changed(data)` solo si el valor cambia. Empieza en null y solo lo escribe `LevelUI`; deseleccionar no lo toca. Al reiniciar se crea un `LevelState` nuevo, así que vuelve a null.
