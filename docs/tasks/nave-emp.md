@@ -1,32 +1,35 @@
-# Nave EMP: apaga las torres al pasar cerca
+# Nave nueva: Saboteadora, que apaga las torres cercanas
 
 Estado: aceptada
 Modelo recomendado: sonnet
-Esfuerzo recomendado: medium
+Esfuerzo recomendado: high
 
 ## Por qué
-Una nave que inutiliza torres un momento hace que no baste con amontonar torres en un solo punto.
+Una nave nueva, con su propio dibujo, que inutiliza torres un momento: ya no basta con amontonar torres en un solo punto.
 
 ## Qué hay que hacer
-- Requiere `habilidades-naves-base` en main.
-- Habilidad **Pulso EMP** (`scripts/resources/abilities/EmpAbility.gd`): cada 5 s suelta un pulso que apaga 3 s las torres a 48 px o menos.
-- `Tower.disable(seconds)`:
-  - Mientras está apagada, la torre no apunta ni dispara.
-  - Se ve oscurecida, con chispas azules en pixel art que saltan.
-  - El haz continuo se corta.
-- Visual del pulso: un anillo azul eléctrico que se expande (pixel art, sin antialiasing).
-- Nave nueva "Saboteadora" (`resources/enemy_data/saboteadora.tres`):
-  - Sprite del Spikey teñido de azul.
+- **Sprite nuevo** en `assets/sprites/enemies/saboteadora/`:
+  - Pixel art de 32x32 mirando hacia arriba, con 2-4 frames (`saboteadora_up_1.png`, ...), como `nave_normal_up_1.png`.
+  - Seguir `docs/design/art.md`. Tonos azul eléctrico y gris oscuro, con aspecto de nave de guerra electrónica (bobinas, antena o núcleo que brilla).
+  - Generarlo con un script de `scripts/tools/` y su `SpriteFrames` en `resources/sprite_frames/`.
+  - Solo la dirección hacia arriba: `rotate_sprite = true`.
+- **Datos:** `resources/enemy_data/saboteadora.tres`:
   - Vida 110, velocidad 30, recompensa 55, daño 10.
-  - Añadirla a las oleadas del nivel 8.
+  - Descripción corta.
+  - Añadirla al ARCHIVO (`Navedex.ENEMY_FILES`).
+- **Habilidad:**
+  - Cada 5 s suelta un pulso EMP que apaga 3 s las torres a 48 px o menos. Se ve como un anillo azul que se expande (pixel art, sin antialiasing).
+  - Añadir `Tower.disable(seconds)`. Mientras dura, la torre no apunta ni dispara (el haz continuo se corta) y se ve oscurecida, con chispas azules que saltan.
+- **Oleadas:** añadirla a las del nivel 8.
 
 ## Archivos que toca
-- scripts/resources/abilities/EmpAbility.gd (nuevo)
-- scripts/entities/Tower.gd
+- assets/sprites/enemies/saboteadora/ (nuevo), resources/sprite_frames/ (nuevo), scripts/tools/ (generador)
 - resources/enemy_data/saboteadora.tres (nuevo), resources/wave_data/level_8*.tres
+- scripts/entities/Enemy.gd, scripts/resources/EnemyData.gd, scripts/entities/Tower.gd, scripts/screens/Navedex.gd
 - docs/design/enemigos.md, docs/design/torres.md
 
 ## Cómo se prueba a mano
-1. Abrir `scenes/MainMenu.tscn` y jugar el nivel 8.
-2. Al soltar el pulso una Saboteadora, sale un anillo azul y las torres de alrededor se oscurecen con chispas y dejan de disparar 3 s.
-3. Pasado ese tiempo vuelven a disparar con normalidad.
+1. Jugar el nivel 8.
+2. Sale la Saboteadora con su dibujo nuevo.
+3. Cada 5 s suelta un anillo azul y las torres de alrededor se oscurecen con chispas y dejan de disparar 3 s.
+4. Luego vuelven a disparar con normalidad.
