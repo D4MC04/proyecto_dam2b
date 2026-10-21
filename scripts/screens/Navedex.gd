@@ -8,7 +8,7 @@ signal back_pressed
 const ENEMY_DIR := "res://resources/enemy_data/"
 const ENEMY_FILES: Array[String] = [
 	"dart_verde", "dart_rojo", "dart_morado", "dart_hielo", "wasp", "nave_normal",
-	"nave_agresiva", "spiked_ship", "ufo", "ariete", "acorazado", "nodriza",
+	"nave_agresiva", "spiked_ship", "ufo", "ariete", "acorazado", "nodriza", "reparadora",
 ]
 const CELL_SCENE: PackedScene = preload("res://scenes/level_ui/EnemyCell.tscn")
 const UNKNOWN_TEXT := "???"
