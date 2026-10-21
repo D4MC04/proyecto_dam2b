@@ -12,7 +12,7 @@ La casilla del mapa es de 16x16 px. Los sprites de juego son múltiplos de esa m
 |---|---|
 | Torres (base, cañón, icono `_full_up`) | 32x32 |
 | Enemigos pequeños (Dart, Wasp) | 24x24 |
-| Enemigos medianos y grandes (naves, Acorazado, Ariete, Nodriza, UFO) | 32x32 |
+| Enemigos medianos y grandes (naves, Acorazado, Ariete, Nodriza, UFO, Espectro) | 32x32 |
 | Spikey (`spiked_ship`) | 34x34 |
 | Estación (`base/estacion/`) | 80x80 centrada en frames de 96x96 |
 | Escudo de la estación | 64x64 (escalado a 1,25 en juego) |
@@ -150,7 +150,7 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 ## Animación
 
 - Cañones de torre: `default` (reposo) y `fire_0`, `fire_1`... (disparo, sin bucle). `default` está en bucle en Cryo, Tesla, Rail y Disintegrator. El Cañón doble tiene `fire_0` y `fire_1`; el Láser solo tiene `default`. En el Disintegrator, `fire_0` a `fire_2` son un bucle por nivel de haz.
-- Enemigos: Acorazado, Ariete, Nodriza, Wasp y los Dart tienen 3 frames; Nave normal y Nave agresiva, 1. Las cuatro animaciones `up`, `down`, `left` y `right` existen en todos; en los que tienen el dibujo mirando hacia arriba, el giro se hace por código.
+- Enemigos: Acorazado, Ariete, Nodriza, Wasp, Espectro y los Dart tienen 3 frames; Nave normal y Nave agresiva, 1. Las cuatro animaciones `up`, `down`, `left` y `right` existen en todos; en los que tienen el dibujo mirando hacia arriba, el giro se hace por código.
 - Los sprites de torre y enemigo se dibujan mirando hacia arriba.
 
 ## Convención de nombres

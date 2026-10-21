@@ -18,6 +18,9 @@ const INSPECT_TAG := "ENEMIGO"
 @export var rotation_offset: float = 0.0
 # Sonido al matarlo (no suena si llega a la estación).
 @export var death_sound: AudioStream
+# Camuflaje: cada `cloak_interval` segundos visible se camufla `cloak_time` segundos (0 = nunca).
+@export var cloak_interval: float = 0.0
+@export var cloak_time: float = 0.0
 # Opcional: frase corta que se enseña al final de la ficha.
 @export_multiline var description: String
 

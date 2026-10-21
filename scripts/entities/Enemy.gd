@@ -25,6 +25,13 @@ var _slow_tween: Tween
 var _frost: AnimatedSprite2D
 var _health_bar: HealthBar
 
+# Camuflado: las torres no lo eligen como objetivo, pero los ataques de área le dan.
+var cloaked := false
+const CLOAK_ALPHA := 0.2
+# Disolución por píxeles con borde morado al camuflarse y al reaparecer.
+const CLOAK_SHADER: Shader = preload("res://resources/shaders/cloak_dissolve.gdshader")
+const CLOAK_DISSOLVE_TIME := 0.3
+
 signal reached_end(damage: int)
 
 func setup(enemy_data: EnemyData):
@@ -39,6 +46,8 @@ func setup(enemy_data: EnemyData):
 	var size := effect_scale() * EFFECT_SIZE
 	_health_bar.setup(size, -size / 2.0)
 	add_to_group(&"enemies")
+	if data.cloak_interval > 0.0:
+		_start_cloak_cycle()
 
 ## Sale del portal: crece de escala 0 a 1 con un destello.
 func spawn_in() -> void:
@@ -119,6 +128,29 @@ func effect_scale() -> float:
 		return 1.0
 	var frame_size := texture.get_size() * sprite.scale
 	return maxf(frame_size.x, frame_size.y) / EFFECT_SIZE
+
+# Bucle de camuflaje: visible `cloak_interval` s y camuflado `cloak_time` s.
+# El sprite se disuelve con CLOAK_SHADER; la barra de vida se atenúa a la vez.
+func _start_cloak_cycle() -> void:
+	var material := ShaderMaterial.new()
+	material.shader = CLOAK_SHADER
+	material.set_shader_parameter(&"progress", 0.0)
+	material.set_shader_parameter(&"cloaked_alpha", CLOAK_ALPHA)
+	sprite.material = material
+	var tween := create_tween().set_loops()
+	tween.tween_interval(data.cloak_interval)
+	tween.tween_callback(_set_cloaked.bind(true))
+	_tween_dissolve(tween, material, 1.0, CLOAK_ALPHA)
+	tween.tween_interval(data.cloak_time)
+	tween.tween_callback(_set_cloaked.bind(false))
+	_tween_dissolve(tween, material, 0.0, 1.0)
+
+func _tween_dissolve(tween: Tween, material: ShaderMaterial, progress: float, bar_alpha: float) -> void:
+	tween.tween_property(material, "shader_parameter/progress", progress, CLOAK_DISSOLVE_TIME)
+	tween.parallel().tween_property(_health_bar, "modulate:a", bar_alpha, CLOAK_DISSOLVE_TIME)
+
+func _set_cloaked(value: bool) -> void:
+	cloaked = value
 
 func die():
 	died.emit(data.reward)

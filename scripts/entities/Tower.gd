@@ -91,7 +91,9 @@ func _on_area_exited(area: Area2D) -> void:
 
 func _on_attack_timeout() -> void:
 	var target := _get_target()
-	if target == null:
+	# La onda es de área: sale aunque en rango solo haya naves camufladas.
+	var pulse_has_enemies := data.pulse != null and enemies_in_range.any(is_instance_valid)
+	if target == null and not pulse_has_enemies:
 		return
 	if _is_static():
 		cannon.play(&"fire_0")
@@ -148,7 +150,7 @@ func _shoot(target: Enemy) -> void:
 
 # Mantiene el objetivo mientras siga vivo y dentro del rango.
 func _get_target() -> Enemy:
-	if not is_instance_valid(_target) or not enemies_in_range.has(_target):
+	if not is_instance_valid(_target) or not enemies_in_range.has(_target) or _target.cloaked:
 		_target = _best_enemy()
 	return _target
 
@@ -157,6 +159,9 @@ func _best_enemy() -> Enemy:
 	var best: Enemy = null
 	var best_remaining: float = INF
 	for enemy in enemies_in_range:
+		# Las naves camufladas no se apuntan.
+		if enemy.cloaked:
+			continue
 		var remaining := enemy.get_remaining_distance()
 		if remaining < best_remaining:
 			best_remaining = remaining

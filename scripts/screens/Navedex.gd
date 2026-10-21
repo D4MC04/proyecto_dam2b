@@ -1,6 +1,6 @@
 class_name Navedex
 extends Control
-## Archivo de enemigos del menú: cuadrícula con los 12 y detalle del elegido.
+## Archivo de enemigos del menú: cuadrícula con todos y detalle del elegido.
 ## Los que aún no han salido en una partida se ven en silueta y con "???".
 
 signal back_pressed
@@ -9,6 +9,7 @@ const ENEMY_DIR := "res://resources/enemy_data/"
 const ENEMY_FILES: Array[String] = [
 	"dart_verde", "dart_rojo", "dart_morado", "dart_hielo", "wasp", "nave_normal",
 	"nave_agresiva", "spiked_ship", "ufo", "ariete", "acorazado", "nodriza",
+	"espectro",
 ]
 const CELL_SCENE: PackedScene = preload("res://scenes/level_ui/EnemyCell.tscn")
 const UNKNOWN_TEXT := "???"
