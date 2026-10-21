@@ -26,6 +26,7 @@ const FAST_SPEED := 2.0
 @onready var level_indicator: LevelIndicator = %LevelIndicator
 @onready var info_panel: InfoPanel = %InfoPanel
 @onready var boss_alert: BossAlert = %BossAlert
+@onready var wave_announcer: WaveAnnouncer = %WaveAnnouncer
 @onready var fps_label: Label = %FpsLabel
 @onready var tutorial_hints: TutorialHints = %TutorialHints
 # Pantalla de cada estado; un estado sin entrada no enseña ninguna. Cada pantalla va en un solo estado.
@@ -146,9 +147,11 @@ func _spawner_connections(spawner: Spawner) -> Array[Array]:
 		[spawner.auto_waves_changed, sidebar.show_auto_waves],
 	]
 
-func _on_wave_started(index: int, _total: int) -> void:
+func _on_wave_started(index: int, total: int) -> void:
 	if _spawner.wave_has_boss(index):
 		boss_alert.show_alert("Nodriza")
+	else:
+		wave_announcer.show_wave(index + 1, total)
 	sidebar.set_current_wave(index)
 	_refresh_wave_controls()
 
@@ -165,10 +168,13 @@ func _refresh_wave_controls() -> void:
 	var total := _spawner.waves.size()
 	if not _spawner.is_clear():
 		sidebar.set_wave_status(Sidebar.WaveStatus.IN_PROGRESS, index + 1, total)
+		level_indicator.set_wave(index + 1, total)
 	elif _spawner.has_waves_left():
 		sidebar.set_wave_status(Sidebar.WaveStatus.READY, index + 2, total)
+		level_indicator.set_wave(index + 2, total)
 	else:
 		sidebar.set_wave_status(Sidebar.WaveStatus.COMPLETE, index + 1, total)
+		level_indicator.set_wave(index + 1, total)
 
 func _on_next_wave_requested() -> void:
 	if is_instance_valid(_spawner):

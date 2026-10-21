@@ -7,6 +7,7 @@ const FADE_TIME: float = 0.15
 const DETECT_MARGIN: float = 4.0
 
 @onready var level_label: Label = %LevelLabel
+@onready var wave_label: Label = %WaveLabel
 
 var _is_hidden: bool = false
 var _tween: Tween
@@ -18,6 +19,9 @@ func _ready() -> void:
 func set_level_number(number: int) -> void:
 	visible = number > 0
 	level_label.text = "NIVEL %d" % number if number > 0 else ""
+
+func set_wave(number: int, total: int) -> void:
+	wave_label.text = "OLEADA %d/%d" % [number, total]
 
 func _process(_delta: float) -> void:
 	if not visible:
