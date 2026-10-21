@@ -6,6 +6,9 @@ class_name Powers
 
 enum Power { METEOR, FREEZE }
 
+## Un poder se ha lanzado (el meteorito, al caer; no al empezar a apuntar).
+signal power_used(power: Power)
+
 ## Recarga de cada poder, en segundos de juego.
 const COOLDOWNS: Dictionary[Power, float] = {
 	Power.METEOR: 45.0,
@@ -92,6 +95,7 @@ func _draw() -> void:
 func _drop_meteor(target: Vector2) -> void:
 	cancel_aiming()
 	_cooldown_left[Power.METEOR] = COOLDOWNS[Power.METEOR]
+	power_used.emit(Power.METEOR)
 	var meteor := Sprite2D.new()
 	meteor.texture = METEOR_TEXTURE
 	add_child(meteor)
@@ -120,6 +124,7 @@ func _explode(target: Vector2) -> void:
 
 func _freeze() -> void:
 	_cooldown_left[Power.FREEZE] = COOLDOWNS[Power.FREEZE]
+	power_used.emit(Power.FREEZE)
 	for enemy: Enemy in get_tree().get_nodes_in_group(&"enemies"):
 		if enemy.hp > 0:
 			enemy.slow(FREEZE_FACTOR, FREEZE_TIME, FROST_FRAMES)

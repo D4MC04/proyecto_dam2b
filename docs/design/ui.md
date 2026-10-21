@@ -14,6 +14,8 @@ Estructura: `UI/HBoxContainer` (sin separación) con tres columnas, de izquierda
 
 `GameArea` contiene además `LevelIndicator`, declarado antes que las pantallas para que estos lo tapen.
 
+Encima de las tres columnas, como último hijo de `UI`, va `TutorialHints` (ver "Tutorial del nivel 1").
+
 ### Barras: tablet física
 
 Las dos barras son una tablet: un marco de metal y, dentro, una pantalla oscura. Usan el mismo estilo, `assets/ui/tablet_frame_style.tres`, un `TabletFrameStyle` (`scripts/level_ui/TabletFrameStyle.gd`, `StyleBox` propio con `@tool`) que lo dibuja todo en `_draw` con rectángulos de píxeles enteros, sin texturas ni antialiasing:
@@ -110,8 +112,26 @@ Dos `PowerButton` (`scripts/level_ui/PowerButton.gd`) en `InfoPanel/Content/Powe
 - Icono de 16x16 centrado y la letra de la tecla (`key_label`) a 5 px del borde izquierdo en `#5a7a96`.
 - Estilos con `ClippedBoxStyle.create`: normal fondo `#0e1626` y borde `#1c7496`; hover borde `#40e0f0`; mientras se apunta el meteorito, el normal pasa al ámbar de AUTO (fondo `#453d2b`, borde `#ecb23c`).
 - En recarga el botón está `disabled` (fondo `#0a0f1a`, borde `#1c4a60`, icono al 50 %) y lleva encima un oscurecido negro al 45 % recortado a la forma del botón, anclado arriba y con alto proporcional a lo que falta, y los segundos que faltan (redondeados hacia arriba) centrados en `#cce6ff`.
-- Cada botón lee `Powers` en `_process` (`get_cooldown_left`, `is_aiming`) y solo se redibuja si algo cambia. `LevelUI.setup_powers(powers)`, que `Game` llama tras `setup` con el `Powers` del nivel, se lo pasa a los dos.
+- Cada botón lee `Powers` en `_process` (`get_cooldown_left`, `is_aiming`) y solo se redibuja si algo cambia. `LevelUI.setup_powers(powers)`, que `Game` llama antes de `setup` con el `Powers` del nivel (el tutorial lo necesita en `setup`), se lo pasa a los dos.
 - Al pulsarlos (o con Q y E) `LevelUI._use_power(power)` llama a `Powers.use` solo en `PLAYING`. Cualquier `set_state` que no sea `PLAYING` cancela el apuntado.
+
+## Tutorial del nivel 1
+
+`scenes/level_ui/TutorialHints.tscn` + `scripts/level_ui/TutorialHints.gd` (clase `TutorialHints`): un `Control` a pantalla completa que ignora el ratón, con un recuadro (`Box`, un `OverlayFrame` cian sin decoración, 380x72 px, centrado abajo del área de juego a 12 px del borde) donde habla un astronauta guía.
+
+- Dentro: el retrato `assets/ui/guide_portrait.png` (32x32 a ×2), el nombre "NOVA" en ámbar `#ecb23c`, el mensaje en `#cce6ff` (aparece letra a letra, 0,02 s por carácter, como si hablara) y los botones "Entendido" (solo en los pasos informativos) y "Saltar".
+- Solo sale en el nivel 1 mientras `GameState.tutorial_done` es false. `LevelUI.setup` llama a `start(state, spawner, powers)` en el nivel 1 y a `stop()` en los demás; al reiniciar vuelve a empezar desde el primer paso (las señales del nivel anterior se liberan con él).
+- Pasos; cada uno espera a que el jugador lo haga:
+  1. Elegir torre (`LevelState.selected_tower_changed` no nulo). Si se suelta la torre en el paso 2, vuelve a este.
+  2. Colocarla en un planeta (`LevelState.tower_placed`, que emite `BuildManager` al construir, no al fusionar).
+  3. Lanzar la oleada (`Spawner.wave_started`; lanzarla antes con Espacio también vale). El recuadro se esconde mientras dura la oleada 1.
+  4. Al acabar (`Spawner.wave_cleared`): soltar la torre de la tienda con clic derecho y hacer clic en una torre del mapa (`LevelState.sellable_tower_changed` no nulo).
+  5. Venta y fusión: informativo, sigue con "Entendido".
+  6. Poderes: usar Q o E (`Powers.power_used`, que el meteorito emite al caer).
+  7. Despedida: se cierra con "Entendido" o sola a los 4 s.
+- Un borde ámbar `#ecb23c` de 1 px parpadea (0,4 s encendido, 0,4 s apagado) a 2 px alrededor de lo que hay que pulsar: la rejilla de torres (o la pestaña Torres si no está abierta), `NextWaveButton` (o la pestaña Oleadas) y la fila de poderes.
+- Al acabar o con "Saltar" llama a `GameState.complete_tutorial()` y se esconde.
+- `LevelUI.set_state` lo esconde fuera de `PLAYING` (no tapa la pausa ni señala por encima de ella).
 
 ## LevelIndicator
 
@@ -338,6 +358,7 @@ Opciones "Siguiente nivel" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción qu
 | `Sidebar` | `inspect_requested` | `LevelUI._on_inspect_requested` (escribe `LevelState.inspected`) |
 | `Sidebar` | `next_wave_requested` | `LevelUI._on_next_wave_requested` (`Spawner.start_next_wave`) |
 | `Sidebar` | `auto_waves_toggled` | `LevelUI._on_auto_waves_toggled` (escribe `Spawner.auto_waves`) |
+| `LevelState`, `Spawner`, `Powers` | `selected_tower_changed`, `tower_placed`, `sellable_tower_changed`, `wave_started`, `wave_cleared`, `power_used` | `TutorialHints` (solo en el tutorial del nivel 1) |
 | `MeteorButton`, `FreezeButton` | `pressed` | `LevelUI._use_power` (`Powers.use`, solo en `PLAYING`) |
 | `Sidebar` | `fast_speed_toggled` | `LevelUI._on_fast_speed_toggled` (cambia `_fast_speed` y reaplica `time_scale`) |
 | `PauseMenu`, `GameOverScreen`, `VictoryScreen` | `option_chosen` | `LevelUI._on_option_chosen` (`RESUME` lo resuelve ella) |

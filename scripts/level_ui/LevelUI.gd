@@ -26,6 +26,7 @@ const FAST_SPEED := 2.0
 @onready var level_indicator: LevelIndicator = %LevelIndicator
 @onready var info_panel: InfoPanel = %InfoPanel
 @onready var fps_label: Label = %FpsLabel
+@onready var tutorial_hints: TutorialHints = %TutorialHints
 # Pantalla de cada estado; un estado sin entrada no enseña ninguna. Cada pantalla va en un solo estado.
 @onready var _screens_by_state: Dictionary[UiState, OverlayScreen] = {
 	UiState.PAUSED: pause_menu,
@@ -55,6 +56,8 @@ func _ready() -> void:
 	sidebar.fast_speed_toggled.connect(_on_fast_speed_toggled)
 	info_panel.meteor_button.pressed.connect(_use_power.bind(Powers.Power.METEOR))
 	info_panel.freeze_button.pressed.connect(_use_power.bind(Powers.Power.FREEZE))
+	tutorial_hints.sidebar = sidebar
+	tutorial_hints.info_panel = info_panel
 	set_state(UiState.PLAYING)
 
 # El contador de FPS solo se ve (y solo se actualiza) con la opción show_fps activada.
@@ -91,8 +94,13 @@ func setup(state: LevelState, towers: Array[TowerData], level_number: int, spawn
 	# Un LevelState nuevo (al empezar o reiniciar) no tiene nada inspeccionado: la ficha vuelve al escáner.
 	info_panel.show_inspected(state.inspected)
 	info_panel.show_sellable(state.sellable_tower)
+	# El tutorial sale en el nivel 1 hasta que se acaba o se salta; necesita setup_powers antes.
+	if level_number == 1 and not GameState.tutorial_done:
+		tutorial_hints.start(state, spawner, _powers)
+	else:
+		tutorial_hints.stop()
 
-## Powers es nuevo en cada nivel o reinicio: los botones pasan a leer el nuevo.
+## Powers es nuevo en cada nivel o reinicio: los botones pasan a leer el nuevo. Va antes que setup.
 func setup_powers(powers: Powers) -> void:
 	_powers = powers
 	info_panel.meteor_button.powers = powers
@@ -203,6 +211,7 @@ func set_state(new_state: UiState) -> void:
 	if new_state == UiState.LOST or new_state == UiState.WON:
 		# Sin pantalla ni pausa todavía: el juego sigue un momento y, al acabar, entra la pantalla.
 		_show_screen(null)
+		tutorial_hints.visible = false
 		get_tree().paused = false
 		# Tiempo real y activo en pausa, para que la cámara lenta no se frene a sí misma.
 		_screen_delay = create_tween().set_ignore_time_scale().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
@@ -222,6 +231,8 @@ func set_state(new_state: UiState) -> void:
 			_show_screen(screen))
 		return
 	_show_screen(_screens_by_state.get(new_state))
+	# Con una pantalla abierta el tutorial no se ve (no tapa la pausa ni señala botones de debajo).
+	tutorial_hints.visible = new_state == UiState.PLAYING
 	get_tree().paused = new_state != UiState.PLAYING
 
 func _show_screen(shown: OverlayScreen) -> void:

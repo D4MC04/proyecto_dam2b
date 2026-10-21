@@ -7,13 +7,13 @@ Definidos en `project.godot`, en este orden:
 | Nombre | Origen | Qué guarda |
 |---|---|---|
 | `GameData` | `scenes/GameData.tscn` + `scripts/autoloads/GameData.gd` | `levels: Array[LevelData]`, la lista de niveles del juego |
-| `GameState` | `scripts/autoloads/GameState.gd` | `current_level: int` (número, desde 1, del nivel más alto desbloqueado; empieza en 1), `is_unlocked(i)` (`i < current_level`), `complete_level(number)` y `reset_progress()` (vuelve a 1, guarda y emite la señal `progress_reset`); `i` es el índice desde 0 en `GameData.levels` |
+| `GameState` | `scripts/autoloads/GameState.gd` | `current_level: int` (número, desde 1, del nivel más alto desbloqueado; empieza en 1), `is_unlocked(i)` (`i < current_level`), `tutorial_done: bool` (el tutorial del nivel 1 ya se acabó o saltó), `complete_level(number)`, `complete_tutorial()` y `reset_progress()` (vuelve a 1, reactiva el tutorial, guarda y emite la señal `progress_reset`); `i` es el índice desde 0 en `GameData.levels` |
 | `Settings` | `scripts/autoloads/Settings.gd` | Las opciones del jugador, guardadas en `user://settings.cfg`; ver [menu.md](menu.md) |
 | `MusicManager` | `scripts/autoloads/MusicManager.gd` | La música; ver [menu.md](menu.md) |
 
 `GameData.levels` tiene 6 entradas. Su contenido está en [niveles.md](niveles.md).
 
-`GameState` carga `current_level` de `user://progress.cfg` (`ConfigFile`, sección `progress`; solo acepta un entero >= 1) y lo guarda en `complete_level` y `reset_progress`. `Settings` guarda las opciones en su propio archivo.
+`GameState` carga `current_level` y `tutorial_done` de `user://progress.cfg` (`ConfigFile`, sección `progress`; solo acepta un entero >= 1 y un booleano) y los guarda en `complete_level`, `complete_tutorial` y `reset_progress`. `Settings` guarda las opciones en su propio archivo.
 
 ## Escena Game
 
@@ -33,7 +33,7 @@ En `_ready`:
 3. Llama a `_setup_level()`:
    - `level.setup(level_data)`
    - conecta `level.lost` a `_on_level_lost` y `level.won` a `_on_level_won`
-   - `ui.setup(level.game_state, level.towers, level_number, level.spawner, has_next_level)` (`has_next_level` es true si el nivel está en `GameData.levels` y no es el último), que conecta la UI con el `LevelState` y el `Spawner` del nivel (ver [ui.md](ui.md)).
+   - `ui.setup_powers(...)` con el `Powers` del nivel y después `ui.setup(level.game_state, level.towers, level_number, level.spawner, has_next_level)` (`has_next_level` es true si el nivel está en `GameData.levels` y no es el último), que conecta la UI con el `LevelState` y el `Spawner` del nivel (ver [ui.md](ui.md)).
 
 ### Acciones de la UI
 

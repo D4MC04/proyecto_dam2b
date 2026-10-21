@@ -81,6 +81,7 @@ func _try_place(mouse_pos: Vector2) -> void:
 	tower.invested = data.cost
 
 	grid.register_tower(cell, tower)
+	state.tower_placed.emit()
 
 	_hide_preview()
 
