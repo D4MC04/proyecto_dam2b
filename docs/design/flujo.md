@@ -61,4 +61,4 @@ Tanto `MainMenu._open_level` como `Game._quit_to_menu` cambian de escena a mano 
 
 ## Enemigos vistos
 
-`Spawner._spawn` llama a `GameState.mark_enemy_seen(data)`, que guarda en `user://progress.cfg` (clave `seen_enemies`) el nombre de archivo del `EnemyData` la primera vez que sale. `reset_progress` los borra. Los usa el Navedex (ver [menu.md](menu.md)).
+`Spawner._spawn_enemy` llama a `GameState.mark_enemy_seen(data)`, que guarda en `user://progress.cfg` (clave `seen_enemies`) el nombre de archivo del `EnemyData` la primera vez que sale. `reset_progress` los borra. Los usa el Navedex (ver [menu.md](menu.md)).

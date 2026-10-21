@@ -20,6 +20,9 @@ const INSPECT_TAG := "ENEMIGO"
 @export var death_sound: AudioStream
 # Opcional: frase corta que se enseña al final de la ficha.
 @export_multiline var description: String
+# Trozos que suelta al morir, de izquierda a derecha según su dibujo (ninguno si está vacío).
+# Si sus SpriteFrames tienen la animación "crack", se ve un instante antes de partirse.
+@export var split_into: Array[EnemyData] = []
 
 func get_inspect_icon() -> Texture2D:
 	if sprite_frames != null and sprite_frames.has_animation("up"):

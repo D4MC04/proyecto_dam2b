@@ -96,7 +96,7 @@ Lleva el ciclo de oleadas del nivel: cuándo se lanzan, qué enemigos quedan viv
 - `setup(paths, waves)` solo guarda los datos. El nivel empieza en espera, sin enemigos, para dejar construir; la primera oleada se lanza con el botón de la pestaña Oleadas o con AUTO.
 - `start_next_wave() -> bool` lanza la siguiente oleada: copia sus entradas, las ordena por `time`, pone el reloj a 0 y emite `wave_started(index, total)` (índice desde 0). Devuelve `false` y no hace nada si el nivel no está limpio (la actual sigue sacando o quedan enemigos vivos) o no quedan oleadas (`can_start_next_wave()`). Así nunca conviven enemigos de dos oleadas.
 - En `_process` suma el tiempo y crea cada enemigo cuando su `time` se cumple. Al crear el último emite `wave_spawn_finished(index)`.
-- `_spawn(entry)` instancia `scenes/entities/Enemy.tscn` como hijo del `Path2D` número `entry.path_index % paths.size()`, llama a `enemy.setup(entry.enemy_data)` y `enemy.spawn_in()` (escala 0→1 en 0,2 s con destello), lo apunta como vivo y conecta sus señales `died` y `reached_end`.
+- `_spawn(entry)` llama a `_spawn_enemy(data, path, progress)` con el `Path2D` número `entry.path_index % paths.size()` y `PORTAL_OFFSET`. `_spawn_enemy` instancia `scenes/entities/Enemy.tscn` como hijo de ese camino, lo pone en `progress` (antes de `setup`, para que su primer giro salga del camino), llama a `enemy.setup(data)`, lo apunta como vivo, conecta sus señales `died` y `reached_end` y lo devuelve. `_spawn` llama además a `enemy.spawn_in()` (escala 0→1 en 0,2 s con destello).
 
 ### Portales
 
@@ -106,6 +106,8 @@ Al lanzar una oleada, `_open_portals()` crea un `Portal` (`scripts/entities/Port
 
 `_alive` es un `Dictionary[Enemy, bool]`. Se añade el enemigo al crearlo y se borra al recibir `died` o `reached_end`; solo la primera de esas señales cuenta, así que cada enemigo se descuenta una vez aunque muera dos veces o muera y llegue al final en el mismo frame. Solo entonces se reenvía como `enemy_died(reward)` o `enemy_reached_end(damage)`. No se usa `tree_exiting`: al reiniciar se libera el nivel entero y no se emite nada. `get_alive_count()` devuelve la cuenta.
 
+Si el enemigo muerto se parte (`EnemyData.split_into`, ver [enemigos.md](enemigos.md)), `_on_enemy_died` suma 1 a `_pending_splits` y llama a `_crack(enemy)`: deja un sprite suelto (sin área, así que se puede crear dentro de una señal de física como el `area_entered` de la bala) con su frame agrietado y, al acabar su tween, `_split(...)` resta 1 y crea los trozos con `_spawn_enemy` (sin `spawn_in()`). Mientras `_pending_splits` > 0, `is_clear()` es false, así que la oleada no se da por limpia entre la muerte y la salida de los trozos.
+
 ### Estados
 
 | Función | Significado |
@@ -113,7 +115,7 @@ Al lanzar una oleada, `_open_portals()` crea un `Portal` (`scripts/entities/Port
 | `get_wave_index()` | Última oleada lanzada; -1 antes de la primera |
 | `is_spawning()` | La oleada actual aún tiene entradas pendientes |
 | `has_finished_spawning()` | No quedan entradas (o no se ha lanzado ninguna); puede haber enemigos vivos |
-| `is_clear()` | No quedan entradas ni enemigos vivos |
+| `is_clear()` | No quedan entradas, enemigos vivos ni piezas por soltar |
 | `has_waves_left()` | Quedan oleadas por lanzar |
 | `can_start_next_wave()` | Está limpio y quedan oleadas |
 
