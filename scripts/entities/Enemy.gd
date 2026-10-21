@@ -39,6 +39,8 @@ func setup(enemy_data: EnemyData):
 	var size := effect_scale() * EFFECT_SIZE
 	_health_bar.setup(size, -size / 2.0)
 	add_to_group(&"enemies")
+	if data.emp_interval > 0.0:
+		EmpWave.attach(self)
 
 ## Sale del portal: crece de escala 0 a 1 con un destello.
 func spawn_in() -> void:

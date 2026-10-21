@@ -37,7 +37,7 @@ func _process(delta: float) -> void:
 		_untint()
 		_locked = target
 		_lock_time = 0.0
-	var firing := target != null and _tower._is_aimed(target)
+	var firing := target != null and not _tower.disabled and _tower._is_aimed(target)
 	_show(firing)
 	# El sonido dura lo que el haz: se repite si termina antes y para al cortarse.
 	if firing and not _tower._shoot_player.playing:

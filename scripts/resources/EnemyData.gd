@@ -20,6 +20,11 @@ const INSPECT_TAG := "ENEMIGO"
 @export var death_sound: AudioStream
 # Opcional: frase corta que se enseña al final de la ficha.
 @export_multiline var description: String
+# Pulso EMP (Saboteadora): cada `emp_interval` s apaga `emp_disable_time` s las torres
+# a `emp_radius` px o menos. Con `emp_interval` a 0 no suelta pulsos.
+@export var emp_interval: float = 0.0
+@export var emp_radius: float = 48.0
+@export var emp_disable_time: float = 3.0
 
 func get_inspect_icon() -> Texture2D:
 	if sprite_frames != null and sprite_frames.has_animation("up"):

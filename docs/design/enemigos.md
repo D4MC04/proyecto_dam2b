@@ -12,7 +12,7 @@ El `Spawner` lo añade como hijo de un `Path2D` del mapa y llama a `setup(enemy_
 
 ## Datos
 
-`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `base_damage` (vida que quita a la estación al llegar al final, 10 por defecto), `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados), `death_sound` (`AudioStream`, ver Daño y muerte) y `description` (frase corta para la ficha, ya rellena en los 12). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da VIDA, VELOCIDAD (px/s), BOTÍN (la recompensa, con €) y DAÑO (`base_damage`); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
+`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `base_damage` (vida que quita a la estación al llegar al final, 10 por defecto), `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados), `death_sound` (`AudioStream`, ver Daño y muerte), `description` (frase corta para la ficha) y `emp_interval`, `emp_radius` y `emp_disable_time` (pulso EMP, ver Habilidades; `emp_interval` 0 = sin pulso). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da VIDA, VELOCIDAD (px/s), BOTÍN (la recompensa, con €) y DAÑO (`base_damage`); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
 
 Recursos en `resources/enemy_data/`:
 
@@ -30,6 +30,7 @@ Recursos en `resources/enemy_data/`:
 | `acorazado` | Acorazado | 360 | 25 | 110 | 20 | 14 | 4 |
 | `ariete` | Ariete | 200 | 40 | 70 | 20 | 13 | 5 |
 | `nodriza` | Nodriza | 400 | 40 | 150 | 40 | 14 | 6 |
+| `saboteadora` | Saboteadora | 110 | 30 | 55 | 10 | 13 | 8 |
 
 Los cuatro Dart tienen los mismos valores; solo cambia el sprite.
 
@@ -47,7 +48,7 @@ Según la dirección del último movimiento sobre su camino (posición local, as
 
 - `take_damage(amount)` resta vida; con vida <= 0 llama a `die()`.
 - `die()` emite `died(data.reward)`, reproduce `data.death_sound` en el bus `SFX` y libera el nodo. El `AudioStreamPlayer` se crea como hijo del padre (el `Path2D`) porque el enemigo se libera enseguida, y se libera solo al terminar (`finished`). Si llega a la estación (`reached_end`) no suena.
-- Decidido: las naves no suenan al morir (el usuario lo pidió: sonaba demasiado fuerte y tapaba el resto). Las 12 `resources/enemy_data/*.tres` ya no asignan `death_sound`, así que `_play_death_sound()` no hace nada. El campo `death_sound` de `EnemyData` y el código siguen por si se quiere volver a poner.
+- Decidido: las naves no suenan al morir (el usuario lo pidió: sonaba demasiado fuerte y tapaba el resto). Las `resources/enemy_data/*.tres` no asignan `death_sound`, así que `_play_death_sound()` no hace nada. El campo `death_sound` de `EnemyData` y el código siguen por si se quiere volver a poner.
 - Los `.wav` de `assets/audio/effects/SpaceShips/` se quedan en `assets/` sin usar (los 4 `dart_*` compartían `DartShip.wav`).
 
 ### Ralentización
@@ -59,6 +60,16 @@ Según la dirección del último movimiento sobre su camino (posición local, as
 - Hace un destello blanco y deja el sprite teñido de azul claro (`SLOW_TINT`).
 - Al pasar `duration` segundos vuelve a velocidad y color normales y quita la escarcha.
 - Si ya estaba ralentizado se reinicia la duración; no se acumula.
+
+### Habilidades
+
+- **Pulso EMP** (Saboteadora; `emp_interval` > 0): `setup()` llama a `EmpWave.attach(self)` (`scripts/entities/EmpWave.gd`, sin escena), que cuelga de la nave un `Timer` de `emp_interval` s (5). En cada vuelta empieza una carga de 1 s (`EmpCharge.start(enemy)`, `scripts/entities/EmpCharge.gd`, hijo del sprite para girar con él), toda en píxeles sin antialiasing:
+  - En el núcleo crece una bola de energía de un punto de 2x2 a unos 13 px (se sale del núcleo), en capas que pasan de azul eléctrico a blanco por pasos (`#16307a`, `#2a6ae6`, `#78bcff`, `#e6f6ff`) con centro blanco. Las bobinas se iluminan con los mismos pasos.
+  - Es inestable y va a más con la carga: late cada vez más rápido (de 12 a 60 rad/s), cambia de tamaño a tirones (medios píxeles y saltos de 1 px), vibra 1 px y chispea con píxeles blancos, morados `#aa78ff` y rojizos `#f0323c`.
+  - Suelta hasta 4 rayos de 1 px en zigzag desde su borde hacia fuera, en `#78bcff` y `#e6f6ff`, cada vez más largos (de 3 a 12 px) y frecuentes.
+  - En los últimos 0,3 s la nave tiembla 1 px (posición del sprite) y va al 25 % de su velocidad.
+  - Al acabar, la nave recupera velocidad, da un destello (`flash()`) y `EmpWave.spawn(enemy)` crea en el padre de la nave (el camino, así que no la sigue) un destello blanco de 12 px durante 0,08 s y un anillo de 4 px de grueso (`RING_COLORS`, de fuera a dentro: `#e6f6ff`, dos de `#78bcff` y estela `#2a6ae6`) que sale de golpe hasta `emp_radius` (96 px, 6 casillas: el anillo llega justo hasta ese radio) en 0,3 s, rápido al principio y frenando al final, y se desvanece en 0,2 s. Cada torre del grupo `towers` por la que pasa el borde recibe `Tower.disable(emp_disable_time)` (3 s; ver [torres.md](torres.md)) una sola vez por pulso.
+- Sprite: `assets/sprites/enemies/saboteadora/saboteadora_0` a `_2.png` (32x32, mirando hacia arriba, `rotate_sprite = true`), generados por `scripts/tools/make_saboteadora.gd` (`godot --headless --path . -s scripts/tools/make_saboteadora.gd`) a partir de una cuadrícula de texto con la mitad izquierda. Casco gris de enemigo, dos antenas delante, dos bobinas laterales con anillos azul eléctrico (`#16307a`, `#2a6ae6`, `#78bcff`, `#e6f6ff`), núcleo redondo en el centro y dos motores rojos. En los 3 frames laten el núcleo, las chispas de las antenas y las llamas.
 
 ### Efectos visuales
 

@@ -10,6 +10,7 @@
 [ext_resource type="Resource" uid="uid://do4ht7x2audbo" path="res://resources/enemy_data/acorazado.tres" id="8_wldan"]
 [ext_resource type="Resource" uid="uid://hpiwae1set7m" path="res://resources/enemy_data/nodriza.tres" id="9_fw8l1"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="10_kwvie"]
+[ext_resource type="Resource" path="res://resources/enemy_data/saboteadora.tres" id="saboteadora"]
 
 [sub_resource type="Resource" id="Resource_hmjj3"]
 script = ExtResource("1_e5brt")
@@ -143,6 +144,18 @@ enemy_data = ExtResource("9_fw8l1")
 time = 25.5
 path_index = 2
 
+[sub_resource type="Resource" id="Resource_sabot0"]
+script = ExtResource("1_e5brt")
+enemy_data = ExtResource("saboteadora")
+time = 10.0
+path_index = 1
+
+[sub_resource type="Resource" id="Resource_sabot1"]
+script = ExtResource("1_e5brt")
+enemy_data = ExtResource("saboteadora")
+time = 20.0
+path_index = 3
+
 [resource]
 script = ExtResource("10_kwvie")
-entries = Array[ExtResource("1_e5brt")]([SubResource("Resource_hmjj3"), SubResource("Resource_xuy13"), SubResource("Resource_klkqf"), SubResource("Resource_nyak4"), SubResource("Resource_owif2"), SubResource("Resource_lulgp"), SubResource("Resource_tlh4t"), SubResource("Resource_4iytc"), SubResource("Resource_x2jmr"), SubResource("Resource_liyyn"), SubResource("Resource_m76rx"), SubResource("Resource_y3nar"), SubResource("Resource_5w7qc"), SubResource("Resource_onhj2"), SubResource("Resource_g1l8j"), SubResource("Resource_060fr"), SubResource("Resource_yjd7o"), SubResource("Resource_m28gt"), SubResource("Resource_pprnl"), SubResource("Resource_6kjho"), SubResource("Resource_s00pa"), SubResource("Resource_7np0u"), SubResource("Resource_ll4gd")])
+entries = Array[ExtResource("1_e5brt")]([SubResource("Resource_hmjj3"), SubResource("Resource_xuy13"), SubResource("Resource_klkqf"), SubResource("Resource_nyak4"), SubResource("Resource_owif2"), SubResource("Resource_lulgp"), SubResource("Resource_tlh4t"), SubResource("Resource_4iytc"), SubResource("Resource_x2jmr"), SubResource("Resource_liyyn"), SubResource("Resource_m76rx"), SubResource("Resource_y3nar"), SubResource("Resource_5w7qc"), SubResource("Resource_onhj2"), SubResource("Resource_g1l8j"), SubResource("Resource_060fr"), SubResource("Resource_yjd7o"), SubResource("Resource_m28gt"), SubResource("Resource_pprnl"), SubResource("Resource_6kjho"), SubResource("Resource_s00pa"), SubResource("Resource_7np0u"), SubResource("Resource_ll4gd"), SubResource("Resource_sabot0"), SubResource("Resource_sabot1")])
