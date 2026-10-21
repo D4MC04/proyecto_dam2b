@@ -4,5 +4,12 @@
         "Read(./.godot/**)",
         "Read(./**/*.import)"
         ]
+    },
+    "enabledPlugins": {
+        "ponytail@ponytail": true,
+        "engineering@synced": false,
+        "design@synced": false,
+        "data@synced": false,
+        "cowork-plugin-management@synced": false
     }
 }
