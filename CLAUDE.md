@@ -64,4 +64,5 @@
 ## Antes de dar algo por terminado
 - Comprobar que el proyecto carga sin errores en headless. Godot (no está en el PATH): `C:\Users\renzo\Downloads\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64.exe` o `C:\Users\David\Desktop\Godot.exe`, el que exista en el equipo.
 - No commitear ni subir a menos que el usuario lo pida o dé el visto bueno. Si lo hace, hacer el commit y subirlo a main como dice "Flujo de tickets".
-- Al acabar una tarea, dar al usuario unos pasos breves para comprobar a mano que funciona en el juego: qué escena abrir, qué hacer y qué debería verse.
+- Al acabar una tarea (y tras cada cambio que haya que volver a probar), abrir yo el editor de Godot en la carpeta donde están los cambios (el worktree del ticket) con `--path <carpeta> -e`, en segundo plano. Si ya había uno abierto en esa carpeta, cerrarlo antes. El usuario no tiene que cambiar de rama ni copiar rutas: solo pulsa F5 y juega.
+- Dar al usuario unos pasos breves para comprobar a mano que funciona en el juego: qué nivel jugar, qué hacer y qué debería verse.
