@@ -53,6 +53,11 @@
   - Chat largo o tema distinto al del chat → abrir chat nuevo.
   - Tarea mecánica en Opus → bajar a Sonnet o Haiku. Sonnet atascado dos veces → subir a Opus.
 
+## Ahorro de tokens
+- Cada llamada a una herramienta reenvía todo el contexto: hacer las menos posibles.
+- Juntar en un solo comando de Bash (con `&&` o `;`) lo que no necesite ver el resultado anterior para decidir. Las llamadas independientes, en paralelo en el mismo mensaje.
+- No releer archivos ya leídos ni comprobar lo que una herramienta ya confirmó.
+
 ## Sprites
 - Pixel art 16x16. Seguir docs/design/art.md y el estilo de los sprites existentes en assets/.
 
