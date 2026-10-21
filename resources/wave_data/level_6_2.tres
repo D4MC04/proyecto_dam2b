@@ -9,6 +9,7 @@
 [ext_resource type="Resource" uid="uid://ct17eiklf1sb7" path="res://resources/enemy_data/ufo.tres" id="7_m62hi"]
 [ext_resource type="Resource" path="res://resources/enemy_data/nave_agresiva.tres" id="8_pd60j"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="9_tt6p7"]
+[ext_resource type="Resource" path="res://resources/enemy_data/reparadora.tres" id="reparadora"]
 
 [sub_resource type="Resource" id="Resource_55u45"]
 script = ExtResource("1_6lo08")
@@ -146,6 +147,17 @@ enemy_data = ExtResource("7_m62hi")
 time = 26.0
 path_index = 2
 
+[sub_resource type="Resource" id="Resource_reparadora_0"]
+script = ExtResource("1_6lo08")
+enemy_data = ExtResource("reparadora")
+time = 20.5
+
+[sub_resource type="Resource" id="Resource_reparadora_1"]
+script = ExtResource("1_6lo08")
+enemy_data = ExtResource("reparadora")
+time = 26.0
+path_index = 1
+
 [resource]
 script = ExtResource("9_tt6p7")
-entries = Array[ExtResource("1_6lo08")]([SubResource("Resource_55u45"), SubResource("Resource_ioxv2"), SubResource("Resource_gf33x"), SubResource("Resource_k4mtb"), SubResource("Resource_kumaf"), SubResource("Resource_xs8kx"), SubResource("Resource_0fxq8"), SubResource("Resource_cvcun"), SubResource("Resource_acs3e"), SubResource("Resource_ei5um"), SubResource("Resource_3n78c"), SubResource("Resource_8kcam"), SubResource("Resource_4bnl4"), SubResource("Resource_207j3"), SubResource("Resource_f8yqg"), SubResource("Resource_ggi3j"), SubResource("Resource_wa8au"), SubResource("Resource_5muca"), SubResource("Resource_7id6u"), SubResource("Resource_87hlx"), SubResource("Resource_tc0jn"), SubResource("Resource_lleh6"), SubResource("Resource_h04cv"), SubResource("Resource_kwmgv")])
+entries = Array[ExtResource("1_6lo08")]([SubResource("Resource_55u45"), SubResource("Resource_ioxv2"), SubResource("Resource_gf33x"), SubResource("Resource_k4mtb"), SubResource("Resource_kumaf"), SubResource("Resource_xs8kx"), SubResource("Resource_0fxq8"), SubResource("Resource_cvcun"), SubResource("Resource_acs3e"), SubResource("Resource_ei5um"), SubResource("Resource_3n78c"), SubResource("Resource_8kcam"), SubResource("Resource_4bnl4"), SubResource("Resource_207j3"), SubResource("Resource_f8yqg"), SubResource("Resource_ggi3j"), SubResource("Resource_wa8au"), SubResource("Resource_5muca"), SubResource("Resource_7id6u"), SubResource("Resource_87hlx"), SubResource("Resource_tc0jn"), SubResource("Resource_lleh6"), SubResource("Resource_h04cv"), SubResource("Resource_kwmgv"), SubResource("Resource_reparadora_0"), SubResource("Resource_reparadora_1")])

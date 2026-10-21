@@ -12,7 +12,7 @@ El `Spawner` lo añade como hijo de un `Path2D` del mapa y llama a `setup(enemy_
 
 ## Datos
 
-`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `base_damage` (vida que quita a la estación al llegar al final, 10 por defecto), `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados), `death_sound` (`AudioStream`, ver Daño y muerte) `description` (frase corta para la ficha, ya rellena en todos), y `split_into` (ver Partirse al morir). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da VIDA, VELOCIDAD (px/s), BOTÍN (la recompensa, con €) y DAÑO (`base_damage`); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
+`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `base_damage` (vida que quita a la estación al llegar al final, 10 por defecto), `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados), `cloak_interval` y `cloak_time` (camuflaje, ver Camuflaje; 0 = no se camufla), `death_sound` (`AudioStream`, ver Daño y muerte), `heal_aura` (solo la Reparadora, ver Curación), `split_into` (ver Partirse al morir) y `description` (frase corta para la ficha, ya rellena en todos). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da VIDA, VELOCIDAD (px/s), BOTÍN (la recompensa, con €) y DAÑO (`base_damage`); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
 
 Recursos en `resources/enemy_data/`:
 
@@ -30,6 +30,8 @@ Recursos en `resources/enemy_data/`:
 | `acorazado` | Acorazado | 360 | 25 | 110 | 20 | 14 | 4 |
 | `ariete` | Ariete | 200 | 40 | 70 | 20 | 13 | 5 |
 | `nodriza` | Nodriza | 400 | 40 | 150 | 40 | 14 | 6 |
+| `reparadora` | Reparadora | 90 | 38 | 50 | 5 | 12 | 6 |
+| `espectro` | Espectro | 70 | 55 | 40 | 10 | 12 | 7 |
 | `divisora` | Divisora | 120 | 35 | 30 | 15 | 13 | 5 |
 | `fragmento_divisora_izquierdo`, `_central`, `_derecho` | Fragmento de Divisora | 25 | 50 | 10 | 5 | 7 | 5 (al partirse la Divisora) |
 
@@ -44,6 +46,14 @@ Cada frame: `progress += speed * _slow * delta`. Cuando `progress_ratio >= 1.0` 
 ### Animación
 
 Según la dirección del último movimiento sobre su camino (posición local, así que el temblor del mapa no la cambia) reproduce `right`, `left`, `down` o `up`. Si `data.rotate_sprite` es `true`, además gira el sprite en pasos de 90° (el sprite base mira hacia arriba) y suma `rotation_offset`. `ufo` y `spiked_ship` no rotan: tienen un sprite distinto por dirección.
+
+### Camuflaje
+
+Si `data.cloak_interval > 0`, `setup()` arranca un tween en bucle: visible `cloak_interval` s y camuflado `cloak_time` s (el Espectro: 4 y 2). Al camuflarse pone `cloaked = true` y el sprite se disuelve en 0,3 s (`CLOAK_DISSOLVE_TIME`) con `resources/shaders/cloak_dissolve.gdshader`, un `ShaderMaterial` propio de cada Espectro: píxel a píxel de la punta a la cola, en franjas de interferencia (las filas pares van algo por detrás) y con un borde morado `#aa78ff` que avanza; los píxeles disueltos quedan al 20 % (`CLOAK_ALPHA`). La barra de vida baja al 20 % a la vez. Al reaparecer, la misma animación al revés. Todo va sobre la rejilla de píxeles de la textura, sin antialiasing, y no toca el `modulate` del sprite (destello y tinte de ralentización siguen igual).
+
+Mientras está camuflado las torres no lo eligen: `Tower._best_enemy()` lo salta y `_get_target()` suelta al objetivo que se camufla. Los ataques de área sí le dan: la onda del Cryo (sale aunque en rango solo haya naves camufladas), el meteorito, el haz del Rail, la explosión del Cañón pesado y los saltos del rayo Tesla.
+
+El sprite (`assets/sprites/enemies/espectro/espectro_0` a `_2`, 32x32, mirando hacia arriba, `rotate_sprite = true`) lo genera `scripts/tools/make_espectro.gd` (`godot --headless --path . -s scripts/tools/make_espectro.gd`): caza furtivo en forma de manta raya que ocupa los 32 px de ancho: alas anchas en flecha con costuras de panel, dos aletas delanteras, cabina pequeña, dos motores grises con llama y luces tenues (rojas en la punta de las alas, violeta en las alas); morado oscuro y casi negro, con la mitad derecha en sombra. Los frames cambian las llamas y la luz violeta. Usa la colisión de la Nave agresiva (radio 12). Sale en las tres oleadas del nivel 7.
 
 ### Daño y muerte
 
@@ -80,6 +90,16 @@ Sprites: `assets/sprites/enemies/divisora/` (`divisora_0..2.png` de 32x32, `divi
 - `effect_scale()`: tamaño mayor del frame dividido entre 32. Lo usan los ataques para escalar los efectos de 32 px al tamaño del enemigo.
 - Al morir (no al llegar a la estación), `die()` lanza `FloatingText.spawn(get_parent(), global_position, "+" + UiFormat.money(reward))` (`scripts/entities/FloatingText.gd`, estática, sin escena): un `Label` con la fuente Monogram a 16 px, sin suavizado, dorado `#ffe082` y `z_index` 10, centrado en la posición global del enemigo, que sube 12 px, se desvanece en 0,6 s y se libera. Cuelga del padre y su tween sigue el `time_scale` del juego. También lo usa la venta de torres.
 - Barra de vida (`scripts/entities/HealthBar.gd`, hija del enemigo creada en `setup()`): `draw_rect` sin suavizado encima del sprite, del ancho del frame (`effect_scale() * 32`), 2 px de alto con contorno negro y fondo `#14060a`. Relleno verde, ámbar `#ecb23c` por debajo del 50 % y rojo `#f0323c` por debajo del 25 %. Oculta con la vida llena; `take_damage()` la actualiza. No gira (el `PathFollow2D` tiene `rotates = false`; solo gira el sprite).
+
+### Curación (Reparadora)
+
+- `heal(amount)`: suma vida sin pasar de `data.hp`; con la vida llena (o ya muerto) no hace nada. Si cura, actualiza la `HealthBar`, saca lo curado ("+9") con `FloatingText` en verde `#7ee89a`, hace un destello verde de 0,4 s sobre el sprite (como `flash()`, vuelve a `_rest_color()`) y añade las chispas de `HealEffect`.
+- Con `data.heal_aura`, `setup()` crea un `Timer` de `HEAL_INTERVAL` (3 s). En cada disparo `_heal_nearby()` suelta el anillo de `HealEffect` y llama a `heal(data.hp * HEAL_RATIO)` (10 % de la vida máxima de la Reparadora, 9) en los demás enemigos del grupo `enemies` a `HEAL_RADIUS` (48 px) o menos. No se cura a sí misma.
+- `HealEffect` (`scripts/entities/HealEffect.gd`, estático, sin escena) pinta en rectángulos de 1 px, sin antialiasing, con la rampa verde `#1c7440`, `#3cb860`, `#7ee89a`, `#c4f5d0`:
+  - `spawn_ring()`: anillo de 1 px claro con otro oscuro por dentro que crece del 25 % al 100 % de 48 px en 0,5 s. Cuelga del camino, en la posición global de la Reparadora.
+  - `spawn_sparks()`: 6 chispas (cabeza clara y estela de 1 px debajo) que suben unos 10 px en 0,4 s. Cuelga de la nave curada (`z_index` 5) para seguirla.
+  - Las dos son opacas la primera mitad y se desvanecen en la segunda.
+- En el nivel 6 salen cuatro, detrás de una nave del mismo camino (oleadas 2 y 3).
 
 ## Comunicación con el resto
 

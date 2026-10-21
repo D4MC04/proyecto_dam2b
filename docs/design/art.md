@@ -13,7 +13,7 @@ La casilla del mapa es de 16x16 px. Los sprites de juego son múltiplos de esa m
 | Torres (base, cañón, icono `_full_up`) | 32x32 |
 | Enemigos pequeños (Dart, Wasp) | 24x24 |
 | Fragmentos de la Divisora | 20x20 |
-| Enemigos medianos y grandes (naves, Acorazado, Ariete, Nodriza, Divisora, UFO) | 32x32 |
+| Enemigos medianos y grandes (naves, Acorazado, Ariete, Nodriza, Reparadora, Divisora, UFO, Espectro) | 32x32 |
 | Spikey (`spiked_ship`) | 34x34 |
 | Estación (`base/estacion/`) | 80x80 centrada en frames de 96x96 |
 | Escudo de la estación | 64x64 (escalado a 1,25 en juego) |
@@ -59,6 +59,7 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 
 - **Motores y luces de enemigos**: `#8c1628`, `#f0323c`, `#ff8c5a`, `#ffdc78`.
 - **Naranja de la Divisora** (casco, de sombra a luz): `#7a3014`, `#d2641e`, `#f59a3c`, `#ffd08a`; cabina `#1e244a`, `#344682`. Tres módulos: casco central con cabina, punta roja y bodega con luz, y dos vainas laterales con aleta y motor propio, sujetas con abrazaderas de metal. Al morir se parte en tres trozos de 20x20 recortados de su dibujo (cada vaina, y el casco central sin la bodega) y antes enseña `divisora_crack.png`, con las abrazaderas partidas en luz (`#ffdc78`, `#fffae6`). Todo lo genera `scripts/tools/make_divisora_sprites.gd` (mitad izquierda en texto, reflejada).
+- **Reparadora** (`enemies/reparadora/reparadora_up_1` a `_3`): no se dibuja a mano, la genera `scripts/tools/make_reparadora.gd` (`godot --headless --path . -s scripts/tools/make_reparadora.gd`). Casco redondeado en el metal de los enemigos con un blanco `#f4f8ff` para los brillos, franjas, cabina y núcleo en la rampa verde `#0e3a24`, `#1c7440`, `#3cb860`, `#7ee89a`, `#c4f5d0`, `#f0fff4`, dos brazos con módulos de reparación (pinzas con un emisor verde) y llamas verdes. Los frames cambian el latido del núcleo, el emisor y la llama.
 - **Variantes de Dart**: mismo dibujo con el casco en azul hielo, morado, rojo o verde.
 - **Escudo de la base**: `#40e0f0`, `#aaf5ff`, `#ebffff`, semitransparente.
 - **Fondo de espacio**: azules y morados muy oscuros (`#0a1226`, `#14102e`, `#1e163e`, `#2a1e50`); estrellas en `#ffecc8`, `#befffa`, `#c8dcff` y blanco.
@@ -152,7 +153,7 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 ## Animación
 
 - Cañones de torre: `default` (reposo) y `fire_0`, `fire_1`... (disparo, sin bucle). `default` está en bucle en Cryo, Tesla, Rail y Disintegrator. El Cañón doble tiene `fire_0` y `fire_1`; el Láser solo tiene `default`. En el Disintegrator, `fire_0` a `fire_2` son un bucle por nivel de haz.
-- Enemigos: Acorazado, Ariete, Nodriza, Divisora, Wasp y los Dart tienen 3 frames; Nave normal y Nave agresiva, 1. Las cuatro animaciones `up`, `down`, `left` y `right` existen en todos; en los que tienen el dibujo mirando hacia arriba, el giro se hace por código.
+- Enemigos: Acorazado, Ariete, Nodriza, Reparadora, Divisora, Wasp, Espectro y los Dart tienen 3 frames; Nave normal y Nave agresiva, 1. Las cuatro animaciones `up`, `down`, `left` y `right` existen en todos; en los que tienen el dibujo mirando hacia arriba, el giro se hace por código.
 - Los sprites de torre y enemigo se dibujan mirando hacia arriba.
 
 ## Convención de nombres

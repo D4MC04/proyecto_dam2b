@@ -18,6 +18,11 @@ const INSPECT_TAG := "ENEMIGO"
 @export var rotation_offset: float = 0.0
 # Sonido al matarlo (no suena si llega a la estación).
 @export var death_sound: AudioStream
+# Camuflaje: cada `cloak_interval` segundos visible se camufla `cloak_time` segundos (0 = nunca).
+@export var cloak_interval: float = 0.0
+@export var cloak_time: float = 0.0
+# Reparadora: cada pocos segundos cura a los enemigos de alrededor (ver Enemy).
+@export var heal_aura: bool = false
 # Opcional: frase corta que se enseña al final de la ficha.
 @export_multiline var description: String
 # Trozos que suelta al morir, de izquierda a derecha según su dibujo (ninguno si está vacío).
