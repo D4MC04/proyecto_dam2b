@@ -8,16 +8,22 @@
 [ext_resource type="Resource" uid="uid://bi8dmx532elhj" path="res://resources/turret_data/laser.tres" id="6_j73uf"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="7_4aa7w"]
 [ext_resource type="Resource" uid="uid://duyy8mieer3iu" path="res://resources/wave_data/level_7.tres" id="8_npfra"]
+[ext_resource type="Resource" uid="uid://b0nynpwuep8sy" path="res://resources/wave_data/level_7_4.tres" id="15_u04mg"]
+[ext_resource type="Resource" uid="uid://cu5go11xjavqf" path="res://resources/wave_data/level_7_5.tres" id="16_dw8wc"]
+[ext_resource type="Resource" uid="uid://8yfkwdj2tulc" path="res://resources/wave_data/level_7_6.tres" id="17_lc00w"]
+[ext_resource type="Resource" uid="uid://bagq6bwfqihv4" path="res://resources/wave_data/level_7_7.tres" id="18_ti04b"]
+[ext_resource type="Resource" uid="uid://kxae88hf3bys" path="res://resources/wave_data/level_7_8.tres" id="19_a7v7m"]
+[ext_resource type="Resource" uid="uid://bo64p2jq4riml" path="res://resources/wave_data/level_7_9.tres" id="20_sv71e"]
+[ext_resource type="Resource" uid="uid://ccgd0f62u5qog" path="res://resources/turret_data/cryo.tres" id="cryo"]
+[ext_resource type="Resource" uid="uid://irudbi4pkbda" path="res://resources/turret_data/disintegrator.tres" id="disintegrator"]
+[ext_resource type="Resource" uid="uid://b8ynt6u20qgqi" path="res://resources/turret_data/rail.tres" id="rail"]
+[ext_resource type="Resource" uid="uid://lgewscsj1aah" path="res://resources/turret_data/tesla.tres" id="tesla"]
 [ext_resource type="Resource" uid="uid://lum6vv00kjel" path="res://resources/wave_data/level_7_2.tres" id="wave_7_2"]
 [ext_resource type="Resource" uid="uid://8skj1u2t1j2p" path="res://resources/wave_data/level_7_3.tres" id="wave_7_3"]
-[ext_resource type="Resource" path="res://resources/turret_data/cryo.tres" id="cryo"]
-[ext_resource type="Resource" path="res://resources/turret_data/disintegrator.tres" id="disintegrator"]
-[ext_resource type="Resource" uid="uid://b8ynt6u20qgqi" path="res://resources/turret_data/rail.tres" id="rail"]
-[ext_resource type="Resource" path="res://resources/turret_data/tesla.tres" id="tesla"]
 
 [resource]
 script = ExtResource("2_xvb3k")
 map = ExtResource("1_npfra")
 towers = Array[ExtResource("3_j73uf")]([ExtResource("4_npfra"), ExtResource("5_xvb3k"), ExtResource("6_j73uf"), ExtResource("cryo"), ExtResource("tesla"), ExtResource("rail"), ExtResource("disintegrator")])
-waves = Array[ExtResource("7_4aa7w")]([ExtResource("8_npfra"), ExtResource("wave_7_2"), ExtResource("wave_7_3")])
+waves = Array[ExtResource("7_4aa7w")]([ExtResource("8_npfra"), ExtResource("wave_7_2"), ExtResource("wave_7_3"), ExtResource("15_u04mg"), ExtResource("16_dw8wc"), ExtResource("17_lc00w"), ExtResource("18_ti04b"), ExtResource("19_a7v7m"), ExtResource("20_sv71e")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"

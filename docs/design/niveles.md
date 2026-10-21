@@ -71,21 +71,33 @@ Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de l
 
 Niveles registrados en `GameData.levels`:
 
-| Nivel | Mapa | Torres disponibles | Enemigos por oleada (1 + 2 + 3) | Último enemigo de cada una (s) | Caminos |
-|---|---|---|---|---|---|
-| 1 | `maps/levels/Level1.tscn` | Cañón doble, Cañón pesado, Láser | 7 + 12 + 6 | 8,5 / 12 / 7,5 | 1 |
-| 2 | `maps/levels/Level2.tscn` | las anteriores + Cryo | 7 + 12 + 13 | 8,5 / 12 / 12,5 | 2 |
-| 3 | `maps/levels/Level3.tscn` | las anteriores + Tesla | 16 + 12 + 12 | 18 / 12,5 / 12,5 | 2 |
-| 4 | `maps/levels/Level4.tscn` | las anteriores + Rail | 19 + 12 + 19 | 22 / 12 / 21 | 2 |
-| 5 | `maps/levels/Level5.tscn` | las anteriores + Disintegrator | 19 + 24 + 17 | 22 / 25,5 / 17,5 | 2 |
-| 6 | `maps/levels/Level6.tscn` | las 7 | 28 + 24 + 23 | 31,5 / 26 / 25,5 | 3 |
-| 7 | `maps/levels/Level7.tscn` | las 7 | 28 + 24 + 23 | 31,5 / 26 / 25,5 | 4 |
-| 8 | `maps/levels/Level8.tscn` | las 7 | 28 + 24 + 23 | 31,5 / 26 / 25,5 | 4 |
-| 9 | `maps/levels/Level9.tscn` | las 7 | 28 + 24 + 23 | 31,5 / 26 / 25,5 | 8 |
+| Nivel | Mapa | Torres disponibles | Oleadas | Naves por oleada (1.ª → última) | Naves nuevas (protagonistas) | Caminos |
+|---|---|---|---|---|---|---|
+| 1 | `maps/levels/Level1.tscn` | Cañón doble, Cañón pesado, Láser | 5 | 7 → 13 | Darts y Wasp | 1 |
+| 2 | `maps/levels/Level2.tscn` | las anteriores + Cryo | 6 | 10 → 21 | Nave normal y UFO | 2 |
+| 3 | `maps/levels/Level3.tscn` | las anteriores + Tesla | 6 | 11 → 26 | Nave agresiva y Spikey | 2 |
+| 4 | `maps/levels/Level4.tscn` | las anteriores + Rail | 7 | 9 → 24 | Acorazado | 2 |
+| 5 | `maps/levels/Level5.tscn` | las anteriores + Disintegrator | 7 | 11 → 33 | Ariete y Divisora | 2 |
+| 6 | `maps/levels/Level6.tscn` | las 7 | 8 | 17 → 42 (la última con la Nodriza) | Reparadora | 3 |
+| 7 | `maps/levels/Level7.tscn` | las 7 | 9 | 21 → 47 | Espectro | 4 |
+| 8 | `maps/levels/Level8.tscn` | las 7 | 9 | 19 → 48 | Saboteadora | 4 |
+| 9 | `maps/levels/Level9.tscn` | las 7 | 10 | 27 → 60 (la última con la Nodriza) | Espectro, Saboteadora, Divisora y Reparadora (y todas las demás) | 8 |
 
-Cada nivel tiene tres `WaveData` (`resources/wave_data/level_N.tres`, `level_N_2.tres` y `level_N_3.tres`): son la oleada original del nivel partida en tres tramos consecutivos, con los tiempos de cada una desde 3 s (la primera) o 2 s (las otras). Las oleadas de los niveles 7, 8 y 9 son, de momento, copias de las del nivel 6. Los niveles 1 a 4 y 6 a 9 están en `resources/level_data/level_N.tres`; el 5 está definido como subrecurso dentro de `scenes/GameData.tscn`.
+Las oleadas son `WaveData` en `resources/wave_data/level_N.tres` (la primera) y `level_N_K.tres` (la K). Los niveles 1 a 4 y 6 a 9 están en `resources/level_data/level_N.tres`; el 5 está definido como subrecurso dentro de `scenes/GameData.tscn` (`level_5.tres` también existe y lleva las mismas oleadas).
 
-Todas las oleadas usan todos los caminos de su mapa. En los niveles 2, 3 y 5 a 9, las entradas de cada oleada, ordenadas por tiempo, van por turnos a los caminos 0, 1, 2… (`path_index` = posición % número de caminos). El nivel 4 conserva su reparto propio entre sus dos caminos.
+### Generador de oleadas
+
+Las oleadas no se escriben a mano: las genera `scripts/tools/make_waves.gd` (`godot --headless --path . -s scripts/tools/make_waves.gd`) a partir de su tabla `LEVELS`, y para retocarlas se cambia la tabla y se vuelve a lanzar. Por nivel, la tabla dice: número de oleadas, caminos del mapa, cuántas naves seguidas van por cada camino, presupuesto de la primera oleada, cuánto crece por oleada, separación inicial entre naves, naves nuevas del nivel, naves de niveles anteriores y si sale la Nodriza.
+
+- **Presupuesto**: cada nave cuesta su `reward` más la de sus trozos (la Divisora, 30 + 3 × 10). La oleada K gasta `presupuesto × crecimiento^(K-1)` y saca al menos una nave más que la anterior. El presupuesto inicial de cada nivel es mayor que el del anterior (175, 260, 380, 500, 620, 740, 860, 980 y 1100), así que la primera oleada de un nivel es más dura que la del anterior.
+- **Grupos**: las naves salen en grupos del mismo tipo. Los grupos alternan entre las naves nuevas del nivel (los pares) y todas las del nivel, para que las nuevas sean las protagonistas desde la primera oleada. El tamaño del grupo es su valor (100 + 15 por oleada) entre el coste de la nave, de 1 a 6. "dart" es un Dart de color al azar.
+- **Tiempos**: la primera nave sale a 3 s en la primera oleada y a 2 s en las demás. La separación entre naves empieza en la de la tabla (de 1 s en el nivel 1 a 0,6 s en el 9), se multiplica por 0,93 en cada oleada (mínimo 0,3 s) y por el coste de la nave entre 35 (de 0,6 a 2), así que las naves caras van más separadas. Entre grupos hay una pausa de 2,5 separaciones. Los tiempos se redondean a décimas.
+- **Vida**: `health_multiplier` = 1 + 0,05 por oleada (1,0 la primera, 1,45 la décima).
+- **Nodriza**: solo en la última oleada de los niveles 6 y 9, una, al final.
+- **Caminos**: las entradas, ordenadas por tiempo, van por turnos a los caminos 0, 1, 2… (`path_index` = posición % caminos). El nivel 4 las reparte de dos en dos (`path_index` = (posición / 2) % 2).
+- Las tiradas usan una semilla fija por nivel y oleada: volver a lanzarlo da las mismas naves y tiempos (los ids de los subrecursos sí cambian).
+- Los `.tres` que ya existen se cargan y se rellenan, así conservan su uid. Como Godot guarda sin uid desde `-s`, el script los vuelve a escribir en la cabecera y en los `ext_resource` (como `map_generator.gd`). Para el nivel 5 añade a `GameData.tscn` las `ext_resource` que falten (`wave_5_K`) y reescribe su línea `waves`, sin tocar el resto de la escena.
+- El dinero inicial (`LevelState.money`, 5000) no se toca: si un nivel no se puede ganar, se ajusta la tabla.
 
 ## Spawner
 
