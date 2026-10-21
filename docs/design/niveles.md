@@ -32,6 +32,8 @@ Conexiones hechas en `_ready`:
 
 Un nivel acaba una sola vez: `_lose` y `_win` comparten la marca `_finished` y, tras la primera de las dos, ninguna vuelve a emitir. `_lose` pone la marca antes de esperar a la explosión, así que durante la explosión el nivel ya no puede ganarse. Si el último enemigo de la última oleada destruye la estación, el `Spawner` emite antes `enemy_reached_end` que `all_waves_cleared`, así que gana la derrota y `won` no se emite.
 
+Detrás del mapa, `Level.tscn` tiene dos nodos de decoración con los scripts del menú: `Comets` y `Satellites` (z_index -1, para que queden por debajo de `Map` y de las barras). Están en x = 128 con `area_size` 704x540, o sea solo cruzan el área de juego. Son menos frecuentes que en el menú: cometas cada 8 a 16 s (`wait_min`/`wait_max`) y satélites con 30 a 60 s entre uno y otro (`gap_min`/`gap_max`). Sobre los mapas de espacio el fondo `SpaceBackground` los tapa.
+
 Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de la UI: `BuildManager` no coloca torres ni enseña la vista previa (ver [torres.md](torres.md)). Durante la cámara lenta de la derrota y el respiro de la victoria el juego sigue corriendo. Durante la cámara lenta los enemigos siguen moviéndose y las torres disparando; los que mueran aún cuentan y dan dinero, pero el resultado no cambia.
 
 `get_run_stats() -> RunStats` construye el resumen de la partida: oleada alcanzada (`spawner.get_wave_index() + 1`, 0 si no se lanzó ninguna), total de oleadas (`spawner.waves.size()`), enemigos destruidos y dinero gastado (de `LevelState`). Lo usa `Game` al perder.

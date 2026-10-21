@@ -7,6 +7,8 @@
 [ext_resource type="Script" uid="uid://dc50n7b1msh6v" path="res://scripts/level/BuildManager.gd" id="10_p6oy6"]
 [ext_resource type="Script" uid="uid://6uasy1h7h8ho" path="res://scripts/level/LevelState.gd" id="11_ax7ne"]
 [ext_resource type="Script" path="res://scripts/level/Powers.gd" id="12_powers"]
+[ext_resource type="Script" uid="uid://mb67t4tqyohq" path="res://scripts/main_menu/Comets.gd" id="13_comets"]
+[ext_resource type="Script" uid="uid://pdd67yive1em" path="res://scripts/main_menu/Satellites.gd" id="14_satellites"]
 
 [node name="Level" type="Node2D" unique_id=1048914466]
 script = ExtResource("1_dke22")
@@ -30,3 +32,19 @@ powers = NodePath("../Powers")
 z_index = 1
 script = ExtResource("12_powers")
 state = NodePath("../LevelState")
+
+[node name="Comets" type="Node2D" parent="." unique_id=710223841]
+z_index = -1
+position = Vector2(128, 0)
+script = ExtResource("13_comets")
+area_size = Vector2(704, 540)
+wait_min = 8.0
+wait_max = 16.0
+
+[node name="Satellites" type="Node2D" parent="." unique_id=710223842]
+z_index = -1
+position = Vector2(128, 0)
+script = ExtResource("14_satellites")
+area_size = Vector2(704, 540)
+gap_min = 30.0
+gap_max = 60.0
