@@ -23,6 +23,7 @@ const SPAWN_IN_TIME := 0.2
 var _slow := 1.0
 var _slow_tween: Tween
 var _frost: AnimatedSprite2D
+var _health_bar: HealthBar
 
 signal reached_end(damage: int)
 
@@ -33,6 +34,10 @@ func setup(enemy_data: EnemyData):
 	sprite.sprite_frames = data.sprite_frames
 	collision_shape.shape = data.collision_shape
 	_last_position = position
+	_health_bar = HealthBar.new()
+	add_child(_health_bar)
+	var size := effect_scale() * EFFECT_SIZE
+	_health_bar.setup(size, -size / 2.0)
 	add_to_group(&"enemies")
 
 ## Sale del portal: crece de escala 0 a 1 con un destello.
@@ -71,6 +76,7 @@ func _update_animation():
 
 func take_damage(amount: float):
 	hp -= amount
+	_health_bar.update(hp, data.hp)
 	if hp <= 0:
 		die()
 
