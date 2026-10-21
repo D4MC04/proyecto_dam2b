@@ -8,8 +8,9 @@ Nodos, de fondo a frente:
 
 - `Background`: `ColorRect` negro.
 - `StarField`, `Comets`, `Asteroids`, `Satellites`, `Planets`: decoración (ver abajo).
-- `TitleScreen`: título "ASTRO ARTILLERY" y debajo el subtítulo "TOWER DEFENSE" (24 px, `#40e0f0`), flotando sin panel; debajo, `ButtonsPanel`, un panel holograma cian (`OverlayFrame`) con "Jugar", "Opciones" y "Salir" (204x36 todos, texto a 24). Márgenes del panel de 24 a los lados y 21 arriba y abajo, 18 de separación en `Content` y 9 entre botones.
+- `TitleScreen`: título "ASTRO ARTILLERY" y debajo el subtítulo "TOWER DEFENSE" (24 px, `#40e0f0`), flotando sin panel; debajo, `ButtonsPanel`, un panel holograma cian (`OverlayFrame`) con "Jugar", "ARCHIVO", "Opciones" y "Salir" (204x36 todos, texto a 24). Márgenes del panel de 24 a los lados y 21 arriba y abajo, 18 de separación en `Content` y 9 entre botones.
 - `LevelSelectionScreen` (oculto al empezar): `LevelsPanel`, un panel holograma cian con la cabecera `// SECTORES DISPONIBLES` (`ScreenHeader`), `LevelButtonsContainer` (`GridContainer` de 5 columnas, 12 px de separación) y el botón "Volver" (204x36). Cabecera y botones a 24 px. Mismos márgenes y separación que `ButtonsPanel`.
+- `Navedex` (oculto al empezar): instancia de `scenes/Navedex.tscn` (ver "Navedex").
 - `OptionsMenu` (oculto al empezar): instancia de `scenes/OptionsMenu.tscn` (ver "Opciones").
 
 Textos en Monogram (ver [art.md](art.md)): el título "ASTRO ARTILLERY" a 72 px, "OPCIONES" a 48 px (en `#40e0f0`) y el resto (botones, rótulos, interruptores) a 24 px (todo ×1,5 sobre el tamaño base de 16, 32 y 48).
@@ -37,6 +38,14 @@ Todos son `Node2D` que dibujan o crean sprites por código, con posiciones y tie
 | `Planets` | instancias de `scenes/SpaceBody.tscn` | 6 planetas animados fijos, repartidos por los 960x540 (posiciones proporcionales a las que tenían en 640x272, con sus escalas), y un asteroide oculto |
 
 `scripts/main_menu/SpaceBody.gd` (clase `SpaceBody`) es un `AnimatedSprite2D` con `@tool` que construye su `SpriteFrames` a partir de `sheet`, una tira horizontal de frames cuadrados (lado = alto de la imagen), a la velocidad `fps`. Lo usan los planetas del menú y los asteroides.
+
+## Navedex
+
+`scenes/Navedex.tscn` + `scripts/screens/Navedex.gd` (clase `Navedex`). Archivo de enemigos, accesible con "ARCHIVO" en el título (mismo fundido de 0,25 s que Jugar/Opciones; emite `back_pressed` con "Volver"). Panel holograma (`OverlayFrame`) con cabecera `// ARCHIVO`, a la izquierda una cuadrícula de 4 columnas con los 12 enemigos (`ENEMY_FILES`, celdas `EnemyCell` sin contador) y a la derecha el detalle: sprite animado `up` a ×2, nombre, `description` y stats (`get_stats()` con `StatRow` a 24 px).
+
+- Un enemigo es "visto" si `GameState.has_seen_enemy(data)`. Los no vistos salen en silueta negra (`modulate` negro) y su detalle dice "???" sin stats.
+- Al mostrarse se refrescan las siluetas y se elige el primer enemigo.
+- Si se añade un enemigo nuevo, hay que añadirlo a `ENEMY_FILES`.
 
 ## Música
 

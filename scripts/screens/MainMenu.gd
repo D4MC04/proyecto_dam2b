@@ -5,6 +5,7 @@ var start_on_level_selection: bool = false
 @onready var main_panel: VBoxContainer = $TitleScreen
 @onready var level_selection_panel: VBoxContainer = $LevelSelectionScreen
 @onready var level_buttons_container: GridContainer = %LevelButtonsContainer
+@onready var navedex: Navedex = $Navedex
 @onready var options_menu: OptionsMenu = $OptionsMenu
 
 const FADE_TIME := 0.25
@@ -45,6 +46,12 @@ func _on_play_button_pressed() -> void:
 
 func _on_volver_pressed() -> void:
 	_transition(level_selection_panel, main_panel)
+
+func _on_navedex_button_pressed() -> void:
+	_transition(main_panel, navedex)
+
+func _on_navedex_back_pressed() -> void:
+	_transition(navedex, main_panel)
 
 func _on_quit_button_pressed() -> void:
 	get_tree().quit()
