@@ -7,6 +7,10 @@ const FRAMES: SpriteFrames = preload("res://resources/sprite_frames/satelite.tre
 const SCALE: float = 0.5           # frame de 66x34 -> ~33x17 en pantalla
 const MARGIN: float = 20.0         # aparece/desaparece fuera de pantalla
 
+@export var area_size: Vector2 = Vector2.ZERO  # zona por la que cruza; cero = todo el viewport
+@export var gap_min: float = 8.0   # segundos mínimos entre que sale uno y entra el siguiente
+@export var gap_max: float = 15.0  # segundos máximos entre que sale uno y entra el siguiente
+
 var viewport_size: Vector2
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var satellite: AnimatedSprite2D  # null mientras no hay ninguno cruzando
@@ -16,7 +20,7 @@ var spin: float = 0.0  # giro sobre sí mismo, en rad/s
 var wait: float = 0.0
 
 func _ready() -> void:
-	viewport_size = get_viewport_rect().size
+	viewport_size = area_size if area_size != Vector2.ZERO else get_viewport_rect().size
 	rng.randomize()
 	wait = rng.randf_range(3.0, 6.0)
 
@@ -31,7 +35,7 @@ func _process(delta: float) -> void:
 	if _is_outside():
 		satellite.queue_free()
 		satellite = null
-		wait = rng.randf_range(8.0, 15.0)
+		wait = rng.randf_range(gap_min, gap_max)
 
 func _is_outside() -> bool:
 	var p: Vector2 = satellite.position

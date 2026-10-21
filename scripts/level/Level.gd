@@ -10,11 +10,17 @@ const GAME_AREA_CENTER := Vector2(480.0, 270.0)
 # Área de juego completa: entre las dos barras de 128 px.
 # El premio de oleada se queda en pantalla más que el +X€ de un enemigo.
 const AWARD_TEXT_DURATION := 4.0
+# Temblor al llegar una nave: 2 px (más con más daño) durante 0,15 s.
+const SHAKE_AMPLITUDE := 2.0
+const SHAKE_TIME := 0.15
+const SHAKE_REFERENCE_DAMAGE := 40.0
 const GAME_AREA_RECT := Rect2(128.0, 0.0, 704.0, 540.0)
 
 var map: Map
 var towers: Array[TowerData]
 var base: Base
+var _shake_tween: Tween
+var _map_origin: Vector2
 # Un nivel acaba una sola vez: tras emitir lost o won no se emite ninguna de las dos.
 var _finished: bool = false
 # Enemigos que han llegado a la estación en la oleada actual (para el bonus de oleada perfecta).
@@ -44,6 +50,8 @@ func setup(data: LevelData) -> void:
 	spawner.setup(map.get_paths(), data.waves)
 	base = map.get_node("SpaceStation")
 	spawner.enemy_reached_end.connect(base.take_damage)
+	spawner.enemy_reached_end.connect(_shake_map)
+	_map_origin = map.position
 	base.destroyed.connect(_lose)
 
 ## Resumen de la partida hasta ahora: oleada alcanzada, total, enemigos destruidos y dinero gastado.
@@ -56,6 +64,20 @@ func _center_map() -> void:
 	var used_center := map.position + map.get_used_rect().get_center()
 	map.position += (GAME_AREA_CENTER - used_center).round()
 	map.place_background(GAME_AREA_RECT)
+
+# Sacude el mapa (no la UI) con un temblor que decae, en píxeles enteros.
+# Los tweens siguen Engine.time_scale, así que respeta la velocidad del juego.
+func _shake_map(damage: int) -> void:
+	if _finished:
+		return
+	if _shake_tween:
+		_shake_tween.kill()
+	var amplitude := SHAKE_AMPLITUDE * (1.0 + damage / SHAKE_REFERENCE_DAMAGE)
+	_shake_tween = create_tween()
+	_shake_tween.tween_method(func(t: float) -> void:
+		var wave := sin(t * TAU * 3.0) * (1.0 - t) * amplitude
+		map.position = _map_origin + Vector2(wave, wave * 0.5).round(), 0.0, 1.0, SHAKE_TIME)
+	_shake_tween.finished.connect(func() -> void: map.position = _map_origin)
 
 # Al limpiar una oleada (menos la última) sin que entre nadie, da el bonus de oleada perfecta.
 func _on_wave_cleared(_index: int) -> void:

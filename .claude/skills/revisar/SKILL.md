@@ -7,11 +7,11 @@ disable-model-invocation: true
 
 Revisa la rama actual frente a `main` antes del PR.
 
-1. Mira los cambios con `git diff main...HEAD` y `git status` (incluye lo no commiteado).
+1. En un solo comando: `git fetch origin && git status --short && git diff main...HEAD && git merge-tree --write-tree --name-only origin/main HEAD; echo "merge-tree: $?"` (cambios, lo no commiteado y conflictos con main a la vez).
 2. Busca fallos reales: lógica rota, referencias en .tscn/.tres que no se actualizaron al renombrar, uid= o ids de ext_resource cambiados, tile_map_data escrito a mano, reglas de CLAUDE.md incumplidas.
 3. Lanza el agente `probador`.
 4. Comprueba que el docs/design afectado está actualizado y que el ticket se borró.
-5. Conflictos con main: `git fetch origin` y `git merge-tree --write-tree --name-only origin/main HEAD` (no toca archivos; solo mira lo commiteado). Código 0: entra limpio. Código 1: lista los archivos en conflicto.
+5. Conflictos con main, del paso 1 (merge-tree no toca archivos; solo mira lo commiteado). Código 0: entra limpio. Código 1: lista los archivos en conflicto.
 
 Devuelve:
 - Resumen de qué cambia la rama, para alguien que está aprendiendo (sin jerga).

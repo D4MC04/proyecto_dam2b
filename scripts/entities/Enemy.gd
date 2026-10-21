@@ -17,6 +17,7 @@ const SLOW_FLASH := Color(3, 3, 3)
 const SLOW_FLASH_TIME := 0.1
 const SLOW_TINT := Color(0.65, 0.85, 1.0)
 const HIT_FLASH_TIME := 0.15
+const SPAWN_IN_TIME := 0.2
 
 # Multiplicador de velocidad mientras está ralentizado.
 var _slow := 1.0
@@ -33,6 +34,14 @@ func setup(enemy_data: EnemyData):
 	collision_shape.shape = data.collision_shape
 	_last_position = global_position
 	add_to_group(&"enemies")
+
+## Sale del portal: crece de escala 0 a 1 con un destello.
+func spawn_in() -> void:
+	scale = Vector2.ZERO
+	sprite.modulate = SLOW_FLASH
+	var tween := create_tween().set_parallel()
+	tween.tween_property(self, "scale", Vector2.ONE, SPAWN_IN_TIME)
+	tween.tween_property(sprite, "modulate", Color.WHITE, SPAWN_IN_TIME)
 
 func _process(delta):
 	progress += speed * _slow * delta

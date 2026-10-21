@@ -41,6 +41,8 @@ var _spawning: bool = false
 var _alive: Dictionary[Enemy, bool] = {}
 # Segundos que faltan para que AUTO lance la siguiente oleada; negativo si no hay cuenta atrás.
 var _auto_countdown: float = -1.0
+# Portales abiertos de la oleada actual, por índice de camino.
+var _portals: Dictionary[int, Portal] = {}
 
 func setup(p: Array[Path2D], w: Array[WaveData]) -> void:
 	paths = p
@@ -57,6 +59,7 @@ func start_next_wave() -> bool:
 	_elapsed = 0.0
 	_next_index = 0
 	_spawning = true
+	_open_portals()
 	wave_started.emit(_wave_index, waves.size())
 	return true
 
@@ -98,6 +101,7 @@ func _process(delta: float) -> void:
 		_next_index += 1
 	if _next_index >= _entries.size():
 		_spawning = false
+		_close_portals()
 		wave_spawn_finished.emit(_wave_index)
 		_check_cleared()
 
@@ -106,9 +110,27 @@ func _spawn(entry: SpawnEntry) -> void:
 	var path := paths[entry.path_index % paths.size()]
 	path.add_child(enemy)
 	enemy.setup(entry.enemy_data)
+	enemy.spawn_in()
+	GameState.mark_enemy_seen(entry.enemy_data)
 	_alive[enemy] = true
 	enemy.reached_end.connect(_on_enemy_reached_end.bind(enemy))
 	enemy.died.connect(_on_enemy_died.bind(enemy))
+
+# Abre un portal al principio de cada camino que use la oleada.
+func _open_portals() -> void:
+	for entry in _entries:
+		var index := entry.path_index % paths.size()
+		if _portals.has(index):
+			continue
+		var portal := Portal.new()
+		portal.position = paths[index].curve.get_point_position(0)
+		paths[index].add_child(portal)
+		_portals[index] = portal
+
+func _close_portals() -> void:
+	for portal in _portals.values():
+		portal.close()
+	_portals.clear()
 
 func _on_enemy_died(reward: int, enemy: Enemy) -> void:
 	if not _alive.erase(enemy):

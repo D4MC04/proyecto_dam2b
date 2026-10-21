@@ -17,6 +17,7 @@
 [ext_resource type="PackedScene" path="res://scenes/OptionsMenu.tscn" id="19_options"]
 [ext_resource type="Script" path="res://scripts/level_ui/OverlayFrame.gd" id="20_frame"]
 [ext_resource type="PackedScene" path="res://scenes/level_ui/ScreenHeader.tscn" id="21_header"]
+[ext_resource type="PackedScene" path="res://scenes/Navedex.tscn" id="22_navedex"]
 
 [node name="MainMenu" type="Control" unique_id=576679633]
 texture_filter = 1
@@ -174,6 +175,13 @@ size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
 text = "Jugar"
 
+[node name="NavedexButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons"]
+custom_minimum_size = Vector2(204, 36)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "ARCHIVO"
+
 [node name="SettingsButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons" unique_id=528850060]
 custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
@@ -234,11 +242,17 @@ size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
 text = "Volver"
 
+[node name="Navedex" parent="." instance=ExtResource("22_navedex")]
+visible = false
+layout_mode = 1
+
 [node name="OptionsMenu" parent="." instance=ExtResource("19_options")]
 visible = false
 layout_mode = 1
 
 [connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/PlayButton" to="." method="_on_play_button_pressed"]
+[connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/NavedexButton" to="." method="_on_navedex_button_pressed"]
+[connection signal="back_pressed" from="Navedex" to="." method="_on_navedex_back_pressed"]
 [connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/SettingsButton" to="." method="_on_settings_button_pressed"]
 [connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/QuitButton" to="." method="_on_quit_button_pressed"]
 [connection signal="pressed" from="LevelSelectionScreen/LevelsPanel/Margin/Content/VolverButton" to="." method="_on_volver_pressed"]

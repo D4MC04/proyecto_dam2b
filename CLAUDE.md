@@ -41,7 +41,7 @@
   5. Limpiar todo lo del ticket sin preguntar (ya no sirve): archivar su chat, quitar su worktree con `git worktree remove <carpeta>` (sin `--force`; si Godot está abierto en esa carpeta, cerrarlo antes o pedir al usuario que lo cierre) y borrar su rama local con `git branch -d`. Al final no queda ni carpeta en `.claude/worktrees/` ni rama del ticket, solo `main`. Lo hace el chat central.
 - **Chat central** (se abre con `/new`): trabaja en la carpeta principal sobre `main`, en Opus. Propone y reparte tickets en chats con worktree, revisa lo que suben y hace el paso 4 de "Subir a main" para que el usuario nunca tenga que hacer `git pull` a mano. Cada vez que arranca o recibe un aviso de subida, deja `main` local al día.
 - Con el visto bueno ("sube todo", "commitea"…), el chat central puede subir él mismo los tickets listos: hace "Subir a main" (pasos 1-4) en cada worktree de `.claude/worktrees/`, uno detrás de otro, sin esperar a que cada chat de ticket lo haga.
-- `/new`: crea el chat central y archiva el chat donde se escribió (se puede recuperar desde Archivados).
+- `/new`: crea el chat central y borra el chat donde se escribió (lo borra el chat central; la app pide confirmarlo).
 - Para probar, usar el agente `probador`. Antes de commitear o subir, `/revisar` (prueba, revisa y mira conflictos con main).
 - Avisar al usuario de qué comando toca, al final de la respuesta, en una línea:
   - Pregunta qué tickets quedan o cuáles se pueden hacer a la vez → `/tickets`.
@@ -52,6 +52,11 @@
   - Ticket ya en main → decir que su chat, su worktree y su rama ya se borraron (paso 5 de "Subir a main").
   - Chat largo o tema distinto al del chat → abrir chat nuevo.
   - Tarea mecánica en Opus → bajar a Sonnet o Haiku. Sonnet atascado dos veces → subir a Opus.
+
+## Ahorro de tokens
+- Cada llamada a una herramienta reenvía todo el contexto: hacer las menos posibles.
+- Juntar en un solo comando de Bash (con `&&` o `;`) lo que no necesite ver el resultado anterior para decidir. Las llamadas independientes, en paralelo en el mismo mensaje.
+- No releer archivos ya leídos ni comprobar lo que una herramienta ya confirmó.
 
 ## Sprites
 - Pixel art 16x16. Seguir docs/design/art.md y el estilo de los sprites existentes en assets/.

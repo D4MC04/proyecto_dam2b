@@ -3,12 +3,12 @@ name: tickets
 description: Lista los tickets de docs/tasks/ con su estado y archivos, y dice cuáles chocan entre sí y cuáles se pueden hacer a la vez en worktrees.
 model: haiku
 disable-model-invocation: true
-allowed-tools: Read, Glob, Grep, Edit, AskUserQuestion
+allowed-tools: Bash, Read, Glob, Grep, Edit, AskUserQuestion
 ---
 
 Lista los tickets pendientes. No modifiques ningún archivo, salvo la línea `Estado:` de los tickets que el usuario acepte en las casillas (y luego súbela y arráncalos, ver abajo).
 
-1. Lee todos los `docs/tasks/*.md` menos `_plantilla.md`.
+1. Lee todos los tickets en un solo comando: `for f in docs/tasks/*.md; do [ "$f" = docs/tasks/_plantilla.md ] || { echo "=== $f"; cat "$f"; }; done`.
 2. Devuelve una tabla: ticket (nombre del archivo sin `.md`), estado, modelo recomendado, esfuerzo recomendado, archivos que toca (de la sección "Archivos que toca", sin contar `docs/`).
 3. Debajo, **Chocan**: cada pareja de tickets que comparte algún archivo (sin contar `docs/`), con el archivo en común. Si ninguna choca, "Ninguno choca".
 4. **Orden propuesto**: reparte todos los tickets (aceptados y propuestos) en tandas. Dentro de una tanda ninguno choca con otro, así que se hacen a la vez en chats con worktree. Cada tanda empieza cuando la anterior ya está en main. Usa las menos tandas posible. Entre dos tickets que chocan, va primero el que deja algo que el otro aprovecha (por ejemplo, el que añade un campo o una función que el otro usa) y, si no, el más pequeño. Una línea por tanda con el porqué de cada orden:
