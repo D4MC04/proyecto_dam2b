@@ -6,12 +6,12 @@ const RISE := 12.0
 const DURATION := 0.6
 
 ## Texto que sale de `position`, sube y se desvanece. Cuelga de `parent` y se libera solo.
-static func spawn(parent: Node, position: Vector2, text: String, duration: float = DURATION) -> void:
+static func spawn(parent: Node, position: Vector2, text: String, duration: float = DURATION, color: Color = COLOR) -> void:
 	var label := Label.new()
 	label.text = text
 	label.add_theme_font_override("font", FONT)
 	label.add_theme_font_size_override("font_size", 16)
-	label.add_theme_color_override("font_color", COLOR)
+	label.add_theme_color_override("font_color", color)
 	label.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	label.z_index = 10
 	label.reset_size()

@@ -11,6 +11,7 @@
 [ext_resource type="Resource" uid="uid://c4ef5gd8nr04u" path="res://resources/enemy_data/spiked_ship.tres" id="9_8ja6h"]
 [ext_resource type="Resource" uid="uid://dgfq6h7o6qtu8" path="res://resources/enemy_data/ariete.tres" id="10_nu6r4"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="11_mh68x"]
+[ext_resource type="Resource" path="res://resources/enemy_data/divisora.tres" id="divisora"]
 
 [sub_resource type="Resource" id="Resource_lhtuj"]
 script = ExtResource("1_c5rst")
@@ -144,6 +145,17 @@ enemy_data = ExtResource("8_ihi7p")
 time = 25.5
 path_index = 1
 
+[sub_resource type="Resource" id="Resource_divisora0"]
+script = ExtResource("1_c5rst")
+enemy_data = ExtResource("divisora")
+time = 14.0
+
+[sub_resource type="Resource" id="Resource_divisora1"]
+script = ExtResource("1_c5rst")
+enemy_data = ExtResource("divisora")
+time = 14.5
+path_index = 1
+
 [resource]
 script = ExtResource("11_mh68x")
-entries = Array[ExtResource("1_c5rst")]([SubResource("Resource_lhtuj"), SubResource("Resource_5dija"), SubResource("Resource_fqa84"), SubResource("Resource_e1c7f"), SubResource("Resource_4u72l"), SubResource("Resource_rrc2d"), SubResource("Resource_udnuy"), SubResource("Resource_742ka"), SubResource("Resource_v85ag"), SubResource("Resource_kph8l"), SubResource("Resource_mfp41"), SubResource("Resource_4y1ak"), SubResource("Resource_l2nk6"), SubResource("Resource_x7xcr"), SubResource("Resource_58hp4"), SubResource("Resource_gvvwi"), SubResource("Resource_phd3w"), SubResource("Resource_180ot"), SubResource("Resource_08cqc"), SubResource("Resource_53dti"), SubResource("Resource_hq7dj"), SubResource("Resource_3qpj1"), SubResource("Resource_pb0mm"), SubResource("Resource_md7j4")])
+entries = Array[ExtResource("1_c5rst")]([SubResource("Resource_lhtuj"), SubResource("Resource_5dija"), SubResource("Resource_fqa84"), SubResource("Resource_e1c7f"), SubResource("Resource_4u72l"), SubResource("Resource_rrc2d"), SubResource("Resource_udnuy"), SubResource("Resource_742ka"), SubResource("Resource_v85ag"), SubResource("Resource_kph8l"), SubResource("Resource_mfp41"), SubResource("Resource_4y1ak"), SubResource("Resource_l2nk6"), SubResource("Resource_x7xcr"), SubResource("Resource_58hp4"), SubResource("Resource_gvvwi"), SubResource("Resource_phd3w"), SubResource("Resource_180ot"), SubResource("Resource_08cqc"), SubResource("Resource_53dti"), SubResource("Resource_hq7dj"), SubResource("Resource_3qpj1"), SubResource("Resource_pb0mm"), SubResource("Resource_md7j4"), SubResource("Resource_divisora0"), SubResource("Resource_divisora1")])
