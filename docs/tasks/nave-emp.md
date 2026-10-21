@@ -1,7 +1,7 @@
 # Nave nueva: Saboteadora, que apaga las torres cercanas
 
 Estado: aceptada
-Modelo recomendado: sonnet
+Modelo recomendado: opus
 Esfuerzo recomendado: high
 
 ## Por qué
