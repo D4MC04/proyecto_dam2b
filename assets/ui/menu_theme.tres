@@ -47,16 +47,6 @@ script = ExtResource("2_clipped")
 bg_color = Color(0.078431375, 0.25882354, 0.32156864, 1)
 border_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
 
-[sub_resource type="StyleBox" id="ClippedBox_danger"]
-resource_local_to_scene = false
-resource_name = ""
-content_margin_left = 4.0
-content_margin_top = 1.0
-content_margin_right = 4.0
-content_margin_bottom = 1.0
-script = ExtResource("2_clipped")
-border_color = Color(1, 0.23529412, 0.3529412, 1)
-
 [sub_resource type="StyleBox" id="ClippedBox_danger_hover"]
 resource_local_to_scene = false
 resource_name = ""
@@ -66,6 +56,16 @@ content_margin_right = 4.0
 content_margin_bottom = 1.0
 script = ExtResource("2_clipped")
 bg_color = Color(0.5882353, 0.078431375, 0.19607843, 1)
+border_color = Color(1, 0.23529412, 0.3529412, 1)
+
+[sub_resource type="StyleBox" id="ClippedBox_danger"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 4.0
+content_margin_top = 1.0
+content_margin_right = 4.0
+content_margin_bottom = 1.0
+script = ExtResource("2_clipped")
 border_color = Color(1, 0.23529412, 0.3529412, 1)
 
 [sub_resource type="Gradient" id="Gradient_grabber"]
@@ -132,6 +132,14 @@ Button/styles/hover = SubResource("ClippedBox_hover")
 Button/styles/hover_pressed = SubResource("ClippedBox_hover")
 Button/styles/normal = SubResource("ClippedBox_normal")
 Button/styles/pressed = SubResource("ClippedBox_pressed")
+DangerButton/base_type = &"Button"
+DangerButton/colors/font_color = Color(1, 0.23529412, 0.3529412, 1)
+DangerButton/colors/font_focus_color = Color(1, 0.23529412, 0.3529412, 1)
+DangerButton/colors/font_hover_color = Color(1, 0.6666667, 0.74509805, 1)
+DangerButton/colors/font_pressed_color = Color(1, 0.6666667, 0.74509805, 1)
+DangerButton/styles/hover = SubResource("ClippedBox_danger_hover")
+DangerButton/styles/normal = SubResource("ClippedBox_danger")
+DangerButton/styles/pressed = SubResource("ClippedBox_danger_hover")
 HSlider/icons/grabber = SubResource("GradientTexture2D_grabber")
 HSlider/icons/grabber_highlight = SubResource("GradientTexture2D_grabber_hover")
 HSlider/styles/grabber_area = SubResource("StyleBoxFlat_slider_fill")
@@ -141,11 +149,3 @@ PanelContainer/styles/panel = SubResource("StyleBoxFlat_panel")
 ToggleButton/base_type = &"Button"
 ToggleButton/styles/hover_pressed = SubResource("ClippedBox_hover")
 ToggleButton/styles/pressed = SubResource("ClippedBox_hover")
-DangerButton/base_type = &"Button"
-DangerButton/colors/font_color = Color(1, 0.23529412, 0.3529412, 1)
-DangerButton/colors/font_focus_color = Color(1, 0.23529412, 0.3529412, 1)
-DangerButton/colors/font_hover_color = Color(1, 0.6666667, 0.74509805, 1)
-DangerButton/colors/font_pressed_color = Color(1, 0.6666667, 0.74509805, 1)
-DangerButton/styles/hover = SubResource("ClippedBox_danger_hover")
-DangerButton/styles/normal = SubResource("ClippedBox_danger")
-DangerButton/styles/pressed = SubResource("ClippedBox_danger_hover")
