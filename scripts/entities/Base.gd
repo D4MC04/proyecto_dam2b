@@ -5,6 +5,9 @@ signal health_changed(current: int, maximum: int)
 signal destroyed
 
 const SHIELD_WEAK := preload("res://assets/sprites/base/shield_debil.png")
+const IMPACT_FRAMES := preload("res://resources/sprite_frames/rocket_launcher_impact.tres")
+# Escala de la explosión según el daño de la nave: 5 -> 1,25 y 40 -> 2
+const IMPACT_SCALE_PER_DAMAGE := 0.0214
 
 @export var max_health: int = 100
 
@@ -24,6 +27,7 @@ func take_damage(amount: int) -> void:
 	if health <= 0:
 		return
 	health = maxi(health - amount, 0)
+	_impact(amount)
 	health_changed.emit(health, max_health)
 	if health == 0:
 		if _tween:
@@ -38,6 +42,10 @@ func take_damage(amount: int) -> void:
 		play(phase)
 	_flash()
 	_hit_flash()
+
+# Explosión en el punto de choque, encima de la estación.
+func _impact(amount: int) -> void:
+	Effect.spawn(get_parent(), IMPACT_FRAMES, global_position, 1.0 + amount * IMPACT_SCALE_PER_DAMAGE)
 
 # Fase de daño según la fracción de vida que queda
 func _phase_for(fraction: float) -> StringName:
