@@ -26,6 +26,7 @@ const FAST_SPEED := 2.0
 @onready var level_indicator: LevelIndicator = %LevelIndicator
 @onready var info_panel: InfoPanel = %InfoPanel
 @onready var fps_label: Label = %FpsLabel
+@onready var tutorial_hints: TutorialHints = %TutorialHints
 # Pantalla de cada estado; un estado sin entrada no enseña ninguna. Cada pantalla va en un solo estado.
 @onready var _screens_by_state: Dictionary[UiState, OverlayScreen] = {
 	UiState.PAUSED: pause_menu,
@@ -36,6 +37,7 @@ const FAST_SPEED := 2.0
 var _ui_state: UiState = UiState.PLAYING
 var _level_state: LevelState
 var _spawner: Spawner
+var _powers: Powers
 # Secuencia en curso antes de enseñar la pantalla (cámara lenta de LOST o respiro de WON); null si no hay.
 var _screen_delay: Tween
 # Velocidad ×2 elegida con el botón; vuelve a false al perder, ganar, reiniciar o salir.
@@ -52,6 +54,10 @@ func _ready() -> void:
 	sidebar.next_wave_requested.connect(_on_next_wave_requested)
 	sidebar.auto_waves_toggled.connect(_on_auto_waves_toggled)
 	sidebar.fast_speed_toggled.connect(_on_fast_speed_toggled)
+	info_panel.meteor_button.pressed.connect(_use_power.bind(Powers.Power.METEOR))
+	info_panel.freeze_button.pressed.connect(_use_power.bind(Powers.Power.FREEZE))
+	tutorial_hints.sidebar = sidebar
+	tutorial_hints.info_panel = info_panel
 	set_state(UiState.PLAYING)
 
 # El contador de FPS solo se ve (y solo se actualiza) con la opción show_fps activada.
@@ -88,6 +94,22 @@ func setup(state: LevelState, towers: Array[TowerData], level_number: int, spawn
 	# Un LevelState nuevo (al empezar o reiniciar) no tiene nada inspeccionado: la ficha vuelve al escáner.
 	info_panel.show_inspected(state.inspected)
 	info_panel.show_sellable(state.sellable_tower)
+	# El tutorial sale en el nivel 1 hasta que se acaba o se salta; necesita setup_powers antes.
+	if level_number == 1 and not GameState.tutorial_done:
+		tutorial_hints.start(state, spawner, _powers)
+	else:
+		tutorial_hints.stop()
+
+## Powers es nuevo en cada nivel o reinicio: los botones pasan a leer el nuevo. Va antes que setup.
+func setup_powers(powers: Powers) -> void:
+	_powers = powers
+	info_panel.meteor_button.powers = powers
+	info_panel.freeze_button.powers = powers
+
+# Los poderes solo se usan jugando.
+func _use_power(power: Powers.Power) -> void:
+	if is_instance_valid(_powers) and _ui_state == UiState.PLAYING:
+		_powers.use(power)
 
 func _on_tower_selected(data: TowerData) -> void:
 	if is_instance_valid(_level_state):
@@ -183,9 +205,13 @@ func set_state(new_state: UiState) -> void:
 	# Con cualquier pantalla abierta (o en camino, durante la cámara lenta o el respiro) no se puede
 	# seleccionar torre.
 	sidebar.set_selection_locked(new_state != UiState.PLAYING)
+	# Tampoco se sigue apuntando el meteorito.
+	if new_state != UiState.PLAYING and is_instance_valid(_powers):
+		_powers.cancel_aiming()
 	if new_state == UiState.LOST or new_state == UiState.WON:
 		# Sin pantalla ni pausa todavía: el juego sigue un momento y, al acabar, entra la pantalla.
 		_show_screen(null)
+		tutorial_hints.visible = false
 		get_tree().paused = false
 		# Tiempo real y activo en pausa, para que la cámara lenta no se frene a sí misma.
 		_screen_delay = create_tween().set_ignore_time_scale().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
@@ -205,6 +231,8 @@ func set_state(new_state: UiState) -> void:
 			_show_screen(screen))
 		return
 	_show_screen(_screens_by_state.get(new_state))
+	# Con una pantalla abierta el tutorial no se ve (no tapa la pausa ni señala botones de debajo).
+	tutorial_hints.visible = new_state == UiState.PLAYING
 	get_tree().paused = new_state != UiState.PLAYING
 
 func _show_screen(shown: OverlayScreen) -> void:
@@ -212,6 +240,9 @@ func _show_screen(shown: OverlayScreen) -> void:
 		screen.visible = screen == shown
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _ui_state == UiState.PLAYING and _handle_shortcut(event):
+		get_viewport().set_input_as_handled()
+		return
 	if not event.is_action_pressed("ui_cancel"):
 		return
 	match _ui_state:
@@ -223,6 +254,26 @@ func _unhandled_input(event: InputEvent) -> void:
 			# En derrota y victoria Escape no hace nada.
 			return
 	get_viewport().set_input_as_handled()
+
+# Atajos de teclado: pasan por los mismos botones que el ratón. Solo se llaman jugando.
+func _handle_shortcut(event: InputEvent) -> bool:
+	for i in Sidebar.TOWER_SHORTCUT_COUNT:
+		if event.is_action_pressed("select_tower_%d" % (i + 1)):
+			sidebar.press_tower_button(i)
+			return true
+	if event.is_action_pressed("next_wave"):
+		sidebar.next_wave_button.pressed.emit()
+	elif event.is_action_pressed("toggle_auto"):
+		sidebar.auto_wave_button.button_pressed = not sidebar.auto_wave_button.button_pressed
+	elif event.is_action_pressed("toggle_speed"):
+		sidebar.speed_button.button_pressed = not sidebar.speed_button.button_pressed
+	elif event.is_action_pressed("power_meteor"):
+		_use_power(Powers.Power.METEOR)
+	elif event.is_action_pressed("power_freeze"):
+		_use_power(Powers.Power.FREEZE)
+	else:
+		return false
+	return true
 
 func _on_option_chosen(option: OverlayScreen.Option) -> void:
 	match option:

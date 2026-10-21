@@ -6,7 +6,7 @@ const ACCENT_COLOR := Color("#f0323c")
 const INSPECT_TAG := "ENEMIGO"
 
 @export var name: String
-@export var hp: int
+@export var hp: float
 @export var speed: int
 @export var reward: int
 # Vida que quita a la estación al llegar al final del camino.
@@ -16,6 +16,8 @@ const INSPECT_TAG := "ENEMIGO"
 @export var rotate_sprite: bool = false
 # Giro extra en grados para sprites que no miran hacia arriba.
 @export var rotation_offset: float = 0.0
+# Sonido al matarlo (no suena si llega a la estación).
+@export var death_sound: AudioStream
 # Opcional: frase corta que se enseña al final de la ficha.
 @export_multiline var description: String
 

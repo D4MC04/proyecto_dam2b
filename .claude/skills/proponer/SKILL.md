@@ -16,14 +16,14 @@ Propón tickets nuevos para el proyecto. Tema pedido (puede estar vacío): $ARGU
 Reglas:
 - Cada ticket cabe en una sesión: pocos archivos, un objetivo claro, algo que se pueda probar a mano en el juego.
 - Ninguno contradice "Decidido". Si una idea buena lo contradice, no la escribas: menciónala al usuario aparte.
-- Pon el modelo recomendado según `docs/CLAUDE-CODE.md` (haiku mecánico, sonnet normal, opus varios sistemas o diseño).
+- Pon el modelo recomendado y el esfuerzo recomendado (`low`, `medium`, `high`, `xhigh` o `max`) según `docs/CLAUDE-CODE.md` (haiku mecánico, sonnet normal, opus varios sistemas o diseño).
 - No toques código ni otros archivos. Solo crear tickets.
 
 Al acabar, da al usuario una lista de una línea por ticket (nombre del archivo + qué aporta).
 
 ## Aceptar con casillas
 Si hay tickets en `Estado: propuesta`, termina con la herramienta AskUserQuestion en modo multiSelect para que el usuario los marque con un clic:
-- Una opción por ticket propuesto. Etiqueta: el nombre del ticket. Descripción: qué aporta en una frase, el modelo y su tanda.
+- Una opción por ticket propuesto. Etiqueta: el nombre del ticket. Descripción: qué aporta en una frase, el modelo, el esfuerzo y su tanda.
 - Máximo 4 opciones por pregunta: si hay más tickets, usa varias preguntas (hasta 4) agrupadas por tanda.
 - Los que marque pasan a `Estado: aceptada` (solo cambias esa línea). Los no marcados se quedan como están.
-- Después ofrece subirlos a main y abrir un chat con worktree por cada ticket aceptado que no choque con otro.
+- Si marca alguno, no preguntes más: sigue "Aceptar es la orden de empezar" de CLAUDE.md (subir el `Estado:` a main y abrir ya los chats con worktree).

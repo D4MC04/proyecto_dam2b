@@ -1,0 +1,90 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/level_ui/TutorialHints.gd" id="1_hints"]
+[ext_resource type="Script" path="res://scripts/level_ui/OverlayFrame.gd" id="2_frame"]
+[ext_resource type="Texture2D" path="res://assets/ui/guide_portrait.png" id="3_portrait"]
+[ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="4_theme"]
+
+[node name="TutorialHints" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("4_theme")
+script = ExtResource("1_hints")
+
+[node name="Box" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -190.0
+offset_top = -84.0
+offset_right = 190.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("2_frame")
+decorated = false
+
+[node name="Margin" type="MarginContainer" parent="Box"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 4
+
+[node name="Row" type="HBoxContainer" parent="Box/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Portrait" type="TextureRect" parent="Box/Margin/Row"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_vertical = 0
+texture = ExtResource("3_portrait")
+expand_mode = 1
+
+[node name="Column" type="VBoxContainer" parent="Box/Margin/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="SpeakerLabel" type="Label" parent="Box/Margin/Row/Column"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92549, 0.698039, 0.235294, 1)
+theme_override_font_sizes/font_size = 16
+text = "NOVA"
+
+[node name="MessageLabel" type="Label" parent="Box/Margin/Row/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(280, 0)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.8, 0.901961, 1, 1)
+theme_override_font_sizes/font_size = 16
+autowrap_mode = 3
+
+[node name="Buttons" type="HBoxContainer" parent="Box/Margin/Row/Column"]
+layout_mode = 2
+alignment = 2
+
+[node name="OkButton" type="Button" parent="Box/Margin/Row/Column/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 16)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Entendido"
+
+[node name="SkipButton" type="Button" parent="Box/Margin/Row/Column/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(56, 16)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Saltar"

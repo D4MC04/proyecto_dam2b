@@ -30,12 +30,12 @@ const ACCENT_COLOR := Color("#40e0f0")
 # Opcional: el cañón gira y apunta como siempre, pero en vez de balas mantiene un haz continuo
 # sobre el objetivo que sube de nivel con el tiempo. No usa attack_cooldown.
 @export var focus_beam: FocusBeamData
+# Opcional: sonido del disparo (en el bus SFX). En el haz continuo suena mientras el haz está activo.
+@export var shoot_sound: AudioStream
+# Opcional: torre en la que se convierte al fusionarla con otra igual; cost es lo que se paga por la fusión.
+@export var fusion: TowerData
 # Opcional: frase corta que se enseña al final de la ficha.
 @export_multiline var description: String
-
-## Dinero que devuelve vender la torre: la mitad del coste, redondeada hacia abajo.
-func get_sell_value() -> int:
-	return floori(cost / 2.0)
 
 ## Filas de la ficha: las comunes a todas las torres y las de su tipo de ataque.
 func get_stats() -> Array[StatEntry]:

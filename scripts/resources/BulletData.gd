@@ -14,10 +14,21 @@ class_name BulletData
 @export var trail_frames: SpriteFrames
 # Animación (sin loop) que se deja en el punto de impacto.
 @export var impact_frames: SpriteFrames
+# Enemigos extra que atraviesa antes de desaparecer; 0 = se destruye al primer impacto.
+@export var pierce: int = 0
+# Radio (px) del daño en área al impactar; 0 = solo daña al enemigo golpeado.
+@export var splash_radius: float = 0.0
+# Opcional: sonido (en el bus SFX) al impactar.
+@export var hit_sound: AudioStream
 
 ## Filas de la ficha propias de la bala.
 func get_stats() -> Array[StatEntry]:
-	return [
+	var stats: Array[StatEntry] = [
 		StatEntry.new("damage", "DAÑO", UiFormat.number(damage)),
 		StatEntry.new("speed", "VEL. BALA", UiFormat.number(speed)),
 	]
+	if pierce > 0:
+		stats.append(StatEntry.new("pierce", "PERFORA", UiFormat.number(pierce)))
+	if splash_radius > 0:
+		stats.append(StatEntry.new("splash", "ÁREA", UiFormat.number(splash_radius)))
+	return stats

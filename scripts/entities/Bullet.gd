@@ -7,6 +7,8 @@ class_name Bullet
 var data: BulletData
 var target: Enemy
 var direction: Vector2
+# Enemigos ya golpeados (con perforación no se daña dos veces al mismo).
+var _hit: Array[Enemy] = []
 
 func _ready() -> void:
 	area_entered.connect(_on_area_entered)
@@ -50,10 +52,34 @@ func _process(delta: float) -> void:
 		_aim()
 	global_position += direction * data.speed * delta
 
+# El sonido va en un nodo aparte porque la bala se libera al impactar.
+func _play_hit_sound() -> void:
+	var player := AudioStreamPlayer2D.new()
+	player.stream = data.hit_sound
+	player.bus = &"SFX"
+	player.finished.connect(player.queue_free)
+	get_parent().add_child(player)
+	player.global_position = global_position
+	player.play()
+
 func _on_area_entered(area: Area2D) -> void:
 	var enemy := area.get_parent()
-	if enemy is Enemy:
-		enemy.take_damage(data.damage)
+	if enemy is Enemy and not _hit.has(enemy):
+		_hit.append(enemy)
+		if data.splash_radius > 0:
+			# Daño en área: todos los enemigos cerca del impacto, incluido el golpeado.
+			for node in get_tree().get_nodes_in_group(&"enemies"):
+				var other := node as Enemy
+				if other != null and other.global_position.distance_to(global_position) <= data.splash_radius:
+					other.take_damage(data.damage)
+		else:
+			enemy.take_damage(data.damage)
+		if data.hit_sound:
+			_play_hit_sound()
 		if data.impact_frames:
 			Effect.spawn(get_parent(), data.impact_frames, global_position, data.sprite_scale)
-		queue_free()
+		if _hit.size() > data.pierce:
+			queue_free()
+		else:
+			# Atraviesa: deja de perseguir al objetivo y sigue recta.
+			target = null

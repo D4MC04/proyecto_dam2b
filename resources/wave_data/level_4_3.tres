@@ -1,13 +1,13 @@
-[gd_resource type="Resource" script_class="WaveData" format=3]
+[gd_resource type="Resource" script_class="WaveData" format=3 uid="uid://7ib55vqbvf2h"]
 
-[ext_resource type="Script" path="res://scripts/resources/SpawnEntry.gd" id="1_wv5id"]
-[ext_resource type="Resource" path="res://resources/enemy_data/ufo.tres" id="2_wm88e"]
-[ext_resource type="Resource" path="res://resources/enemy_data/wasp.tres" id="3_26vu3"]
+[ext_resource type="Script" uid="uid://cwc32qenwkwf3" path="res://scripts/resources/SpawnEntry.gd" id="1_wv5id"]
+[ext_resource type="Resource" uid="uid://ct17eiklf1sb7" path="res://resources/enemy_data/ufo.tres" id="2_wm88e"]
+[ext_resource type="Resource" uid="uid://bfiipacu4434d" path="res://resources/enemy_data/wasp.tres" id="3_26vu3"]
 [ext_resource type="Resource" path="res://resources/enemy_data/nave_agresiva.tres" id="4_aoqtw"]
-[ext_resource type="Resource" path="res://resources/enemy_data/spiked_ship.tres" id="5_esdtt"]
-[ext_resource type="Resource" path="res://resources/enemy_data/nave_normal.tres" id="6_srhfx"]
-[ext_resource type="Resource" path="res://resources/enemy_data/acorazado.tres" id="7_fobpw"]
-[ext_resource type="Script" path="res://scripts/resources/WaveData.gd" id="8_lgulc"]
+[ext_resource type="Resource" uid="uid://c4ef5gd8nr04u" path="res://resources/enemy_data/spiked_ship.tres" id="5_esdtt"]
+[ext_resource type="Resource" uid="uid://d2xfg8qmcw3va" path="res://resources/enemy_data/nave_normal.tres" id="6_srhfx"]
+[ext_resource type="Resource" uid="uid://do4ht7x2audbo" path="res://resources/enemy_data/acorazado.tres" id="7_fobpw"]
+[ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="8_lgulc"]
 
 [sub_resource type="Resource" id="Resource_d8x42"]
 script = ExtResource("1_wv5id")

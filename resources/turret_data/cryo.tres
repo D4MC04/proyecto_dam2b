@@ -6,9 +6,12 @@
 [ext_resource type="Texture2D" uid="uid://cwv4okasjffpt" path="res://assets/sprites/towers/cryo/cryo_full_up.png" id="4"]
 [ext_resource type="SpriteFrames" uid="uid://div55a8it87po" path="res://resources/sprite_frames/cryo.tres" id="5"]
 [ext_resource type="SpriteFrames" uid="uid://cmw10e08iqwex" path="res://resources/sprite_frames/cryo_cannon.tres" id="7"]
+[ext_resource type="Resource" path="res://resources/turret_data/cryo_fusion.tres" id="fusion"]
+[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Cryo/IceShoot.wav" id="snd"]
 
 [resource]
 script = ExtResource("1")
+shoot_sound = ExtResource("snd")
 name = "Cryo"
 cost = 250
 attack_cooldown = 2.0
@@ -17,5 +20,6 @@ sprite_frames = ExtResource("5")
 attack_range = ExtResource("2")
 cannon = ExtResource("7")
 pulse = ExtResource("3")
+fusion = ExtResource("fusion")
 description = "Lanza una onda helada que daña y frena a todos los enemigos cercanos."
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

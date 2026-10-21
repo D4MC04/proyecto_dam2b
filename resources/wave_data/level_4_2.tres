@@ -1,11 +1,11 @@
-[gd_resource type="Resource" script_class="WaveData" format=3]
+[gd_resource type="Resource" script_class="WaveData" format=3 uid="uid://kc156xs155vk"]
 
-[ext_resource type="Script" path="res://scripts/resources/SpawnEntry.gd" id="1_h0jqa"]
-[ext_resource type="Resource" path="res://resources/enemy_data/dart_morado.tres" id="2_8oegd"]
-[ext_resource type="Resource" path="res://resources/enemy_data/nave_normal.tres" id="3_pf687"]
-[ext_resource type="Resource" path="res://resources/enemy_data/wasp.tres" id="4_nj5nc"]
-[ext_resource type="Resource" path="res://resources/enemy_data/ufo.tres" id="5_e4rnd"]
-[ext_resource type="Script" path="res://scripts/resources/WaveData.gd" id="6_66g50"]
+[ext_resource type="Script" uid="uid://cwc32qenwkwf3" path="res://scripts/resources/SpawnEntry.gd" id="1_h0jqa"]
+[ext_resource type="Resource" uid="uid://cqrl6wryh28bv" path="res://resources/enemy_data/dart_morado.tres" id="2_8oegd"]
+[ext_resource type="Resource" uid="uid://d2xfg8qmcw3va" path="res://resources/enemy_data/nave_normal.tres" id="3_pf687"]
+[ext_resource type="Resource" uid="uid://bfiipacu4434d" path="res://resources/enemy_data/wasp.tres" id="4_nj5nc"]
+[ext_resource type="Resource" uid="uid://ct17eiklf1sb7" path="res://resources/enemy_data/ufo.tres" id="5_e4rnd"]
+[ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="6_66g50"]
 
 [sub_resource type="Resource" id="Resource_qya0s"]
 script = ExtResource("1_h0jqa")

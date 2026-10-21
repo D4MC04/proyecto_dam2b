@@ -39,6 +39,8 @@ const HINT_END_MARGIN := 1.0
 @onready var scroll_hint: Control = %ScrollHint
 @onready var scan_flash: Control = %ScanFlash
 @onready var sell_button: Button = %SellButton
+@onready var meteor_button: PowerButton = %MeteorButton
+@onready var freeze_button: PowerButton = %FreezeButton
 
 var _accent := Color.WHITE
 var _flash_id := 0
@@ -62,7 +64,7 @@ func _ready() -> void:
 func show_sellable(tower: Tower) -> void:
 	sell_button.visible = tower != null
 	if tower != null:
-		sell_button.text = "Vender (+%s)" % UiFormat.money(tower.data.get_sell_value())
+		sell_button.text = "Vender (+%s)" % UiFormat.money(tower.get_sell_value())
 
 ## Enseña `data` en la ficha; con null vuelve al estado de reposo.
 func show_inspected(data: Resource) -> void:

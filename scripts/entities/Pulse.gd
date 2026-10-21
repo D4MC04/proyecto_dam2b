@@ -11,6 +11,7 @@ static func spawn(tower: Tower) -> void:
 	pulse._tower = tower
 	pulse._data = tower.data.pulse
 	pulse.sprite_frames = pulse._data.wave_frames
+	pulse.scale = Vector2.ONE * pulse._data.wave_scale
 	tower.add_child(pulse)
 	# Por debajo de la base y del cañón.
 	tower.move_child(pulse, 0)

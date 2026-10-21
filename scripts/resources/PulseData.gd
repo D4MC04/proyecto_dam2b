@@ -7,6 +7,8 @@ class_name PulseData
 @export var slow_factor: float = 1.0
 @export var slow_time: float = 0.0
 # Onda e impacto sin loop; la escarcha, en loop, se queda sobre el enemigo mientras dure la ralentización.
+# Escala del sprite de la onda (1 = tamaño original) para ondas de más alcance.
+@export var wave_scale: float = 1.0
 @export var wave_frames: SpriteFrames
 @export var impact_frames: SpriteFrames
 @export var frost_frames: SpriteFrames

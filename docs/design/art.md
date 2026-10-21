@@ -44,6 +44,18 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 | Rail | ámbar `#ecb23c`; haz `#1c7496`, `#40e0f0`, `#f0faff` con borde `#aa78ff` |
 | Disintegrator | magenta `#6e1a64`, `#be30a0`, `#ff5ad2`, `#ffafeb`, `#fff5fc` |
 
+- **Torres fusionadas** (`assets/sprites/towers/<torre>_fusion/`, mismos tamaños, frames y nombres que la base, p. ej. `turret_fusion/t1_base.png`): misma familia que la base, más detalladas, con acento nuevo.
+
+| Fusionada | Acento nuevo |
+|---|---|
+| Cañón cuádruple | verde `#1c7440`, `#3cb860`; cuatro cañones |
+| Láser doble | magenta (desde el rojo); dos cañones paralelos |
+| Cryo ventisca | blanco azulado; cristales diagonales |
+| Cañón de asedio | rojo `#dc461e`; boca ancha, vainas laterales; impactos de 32x32 |
+| Tormenta | violeta `#5a3caa`; cuatro bobinas, rayos lilas |
+| Rail Gauss | cian; segundo capacitor; haz dorado de 32x15 |
+| Aniquilador | dorado y blanco; aletas exteriores |
+
 - **Motores y luces de enemigos**: `#8c1628`, `#f0323c`, `#ff8c5a`, `#ffdc78`.
 - **Variantes de Dart**: mismo dibujo con el casco en azul hielo, morado, rojo o verde.
 - **Escudo de la base**: `#40e0f0`, `#aaf5ff`, `#ebffff`, semitransparente.
@@ -56,6 +68,8 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 | Ratón encima | `#1c5d6d` (`#081626` mezclado al 35 % con `#40e0f0`) | `#40e0f0` | `#befaff` |
 | Pulsado | `#144252` (mezclado al 22 %) | `#40e0f0` | `#befaff` |
 | Desactivado | `#060b14` | `#1c4a60` | `#5a7a96` |
+| `DangerButton` normal | `#081626` | `#ff3c5a` | `#ff3c5a` |
+| `DangerButton` ratón encima / armado | `#961432` | `#ff3c5a` | `#ffaabe` |
 
   Los interruptores de Opciones (variación de tema `ToggleButton`) usan el relleno del ratón encima cuando están en ON y el normal en OFF.
 
@@ -75,7 +89,8 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 | Regla de marcas | `#0a0f1a` mezclado al 50 % |
 | Corchetes de fuera (L de 6 px a 3 px del panel) | tono claro del acento |
 | Pie ("SISTEMA EN ESPERA", "SIN SEÑAL", "MISIÓN CUMPLIDA", "SISTEMA LISTO", "SECTORES X/Y", "CONFIGURACIÓN") | `#0a0f1a` mezclado al 60 % |
-- **Iconos de interfaz** (`assets/ui/`, 16x16, contorno `#0c0e16`, sombreado plano): `tab_towers.png` (cañón de artillería de perfil: base ancha abajo, torreta redonda y cañón largo inclinado hacia arriba a la derecha en pendiente 2:1, en la rampa de metal gris azulado `#343a4a`, `#606a7c`, `#96a2b6`, con un anillo cian cerca de la boca y una mirilla y dos luces cian en `#1c7496`, `#40e0f0`, `#befaff`) y `tab_waves.png` (una sola nave enemiga roja apuntando hacia abajo que ocupa casi todo el icono, alas en flecha y cabina oscura, en `#961432`, `#ff3c5a` y `#ffaabe`, con tres líneas de estela detrás, sin contorno, que se oscurecen al alejarse), los iconos de las pestañas de la barra derecha; `wave_next.png` (doble flecha ▶▶ con la rampa cian del Cañón doble, mitad superior clara y mitad inferior en sombra) y `wave_auto.png` (rayo con la rampa ámbar `#96641e`, `#ecb23c`, `#ffe082`), los controles de la pestaña Oleadas.
+- **Iconos de interfaz** (`assets/ui/`, 16x16, contorno `#0c0e16`, sombreado plano): `tab_towers.png` (cañón de artillería de perfil: base ancha abajo, torreta redonda y cañón largo inclinado hacia arriba a la derecha en pendiente 2:1, en la rampa de metal gris azulado `#343a4a`, `#606a7c`, `#96a2b6`, con un anillo cian cerca de la boca y una mirilla y dos luces cian en `#1c7496`, `#40e0f0`, `#befaff`) y `tab_waves.png` (una sola nave enemiga roja apuntando hacia abajo que ocupa casi todo el icono, alas en flecha y cabina oscura, en `#961432`, `#ff3c5a` y `#ffaabe`, con tres líneas de estela detrás, sin contorno, que se oscurecen al alejarse), los iconos de las pestañas de la barra derecha; `wave_next.png` (doble flecha ▶▶ con la rampa cian del Cañón doble, mitad superior clara y mitad inferior en sombra) y `wave_auto.png` (rayo con la rampa ámbar `#96641e`, `#ecb23c`, `#ffe082`), los controles de la pestaña Oleadas; `power_meteor.png` (roca gris en `#343a4a`, `#606a7c`, `#96a2b6` abajo a la derecha con una estela de fuego en diagonal hacia arriba a la izquierda, sin contorno, en la rampa ámbar) y `power_freeze.png` (copo de cuatro brazos con ramas cortas y diagonales junto al centro, en `#1c7496`, `#40e0f0` y centro `#befaff`), los botones de poder de la ficha.
+- **Retrato del guía** (`assets/ui/guide_portrait.png`, 32x32, contorno `#0c0e16`): astronauta de busto con casco redondo en el metal claro (`#343a4a`, `#606a7c`, `#96a2b6`, `#d2dceb`, luz arriba a la izquierda), visor con la cara visible (piel `#e0a882` y sombra `#b0705a`, ojos de 1x2 en el contorno, mejillas `#e88a7a`, boca `#7a3c3c`) y franja de cristal `#1c4a60` arriba, luces cian a los lados del casco y placa de pecho con luces cian, ámbar y roja. Es el retrato del tutorial.
 - **Icono de plegar** (`assets/ui/fold.png`, 8x8, sin contorno, cian `#40e0f0` con la diagonal en `#befaff`): una esquina en L arriba a la izquierda y una diagonal hacia ella; es el botón de plegar de la pausa.
 - **Iconos de stat** (`assets/ui/stat_icons/`, 8x8, contorno `#0c0e16` de 1 px solo en cruz alrededor del relleno, sombreado plano), para las filas de la ficha y del resumen de partida. Cada uno combina una forma y un color propios para distinguirse a 8 px:
 
@@ -92,6 +107,7 @@ Estilo propio (torres, enemigos nuevos, estación, tileset de espacio). Cada spr
 | `jump.png` | rayo en zigzag | `#40e0f0`, `#f0faff` |
 | `pierce.png` | haz que atraviesa una placa | placa `#96a2b6`, haz `#40e0f0` y `#aa78ff` |
 | `dps.png` | llama | magenta `#be30a0`, `#ff5ad2`, `#ffafeb` |
+| `splash.png` | explosión en disco (daño en área) | rojo `#dc461e`, naranja `#ff8c32`, crema `#ffe28c` |
 | `level_time.png` | tres barras de nivel crecientes | magenta `#be30a0`, `#ff5ad2`, `#ffafeb` |
 | `health.png` | corazón | verde `#1c7440`, `#3cb860`, `#c4f5d0` |
 | `reward.png` | lingote de oro | ámbar `#96641e`, `#ecb23c`, `#ffe082` |

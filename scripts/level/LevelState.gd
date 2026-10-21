@@ -5,6 +5,11 @@ signal money_changed(amount: int)
 signal selected_tower_changed(data: TowerData)
 signal inspected_changed(data: Resource)
 signal sellable_tower_changed(tower: Tower)
+## BuildManager la emite al colocar una torre nueva en una casilla libre (no al fusionar).
+signal tower_placed
+
+# Premio al limpiar una oleada (menos la última) sin que llegue ningún enemigo a la estación.
+const PERFECT_WAVE_BONUS := 25
 
 var money := 5000
 # Recuento de la partida para el resumen. Al reiniciar se crea un LevelState nuevo, así que vuelven a 0.
@@ -39,12 +44,14 @@ func inspect_placed(tower: Tower) -> void:
 	inspected = tower.data
 	sellable_tower = tower
 
-## Vende la torre colocada seleccionada: devuelve la mitad del coste y la quita del mapa
+## Vende la torre colocada seleccionada: devuelve la mitad de lo invertido y la quita del mapa
 ## (al salir del árbol, Grid libera su casilla).
 func sell_selected_tower() -> void:
 	if not is_instance_valid(sellable_tower):
 		return
-	add_money(sellable_tower.data.get_sell_value())
+	var value := sellable_tower.get_sell_value()
+	add_money(value)
+	FloatingText.spawn(sellable_tower.get_parent(), sellable_tower.global_position, "+" + UiFormat.money(value))
 	sellable_tower.queue_free()
 	sellable_tower = null
 

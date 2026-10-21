@@ -4,14 +4,16 @@
 | Paso | Tú | Claude |
 |---|---|---|
 | 1 | Escribes `/proponer` (o `/proponer enemigos`) | Escribe 3-5 tickets en `docs/tasks/` con `Estado: propuesta` |
-| 2 | Lees los tickets (`/tickets` te los lista y dice cuáles chocan). Aceptas marcando las casillas que te salen al final (o dices "acepto X"). Borras los que no quieras | — |
+| 2 | Lees los tickets (`/tickets` te los lista y dice cuáles chocan). Aceptas marcando las casillas que te salen al final de `/tickets` o `/proponer` (o dices "acepto X"): Claude cambia `Estado: propuesta` a `aceptada`. Borras los que no quieras | — |
 | 3 | Escribes `/hacer nombre-del-ticket` | Crea la rama `ticket/nombre`, implementa, lo prueba con el agente `probador`, actualiza docs, borra el ticket y te da pasos para probar |
 | 4 | Pruebas en Godot con esos pasos | Si algo falla, se lo dices en el mismo chat y lo arregla |
 | 5 | Escribes `/revisar` | Repasa la rama y te explica qué cambia |
-| 6 | Dices "commitea" | Hace el commit, sube la rama y te pregunta: ¿PR (tus compañeros lo revisan) o merge directo a main? Hace lo que elijas |
-| 7 | Lo pruebas en tu carpeta normal y dices que va bien | Te pregunta si archiva el chat del ticket, para no acumular chats abiertos. Archivar no borra nada del proyecto y el chat se puede recuperar desde Archivados |
+| 6 | Dices "commitea" (o "sube") | Pasa el `probador`, hace el commit, lo sube directo a main y borra la rama del ticket. Así cualquiera que descargue `main` lo abre sin errores. Solo hace PR si lo pides |
+| 7 | — (no haces `git pull`) | El chat central deja tu `main` local al día y borra todo lo del ticket sin preguntar: archiva su chat (se puede recuperar desde Archivados) y quita su carpeta de worktree y su rama. Solo queda `main`. Si Godot está abierto en esa carpeta, ciérralo |
 
-Ir más rápido: con varios tickets aceptados que no chocan (`/tickets` lo dice), súbelos a main y pide "abre sesiones en worktree para X e Y": un chat por ticket, cada uno en su copia del proyecto. En cada uno, `/hacer`. Los worktrees salen de lo commiteado en main: tickets sin commitear no los ven.
+Ir más rápido: al aceptar tickets, Claude empieza solo, sin preguntar: sube el cambio de `Estado:` a main (los worktrees salen de lo que hay en main) y abre un chat con worktree por cada ticket que no choque con otro, ya con `/hacer`. Los que chocan esperan a que el anterior esté en main.
+
+**`/new`**: abre el chat central (Opus, en la carpeta principal, sobre `main`) y archiva el chat donde lo escribiste. El chat central propone y reparte tickets, revisa lo que suben y mantiene `main` local actualizado. Los chats de ticket van en worktree y no pueden tocar la carpeta principal, por eso lo hace él.
 
 Los tickets siguen el formato de `docs/tasks/_plantilla.md`. Puedes escribir tú uno a mano y lanzar `/hacer` igual.
 
@@ -24,7 +26,17 @@ Se cambia en el selector de modelo de la app.
 | **Sonnet** | Por defecto para `/hacer`: tickets normales de 1-3 archivos (una torre nueva, un ajuste de UI, un enemigo). |
 | **Opus** | `/proponer` y `/revisar` (ya lo usan solos), diseñar un sistema nuevo, bugs que Sonnet no saca a la primera, tickets que tocan varios sistemas. |
 
-Regla simple: empieza en Sonnet. Si da vueltas o falla dos veces, sube a Opus. Si es algo mecánico, baja a Haiku. Cada ticket lleva un "Modelo recomendado".
+Regla simple: empieza en Sonnet. Si da vueltas o falla dos veces, sube a Opus. Si es algo mecánico, baja a Haiku. Cada ticket lleva un "Modelo recomendado" y un "Esfuerzo recomendado".
+
+## Qué esfuerzo usar
+Es cuánto piensa el modelo antes de responder (se elige junto al modelo).
+
+| Esfuerzo | Cuándo |
+|---|---|
+| `low` | Cambios mecánicos o de una línea: renombres, borrar código muerto, mover un botón. |
+| `medium` | Por defecto: tickets normales de 1-3 archivos. |
+| `high` | Varios sistemas a la vez o lógica delicada (fusionar, guardado, oleadas). |
+| `xhigh` / `max` | Solo si algo falló con `high`. Más lento y más caro. |
 
 ## Trucos
 - **Plan mode** para tickets grandes: Claude piensa y te enseña el plan antes de tocar nada.
@@ -39,4 +51,4 @@ Regla simple: empieza en Sonnet. Si da vueltas o falla dos veces, sube a Opus. S
 - **Push**: subir la rama a GitHub.
 - **Pull request (PR)**: pedir que la rama entre en `main`; los compañeros la revisan antes.
 - **Merge directo**: juntar la rama con `main` sin PR, sin revisión.
-- Nunca se trabaja directamente en `main`: siempre en una rama. Al terminar, Claude pregunta si PR o merge directo.
+- Nunca se trabaja directamente en `main`: siempre en una rama. Al terminar, con tu visto bueno Claude sube directo a main (PR solo si lo pides), borra la rama y deja tu carpeta con solo `main`, sin que hagas `git pull`.

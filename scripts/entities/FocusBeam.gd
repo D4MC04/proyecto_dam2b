@@ -39,7 +39,11 @@ func _process(delta: float) -> void:
 		_lock_time = 0.0
 	var firing := target != null and _tower._is_aimed(target)
 	_show(firing)
+	# El sonido dura lo que el haz: se repite si termina antes y para al cortarse.
+	if firing and not _tower._shoot_player.playing:
+		_tower._shoot_player.play()
 	if not firing:
+		_tower._shoot_player.stop()
 		# Sin alineación se corta el haz, pero el nivel se conserva mientras el objetivo sea el mismo.
 		_untint()
 		_set_level(-1)

@@ -220,19 +220,14 @@ toggle_mode = true
 theme_override_font_sizes/font_size = 24
 text = "OFF"
 
-[node name="ResetProgressLabel" type="Label" parent="Center/Frame/Margin/Box/Sections/RightColumn/GameGrid"]
+[node name="ResetProgressButton" type="Button" parent="Center/Frame/Margin/Box"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(204, 30)
 layout_mode = 2
-size_flags_horizontal = 3
+size_flags_horizontal = 4
+theme_type_variation = &"DangerButton"
 theme_override_font_sizes/font_size = 24
 text = "Borrar progreso"
-
-[node name="ResetProgressButton" type="Button" parent="Center/Frame/Margin/Box/Sections/RightColumn/GameGrid"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(54, 24)
-layout_mode = 2
-size_flags_horizontal = 8
-theme_override_font_sizes/font_size = 24
-text = "Borrar"
 
 [node name="BackButton" type="Button" parent="Center/Frame/Margin/Box"]
 custom_minimum_size = Vector2(204, 36)
@@ -241,5 +236,5 @@ size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
 text = "Volver"
 
-[connection signal="pressed" from="Center/Frame/Margin/Box/Sections/RightColumn/GameGrid/ResetProgressButton" to="." method="_on_reset_progress_button_pressed"]
+[connection signal="pressed" from="Center/Frame/Margin/Box/ResetProgressButton" to="." method="_on_reset_progress_button_pressed"]
 [connection signal="pressed" from="Center/Frame/Margin/Box/BackButton" to="." method="_on_back_button_pressed"]

@@ -10,6 +10,7 @@
 | `Grid` | `scripts/level/Grid.gd` | Qué casillas son camino o hueco y cuáles están ocupadas |
 | `Spawner` | `scripts/level/Spawner.gd` | Lanza las oleadas, crea sus enemigos y cuenta los vivos |
 | `BuildManager` | `scripts/level/BuildManager.gd` | Coloca torres; ver [torres.md](torres.md) |
+| `Powers` | `scripts/level/Powers.gd` | Poderes del jugador (meteorito y congelar); ver "Poderes" |
 
 `Level.setup(data: LevelData)`:
 
@@ -24,6 +25,7 @@ Conexiones hechas en `_ready`:
 
 - `spawner.enemy_died(reward)` llama a `game_state.register_enemy_destroyed`, que cuenta el enemigo y suma la recompensa.
 - `spawner.all_waves_cleared` llama a `_win`, que llama a `build_manager.stop_building()` y emite `won`.
+- `spawner.wave_cleared` llama a `_on_wave_cleared`: menos en la última oleada, si no llegó ningún enemigo a la estación (`_leaks_this_wave`, que `wave_started` pone a 0 y `enemy_reached_end` incrementa) suma `PERFECT_WAVE_BONUS` y enseña "PERFECTA +25€" como `FloatingText` sobre la estación durante 4 s.
 - `build_manager.state = game_state`.
 
 `_lose()` llama a `build_manager.stop_building()`, espera a `base.animation_finished` (el final de la explosión) y emite `lost`. Se espera porque la derrota acaba pausando el árbol y cortaría la animación.
@@ -36,11 +38,25 @@ Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de l
 
 **`RunStats`** (`scripts/level/RunStats.gd`, `RefCounted`): objeto de datos con `wave_reached`, `wave_total`, `enemies_destroyed` y `money_spent`, todos `int`. Se crea con `RunStats.new(reached, total, destroyed, spent)`. Lo pinta `RunSummary` (ver [ui.md](ui.md)).
 
+## Poderes
+
+`Powers` (`scripts/level/Powers.gd`, `Node2D` con `z_index = 1`, último hijo de `Level`): los poderes del jugador. Su `state` (`LevelState`) se asigna en `Level.tscn`. Como el nivel se crea de nuevo al empezar y al reiniciar, los dos poderes empiezan listos. Las recargas bajan en `_process`, así que siguen `Engine.time_scale` (×2 las acelera) y se paran con la pausa. Los botones están en la ficha (ver [ui.md](ui.md)). Emite `power_used(power)` al lanzar un poder (el meteorito, al caer), que escucha el tutorial.
+
+| Poder (`Powers.Power`) | Tecla | Efecto | Recarga |
+|---|---|---|---|
+| `METEOR` | Q | Modo apuntar; al hacer clic cae un meteorito: `METEOR_DAMAGE` (150) a todos los enemigos a `METEOR_RADIUS` (40 px) o menos del punto | 45 s |
+| `FREEZE` | E | Todos los enemigos vivos a `FREEZE_FACTOR` (30 %) de velocidad durante `FREEZE_TIME` (4 s), con `Enemy.slow` y la escarcha del Cryo (`cryo_frost.tres`) | 60 s |
+
+- `use(power)`: si el poder no está listo no hace nada. Meteorito: si ya se apuntaba, cancela; si no, suelta la torre seleccionada (`state.selected_tower = null`) y entra en modo apuntar. Congelar se lanza ya.
+- **Apuntado:** pinta en `_draw` un círculo del radio del área en el cursor (relleno ámbar al 15 % y borde de 1 px `#ecb23c`, sin antialiasing). En `_unhandled_input`, clic izquierdo lanza el meteorito ahí y clic derecho cancela; los dos marcan el evento como gestionado. Mientras se apunta, `BuildManager` ignora la entrada (su `powers`, asignado en la escena), así que no coloca ni selecciona torres. Elegir torre (`selected_tower_changed` con una torre) cancela el apuntado. `cancel_aiming()` lo quita.
+- **Meteorito:** la recarga empieza al hacer clic. El cometa del fondo (`cometa.png`) cae en `METEOR_FALL_TIME` (0,3 s) desde `METEOR_FALL_OFFSET` (-90, -150) respecto al punto; al llegar, explosión del lanzacohetes (`rocket_launcher_impact.tres`) a ×3 y `RocketExplosion.wav` (bus SFX), y el daño a los enemigos del área con `hp > 0`.
+
 ## LevelState
 
 - `money` empieza en 5000.
 - `add_money(amount)` suma y emite `money_changed(money)`.
 - `spend_money(amount)` devuelve `false` si no alcanza; si alcanza resta, suma `amount` a `money_spent`, emite `money_changed` y devuelve `true`.
+- `PERFECT_WAVE_BONUS` (25): premio por limpiar una oleada sin que llegue ningún enemigo a la estación. Lo aplica `Level._on_wave_cleared` (ver "Escena Level").
 - Contadores de la partida: `enemies_destroyed` y `money_spent`, que empiezan en 0. `register_enemy_destroyed(reward)` suma 1 a `enemies_destroyed` y llama a `add_money(reward)`. No hace falta reiniciarlos: al reiniciar se crea un `LevelState` nuevo.
 - `selected_tower: TowerData` es la torre que se colocará al hacer clic y la única fuente de la selección. Su setter emite `selected_tower_changed(data)` solo si el valor cambia. Lo escribe `LevelUI` cuando la barra lateral lo pide y `BuildManager` (a `null`) al cancelar con clic derecho.
 - `inspected: Resource` es lo que enseña la ficha (de momento un `TowerData`; es `Resource` para que valga también para enemigos) y la única fuente de lo inspeccionado. Su setter emite `inspected_changed(data)` solo si el valor cambia. Empieza en null y solo lo escribe `LevelUI`; deseleccionar no lo toca. Al reiniciar se crea un `LevelState` nuevo, así que vuelve a null.
@@ -177,26 +193,23 @@ Lo que sobresale del área queda tapado por las barras, que son opacas.
 
 `Grid.setup(logic_map)` recorre las casillas usadas de `LogicMap` y lee el dato personalizado `kind` de cada tile:
 
-- `"path"`: se guarda en `path_cells`.
 - `"slot"`: se guarda en `slot_cells`.
-- cualquier otro valor (el tileset define también `"scenery"`): no se guarda.
+- cualquier otro valor (`"path"` y `"scenery"`, que define el tileset): no se guarda.
 
 Funciones:
 
 - `can_build(c)`: la casilla es `slot` y no tiene torre.
 - `register_tower(c, t)`: apunta la torre y la borra del registro cuando el nodo sale del árbol.
 - `cell(p)` y `center(c)`: conversión entre posición global y casilla.
-- `get_kind(c)`: devuelve `"path"`, `"slot"` o `"scenery"`.
 
 ## Dudas
 
-- `Grid.get_kind` y `Grid.path_cells` no se usan fuera de `Grid`.
 - `tileset.tres` declara una capa de datos `buildable` (bool) que ningún script lee.
 - Solo la `VisualMap` de los niveles 5 y 6 tiene script y datos de generación; el resto de capas y mapas no.
 - En el nivel 6 hay un planeta de torre en la casilla (15, 9), debajo de la estación.
 - `Level7.tscn` a `Level10.tscn`, `Level2.tscn`, `Level5.tscn`, `Level6.tscn` y la carpeta `redesign/` no están en ningún `LevelData`. Los mapas 7 a 10 usan un `Sprite2D` como estación en vez de `Base.tscn`, y `Level6.tscn` tiene las dos cosas.
 - `redesign/Level6.tscn` tenía el mismo uid que `Level6.tscn` y Godot avisaba `UID duplicate`. Se le dio un uid nuevo; la carpeta `redesign/` se conserva sin cambios.
 - `resources/level_data/level_5.tres` existe y tiene el mismo contenido que el subrecurso de `GameData.tscn`, pero `GameData` no lo usa.
+- Todos los caminos de los niveles 1 a 6 (`Level1`, `Level3`, `Level4`, `espacio/Level2_espacio`, `Level5_espacio`, `Level6_espacio`) acaban en la posición de `SpaceStation`: se alargó el último punto de cada curva.
 - En los niveles 2, 5 y 6 el mapa tiene más caminos de los que usa la oleada.
 - Los mapas (como mucho unos 480x272) no llenan el área de juego de 704x540: alrededor se ve el fondo de espacio, y los enemigos aparecen y desaparecen en el borde del mapa.
-- Hay archivos temporales del editor en `scenes/` (`Level.tscn*.tmp`, `MainMenu.tscn*.tmp`).

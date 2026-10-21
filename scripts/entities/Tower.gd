@@ -13,6 +13,8 @@ const AIM_TOLERANCE := deg_to_rad(12.0)
 @onready var attack_range_shape: CollisionShape2D = $RangeDetector/CollisionShape2D
 @onready var attack_timer: Timer = $Timer
 
+# Dinero total gastado en esta torre (colocación y fusiones); la venta devuelve la mitad.
+var invested := 0
 var enemies_in_range: Array[Enemy] = []
 var _shots := 0
 var _target: Enemy = null
@@ -20,6 +22,8 @@ var _target: Enemy = null
 var _pending_shot := false
 # Mira de las torretas de haz; solo se ve durante la carga.
 var _sight: Line2D
+# Sonido de disparo; con poca polifonía, 10 torres juntas no saturan.
+var _shoot_player := AudioStreamPlayer2D.new()
 
 func _ready() -> void:
 	# Si cambia una opción en plena partida, se vuelve a dibujar el rango.
@@ -34,6 +38,10 @@ func _ready() -> void:
 		cannon.play()
 		cannon.frame_changed.connect(_on_cannon_frame_changed)
 		cannon.animation_finished.connect(cannon.play.bind(&"default"))
+	_shoot_player.stream = data.shoot_sound
+	_shoot_player.bus = &"SFX"
+	_shoot_player.max_polyphony = 2
+	add_child(_shoot_player)
 	attack_range_shape.shape = data.attack_range
 	attack_timer.wait_time = data.attack_cooldown
 	attack_timer.timeout.connect(_on_attack_timeout)
@@ -107,12 +115,15 @@ func _on_cannon_frame_changed() -> void:
 	if not firing:
 		return
 	if data.pulse and cannon.frame == data.pulse.fire_frame:
+		_shoot_player.play()
 		Pulse.spawn(self)
 	elif data.chain and cannon.frame == data.chain.fire_frame:
 		var target := _get_target()
 		if target:
+			_shoot_player.play()
 			Chain.spawn(self, target)
 	elif data.beam and cannon.frame == data.beam.fire_frame:
+		_shoot_player.play()
 		Beam.spawn(self)
 
 func _shoot(target: Enemy) -> void:
@@ -120,6 +131,7 @@ func _shoot(target: Enemy) -> void:
 		# Empieza la carga; el haz sale después, hacia donde apunte el cañón en ese momento.
 		cannon.play(&"fire_0")
 		return
+	_shoot_player.play()
 	var bullet: Bullet = bullet_scene.instantiate()
 	get_parent().add_child(bullet)
 	# La boca gira con el cañón (sin cañón, su rotación es 0 y no cambia nada).
@@ -151,6 +163,6 @@ func _best_enemy() -> Enemy:
 			best = enemy
 	return best
 
-func fit_to_tile(tile_size: Vector2) -> void:
-	var frame_size: Vector2 = sprite.sprite_frames.get_frame_texture(sprite.animation, 0).get_size()
-	sprite.scale = tile_size / frame_size
+## Dinero que devuelve vender la torre: la mitad de lo invertido, redondeada hacia abajo.
+func get_sell_value() -> int:
+	return floori(invested / 2.0)

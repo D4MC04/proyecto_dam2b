@@ -23,7 +23,7 @@ Está instanciada como nodo `SpaceStation` en `scenes/maps/Map.tscn` y en los ma
 - `take_damage(amount)`:
   - Resta vida sin bajar de 0 y emite `health_changed(health, max_health)`.
   - Si la vida llega a 0, oculta el escudo, reproduce `explosion`, emite `destroyed` y al terminar la explosión pasa a `destruida`.
-  - Si no, elige la fase por fracción de vida (> 0,75 → `fase_0`; > 0,5 → `fase_1`; > 0,25 → `fase_2`; resto → `fase_3`) y cambia de animación solo si la fase cambia. Después el escudo parpadea 0,5 s con la textura `shield_debil.png` y vuelve a ocultarse.
+  - Si no, elige la fase por fracción de vida (> 0,75 → `fase_0`; > 0,5 → `fase_1`; > 0,25 → `fase_2`; resto → `fase_3`) y cambia de animación solo si la fase cambia. Después el escudo parpadea 0,5 s con la textura `shield_debil.png` y vuelve a ocultarse, y el sprite destella en rojo 0,2 s (tween de `modulate` a blanco).
 - Con la vida ya a 0, `take_damage` no hace nada.
 
 ## Comunicación con el resto
@@ -34,5 +34,4 @@ Está instanciada como nodo `SpaceStation` en `scenes/maps/Map.tscn` y en los ma
 
 ## Dudas
 
-- Los caminos no terminan en la posición de la base. En `Level1.tscn` el camino acaba en (376, 216) y la base está en (440, 216); no he comprobado el resto de mapas.
 - `assets/sprites/base/space_station.png` (48x48) solo lo usan mapas que no están en ningún nivel (`Level6.tscn` a `Level10.tscn`).

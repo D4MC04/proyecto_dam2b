@@ -14,6 +14,8 @@ Estructura: `UI/HBoxContainer` (sin separación) con tres columnas, de izquierda
 
 `GameArea` contiene además `LevelIndicator`, declarado antes que las pantallas para que estos lo tapen.
 
+Encima de las tres columnas, como último hijo de `UI`, va `TutorialHints` (ver "Tutorial del nivel 1").
+
 ### Barras: tablet física
 
 Las dos barras son una tablet: un marco de metal y, dentro, una pantalla oscura. Usan el mismo estilo, `assets/ui/tablet_frame_style.tres`, un `TabletFrameStyle` (`scripts/level_ui/TabletFrameStyle.gd`, `StyleBox` propio con `@tool`) que lo dibuja todo en `_draw` con rectángulos de píxeles enteros, sin texturas ni antialiasing:
@@ -50,6 +52,7 @@ Funciones de `LevelUI`:
 La relación estado → pantalla está solo en el diccionario `_screens_by_state`; una pantalla nueva se añade ahí. `_ready` conecta `option_chosen` de todas las pantallas del diccionario y empieza en `PLAYING`.
 
 - Acción `ui_cancel` (Escape): en `PLAYING` pasa a `PAUSED` y en `PAUSED` vuelve a `PLAYING`. En `LOST` y `WON` (también durante la cámara lenta y el respiro) no hace nada (ni marca el evento como gestionado).
+- **Atajos de teclado** (solo en `PLAYING`; en pausa, derrota y victoria `_handle_shortcut` ni se llama). Acciones del Input Map en `project.godot`: `select_tower_1`…`select_tower_7` (teclas 1-7), `next_wave` (Espacio), `toggle_auto` (A), `toggle_speed` (F), `power_meteor` (Q) y `power_freeze` (E), por tecla física. `LevelUI._unhandled_input` las traduce a los mismos botones que el ratón: 1-7 llaman a `Sidebar.press_tower_button(i)` (emite `pressed` del i-ésimo `TowerButton` en el orden de la rejilla, así que sin dinero o con selección bloqueada no hacen nada); Espacio emite `pressed` de `NextWaveButton` (el `Spawner` solo lanza si la anterior acabó); A y F invierten `button_pressed` de `AutoWaveButton` y `SpeedButton`; Q y E llaman a `_use_power` como los botones de poder. No se escribe la tecla en los botones (salvo en los de poder, ver "Poderes").
 - Bloqueo de la selección: `set_state` es lo único que lo decide. Llama a `sidebar.set_selection_locked(new_state != PLAYING)`, así que con pausa (plegada o no), derrota (desde que empieza la cámara lenta) o victoria (desde que empieza el respiro) no se puede seleccionar torre.
 - `show_run_stats(stats: RunStats)`: pasa el resumen de partida a `GameOverScreen` y a `VictoryScreen`. Lo llama `Game` antes de `set_state(LOST)` o `set_state(WON)`; la UI no lee el `Level` ni el `LevelState` para el resumen.
 
@@ -80,8 +83,9 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
   - `StatScroll`: `ScrollContainer` vertical (sin barra visible, como los de la barra derecha; la pista de que hay más abajo es `ScrollHint`, ver abajo) con las filas de stat, una línea `#1c4a60` y la descripción en `#5a7a96` con salto de línea automático (la línea y la descripción se ocultan si no hay descripción). La cabecera no entra en el scroll. Al cambiar de ficha vuelve arriba.
   - `ScrollHint`: `Control` de 5 px de alto entre `StatScroll` y `SellButton` que pinta un triángulo ▼ de 7x4 px en `#40e0f0` centrado. Solo es visible (por transparencia, para que su hueco no cambie el alto del scroll) cuando queda contenido por debajo: `_update_scroll_hint()` mira la `VScrollBar` interna (`value_changed` y `changed`) y lo apaga al llegar al final o si la ficha cabe entera. Se eligió la flecha y no una barra fina porque cabe en el estilo de las esquinas y las marcas del holograma, no roba ancho a los 110 px y se dibuja con rects como el resto; no se usa el glifo ▼ de texto porque Monogram no lo trae seguro.
   - Cada fila la crea `StatRow.create(entry, index)` (ver abajo).
-  - `SellButton`: botón del tema (esquinas recortadas) al final de `DetailView`, "Vender (+X€)". Solo se ve con una torre colocada seleccionada: `show_sellable(tower)` (null lo oculta), conectado a `LevelState.sellable_tower_changed`. Emite `sell_requested`; `LevelUI._on_sell_requested` llama a `LevelState.sell_selected_tower()` solo en `PLAYING`. Ver [torres.md](torres.md).
+  - `SellButton`: botón del tema (esquinas recortadas) al final de `DetailView`, "Vender (+X€)", con X = la mitad de lo invertido en la torre (`Tower.get_sell_value()`, también tras fusionarla). Solo se ve con una torre colocada seleccionada: `show_sellable(tower)` (null lo oculta), conectado a `LevelState.sellable_tower_changed`. Emite `sell_requested`; `LevelUI._on_sell_requested` llama a `LevelState.sell_selected_tower()` solo en `PLAYING`. Ver [torres.md](torres.md).
 - `ScanFlash`: `ColorRect` cian al 20 % que tapa `Screen` durante 2 frames cada vez que cambia el contenido.
+- `PowersHeader` (`ScreenHeader` con `// PODERES`) y `PowersRow` (4 px de separación), entre `Screen` y `ScanFooter`, con `MeteorButton` y `FreezeButton` (ver "Poderes").
 
 `show_inspected(data: Resource)`: con un `InspectableData` pinta lo que da el contrato común; con null (o cualquier otra cosa), el reposo. La ficha no distingue torres de enemigos ni sabe qué stats existen: crea una fila por cada `StatEntry` que recibe.
 
@@ -100,6 +104,34 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 - Clic izquierdo o derecho en una `EnemyCell` de la pestaña Oleadas (también en pausa): enseña la ficha del enemigo sin tocar la selección de torre.
 - Deseleccionar (clic derecho en el mapa o quedarse sin dinero) no cambia la ficha.
 - `TowerButton.inspect_requested` → `Sidebar.inspect_requested` (o `EnemyCell.inspect_requested` → `WaveBlock.inspect_requested` → `Sidebar.inspect_requested`) → `LevelUI` escribe `LevelState.inspected` → `LevelState.inspected_changed` → `InfoPanel.show_inspected`. Nadie más guarda qué está inspeccionado.
+
+## Poderes
+
+Dos `PowerButton` (`scripts/level_ui/PowerButton.gd`) en `InfoPanel/Content/PowersRow`, de 53x24 cada uno (se reparten los 110 px útiles), sin foco ni tooltip: `MeteorButton` (icono `assets/ui/power_meteor.png`, tecla Q) y `FreezeButton` (`power_freeze.png`, tecla E). La lógica está en `Powers` (ver [niveles.md](niveles.md)).
+
+- Icono de 16x16 centrado y la letra de la tecla (`key_label`) a 5 px del borde izquierdo en `#5a7a96`.
+- Estilos con `ClippedBoxStyle.create`: normal fondo `#0e1626` y borde `#1c7496`; hover borde `#40e0f0`; mientras se apunta el meteorito, el normal pasa al ámbar de AUTO (fondo `#453d2b`, borde `#ecb23c`).
+- En recarga el botón está `disabled` (fondo `#0a0f1a`, borde `#1c4a60`, icono al 50 %) y lleva encima un oscurecido negro al 45 % recortado a la forma del botón, anclado arriba y con alto proporcional a lo que falta, y los segundos que faltan (redondeados hacia arriba) centrados en `#cce6ff`.
+- Cada botón lee `Powers` en `_process` (`get_cooldown_left`, `is_aiming`) y solo se redibuja si algo cambia. `LevelUI.setup_powers(powers)`, que `Game` llama antes de `setup` con el `Powers` del nivel (el tutorial lo necesita en `setup`), se lo pasa a los dos.
+- Al pulsarlos (o con Q y E) `LevelUI._use_power(power)` llama a `Powers.use` solo en `PLAYING`. Cualquier `set_state` que no sea `PLAYING` cancela el apuntado.
+
+## Tutorial del nivel 1
+
+`scenes/level_ui/TutorialHints.tscn` + `scripts/level_ui/TutorialHints.gd` (clase `TutorialHints`): un `Control` a pantalla completa que ignora el ratón, con un recuadro (`Box`, un `OverlayFrame` cian sin decoración, 380x72 px, centrado abajo del área de juego a 12 px del borde) donde habla un astronauta guía.
+
+- Dentro: el retrato `assets/ui/guide_portrait.png` (32x32 a ×2), el nombre "NOVA" en ámbar `#ecb23c`, el mensaje en `#cce6ff` (aparece letra a letra, 0,02 s por carácter, como si hablara) y los botones "Entendido" (solo en los pasos informativos) y "Saltar".
+- Solo sale en el nivel 1 mientras `GameState.tutorial_done` es false. `LevelUI.setup` llama a `start(state, spawner, powers)` en el nivel 1 y a `stop()` en los demás; al reiniciar vuelve a empezar desde el primer paso (las señales del nivel anterior se liberan con él).
+- Pasos; cada uno espera a que el jugador lo haga:
+  1. Elegir torre (`LevelState.selected_tower_changed` no nulo). Si se suelta la torre en el paso 2, vuelve a este.
+  2. Colocarla en un planeta (`LevelState.tower_placed`, que emite `BuildManager` al construir, no al fusionar).
+  3. Lanzar la oleada (`Spawner.wave_started`; lanzarla antes con Espacio también vale). El recuadro se esconde mientras dura la oleada 1.
+  4. Al acabar (`Spawner.wave_cleared`): soltar la torre de la tienda con clic derecho y hacer clic en una torre del mapa (`LevelState.sellable_tower_changed` no nulo).
+  5. Venta y fusión: informativo, sigue con "Entendido".
+  6. Poderes: usar Q o E (`Powers.power_used`, que el meteorito emite al caer).
+  7. Despedida: se cierra con "Entendido" o sola a los 4 s.
+- Un borde ámbar `#ecb23c` de 1 px parpadea (0,4 s encendido, 0,4 s apagado) a 2 px alrededor de lo que hay que pulsar: la rejilla de torres (o la pestaña Torres si no está abierta), `NextWaveButton` (o la pestaña Oleadas) y la fila de poderes.
+- Al acabar o con "Saltar" llama a `GameState.complete_tutorial()` y se esconde.
+- `LevelUI.set_state` lo esconde fuera de `PLAYING` (no tapa la pausa ni señala por encima de ella).
 
 ## LevelIndicator
 
@@ -172,14 +204,14 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
 `StationBox` (dentro de `StationMargin`, `MarginContainer` con 4 px a cada lado como el pie, al final de `Content` y justo encima del pie, así que se ve en Torres y en Oleadas): "ESTACIÓN" a 16 y debajo `StationBar` (`ProgressBar` de 8 px de alto, sin porcentaje) con `StationValueLabel` `actual/máximo` a su derecha. Fondo de la barra `#0e1626` con borde `#1c4a60`; relleno `#40e0f0`. Con menos del 30 % de vida (`Sidebar.STATION_DANGER_FRACTION`) relleno y número pasan al rojo de peligro `#ff3c5a`.
 
-- `Sidebar.set_station_health(current, maximum)`: lo único que toca la barra.
+- `Sidebar.set_station_health(current, maximum)`: lo único que toca la barra. Si la vida baja respecto a la anterior (la primera llamada no cuenta), relleno y número parten del rojo de peligro y vuelven a su color en `STATION_HIT_TIME` (0,3 s).
 - `LevelUI.setup(..., base)` conecta `Base.health_changed` a `set_station_health` y la pone con la vida inicial. `Game` pasa `level.base`; como la base es nueva en cada nivel o reinicio, no hay conexión anterior que quitar.
 
 ## UiFormat
 
 `scripts/level_ui/UiFormat.gd` (clase `UiFormat`). `UiFormat.abbreviate(amount: int) -> String`: hasta 999 tal cual; desde 1000 en K (desde un millón M, desde mil millones B) con un decimal sin ".0": `1K`, `1.1K`, `5K`, `12.3K`, `999.9K`, `1M`, `1.2M`, `1B`. Como mucho 6 caracteres. Trunca en vez de redondear (1099 es `1K`, 999999 es `999.9K`).
 
-- `UiFormat.money(amount: int)`: `abbreviate` más `€` (`999€`, `1K€`, `1.1K€`). Todo el dinero de la UI (cabecera, costes, recompensa, dinero gastado) pasa por aquí; nadie añade el `€` a mano.
+- `UiFormat.money(amount: int)`: `abbreviate` más `€` (`999€`, `1K€`, `1.1K€`). Todo el dinero de la UI (cabecera, costes, recompensa, dinero gastado) pasa por aquí; nadie añade el `€` a mano. También lo usa el `+X€` flotante (`FloatingText`) de matar y vender.
 
 - `UiFormat.number(value: float)`: para stats. Por debajo de 100 y con decimales, uno como mucho (`2.5`); si no, `abbreviate` del valor redondeado.
 - `UiFormat.seconds(value: float)`: segundos con 2 decimales como mucho, sin ceros sobrantes y en 5 caracteres como máximo (`0.25s`, `1.5s`, `5s`, `123s`).
@@ -326,6 +358,8 @@ Opciones "Siguiente nivel" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción qu
 | `Sidebar` | `inspect_requested` | `LevelUI._on_inspect_requested` (escribe `LevelState.inspected`) |
 | `Sidebar` | `next_wave_requested` | `LevelUI._on_next_wave_requested` (`Spawner.start_next_wave`) |
 | `Sidebar` | `auto_waves_toggled` | `LevelUI._on_auto_waves_toggled` (escribe `Spawner.auto_waves`) |
+| `LevelState`, `Spawner`, `Powers` | `selected_tower_changed`, `tower_placed`, `sellable_tower_changed`, `wave_started`, `wave_cleared`, `power_used` | `TutorialHints` (solo en el tutorial del nivel 1) |
+| `MeteorButton`, `FreezeButton` | `pressed` | `LevelUI._use_power` (`Powers.use`, solo en `PLAYING`) |
 | `Sidebar` | `fast_speed_toggled` | `LevelUI._on_fast_speed_toggled` (cambia `_fast_speed` y reaplica `time_scale`) |
 | `PauseMenu`, `GameOverScreen`, `VictoryScreen` | `option_chosen` | `LevelUI._on_option_chosen` (`RESUME` lo resuelve ella) |
 | `LevelUI` | `action_requested` | `Game._on_action_requested` (reiniciar, volver al menú o pasar al siguiente nivel) |

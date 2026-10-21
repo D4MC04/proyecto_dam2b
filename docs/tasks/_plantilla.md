@@ -2,6 +2,7 @@
 
 Estado: propuesta
 Modelo recomendado: sonnet
+Esfuerzo recomendado: medium
 
 ## Por qué
 Qué mejora en el juego o qué problema arregla. Una o dos frases.
