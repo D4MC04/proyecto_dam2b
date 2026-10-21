@@ -106,6 +106,7 @@ func _spawn(entry: SpawnEntry) -> void:
 	var path := paths[entry.path_index % paths.size()]
 	path.add_child(enemy)
 	enemy.setup(entry.enemy_data)
+	GameState.mark_enemy_seen(entry.enemy_data)
 	_alive[enemy] = true
 	enemy.reached_end.connect(_on_enemy_reached_end.bind(enemy))
 	enemy.died.connect(_on_enemy_died.bind(enemy))
