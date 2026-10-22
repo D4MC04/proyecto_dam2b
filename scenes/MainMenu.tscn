@@ -4,7 +4,6 @@
 [ext_resource type="Script" uid="uid://bnok54y84qsmr" path="res://scripts/main_menu/Starfield.gd" id="2_stars"]
 [ext_resource type="Texture2D" uid="uid://c5u3a6vnf6m0d" path="res://assets/sprites/planets/luna.png" id="7_1ajci"]
 [ext_resource type="PackedScene" uid="uid://ds51ueya6tle1" path="res://scenes/SpaceBody.tscn" id="9_body"]
-[ext_resource type="Texture2D" uid="uid://c1kau8qq2nlhf" path="res://assets/sprites/planets/planetalava1.png" id="11_7b55j"]
 [ext_resource type="Texture2D" uid="uid://7udnrdhnrwfo" path="res://assets/sprites/planets/asteroide_1.png" id="12_asteroide1"]
 [ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="13_theme"]
 [ext_resource type="Script" uid="uid://mb67t4tqyohq" path="res://scripts/main_menu/Comets.gd" id="14_comets"]
@@ -15,8 +14,9 @@
 [ext_resource type="PackedScene" path="res://scenes/level_ui/ScreenHeader.tscn" id="21_header"]
 [ext_resource type="PackedScene" path="res://scenes/Navedex.tscn" id="22_navedex"]
 [ext_resource type="Script" path="res://scripts/main_menu/Skirmish.gd" id="23_skirmish"]
-[ext_resource type="PackedScene" uid="uid://dpr7cnr40ft63" path="res://scenes/maps/SpaceBackground.tscn" id="24_space"]
-[ext_resource type="PackedScene" uid="uid://eehll16p0uwq" path="res://scenes/maps/MenuField.tscn" id="25_field"]
+[ext_resource type="PackedScene" path="res://scenes/MenuBackground.tscn" id="24_background"]
+[ext_resource type="Script" path="res://scripts/main_menu/Outpost.gd" id="25_outpost"]
+[ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/menu/menu_vignette.png" id="26_vignette"]
 
 [node name="MainMenu" type="Control" unique_id=576679633]
 texture_filter = 1
@@ -38,12 +38,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
 
-[node name="SpaceBackground" parent="." instance=ExtResource("24_space")]
-
-[node name="Comet" parent="SpaceBackground"]
-width = 990.0
-
-[node name="AsteroidField" parent="." instance=ExtResource("25_field")]
+[node name="MenuBackground" parent="." instance=ExtResource("24_background")]
 
 [node name="StarField" type="Node2D" parent="." unique_id=933333249]
 script = ExtResource("2_stars")
@@ -68,15 +63,6 @@ speed_scale = 0.5
 sheet = ExtResource("7_1ajci")
 fps = 7.0
 
-[node name="Planeta9" parent="Planets" unique_id=606652752 instance=ExtResource("9_body")]
-position = Vector2(504, 466.5)
-rotation = 3.132866
-scale = Vector2(0.3549205, 0.3730729)
-frame_progress = 0.025729375
-speed_scale = 0.07
-sheet = ExtResource("11_7b55j")
-fps = 60.0
-
 [node name="Asteroide1" parent="Planets" unique_id=359384108 instance=ExtResource("9_body")]
 visible = false
 position = Vector2(81, 458.1)
@@ -85,8 +71,17 @@ frame_progress = 0.4903853
 sheet = ExtResource("12_asteroide1")
 fps = 10.0
 
-[node name="Skirmish" type="Node2D" parent="."]
+[node name="Outpost" type="Node2D" parent="."]
+position = Vector2(150, 290)
+script = ExtResource("25_outpost")
+
+[node name="Skirmish" type="Node2D" parent="." node_paths=PackedStringArray("outpost")]
 script = ExtResource("23_skirmish")
+outpost = NodePath("../Outpost")
+
+[node name="Vignette" type="Sprite2D" parent="."]
+texture = ExtResource("26_vignette")
+centered = false
 
 [node name="TitleScreen" type="VBoxContainer" parent="." unique_id=1853329339]
 layout_mode = 1

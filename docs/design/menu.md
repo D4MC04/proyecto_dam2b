@@ -7,8 +7,9 @@
 Nodos, de fondo a frente:
 
 - `Background`: `ColorRect` negro.
-- `SpaceBackground` y `AsteroidField`: el fondo, del mismo estilo que el de los niveles (ver "Fondo").
-- `StarField`, `Comets`, `Asteroids`, `Satellites`, `Planets`, `Skirmish`: decoración animada (ver "Decoración").
+- `MenuBackground`: el fondo propio del menú (ver "Fondo").
+- `StarField`, `Comets`, `Asteroids`, `Satellites`, `Planets`, `Outpost`, `Skirmish`: decoración (ver "Decoración").
+- `Vignette`: `Sprite2D` con `menu_vignette.png`, que oscurece los bordes en tramado por encima de la decoración y por debajo de los paneles, para centrar la vista en el título.
 - `TitleScreen`: título "ASTRO ARTILLERY" y debajo el subtítulo "TOWER DEFENSE" (24 px, `#40e0f0`), flotando sin panel; debajo, `ButtonsPanel`, un panel holograma cian (`OverlayFrame`) con "Jugar", "ARCHIVO", "Opciones" y "Salir" (204x36 todos, texto a 24). Márgenes del panel de 24 a los lados y 21 arriba y abajo, 18 de separación en `Content` y 9 entre botones.
 - `LevelSelectionScreen` (oculto al empezar): `LevelsPanel`, un panel holograma cian con la cabecera `// SECTORES DISPONIBLES` (`ScreenHeader`), `LevelButtonsContainer` (`GridContainer` de 5 columnas, 12 px de separación) y el botón "Volver" (204x36). Cabecera y botones a 24 px. Mismos márgenes y separación que `ButtonsPanel`.
 - `Navedex` (oculto al empezar): instancia de `scenes/Navedex.tscn` (ver "Navedex").
@@ -28,18 +29,13 @@ Textos en Monogram (ver [art.md](art.md)): el título "ASTRO ARTILLERY" a 72 px,
 
 ## Fondo
 
-El menú usa las mismas piezas que los mapas de los niveles (ver [niveles.md](niveles.md)), para que al entrar en un nivel no haya salto de estilo:
+`scenes/MenuBackground.tscn`. Sigue el estilo del fondo de los niveles (`SpaceBackground`, ver [niveles.md](niveles.md)): tonos planos muy oscuros, transiciones en tramado de píxeles y cuerpos con bandas onduladas. Pero no es el mismo, para que el menú tenga identidad propia: otra paleta (verde azulado en vez de morado) y otra composición.
 
-- `SpaceBackground`: instancia de `scenes/maps/SpaceBackground.tscn` en (0, 0), con la nebulosa, las estrellas que parpadean, el planeta gigante (abajo en el centro, asomando bajo el panel de botones) y el cometa, que aquí cruza toda la pantalla (`Comet.width` = 990).
-- `AsteroidField`: instancia de `scenes/maps/MenuField.tscn`, un campo de asteroides de 60x34 casillas (960x544 px) con las capas `Gravel`, `Lights`, `VisualMap` y `Planets` de `tileset_espacio.tres`: gravilla, rocas `grey`, `brown` e `ice`, restos con chatarra, piezas especiales, 4 planetas pequeños y dos pasillos con luces que entran por los lados (a media altura) con sus balizas en la boca. En el centro deja un claro sin rocas ni gravilla donde van el título y los paneles, así que los textos quedan sobre la nebulosa oscura.
+- `Nebula`: `Parallax2D` a -2 px/s, repetida en horizontal cada 960 px, con `menu_nebula.png`: nubes verde azuladas y una banda de estrellas ondulada que cruza la pantalla, con una franja de polvo oscuro rota por dentro. Las estrellas van pintadas en la imagen, más juntas en la banda.
+- `RingedPlanet`: gigante gaseoso ámbar con dos anillos (`menu_planet.png`), abajo a la derecha, iluminado desde arriba a la izquierda y con la sombra de los anillos sobre el planeta.
+- `Comet`: el cometa de los niveles (`Comet.gd`), cruzando toda la pantalla (`width` = 990).
 
-`MenuField.tscn` no se edita a mano: la genera `scripts/tools/map_generator.gd` con el argumento `menu` a partir de `resources/map_data/menu.txt` (ver "Generador de mapas" en [niveles.md](niveles.md)):
-
-```
-godot --headless --path . -s scripts/tools/map_generator.gd -- menu
-```
-
-En `menu.txt`, `size` da el tamaño del campo, cada `clear` es un rectángulo del claro (uno para el título y otro, más estrecho y alto, para los paneles) y los `path` son los dos pasillos. Para mover el claro o cambiar el campo se cambia el `.txt` y se vuelve a lanzar.
+Las tres imágenes (`assets/sprites/backgrounds/menu/`) no se dibujan a mano: las genera `scripts/tools/make_menu_background.gd` (`godot --headless --path . -s scripts/tools/make_menu_background.gd`). Paletas, forma de la banda, tamaño y anillos del planeta y viñeta son constantes del script: para retocarlos se cambian y se vuelve a lanzar.
 
 ## Decoración
 
@@ -51,8 +47,9 @@ Todos son `Node2D` que dibujan o crean sprites por código, con posiciones y tie
 | `Comets` | `scripts/main_menu/Comets.gd` | Cada 1,5 a 4 s cruza un cometa en diagonal suave por la franja superior o inferior, a 220 px/s, con estela |
 | `Asteroids` | `scripts/main_menu/Asteroids.gd` | Hasta 2 asteroides a la vez cruzan de un borde al opuesto a 60 px/s, con estela; aparece uno cada 3 a 7 s |
 | `Satellites` | `scripts/main_menu/Satellites.gd` | Un satélite cada vez, a 20-30 px/s y girando despacio; el siguiente sale entre 8 y 15 s después de irse el anterior |
-| `Planets` | instancias de `scenes/SpaceBody.tscn` | 2 planetas animados fijos y pequeños dentro del claro (la luna arriba a la derecha del título y el de lava sobre el planeta gigante) y un asteroide oculto |
-| `Skirmish` | `scripts/main_menu/Skirmish.gd` | Entre `Planets` y el panel. Cada 6-12 s cruza un grupo de 2-4 naves enemigas en V (mismo sprite, ×0,5, 60 % de opacidad, 60 px/s, siempre en horizontal y giradas hacia donde avanzan igual que `Enemy._update_animation`) por las franjas de arriba o abajo, lejos de los botones. Cada 1,5-4 s un disparo (línea cian de 1 px) llega desde fuera de la pantalla por arriba o abajo apuntando a una nave; siempre hace un impacto (`laser_impact`) y el 40 % de las veces la nave se destruye |
+| `Planets` | instancias de `scenes/SpaceBody.tscn` | La luna animada arriba a la derecha del título y un asteroide oculto |
+| `Outpost` | `scripts/main_menu/Outpost.gd` (clase `Outpost`) | En (150, 290). La estación del jugador (`estacion.tres`, animación `fase_0`) con tres torres alrededor (Cañón doble, Láser y otro Cañón doble), con los sprites de base y cañón de sus `TowerData`. `fire_at(target)` gira hacia `target` el cañón más cercano, le pone su animación de disparo si la tiene y devuelve la posición de la boca |
+| `Skirmish` | `scripts/main_menu/Skirmish.gd` | Entre `Outpost` y el panel. Cada 6-12 s cruza un grupo de 2-4 naves enemigas en V (mismo sprite, ×0,5, 60 % de opacidad, 60 px/s, siempre en horizontal y giradas hacia donde avanzan igual que `Enemy._update_animation`) por las franjas de arriba o abajo, lejos de los botones. Cada 1,5-4 s un disparo (línea cian de 1 px) apuntando a una nave: si tiene `outpost`, sale de la boca de una torre del puesto (`Outpost.fire_at`); si no, desde fuera de la pantalla por arriba o abajo; siempre hace un impacto (`laser_impact`) y el 40 % de las veces la nave se destruye |
 
 `scripts/main_menu/SpaceBody.gd` (clase `SpaceBody`) es un `AnimatedSprite2D` con `@tool` que construye su `SpriteFrames` a partir de `sheet`, una tira horizontal de frames cuadrados (lado = alto de la imagen), a la velocidad `fps`. Lo usan los planetas del menú y los asteroides.
 

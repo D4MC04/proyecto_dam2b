@@ -23,6 +23,9 @@ const KILL_CHANCE: float = 0.4
 # Franjas verticales (fracción de la altura) por las que pasan; el centro queda libre para los botones
 const LANES: Array[Vector2] = [Vector2(0.05, 0.2), Vector2(0.8, 0.95)]
 
+# Si está, los disparos salen de sus torres; si no, de fuera de la pantalla
+@export var outpost: Outpost
+
 var viewport_size: Vector2
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var ships: Array[AnimatedSprite2D] = []
@@ -103,9 +106,13 @@ func _fire() -> void:
 	var from_top: bool = target.position.y < viewport_size.y * 0.5
 	var origin: Vector2 = Vector2(target.position.x + rng.randf_range(-150.0, 150.0),
 			-MARGIN if from_top else viewport_size.y + MARGIN)
+	if outpost != null:
+		origin = to_local(outpost.global_position)
 	var aim: Vector2 = target.position
 	for _i in 2:
 		aim = target.position + (target.get_meta("dir") as Vector2) * SHIP_SPEED * (origin.distance_to(aim) / SHOT_SPEED)
+	if outpost != null:
+		origin = to_local(outpost.fire_at(to_global(aim)))
 	var shot: Line2D = Line2D.new()
 	shot.width = 1.0
 	shot.default_color = SHOT_COLOR

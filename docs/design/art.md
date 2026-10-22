@@ -183,6 +183,7 @@ Monogram (`assets/fonts/Monogram.ttf`) es la única fuente del juego, puesta com
 - `base/space_station.png` (48x48, 41 colores).
 - `backgrounds/fondo_1` a `fondo_6` y `fondo_nebula_1` y `_2`: 480x272, 9 a 34 colores.
 - `backgrounds/espacio/fondo_nebulosa_tall.png` (640x544): la `fondo_nebulosa.png` (640x272) arriba y la misma volteada en vertical debajo, para que case consigo misma por arriba y por abajo. Generada con `scripts/tools/make_tall_nebula.gd` (`godot --headless --path . -s scripts/tools/make_tall_nebula.gd`).
+- `backgrounds/menu/` (`menu_nebula.png` 960x540, `menu_planet.png` 320x240 y `menu_vignette.png` 960x540): el fondo propio del menú principal, nebulosa verde azulada (`#050d14` a `#1b4b45`) y gigante gaseoso ámbar con anillos (`#120b0a` a `#a87438`). Generadas con `scripts/tools/make_menu_background.gd`; ver [menu.md](menu.md).
 
 ## Dudas
 

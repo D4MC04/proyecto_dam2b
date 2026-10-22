@@ -1,10 +1,8 @@
 extends SceneTree
 ## Genera los mapas de los niveles a partir de resources/map_data/level_N.txt.
 ##
-## Uso: godot --headless --path . -s scripts/tools/map_generator.gd -- [N ...] [menu]
-## Sin argumentos genera los 9 niveles. "menu" genera el campo de asteroides del menú principal
-## (resources/map_data/menu.txt -> scenes/maps/MenuField.tscn): solo las capas de decoración, sin
-## LogicMap, caminos, estación ni fondo.
+## Uso: godot --headless --path . -s scripts/tools/map_generator.gd -- [N ...]
+## Sin números genera los 9 niveles.
 ##
 ## Los caminos no se dibujan: son pasillos de espacio libre que atraviesan un campo de asteroides
 ## que llena el resto del mapa. La orilla del pasillo va casi llena y dentro del campo no quedan
@@ -21,20 +19,13 @@ extends SceneTree
 ##   planets = 7,6 12,6 ...      casillas de torre (planetas)
 ##   rocks = grey brown ice      familias de roca del nivel (grey, brown, dark, ore, ice, crystal,
 ##                               lava); la primera es la principal y cierra el borde del mapa
-##   size = 60 34                tamaño del mapa (opcional; por defecto 43x33)
-##   clear = 16,4 28,8           claro libre como el pasillo, pero sin luces: esquina y tamaño
-##                               (opcional; uno por línea)
-## La estación solo es obligatoria en los niveles.
 ## Las líneas vacías y las que empiezan por "#" se ignoran.
 
-const LEVEL_MAP_SIZE: Vector2i = Vector2i(43, 33)
+const MAP_SIZE: Vector2i = Vector2i(43, 33)
 const TILE_SIZE: int = 16
 const LEVEL_COUNT: int = 9
 const DATA_PATH: String = "res://resources/map_data/level_%d.txt"
 const SCENE_PATH: String = "res://scenes/maps/levels/Level%d.tscn"
-const MENU_ARG: String = "menu"
-const MENU_DATA_PATH: String = "res://resources/map_data/menu.txt"
-const MENU_SCENE_PATH: String = "res://scenes/maps/MenuField.tscn"
 const MAP_SCRIPT: String = "res://scripts/level/Map.gd"
 const BACKGROUND_SCENE: String = "res://scenes/maps/SpaceBackground.tscn"
 const BASE_SCENE: String = "res://scenes/entities/Base.tscn"
@@ -157,10 +148,7 @@ class RockFamily:
 
 class LevelLayout:
 	var random_seed: int = 0
-	var size: Vector2i = LEVEL_MAP_SIZE
-	var has_station: bool = false
 	var station: Vector2i = Vector2i.ZERO
-	var clear: Array[Rect2i] = []
 	var paths: Array[PackedVector2Array] = []
 	var planets: Array[Vector2i] = []
 	var rocks: PackedStringArray = ["grey"]
@@ -175,7 +163,6 @@ var _landmarks: Array[Piece] = []
 var _beacon: Piece
 
 # Estado del nivel que se está generando
-var _map_size: Vector2i = LEVEL_MAP_SIZE
 var _rng: RandomNumberGenerator
 var _density: FastNoiseLite
 var _distance: Dictionary[Vector2i, int] = {}
@@ -190,19 +177,13 @@ var _main_family: String = ""
 func _initialize() -> void:
 	_build_catalog()
 	var levels: Array[int] = []
-	var menu: bool = false
 	for arg: String in OS.get_cmdline_user_args():
-		if arg == MENU_ARG:
-			menu = true
-		else:
-			levels.append(arg.to_int())
-	if levels.is_empty() and not menu:
+		levels.append(arg.to_int())
+	if levels.is_empty():
 		for n: int in range(1, LEVEL_COUNT + 1):
 			levels.append(n)
 	for n: int in levels:
-		_generate(DATA_PATH % n, SCENE_PATH % n, false)
-	if menu:
-		_generate(MENU_DATA_PATH, MENU_SCENE_PATH, true)
+		_generate(n)
 	quit()
 
 
@@ -250,17 +231,14 @@ func _family(small: Array[Vector2i], medium: Array[Vector2i], large: Array[Vecto
 	return family
 
 
-## Genera la escena de un nivel o, si menu es true, el campo de decoración del menú principal.
-func _generate(data_path: String, scene_path: String, menu: bool) -> void:
-	var layout: LevelLayout = _parse(FileAccess.get_file_as_string(data_path))
+func _generate(n: int) -> void:
+	var layout: LevelLayout = _parse(FileAccess.get_file_as_string(DATA_PATH % n))
 	if layout == null:
-		push_error("No se puede leer %s" % data_path)
+		push_error("No se puede leer %s" % (DATA_PATH % n))
 		return
-	if not menu and not layout.has_station:
-		push_error("%s no tiene estación" % data_path)
-		return
+	var scene_path: String = SCENE_PATH % n
 	var old_uid: int = _read_scene_uid(scene_path)
-	var map: Node2D = _build_menu_field(layout) if menu else _build_map(layout)
+	var map: Node2D = _build_map(layout)
 	var packed: PackedScene = PackedScene.new()
 	packed.pack(map)
 	map.free()
@@ -270,7 +248,7 @@ func _generate(data_path: String, scene_path: String, menu: bool) -> void:
 		push_error("No se puede guardar %s (%s)" % [scene_path, error_string(error)])
 		return
 	_write_uids(scene_path, old_uid if old_uid != ResourceUID.INVALID_ID else ResourceUID.create_id())
-	print("%s -> %s (%d caminos, %d planetas)" % [data_path, scene_path, layout.paths.size(), layout.planets.size()])
+	print("%s -> %s (%d caminos, %d planetas)" % [DATA_PATH % n, scene_path, layout.paths.size(), layout.planets.size()])
 
 
 ## Uid escrito en la cabecera del .tscn, o INVALID_ID si el archivo no existe o no lo tiene.
@@ -317,13 +295,6 @@ func _parse(text: String) -> LevelLayout:
 			"station":
 				var parts: PackedStringArray = value.split(" ", false)
 				layout.station = Vector2i(parts[0].to_int(), parts[1].to_int())
-				layout.has_station = true
-			"size":
-				var parts: PackedStringArray = value.split(" ", false)
-				layout.size = Vector2i(parts[0].to_int(), parts[1].to_int())
-			"clear":
-				var corners: Array[Vector2i] = _parse_cells(value)
-				layout.clear.append(Rect2i(corners[0], corners[1]))
 			"path":
 				var points: PackedVector2Array = []
 				for cell: Vector2i in _parse_cells(value):
@@ -350,16 +321,46 @@ func _parse_cells(value: String) -> Array[Vector2i]:
 
 
 func _build_map(layout: LevelLayout) -> Node2D:
+	_rng = RandomNumberGenerator.new()
+	_rng.seed = layout.random_seed
+	_density = _make_noise(layout.random_seed, 0.12)
+	_main_family = layout.rocks[0]
+	_setup_zones(layout.rocks)
+	var space_tileset: TileSet = load(SPACE_TILESET)
+
 	var map: Node2D = Node2D.new()
 	map.name = "Map"
 	map.set_script(load(MAP_SCRIPT))
 	var background: Node = (load(BACKGROUND_SCENE) as PackedScene).instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE)
 	background.name = "Background"
 	_add(map, background)
-	var path_cells: Dictionary[Vector2i, int] = _decorate(map, layout)
+	var gravel: TileMapLayer = _add_layer(map, "Gravel", space_tileset)
+	var lights: TileMapLayer = _add_layer(map, "Lights", space_tileset)
+	var scenery: TileMapLayer = _add_layer(map, "VisualMap", space_tileset)
+	var planets: TileMapLayer = _add_layer(map, "Planets", space_tileset)
 	var logic: TileMapLayer = _add_layer(map, "LogicMap", load(LOGIC_TILESET))
 	logic.visible = false
 	logic.modulate = Color(1, 1, 1, 0.39215687)
+
+	# Casillas de camino (también las de fuera del mapa) y su orientación, para las luces
+	var path_cells: Dictionary[Vector2i, int] = {}
+	for points: PackedVector2Array in layout.paths:
+		_rasterize(points, layout.station, path_cells)
+	_distance = _distance_to_path(path_cells)
+	_blocked = {}
+	_solid = {}
+	_mark(layout.station, STATION_RADIUS)
+
+	_place_planets(planets, layout.planets)
+	_place_entrances(scenery, _find_entrances(layout))
+	_place_lights(lights, path_cells, layout.station)
+	_place_landmarks(scenery)
+	_place_wrecks(scenery)
+	_place_large(scenery)
+	_place_medium(scenery)
+	_place_small(scenery)
+	_fill_holes(scenery)
+	_place_gravel(gravel)
 	_fill_logic(logic, path_cells, layout)
 
 	var paths_node: Node2D = Node2D.new()
@@ -379,57 +380,6 @@ func _build_map(layout: LevelLayout) -> Node2D:
 	return map
 
 
-## Campo del menú principal: solo las capas de decoración, sin lógica, caminos ni estación.
-func _build_menu_field(layout: LevelLayout) -> Node2D:
-	var field: Node2D = Node2D.new()
-	field.name = "MenuField"
-	_decorate(field, layout)
-	return field
-
-
-## Añade a map las capas Gravel, Lights, VisualMap y Planets y las llena con el campo de asteroides.
-## Devuelve las casillas de camino (también las de fuera del mapa) y su orientación.
-func _decorate(map: Node2D, layout: LevelLayout) -> Dictionary[Vector2i, int]:
-	_map_size = layout.size
-	_rng = RandomNumberGenerator.new()
-	_rng.seed = layout.random_seed
-	_density = _make_noise(layout.random_seed, 0.12)
-	_main_family = layout.rocks[0]
-	_setup_zones(layout.rocks)
-	var space_tileset: TileSet = load(SPACE_TILESET)
-	var gravel: TileMapLayer = _add_layer(map, "Gravel", space_tileset)
-	var lights: TileMapLayer = _add_layer(map, "Lights", space_tileset)
-	var scenery: TileMapLayer = _add_layer(map, "VisualMap", space_tileset)
-	var planets: TileMapLayer = _add_layer(map, "Planets", space_tileset)
-
-	var path_cells: Dictionary[Vector2i, int] = {}
-	for points: PackedVector2Array in layout.paths:
-		_rasterize(points, layout, path_cells)
-	# Los claros cuentan como pasillo, pero sin luces
-	var free_cells: Dictionary[Vector2i, int] = path_cells.duplicate()
-	for rect: Rect2i in layout.clear:
-		for y: int in range(rect.position.y, rect.end.y):
-			for x: int in range(rect.position.x, rect.end.x):
-				free_cells[Vector2i(x, y)] = 0
-	_distance = _distance_to_path(free_cells)
-	_blocked = {}
-	_solid = {}
-	if layout.has_station:
-		_mark(layout.station, STATION_RADIUS)
-
-	_place_planets(planets, layout.planets)
-	_place_entrances(scenery, _find_entrances(layout))
-	_place_lights(lights, path_cells, layout)
-	_place_landmarks(scenery)
-	_place_wrecks(scenery)
-	_place_large(scenery)
-	_place_medium(scenery)
-	_place_small(scenery)
-	_fill_holes(scenery)
-	_place_gravel(gravel)
-	return path_cells
-
-
 func _make_noise(noise_seed: int, frequency: float) -> FastNoiseLite:
 	var noise: FastNoiseLite = FastNoiseLite.new()
 	noise.seed = noise_seed
@@ -443,7 +393,7 @@ func _setup_zones(rocks: PackedStringArray) -> void:
 	_zone_points.clear()
 	_zone_families.clear()
 	for i: int in ZONE_COUNT:
-		_zone_points.append(Vector2(_rng.randf_range(0, _map_size.x), _rng.randf_range(0, _map_size.y)))
+		_zone_points.append(Vector2(_rng.randf_range(0, MAP_SIZE.x), _rng.randf_range(0, MAP_SIZE.y)))
 		var family: String = rocks[0]
 		if i < rocks.size():
 			family = rocks[i]
@@ -484,7 +434,7 @@ func _cell_center(cell: Vector2i) -> Vector2:
 
 ## Apunta las casillas de cada tramo. El valor guarda las orientaciones que pasan por la casilla:
 ## 1 horizontal, 2 vertical (3 en esquinas y cruces). Las casillas tapadas por la estación no cuentan.
-func _rasterize(points: PackedVector2Array, layout: LevelLayout, cells: Dictionary[Vector2i, int]) -> void:
+func _rasterize(points: PackedVector2Array, station: Vector2i, cells: Dictionary[Vector2i, int]) -> void:
 	for i: int in points.size() - 1:
 		var from: Vector2i = Vector2i(points[i])
 		var to: Vector2i = Vector2i(points[i + 1])
@@ -495,16 +445,11 @@ func _rasterize(points: PackedVector2Array, layout: LevelLayout, cells: Dictiona
 		var orientation: int = 1 if step.y == 0 else 2
 		var cell: Vector2i = from
 		while true:
-			if not _under_station(cell, layout, STATION_RADIUS - 1):
+			if _chebyshev(cell, station) > STATION_RADIUS - 1:
 				cells[cell] = cells.get(cell, 0) | orientation
 			if cell == to:
 				break
 			cell += step
-
-
-## La casilla está a radius casillas o menos de la estación (nunca, si el mapa no tiene).
-func _under_station(cell: Vector2i, layout: LevelLayout, radius: int) -> bool:
-	return layout.has_station and _chebyshev(cell, layout.station) <= radius
 
 
 func _chebyshev(a: Vector2i, b: Vector2i) -> int:
@@ -533,7 +478,7 @@ func _distance_to_path(path_cells: Dictionary[Vector2i, int]) -> Dictionary[Vect
 
 
 func _decor_rect() -> Rect2i:
-	return Rect2i(Vector2i(-DECOR_MARGIN, -DECOR_MARGIN), _map_size +Vector2i(2, 2) * DECOR_MARGIN)
+	return Rect2i(Vector2i(-DECOR_MARGIN, -DECOR_MARGIN), MAP_SIZE + Vector2i(2, 2) * DECOR_MARGIN)
 
 
 func _decor_cells() -> Array[Vector2i]:
@@ -547,7 +492,7 @@ func _decor_cells() -> Array[Vector2i]:
 
 ## 0 en el margen, 1 en la casilla del borde del mapa, 2 en la siguiente…
 func _edge_depth(cell: Vector2i) -> int:
-	return mini(mini(cell.x, _map_size.x - 1 - cell.x), mini(cell.y, _map_size.y - 1 - cell.y)) + DECOR_MARGIN
+	return mini(mini(cell.x, MAP_SIZE.x - 1 - cell.x), mini(cell.y, MAP_SIZE.y - 1 - cell.y)) + DECOR_MARGIN
 
 
 func _is_corridor(cell: Vector2i) -> bool:
@@ -707,7 +652,7 @@ func _place_planets(layer: TileMapLayer, cells: Array[Vector2i]) -> void:
 ## Primera casilla de cada camino dentro del mapa y su dirección de avance, sin repetir.
 func _find_entrances(layout: LevelLayout) -> Dictionary[Vector2i, Vector2i]:
 	var entrances: Dictionary[Vector2i, Vector2i] = {}
-	var map_rect: Rect2i = Rect2i(Vector2i.ZERO, _map_size)
+	var map_rect: Rect2i = Rect2i(Vector2i.ZERO, MAP_SIZE)
 	for points: PackedVector2Array in layout.paths:
 		var found: bool = false
 		for i: int in points.size() - 1:
@@ -737,11 +682,11 @@ func _place_entrances(layer: TileMapLayer, entrances: Dictionary[Vector2i, Vecto
 
 
 ## Una luz cada 2 casillas en los tramos rectos; nada en esquinas, cruces ni junto a ellos.
-func _place_lights(layer: TileMapLayer, path_cells: Dictionary[Vector2i, int], layout: LevelLayout) -> void:
-	var map_rect: Rect2i = Rect2i(Vector2i.ZERO, _map_size)
+func _place_lights(layer: TileMapLayer, path_cells: Dictionary[Vector2i, int], station: Vector2i) -> void:
+	var map_rect: Rect2i = Rect2i(Vector2i.ZERO, MAP_SIZE)
 	for cell: Vector2i in path_cells:
 		var orientation: int = path_cells[cell]
-		if not map_rect.has_point(cell) or orientation == 3 or _under_station(cell, layout, STATION_RADIUS):
+		if not map_rect.has_point(cell) or orientation == 3 or _chebyshev(cell, station) <= STATION_RADIUS:
 			continue
 		var along: Vector2i = Vector2i(1, 0) if orientation == 1 else Vector2i(0, 1)
 		var neighbors_straight: bool = path_cells.get(cell + along, 0) == orientation and path_cells.get(cell - along, 0) == orientation
@@ -904,8 +849,8 @@ func _place_gravel(layer: TileMapLayer) -> void:
 
 ## Toda la cuadrícula: camino, hueco de torre o decorado.
 func _fill_logic(layer: TileMapLayer, path_cells: Dictionary[Vector2i, int], layout: LevelLayout) -> void:
-	for y: int in _map_size.y:
-		for x: int in _map_size.x:
+	for y: int in MAP_SIZE.y:
+		for x: int in MAP_SIZE.x:
 			var cell: Vector2i = Vector2i(x, y)
 			var kind: Vector2i = LOGIC_SCENERY
 			if layout.planets.has(cell):
