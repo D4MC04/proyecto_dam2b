@@ -1,6 +1,6 @@
 # Estación con daños visibles
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 

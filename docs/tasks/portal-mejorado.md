@@ -1,6 +1,6 @@
 # Portales con más vida
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: haiku
 Esfuerzo recomendado: low
 

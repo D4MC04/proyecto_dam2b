@@ -1,6 +1,6 @@
 # Estelas en misiles y balas pesadas
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 

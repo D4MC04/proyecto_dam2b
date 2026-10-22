@@ -1,6 +1,6 @@
 # Fogonazo en el cañón al disparar
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 

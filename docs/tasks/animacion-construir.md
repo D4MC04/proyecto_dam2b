@@ -1,6 +1,6 @@
 # Animación al construir, fusionar y vender
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 

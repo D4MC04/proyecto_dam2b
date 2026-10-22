@@ -1,6 +1,6 @@
 # Las naves se rompen en pedazos al morir
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 

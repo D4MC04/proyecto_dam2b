@@ -1,6 +1,6 @@
 # Efecto de congelado más claro
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: low
 

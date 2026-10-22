@@ -1,6 +1,6 @@
 # Explosiones según el tamaño de la nave
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 
