@@ -4,12 +4,13 @@ class_name Effect
 
 const GROUP := &"effects"
 const MAX_EFFECTS := 60
-# Con la opción de efectos reducidos el tope baja a esta cantidad.
+# Si el juego va lento (menos de LOW_FPS), el tope baja a esta cantidad para no atascarlo más.
 const MAX_EFFECTS_LOW := 20
+const LOW_FPS := 45.0
 
 ## Cuántos efectos (Effect y HealEffect) puede haber vivos a la vez; los sobrantes se omiten.
 static func has_room(tree: SceneTree) -> bool:
-	var limit := MAX_EFFECTS_LOW if Settings.get_value(&"low_effects") else MAX_EFFECTS
+	var limit := MAX_EFFECTS_LOW if Engine.get_frames_per_second() < LOW_FPS else MAX_EFFECTS
 	return tree.get_node_count_in_group(GROUP) < limit
 
 static func spawn(parent: Node, frames: SpriteFrames, pos: Vector2, size: float = 1.0) -> void:

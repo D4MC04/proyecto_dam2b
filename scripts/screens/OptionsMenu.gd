@@ -27,7 +27,6 @@ var _confirm_id: int = 0
 	&"vsync": %VsyncButton,
 	&"show_fps": %FpsButton,
 	&"show_tower_range": %TowerRangeButton,
-	&"low_effects": %LowEffectsButton,
 }
 
 func _ready() -> void:

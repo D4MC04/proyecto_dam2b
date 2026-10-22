@@ -98,7 +98,6 @@ Es el único audio del juego: todavía no hay efectos de sonido, así que nada s
 | PANTALLA | Botón "VSync" | `vsync` |
 | PANTALLA | Botón "Mostrar FPS" | `show_fps` |
 | JUEGO | Botón "Rango de torres" | `show_tower_range` |
-| JUEGO | Botón "Efectos reducidos" | `low_effects` |
 
 "Borrar progreso" no es un ajuste: es un botón propio (204x36, variación de tema `DangerButton`: borde y texto `#ff3c5a`, y en hover relleno `#961432` con texto `#ffaabe`). Va en `ButtonsBlock`, un bloque con "Volver" (ambos 204x36, separados 9 px) que queda debajo de las columnas con 9 px extra de margen (`ButtonsMargin`), así que se separa más de las secciones que los botones entre sí. No guarda ninguna opción: llama a `GameState.reset_progress()`. La primera pulsación cambia su texto a "¿Seguro?" y lo deja relleno de rojo (armado) durante `CONFIRM_TIME` (3 s); el ancho es fijo, así que ni el botón ni el panel cambian de tamaño. Si se pulsa de nuevo en ese tiempo (cada aviso lleva un número, así que el temporizador de un aviso anterior no cancela el nuevo), `GameState.reset_progress()` vuelve `current_level` a 1, guarda y emite `progress_reset`, y el menú principal reconstruye los botones de nivel. Pasados los 3 s sin pulsar, vuelve a "Borrar progreso". Se oculta cuando Opciones se abre desde la pausa (`open_from(opener, allow_reset = false)`).
 
@@ -113,7 +112,7 @@ Los deslizadores (96x12, tirador de 5x11) van de 0 a 1 en pasos de 0,05 (colores
 - Los tres volúmenes son lineales y se aplican a los buses `Master`, `Music` y `SFX`, definidos en `default_bus_layout.tres`. El bus `SFX` es para los sonidos de torretas, explosiones y demás efectos.
 - `muted` silencia el bus `Master` sin cambiar los volúmenes, así que al quitarlo los deslizadores conservan su valor.
 - `fullscreen` y `vsync` se aplican con `DisplayServer`.
-- `show_fps`, `show_tower_range` y `low_effects` no hacen nada aquí: las leen `LevelUI` (ver [ui.md](ui.md)), `Tower` (ver [torres.md](torres.md)) y `Effect.has_room` (ver [torres.md](torres.md)); `LevelUI` y `Tower` escuchan `changed` para actualizarse al momento.
+- `show_fps` y `show_tower_range` no hacen nada aquí: las leen `LevelUI` (ver [ui.md](ui.md)) y `Tower` (ver [torres.md](torres.md)), que escuchan `changed` para actualizarse al momento.
 
 ## Dudas
 
