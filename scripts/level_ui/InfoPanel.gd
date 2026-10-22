@@ -24,6 +24,8 @@ const PAD_GRID_OFFSET := 2
 const HINT_COLOR := Color("#40e0f0")
 # Tolerancia en px para dar el scroll por llegado al final.
 const HINT_END_MARGIN := 1.0
+# Texto del botón mientras espera el segundo clic que confirma la venta.
+const CONFIRM_SELL_TEXT := "¿Seguro?"
 
 @onready var idle_view: Control = %IdleView
 @onready var detail_view: Control = %DetailView
@@ -45,6 +47,7 @@ const HINT_END_MARGIN := 1.0
 
 var _accent := Color.WHITE
 var _flash_id := 0
+var _confirming_sell := false
 
 func _ready() -> void:
 	icon_pad.draw.connect(_draw_icon_pad)
@@ -52,7 +55,7 @@ func _ready() -> void:
 	# Alto fijo de dos líneas para que la cabecera no cambie de tamaño entre fichas.
 	name_label.text = "A\nA"
 	name_label.custom_minimum_size.y = name_label.get_combined_minimum_size().y
-	sell_button.pressed.connect(sell_requested.emit)
+	sell_button.pressed.connect(_on_sell_pressed)
 	scroll_hint.draw.connect(_draw_scroll_hint)
 	scroll_hint.modulate.a = 0.0
 	var scroll_bar := stat_scroll.get_v_scroll_bar()
@@ -63,9 +66,18 @@ func _ready() -> void:
 
 ## Enseña el botón "Vender (+X)" de una torre colocada; con null lo oculta.
 func show_sellable(tower: Tower) -> void:
+	_confirming_sell = false
 	sell_button.visible = tower != null
 	if tower != null:
 		sell_button.text = "Vender (+%s)" % UiFormat.money(tower.get_sell_value())
+
+# Vender siempre pide confirmar con un segundo clic.
+func _on_sell_pressed() -> void:
+	if _confirming_sell:
+		sell_requested.emit()
+		return
+	_confirming_sell = true
+	sell_button.text = CONFIRM_SELL_TEXT
 
 ## Enseña `data` en la ficha; con null vuelve al estado de reposo.
 func show_inspected(data: Resource) -> void:
