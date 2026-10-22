@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://boa8bfwibn4qw"
-path="res://.godot/imported/espacio_planetas.png-c39dfa06c386ec2af3e68d3214856220.ctex"
+uid="uid://ge8cbc5gqsuq"
+path="res://.godot/imported/espacio_casillas_torre.png-bf6e31def223d0eab29f668bf4606e5c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/tilesets/espacio/espacio_planetas.png"
-dest_files=["res://.godot/imported/espacio_planetas.png-c39dfa06c386ec2af3e68d3214856220.ctex"]
+source_file="res://assets/tilesets/espacio/espacio_casillas_torre.png"
+dest_files=["res://.godot/imported/espacio_casillas_torre.png-bf6e31def223d0eab29f668bf4606e5c.ctex"]
 
 [params]
 

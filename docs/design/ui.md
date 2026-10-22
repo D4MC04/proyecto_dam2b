@@ -123,7 +123,7 @@ Dos `PowerButton` (`scripts/level_ui/PowerButton.gd`) en `InfoPanel/Content/Powe
 - Solo sale en el nivel 1 mientras `GameState.tutorial_done` es false. `LevelUI.setup` llama a `start(state, spawner, powers)` en el nivel 1 y a `stop()` en los demás; al reiniciar vuelve a empezar desde el primer paso (las señales del nivel anterior se liberan con él).
 - Pasos; cada uno espera a que el jugador lo haga:
   1. Elegir torre (`LevelState.selected_tower_changed` no nulo). Si se suelta la torre en el paso 2, vuelve a este.
-  2. Colocarla en un planeta (`LevelState.tower_placed`, que emite `BuildManager` al construir, no al fusionar).
+  2. Colocarla en un asteroide con plataforma (`LevelState.tower_placed`, que emite `BuildManager` al construir, no al fusionar).
   3. Lanzar la oleada (`Spawner.wave_started`; lanzarla antes con Espacio también vale). El recuadro se esconde mientras dura la oleada 1.
   4. Al acabar (`Spawner.wave_cleared`): soltar la torre de la tienda con clic derecho y hacer clic en una torre del mapa (`LevelState.sellable_tower_changed` no nulo).
   5. Venta y fusión: informativo, sigue con "Entendido".
