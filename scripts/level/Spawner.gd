@@ -124,7 +124,10 @@ func _process(delta: float) -> void:
 		_check_cleared()
 
 func _spawn(entry: SpawnEntry) -> void:
-	_spawn_enemy(entry.enemy_data, paths[entry.path_index % paths.size()], PORTAL_OFFSET).spawn_in()
+	var index := entry.path_index % paths.size()
+	_spawn_enemy(entry.enemy_data, paths[index], PORTAL_OFFSET).spawn_in()
+	if _portals.has(index):
+		_portals[index].flash_exit()
 
 func _spawn_enemy(data: EnemyData, path: Path2D, progress: float) -> Enemy:
 	var enemy: Enemy = ENEMY_SCENE.instantiate()
