@@ -52,6 +52,7 @@ func sell_selected_tower() -> void:
 	var value := sellable_tower.get_sell_value()
 	add_money(value)
 	FloatingText.spawn(sellable_tower.get_parent(), sellable_tower.global_position, "+" + UiFormat.money(value))
+	sellable_tower.play_sell()
 	sellable_tower.queue_free()
 	sellable_tower = null
 

@@ -1,6 +1,6 @@
 # Sonidos de interfaz, victoria, derrota y ambiente
 
-Estado: aceptada
+Estado: propuesta
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 

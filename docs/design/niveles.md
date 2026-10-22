@@ -10,7 +10,7 @@
 | `Grid` | `scripts/level/Grid.gd` | Qué casillas son camino o hueco y cuáles están ocupadas |
 | `Spawner` | `scripts/level/Spawner.gd` | Lanza las oleadas, crea sus enemigos y cuenta los vivos |
 | `BuildManager` | `scripts/level/BuildManager.gd` | Coloca torres; ver [torres.md](torres.md) |
-| `Powers` | `scripts/level/Powers.gd` | Poderes del jugador (meteorito y congelar); ver "Poderes" |
+| `Powers` | `scripts/level/Powers.gd` | Poderes del jugador (meteorito, congelar y ataque orbital); ver "Poderes" |
 
 `Level.setup(data: LevelData)`:
 
@@ -42,15 +42,17 @@ Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de l
 
 ## Poderes
 
-`Powers` (`scripts/level/Powers.gd`, `Node2D` con `z_index = 1`, último hijo de `Level`): los poderes del jugador. Su `state` (`LevelState`) se asigna en `Level.tscn`. Como el nivel se crea de nuevo al empezar y al reiniciar, los dos poderes empiezan listos. Las recargas bajan en `_process`, así que siguen `Engine.time_scale` (×2 las acelera) y se paran con la pausa. Los botones están en la ficha (ver [ui.md](ui.md)). Emite `power_used(power)` al lanzar un poder (el meteorito, al caer), que escucha el tutorial.
+`Powers` (`scripts/level/Powers.gd`, `Node2D` con `z_index = 1`, último hijo de `Level`): los poderes del jugador. Su `state` (`LevelState`) se asigna en `Level.tscn`. Como el nivel se crea de nuevo al empezar y al reiniciar, los tres poderes empiezan listos. Las recargas bajan en `_process`, así que siguen `Engine.time_scale` (×2 las acelera) y se paran con la pausa. Los botones están en la ficha (ver [ui.md](ui.md)). Emite `power_used(power)` al lanzar un poder (el meteorito, al caer; el ataque orbital, al empezar el rayo), que escucha el tutorial.
 
 | Poder (`Powers.Power`) | Tecla | Efecto | Recarga |
 |---|---|---|---|
 | `METEOR` | Q | Modo apuntar; al hacer clic cae un meteorito: `METEOR_DAMAGE` (150) a todos los enemigos a `METEOR_RADIUS` (40 px) o menos del punto | 45 s |
 | `FREEZE` | E | Todos los enemigos vivos a `FREEZE_FACTOR` (30 %) de velocidad durante `FREEZE_TIME` (4 s), con `Enemy.slow` y la escarcha del Cryo (`cryo_frost.tres`) | 60 s |
+| `ORBITAL` | R | Modo apuntar (una franja horizontal sigue al cursor); al hacer clic, un rayo vertical recorre esa fila de izquierda a derecha de `GAME_AREA_RECT` en `ORBITAL_TIME` (2 s) y daña `ORBITAL_DPS` (400/s) a los enemigos vivos a `ORBITAL_HALF_WIDTH` (6 px) en x y `ORBITAL_HALF_HEIGHT` (16 px) en y de él | 75 s |
 
-- `use(power)`: si el poder no está listo no hace nada. Meteorito: si ya se apuntaba, cancela; si no, suelta la torre seleccionada (`state.selected_tower = null`) y entra en modo apuntar. Congelar se lanza ya.
+- `use(power)`: si el poder no está listo no hace nada. Meteorito y ataque orbital: si ya se apuntaba ese poder, cancela; si no, suelta la torre seleccionada (`state.selected_tower = null`) y entra en modo apuntar. Congelar se lanza ya.
 - **Apuntado:** pinta en `_draw` un círculo del radio del área en el cursor (relleno ámbar al 15 % y borde de 1 px `#ecb23c`, sin antialiasing). En `_unhandled_input`, clic izquierdo lanza el meteorito ahí y clic derecho cancela; los dos marcan el evento como gestionado. Mientras se apunta, `BuildManager` ignora la entrada (su `powers`, asignado en la escena), así que no coloca ni selecciona torres. Elegir torre (`selected_tower_changed` con una torre) cancela el apuntado. `cancel_aiming()` lo quita.
+- **Ataque orbital:** la recarga empieza al hacer clic. El rayo es un zigzag cian con núcleo blanco y destello (`_draw_bolt`, se re-sortea cada frame para que parpadee) que cae desde arriba en `ORBITAL_FALL_TIME` (0,15 s; hasta entonces no daña) y luego barre. Mientras dura, el mapa tiembla con `Level.shake_map(ORBITAL_SHAKE_DAMAGE)` cada `ORBITAL_SHAKE_INTERVAL` (0,15 s). Se mueve en `_process`, así que sigue la velocidad del juego y la pausa. `get_aimed_power()` da el poder apuntado (-1 si ninguno); `PowerButton` lo usa para el ámbar.
 - **Meteorito:** la recarga empieza al hacer clic. El cometa del fondo (`cometa.png`) cae en `METEOR_FALL_TIME` (0,3 s) desde `METEOR_FALL_OFFSET` (-90, -150) respecto al punto; al llegar, explosión del lanzacohetes (`rocket_launcher_impact.tres`) a ×3 y `RocketExplosion.wav` (bus SFX), y el daño a los enemigos del área con `hp > 0`.
 
 ## LevelState
@@ -114,7 +116,7 @@ Lleva el ciclo de oleadas del nivel: cuándo se lanzan, qué enemigos quedan viv
 
 ### Portales
 
-Al lanzar una oleada, `_open_portals()` crea un `Portal` (`scripts/entities/Portal.gd`) como hijo de cada `Path2D` que use la oleada, a `PORTAL_OFFSET` (40 px) del principio de su curva, media casilla dentro del borde del mapa, porque los caminos empiezan 2 casillas fuera (uno por camino, guardados en `_portals`). Las naves también empiezan ahí (`progress = PORTAL_OFFSET`), así que salen del portal. El portal se gira para quedar atravesado al camino en ese punto (vertical si el camino entra en horizontal y al revés), en múltiplos de 90°. El portal es una grieta horizontal en forma de ojo (30x10 px abierta, acabada en punta a los dos lados), pintada con `draw_rect` columna a columna en píxeles enteros: interior casi negro (`#1a0614`) con píxeles magenta que entran hacia el centro, borde liso de 1 px que late entre `#be30a0` y `#ff5ad2`, halo de 1 px `#be30a0` por fuera y puntas rojas `#f0323c`. Al abrirse (0,3 s) primero es una línea que se alarga y luego se abre en alto; entonces tiembla 1 px durante 0,25 s con un destello. Al cerrarse (0,3 s) se cierra en una línea y desaparece. Al crear el último enemigo, `_close_portals()` los cierra y los libera. Usan tweens, así que siguen `Engine.time_scale` y se paran con la pausa.
+Al lanzar una oleada, `_open_portals()` crea un `Portal` (`scripts/entities/Portal.gd`) como hijo de cada `Path2D` que use la oleada, a `PORTAL_OFFSET` (40 px) del principio de su curva, media casilla dentro del borde del mapa, porque los caminos empiezan 2 casillas fuera (uno por camino, guardados en `_portals`). Las naves también empiezan ahí (`progress = PORTAL_OFFSET`), así que salen del portal. El portal se gira para quedar atravesado al camino en ese punto (vertical si el camino entra en horizontal y al revés), en múltiplos de 90°. El portal es una grieta horizontal en forma de ojo (30x10 px abierta, acabada en punta a los dos lados), pintada con `draw_rect` columna a columna en píxeles enteros: interior casi negro (`#1a0614`) con píxeles magenta que entran hacia el centro, borde liso de 1 px que late entre `#be30a0` y `#ff5ad2`, halo de 1 px `#be30a0` por fuera y puntas rojas `#f0323c`. Al abrirse (0,3 s) primero es una línea que se alarga y luego se abre en alto; entonces tiembla 1 px durante 0,25 s con un destello. Mientras está abierto, 8 píxeles magenta giran en espiral hacia dentro dentro de la grieta. Cada nave que sale por él provoca un destello blanco en cruz de 0,15 s en el centro del portal (`flash_exit()`, que llama `Spawner._spawn`). Al cerrarse (0,3 s) se cierra en una línea y desaparece. Al crear el último enemigo, `_close_portals()` los cierra y los libera. Usan tweens, así que siguen `Engine.time_scale` y se paran con la pausa.
 
 ### Enemigos vivos
 

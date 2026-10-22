@@ -181,3 +181,7 @@ Recursos en `resources/turret_data/`:
 - Una torre colocada solo se puede fusionar o vender; no hay más mejoras.
 - `disintegrator.tres` tiene `attack_cooldown = 1.0`, que el código no usa para esa torre.
 - El nombre de archivo `rocket_launcher` corresponde a la torre que se llama "Cañón pesado", y `turret` a "Cañón doble". La carpeta es `turret_data` y la clase `TowerData`.
+
+## Animaciones de construir, fusionar y vender
+
+`Tower.play_build(fused)` (se llama tras añadirla al árbol): escala 0 a 1 en 0,35 s con rebote (`TRANS_BACK`) y destello de `sprite` y `cannon`; al fusionar el destello es más fuerte (`FUSE_FLASH`). `Tower.play_sell()` (la llama `LevelState.sell_selected_tower` antes del `queue_free`) deja una copia visual de la torre que se encoge en 0,25 s con chispas (`CPUParticles2D`) y se libera sola; la casilla queda libre al instante.

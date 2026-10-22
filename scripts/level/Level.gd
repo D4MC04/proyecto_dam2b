@@ -50,7 +50,7 @@ func setup(data: LevelData) -> void:
 	spawner.setup(map.get_paths(), data.waves)
 	base = map.get_node("SpaceStation")
 	spawner.enemy_reached_end.connect(base.take_damage)
-	spawner.enemy_reached_end.connect(_shake_map)
+	spawner.enemy_reached_end.connect(shake_map)
 	_map_origin = map.position
 	base.destroyed.connect(_lose)
 
@@ -67,7 +67,7 @@ func _center_map() -> void:
 
 # Sacude el mapa (no la UI) con un temblor que decae, en píxeles enteros.
 # Los tweens siguen Engine.time_scale, así que respeta la velocidad del juego.
-func _shake_map(damage: int) -> void:
+func shake_map(damage: int) -> void:
 	if _finished:
 		return
 	if _shake_tween:

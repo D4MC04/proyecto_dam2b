@@ -22,7 +22,7 @@ Definidos en `project.godot`, en este orden:
 - `LevelUI`: instancia de `scenes/level_ui/LevelUI.tscn`.
 - `Level`: instancia de `scenes/Level.tscn`.
 
-`Game` tiene la propiedad `level_data: LevelData`, que le asigna el menú antes de añadirlo al árbol, y `from_hyperspace: bool`: si es true, el mapa entra con un fundido desde blanco de 0,2 s (`_fade_in_from_white`, `CanvasLayer` 100 temporal) tras el salto al hiperespacio del menú.
+`Game` tiene la propiedad `level_data: LevelData`, que le asigna el menú antes de añadirlo al árbol, y `from_hyperspace: bool`: si es true, el mapa entra con un fundido desde blanco de 0,2 s (`_fade_in_from_white`) tras el salto al hiperespacio del menú. `_fade_white(desde, hasta, capa)` es el fundido común: `CanvasLayer` 100 con un `ColorRect` blanco que bloquea el ratón, tween que sigue con el árbol en pausa y que se libera al llegar a alfa 0.
 
 ### Arranque
 
@@ -49,7 +49,7 @@ Cuando la estación se destruye, `Level` deja de construir y ya no puede ganar, 
 
 ### Reinicio
 
-`_restart_level()` (que también usa el paso al siguiente nivel) quita y libera el `Level` actual, instancia uno nuevo en la misma posición del árbol y repite `_setup_level()`. El dinero vuelve a su valor inicial porque `LevelState` es hijo del `Level` nuevo. Las conexiones con el `LevelState` y el `Spawner` anteriores las deshace `LevelUI.setup`.
+`_restart_level()` (que también usa el paso al siguiente nivel) hace primero un barrido a blanco de 0,2 s, con la pantalla tapada quita y libera el `Level` actual, instancia uno nuevo en la misma posición del árbol y repite `_setup_level()`, y vuelve a fundir de blanco a transparente (0,2 s). Mientras dura el barrido, `_transitioning` ignora otro reinicio. El dinero vuelve a su valor inicial porque `LevelState` es hijo del `Level` nuevo. Las conexiones con el `LevelState` y el `Spawner` anteriores las deshace `LevelUI.setup`.
 
 ### Salir al menú
 
