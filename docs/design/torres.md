@@ -48,7 +48,7 @@ Al construir en una casilla libre, `BuildManager` emite `LevelState.tower_placed
 
 En `_ready` copia de `data: TowerData` los sprites, la forma del rango y `attack_cooldown`, y arranca el temporizador.
 
-Si la opción `show_tower_range` de `Settings` está activada, `_draw` pinta el rango de la torre bajo sus sprites, con el mismo color que la vista previa (`BuildManager.RANGE_COLOR`). Cada torre escucha `Settings.changed` y se redibuja, así que el rango aparece o desaparece al cambiar la opción en plena partida.
+Si la opción `show_tower_range` de `Settings` está activada, `_draw` pinta el rango de la torre bajo sus sprites, con el mismo color que la vista previa (`BuildManager.RANGE_COLOR`). Cada torre escucha `Settings.changed` y se redibuja, así que el rango aparece o desaparece al cambiar la opción en plena partida. Además, con el ratón sobre la torre (`_physics_process`, casilla de 16 px) también lo dibuja aunque la opción esté apagada, y lo mismo mientras está seleccionada en el mapa (`selected`, que pone `LevelState.sellable_tower`).
 
 ### Objetivo
 
