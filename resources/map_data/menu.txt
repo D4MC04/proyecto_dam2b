@@ -1,0 +1,13 @@
+# Menú principal: campo de asteroides de toda la pantalla (960x544) con un claro en el centro para el
+# título y los paneles, y dos pasillos con luces que entran por los lados hasta el claro.
+# Datos de scripts/tools/map_generator.gd (formato en su cabecera; se genera con el argumento "menu").
+
+seed = 960
+size = 60 34
+rocks = grey brown ice
+# Claro del título y claro de los paneles
+clear = 17,4 26,8
+clear = 20,11 20,19
+path = -2,20 20,20
+path = 61,20 39,20
+planets = 6,7 9,28 51,6 53,27

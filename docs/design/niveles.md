@@ -209,10 +209,10 @@ Los mapas anteriores (los de hierba, los de espacio `Level2_espacio`, `Level5_es
 Los 9 mapas los genera `scripts/tools/map_generator.gd` a partir de `resources/map_data/level_N.txt` (el formato está en la cabecera del script):
 
 ```
-godot --headless --path . -s scripts/tools/map_generator.gd -- [N ...]
+godot --headless --path . -s scripts/tools/map_generator.gd -- [N ...] [menu]
 ```
 
-Sin números genera los 9. **La fuente de verdad es el `.txt`**: el script reescribe el `.tscn` entero (conserva su uid), así que los retoques hechos en el editor se pierden al regenerar. Cada `.txt` da la semilla de la decoración, las familias de roca del nivel (`rocks`; la primera es la principal), la casilla de la estación, los caminos (puntos en casillas, con tramos horizontales o verticales) y las casillas de los planetas.
+Sin argumentos genera los 9; `menu` genera el campo del menú principal (`resources/map_data/menu.txt` → `scenes/maps/MenuField.tscn`, solo las capas de decoración, sin `LogicMap`, caminos, estación ni fondo; ver [menu.md](menu.md)). El `.txt` puede llevar también `size` (tamaño del mapa, 43x33 por defecto) y `clear` (rectángulos libres como el pasillo pero sin luces); la estación solo es obligatoria en los niveles. **La fuente de verdad es el `.txt`**: el script reescribe el `.tscn` entero (conserva su uid), así que los retoques hechos en el editor se pierden al regenerar. Cada `.txt` da la semilla de la decoración, las familias de roca del nivel (`rocks`; la primera es la principal), la casilla de la estación, los caminos (puntos en casillas, con tramos horizontales o verticales) y las casillas de los planetas.
 
 Con eso, el script:
 
