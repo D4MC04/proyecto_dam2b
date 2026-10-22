@@ -6,14 +6,40 @@ const SECTION := "progress"
 
 signal progress_reset
 
+const MENU_THEME: Theme = preload("res://assets/ui/menu_theme.tres")
+const TOAST_TIME := 3.0
+# Logros por orden: id -> [nombre, descripción]. Cómo se cumple cada uno está en _is_done().
+const ACHIEVEMENTS: Dictionary = {
+	"first_win": ["Primera victoria", "Gana un nivel"],
+	"flawless": ["Intacto", "Gana un nivel sin perder vida"],
+	"wins_5": ["Veterano", "Gana 5 niveles"],
+	"all_levels": ["Sector despejado", "Gana el último nivel"],
+	"kills_100": ["Cazador", "Destruye 100 naves"],
+	"kills_1000": ["Exterminador", "Destruye 1000 naves"],
+	"seen_10": ["Observador", "Descubre 10 tipos de nave"],
+	"towers_50": ["Constructor", "Construye 50 torres"],
+	"fuse_first": ["Primera fusión", "Fusiona una torre"],
+	"fuse_all": ["Maestro de fusiones", "Fusiona todas las torres"],
+	"power_first": ["Poder desatado", "Usa un poder"],
+	"perfect_10": ["Defensa perfecta", "Logra 10 oleadas perfectas"],
+}
+
 # Número (desde 1) del nivel más alto desbloqueado.
 var current_level: int = 1
 # El tutorial del nivel 1 ya se ha hecho o saltado.
 var tutorial_done := false
 # Enemigos que ya han salido en una partida, por nombre de archivo del EnemyData.
 var seen_enemies: Array[String] = []
+# Contadores acumulados entre partidas: wins, kills, towers, powers, perfect_waves.
+var stats: Dictionary = {}
+# Torres fusionadas alguna vez, por nombre de archivo.
+var fused_towers: Array[String] = []
+var unlocked: Array[String] = []
+
+var _toasts: VBoxContainer
 
 func _ready() -> void:
+	_make_toast_layer()
 	var file := ConfigFile.new()
 	if file.load(PATH) == OK:
 		# El archivo lo puede editar cualquiera: solo se acepta un entero >= 1.
@@ -28,6 +54,13 @@ func _ready() -> void:
 			for key: Variant in seen:
 				if typeof(key) == TYPE_STRING:
 					seen_enemies.append(key)
+		var counters: Variant = file.get_value(SECTION, "stats", {})
+		if typeof(counters) == TYPE_DICTIONARY:
+			for key: Variant in counters:
+				if typeof(key) == TYPE_STRING and typeof(counters[key]) == TYPE_INT:
+					stats[key] = counters[key]
+		_load_list(file, "fused_towers", fused_towers)
+		_load_list(file, "unlocked", unlocked)
 
 # i es el índice (desde 0) del nivel en GameData.levels.
 func is_unlocked(i: int) -> bool:
@@ -55,13 +88,102 @@ func mark_enemy_seen(data: EnemyData) -> void:
 	if has_seen_enemy(data):
 		return
 	seen_enemies.append(data.resource_path.get_file())
+	_check_achievements()
 	_save()
+
+## Suma `amount` a un contador de logros (wins, kills, towers, powers, perfect_waves). No guarda: ver flush().
+func add_stat(key: String, amount: int = 1) -> void:
+	stats[key] = stats.get(key, 0) + amount
+	_check_achievements()
+
+## Anota que esta torre se ha fusionado alguna vez.
+func register_fusion(fused: TowerData) -> void:
+	var file := fused.resource_path.get_file()
+	if file not in fused_towers:
+		fused_towers.append(file)
+	_check_achievements()
+
+## Un nivel se ha ganado; `flawless` es que la estación acabó sin daño.
+func register_win(number: int, flawless: bool) -> void:
+	if flawless:
+		_unlock("flawless")
+	if number == GameData.levels.size():
+		_unlock("all_levels")
+	add_stat("wins")
+	flush()
+
+## Guarda los contadores (se llama al acabar oleadas y niveles, no a cada baja).
+func flush() -> void:
+	_save()
+
+func _is_done(id: String) -> bool:
+	match id:
+		"first_win": return stats.get("wins", 0) >= 1
+		"wins_5": return stats.get("wins", 0) >= 5
+		"kills_100": return stats.get("kills", 0) >= 100
+		"kills_1000": return stats.get("kills", 0) >= 1000
+		"seen_10": return seen_enemies.size() >= 10
+		"towers_50": return stats.get("towers", 0) >= 50
+		"fuse_first": return not fused_towers.is_empty()
+		"fuse_all": return fused_towers.size() >= Navedex.TOWER_FILES.size() / 2
+		"power_first": return stats.get("powers", 0) >= 1
+		"perfect_10": return stats.get("perfect_waves", 0) >= 10
+	return false
+
+func _check_achievements() -> void:
+	for id in ACHIEVEMENTS:
+		if id not in unlocked and _is_done(id):
+			_unlock(id)
+
+func _unlock(id: String) -> void:
+	if id in unlocked:
+		return
+	unlocked.append(id)
+	_save()
+	_show_toast(ACHIEVEMENTS[id][0])
+
+func _make_toast_layer() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	var layer := CanvasLayer.new()
+	layer.layer = 200
+	add_child(layer)
+	_toasts = VBoxContainer.new()
+	_toasts.theme = MENU_THEME
+	_toasts.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	_toasts.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_toasts.position = Vector2(-12, 12)
+	_toasts.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(_toasts)
+
+# Aviso pequeño arriba a la derecha que se desvanece solo.
+func _show_toast(title: String) -> void:
+	var label := Label.new()
+	label.text = "LOGRO: " + title
+	label.add_theme_font_size_override("font_size", 24)
+	label.add_theme_color_override("font_color", Color("40e0f0"))
+	label.add_theme_color_override("font_outline_color", Color.BLACK)
+	label.add_theme_constant_override("outline_size", 4)
+	_toasts.add_child(label)
+	var tween := create_tween()
+	tween.tween_interval(TOAST_TIME)
+	tween.tween_property(label, "modulate:a", 0.0, 0.5)
+	tween.tween_callback(label.queue_free)
+
+func _load_list(file: ConfigFile, key: String, into: Array[String]) -> void:
+	var list: Variant = file.get_value(SECTION, key, [])
+	if typeof(list) == TYPE_ARRAY:
+		for item: Variant in list:
+			if typeof(item) == TYPE_STRING:
+				into.append(item)
 
 # Vuelve al nivel 1 (con el tutorial otra vez), guarda y avisa para que el menú de niveles se reconstruya.
 func reset_progress() -> void:
 	current_level = 1
 	tutorial_done = false
 	seen_enemies.clear()
+	stats.clear()
+	fused_towers.clear()
+	unlocked.clear()
 	_save()
 	progress_reset.emit()
 
@@ -70,5 +192,8 @@ func _save() -> void:
 	file.set_value(SECTION, "current_level", current_level)
 	file.set_value(SECTION, "tutorial_done", tutorial_done)
 	file.set_value(SECTION, "seen_enemies", seen_enemies)
+	file.set_value(SECTION, "stats", stats)
+	file.set_value(SECTION, "fused_towers", fused_towers)
+	file.set_value(SECTION, "unlocked", unlocked)
 	if file.save(PATH) != OK:
 		push_warning("GameState: no se pudo guardar " + PATH)

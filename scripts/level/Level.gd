@@ -38,6 +38,9 @@ func _ready() -> void:
 	spawner.wave_started.connect(func(_index: int, _total: int) -> void: _leaks_this_wave = 0)
 	spawner.enemy_reached_end.connect(func(_damage: int) -> void: _leaks_this_wave += 1)
 	spawner.wave_cleared.connect(_on_wave_cleared)
+	spawner.enemy_died.connect(func(_reward: int) -> void: GameState.add_stat("kills"))
+	game_state.tower_placed.connect(func() -> void: GameState.add_stat("towers"))
+	$Powers.power_used.connect(func(_power: Powers.Power) -> void: GameState.add_stat("powers"))
 
 func setup(data: LevelData) -> void:
 	map = data.map.instantiate()
@@ -81,9 +84,11 @@ func shake_map(damage: int) -> void:
 
 # Al limpiar una oleada (menos la última) sin que entre nadie, da el bonus de oleada perfecta.
 func _on_wave_cleared(_index: int) -> void:
+	GameState.flush()
 	if _finished or not spawner.has_waves_left():
 		return
 	if _leaks_this_wave == 0:
+		GameState.add_stat("perfect_waves")
 		_award("PERFECTA", LevelState.PERFECT_WAVE_BONUS)
 
 # Suma el premio y lo enseña sobre la estación.

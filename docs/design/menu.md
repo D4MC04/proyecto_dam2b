@@ -68,6 +68,14 @@ Todos son `Node2D` que dibujan o crean sprites por código, con posiciones y tie
 - Las torres (`TOWER_FILES`, cada base seguida de su fusión) siempre se ven completas.
 - Si se añade un enemigo o torre nuevos, hay que añadirlo a `ENEMY_FILES` / `TOWER_FILES`.
 
+### Logros
+
+Tercera pestaña de la Navedex, LOGROS: oculta cuadrícula y detalle y muestra `AchievementsList`, una línea `[X] nombre - descripción` por logro. Los 12 logros están en `GameState.ACHIEVEMENTS` (id -> nombre y descripción) y cómo se cumple cada uno en `GameState._is_done()`. Se guardan en `progress.cfg` (`unlocked`, más los contadores `stats` y `fused_towers`) y "Borrar progreso" los borra.
+
+- Contadores (`GameState.add_stat`): bajas (`Level`, por `enemy_died`), torres construidas, poderes usados, oleadas perfectas y niveles ganados. `register_fusion` lo llama `BuildManager._fuse`; `register_win(número, intacto)` lo llama `Game` al ganar (intacto = la estación con toda la vida).
+- Los contadores se guardan con `flush()` al limpiar una oleada y al ganar o perder, no a cada baja; al desbloquear un logro se guarda al momento.
+- Al conseguir uno sale `LOGRO: nombre` arriba a la derecha 3 s y se desvanece (capa propia de `GameState`, también en pausa y victoria).
+
 ## Música
 
 `scripts/autoloads/MusicManager.gd`, autoload de tipo `AudioStreamPlayer`.
