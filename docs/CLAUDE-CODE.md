@@ -45,7 +45,7 @@ Los nombres antiguos (`/proponer`, `/tickets`, `/hacer`, `/revisar`, `/new`) sig
 | 5 | `/ship` | Commitea lo pendiente, trae `main`, resuelve conflictos, sube la rama, abre el PR y lo fusiona en main con squash (un commit por ticket). Te da el enlace del PR |
 | 6 | — (no haces `git pull`) | Deja tu `main` local al día y borra la rama. En chats con worktree lo hace el chat central, que además archiva el chat del ticket (se puede recuperar desde Archivados) y quita su worktree. Si Godot está abierto en esa carpeta, ciérralo |
 
-Si cambias algo a mano (en Godot o en el código), escribe `/commit` para guardarlo. Decir "commitea" hace lo mismo; "sube" no sube nada: para eso está `/ship`.
+Si cambias algo a mano (en Godot o en el código), escribe `/commit` para guardarlo. Solo los comandos commitean o suben: decir "commitea", "sube" o "listo" no hace nada, así nada se guarda ni se sube sin querer.
 
 **Conflictos en `/ship`**: se resuelven en la rama, así que `main` no se toca hasta que todo está resuelto y probado. Si los dos cambios se pueden sumar (textos, cosas distintas en la misma zona, escenas con cambios en nodos distintos o reordenadas por el editor), los combina solo. Si los dos cambiasteis la misma lógica o la misma propiedad del mismo nodo, o es una imagen o un audio, para, te enseña las dos versiones y te pregunta.
 
