@@ -1,6 +1,6 @@
 # Poder nuevo: Ataque orbital
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 
