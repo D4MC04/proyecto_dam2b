@@ -170,6 +170,8 @@ Recursos en `resources/turret_data/`:
 
 `scripts/Effect.gd`: `Effect.spawn(parent, frames, pos, size)` crea un `AnimatedSprite2D` que reproduce una animación una vez y se libera. Lo usan todos los ataques para impactos y fogonazos.
 
+Límite: `Effect` y `HealEffect` se apuntan al grupo `effects`; `Effect.has_room(tree)` comprueba que haya menos de `MAX_EFFECTS` (60) vivos, o `MAX_EFFECTS_LOW` (20) con la opción `low_effects` ("Efectos reducidos") de `Settings`. Si no hay hueco, el efecto no se crea. `EmpSparks` (uno por torre, no ráfagas) no cuenta.
+
 ## Comunicación con el resto
 
 - `BuildManager` lee y gasta dinero en `LevelState` y consulta `Grid`.

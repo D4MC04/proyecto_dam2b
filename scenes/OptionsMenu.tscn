@@ -220,6 +220,22 @@ toggle_mode = true
 theme_override_font_sizes/font_size = 24
 text = "OFF"
 
+[node name="LowEffectsLabel" type="Label" parent="Center/Frame/Margin/Box/Sections/RightColumn/GameGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "Efectos reducidos"
+
+[node name="LowEffectsButton" type="Button" parent="Center/Frame/Margin/Box/Sections/RightColumn/GameGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(54, 24)
+layout_mode = 2
+size_flags_horizontal = 8
+theme_type_variation = &"ToggleButton"
+toggle_mode = true
+theme_override_font_sizes/font_size = 24
+text = "OFF"
+
 [node name="ButtonsMargin" type="MarginContainer" parent="Center/Frame/Margin/Box"]
 layout_mode = 2
 theme_override_constants/margin_top = 9
