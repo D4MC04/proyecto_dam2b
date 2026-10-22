@@ -31,6 +31,6 @@ Tower defense 2D hecho en Godot 4.7 con GDScript. El jugador elige un nivel, com
 ## Decidido
 
 - Las oleadas no se solapan: la siguiente solo se puede lanzar (con el botón o con AUTO) cuando no quedan enemigos de la anterior por salir ni vivos.
-- Los caminos de los mapas no se dibujan (ni carriles, ni bandas, ni flechas): los marca el espacio libre por donde se ve que pueden pasar las naves entre asteroides y planetas.
+- Los caminos de los mapas no se dibujan (ni carriles, ni bandas, ni flechas): los marca el espacio libre por donde se ve que pueden pasar las naves entre los asteroides.
 
 ## Abierto

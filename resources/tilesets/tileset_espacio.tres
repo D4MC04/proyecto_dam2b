@@ -1,9 +1,9 @@
 [gd_resource type="TileSet" format=3 uid="uid://xequg026e5xw"]
 
 [ext_resource type="Texture2D" uid="uid://batdeutfwq307" path="res://assets/tilesets/espacio/espacio_rocas.png" id="1_ojfck"]
-[ext_resource type="Texture2D" uid="uid://boa8bfwibn4qw" path="res://assets/tilesets/espacio/espacio_planetas.png" id="2_f2ctp"]
 [ext_resource type="Texture2D" uid="uid://0ppdt08dl6a1" path="res://assets/tilesets/espacio/espacio_animados.png" id="3_1utaq"]
 [ext_resource type="Texture2D" uid="uid://cfjxe2s6w2rqr" path="res://assets/tilesets/espacio/espacio_gravilla.png" id="4_gravel"]
+[ext_resource type="Texture2D" uid="uid://ge8cbc5gqsuq" path="res://assets/tilesets/espacio/espacio_casillas_torre.png" id="5_tower_slots"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_vbt0s"]
 resource_name = "Rocas y chatarra"
@@ -397,70 +397,6 @@ texture = ExtResource("1_ojfck")
 8:11/1 = 1
 8:11/1/texture_origin = Vector2i(-8, 0)
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_yd0nd"]
-resource_name = "Planetas (casillas de torreta)"
-texture = ExtResource("2_f2ctp")
-0:0/size_in_atlas = Vector2i(2, 2)
-0:0/animation_frame_0/duration = 0.5
-0:0/animation_frame_1/duration = 0.3
-0:0/animation_frame_2/duration = 0.5
-0:0/animation_frame_3/duration = 0.3
-0:0/0 = 0
-8:0/size_in_atlas = Vector2i(2, 2)
-8:0/animation_frame_0/duration = 0.5
-8:0/animation_frame_1/duration = 0.3
-8:0/animation_frame_2/duration = 0.5
-8:0/animation_frame_3/duration = 0.3
-8:0/0 = 0
-0:2/size_in_atlas = Vector2i(2, 2)
-0:2/animation_frame_0/duration = 0.5
-0:2/animation_frame_1/duration = 0.3
-0:2/animation_frame_2/duration = 0.5
-0:2/animation_frame_3/duration = 0.3
-0:2/0 = 0
-8:2/size_in_atlas = Vector2i(2, 2)
-8:2/animation_frame_0/duration = 0.5
-8:2/animation_frame_1/duration = 0.3
-8:2/animation_frame_2/duration = 0.5
-8:2/animation_frame_3/duration = 0.3
-8:2/0 = 0
-0:4/size_in_atlas = Vector2i(2, 2)
-0:4/animation_frame_0/duration = 0.5
-0:4/animation_frame_1/duration = 0.3
-0:4/animation_frame_2/duration = 0.5
-0:4/animation_frame_3/duration = 0.3
-0:4/0 = 0
-8:4/size_in_atlas = Vector2i(2, 2)
-8:4/animation_frame_0/duration = 0.5
-8:4/animation_frame_1/duration = 0.3
-8:4/animation_frame_2/duration = 0.5
-8:4/animation_frame_3/duration = 0.3
-8:4/0 = 0
-0:6/size_in_atlas = Vector2i(2, 2)
-0:6/animation_frame_0/duration = 0.5
-0:6/animation_frame_1/duration = 0.3
-0:6/animation_frame_2/duration = 0.5
-0:6/animation_frame_3/duration = 0.3
-0:6/0 = 0
-8:6/size_in_atlas = Vector2i(2, 2)
-8:6/animation_frame_0/duration = 0.5
-8:6/animation_frame_1/duration = 0.3
-8:6/animation_frame_2/duration = 0.5
-8:6/animation_frame_3/duration = 0.3
-8:6/0 = 0
-0:8/size_in_atlas = Vector2i(2, 2)
-0:8/animation_frame_0/duration = 0.5
-0:8/animation_frame_1/duration = 0.3
-0:8/animation_frame_2/duration = 0.5
-0:8/animation_frame_3/duration = 0.3
-0:8/0 = 0
-8:8/size_in_atlas = Vector2i(2, 2)
-8:8/animation_frame_0/duration = 0.5
-8:8/animation_frame_1/duration = 0.3
-8:8/animation_frame_2/duration = 0.5
-8:8/animation_frame_3/duration = 0.3
-8:8/0 = 0
-
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_r5kmk"]
 resource_name = "Animados y easter eggs"
 texture = ExtResource("3_1utaq")
@@ -605,8 +541,68 @@ texture = ExtResource("4_gravel")
 6:2/0 = 0
 7:2/0 = 0
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_tower_slots"]
+resource_name = "Asteroides con plataforma (casillas de torre)"
+texture = ExtResource("5_tower_slots")
+0:0/size_in_atlas = Vector2i(2, 2)
+0:0/0 = 0
+2:0/size_in_atlas = Vector2i(2, 2)
+2:0/0 = 0
+4:0/size_in_atlas = Vector2i(2, 2)
+4:0/0 = 0
+6:0/size_in_atlas = Vector2i(2, 2)
+6:0/0 = 0
+0:2/size_in_atlas = Vector2i(2, 2)
+0:2/0 = 0
+2:2/size_in_atlas = Vector2i(2, 2)
+2:2/0 = 0
+4:2/size_in_atlas = Vector2i(2, 2)
+4:2/0 = 0
+6:2/size_in_atlas = Vector2i(2, 2)
+6:2/0 = 0
+0:4/size_in_atlas = Vector2i(2, 2)
+0:4/0 = 0
+2:4/size_in_atlas = Vector2i(2, 2)
+2:4/0 = 0
+4:4/size_in_atlas = Vector2i(2, 2)
+4:4/0 = 0
+6:4/size_in_atlas = Vector2i(2, 2)
+6:4/0 = 0
+0:6/size_in_atlas = Vector2i(2, 2)
+0:6/0 = 0
+2:6/size_in_atlas = Vector2i(2, 2)
+2:6/0 = 0
+4:6/size_in_atlas = Vector2i(2, 2)
+4:6/0 = 0
+6:6/size_in_atlas = Vector2i(2, 2)
+6:6/0 = 0
+0:8/size_in_atlas = Vector2i(2, 2)
+0:8/0 = 0
+2:8/size_in_atlas = Vector2i(2, 2)
+2:8/0 = 0
+4:8/size_in_atlas = Vector2i(2, 2)
+4:8/0 = 0
+6:8/size_in_atlas = Vector2i(2, 2)
+6:8/0 = 0
+0:10/size_in_atlas = Vector2i(2, 2)
+0:10/0 = 0
+2:10/size_in_atlas = Vector2i(2, 2)
+2:10/0 = 0
+4:10/size_in_atlas = Vector2i(2, 2)
+4:10/0 = 0
+6:10/size_in_atlas = Vector2i(2, 2)
+6:10/0 = 0
+0:12/size_in_atlas = Vector2i(2, 2)
+0:12/0 = 0
+2:12/size_in_atlas = Vector2i(2, 2)
+2:12/0 = 0
+4:12/size_in_atlas = Vector2i(2, 2)
+4:12/0 = 0
+6:12/size_in_atlas = Vector2i(2, 2)
+6:12/0 = 0
+
 [resource]
 sources/0 = SubResource("TileSetAtlasSource_vbt0s")
-sources/1 = SubResource("TileSetAtlasSource_yd0nd")
 sources/2 = SubResource("TileSetAtlasSource_r5kmk")
 sources/3 = SubResource("TileSetAtlasSource_gravel")
+sources/4 = SubResource("TileSetAtlasSource_tower_slots")

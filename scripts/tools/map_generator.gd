@@ -16,7 +16,7 @@ extends SceneTree
 ##   station = 5 16              casilla del centro de la estación
 ##   path = -2,4 11,4 11,10 ...  un camino por línea, con tramos horizontales o verticales;
 ##                               empieza fuera del mapa y acaba en el centro de la estación
-##   planets = 7,6 12,6 ...      casillas de torre (planetas)
+##   slots = 7,6 12,6 ...        casillas de torre (un asteroide con plataforma en cada una)
 ##   rocks = grey brown ice      familias de roca del nivel (grey, brown, dark, ore, ice, crystal,
 ##                               lava); la primera es la principal y cierra el borde del mapa
 ## Las líneas vacías y las que empiezan por "#" se ignoran.
@@ -34,7 +34,7 @@ const LOGIC_TILESET: String = "res://resources/tilesets/logic_tileset.tres"
 
 # Fuentes de tileset_espacio.tres
 const ROCKS: int = 0
-const PLANETS: int = 1
+const TOWER_SLOTS: int = 4
 const ANIMATED: int = 2
 const GRAVEL: int = 3
 # Alternativa de las piezas con algún lado par (2x2, 2x1, 1x2, 3x2): desplazada media casilla
@@ -119,11 +119,14 @@ const TWINKLES: Array[int] = [0, 6, 12]
 # Luces de la pista (atlas de animados): las horizontales y las verticales alternan dos piezas
 const LIGHTS_HORIZONTAL: Array[Vector2i] = [Vector2i(18, 0), Vector2i(22, 0)]
 const LIGHTS_VERTICAL: Array[Vector2i] = [Vector2i(26, 0), Vector2i(0, 1)]
-# Planetas (atlas de planetas, 2x2)
-const PLANET_TILES: Array[Vector2i] = [
-	Vector2i(0, 0), Vector2i(8, 0), Vector2i(0, 2), Vector2i(8, 2), Vector2i(0, 4),
-	Vector2i(8, 4), Vector2i(0, 6), Vector2i(8, 6), Vector2i(0, 8), Vector2i(8, 8),
-]
+# Asteroides con plataforma de las casillas de torre (fuente TOWER_SLOTS, piezas de 2x2): una fila
+# por familia de roca y TOWER_SLOT_SHAPES formas por fila (ver make_tower_slot_tiles.gd)
+const TOWER_SLOT_ROWS: Dictionary[String, int] = {
+	"grey": 0, "brown": 1, "dark": 2, "ore": 3, "ice": 4, "crystal": 5, "lava": 6,
+}
+const TOWER_SLOT_SHAPES: int = 4
+# Casillas de torre a esta distancia o menos usan formas distintas
+const TOWER_SLOT_SPREAD: int = 8
 
 
 ## Pieza del tileset: fuente, casilla del atlas y tamaño en casillas.
@@ -150,7 +153,7 @@ class LevelLayout:
 	var random_seed: int = 0
 	var station: Vector2i = Vector2i.ZERO
 	var paths: Array[PackedVector2Array] = []
-	var planets: Array[Vector2i] = []
+	var slots: Array[Vector2i] = []
 	var rocks: PackedStringArray = ["grey"]
 
 
@@ -248,7 +251,7 @@ func _generate(n: int) -> void:
 		push_error("No se puede guardar %s (%s)" % [scene_path, error_string(error)])
 		return
 	_write_uids(scene_path, old_uid if old_uid != ResourceUID.INVALID_ID else ResourceUID.create_id())
-	print("%s -> %s (%d caminos, %d planetas)" % [DATA_PATH % n, scene_path, layout.paths.size(), layout.planets.size()])
+	print("%s -> %s (%d caminos, %d casillas de torre)" % [DATA_PATH % n, scene_path, layout.paths.size(), layout.slots.size()])
 
 
 ## Uid escrito en la cabecera del .tscn, o INVALID_ID si el archivo no existe o no lo tiene.
@@ -300,8 +303,8 @@ func _parse(text: String) -> LevelLayout:
 				for cell: Vector2i in _parse_cells(value):
 					points.append(Vector2(cell))
 				layout.paths.append(points)
-			"planets":
-				layout.planets.assign(_parse_cells(value))
+			"slots":
+				layout.slots.assign(_parse_cells(value))
 			"rocks":
 				layout.rocks = value.split(" ", false)
 				for family: String in layout.rocks:
@@ -337,7 +340,7 @@ func _build_map(layout: LevelLayout) -> Node2D:
 	var gravel: TileMapLayer = _add_layer(map, "Gravel", space_tileset)
 	var lights: TileMapLayer = _add_layer(map, "Lights", space_tileset)
 	var scenery: TileMapLayer = _add_layer(map, "VisualMap", space_tileset)
-	var planets: TileMapLayer = _add_layer(map, "Planets", space_tileset)
+	var tower_slots: TileMapLayer = _add_layer(map, "TowerSlots", space_tileset)
 	var logic: TileMapLayer = _add_layer(map, "LogicMap", load(LOGIC_TILESET))
 	logic.visible = false
 	logic.modulate = Color(1, 1, 1, 0.39215687)
@@ -351,7 +354,7 @@ func _build_map(layout: LevelLayout) -> Node2D:
 	_solid = {}
 	_mark(layout.station, STATION_RADIUS)
 
-	_place_planets(planets, layout.planets)
+	_place_tower_slots(tower_slots, layout.slots)
 	_place_entrances(scenery, _find_entrances(layout))
 	_place_lights(lights, path_cells, layout.station)
 	_place_landmarks(scenery)
@@ -503,7 +506,7 @@ func _is_shore(cell: Vector2i) -> bool:
 	return _distance.get(cell, 99) == SHORE_DISTANCE
 
 
-## Ni el pasillo ni algo ya puesto (estación, planeta o decorado).
+## Ni el pasillo ni algo ya puesto (estación, casilla de torre o decorado).
 func _is_free(cell: Vector2i) -> bool:
 	return not _blocked.has(cell) and not _is_corridor(cell)
 
@@ -527,7 +530,7 @@ func _density_at(cell: Vector2i) -> float:
 	return density * (1.0 + DEPTH_BONUS * depth)
 
 
-## Tapa el cuadrado de lado radius * 2 + 1 (estación y planetas): queda ocupado y se ve.
+## Tapa el cuadrado de lado radius * 2 + 1 (estación y casillas de torre): queda ocupado y se ve.
 func _mark(center: Vector2i, radius: int) -> void:
 	var rect: Rect2i = Rect2i(center - Vector2i.ONE * radius, Vector2i.ONE * (radius * 2 + 1))
 	_block(rect)
@@ -633,19 +636,21 @@ func _rect_distance(cell: Vector2i, rect: Rect2i) -> int:
 	return maxi(dx, dy)
 
 
-## Cada planeta usa una pieza distinta de la de los planetas cercanos.
-func _place_planets(layer: TileMapLayer, cells: Array[Vector2i]) -> void:
-	var used: Dictionary[Vector2i, Vector2i] = {}
+## Cada casilla de torre lleva un asteroide de la familia de su zona, con una forma distinta de la
+## de las casillas cercanas.
+func _place_tower_slots(layer: TileMapLayer, cells: Array[Vector2i]) -> void:
+	var used: Dictionary[Vector2i, int] = {}
 	for cell: Vector2i in cells:
-		var options: Array[Vector2i] = PLANET_TILES.duplicate()
+		var options: Array[int] = []
+		options.assign(range(TOWER_SLOT_SHAPES))
 		for other: Vector2i in used:
-			if _chebyshev(cell, other) <= 8:
+			if _chebyshev(cell, other) <= TOWER_SLOT_SPREAD:
 				options.erase(used[other])
 		if options.is_empty():
-			options = PLANET_TILES.duplicate()
-		var tile: Vector2i = options[_rng.randi_range(0, options.size() - 1)]
-		used[cell] = tile
-		layer.set_cell(cell, PLANETS, tile)
+			options.assign(range(TOWER_SLOT_SHAPES))
+		var shape: int = options[_rng.randi_range(0, options.size() - 1)]
+		used[cell] = shape
+		layer.set_cell(cell, TOWER_SLOTS, Vector2i(shape, TOWER_SLOT_ROWS[_family_at(cell)]) * 2)
 		_mark(cell, 1)
 
 
@@ -853,7 +858,7 @@ func _fill_logic(layer: TileMapLayer, path_cells: Dictionary[Vector2i, int], lay
 		for x: int in MAP_SIZE.x:
 			var cell: Vector2i = Vector2i(x, y)
 			var kind: Vector2i = LOGIC_SCENERY
-			if layout.planets.has(cell):
+			if layout.slots.has(cell):
 				kind = LOGIC_SLOT
 			elif path_cells.has(cell):
 				kind = LOGIC_PATH
