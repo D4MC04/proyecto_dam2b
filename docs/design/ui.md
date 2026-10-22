@@ -52,7 +52,7 @@ Funciones de `LevelUI`:
 La relación estado → pantalla está solo en el diccionario `_screens_by_state`; una pantalla nueva se añade ahí. `_ready` conecta `option_chosen` de todas las pantallas del diccionario y empieza en `PLAYING`.
 
 - Acción `ui_cancel` (Escape): en `PLAYING` pasa a `PAUSED` y en `PAUSED` vuelve a `PLAYING`. En `LOST` y `WON` (también durante la cámara lenta y el respiro) no hace nada (ni marca el evento como gestionado).
-- **Atajos de teclado** (solo en `PLAYING`; en pausa, derrota y victoria `_handle_shortcut` ni se llama). Acciones del Input Map en `project.godot`: `select_tower_1`…`select_tower_7` (teclas 1-7), `next_wave` (Espacio), `toggle_auto` (A), `toggle_speed` (F), `power_meteor` (Q) y `power_freeze` (E), por tecla física. `LevelUI._unhandled_input` las traduce a los mismos botones que el ratón: 1-7 llaman a `Sidebar.press_tower_button(i)` (emite `pressed` del i-ésimo `TowerButton` en el orden de la rejilla, así que sin dinero o con selección bloqueada no hacen nada); Espacio emite `pressed` de `NextWaveButton` (el `Spawner` solo lanza si la anterior acabó); A y F invierten `button_pressed` de `AutoWaveButton` y `SpeedButton`; Q y E llaman a `_use_power` como los botones de poder. No se escribe la tecla en los botones (salvo en los de poder, ver "Poderes").
+- **Atajos de teclado** (solo en `PLAYING`; en pausa, derrota y victoria `_handle_shortcut` ni se llama). Acciones del Input Map en `project.godot`: `select_tower_1`…`select_tower_7` (teclas 1-7), `next_wave` (Espacio), `toggle_auto` (A), `toggle_speed` (F), `power_meteor` (Q), `power_freeze` (E) y `power_orbital` (R), por tecla física. `LevelUI._unhandled_input` las traduce a los mismos botones que el ratón: 1-7 llaman a `Sidebar.press_tower_button(i)` (emite `pressed` del i-ésimo `TowerButton` en el orden de la rejilla, así que sin dinero o con selección bloqueada no hacen nada); Espacio emite `pressed` de `NextWaveButton` (el `Spawner` solo lanza si la anterior acabó); A y F invierten `button_pressed` de `AutoWaveButton` y `SpeedButton`; Q, E y R llaman a `_use_power` como los botones de poder. No se escribe la tecla en los botones (salvo en los de poder, ver "Poderes").
 - Bloqueo de la selección: `set_state` es lo único que lo decide. Llama a `sidebar.set_selection_locked(new_state != PLAYING)`, así que con pausa (plegada o no), derrota (desde que empieza la cámara lenta) o victoria (desde que empieza el respiro) no se puede seleccionar torre.
 - `show_run_stats(stats: RunStats)`: pasa el resumen de partida a `GameOverScreen` y a `VictoryScreen`. Lo llama `Game` antes de `set_state(LOST)` o `set_state(WON)`; la UI no lee el `Level` ni el `LevelState` para el resumen.
 
@@ -85,7 +85,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
   - Cada fila la crea `StatRow.create(entry, index)` (ver abajo).
   - `SellButton`: botón del tema (esquinas recortadas) al final de `DetailView`, "Vender (+X€)", con X = la mitad de lo invertido en la torre (`Tower.get_sell_value()`, también tras fusionarla). Solo se ve con una torre colocada seleccionada: `show_sellable(tower)` (null lo oculta), conectado a `LevelState.sellable_tower_changed`. Emite `sell_requested`; `LevelUI._on_sell_requested` llama a `LevelState.sell_selected_tower()` solo en `PLAYING`. Ver [torres.md](torres.md).
 - `ScanFlash`: `ColorRect` cian al 20 % que tapa `Screen` durante 2 frames cada vez que cambia el contenido.
-- `PowersHeader` (`ScreenHeader` con `// PODERES`) y `PowersRow` (4 px de separación), entre `Screen` y `ScanFooter`, con `MeteorButton` y `FreezeButton` (ver "Poderes").
+- `PowersHeader` (`ScreenHeader` con `// PODERES`) y `PowersRow` (4 px de separación), entre `Screen` y `ScanFooter`, con `MeteorButton`, `FreezeButton` y `OrbitalButton` (ver "Poderes").
 
 `show_inspected(data: Resource)`: con un `InspectableData` pinta lo que da el contrato común; con null (o cualquier otra cosa), el reposo. La ficha no distingue torres de enemigos ni sabe qué stats existen: crea una fila por cada `StatEntry` que recibe.
 
@@ -107,7 +107,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
 ## Poderes
 
-Dos `PowerButton` (`scripts/level_ui/PowerButton.gd`) en `InfoPanel/Content/PowersRow`, de 53x24 cada uno (se reparten los 110 px útiles), sin foco ni tooltip: `MeteorButton` (icono `assets/ui/power_meteor.png`, tecla Q) y `FreezeButton` (`power_freeze.png`, tecla E). La lógica está en `Powers` (ver [niveles.md](niveles.md)).
+Tres `PowerButton` (`scripts/level_ui/PowerButton.gd`) en `InfoPanel/Content/PowersRow`, de unos 35x24 cada uno (se reparten los 110 px útiles), sin foco ni tooltip: `MeteorButton` (icono `assets/ui/power_meteor.png`, tecla Q) y `FreezeButton` (`power_freeze.png`, tecla E) y `OrbitalButton` (`power_orbital.png`, tecla R). La lógica está en `Powers` (ver [niveles.md](niveles.md)).
 
 - Icono de 16x16 centrado y la letra de la tecla (`key_label`) a 5 px del borde izquierdo en `#5a7a96`.
 - Estilos con `ClippedBoxStyle.create`: normal fondo `#0e1626` y borde `#1c7496`; hover borde `#40e0f0`; mientras se apunta el meteorito, el normal pasa al ámbar de AUTO (fondo `#453d2b`, borde `#ecb23c`).
@@ -220,6 +220,7 @@ El `Portal` de un camino que saca la Nodriza tiembla con más fuerza (`Portal.BO
 `StationBox` (dentro de `StationMargin`, `MarginContainer` con 4 px a cada lado como el pie, al final de `Content` y justo encima del pie, así que se ve en Torres y en Oleadas): "ESTACIÓN" a 16 y debajo `StationBar` (`ProgressBar` de 8 px de alto, sin porcentaje) con `StationValueLabel` `actual/máximo` a su derecha. Fondo de la barra `#0e1626` con borde `#1c4a60`; relleno `#40e0f0`. Con menos del 30 % de vida (`Sidebar.STATION_DANGER_FRACTION`) relleno y número pasan al rojo de peligro `#ff3c5a`.
 
 - `Sidebar.set_station_health(current, maximum)`: lo único que toca la barra. Si la vida baja respecto a la anterior (la primera llamada no cuenta), relleno y número parten del rojo de peligro y vuelven a su color en `STATION_HIT_TIME` (0,3 s).
+- Alarma de vida baja: `LowHealthVignette` (`ColorRect` con shader, en `GameArea`, bajo las pantallas) es una viñeta roja en los bordes que late (`VIGNETTE_MIN/MAX_INTENSITY`, `VIGNETTE_PULSE_TIME`) con menos del 25 % de vida (`LevelUI.LOW_HEALTH_FRACTION`). Se apaga si la vida sube y al perder o ganar.
 - `LevelUI.setup(..., base)` conecta `Base.health_changed` a `set_station_health` y la pone con la vida inicial. `Game` pasa `level.base`; como la base es nueva en cada nivel o reinicio, no hay conexión anterior que quitar.
 
 ## UiFormat
