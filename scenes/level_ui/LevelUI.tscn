@@ -12,6 +12,19 @@
 [ext_resource type="Script" path="res://scripts/level_ui/WaveAnnouncer.gd" id="9_waveannouncer"]
 [ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="4_theme"]
 
+[sub_resource type="Shader" id="Shader_vignette"]
+code = "shader_type canvas_item;
+uniform float intensity = 0.0;
+void fragment() {
+	float edge = smoothstep(0.35, 0.75, length(UV - vec2(0.5)));
+	COLOR = vec4(1.0, 0.1, 0.2, edge * intensity);
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vignette"]
+shader = SubResource("Shader_vignette")
+shader_parameter/intensity = 0.0
+
 [node name="LevelUI" type="CanvasLayer" unique_id=245943380]
 process_mode = 3
 follow_viewport_enabled = true
@@ -89,6 +102,18 @@ grow_vertical = 2
 mouse_filter = 2
 theme = ExtResource("4_theme")
 script = ExtResource("9_waveannouncer")
+
+[node name="LowHealthVignette" type="ColorRect" parent="UI/HBoxContainer/GameArea"]
+unique_name_in_owner = true
+visible = false
+material = SubResource("ShaderMaterial_vignette")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
 [node name="GameOverScreen" parent="UI/HBoxContainer/GameArea" unique_id=592437674 instance=ExtResource("1_8klgi")]
 unique_name_in_owner = true

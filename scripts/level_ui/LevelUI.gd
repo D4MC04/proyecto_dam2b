@@ -18,6 +18,11 @@ const SLOW_MOTION_HOLD_TIME := 0.2
 const VICTORY_BREATH_TIME := 0.6
 # Valor de Engine.time_scale con el botón ×2 activo.
 const FAST_SPEED := 2.0
+# Viñeta roja de vida baja: se enciende por debajo de esta fracción y late entre estas intensidades.
+const LOW_HEALTH_FRACTION := 0.25
+const VIGNETTE_MIN_INTENSITY := 0.25
+const VIGNETTE_MAX_INTENSITY := 0.8
+const VIGNETTE_PULSE_TIME := 0.5
 
 @onready var game_over_screen: GameOverScreen = %GameOverScreen
 @onready var victory_screen: VictoryScreen = %VictoryScreen
@@ -27,6 +32,7 @@ const FAST_SPEED := 2.0
 @onready var info_panel: InfoPanel = %InfoPanel
 @onready var boss_alert: BossAlert = %BossAlert
 @onready var wave_announcer: WaveAnnouncer = %WaveAnnouncer
+@onready var low_health_vignette: ColorRect = %LowHealthVignette
 @onready var fps_label: Label = %FpsLabel
 @onready var tutorial_hints: TutorialHints = %TutorialHints
 # Pantalla de cada estado; un estado sin entrada no enseña ninguna. Cada pantalla va en un solo estado.
@@ -44,6 +50,8 @@ var _powers: Powers
 var _screen_delay: Tween
 # Velocidad ×2 elegida con el botón; vuelve a false al perder, ganar, reiniciar o salir.
 var _fast_speed := false
+# Latido de la viñeta; null si está apagada.
+var _vignette_pulse: Tween
 
 func _ready() -> void:
 	_update_fps_label()
@@ -76,6 +84,8 @@ func setup(state: LevelState, towers: Array[TowerData], level_number: int, spawn
 	_connect_spawner(spawner)
 	# La base es nueva en cada nivel o reinicio, así que no hay conexión anterior que quitar.
 	base.health_changed.connect(sidebar.set_station_health)
+	base.health_changed.connect(_update_low_health_vignette)
+	_update_low_health_vignette(base.health, base.max_health)
 	sidebar.set_station_health(base.health, base.max_health)
 	if is_instance_valid(_level_state):
 		if _level_state.money_changed.is_connected(sidebar.set_money):
@@ -107,6 +117,25 @@ func setup_powers(powers: Powers) -> void:
 	_powers = powers
 	info_panel.meteor_button.powers = powers
 	info_panel.freeze_button.powers = powers
+
+# Enciende la viñeta si la vida está por debajo del umbral y la apaga si no (solo jugando).
+func _update_low_health_vignette(current: int, maximum: int) -> void:
+	_set_vignette(_ui_state == UiState.PLAYING and current > 0 and float(current) / maximum < LOW_HEALTH_FRACTION)
+
+func _set_vignette(active: bool) -> void:
+	low_health_vignette.visible = active
+	if active == (_vignette_pulse != null):
+		return
+	if not active:
+		_vignette_pulse.kill()
+		_vignette_pulse = null
+		return
+	var material := low_health_vignette.material as ShaderMaterial
+	_vignette_pulse = create_tween().set_loops().set_ignore_time_scale().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	_vignette_pulse.tween_method(func(value: float) -> void: material.set_shader_parameter(&"intensity", value),
+			VIGNETTE_MIN_INTENSITY, VIGNETTE_MAX_INTENSITY, VIGNETTE_PULSE_TIME).set_trans(Tween.TRANS_SINE)
+	_vignette_pulse.tween_method(func(value: float) -> void: material.set_shader_parameter(&"intensity", value),
+			VIGNETTE_MAX_INTENSITY, VIGNETTE_MIN_INTENSITY, VIGNETTE_PULSE_TIME).set_trans(Tween.TRANS_SINE)
 
 # Los poderes solo se usan jugando.
 func _use_power(power: Powers.Power) -> void:
@@ -203,6 +232,9 @@ func show_run_stats(stats: RunStats) -> void:
 # Única función que cambia qué pantalla se ve, la pausa del árbol y Engine.time_scale.
 func set_state(new_state: UiState) -> void:
 	_ui_state = new_state
+	# Al perder o ganar la viñeta se apaga; al reiniciar vuelve a evaluarse con la vida nueva.
+	if new_state == UiState.LOST or new_state == UiState.WON:
+		_set_vignette(false)
 	# Cualquier cambio de estado corta la cámara lenta o el respiro que hubiera y devuelve la velocidad normal.
 	if _screen_delay != null:
 		_screen_delay.kill()
