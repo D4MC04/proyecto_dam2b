@@ -1,6 +1,6 @@
 # Vista previa de la próxima oleada
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 

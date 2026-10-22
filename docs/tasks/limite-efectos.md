@@ -1,6 +1,6 @@
 # Límite de efectos simultáneos
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 

@@ -1,6 +1,6 @@
 # Vida de la estación según el nivel
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: haiku
 Esfuerzo recomendado: low
 

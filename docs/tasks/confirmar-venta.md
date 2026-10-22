@@ -1,6 +1,6 @@
 # Confirmar la venta de torres caras
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: haiku
 Esfuerzo recomendado: low
 

@@ -1,6 +1,6 @@
 # Torres apagadas por EMP más visibles
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: haiku
 Esfuerzo recomendado: low
 

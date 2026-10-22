@@ -1,6 +1,6 @@
 # Escala de la interfaz
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 

@@ -1,6 +1,6 @@
 # Ver el alcance de una torre al pasar el ratón
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: low
 

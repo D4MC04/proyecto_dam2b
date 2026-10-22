@@ -1,6 +1,6 @@
 # Contador de FPS opcional
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: haiku
 Esfuerzo recomendado: low
 

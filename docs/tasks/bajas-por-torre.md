@@ -1,6 +1,6 @@
 # Bajas y daño de cada torre
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: low
 
