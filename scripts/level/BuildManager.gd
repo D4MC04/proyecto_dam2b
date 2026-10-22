@@ -79,6 +79,7 @@ func _try_place(mouse_pos: Vector2) -> void:
 	add_child(tower)
 	tower.global_position = grid.center(cell)
 	tower.invested = data.cost
+	tower.play_build()
 
 	grid.register_tower(cell, tower)
 	state.tower_placed.emit()
@@ -102,6 +103,7 @@ func _fuse(cell: Vector2i, old: Tower) -> void:
 	old.queue_free()
 	add_child(tower)
 	tower.global_position = grid.center(cell)
+	tower.play_build(true)
 	grid.register_tower(cell, tower)
 	state.inspect_placed(tower)
 	_update_preview(get_viewport().get_mouse_position())
