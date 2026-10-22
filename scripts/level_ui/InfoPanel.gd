@@ -24,8 +24,7 @@ const PAD_GRID_OFFSET := 2
 const HINT_COLOR := Color("#40e0f0")
 # Tolerancia en px para dar el scroll por llegado al final.
 const HINT_END_MARGIN := 1.0
-# Torres que devuelven más de esto al vender piden un segundo clic para no venderlas sin querer.
-const CONFIRM_SELL_VALUE := 150
+# Texto del botón mientras espera el segundo clic que confirma la venta.
 const CONFIRM_SELL_TEXT := "¿Seguro?"
 
 @onready var idle_view: Control = %IdleView
@@ -48,7 +47,6 @@ const CONFIRM_SELL_TEXT := "¿Seguro?"
 
 var _accent := Color.WHITE
 var _flash_id := 0
-var _sell_value := 0
 var _confirming_sell := false
 
 func _ready() -> void:
@@ -71,12 +69,11 @@ func show_sellable(tower: Tower) -> void:
 	_confirming_sell = false
 	sell_button.visible = tower != null
 	if tower != null:
-		_sell_value = tower.get_sell_value()
-		sell_button.text = "Vender (+%s)" % UiFormat.money(_sell_value)
+		sell_button.text = "Vender (+%s)" % UiFormat.money(tower.get_sell_value())
 
-# Las torres baratas se venden de un clic; las caras piden confirmar con un segundo clic.
+# Vender siempre pide confirmar con un segundo clic.
 func _on_sell_pressed() -> void:
-	if _sell_value <= CONFIRM_SELL_VALUE or _confirming_sell:
+	if _confirming_sell:
 		sell_requested.emit()
 		return
 	_confirming_sell = true
