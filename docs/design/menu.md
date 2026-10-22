@@ -7,7 +7,7 @@
 Nodos, de fondo a frente:
 
 - `Background`: `ColorRect` negro.
-- `StarField`, `Comets`, `Asteroids`, `Satellites`, `Planets`: decoración (ver abajo).
+- `StarField`, `Comets`, `Asteroids`, `Satellites`, `Planets`, `Skirmish`: decoración (ver abajo).
 - `TitleScreen`: título "ASTRO ARTILLERY" y debajo el subtítulo "TOWER DEFENSE" (24 px, `#40e0f0`), flotando sin panel; debajo, `ButtonsPanel`, un panel holograma cian (`OverlayFrame`) con "Jugar", "ARCHIVO", "Opciones" y "Salir" (204x36 todos, texto a 24). Márgenes del panel de 24 a los lados y 21 arriba y abajo, 18 de separación en `Content` y 9 entre botones.
 - `LevelSelectionScreen` (oculto al empezar): `LevelsPanel`, un panel holograma cian con la cabecera `// SECTORES DISPONIBLES` (`ScreenHeader`), `LevelButtonsContainer` (`GridContainer` de 5 columnas, 12 px de separación) y el botón "Volver" (204x36). Cabecera y botones a 24 px. Mismos márgenes y separación que `ButtonsPanel`.
 - `Navedex` (oculto al empezar): instancia de `scenes/Navedex.tscn` (ver "Navedex").
@@ -31,17 +31,22 @@ Todos son `Node2D` que dibujan o crean sprites por código, con posiciones y tie
 
 | Nodo | Script | Qué hace |
 |---|---|---|
-| `StarField` | `scripts/main_menu/Starfield.gd` | 77 estrellas de 1 px en tres brillos (un 30 % parpadea) y 6 destellos de cuatro puntas en blanco, cian, morado o naranja |
+| `StarField` | `scripts/main_menu/Starfield.gd` | 77 estrellas de 1 px en tres brillos (un 30 % parpadea) y 6 destellos de cuatro puntas en blanco, cian, morado o naranja. `warp(duration)` los estira en líneas de 1 px (sin antialiasing, mismos colores) desde el centro hacia fuera |
 | `Comets` | `scripts/main_menu/Comets.gd` | Cada 1,5 a 4 s cruza un cometa en diagonal suave por la franja superior o inferior, a 220 px/s, con estela |
 | `Asteroids` | `scripts/main_menu/Asteroids.gd` | Hasta 2 asteroides a la vez cruzan de un borde al opuesto a 60 px/s, con estela; aparece uno cada 3 a 7 s |
 | `Satellites` | `scripts/main_menu/Satellites.gd` | Un satélite cada vez, a 20-30 px/s y girando despacio; el siguiente sale entre 8 y 15 s después de irse el anterior |
 | `Planets` | instancias de `scenes/SpaceBody.tscn` | 6 planetas animados fijos, repartidos por los 960x540 (posiciones proporcionales a las que tenían en 640x272, con sus escalas), y un asteroide oculto |
+| `Skirmish` | `scripts/main_menu/Skirmish.gd` | Entre `Planets` y el panel. Cada 6-12 s cruza un grupo de 2-4 naves enemigas en V (mismo sprite, ×0,5, 60 % de opacidad, 60 px/s, siempre en horizontal y giradas hacia donde avanzan igual que `Enemy._update_animation`) por las franjas de arriba o abajo, lejos de los botones. Cada 1,5-4 s un disparo (línea cian de 1 px) llega desde fuera de la pantalla por arriba o abajo apuntando a una nave; siempre hace un impacto (`laser_impact`) y el 40 % de las veces la nave se destruye |
 
 `scripts/main_menu/SpaceBody.gd` (clase `SpaceBody`) es un `AnimatedSprite2D` con `@tool` que construye su `SpriteFrames` a partir de `sheet`, una tira horizontal de frames cuadrados (lado = alto de la imagen), a la velocidad `fps`. Lo usan los planetas del menú y los asteroides.
 
+## Salto al hiperespacio
+
+`MainMenu._open_level` (una sola vez, ignora más pulsaciones) llama a `_hyperspace_jump()`: `StarField.warp(0.5)` y un `ColorRect` blanco que cubre el menú en 0,1 s; después carga el nivel. Solo desde el menú ("Siguiente nivel" no hace el salto).
+
 ## Navedex
 
-`scenes/Navedex.tscn` + `scripts/screens/Navedex.gd` (clase `Navedex`). Archivo de enemigos, accesible con "ARCHIVO" en el título (mismo fundido de 0,25 s que Jugar/Opciones; emite `back_pressed` con "Volver"). Panel holograma (`OverlayFrame`) con cabecera `// ARCHIVO`, a la izquierda una cuadrícula de 4 columnas con los 12 enemigos (`ENEMY_FILES`, celdas `EnemyCell` sin contador) y a la derecha el detalle: sprite animado `up` a ×2, nombre, `description` y stats (`get_stats()` con `StatRow` a 24 px).
+`scenes/Navedex.tscn` + `scripts/screens/Navedex.gd` (clase `Navedex`). Archivo de enemigos, accesible con "ARCHIVO" en el título (mismo fundido de 0,25 s que Jugar/Opciones; emite `back_pressed` con "Volver"). Panel holograma (`OverlayFrame`) con cabecera `// ARCHIVO`, a la izquierda una cuadrícula de 4 columnas con todos los enemigos (`ENEMY_FILES`, celdas `EnemyCell` sin contador) y a la derecha el detalle: sprite animado `up` a ×2, nombre, `description` y stats (`get_stats()` con `StatRow` a 24 px).
 
 - Un enemigo es "visto" si `GameState.has_seen_enemy(data)`. Los no vistos salen en silueta negra (`modulate` negro) y su detalle dice "???" sin stats.
 - Al mostrarse se refrescan las siluetas y se elige el primer enemigo.

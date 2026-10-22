@@ -19,6 +19,8 @@ var stars: Array[Dictionary] = []
 var viewport_size: Vector2
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var time: float = 0.0
+var warp_progress: float = 0.0  # 0 = quietas, 1 = líneas al máximo
+var warping: bool = false
 
 func _ready() -> void:
 	viewport_size = get_viewport_rect().size
@@ -38,11 +40,19 @@ func _ready() -> void:
 				"color": colors[rng.randi() % colors.size()],
 			})
 
+# Salto al hiperespacio: las estrellas se estiran en líneas desde el centro hacia fuera.
+func warp(duration: float) -> void:
+	warping = true
+	var tween := create_tween()
+	tween.tween_property(self, "warp_progress", 1.0, duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	await tween.finished
+
 func _process(delta: float) -> void:
 	time += delta
 	queue_redraw()
 
 func _draw() -> void:
+	var center: Vector2 = viewport_size / 2.0
 	for star in stars:
 		var alpha: float = star["brightness"]
 		var size: float = star["size"]
@@ -51,6 +61,11 @@ func _draw() -> void:
 			wave = 0.5 + 0.5 * sin(time * star["rate"] + star["phase"])  # 0..1
 			alpha *= lerp(0.15, 1.0, wave)
 		var color: Color = Color(star["color"], alpha)
+		if warping:
+			var tail: Vector2 = star["pos"].floor()
+			var head: Vector2 = center + (tail - center) * (1.0 + 6.0 * warp_progress)
+			draw_line(tail, head, Color(color, maxf(alpha, warp_progress)), 1.0, false)
+			continue
 		if star["sparkle"]:
 			_draw_sparkle(star["pos"].round() + Vector2(0.5, 0.5), size * lerp(0.6, 1.0, wave), color)
 			continue

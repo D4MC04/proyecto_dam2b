@@ -9,6 +9,7 @@ signal died(reward: int)
 var data: EnemyData
 var speed: float
 var hp: float
+var max_hp: float
 var _last_position: Vector2
 
 # Los efectos que se pintan encima del enemigo son de 32 px; se escalan a su tamaño.
@@ -18,22 +19,52 @@ const SLOW_FLASH_TIME := 0.1
 const SLOW_TINT := Color(0.65, 0.85, 1.0)
 const HIT_FLASH_TIME := 0.15
 const SPAWN_IN_TIME := 0.2
+# Reparadora: cada HEAL_INTERVAL s cura HEAL_RATIO de su vida máxima a los enemigos a HEAL_RADIUS px o menos.
+const HEAL_INTERVAL := 3.0
+const HEAL_RATIO := 0.1
+const HEAL_RADIUS := 48.0
+const HEAL_TEXT_COLOR := Color("#7ee89a")
+const HEAL_FLASH := Color(0.8, 2.5, 1.0)
+const HEAL_FLASH_TIME := 0.4
 
 # Multiplicador de velocidad mientras está ralentizado.
 var _slow := 1.0
 var _slow_tween: Tween
 var _frost: AnimatedSprite2D
+var _health_bar: HealthBar
+
+# Camuflado: las torres no lo eligen como objetivo, pero los ataques de área le dan.
+var cloaked := false
+const CLOAK_ALPHA := 0.2
+# Disolución por píxeles con borde morado al camuflarse y al reaparecer.
+const CLOAK_SHADER: Shader = preload("res://resources/shaders/cloak_dissolve.gdshader")
+const CLOAK_DISSOLVE_TIME := 0.3
 
 signal reached_end(damage: int)
 
-func setup(enemy_data: EnemyData):
+func setup(enemy_data: EnemyData, health_multiplier: float = 1.0):
 	data = enemy_data
 	speed = data.speed
-	hp = data.hp
+	max_hp = data.hp * health_multiplier
+	hp = max_hp
 	sprite.sprite_frames = data.sprite_frames
 	collision_shape.shape = data.collision_shape
-	_last_position = global_position
+	_last_position = position
+	_health_bar = HealthBar.new()
+	add_child(_health_bar)
+	var size := effect_scale() * EFFECT_SIZE
+	_health_bar.setup(size, -size / 2.0)
 	add_to_group(&"enemies")
+	if data.cloak_interval > 0.0:
+		_start_cloak_cycle()
+	if data.heal_aura:
+		var timer := Timer.new()
+		timer.wait_time = HEAL_INTERVAL
+		timer.autostart = true
+		timer.timeout.connect(_heal_nearby)
+		add_child(timer)
+	if data.emp_interval > 0.0:
+		EmpWave.attach(self)
 
 ## Sale del portal: crece de escala 0 a 1 con un destello.
 func spawn_in() -> void:
@@ -56,8 +87,9 @@ func get_remaining_distance() -> float:
 	return (get_parent() as Path2D).curve.get_baked_length() - progress
 
 func _update_animation():
-	var direction := global_position - _last_position
-	_last_position = global_position
+	# Posición local en el camino: el temblor del mapa mueve la global y no debe girar la nave.
+	var direction := position - _last_position
+	_last_position = position
 	if direction.length() < 0.01:
 		return
 	if abs(direction.x) > abs(direction.y):
@@ -70,8 +102,30 @@ func _update_animation():
 
 func take_damage(amount: float):
 	hp -= amount
+	_health_bar.update(hp, max_hp)
 	if hp <= 0:
 		die()
+
+## Cura sin pasar de la vida máxima, con el número en verde, un destello y chispas. Con la vida llena no hace nada.
+func heal(amount: float) -> void:
+	var healed := minf(amount, max_hp - hp)
+	if healed <= 0.0 or hp <= 0.0:
+		return
+	hp += healed
+	_health_bar.update(hp, max_hp)
+	FloatingText.spawn(get_parent(), global_position, "+" + UiFormat.number(healed), FloatingText.DURATION, HEAL_TEXT_COLOR)
+	HealEffect.spawn_sparks(self, effect_scale() * EFFECT_SIZE)
+	var tween := create_tween()
+	tween.tween_property(sprite, "modulate", _rest_color(), HEAL_FLASH_TIME).from(HEAL_FLASH)
+	tween.tween_callback(func(): sprite.modulate = _rest_color())
+
+# Reparadora: suelta el anillo y cura a los demás enemigos a HEAL_RADIUS px o menos (a sí misma no).
+func _heal_nearby() -> void:
+	HealEffect.spawn_ring(get_parent(), global_position, HEAL_RADIUS)
+	for node: Node in get_tree().get_nodes_in_group(&"enemies"):
+		var enemy := node as Enemy
+		if enemy != self and enemy.global_position.distance_to(global_position) <= HEAL_RADIUS:
+			enemy.heal(max_hp * HEAL_RATIO)
 
 # Ralentiza durante `duration` segundos con un destello y la escarcha encima.
 # Si ya estaba ralentizado se renueva la duración, no se acumula.
@@ -112,6 +166,29 @@ func effect_scale() -> float:
 		return 1.0
 	var frame_size := texture.get_size() * sprite.scale
 	return maxf(frame_size.x, frame_size.y) / EFFECT_SIZE
+
+# Bucle de camuflaje: visible `cloak_interval` s y camuflado `cloak_time` s.
+# El sprite se disuelve con CLOAK_SHADER; la barra de vida se atenúa a la vez.
+func _start_cloak_cycle() -> void:
+	var material := ShaderMaterial.new()
+	material.shader = CLOAK_SHADER
+	material.set_shader_parameter(&"progress", 0.0)
+	material.set_shader_parameter(&"cloaked_alpha", CLOAK_ALPHA)
+	sprite.material = material
+	var tween := create_tween().set_loops()
+	tween.tween_interval(data.cloak_interval)
+	tween.tween_callback(_set_cloaked.bind(true))
+	_tween_dissolve(tween, material, 1.0, CLOAK_ALPHA)
+	tween.tween_interval(data.cloak_time)
+	tween.tween_callback(_set_cloaked.bind(false))
+	_tween_dissolve(tween, material, 0.0, 1.0)
+
+func _tween_dissolve(tween: Tween, material: ShaderMaterial, progress: float, bar_alpha: float) -> void:
+	tween.tween_property(material, "shader_parameter/progress", progress, CLOAK_DISSOLVE_TIME)
+	tween.parallel().tween_property(_health_bar, "modulate:a", bar_alpha, CLOAK_DISSOLVE_TIME)
+
+func _set_cloaked(value: bool) -> void:
+	cloaked = value
 
 func die():
 	died.emit(data.reward)

@@ -8,6 +8,10 @@
 [ext_resource type="Resource" uid="uid://bi8dmx532elhj" path="res://resources/turret_data/laser.tres" id="6_af13n"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="7_jxj2i"]
 [ext_resource type="Resource" uid="uid://cgaty72q84khx" path="res://resources/wave_data/level_4.tres" id="8_2iph1"]
+[ext_resource type="Resource" uid="uid://cgwlj2rcy5217" path="res://resources/wave_data/level_4_4.tres" id="14_ci50m"]
+[ext_resource type="Resource" uid="uid://denqld7yjrx1t" path="res://resources/wave_data/level_4_5.tres" id="15_8f45r"]
+[ext_resource type="Resource" uid="uid://t74khrk4lqib" path="res://resources/wave_data/level_4_6.tres" id="16_keu85"]
+[ext_resource type="Resource" uid="uid://cigqbnhix2jqo" path="res://resources/wave_data/level_4_7.tres" id="17_7vt8a"]
 [ext_resource type="Resource" uid="uid://ccgd0f62u5qog" path="res://resources/turret_data/cryo.tres" id="cryo"]
 [ext_resource type="Resource" uid="uid://b8ynt6u20qgqi" path="res://resources/turret_data/rail.tres" id="rail"]
 [ext_resource type="Resource" uid="uid://lgewscsj1aah" path="res://resources/turret_data/tesla.tres" id="tesla"]
@@ -18,5 +22,5 @@
 script = ExtResource("2_2ohtm")
 map = ExtResource("1_2iph1")
 towers = Array[ExtResource("3_af13n")]([ExtResource("4_2iph1"), ExtResource("5_2ohtm"), ExtResource("6_af13n"), ExtResource("cryo"), ExtResource("tesla"), ExtResource("rail")])
-waves = Array[ExtResource("7_jxj2i")]([ExtResource("8_2iph1"), ExtResource("wave_4_2"), ExtResource("wave_4_3")])
+waves = Array[ExtResource("7_jxj2i")]([ExtResource("8_2iph1"), ExtResource("wave_4_2"), ExtResource("wave_4_3"), ExtResource("14_ci50m"), ExtResource("15_8f45r"), ExtResource("16_keu85"), ExtResource("17_7vt8a")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"

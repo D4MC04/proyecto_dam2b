@@ -1,0 +1,204 @@
+[gd_resource type="Resource" script_class="WaveData" format=3 uid="uid://b88hpblxhbsi2"]
+
+[ext_resource type="Script" uid="uid://cwc32qenwkwf3" path="res://scripts/resources/SpawnEntry.gd" id="1_el6ac"]
+[ext_resource type="Resource" path="res://resources/enemy_data/reparadora.tres" id="2_eugmt"]
+[ext_resource type="Resource" uid="uid://d2xfg8qmcw3va" path="res://resources/enemy_data/nave_normal.tres" id="3_1l6nm"]
+[ext_resource type="Resource" path="res://resources/enemy_data/nave_agresiva.tres" id="4_chgad"]
+[ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="5_rw7h0"]
+
+[sub_resource type="Resource" id="Resource_31uei"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("2_eugmt")
+time = 2.0
+
+[sub_resource type="Resource" id="Resource_r3klk"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("2_eugmt")
+time = 2.7
+path_index = 1
+
+[sub_resource type="Resource" id="Resource_4sx60"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("2_eugmt")
+time = 3.5
+path_index = 2
+
+[sub_resource type="Resource" id="Resource_7ly5g"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("2_eugmt")
+time = 4.2
+
+[sub_resource type="Resource" id="Resource_g4rij"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("3_1l6nm")
+time = 5.5
+path_index = 1
+
+[sub_resource type="Resource" id="Resource_gj1r1"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("3_1l6nm")
+time = 5.9
+path_index = 2
+
+[sub_resource type="Resource" id="Resource_yry24"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("3_1l6nm")
+time = 6.3
+
+[sub_resource type="Resource" id="Resource_0o75x"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("3_1l6nm")
+time = 6.7
+path_index = 1
+
+[sub_resource type="Resource" id="Resource_r5a7p"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("3_1l6nm")
+time = 7.0
+path_index = 2
+
+[sub_resource type="Resource" id="Resource_7ew2h"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("3_1l6nm")
+time = 7.4
+
+[sub_resource type="Resource" id="Resource_s2v6q"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("2_eugmt")
+time = 8.7
+path_index = 1
+
+[sub_resource type="Resource" id="Resource_eknrr"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("2_eugmt")
+time = 9.5
+path_index = 2
+
+[sub_resource type="Resource" id="Resource_c7rth"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("2_eugmt")
+time = 10.2
+
+[sub_resource type="Resource" id="Resource_gu2p4"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("2_eugmt")
+time = 10.9
+path_index = 1
+
+[sub_resource type="Resource" id="Resource_rtfiw"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("4_chgad")
+time = 12.2
+path_index = 2
+
+[sub_resource type="Resource" id="Resource_iid0a"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("4_chgad")
+time = 12.8
+
+[sub_resource type="Resource" id="Resource_kq8vf"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("4_chgad")
+time = 13.3
+path_index = 1
+
+[sub_resource type="Resource" id="Resource_6gc24"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("4_chgad")
+time = 13.8
+path_index = 2
+
+[sub_resource type="Resource" id="Resource_l2hu6"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("4_chgad")
+time = 14.3
+
+[sub_resource type="Resource" id="Resource_cke7f"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("2_eugmt")
+time = 15.6
+path_index = 1
+
+[sub_resource type="Resource" id="Resource_tcwqn"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("2_eugmt")
+time = 16.4
+path_index = 2
+
+[sub_resource type="Resource" id="Resource_h10dd"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("2_eugmt")
+time = 17.1
+
+[sub_resource type="Resource" id="Resource_yourg"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("2_eugmt")
+time = 17.9
+path_index = 1
+
+[sub_resource type="Resource" id="Resource_7y428"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("4_chgad")
+time = 19.2
+path_index = 2
+
+[sub_resource type="Resource" id="Resource_51cnn"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("4_chgad")
+time = 19.7
+
+[sub_resource type="Resource" id="Resource_sgvgv"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("4_chgad")
+time = 20.2
+path_index = 1
+
+[sub_resource type="Resource" id="Resource_yyao5"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("4_chgad")
+time = 20.7
+path_index = 2
+
+[sub_resource type="Resource" id="Resource_wo2qd"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("4_chgad")
+time = 21.3
+
+[sub_resource type="Resource" id="Resource_d42qa"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("2_eugmt")
+time = 22.6
+path_index = 1
+
+[sub_resource type="Resource" id="Resource_1rr10"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("2_eugmt")
+time = 23.3
+path_index = 2
+
+[sub_resource type="Resource" id="Resource_1jsqx"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("2_eugmt")
+time = 24.1
+
+[sub_resource type="Resource" id="Resource_mca4l"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("2_eugmt")
+time = 24.8
+path_index = 1
+
+[sub_resource type="Resource" id="Resource_tjix4"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("4_chgad")
+time = 26.1
+path_index = 2
+
+[sub_resource type="Resource" id="Resource_b4ks2"]
+script = ExtResource("1_el6ac")
+enemy_data = ExtResource("4_chgad")
+time = 26.6
+
+[resource]
+script = ExtResource("5_rw7h0")
+health_multiplier = 1.25
+entries = Array[ExtResource("1_el6ac")]([SubResource("Resource_31uei"), SubResource("Resource_r3klk"), SubResource("Resource_4sx60"), SubResource("Resource_7ly5g"), SubResource("Resource_g4rij"), SubResource("Resource_gj1r1"), SubResource("Resource_yry24"), SubResource("Resource_0o75x"), SubResource("Resource_r5a7p"), SubResource("Resource_7ew2h"), SubResource("Resource_s2v6q"), SubResource("Resource_eknrr"), SubResource("Resource_c7rth"), SubResource("Resource_gu2p4"), SubResource("Resource_rtfiw"), SubResource("Resource_iid0a"), SubResource("Resource_kq8vf"), SubResource("Resource_6gc24"), SubResource("Resource_l2hu6"), SubResource("Resource_cke7f"), SubResource("Resource_tcwqn"), SubResource("Resource_h10dd"), SubResource("Resource_yourg"), SubResource("Resource_7y428"), SubResource("Resource_51cnn"), SubResource("Resource_sgvgv"), SubResource("Resource_yyao5"), SubResource("Resource_wo2qd"), SubResource("Resource_d42qa"), SubResource("Resource_1rr10"), SubResource("Resource_1jsqx"), SubResource("Resource_mca4l"), SubResource("Resource_tjix4"), SubResource("Resource_b4ks2")])

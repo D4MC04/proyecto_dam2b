@@ -8,6 +8,7 @@ const HALF_LENGTH := 15
 const HALF_HEIGHT := 4
 const PULSE_SPEED := 6.0
 const SHAKE_TIME := 0.25
+const BOSS_SHAKE := 3
 const FLASH := Color(2.5, 2.5, 2.5)
 const FLOW_COUNT := 6
 const FLOW_SPEED := 0.9
@@ -19,6 +20,8 @@ const TIP := Color("#f0323c")
 const FLOW := Color("#ff5ad2")
 
 # Cuánto está abierta la grieta, de 0 a 1: a lo largo y a lo alto.
+# Amplitud del temblor al abrirse, en píxeles.
+var shake_strength: int = 1
 var _length_ratio: float = 0.0
 var _height_ratio: float = 0.0
 var _time: float = 0.0
@@ -35,7 +38,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	_time += delta
 	_shake_left -= delta
-	_shake_offset = Vector2(randi_range(-1, 1), randi_range(-1, 1)) if _shake_left > 0.0 else Vector2.ZERO
+	_shake_offset = Vector2(randi_range(-shake_strength, shake_strength), randi_range(-shake_strength, shake_strength)) if _shake_left > 0.0 else Vector2.ZERO
 	queue_redraw()
 
 ## Cierra la grieta hasta una línea y la libera.

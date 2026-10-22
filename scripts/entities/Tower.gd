@@ -6,6 +6,11 @@ extends Node2D
 
 # Margen para disparar sin que el cañón esté perfectamente alineado.
 const AIM_TOLERANCE := deg_to_rad(12.0)
+# Color de la base y el cañón mientras un pulso EMP la tiene apagada: muy oscuro y azulado.
+const DISABLED_TINT := Color(0.22, 0.25, 0.38)
+# Destello al volver a encenderse.
+const ENABLE_FLASH := Color(3, 3, 3)
+const ENABLE_FLASH_TIME := 0.3
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var cannon: AnimatedSprite2D = $Cannon
@@ -24,8 +29,13 @@ var _pending_shot := false
 var _sight: Line2D
 # Sonido de disparo; con poca polifonía, 10 torres juntas no saturan.
 var _shoot_player := AudioStreamPlayer2D.new()
+# Apagada por un pulso EMP (ver disable): no apunta ni dispara.
+var disabled := false
+var _disable_tween: Tween
+var _sparks: EmpSparks
 
 func _ready() -> void:
+	add_to_group(&"towers")
 	# Si cambia una opción en plena partida, se vuelve a dibujar el rango.
 	Settings.changed.connect(queue_redraw.unbind(1))
 	sprite.sprite_frames = data.sprite_frames
@@ -59,6 +69,8 @@ func _draw() -> void:
 		data.attack_range.draw(get_canvas_item(), BuildManager.RANGE_COLOR)
 
 func _process(delta: float) -> void:
+	if disabled:
+		return
 	var target := _get_target()
 	if target == null:
 		return
@@ -91,7 +103,9 @@ func _on_area_exited(area: Area2D) -> void:
 
 func _on_attack_timeout() -> void:
 	var target := _get_target()
-	if target == null:
+	# La onda es de área: sale aunque en rango solo haya naves camufladas.
+	var pulse_has_enemies := data.pulse != null and enemies_in_range.any(is_instance_valid)
+	if target == null and not pulse_has_enemies:
 		return
 	if _is_static():
 		cannon.play(&"fire_0")
@@ -109,7 +123,7 @@ func _is_static() -> bool:
 
 # La onda, el rayo o el haz salen en su frame de la animación de disparo.
 func _on_cannon_frame_changed() -> void:
-	var firing := cannon.animation == &"fire_0"
+	var firing := cannon.animation == &"fire_0" and not disabled
 	if _sight:
 		_sight.visible = firing and cannon.frame < data.beam.fire_frame
 	if not firing:
@@ -148,7 +162,7 @@ func _shoot(target: Enemy) -> void:
 
 # Mantiene el objetivo mientras siga vivo y dentro del rango.
 func _get_target() -> Enemy:
-	if not is_instance_valid(_target) or not enemies_in_range.has(_target):
+	if not is_instance_valid(_target) or not enemies_in_range.has(_target) or _target.cloaked:
 		_target = _best_enemy()
 	return _target
 
@@ -157,11 +171,45 @@ func _best_enemy() -> Enemy:
 	var best: Enemy = null
 	var best_remaining: float = INF
 	for enemy in enemies_in_range:
+		# Las naves camufladas no se apuntan.
+		if enemy.cloaked:
+			continue
 		var remaining := enemy.get_remaining_distance()
 		if remaining < best_remaining:
 			best_remaining = remaining
 			best = enemy
 	return best
+
+## La apaga `seconds` segundos: no apunta ni dispara, se oscurece y le saltan chispas.
+## Si ya estaba apagada se renueva la duración, no se acumula.
+func disable(seconds: float) -> void:
+	disabled = true
+	attack_timer.paused = true
+	sprite.modulate = DISABLED_TINT
+	cannon.modulate = DISABLED_TINT
+	# Corta la carga o el disparo que estuviera a medias.
+	if cannon.sprite_frames and cannon.animation != &"default":
+		cannon.play(&"default")
+	# El cañón se queda quieto aunque algo vuelva a lanzar su animación.
+	cannon.speed_scale = 0.0
+	if _sparks == null:
+		_sparks = EmpSparks.new()
+		add_child(_sparks)
+	if _disable_tween:
+		_disable_tween.kill()
+	_disable_tween = create_tween()
+	_disable_tween.tween_interval(seconds)
+	_disable_tween.tween_callback(_enable)
+
+func _enable() -> void:
+	disabled = false
+	attack_timer.paused = false
+	cannon.speed_scale = 1.0
+	var tween := create_tween().set_parallel()
+	tween.tween_property(sprite, "modulate", Color.WHITE, ENABLE_FLASH_TIME).from(ENABLE_FLASH)
+	tween.tween_property(cannon, "modulate", Color.WHITE, ENABLE_FLASH_TIME).from(ENABLE_FLASH)
+	_sparks.queue_free()
+	_sparks = null
 
 ## Dinero que devuelve vender la torre: la mitad de lo invertido, redondeada hacia abajo.
 func get_sell_value() -> int:

@@ -133,9 +133,24 @@ Dos `PowerButton` (`scripts/level_ui/PowerButton.gd`) en `InfoPanel/Content/Powe
 - Al acabar o con "Saltar" llama a `GameState.complete_tutorial()` y se esconde.
 - `LevelUI.set_state` lo esconde fuera de `PLAYING` (no tapa la pausa ni señala por encima de ella).
 
+## BossAlert
+
+`scripts/level_ui/BossAlert.gd` (clase `BossAlert`), `Control` a pantalla completa dentro de `GameArea` (declarado antes que las pantallas, ignora el ratón, oculto hasta que se usa). `LevelUI._on_wave_started` llama a `show_alert("Nodriza")` cuando `Spawner.wave_has_boss(index)` es true (la oleada tiene alguna entrada con la Nodriza). Dura 2 s en tiempo real, sin pausar el juego ni tapar las barras. Todo se pinta en `_draw`, sin antialiasing:
+
+- Tinte rojo `#f0323c` sobre el área (hasta 35 % de opacidad) que late 4 veces, y borde rojo de 12 px que late con él.
+- Franja de lado a lado del área, centrada en vertical, de 120 px (`#7a0f18`), con rayas diagonales rojas y negras de 14 px arriba y abajo.
+- En el centro, "ALERTA" a 48 px y debajo "NODRIZA ACERCÁNDOSE" a 32 px (Monogram), en un `CenterContainer`.
+- Sin sonido (se quitó la sirena a petición del usuario).
+
+El `Portal` de un camino que saca la Nodriza tiembla con más fuerza (`Portal.BOSS_SHAKE`, 3 px frente a 1).
+
+## WaveAnnouncer
+
+`scripts/level_ui/WaveAnnouncer.gd` (clase `WaveAnnouncer`), `Control` a pantalla completa dentro de `GameArea` junto a `BossAlert`, ignora el ratón. `LevelUI._on_wave_started` llama a `show_wave(número, total)` al lanzar cada oleada, salvo las que llevan Nodriza (esas enseñan solo `BossAlert`). Centro del área: "OLEADA N" a 48 px en `#40e0f0` y debajo "N / TOTAL" a 16 px en `#cce6ff`; en la última, "ÚLTIMA OLEADA". Entra en 0,25 s, se queda 1,5 s y se desvanece en 0,4 s, en tiempo real, sin pausar ni tapar las barras.
+
 ## LevelIndicator
 
-`scenes/level_ui/LevelIndicator.tscn` + `scripts/level_ui/LevelIndicator.gd` (clase `LevelIndicator`). `MarginContainer` (sin marco ni fondo) anclado arriba en el centro de `GameArea` (3 px de margen superior) con solo el `Label` "NIVEL N" a 32 px (el doble del texto normal), en `#cce6ff` sin contorno. `mouse_filter = IGNORE` en el contenedor y en el `Label`; el área de desvanecido se ajusta sola a su tamaño.
+`scenes/level_ui/LevelIndicator.tscn` + `scripts/level_ui/LevelIndicator.gd` (clase `LevelIndicator`). `MarginContainer` (sin marco ni fondo) anclado arriba en el centro de `GameArea` (3 px de margen superior) con el `Label` "NIVEL N" a 32 px (el doble del texto normal), en `#cce6ff` sin contorno, y debajo "OLEADA X/Y" a 16 px (`set_wave`, que llama `LevelUI._refresh_wave_controls` con el mismo número que el pie de la barra: antes de empezar, 1/Y). `mouse_filter = IGNORE` en el contenedor y en el `Label`; el área de desvanecido se ajusta sola a su tamaño.
 
 - Número: `Game` lo calcula como la posición de `level_data` en `GameData.levels` más 1 y lo pasa por `LevelUI.setup`. Si el nivel no está en la lista (0), el indicador se oculta.
 - Se ve con opacidad 0,7. Si el cursor o algún nodo del grupo `enemies` está dentro de su rectángulo (con 4 px de margen), baja a 0,15 con un tween de 0,15 s; al salir, vuelve a 0,7. Se comprueba en `_process`, que sigue activo con el juego en pausa.

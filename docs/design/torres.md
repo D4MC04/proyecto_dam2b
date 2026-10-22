@@ -67,6 +67,15 @@ Al cumplirse el cooldown:
 - Si el cañón está alineado: dispara.
 - Si no lo está: para el temporizador y dispara en cuanto se alinee (`_pending_shot`), y entonces lo reinicia.
 
+### Apagada por EMP
+
+`Tower.disable(seconds)` (lo llama el pulso EMP de la Saboteadora, ver [enemigos.md](enemigos.md)). Todas las torres están en el grupo `towers`.
+
+- `disabled = true`: `_process` no apunta, el `Timer` de cooldown se pausa (`paused`, así conserva lo que le quedaba) y el haz continuo (`FocusBeam`) se corta. Si el cañón estaba cargando o disparando vuelve a `default`, y el frame de disparo de onda, cadena o haz no se lanza.
+- Base y cañón se tiñen de azul muy oscuro (`DISABLED_TINT`) y el cañón se queda quieto (`speed_scale` 0).
+- Mientras dura, `EmpSparks` (`scripts/entities/EmpSparks.gd`) pinta en píxeles sin antialiasing 4 zigzags de chispas en `#2a6ae6`, `#78bcff` y `#e6f6ff` que cambian de sitio cada 0,06 s, y encima de la torre un icono de "sin energía" de 9x10 (rayo ámbar `#ecb23c`/`#ffe082` con contorno `#0c0e16`, tachado en diagonal con 2 px de `#f0323c`) que parpadea cada 0,25 s.
+- A los `seconds` segundos (tween de la torre, sigue la velocidad del juego) vuelve a funcionar con un destello blanco de 0,3 s en base y cañón. Otro pulso mientras está apagada renueva la duración, no se acumula.
+
 ### Sonido
 
 `Tower` crea un `AudioStreamPlayer2D` (bus `SFX`, polifonía 2) con `TowerData.shoot_sound`. Suena en cada disparo: al lanzar la bala, y en el `fire_frame` de la onda, la cadena y el haz (así el sonido va con el efecto, no con la carga). En el haz continuo (`FocusBeam`) suena mientras el haz está activo: se repite si el audio acaba antes y se corta al soltar. `BulletData.hit_sound` (opcional, solo el Cañón pesado y su fusión) suena al impactar, en un reproductor aparte porque la bala se libera. No se usan aún los sonidos de carga (`RailgunCharging`, `IceCharging`, `CharginTower`).

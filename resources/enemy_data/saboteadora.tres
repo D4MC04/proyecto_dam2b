@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3]
+
+[ext_resource type="Script" uid="uid://do62ihbnaitnl" path="res://scripts/resources/EnemyData.gd" id="1_data"]
+[ext_resource type="Shape2D" path="res://resources/collision_shapes/saboteadora.tres" id="2_shape"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/saboteadora.tres" id="3_frames"]
+
+[resource]
+script = ExtResource("1_data")
+name = "Saboteadora"
+hp = 110.0
+speed = 30
+reward = 55
+base_damage = 10
+description = "Nave de guerra electrónica. Sus pulsos EMP apagan las torres cercanas."
+sprite_frames = ExtResource("3_frames")
+collision_shape = ExtResource("2_shape")
+rotate_sprite = true
+emp_interval = 5.0
+emp_radius = 96.0
+emp_disable_time = 3.0
+metadata/_custom_type_script = "uid://do62ihbnaitnl"

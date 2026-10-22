@@ -22,7 +22,7 @@ Definidos en `project.godot`, en este orden:
 - `LevelUI`: instancia de `scenes/level_ui/LevelUI.tscn`.
 - `Level`: instancia de `scenes/Level.tscn`.
 
-`Game` tiene la propiedad `level_data: LevelData`, que le asigna el menú antes de añadirlo al árbol.
+`Game` tiene la propiedad `level_data: LevelData`, que le asigna el menú antes de añadirlo al árbol, y `from_hyperspace: bool`: si es true, el mapa entra con un fundido desde blanco de 0,2 s (`_fade_in_from_white`, `CanvasLayer` 100 temporal) tras el salto al hiperespacio del menú.
 
 ### Arranque
 
@@ -61,4 +61,4 @@ Tanto `MainMenu._open_level` como `Game._quit_to_menu` cambian de escena a mano 
 
 ## Enemigos vistos
 
-`Spawner._spawn` llama a `GameState.mark_enemy_seen(data)`, que guarda en `user://progress.cfg` (clave `seen_enemies`) el nombre de archivo del `EnemyData` la primera vez que sale. `reset_progress` los borra. Los usa el Navedex (ver [menu.md](menu.md)).
+`Spawner._spawn_enemy` llama a `GameState.mark_enemy_seen(data)`, que guarda en `user://progress.cfg` (clave `seen_enemies`) el nombre de archivo del `EnemyData` la primera vez que sale. `reset_progress` los borra. Los usa el Navedex (ver [menu.md](menu.md)).

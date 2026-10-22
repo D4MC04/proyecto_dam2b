@@ -9,6 +9,10 @@ var start_on_level_selection: bool = false
 @onready var options_menu: OptionsMenu = $OptionsMenu
 
 const FADE_TIME := 0.25
+const WARP_TIME := 0.5
+const FLASH_TIME := 0.1
+
+var _jumping: bool = false
 
 func _ready() -> void:
 	if start_on_level_selection:
@@ -31,12 +35,29 @@ func _build_level_buttons() -> void:
 		level_buttons_container.add_child(button)
 
 func _open_level(data: LevelData) -> void:
+	if _jumping:
+		return
+	_jumping = true
+	await _hyperspace_jump()
 	var game = preload("res://scenes/Game.tscn").instantiate()
 	game.level_data = data
+	game.from_hyperspace = true
 	var tree = get_tree()
 	tree.root.add_child(game)
 	tree.current_scene.queue_free()
 	tree.current_scene = game
+
+# Estrellas en líneas y destello blanco que cubre el menú antes de cargar el nivel.
+func _hyperspace_jump() -> void:
+	var flash := ColorRect.new()
+	flash.color = Color(1, 1, 1, 0)
+	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
+	flash.mouse_filter = Control.MOUSE_FILTER_STOP
+	add_child(flash)
+	await $StarField.warp(WARP_TIME)
+	var tween := create_tween()
+	tween.tween_property(flash, "color:a", 1.0, FLASH_TIME)
+	await tween.finished
 
 func _on_settings_button_pressed() -> void:
 	options_menu.open_from(main_panel)

@@ -66,28 +66,42 @@ Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de l
 ## Datos de nivel
 
 - `LevelData` (`scripts/resources/LevelData.gd`): `map: PackedScene`, `towers: Array[TowerData]`, `waves: Array[WaveData]`.
-- `WaveData`: `entries: Array[SpawnEntry]`.
+- `WaveData`: `entries: Array[SpawnEntry]` y `health_multiplier: float` (1.0 por defecto; multiplica la vida máxima de todos los enemigos de la oleada, también los trozos de la Divisora; la recompensa no cambia).
 - `SpawnEntry`: `enemy_data: EnemyData`, `time: float` (segundos desde el inicio de la oleada), `path_index: int`.
 
 Niveles registrados en `GameData.levels`:
 
-| Nivel | Mapa | Torres disponibles | Enemigos por oleada (1 + 2 + 3) | Último enemigo de cada una (s) | Caminos |
-|---|---|---|---|---|---|
-| 1 | `maps/levels/Level1.tscn` | Cañón doble, Cañón pesado, Láser | 7 + 12 + 6 | 8,5 / 12 / 7,5 | 1 |
-| 2 | `maps/levels/Level2.tscn` | las anteriores + Cryo | 7 + 12 + 13 | 8,5 / 12 / 12,5 | 2 |
-| 3 | `maps/levels/Level3.tscn` | las anteriores + Tesla | 16 + 12 + 12 | 18 / 12,5 / 12,5 | 2 |
-| 4 | `maps/levels/Level4.tscn` | las anteriores + Rail | 19 + 12 + 19 | 22 / 12 / 21 | 2 |
-| 5 | `maps/levels/Level5.tscn` | las anteriores + Disintegrator | 19 + 24 + 17 | 22 / 25,5 / 17,5 | 2 |
-| 6 | `maps/levels/Level6.tscn` | las 7 | 28 + 24 + 23 | 31,5 / 26 / 25,5 | 3 |
-| 7 | `maps/levels/Level7.tscn` | las 7 | 28 + 24 + 23 | 31,5 / 26 / 25,5 | 4 |
-| 8 | `maps/levels/Level8.tscn` | las 7 | 28 + 24 + 23 | 31,5 / 26 / 25,5 | 4 |
-| 9 | `maps/levels/Level9.tscn` | las 7 | 28 + 24 + 23 | 31,5 / 26 / 25,5 | 8 |
+| Nivel | Mapa | Torres disponibles | Oleadas | Naves por oleada (1.ª → última) | Naves nuevas (protagonistas) | Caminos |
+|---|---|---|---|---|---|---|
+| 1 | `maps/levels/Level1.tscn` | Cañón doble, Cañón pesado, Láser | 5 | 7 → 13 | Darts y Wasp | 1 |
+| 2 | `maps/levels/Level2.tscn` | las anteriores + Cryo | 6 | 10 → 21 | Nave normal y UFO | 2 |
+| 3 | `maps/levels/Level3.tscn` | las anteriores + Tesla | 6 | 11 → 26 | Nave agresiva y Spikey | 2 |
+| 4 | `maps/levels/Level4.tscn` | las anteriores + Rail | 7 | 9 → 24 | Acorazado | 2 |
+| 5 | `maps/levels/Level5.tscn` | las anteriores + Disintegrator | 7 | 11 → 33 | Ariete y Divisora | 2 |
+| 6 | `maps/levels/Level6.tscn` | las 7 | 8 | 17 → 42 (la última con la Nodriza) | Reparadora | 3 |
+| 7 | `maps/levels/Level7.tscn` | las 7 | 9 | 21 → 47 | Espectro | 4 |
+| 8 | `maps/levels/Level8.tscn` | las 7 | 9 | 19 → 48 | Saboteadora | 4 |
+| 9 | `maps/levels/Level9.tscn` | las 7 | 10 | 27 → 60 (la última con la Nodriza) | Espectro, Saboteadora, Divisora y Reparadora (y todas las demás) | 8 |
 
-Cada nivel tiene tres `WaveData` (`resources/wave_data/level_N.tres`, `level_N_2.tres` y `level_N_3.tres`): son la oleada original del nivel partida en tres tramos consecutivos, con los tiempos de cada una desde 3 s (la primera) o 2 s (las otras). Las oleadas de los niveles 7, 8 y 9 son, de momento, copias de las del nivel 6. Los niveles 1 a 4 y 6 a 9 están en `resources/level_data/level_N.tres`; el 5 está definido como subrecurso dentro de `scenes/GameData.tscn`.
+Las oleadas son `WaveData` en `resources/wave_data/level_N.tres` (la primera) y `level_N_K.tres` (la K). Los niveles 1 a 4 y 6 a 9 están en `resources/level_data/level_N.tres`; el 5 está definido como subrecurso dentro de `scenes/GameData.tscn` (`level_5.tres` también existe y lleva las mismas oleadas).
 
-Todas las oleadas usan todos los caminos de su mapa. En los niveles 2, 3 y 5 a 9, las entradas de cada oleada, ordenadas por tiempo, van por turnos a los caminos 0, 1, 2… (`path_index` = posición % número de caminos). El nivel 4 conserva su reparto propio entre sus dos caminos.
+### Generador de oleadas
+
+Las oleadas no se escriben a mano: las genera `scripts/tools/make_waves.gd` (`godot --headless --path . -s scripts/tools/make_waves.gd`) a partir de su tabla `LEVELS`, y para retocarlas se cambia la tabla y se vuelve a lanzar. Por nivel, la tabla dice: número de oleadas, caminos del mapa, cuántas naves seguidas van por cada camino, presupuesto de la primera oleada, cuánto crece por oleada, separación inicial entre naves, naves nuevas del nivel, naves de niveles anteriores y si sale la Nodriza.
+
+- **Presupuesto**: cada nave cuesta su `reward` más la de sus trozos (la Divisora, 30 + 3 × 10). La oleada K gasta `presupuesto × crecimiento^(K-1)` y saca al menos una nave más que la anterior. El presupuesto inicial de cada nivel es mayor que el del anterior (175, 260, 380, 500, 620, 740, 860, 980 y 1100), así que la primera oleada de un nivel es más dura que la del anterior.
+- **Grupos**: las naves salen en grupos del mismo tipo. Los grupos alternan entre las naves nuevas del nivel (los pares) y todas las del nivel, para que las nuevas sean las protagonistas desde la primera oleada. El tamaño del grupo es su valor (100 + 15 por oleada) entre el coste de la nave, de 1 a 6. "dart" es un Dart de color al azar.
+- **Tiempos**: la primera nave sale a 3 s en la primera oleada y a 2 s en las demás. La separación entre naves empieza en la de la tabla (de 1 s en el nivel 1 a 0,6 s en el 9), se multiplica por 0,93 en cada oleada (mínimo 0,3 s) y por el coste de la nave entre 35 (de 0,6 a 2), así que las naves caras van más separadas. Entre grupos hay una pausa de 2,5 separaciones. Los tiempos se redondean a décimas.
+- **Vida**: `health_multiplier` = 1 + 0,05 por oleada (1,0 la primera, 1,45 la décima).
+- **Nodriza**: solo en la última oleada de los niveles 6 y 9, una, al final.
+- **Caminos**: las entradas, ordenadas por tiempo, van por turnos a los caminos 0, 1, 2… (`path_index` = posición % caminos). El nivel 4 las reparte de dos en dos (`path_index` = (posición / 2) % 2).
+- Las tiradas usan una semilla fija por nivel y oleada: volver a lanzarlo da las mismas naves y tiempos (los ids de los subrecursos sí cambian).
+- Los `.tres` que ya existen se cargan y se rellenan, así conservan su uid. Como Godot guarda sin uid desde `-s`, el script los vuelve a escribir en la cabecera y en los `ext_resource` (como `map_generator.gd`). Para el nivel 5 añade a `GameData.tscn` las `ext_resource` que falten (`wave_5_K`) y reescribe su línea `waves`, sin tocar el resto de la escena.
+- El dinero inicial (`LevelState.money`, 5000) no se toca: si un nivel no se puede ganar, se ajusta la tabla.
 
 ## Spawner
+
+`_spawn_enemy` llama a `Enemy.setup(data, health_multiplier)` con el multiplicador de la oleada en curso (`waves[_wave_index]`).
 
 Lleva el ciclo de oleadas del nivel: cuándo se lanzan, qué enemigos quedan vivos y el modo AUTO.
 
@@ -96,15 +110,17 @@ Lleva el ciclo de oleadas del nivel: cuándo se lanzan, qué enemigos quedan viv
 - `setup(paths, waves)` solo guarda los datos. El nivel empieza en espera, sin enemigos, para dejar construir; la primera oleada se lanza con el botón de la pestaña Oleadas o con AUTO.
 - `start_next_wave() -> bool` lanza la siguiente oleada: copia sus entradas, las ordena por `time`, pone el reloj a 0 y emite `wave_started(index, total)` (índice desde 0). Devuelve `false` y no hace nada si el nivel no está limpio (la actual sigue sacando o quedan enemigos vivos) o no quedan oleadas (`can_start_next_wave()`). Así nunca conviven enemigos de dos oleadas.
 - En `_process` suma el tiempo y crea cada enemigo cuando su `time` se cumple. Al crear el último emite `wave_spawn_finished(index)`.
-- `_spawn(entry)` instancia `scenes/entities/Enemy.tscn` como hijo del `Path2D` número `entry.path_index % paths.size()`, llama a `enemy.setup(entry.enemy_data)` y `enemy.spawn_in()` (escala 0→1 en 0,2 s con destello), lo apunta como vivo y conecta sus señales `died` y `reached_end`.
+- `_spawn(entry)` llama a `_spawn_enemy(data, path, progress)` con el `Path2D` número `entry.path_index % paths.size()` y `PORTAL_OFFSET`. `_spawn_enemy` instancia `scenes/entities/Enemy.tscn` como hijo de ese camino, lo pone en `progress` (antes de `setup`, para que su primer giro salga del camino), llama a `enemy.setup(data)`, lo apunta como vivo, conecta sus señales `died` y `reached_end` y lo devuelve. `_spawn` llama además a `enemy.spawn_in()` (escala 0→1 en 0,2 s con destello).
 
 ### Portales
 
-Al lanzar una oleada, `_open_portals()` crea un `Portal` (`scripts/entities/Portal.gd`) como hijo de cada `Path2D` que use la oleada, en el primer punto de su curva (uno por camino, guardados en `_portals`). El portal es una grieta horizontal en forma de ojo (30x10 px abierta, acabada en punta a los dos lados), pintada con `draw_rect` columna a columna en píxeles enteros: interior casi negro (`#1a0614`) con píxeles magenta que entran hacia el centro, borde liso de 1 px que late entre `#be30a0` y `#ff5ad2`, halo de 1 px `#be30a0` por fuera y puntas rojas `#f0323c`. Al abrirse (0,3 s) primero es una línea que se alarga y luego se abre en alto; entonces tiembla 1 px durante 0,25 s con un destello. Al cerrarse (0,3 s) se cierra en una línea y desaparece. Al crear el último enemigo, `_close_portals()` los cierra y los libera. Usan tweens, así que siguen `Engine.time_scale` y se paran con la pausa.
+Al lanzar una oleada, `_open_portals()` crea un `Portal` (`scripts/entities/Portal.gd`) como hijo de cada `Path2D` que use la oleada, a `PORTAL_OFFSET` (40 px) del principio de su curva, media casilla dentro del borde del mapa, porque los caminos empiezan 2 casillas fuera (uno por camino, guardados en `_portals`). Las naves también empiezan ahí (`progress = PORTAL_OFFSET`), así que salen del portal. El portal se gira para quedar atravesado al camino en ese punto (vertical si el camino entra en horizontal y al revés), en múltiplos de 90°. El portal es una grieta horizontal en forma de ojo (30x10 px abierta, acabada en punta a los dos lados), pintada con `draw_rect` columna a columna en píxeles enteros: interior casi negro (`#1a0614`) con píxeles magenta que entran hacia el centro, borde liso de 1 px que late entre `#be30a0` y `#ff5ad2`, halo de 1 px `#be30a0` por fuera y puntas rojas `#f0323c`. Al abrirse (0,3 s) primero es una línea que se alarga y luego se abre en alto; entonces tiembla 1 px durante 0,25 s con un destello. Al cerrarse (0,3 s) se cierra en una línea y desaparece. Al crear el último enemigo, `_close_portals()` los cierra y los libera. Usan tweens, así que siguen `Engine.time_scale` y se paran con la pausa.
 
 ### Enemigos vivos
 
 `_alive` es un `Dictionary[Enemy, bool]`. Se añade el enemigo al crearlo y se borra al recibir `died` o `reached_end`; solo la primera de esas señales cuenta, así que cada enemigo se descuenta una vez aunque muera dos veces o muera y llegue al final en el mismo frame. Solo entonces se reenvía como `enemy_died(reward)` o `enemy_reached_end(damage)`. No se usa `tree_exiting`: al reiniciar se libera el nivel entero y no se emite nada. `get_alive_count()` devuelve la cuenta.
+
+Si el enemigo muerto se parte (`EnemyData.split_into`, ver [enemigos.md](enemigos.md)), `_on_enemy_died` suma 1 a `_pending_splits` y llama a `_crack(enemy)`: deja un sprite suelto (sin área, así que se puede crear dentro de una señal de física como el `area_entered` de la bala) con su frame agrietado y, al acabar su tween, `_split(...)` resta 1 y crea los trozos con `_spawn_enemy` (sin `spawn_in()`). Mientras `_pending_splits` > 0, `is_clear()` es false, así que la oleada no se da por limpia entre la muerte y la salida de los trozos.
 
 ### Estados
 
@@ -113,7 +129,7 @@ Al lanzar una oleada, `_open_portals()` crea un `Portal` (`scripts/entities/Port
 | `get_wave_index()` | Última oleada lanzada; -1 antes de la primera |
 | `is_spawning()` | La oleada actual aún tiene entradas pendientes |
 | `has_finished_spawning()` | No quedan entradas (o no se ha lanzado ninguna); puede haber enemigos vivos |
-| `is_clear()` | No quedan entradas ni enemigos vivos |
+| `is_clear()` | No quedan entradas, enemigos vivos ni piezas por soltar |
 | `has_waves_left()` | Quedan oleadas por lanzar |
 | `can_start_next_wave()` | Está limpio y quedan oleadas |
 
