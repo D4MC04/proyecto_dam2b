@@ -8,6 +8,9 @@ enum State { PAST, CURRENT, NEXT, FUTURE }
 
 const ENEMY_CELL: PackedScene = preload("res://scenes/level_ui/EnemyCell.tscn")
 
+## Alto de la celda en la barra: el mismo que el de TowerButton (el Navedex mantiene el mínimo de la escena).
+const CELL_HEIGHT := 56.0
+
 const TITLE_BG_COLOR := Color("#0e1626")
 const TITLE_BORDER_COLOR := Color("#1c4a60")
 const TITLE_TEXT_COLOR := Color("#7fa6b8")
@@ -32,6 +35,7 @@ func setup(wave: WaveData) -> void:
 		counts[entry.enemy_data] = int(counts.get(entry.enemy_data, 0)) + 1
 	for enemy_data: EnemyData in counts:
 		var cell: EnemyCell = ENEMY_CELL.instantiate()
+		cell.custom_minimum_size.y = CELL_HEIGHT
 		cells.add_child(cell)
 		cell.inspect_requested.connect(inspect_requested.emit)
 		cell.setup(enemy_data, counts[enemy_data])

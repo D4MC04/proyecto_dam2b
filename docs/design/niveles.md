@@ -183,7 +183,7 @@ Los 9 mapas están en `scenes/maps/levels/` (`Level1.tscn` a `Level9.tscn`). Los
 | `Gravel` | Gravilla y estrellas que parpadean en todo el campo; nada en el pasillo |
 | `Lights` | Luces del centro del pasillo en los tramos rectos |
 | `VisualMap` | Rocas, chatarra, piezas especiales y balizas |
-| `Planets` | Los planetas de las casillas de torre |
+| `TowerSlots` | Los asteroides con plataforma de las casillas de torre |
 | `LogicMap` | `visible = false`; cubre las 43x33 casillas: camino (`path`), hueco de torre (`slot`) o decorado (`scenery`) |
 
 | Nivel | Idea | Estación (casilla del centro) | Caminos | Rocas (`rocks`) |
@@ -198,7 +198,7 @@ Los 9 mapas están en `scenes/maps/levels/` (`Level1.tscn` a `Level9.tscn`). Los
 | 8 | Dos entradas arriba que se parten en un atajo y una vuelta larga, con caminos simétricos | abajo centro (21, 28) | 4 | dark, lava, crystal |
 | 9 | Una entrada en cada esquina partida en dos rutas, con caminos simétricos en los dos ejes | centro (21, 16) | 8 | dark, crystal, lava, ice |
 
-En los niveles 4, 8 y 9 los caminos y las casillas de torre son simétricos; la decoración y la pieza de cada planeta, no.
+En los niveles 4, 8 y 9 los caminos y las casillas de torre son simétricos; la decoración y la forma y la familia de cada asteroide de casilla de torre, no.
 
 Los caminos empiezan 2 casillas fuera del mapa (los enemigos entran desde fuera de la pantalla, tapados por las barras o el borde) y acaban 40 px antes del centro de la estación, dentro de su borde. Los caminos que comparten tramo pasan por los mismos puntos.
 
@@ -212,16 +212,16 @@ Los 9 mapas los genera `scripts/tools/map_generator.gd` a partir de `resources/m
 godot --headless --path . -s scripts/tools/map_generator.gd -- [N ...]
 ```
 
-Sin números genera los 9. **La fuente de verdad es el `.txt`**: el script reescribe el `.tscn` entero (conserva su uid), así que los retoques hechos en el editor se pierden al regenerar. Cada `.txt` da la semilla de la decoración, las familias de roca del nivel (`rocks`; la primera es la principal), la casilla de la estación, los caminos (puntos en casillas, con tramos horizontales o verticales) y las casillas de los planetas.
+Sin números genera los 9. **La fuente de verdad es el `.txt`**: el script reescribe el `.tscn` entero (conserva su uid), así que los retoques hechos en el editor se pierden al regenerar. Cada `.txt` da la semilla de la decoración, las familias de roca del nivel (`rocks`; la primera es la principal), la casilla de la estación, los caminos (puntos en casillas, con tramos horizontales o verticales) y las casillas de torre (`slots`).
 
 Con eso, el script:
 
 - Pone la estación en el centro de su casilla. Mide 96x96 px, así que sobresale media casilla por cada lado.
-- Llena `LogicMap` y pone un planeta (pieza de 2x2 del atlas de planetas) en cada casilla de torre; los planetas a 8 casillas o menos usan piezas distintas.
+- Llena `LogicMap` y pone en cada casilla de torre un asteroide con plataforma (pieza de 2x2 de `espacio_casillas_torre.png`, ver [art.md](art.md)) de la familia de roca de su zona; las casillas a 8 o menos usan formas distintas (si quedan: hay 4 por familia).
 - Calcula el **pasillo** (las casillas a 1 casilla o menos de un camino, en distancia de Chebyshev) y la **orilla** (las que están a 2, justo al lado del pasillo). Todo lo que no es pasillo es **campo**. Donde dos caminos se juntan o se cruzan, los pasillos se funden.
 - La **densidad** del campo sale de un ruido (de 0,65 a 1), no baja de 0,9 en las 2 casillas del borde del mapa y se multiplica por 1,25 a 3 casillas del camino y por 1,5 a 4 o más: el campo se espesa al alejarse del pasillo, para que ninguna bolsa de campo rodeada de orilla parezca vacía.
 - En `Lights`, una luz cada 2 casillas en los tramos rectos del centro del pasillo (dos piezas que alternan en los horizontales y otras dos en los verticales), sin luces en esquinas, cruces ni dentro de la estación.
-- En `VisualMap` no pone nada en el pasillo ni en la estación ni en los planetas (ni en sus 8 casillas de alrededor). En el campo, por este orden:
+- En `VisualMap` no pone nada en el pasillo ni en la estación ni en las casillas de torre (ni en sus 8 casillas de alrededor). En el campo, por este orden:
   1. **Balizas** a los dos lados de la boca de cada pasillo, en la casilla del borde.
   2. **Piezas especiales**: 3 o 4 entre la nave estrellada, el satélite con astronauta, la roca con ovni y el satélite animado, a 3 casillas o más del camino, fuera de las 2 casillas del borde, a 10 o más entre ellas y con una casilla libre alrededor.
   3. **Restos**: de 1 a 3 restos grandes (casco roto, contenedor, depósito, viga o antena), a 3 casillas o más del camino, fuera del borde y a 8 o más entre ellos, con chatarra pequeña alrededor, cada vez menos al alejarse.
