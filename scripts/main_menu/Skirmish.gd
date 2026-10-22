@@ -13,12 +13,13 @@ const SHIPS: Array[Array] = [
 ]
 const IMPACT_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/laser_impact.tres")
 const SHIP_SCALE: float = 0.5
-const SHIP_ALPHA: float = 0.6
+# Las naves y sus impactos van oscurecidos, como lejanos, pero opacos: no transparentan lo que tengan detrás
+const SHIP_TINT: Color = Color(0.62, 0.66, 0.74)
 const MARGIN: float = 40.0
 const SHIP_SPEED: float = 60.0
 const SHOT_SPEED: float = 320.0
 const SHOT_LENGTH: float = 12.0
-const SHOT_COLOR: Color = Color(0.25, 0.88, 0.94, 0.8)
+const SHOT_COLOR: Color = Color(0.25, 0.88, 0.94)
 const KILL_CHANCE: float = 0.4
 # Franjas verticales (fracción de la altura) por las que pasan; el centro queda libre para los botones
 const LANES: Array[Vector2] = [Vector2(0.05, 0.2), Vector2(0.8, 0.95)]
@@ -66,7 +67,7 @@ func _spawn_group() -> void:
 		var ship: AnimatedSprite2D = AnimatedSprite2D.new()
 		ship.sprite_frames = frames
 		ship.scale = Vector2(SHIP_SCALE, SHIP_SCALE)
-		ship.modulate.a = SHIP_ALPHA
+		ship.modulate = SHIP_TINT
 		# Formación en V hacia atrás: cada nave queda más atrás y alternando a un lado
 		var rank: int = (i + 1) / 2
 		var side: float = 1.0 if i % 2 == 1 else -1.0
@@ -144,7 +145,7 @@ func _explode(at: Vector2) -> void:
 	var fx: AnimatedSprite2D = AnimatedSprite2D.new()
 	fx.sprite_frames = IMPACT_FRAMES
 	fx.position = at
-	fx.modulate.a = SHIP_ALPHA
+	fx.modulate = SHIP_TINT
 	add_child(fx)
 	fx.animation_finished.connect(fx.queue_free)
 	fx.play()

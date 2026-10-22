@@ -1,7 +1,6 @@
 [gd_scene format=3]
 
 [ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/menu/menu_nebula.png" id="1_nebula"]
-[ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/menu/menu_planet.png" id="2_planet"]
 [ext_resource type="Texture2D" uid="uid://8u0oxfwb5s16" path="res://assets/sprites/backgrounds/espacio/cometa.png" id="3_comet"]
 [ext_resource type="Script" uid="uid://fkqc2s1bei5f" path="res://scripts/level/Comet.gd" id="4_comet"]
 
@@ -15,10 +14,6 @@ repeat_times = 2
 [node name="Image" type="Sprite2D" parent="Nebula"]
 texture = ExtResource("1_nebula")
 centered = false
-
-[node name="RingedPlanet" type="Sprite2D" parent="."]
-position = Vector2(820, 446)
-texture = ExtResource("2_planet")
 
 [node name="Comet" type="Sprite2D" parent="."]
 texture = ExtResource("3_comet")

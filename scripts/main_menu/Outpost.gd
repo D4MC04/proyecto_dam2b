@@ -2,6 +2,7 @@ extends Node2D
 class_name Outpost
 ## Puesto defensivo del menú: la estación del jugador con unas torres alrededor, con los mismos
 ## sprites y animaciones que en los niveles. Las torres giran y disparan cuando Skirmish las usa.
+## En la escena va a la escala y con el tono de las naves de Skirmish, como parte del fondo.
 
 const STATION_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/estacion.tres")
 const STATION_ANIMATION: StringName = &"fase_0"
@@ -54,4 +55,4 @@ func fire_at(target: Vector2) -> Vector2:
 	cannon.rotation = (target - cannon.global_position).angle() + PI / 2.0
 	if cannon.sprite_frames.has_animation(&"fire_0"):
 		cannon.play(&"fire_0")
-	return cannon.global_position + _data[best].muzzle_offset.rotated(cannon.rotation)
+	return cannon.to_global(_data[best].muzzle_offset)

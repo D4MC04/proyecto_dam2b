@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://hut21l7kytl6" path="res://scripts/screens/MainMenu.gd" id="1_menu"]
 [ext_resource type="Script" uid="uid://bnok54y84qsmr" path="res://scripts/main_menu/Starfield.gd" id="2_stars"]
-[ext_resource type="Texture2D" uid="uid://c5u3a6vnf6m0d" path="res://assets/sprites/planets/luna.png" id="7_1ajci"]
 [ext_resource type="PackedScene" uid="uid://ds51ueya6tle1" path="res://scenes/SpaceBody.tscn" id="9_body"]
 [ext_resource type="Texture2D" uid="uid://7udnrdhnrwfo" path="res://assets/sprites/planets/asteroide_1.png" id="12_asteroide1"]
 [ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="13_theme"]
@@ -17,6 +16,7 @@
 [ext_resource type="PackedScene" path="res://scenes/MenuBackground.tscn" id="24_background"]
 [ext_resource type="Script" path="res://scripts/main_menu/Outpost.gd" id="25_outpost"]
 [ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/menu/menu_vignette.png" id="26_vignette"]
+[ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/menu/menu_planet.png" id="27_planet"]
 
 [node name="MainMenu" type="Control" unique_id=576679633]
 texture_filter = 1
@@ -43,6 +43,10 @@ color = Color(0, 0, 0, 1)
 [node name="StarField" type="Node2D" parent="." unique_id=933333249]
 script = ExtResource("2_stars")
 
+[node name="RingedPlanet" type="Sprite2D" parent="."]
+position = Vector2(820, 446)
+texture = ExtResource("27_planet")
+
 [node name="Comets" type="Node2D" parent="." unique_id=273898892]
 script = ExtResource("14_comets")
 
@@ -54,15 +58,6 @@ script = ExtResource("18_satellites")
 
 [node name="Planets" type="Node2D" parent="." unique_id=1569682466]
 
-[node name="Planeta5" parent="Planets" unique_id=1965250712 instance=ExtResource("9_body")]
-position = Vector2(667.5, 75.9)
-rotation = 0.46251225
-scale = Vector2(0.47721493, 0.46993628)
-frame_progress = 0.021975154
-speed_scale = 0.5
-sheet = ExtResource("7_1ajci")
-fps = 7.0
-
 [node name="Asteroide1" parent="Planets" unique_id=359384108 instance=ExtResource("9_body")]
 visible = false
 position = Vector2(81, 458.1)
@@ -72,7 +67,9 @@ sheet = ExtResource("12_asteroide1")
 fps = 10.0
 
 [node name="Outpost" type="Node2D" parent="."]
-position = Vector2(150, 290)
+modulate = Color(0.62, 0.66, 0.74, 1)
+position = Vector2(120, 286)
+scale = Vector2(0.5, 0.5)
 script = ExtResource("25_outpost")
 
 [node name="Skirmish" type="Node2D" parent="." node_paths=PackedStringArray("outpost")]
