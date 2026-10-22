@@ -71,9 +71,11 @@ Todos son `Node2D` que dibujan o crean sprites por código, con posiciones y tie
 
 `scripts/autoloads/MusicManager.gd`, autoload de tipo `AudioStreamPlayer`.
 
-- Carga `assets/audio/music/theme.mp3`, la pone en bucle y la reproduce al arrancar. Si el archivo no existe, avisa y no suena nada.
+- Carga `assets/audio/music/theme.ogg` (el bucle va activado en su import) y la reproduce al arrancar. Si el archivo no existe, avisa y no suena nada.
 - `process_mode = ALWAYS`: sigue sonando con el juego en pausa. Al ser autoload no se corta al cambiar de escena.
 - Suena por el bus `Music`. No guarda volumen ni silencio: eso lo lleva `Settings` a través de los buses.
+
+Convención de formatos: los audios largos o en bucle (música, ambientes, sonidos de nave largos, GameOver y Victory) van en OGG Vorbis; los efectos cortos, en WAV. Solo `theme` y los dos ambientes (`LevelAmbience/`) tienen `loop=true` en el import.
 
 Es el único audio del juego: todavía no hay efectos de sonido, así que nada suena por el bus `SFX`.
 
