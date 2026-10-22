@@ -25,31 +25,23 @@
 - No crear otros .md sin que se pida.
 
 ## Flujo de tickets
-- Guía completa para el usuario: docs/CLAUDE-CODE.md. Formato de ticket: docs/tasks/_plantilla.md.
-- `/proponer` crea tickets con `Estado: propuesta`. Solo se implementan los `Estado: aceptada`, con `/hacer nombre`.
-- Cada ticket en su rama `ticket/nombre` desde main. Nunca trabajar en main.
-- Un ticket nuevo (`/proponer`) solo cambia la línea `Estado:`; no se sube nada sin visto bueno.
+- Guía para el usuario: docs/CLAUDE-CODE.md. Formato de ticket: docs/tasks/_plantilla.md.
+- Comandos: `/ideas` (Claude propone tickets), `/add` (tickets con las ideas del usuario), `/board` (estado, choques y tandas), `/work nombre` (implementa), `/check` (revisa sin tocar nada), `/ship` (revisa y sube a main), `/hub` (abre el chat central). `/proponer`, `/tickets`, `/hacer`, `/revisar` y `/new` son alias temporales de los anteriores.
+- Solo se implementan tickets con `Estado: aceptada`, cada uno en su rama `ticket/nombre` desde main. Nunca trabajar en main, salvo el commit del `Estado:` al aceptar.
+- Solo se sube a main con `/ship`. Si el usuario dice "commitea", "sube" o parecido, no subir: recordarle `/ship`.
 - **Aceptar es la orden de empezar** (casillas o "acepto X"), sin esperar otro visto bueno:
-  1. Commit en `main` solo del cambio de `Estado:` de los `docs/tasks/` (única excepción a no trabajar en main; sin probador) y `git push origin main`. Si `origin/main` avanzó, antes `git pull --ff-only`.
-  2. Enseguida, un chat con worktree (`start_session`, `user_asked`) por cada ticket aceptado de la primera tanda que no choque con otro, con `/hacer nombre` y su modelo y esfuerzo.
+  1. Cambiar solo la línea `Estado:` a `aceptada`. Commit en `main` solo de eso (sin probador) y `git push origin main`; si `origin/main` avanzó, antes `git pull --ff-only`.
+  2. Si hay herramienta `start_session` (app de escritorio): enseguida, un chat con worktree (`user_asked`) por cada ticket aceptado de la primera tanda que no choque con otro, con `/work nombre` y su modelo y esfuerzo. Si no la hay: decir al usuario que lance `/work nombre`.
   3. Los que chocan esperan a que el anterior esté en main; el chat central los lanza al recibir el aviso de subida.
-- **Subir a main** (tras el visto bueno: "sube", "va bien", "listo", "commitea"; sin preguntar más ni hacer PR, salvo que el usuario lo pida). `main` de GitHub tiene que poder descargarse y abrirse sin errores, así que antes de subir:
-  1. Pasar el agente `probador` (OK) y `git fetch origin`; si `origin/main` avanzó, traerlo a la rama y volver a probar. Nunca `--force`.
-  2. Commit en la rama del ticket y `git push origin <rama>:main`.
-  3. Borrar la rama remota del ticket: `git push origin --delete <rama>`.
-  4. Dejar lo local en solo `main`: el chat que trabaja en la carpeta principal hace `git fetch --prune`, `git pull --ff-only` (si hay cambios locales sin commitear que lo bloquean, no descartarlos: avisar), `git branch -d <rama>` (solo con `-d`, nunca borra ramas sin fusionar) y `git worktree prune`. Un chat en worktree no puede tocar la carpeta principal: avisa al chat central de que subió y este hace el paso 4; si el chat entró con `EnterWorktree`, sale con `ExitWorktree` (`remove`) y lo hace él.
-  5. Limpiar todo lo del ticket sin preguntar (ya no sirve): archivar su chat, quitar su worktree con `git worktree remove <carpeta>` (sin `--force`; si Godot está abierto en esa carpeta, cerrarlo antes o pedir al usuario que lo cierre) y borrar su rama local con `git branch -d`. Al final no queda ni carpeta en `.claude/worktrees/` ni rama del ticket, solo `main`. Lo hace el chat central.
-- **Chat central** (se abre con `/new`): trabaja en la carpeta principal sobre `main`, en Opus. Propone y reparte tickets en chats con worktree, revisa lo que suben y hace el paso 4 de "Subir a main" para que el usuario nunca tenga que hacer `git pull` a mano. Cada vez que arranca o recibe un aviso de subida, deja `main` local al día.
-- Con el visto bueno ("sube todo", "commitea"…), el chat central puede subir él mismo los tickets listos: hace "Subir a main" (pasos 1-4) en cada worktree de `.claude/worktrees/`, uno detrás de otro, sin esperar a que cada chat de ticket lo haga.
-- `/new`: crea el chat central y borra el chat donde se escribió (lo borra el chat central; la app pide confirmarlo).
-- Para probar, usar el agente `probador`. Antes de commitear o subir, `/revisar` (prueba, revisa y mira conflictos con main).
+- **Casillas para aceptar** (al final de `/ideas`, `/add` y `/board`, si hay tickets en `Estado: propuesta`): AskUserQuestion en multiSelect, una opción por ticket (etiqueta: nombre; descripción: qué aporta, modelo, esfuerzo y tanda), máximo 4 por pregunta y hasta 4 preguntas agrupadas por tanda. Los marcados se aceptan como arriba; si no marca ninguno, no se cambia nada.
+- **Chat central** (`/hub`): carpeta principal, rama `main`, en Opus. Reparte tickets, recibe los avisos de subida y deja `main` local al día para que el usuario nunca haga `git pull` a mano.
+- Para probar, usar el agente `probador`.
 - Avisar al usuario de qué comando toca, al final de la respuesta, en una línea:
-  - Pregunta qué tickets quedan o cuáles se pueden hacer a la vez → `/tickets`.
-  - Sin tickets aceptados o pide ideas → `/proponer`.
-  - Ticket aceptado → `/hacer nombre`, con el modelo y el esfuerzo que pone el ticket (`Modelo recomendado` y `Esfuerzo recomendado`).
-  - Tras `/hacer` → probar a mano en Godot y luego `/revisar`.
-  - `/revisar` en OK → "commitea" (con el visto bueno, commit y subida directa a main).
-  - Ticket ya en main → decir que su chat, su worktree y su rama ya se borraron (paso 5 de "Subir a main").
+  - Pregunta qué tickets quedan o cuáles se pueden hacer a la vez → `/board`.
+  - Quiere arreglar o añadir algo concreto → `/add`. Pide ideas → `/ideas`.
+  - Ticket aceptado → `/work nombre`, con el modelo y el esfuerzo que pone el ticket.
+  - Tras `/work` → probar a mano en Godot y luego `/ship`.
+  - Ticket ya en main → decir que su chat, su worktree y su rama ya se borraron.
   - Chat largo o tema distinto al del chat → abrir chat nuevo.
   - Tarea mecánica en Opus → bajar a Sonnet o Haiku. Sonnet atascado dos veces → subir a Opus.
 
@@ -62,6 +54,6 @@
 - Pixel art 16x16. Seguir docs/design/art.md y el estilo de los sprites existentes en assets/.
 
 ## Antes de dar algo por terminado
-- Comprobar que el proyecto carga sin errores en headless. Godot (no está en el PATH): `C:\Users\renzo\Downloads\Godot_v4.7.2-stable_win64.exe\Godot_v4.7.2-stable_win64.exe` o `C:\Users\David\Desktop\Godot.exe`, el que exista en el equipo.
-- No commitear ni subir a menos que el usuario lo pida o dé el visto bueno. Si lo hace, hacer el commit y subirlo a main como dice "Flujo de tickets".
+- Comprobar con el agente `probador` que el proyecto carga sin errores en headless. Busca Godot en la variable de entorno `GODOT`, que cada uno pone en su `.claude/settings.local.json` (ver docs/CLAUDE-CODE.md).
+- No commitear ni subir sin `/ship` (salvo el cambio de `Estado:` al aceptar).
 - Al acabar una tarea, dar al usuario unos pasos breves para comprobar a mano que funciona en el juego: qué escena abrir, qué hacer y qué debería verse.

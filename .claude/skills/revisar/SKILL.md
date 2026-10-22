@@ -1,23 +1,8 @@
 ---
 name: revisar
-description: Revisa la rama actual antes de commitear o subir a main: busca fallos, prueba en headless, mira si entra limpia en main y resume los cambios en lenguaje claro.
-model: opus
+description: Alias temporal de /check (nombre antiguo).
 disable-model-invocation: true
+model: opus
 ---
 
-Revisa la rama actual frente a `main` antes del PR.
-
-1. En un solo comando: `git fetch origin && git status --short && git diff main...HEAD && git merge-tree --write-tree --name-only origin/main HEAD; echo "merge-tree: $?"` (cambios, lo no commiteado y conflictos con main a la vez).
-2. Busca fallos reales: lógica rota, referencias en .tscn/.tres que no se actualizaron al renombrar, uid= o ids de ext_resource cambiados, tile_map_data escrito a mano, reglas de CLAUDE.md incumplidas.
-3. Lanza el agente `probador`.
-4. Comprueba que el docs/design afectado está actualizado y que el ticket se borró.
-5. Conflictos con main, del paso 1 (merge-tree no toca archivos; solo mira lo commiteado). Código 0: entra limpio. Código 1: lista los archivos en conflicto.
-
-Devuelve:
-- Resumen de qué cambia la rama, para alguien que está aprendiendo (sin jerga).
-- Lista de problemas encontrados (archivo:línea y por qué), o "sin problemas".
-- Resultado del probador.
-- Main: entra limpio, o los archivos en conflicto.
-- Siguiente paso: "commitea", o qué arreglar antes.
-
-No arregles nada sin preguntar.
+Lee `.claude/skills/check/SKILL.md` y sigue sus instrucciones como si el usuario hubiera escrito `/check` con estos argumentos: $ARGUMENTS
