@@ -11,6 +11,13 @@ const DISABLED_TINT := Color(0.22, 0.25, 0.38)
 # Destello al volver a encenderse.
 const ENABLE_FLASH := Color(3, 3, 3)
 const ENABLE_FLASH_TIME := 0.3
+# Animación al construir (flash normal) y al fusionar (flash más fuerte).
+const BUILD_FLASH := Color(2, 2, 2)
+const FUSE_FLASH := Color(5, 5, 5)
+const BUILD_TIME := 0.35
+# Animación al vender: se encoge soltando chispas.
+const SELL_TIME := 0.25
+const SELL_SPARK_COLOR := Color("#ffe082")
 # Fundido al cortar el sonido de disparo cuando la torre se queda sin objetivo.
 const SHOOT_FADE_TIME := 0.12
 const SHOOT_FADE_DB := -40.0
@@ -265,3 +272,40 @@ func _enable() -> void:
 ## Dinero que devuelve vender la torre: la mitad de lo invertido, redondeada hacia abajo.
 func get_sell_value() -> int:
 	return floori(invested / 2.0)
+
+## Aparece con escala de 0 a 1 con rebote y un destello (más fuerte si es una fusión).
+func play_build(fused := false) -> void:
+	scale = Vector2.ZERO
+	var flash := FUSE_FLASH if fused else BUILD_FLASH
+	var tween := create_tween().set_parallel()
+	tween.tween_property(self, "scale", Vector2.ONE, BUILD_TIME).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(sprite, "modulate", Color.WHITE, BUILD_TIME).from(flash)
+	tween.tween_property(cannon, "modulate", Color.WHITE, BUILD_TIME).from(flash)
+
+## Al vender: deja una copia visual que se encoge soltando chispas; la torre real se libera ya.
+func play_sell() -> void:
+	var ghost := Node2D.new()
+	ghost.global_position = global_position
+	ghost.z_index = z_index
+	for node: AnimatedSprite2D in [sprite, cannon]:
+		var copy: AnimatedSprite2D = node.duplicate()
+		copy.pause()
+		ghost.add_child(copy)
+	var sparks := CPUParticles2D.new()
+	sparks.emitting = true
+	sparks.one_shot = true
+	sparks.explosiveness = 1.0
+	sparks.amount = 10
+	sparks.lifetime = SELL_TIME * 2.0
+	sparks.spread = 180.0
+	sparks.initial_velocity_min = 30.0
+	sparks.initial_velocity_max = 70.0
+	sparks.scale_amount_min = 2.0
+	sparks.scale_amount_max = 2.0
+	sparks.color = SELL_SPARK_COLOR
+	ghost.add_child(sparks)
+	get_parent().add_child(ghost)
+	var tween := ghost.create_tween()
+	tween.tween_property(ghost, "scale", Vector2.ZERO, SELL_TIME).set_ease(Tween.EASE_IN)
+	tween.tween_interval(SELL_TIME)
+	tween.tween_callback(ghost.queue_free)
