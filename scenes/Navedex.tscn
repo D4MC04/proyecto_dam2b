@@ -44,6 +44,11 @@ layout_mode = 2
 title = "ARCHIVO"
 text_size = 24
 
+[node name="Tabs" type="TabBar" parent="Center/Frame/Margin/Box"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+
 [node name="Columns" type="HBoxContainer" parent="Center/Frame/Margin/Box"]
 layout_mode = 2
 theme_override_constants/separation = 24
@@ -70,6 +75,12 @@ unique_name_in_owner = true
 position = Vector2(150, 32)
 scale = Vector2(2, 2)
 
+[node name="TowerIcon" type="Sprite2D" parent="Center/Frame/Margin/Box/Columns/Detail/SpriteBox"]
+unique_name_in_owner = true
+visible = false
+position = Vector2(150, 32)
+scale = Vector2(2, 2)
+
 [node name="NameLabel" type="Label" parent="Center/Frame/Margin/Box/Columns/Detail"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -83,6 +94,14 @@ custom_minimum_size = Vector2(300, 60)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 autowrap_mode = 3
+
+[node name="FusionLabel" type="Label" parent="Center/Frame/Margin/Box/Columns/Detail"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7450981, 0.98039216, 1, 1)
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
 
 [node name="StatRows" type="VBoxContainer" parent="Center/Frame/Margin/Box/Columns/Detail"]
 unique_name_in_owner = true

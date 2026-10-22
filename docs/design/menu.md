@@ -61,11 +61,12 @@ Todos son `Node2D` que dibujan o crean sprites por código, con posiciones y tie
 
 ## Navedex
 
-`scenes/Navedex.tscn` + `scripts/screens/Navedex.gd` (clase `Navedex`). Archivo de enemigos, accesible con "ARCHIVO" en el título (mismo fundido de 0,25 s que Jugar/Opciones; emite `back_pressed` con "Volver"). Panel holograma (`OverlayFrame`) con cabecera `// ARCHIVO`, a la izquierda una cuadrícula de 4 columnas con todos los enemigos (`ENEMY_FILES`, celdas `EnemyCell` sin contador) y a la derecha el detalle: sprite animado `up` a ×2, nombre, `description` y stats (`get_stats()` con `StatRow` a 24 px).
+`scenes/Navedex.tscn` + `scripts/screens/Navedex.gd` (clase `Navedex`). Archivo de naves y torres, accesible con "ARCHIVO" en el título (mismo fundido de 0,25 s que Jugar/Opciones; emite `back_pressed` con "Volver"). Panel holograma (`OverlayFrame`) con cabecera `// ARCHIVO`, una `TabBar` NAVES / TORRES, a la izquierda una cuadrícula de 4 columnas (celdas `EnemyCell` sin contador, que valen para cualquier `InspectableData`) y a la derecha el detalle: sprite (animado `up` en las naves, `icon` en las torres) a ×2, nombre, `description` y stats (`get_stats()` con `StatRow` a 24 px). En las torres base se añade una línea "FUSIÓN: nombre".
 
 - Un enemigo es "visto" si `GameState.has_seen_enemy(data)`. Los no vistos salen en silueta negra (`modulate` negro) y su detalle dice "???" sin stats.
 - Al mostrarse se refrescan las siluetas y se elige el primer enemigo.
-- Si se añade un enemigo nuevo, hay que añadirlo a `ENEMY_FILES`.
+- Las torres (`TOWER_FILES`, cada base seguida de su fusión) siempre se ven completas.
+- Si se añade un enemigo o torre nuevos, hay que añadirlo a `ENEMY_FILES` / `TOWER_FILES`.
 
 ## Música
 
