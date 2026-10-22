@@ -12,9 +12,9 @@ Implementa el ticket `docs/tasks/$ARGUMENTS.md`.
 3. Comprueba que el ticket no contradice la sección "Decidido" de `docs/DESIGN.md`. Si contradice, para y avisa.
 4. Lee solo el `docs/design/` que toque y los archivos que lista el ticket. Implementa siguiendo CLAUDE.md.
 5. Lanza el agente `probador`. Si devuelve errores, arréglalos y vuelve a lanzarlo hasta que dé OK.
-6. Actualiza el `docs/design/` afectado (y `docs/DESIGN.md` si cambia algo general) y borra el archivo del ticket.
+6. Actualiza el `docs/design/` afectado (y `docs/DESIGN.md` si cambia algo general), borra el archivo del ticket y guarda con `/commit` (sigue `.claude/skills/commit/SKILL.md`; ya incluye el `probador`). Cada vez que arregles algo que te pida el usuario, otro `/commit`.
 7. Abre tú el editor de Godot en la carpeta de este chat (worktree), en segundo plano y sin pedir nada al usuario. En PowerShell: `Start-Process $env:GODOT -ArgumentList "--path", "<carpeta del worktree>", "-e"`. Si ya había uno abierto en esa carpeta, ciérralo antes para que cargue los cambios. Haz lo mismo cada vez que cambies algo que el usuario tenga que volver a probar.
-8. No hagas commit. Termina con:
+8. No subas nada. Termina con:
    - Qué has cambiado, en 2-3 líneas claras.
    - Que Godot ya está abierto con los cambios (pulsar F5) y los pasos para probarlo (qué nivel, qué hacer, qué debería verse). Nada de rutas ni ramas: el usuario solo juega.
-   - "Si te vale, escribe `/ship`: lo reviso, lo commiteo, lo subo directo a main y borro la rama. Si no, dime qué falla."
+   - "Si te vale, escribe `/ship`: lo subo, abro el PR y lo fusiono en main. Si no, dime qué falla."
