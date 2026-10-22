@@ -197,11 +197,20 @@ func die():
 	Debris.spawn(get_parent(), global_position, _sprite_colors(), effect_scale())
 	queue_free()
 
+# Colores de los restos por textura: get_image() es caro, así que se lee una vez por textura.
+static var _debris_colors: Dictionary[Texture2D, Array] = {}
+
 # Colores opacos del frame actual del sprite (cada 2 px), para los restos.
 func _sprite_colors() -> Array[Color]:
 	var colors: Array[Color] = []
 	var texture := sprite.sprite_frames.get_frame_texture(sprite.animation, sprite.frame)
-	var image := texture.get_image() if texture else null
+	if texture == null:
+		return colors
+	if _debris_colors.has(texture):
+		colors.assign(_debris_colors[texture])
+		return colors
+	var image := texture.get_image()
+	_debris_colors[texture] = colors
 	if image == null or image.is_compressed():
 		return colors
 	for y in range(0, image.get_height(), 2):
