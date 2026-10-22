@@ -104,6 +104,7 @@ func _fuse(cell: Vector2i, old: Tower) -> void:
 	add_child(tower)
 	tower.global_position = grid.center(cell)
 	tower.play_build(true)
+	GameState.register_fusion(fused)
 	grid.register_tower(cell, tower)
 	state.inspect_placed(tower)
 	_update_preview(get_viewport().get_mouse_position())

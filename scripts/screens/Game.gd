@@ -57,13 +57,16 @@ func _setup_level() -> void:
 	ui.setup(level.game_state, level.towers, level_number, level.spawner, has_next_level, level.base)
 
 func _on_level_lost() -> void:
+	GameState.flush()
 	# La UI recibe el resumen ya hecho; no lee el nivel por su cuenta.
 	ui.show_run_stats(level.get_run_stats())
 	ui.set_state(LevelUI.UiState.LOST)
 
 func _on_level_won() -> void:
 	# Si no está en la lista, find devuelve -1 y el número es 0: no desbloquea nada.
-	GameState.complete_level(GameData.levels.find(level_data) + 1)
+	var number: int = GameData.levels.find(level_data) + 1
+	GameState.complete_level(number)
+	GameState.register_win(number, level.base.health == level.base.max_health)
 	ui.show_run_stats(level.get_run_stats())
 	ui.set_state(LevelUI.UiState.WON)
 

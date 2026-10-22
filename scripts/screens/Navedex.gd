@@ -20,6 +20,7 @@ const TOWER_FILES: Array[String] = [
 	"tesla", "tesla_fusion",
 ]
 const TAB_ENEMIES := 0
+const TAB_ACHIEVEMENTS := 2
 const CELL_SCENE: PackedScene = preload("res://scenes/level_ui/EnemyCell.tscn")
 const UNKNOWN_TEXT := "???"
 
@@ -31,6 +32,8 @@ const UNKNOWN_TEXT := "???"
 @onready var name_label: Label = %NameLabel
 @onready var description_label: Label = %DescriptionLabel
 @onready var stat_rows: VBoxContainer = %StatRows
+@onready var detail: VBoxContainer = %Detail
+@onready var achievements_list: Label = %AchievementsList
 
 var _cells: Dictionary[InspectableData, EnemyCell] = {}
 
@@ -38,6 +41,7 @@ func _ready() -> void:
 	%VolverButton.pressed.connect(back_pressed.emit)
 	tabs.add_tab("NAVES")
 	tabs.add_tab("TORRES")
+	tabs.add_tab("LOGROS")
 	tabs.tab_changed.connect(_build_grid)
 	_build_grid(TAB_ENEMIES)
 	visibility_changed.connect(_on_visibility_changed)
@@ -45,6 +49,13 @@ func _ready() -> void:
 
 # Rellena la cuadrícula con las naves o las torres según la pestaña.
 func _build_grid(tab: int) -> void:
+	var achievements := tab == TAB_ACHIEVEMENTS
+	grid.visible = not achievements
+	detail.visible = not achievements
+	achievements_list.visible = achievements
+	if achievements:
+		_show_achievements()
+		return
 	for cell in _cells.values():
 		grid.remove_child(cell)
 		cell.queue_free()
@@ -62,7 +73,12 @@ func _build_grid(tab: int) -> void:
 
 # Al abrirse se refresca lo visto, por si se jugó una partida desde la última vez.
 func _on_visibility_changed() -> void:
-	if not visible or _cells.is_empty():
+	if not visible:
+		return
+	if tabs.current_tab == TAB_ACHIEVEMENTS:
+		_show_achievements()
+		return
+	if _cells.is_empty():
 		return
 	for data in _cells:
 		_cells[data].icon_rect.modulate = Color.WHITE if _is_known(data) else Color.BLACK
@@ -72,6 +88,14 @@ func _on_visibility_changed() -> void:
 func _is_known(data: InspectableData) -> bool:
 	var enemy := data as EnemyData
 	return enemy == null or GameState.has_seen_enemy(enemy)
+
+func _show_achievements() -> void:
+	var lines: Array[String] = []
+	for id: String in GameState.ACHIEVEMENTS:
+		var info: Array = GameState.ACHIEVEMENTS[id]
+		var done: bool = id in GameState.unlocked
+		lines.append("[%s] %s - %s" % ["X" if done else " ", info[0], info[1]])
+	achievements_list.text = "\n".join(lines)
 
 func _show_detail(data: InspectableData) -> void:
 	var seen := _is_known(data)
