@@ -1,6 +1,6 @@
 # Música por nivel
 
-Estado: aceptada
+Estado: propuesta
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 
