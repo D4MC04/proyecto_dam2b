@@ -1,6 +1,6 @@
 # Brillo (glow) en disparos y luces
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 

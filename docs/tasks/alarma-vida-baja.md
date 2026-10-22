@@ -1,6 +1,6 @@
 # Alarma de vida baja
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: low
 

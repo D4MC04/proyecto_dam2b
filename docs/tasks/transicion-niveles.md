@@ -1,6 +1,6 @@
 # Transición entre niveles
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 
