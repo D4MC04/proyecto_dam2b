@@ -47,7 +47,7 @@ func _process(_delta: float) -> void:
 	var left := powers.get_cooldown_left(power)
 	var fraction := left / Powers.COOLDOWNS[power]
 	var seconds := ceili(left)
-	var aiming := power == Powers.Power.METEOR and powers.is_aiming()
+	var aiming := powers.get_aimed_power() == power
 	if fraction == _shown_fraction and aiming == _shown_aiming:
 		return
 	_shown_fraction = fraction

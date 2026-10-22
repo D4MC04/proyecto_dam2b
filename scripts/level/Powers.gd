@@ -1,18 +1,19 @@
 extends Node2D
 class_name Powers
-## Poderes del jugador: meteorito (con apuntado) y congelar. Lleva sus recargas, que corren en
+## Poderes del jugador: meteorito y ataque orbital (con apuntado) y congelar. Lleva sus recargas, que corren en
 ## _process: siguen Engine.time_scale y se paran con la pausa. Va dentro de Level, así que al
 ## reiniciar se crea uno nuevo con los dos poderes listos. Solo LevelUI lo usa (y solo jugando).
 
-enum Power { METEOR, FREEZE }
+enum Power { METEOR, FREEZE, ORBITAL }
 
-## Un poder se ha lanzado (el meteorito, al caer; no al empezar a apuntar).
+## Un poder se ha lanzado (el meteorito, al caer, y el ataque orbital, al empezar el rayo; no al empezar a apuntar).
 signal power_used(power: Power)
 
 ## Recarga de cada poder, en segundos de juego.
 const COOLDOWNS: Dictionary[Power, float] = {
 	Power.METEOR: 45.0,
 	Power.FREEZE: 60.0,
+	Power.ORBITAL: 75.0,
 }
 const METEOR_RADIUS := 40.0
 const METEOR_DAMAGE := 150.0
@@ -23,6 +24,20 @@ const METEOR_FALL_TIME := 0.3
 const METEOR_EXPLOSION_SCALE := 3.0
 const FREEZE_FACTOR := 0.3
 const FREEZE_TIME := 4.0
+# Ataque orbital: un rayo vertical barre la fila elegida de izquierda a derecha durante ORBITAL_TIME.
+const ORBITAL_TIME := 2.0
+const ORBITAL_DPS := 400.0
+const ORBITAL_HALF_WIDTH := 6.0
+const ORBITAL_HALF_HEIGHT := 16.0
+const ORBITAL_FALL_TIME := 0.15
+# Temblor del mapa mientras dura el rayo: se repite cada ORBITAL_SHAKE_INTERVAL con este "daño" (amplitud).
+const ORBITAL_SHAKE_INTERVAL := 0.15
+const ORBITAL_SHAKE_DAMAGE := 40
+const ORBITAL_BOLT_STEP := 14.0
+const ORBITAL_BOLT_JITTER := 6.0
+const ORBITAL_BEAM_COLOR := Color("#40e0f0")
+const ORBITAL_GLOW_COLOR := Color(0.25, 0.88, 0.94, 0.3)
+const ORBITAL_CORE_COLOR := Color("#ffffff")
 const AIM_FILL_COLOR := Color(1.0, 0.7, 0.24, 0.15)
 const AIM_BORDER_COLOR := Color("#ecb23c")
 
@@ -33,8 +48,12 @@ const FROST_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/cryo_f
 
 @export var state: LevelState
 
-var _cooldown_left: Dictionary[Power, float] = {Power.METEOR: 0.0, Power.FREEZE: 0.0}
-var _aiming := false
+var _cooldown_left: Dictionary[Power, float] = {Power.METEOR: 0.0, Power.FREEZE: 0.0, Power.ORBITAL: 0.0}
+# Poder que se está apuntando, o -1.
+var _aimed_power := -1
+var _orbital_row := 0.0
+var _orbital_elapsed := ORBITAL_TIME
+var _orbital_shake_left := 0.0
 
 func _ready() -> void:
 	# Elegir torre cancela el apuntado.
@@ -45,6 +64,18 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	for power: Power in _cooldown_left:
 		_cooldown_left[power] = maxf(_cooldown_left[power] - delta, 0.0)
+	if _orbital_elapsed < ORBITAL_TIME:
+		_orbital_elapsed += delta
+		_orbital_shake_left -= delta
+		if _orbital_shake_left <= 0.0:
+			_orbital_shake_left = ORBITAL_SHAKE_INTERVAL
+			(get_parent() as Level).shake_map(ORBITAL_SHAKE_DAMAGE)
+		var beam := _beam_position()
+		for enemy: Enemy in get_tree().get_nodes_in_group(&"enemies"):
+			var offset := (enemy.global_position - beam).abs()
+			if _orbital_elapsed >= ORBITAL_FALL_TIME and enemy.hp > 0 and offset.x <= ORBITAL_HALF_WIDTH and offset.y <= ORBITAL_HALF_HEIGHT:
+				enemy.take_damage(ORBITAL_DPS * delta)
+		queue_redraw()
 
 func get_cooldown_left(power: Power) -> float:
 	return _cooldown_left[power]
@@ -53,40 +84,54 @@ func is_ready(power: Power) -> bool:
 	return _cooldown_left[power] <= 0.0
 
 func is_aiming() -> bool:
-	return _aiming
+	return _aimed_power != -1
 
-## Pulsar un poder: el meteorito entra (o sale) del modo apuntar; congelar se lanza ya.
+func get_aimed_power() -> int:
+	return _aimed_power
+
+## Pulsar un poder: meteorito y ataque orbital entran (o salen) del modo apuntar; congelar se lanza ya.
 func use(power: Power) -> void:
-	if power == Power.METEOR and _aiming:
+	if _aimed_power == power:
 		cancel_aiming()
 	elif not is_ready(power):
 		return
-	elif power == Power.METEOR:
+	elif power == Power.FREEZE:
+		_freeze()
+	else:
 		# Apuntando no se coloca torre: se suelta la seleccionada.
 		state.selected_tower = null
-		_aiming = true
+		_aimed_power = power
 		queue_redraw()
-	else:
-		_freeze()
 
 func cancel_aiming() -> void:
-	_aiming = false
+	_aimed_power = -1
 	queue_redraw()
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not _aiming:
+	if _aimed_power == -1:
 		return
 	if event is InputEventMouseMotion:
 		queue_redraw()
 	elif event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
-			_drop_meteor(get_global_mouse_position())
+			if _aimed_power == Power.METEOR:
+				_drop_meteor(get_global_mouse_position())
+			else:
+				_fire_orbital(get_global_mouse_position().y)
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
 			cancel_aiming()
 		get_viewport().set_input_as_handled()
 
 func _draw() -> void:
-	if not _aiming:
+	if _orbital_elapsed < ORBITAL_TIME:
+		_draw_bolt()
+	if _aimed_power == Power.ORBITAL:
+		var row := to_local(Vector2(Level.GAME_AREA_RECT.position.x, get_global_mouse_position().y)).round()
+		var band := Rect2(row.x, row.y - ORBITAL_HALF_HEIGHT, Level.GAME_AREA_RECT.size.x, ORBITAL_HALF_HEIGHT * 2.0)
+		draw_rect(band, AIM_FILL_COLOR, true)
+		draw_rect(band, AIM_BORDER_COLOR, false, 1.0)
+		return
+	if _aimed_power != Power.METEOR:
 		return
 	var center := get_local_mouse_position().round()
 	draw_circle(center, METEOR_RADIUS, AIM_FILL_COLOR, true, -1.0, false)
@@ -128,3 +173,33 @@ func _freeze() -> void:
 	for enemy: Enemy in get_tree().get_nodes_in_group(&"enemies"):
 		if enemy.hp > 0:
 			enemy.slow(FREEZE_FACTOR, FREEZE_TIME, FROST_FRAMES)
+
+func _fire_orbital(row_y: float) -> void:
+	cancel_aiming()
+	_cooldown_left[Power.ORBITAL] = COOLDOWNS[Power.ORBITAL]
+	_orbital_row = row_y
+	_orbital_elapsed = 0.0
+	power_used.emit(Power.ORBITAL)
+
+# Posición global del rayo: recorre el ancho del área de juego en ORBITAL_TIME.
+func _beam_position() -> Vector2:
+	var rect := Level.GAME_AREA_RECT
+	return Vector2(rect.position.x + rect.size.x * _orbital_elapsed / ORBITAL_TIME, _orbital_row)
+
+# Rayo en zigzag que cae desde arriba hasta la fila (en ORBITAL_FALL_TIME) y parpadea cada frame.
+func _draw_bolt() -> void:
+	var beam := to_local(_beam_position())
+	var top := to_local(Vector2(0.0, Level.GAME_AREA_RECT.position.y)).y
+	var bottom := lerpf(top, beam.y, minf(_orbital_elapsed / ORBITAL_FALL_TIME, 1.0))
+	var points := PackedVector2Array()
+	var y := top
+	while y < bottom:
+		points.append(Vector2(beam.x + randf_range(-ORBITAL_BOLT_JITTER, ORBITAL_BOLT_JITTER), y))
+		y += ORBITAL_BOLT_STEP
+	points.append(Vector2(beam.x, bottom))
+	draw_polyline(points, ORBITAL_GLOW_COLOR, ORBITAL_HALF_WIDTH * 3.0, false)
+	draw_polyline(points, ORBITAL_BEAM_COLOR, ORBITAL_HALF_WIDTH, false)
+	draw_polyline(points, ORBITAL_CORE_COLOR, 2.0, false)
+	# Destello del impacto en la fila.
+	draw_circle(Vector2(beam.x, bottom), ORBITAL_HALF_HEIGHT * randf_range(0.8, 1.3), ORBITAL_GLOW_COLOR)
+	draw_circle(Vector2(beam.x, bottom), ORBITAL_HALF_WIDTH, ORBITAL_CORE_COLOR)

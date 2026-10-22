@@ -31,7 +31,7 @@ Está instanciada como nodo `SpaceStation` en `scenes/maps/Map.tscn` y en los 9 
 
 - Todos los mapas de nivel tienen la estación como nodo `SpaceStation`. `Level` la busca por ese nombre.
 - Cada enemigo que llega al final del camino le quita su `EnemyData.base_damage` (5, 10, 20 o 40 según el tipo; ver [enemigos.md](enemigos.md)): `Level` conecta `spawner.enemy_reached_end(damage)` directamente a `take_damage`.
-- `Level._shake_map(damage)` hace temblar el mapa (no la UI) 0,15 s: 2 px base, hasta 4 px con daño 40, redondeado a píxeles enteros y siguiendo `time_scale`.
+- `Level.shake_map(damage)` hace temblar el mapa (no la UI) 0,15 s: 2 px base, hasta 4 px con daño 40, redondeado a píxeles enteros y siguiendo `time_scale`.
 - `destroyed` llama a `Level._lose`, que espera al final de la explosión antes de emitir `lost`.
 
 ## Dudas
