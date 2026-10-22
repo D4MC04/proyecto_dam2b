@@ -30,11 +30,13 @@ var current_level: int = 1
 var tutorial_done := false
 # Enemigos que ya han salido en una partida, por nombre de archivo del EnemyData.
 var seen_enemies: Array[String] = []
-# Contadores acumulados entre partidas: wins, kills, towers, powers, perfect_waves.
+# Contadores acumulados entre partidas: wins, kills, towers, powers, perfect_waves, spent y built_<torre>.
 var stats: Dictionary = {}
 # Torres fusionadas alguna vez, por nombre de archivo.
 var fused_towers: Array[String] = []
 var unlocked: Array[String] = []
+# Segundos jugados en niveles, en tiempo real.
+var play_time: float = 0.0
 
 var _toasts: VBoxContainer
 
@@ -61,6 +63,9 @@ func _ready() -> void:
 					stats[key] = counters[key]
 		_load_list(file, "fused_towers", fused_towers)
 		_load_list(file, "unlocked", unlocked)
+		var time: Variant = file.get_value(SECTION, "play_time", 0.0)
+		if typeof(time) == TYPE_FLOAT and time >= 0.0:
+			play_time = time
 
 # i es el índice (desde 0) del nivel en GameData.levels.
 func is_unlocked(i: int) -> bool:
@@ -95,6 +100,20 @@ func mark_enemy_seen(data: EnemyData) -> void:
 func add_stat(key: String, amount: int = 1) -> void:
 	stats[key] = stats.get(key, 0) + amount
 	_check_achievements()
+
+## Suma segundos jugados. No guarda: ver flush().
+func add_play_time(seconds: float) -> void:
+	play_time += seconds
+
+## Torre más construida: su nombre de archivo sin extensión, o "" si no se ha construido ninguna.
+func favorite_tower() -> String:
+	var best := ""
+	var best_count := 0
+	for key: String in stats:
+		if key.begins_with("built_") and stats[key] > best_count:
+			best = key.trim_prefix("built_")
+			best_count = stats[key]
+	return best
 
 ## Anota que esta torre se ha fusionado alguna vez.
 func register_fusion(fused: TowerData) -> void:
@@ -184,6 +203,7 @@ func reset_progress() -> void:
 	stats.clear()
 	fused_towers.clear()
 	unlocked.clear()
+	play_time = 0.0
 	_save()
 	progress_reset.emit()
 
@@ -195,5 +215,6 @@ func _save() -> void:
 	file.set_value(SECTION, "stats", stats)
 	file.set_value(SECTION, "fused_towers", fused_towers)
 	file.set_value(SECTION, "unlocked", unlocked)
+	file.set_value(SECTION, "play_time", play_time)
 	if file.save(PATH) != OK:
 		push_warning("GameState: no se pudo guardar " + PATH)

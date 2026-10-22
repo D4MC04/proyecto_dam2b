@@ -13,7 +13,7 @@ Definidos en `project.godot`, en este orden:
 
 `GameData.levels` tiene 6 entradas. Su contenido está en [niveles.md](niveles.md).
 
-`GameState` carga `current_level` y `tutorial_done` de `user://progress.cfg` (`ConfigFile`, sección `progress`; solo acepta un entero >= 1 y un booleano) y los guarda en `complete_level`, `complete_tutorial` y `reset_progress`. `Settings` guarda las opciones en su propio archivo.
+`GameState` carga `current_level` y `tutorial_done` de `user://progress.cfg` (`ConfigFile`, sección `progress`; solo acepta un entero >= 1 y un booleano) y los guarda en `complete_level`, `complete_tutorial` y `reset_progress`. `GameState` guarda también `play_time` (segundos jugados, que suma `Level._process` en tiempo real) y los contadores `stats` `spent` (dinero gastado, desde `LevelState.spend_money`) y `built_<torre>` (torres construidas, desde `BuildManager`); `reset_progress` los borra. `Settings` guarda las opciones en su propio archivo.
 
 ## Escena Game
 

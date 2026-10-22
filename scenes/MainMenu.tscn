@@ -147,6 +147,13 @@ size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
 text = "ARCHIVO"
 
+[node name="StatsButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons"]
+custom_minimum_size = Vector2(204, 36)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "ESTADÍSTICAS"
+
 [node name="SettingsButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons" unique_id=528850060]
 custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
@@ -207,6 +214,49 @@ size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
 text = "Volver"
 
+[node name="StatsScreen" type="VBoxContainer" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="StatsPanel" type="PanelContainer" parent="StatsScreen"]
+layout_mode = 2
+size_flags_horizontal = 4
+script = ExtResource("20_frame")
+
+[node name="Margin" type="MarginContainer" parent="StatsScreen/StatsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 21
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 21
+
+[node name="Content" type="VBoxContainer" parent="StatsScreen/StatsPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Header" parent="StatsScreen/StatsPanel/Margin/Content" instance=ExtResource("21_header")]
+layout_mode = 2
+title = "ESTADÍSTICAS"
+text_size = 24
+
+[node name="StatsLabel" type="Label" parent="StatsScreen/StatsPanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+
+[node name="BackButton" type="Button" parent="StatsScreen/StatsPanel/Margin/Content"]
+custom_minimum_size = Vector2(204, 36)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "Volver"
+
 [node name="Navedex" parent="." instance=ExtResource("22_navedex")]
 visible = false
 layout_mode = 1
@@ -218,6 +268,8 @@ layout_mode = 1
 [connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/PlayButton" to="." method="_on_play_button_pressed"]
 [connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/NavedexButton" to="." method="_on_navedex_button_pressed"]
 [connection signal="back_pressed" from="Navedex" to="." method="_on_navedex_back_pressed"]
+[connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/StatsButton" to="." method="_on_stats_button_pressed"]
+[connection signal="pressed" from="StatsScreen/StatsPanel/Margin/Content/BackButton" to="." method="_on_stats_back_pressed"]
 [connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/SettingsButton" to="." method="_on_settings_button_pressed"]
 [connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/QuitButton" to="." method="_on_quit_button_pressed"]
 [connection signal="pressed" from="LevelSelectionScreen/LevelsPanel/Margin/Content/VolverButton" to="." method="_on_volver_pressed"]
