@@ -114,7 +114,7 @@ Recursos en `resources/turret_data/`:
 | `turret` | Cañón doble | 100 | 0,25 | 56 | 240 | Bala: 5 de daño, 300 px/s |
 | `laser` | Láser | 200 | 0,5 | 112 | 180 | Bala: 15 de daño, 250 px/s, con estela |
 | `cryo` | Cryo | 250 | 2,0 | 64 | no gira | Onda: 5 de daño, velocidad al 55 % durante 3,5 s |
-| `rocket_launcher` | Cañón pesado | 300 | 1,5 | 88 | 180 | Bala: 45 de daño y explota en área de 24 px, 200 px/s |
+| `rocket_launcher` | Cañón pesado | 300 | 1,5 | 88 | 180 | Bala: 45 de daño y explota en área de 30 px, 200 px/s |
 | `tesla` | Tesla | 350 | 1,3 | 110 | no gira | Cadena: 25 de daño, 3 enemigos, saltos de 64 px |
 | `rail` | Rail | 500 | 5,0 | 160 | 45 | Haz: 150 de daño a toda la línea, 700 px de largo |
 | `disintegrator` | Disintegrator | 600 | no se usa | 112 | 140 | Haz continuo: 40, 80 y 160 de daño/s |
