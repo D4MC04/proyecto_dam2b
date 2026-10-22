@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scripts/level_ui/PowerButton.gd" id="7_power_button"]
 [ext_resource type="Texture2D" path="res://assets/ui/power_meteor.png" id="8_meteor_icon"]
 [ext_resource type="Texture2D" path="res://assets/ui/power_freeze.png" id="9_freeze_icon"]
+[ext_resource type="Texture2D" path="res://assets/ui/power_orbital.png" id="10_orbital_icon"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_screen"]
 
@@ -191,6 +192,18 @@ icon_alignment = 1
 script = ExtResource("7_power_button")
 power = 1
 key_label = "E"
+
+[node name="OrbitalButton" type="Button" parent="Content/PowersRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+icon = ExtResource("10_orbital_icon")
+icon_alignment = 1
+script = ExtResource("7_power_button")
+power = 2
+key_label = "R"
 
 [node name="ScanFooter" type="MarginContainer" parent="Content"]
 layout_mode = 2

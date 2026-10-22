@@ -41,6 +41,7 @@ const HINT_END_MARGIN := 1.0
 @onready var sell_button: Button = %SellButton
 @onready var meteor_button: PowerButton = %MeteorButton
 @onready var freeze_button: PowerButton = %FreezeButton
+@onready var orbital_button: PowerButton = %OrbitalButton
 
 var _accent := Color.WHITE
 var _flash_id := 0

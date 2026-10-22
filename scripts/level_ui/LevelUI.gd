@@ -58,6 +58,7 @@ func _ready() -> void:
 	sidebar.fast_speed_toggled.connect(_on_fast_speed_toggled)
 	info_panel.meteor_button.pressed.connect(_use_power.bind(Powers.Power.METEOR))
 	info_panel.freeze_button.pressed.connect(_use_power.bind(Powers.Power.FREEZE))
+	info_panel.orbital_button.pressed.connect(_use_power.bind(Powers.Power.ORBITAL))
 	tutorial_hints.sidebar = sidebar
 	tutorial_hints.info_panel = info_panel
 	set_state(UiState.PLAYING)
@@ -107,6 +108,7 @@ func setup_powers(powers: Powers) -> void:
 	_powers = powers
 	info_panel.meteor_button.powers = powers
 	info_panel.freeze_button.powers = powers
+	info_panel.orbital_button.powers = powers
 
 # Los poderes solo se usan jugando.
 func _use_power(power: Powers.Power) -> void:
@@ -280,6 +282,8 @@ func _handle_shortcut(event: InputEvent) -> bool:
 		_use_power(Powers.Power.METEOR)
 	elif event.is_action_pressed("power_freeze"):
 		_use_power(Powers.Power.FREEZE)
+	elif event.is_action_pressed("power_orbital"):
+		_use_power(Powers.Power.ORBITAL)
 	else:
 		return false
 	return true
