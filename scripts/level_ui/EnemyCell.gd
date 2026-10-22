@@ -1,13 +1,13 @@
 extends Button
 class_name EnemyCell
 
-## Petición de enseñar este enemigo en la ficha (clic izquierdo o derecho); no guarda qué está inspeccionado.
-signal inspect_requested(data: EnemyData)
+## Petición de enseñar este enemigo o torre en la ficha (clic izquierdo o derecho); no guarda qué está inspeccionado.
+signal inspect_requested(data: InspectableData)
 
 @onready var icon_rect: TextureRect = %IconRect
 @onready var count_label: Label = %CountLabel
 
-var data: EnemyData
+var data: InspectableData
 
 func _ready() -> void:
 	pressed.connect(_on_pressed)
@@ -18,7 +18,7 @@ func _ready() -> void:
 	add_theme_stylebox_override("hover_pressed", hover)
 	add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 
-func setup(enemy_data: EnemyData, count: int) -> void:
+func setup(enemy_data: InspectableData, count: int) -> void:
 	data = enemy_data
 	count_label.text = "×%s" % UiFormat.abbreviate(count)
 	icon_rect.texture = data.get_inspect_icon()
