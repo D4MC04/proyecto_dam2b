@@ -46,6 +46,10 @@ var _charge_player: AudioStreamPlayer2D
 var disabled := false
 var _disable_tween: Tween
 var _sparks: EmpSparks
+# Ratón sobre la torre: dibuja el alcance.
+var _hovered := false
+
+const HOVER_HALF_SIZE := 8.0
 
 func _ready() -> void:
 	add_to_group(&"towers")
@@ -83,8 +87,16 @@ func _ready() -> void:
 
 # Con la opción "mostrar rango" activada, cada torre dibuja su alcance bajo sus sprites.
 func _draw() -> void:
-	if Settings.get_value(&"show_tower_range") and data.attack_range:
+	if (Settings.get_value(&"show_tower_range") or _hovered) and data.attack_range:
 		data.attack_range.draw(get_canvas_item(), BuildManager.RANGE_COLOR)
+
+# Con el ratón encima (casilla de 16 px) se ve el alcance aunque la opción esté apagada.
+func _physics_process(_delta: float) -> void:
+	var delta := (get_global_mouse_position() - global_position).abs()
+	var hovered: bool = maxf(delta.x, delta.y) <= HOVER_HALF_SIZE
+	if hovered != _hovered:
+		_hovered = hovered
+		queue_redraw()
 
 func _process(delta: float) -> void:
 	if disabled:
