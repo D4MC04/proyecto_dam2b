@@ -38,7 +38,7 @@ Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de l
 
 `get_run_stats() -> RunStats` construye el resumen de la partida: oleada alcanzada (`spawner.get_wave_index() + 1`, 0 si no se lanzó ninguna), total de oleadas (`spawner.waves.size()`), enemigos destruidos y dinero gastado (de `LevelState`). Lo usa `Game` al perder.
 
-**`RunStats`** (`scripts/level/RunStats.gd`, `RefCounted`): objeto de datos con `wave_reached`, `wave_total`, `enemies_destroyed` y `money_spent`, todos `int`. Se crea con `RunStats.new(reached, total, destroyed, spent)`. Lo pinta `RunSummary` (ver [ui.md](ui.md)).
+**`RunStats`** (`scripts/level/RunStats.gd`, `RefCounted`): objeto de datos con `wave_reached`, `wave_total`, `enemies_destroyed` y `money_spent`, todos `int`, más `top_tower_name` y `top_tower_kills` (la torre con más bajas, vivas y vendidas; vacío/0 si ninguna mató). Se crea con `RunStats.new(reached, total, destroyed, spent)`. Lo pinta `RunSummary` (ver [ui.md](ui.md)).
 
 ## Poderes
 

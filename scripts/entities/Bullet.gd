@@ -5,6 +5,8 @@ class_name Bullet
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 
 var data: BulletData
+# Torre que la disparó (para apuntarle el daño y las bajas).
+var source: Tower
 var target: Enemy
 var direction: Vector2
 # Enemigos ya golpeados (con perforación no se daña dos veces al mismo).
@@ -71,9 +73,9 @@ func _on_area_entered(area: Area2D) -> void:
 			for node in get_tree().get_nodes_in_group(&"enemies"):
 				var other := node as Enemy
 				if other != null and other.global_position.distance_to(global_position) <= data.splash_radius:
-					other.take_damage(data.damage)
+					other.take_damage(data.damage, source)
 		else:
-			enemy.take_damage(data.damage)
+			enemy.take_damage(data.damage, source)
 		if data.hit_sound:
 			_play_hit_sound()
 		if data.impact_frames:

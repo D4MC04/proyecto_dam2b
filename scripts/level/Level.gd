@@ -59,8 +59,16 @@ func setup(data: LevelData) -> void:
 
 ## Resumen de la partida hasta ahora: oleada alcanzada, total, enemigos destruidos y dinero gastado.
 func get_run_stats() -> RunStats:
-	return RunStats.new(spawner.get_wave_index() + 1, spawner.waves.size(),
+	var stats := RunStats.new(spawner.get_wave_index() + 1, spawner.waves.size(),
 			game_state.enemies_destroyed, game_state.money_spent)
+	stats.top_tower_name = game_state.retired_top_name
+	stats.top_tower_kills = game_state.retired_top_kills
+	for node: Node in get_tree().get_nodes_in_group(&"towers"):
+		var tower := node as Tower
+		if tower != null and not tower.is_queued_for_deletion() and tower.kills > stats.top_tower_kills:
+			stats.top_tower_kills = tower.kills
+			stats.top_tower_name = tower.data.name
+	return stats
 
 # Desplaza el mapa para que su rectángulo útil quede centrado en el área de juego en los dos ejes.
 func _center_map() -> void:

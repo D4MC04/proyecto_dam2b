@@ -60,7 +60,7 @@ func _process(delta: float) -> void:
 	_impact.global_position = target.global_position
 	_impact.scale = Vector2.ONE * target.effect_scale()
 	target.sprite.modulate = target._rest_color().lerp(_data.tint, _data.tint_amount[_level])
-	target.take_damage(_data.damage_per_second[_level] * delta)
+	target.take_damage(_data.damage_per_second[_level] * delta, _tower)
 	if target.hp <= 0:
 		if _data.death_frames:
 			Effect.spawn(_tower.get_parent(), _data.death_frames, target.global_position, target.effect_scale())

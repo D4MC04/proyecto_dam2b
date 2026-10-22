@@ -7,6 +7,9 @@ var wave_reached: int
 var wave_total: int
 var enemies_destroyed: int
 var money_spent: int
+## Torre con más bajas (vacío si ninguna ha matado).
+var top_tower_name := ""
+var top_tower_kills := 0
 
 func _init(reached: int, total: int, destroyed: int, spent: int) -> void:
 	wave_reached = reached

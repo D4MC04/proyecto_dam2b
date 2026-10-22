@@ -56,6 +56,7 @@ func sell_selected_tower() -> void:
 	var value := sellable_tower.get_sell_value()
 	add_money(value)
 	FloatingText.spawn(sellable_tower.get_parent(), sellable_tower.global_position, "+" + UiFormat.money(value))
+	_note_retired(sellable_tower)
 	sellable_tower.play_sell()
 	sellable_tower.queue_free()
 	sellable_tower = null
@@ -71,6 +72,15 @@ func spend_money(amount: int) -> bool:
 	money_spent += amount
 	money_changed.emit(money)
 	return true
+
+## Mejor torre vendida (se guarda al venderla para que cuente en el resumen).
+var retired_top_name := ""
+var retired_top_kills := 0
+
+func _note_retired(tower: Tower) -> void:
+	if tower.kills > retired_top_kills:
+		retired_top_kills = tower.kills
+		retired_top_name = tower.data.name
 
 ## Un enemigo destruido: suma su recompensa y lo cuenta.
 func register_enemy_destroyed(reward: int) -> void:

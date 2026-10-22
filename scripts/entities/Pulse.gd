@@ -29,7 +29,7 @@ func _hit_ring() -> void:
 		var distance := global_position.distance_to(enemy.global_position)
 		if distance <= _last_radius or distance > radius:
 			continue
-		enemy.take_damage(_data.damage)
+		enemy.take_damage(_data.damage, _tower)
 		if enemy.hp > 0:
 			if _data.impact_frames:
 				Effect.spawn(enemy, _data.impact_frames, enemy.global_position, enemy.effect_scale())

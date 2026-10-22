@@ -34,7 +34,7 @@ var _count: Tween
 func _ready() -> void:
 	_refresh_style()
 
-## Pinta las tres filas a partir de `stats`; sustituye las anteriores.
+## Pinta las filas (más la mejor torre si ha matado) a partir de `stats`; sustituye las anteriores.
 func show_stats(stats: RunStats) -> void:
 	_stop_count()
 	_stats = stats
@@ -46,6 +46,9 @@ func show_stats(stats: RunStats) -> void:
 		StatEntry.new("kills", "BAJAS", UiFormat.abbreviate(stats.enemies_destroyed)),
 		StatEntry.new("cost", "GASTADO", UiFormat.money(stats.money_spent)),
 	]
+	if stats.top_tower_kills > 0:
+		entries.append(StatEntry.new("targets", "TORRE", stats.top_tower_name.to_upper()))
+		entries.append(StatEntry.new("kills", "SUS BAJAS", UiFormat.abbreviate(stats.top_tower_kills)))
 	for i in entries.size():
 		rows.add_child(StatRow.create(entries[i], i, ROW_H_MARGIN, ROW_V_MARGIN, ROW_FONT_SIZE, ROW_ICON_BOX, ROW_ICON_TOP, ROW_SEPARATION))
 	_kills_label = StatRow.get_value_label(rows.get_child(1) as PanelContainer)

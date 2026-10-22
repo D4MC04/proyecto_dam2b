@@ -27,7 +27,7 @@ static func spawn(tower: Tower, first: Enemy) -> void:
 	var world := tower.get_parent()
 	world.add_child(chain)
 	for enemy in chain._targets:
-		enemy.take_damage(data.damage)
+		enemy.take_damage(data.damage, tower)
 		if enemy.hp > 0:
 			enemy.flash()
 		if data.impact_frames:
