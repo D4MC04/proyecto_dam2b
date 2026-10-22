@@ -16,4 +16,5 @@ collision_shape = ExtResource("1_m56mc")
 sprite_scale = 1.0
 rotation_offset = 90.0
 impact_frames = ExtResource("2_g10xc")
+splash_radius = 24.0
 metadata/_custom_type_script = "uid://dufu06mgtfw20"

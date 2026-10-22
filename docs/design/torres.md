@@ -26,7 +26,7 @@ La fusionada es otro `TowerData` (`resources/turret_data/<x>_fusion.tres`) con s
 | Cañón cuádruple | Cañón doble | 160 | 6 | 64 | 0,15 | Cuatro cañones, ráfaga rápida |
 | Láser doble | Láser | 320 | 22 | 128 | 0,4 | La bala perfora a 1 enemigo extra (`pierce`) |
 | Cryo ventisca | Cryo | 400 | 8 | 96 | 2,0 | Onda mayor (`wave_scale` 1,5), frena al 35 % durante 4,5 s |
-| Cañón de asedio | Cañón pesado | 480 | 90 | 96 | 1,6 | Explota en área de 32 px (`splash_radius`) |
+| Cañón de asedio | Cañón pesado | 480 | 90 | 96 | 1,6 | Explota en área de 40 px (`splash_radius`) |
 | Tormenta | Tesla | 560 | 35 | 120 | 1,3 | Cadena de 6 objetivos, saltos de 80 px |
 | Rail Gauss | Rail | 800 | 300 | 176 | 4,5 | Haz de 900 px y `half_width` 16 |
 | Aniquilador | Disintegrator | 960 | 70/150/320 por s | 128 | no se usa | Sube de nivel en la mitad de tiempo (`level_time` 0,75) |
@@ -114,7 +114,7 @@ Recursos en `resources/turret_data/`:
 | `turret` | Cañón doble | 100 | 0,25 | 56 | 240 | Bala: 5 de daño, 300 px/s |
 | `laser` | Láser | 200 | 0,5 | 112 | 180 | Bala: 15 de daño, 250 px/s, con estela |
 | `cryo` | Cryo | 250 | 2,0 | 64 | no gira | Onda: 5 de daño, velocidad al 55 % durante 3,5 s |
-| `rocket_launcher` | Cañón pesado | 300 | 1,5 | 88 | 180 | Bala: 45 de daño, 200 px/s |
+| `rocket_launcher` | Cañón pesado | 300 | 1,5 | 88 | 180 | Bala: 45 de daño y explota en área de 24 px, 200 px/s |
 | `tesla` | Tesla | 350 | 1,3 | 110 | no gira | Cadena: 25 de daño, 3 enemigos, saltos de 64 px |
 | `rail` | Rail | 500 | 5,0 | 160 | 45 | Haz: 150 de daño a toda la línea, 700 px de largo |
 | `disintegrator` | Disintegrator | 600 | no se usa | 112 | 140 | Haz continuo: 40, 80 y 160 de daño/s |
