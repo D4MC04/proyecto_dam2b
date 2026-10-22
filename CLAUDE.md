@@ -26,9 +26,9 @@
 
 ## Flujo de tickets
 - Guía para el usuario: docs/CLAUDE-CODE.md. Formato de ticket: docs/tasks/_plantilla.md.
-- Comandos: `/ideas` (Claude propone tickets), `/add` (tickets con las ideas del usuario), `/board` (estado, choques y tandas), `/work nombre` (implementa), `/check` (revisa sin tocar nada), `/ship` (revisa y sube a main), `/hub` (abre el chat central). `/proponer`, `/tickets`, `/hacer`, `/revisar` y `/new` son alias temporales de los anteriores.
+- Comandos: `/ideas` (Claude propone tickets), `/add` (tickets con las ideas del usuario), `/board` (estado, choques y tandas), `/work nombre` (implementa), `/check` (revisa sin tocar nada), `/commit` (revisa lo pendiente, prueba y commitea en la rama), `/ship` (commitea lo pendiente, abre el PR y lo fusiona en main con squash), `/hub` (abre el chat central). `/proponer`, `/tickets`, `/hacer`, `/revisar` y `/new` son alias temporales de los anteriores.
 - Solo se implementan tickets con `Estado: aceptada`, cada uno en su rama `ticket/nombre` desde main. Nunca trabajar en main, salvo el commit del `Estado:` al aceptar.
-- Solo se sube a main con `/ship`. Si el usuario dice "commitea", "sube" o parecido, no subir: recordarle `/ship`.
+- Solo se sube a main con `/ship`. Si el usuario dice "commitea", hacer `/commit`; si dice "sube" o parecido, no subir: recordarle `/ship`.
 - **Aceptar es la orden de empezar** (casillas o "acepto X"), sin esperar otro visto bueno:
   1. Cambiar solo la línea `Estado:` a `aceptada`. Commit en `main` solo de eso (sin probador) y `git push origin main`; si `origin/main` avanzó, antes `git pull --ff-only`.
   2. Si hay herramienta `start_session` (app de escritorio): enseguida, un chat con worktree (`user_asked`) por cada ticket aceptado de la primera tanda que no choque con otro, con `/work nombre` y su modelo y esfuerzo. Si no la hay: decir al usuario que lance `/work nombre`.
@@ -36,6 +36,7 @@
 - **Casillas para aceptar** (al final de `/ideas`, `/add` y `/board`, si hay tickets en `Estado: propuesta`): AskUserQuestion en multiSelect, una opción por ticket (etiqueta: nombre; descripción: qué aporta, modelo, esfuerzo y tanda), máximo 4 por pregunta y hasta 4 preguntas agrupadas por tanda. Los marcados se aceptan como arriba; si no marca ninguno, no se cambia nada.
 - **Chat central** (`/hub`): carpeta principal, rama `main`, en Opus. Reparte tickets, recibe los avisos de subida y deja `main` local al día para que el usuario nunca haga `git pull` a mano.
 - Para probar, usar el agente `probador`.
+- Comandos `gh`: si existe la variable `GH_USER`, lanzarlos con la cuenta de este proyecto sin guardar el token: `GH_TOKEN="$(gh auth token --user "$GH_USER")" gh ...`.
 - Avisar al usuario de qué comando toca, al final de la respuesta, en una línea:
   - Pregunta qué tickets quedan o cuáles se pueden hacer a la vez → `/board`.
   - Quiere arreglar o añadir algo concreto → `/add`. Pide ideas → `/ideas`.
@@ -55,6 +56,6 @@
 
 ## Antes de dar algo por terminado
 - Comprobar con el agente `probador` que el proyecto carga sin errores en headless. Busca Godot en la variable de entorno `GODOT`, que cada uno pone en su `.claude/settings.local.json` (ver docs/CLAUDE-CODE.md).
-- No commitear ni subir sin `/ship` (salvo el cambio de `Estado:` al aceptar).
+- Commitear solo con `/commit` y subir solo con `/ship` (salvo el cambio de `Estado:` al aceptar).
 - Al acabar una tarea (y tras cada cambio que haya que volver a probar), abrir yo el editor de Godot (`$GODOT`) en la carpeta donde están los cambios (el worktree del ticket) con `--path <carpeta> -e`, en segundo plano. Si ya había uno abierto en esa carpeta, cerrarlo antes. El usuario no tiene que cambiar de rama ni copiar rutas: solo pulsa F5 y juega.
 - Dar al usuario unos pasos breves para comprobar a mano que funciona en el juego: qué nivel jugar, qué hacer y qué debería verse.

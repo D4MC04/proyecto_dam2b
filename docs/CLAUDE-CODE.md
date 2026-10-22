@@ -13,6 +13,14 @@ El agente `probador` abre Godot en headless y necesita saber dónde está. Pon l
 
 Si el archivo ya existe, añade solo el bloque `"env"`. Vale para los chats que abras después de guardarlo.
 
+Si usas varias cuentas de GitHub en el equipo, añade también `"GH_USER": "tu-cuenta"` en ese `"env"`: `/ship` usará esa cuenta para los PR sin que tengas que cambiar la activa de `gh` (tienen que estar todas iniciadas con `gh auth login`). Y en el repo, para que commits y push vayan con esa cuenta:
+
+```
+git config user.name "tu-nombre"
+git config user.email "tu-email"
+git remote set-url origin https://tu-cuenta@github.com/D4MC04/proyecto_dam2b.git
+```
+
 ## Los comandos
 | Comando | Qué hace |
 |---|---|
@@ -21,7 +29,8 @@ Si el archivo ya existe, añade solo el bloque `"env"`. Vale para los chats que 
 | `/board` | Tablero: lista los tickets, dice cuáles chocan (tocan los mismos archivos) y en qué tandas hacerlos |
 | `/work nombre` | Implementa el ticket en su rama, lo prueba y te da pasos para probarlo en Godot |
 | `/check` | Revisa la rama sin tocar nada y te explica qué cambia |
-| `/ship` | Revisa la rama y, si está bien, la commitea, la sube a main y la borra |
+| `/commit` | Revisa lo que no está commiteado, lo prueba y, si sale bien, hace un commit en la rama explicando el cambio. No sube nada |
+| `/ship` | Lo lleva todo a main sin que revises nada: commitea lo pendiente, trae `main` y resuelve conflictos, sube la rama, abre el PR y lo fusiona (squash) |
 | `/hub` | Abre el chat central (solo en la app de escritorio) |
 
 Los nombres antiguos (`/proponer`, `/tickets`, `/hacer`, `/revisar`, `/new`) siguen funcionando un tiempo como alias.
@@ -31,12 +40,14 @@ Los nombres antiguos (`/proponer`, `/tickets`, `/hacer`, `/revisar`, `/new`) sig
 |---|---|---|
 | 1 | `/add` con lo que quieres arreglar, o `/ideas` si quieres propuestas | Escribe los tickets en `docs/tasks/` con `Estado: propuesta` |
 | 2 | Marcas las casillas de los que aceptas (o dices "acepto X"). `/board` te los lista cuando quieras. Borras los que no quieras | Cambia `Estado:` a `aceptada` y empieza (ver abajo) |
-| 3 | `/work nombre` (si no lo lanzó ya el chat central) | Crea la rama `ticket/nombre`, implementa, lo prueba con el `probador`, actualiza docs, borra el ticket y te da pasos para probar |
-| 4 | Pruebas en Godot con esos pasos | Si algo falla, se lo dices en el mismo chat y lo arregla |
-| 5 | `/ship` | Revisa la rama. Si encuentra problemas, para y te los enseña. Si no, commitea, sube directo a main y borra la rama. Solo hace PR si lo pides |
-| 6 | — (no haces `git pull`) | El chat central deja tu `main` local al día y borra todo lo del ticket: archiva su chat (se puede recuperar desde Archivados), quita su worktree y su rama. Si Godot está abierto en esa carpeta, ciérralo |
+| 3 | `/work nombre` (si no lo lanzó ya el chat central) | Crea la rama `ticket/nombre`, implementa, actualiza docs, borra el ticket, hace `/commit`, abre Godot y te da pasos para probar |
+| 4 | Pruebas en Godot (solo F5) | Si algo falla, se lo dices en el mismo chat: lo arregla y hace otro `/commit` |
+| 5 | `/ship` | Commitea lo pendiente, trae `main`, resuelve conflictos, sube la rama, abre el PR y lo fusiona en main con squash (un commit por ticket). Te da el enlace del PR |
+| 6 | — (no haces `git pull`) | Deja tu `main` local al día y borra la rama. En chats con worktree lo hace el chat central, que además archiva el chat del ticket (se puede recuperar desde Archivados) y quita su worktree. Si Godot está abierto en esa carpeta, ciérralo |
 
-Decir "commitea" o "sube" ya no sube nada: para eso está `/ship`, así no se sube a main sin querer.
+Si cambias algo a mano (en Godot o en el código), escribe `/commit` para guardarlo. Decir "commitea" hace lo mismo; "sube" no sube nada: para eso está `/ship`.
+
+**Conflictos en `/ship`**: se resuelven en la rama, así que `main` no se toca hasta que todo está resuelto y probado. Si los dos cambios se pueden sumar (textos, cosas distintas en la misma zona, escenas con cambios en nodos distintos o reordenadas por el editor), los combina solo. Si los dos cambiasteis la misma lógica o la misma propiedad del mismo nodo, o es una imagen o un audio, para, te enseña las dos versiones y te pregunta.
 
 **Varios tickets a la vez** (app de escritorio): al aceptar, Claude sube el cambio de `Estado:` a main (los worktrees salen de lo que hay en main) y abre un chat con worktree por cada ticket que no choque con otro, ya con `/work`. Los que chocan esperan a que el anterior esté en main. En la extensión de VS Code no se pueden abrir chats solos: lanza tú `/work` en cada chat.
 
@@ -45,7 +56,7 @@ Decir "commitea" o "sube" ya no sube nada: para eso está `/ship`, así no se su
 Los tickets siguen el formato de `docs/tasks/_plantilla.md`. Puedes escribir tú uno a mano y lanzar `/work` igual.
 
 ## Qué modelo usar
-Se cambia en el selector de modelo de la app. Algunos comandos fijan el suyo y lo usan aunque el chat esté en otro: `/ideas`, `/check` y `/ship` van en Opus; `/board`, `/hub` y el `probador`, en Haiku. `/add` y `/work` usan el del chat.
+Se cambia en el selector de modelo de la app. Algunos comandos fijan el suyo y lo usan aunque el chat esté en otro: `/ideas` y `/check` van en Opus; `/board`, `/hub` y el `probador`, en Haiku. `/add`, `/work`, `/commit` y `/ship` usan el del chat.
 
 | Modelo | Cuándo |
 |---|---|
@@ -81,4 +92,5 @@ Cada comando es un archivo `.claude/skills/nombre/SKILL.md` con instrucciones. P
 - **Push**: subir la rama a GitHub.
 - **Pull request (PR)**: pedir que la rama entre en `main`; los compañeros la revisan antes.
 - **Merge directo**: juntar la rama con `main` sin PR, sin revisión.
-- Nunca se trabaja directamente en `main`: siempre en una rama. `/ship` sube directo a main (PR solo si lo pides), borra la rama y deja tu carpeta con solo `main`, sin que hagas `git pull`.
+- **Squash**: al fusionar, todos los commits de la rama entran en `main` como uno solo. En el PR se siguen viendo todos.
+- Nunca se trabaja directamente en `main`: siempre en una rama. `/commit` guarda en la rama y `/ship` la lleva a main con un PR fusionado, borra la rama y deja tu carpeta con solo `main`, sin que hagas `git pull`.
