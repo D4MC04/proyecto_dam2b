@@ -168,7 +168,7 @@ Recursos en `resources/turret_data/`:
 
 ### Effect
 
-`scripts/Effect.gd`: `Effect.spawn(parent, frames, pos, size)` crea un `AnimatedSprite2D` que reproduce una animación una vez y se libera. Lo usan todos los ataques para impactos y fogonazos.
+`scripts/Effect.gd`: `Effect.spawn(parent, frames, pos, size)` crea un `AnimatedSprite2D` que reproduce una animación una vez y se libera. Lo usan todos los ataques para impactos y fogonazos. El fogonazo de las torres de bala (Cañón doble, cuádruple y lanzamisiles) es `resources/sprite_frames/turret_flash.tres` (3 frames, `assets/sprites/towers/turret/t1_flash_sheet.png`); `Tower._shoot` lo lanza en el punto de salida de la bala, girado con el cañón.
 
 ## Comunicación con el resto
 

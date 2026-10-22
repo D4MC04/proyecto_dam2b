@@ -1,5 +1,6 @@
 [gd_resource type="Resource" script_class="TowerData" format=3 uid="uid://bh8qdvmr3kaj"]
 
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/turret_flash.tres" id="flash"]
 [ext_resource type="Shape2D" path="res://resources/collision_shapes/rocket_launcher.tres" id="1_0boch"]
 [ext_resource type="Resource" uid="uid://clu71hvcigko3" path="res://resources/bullet_data/rocket_launcher_bullet.tres" id="2_o0wnv"]
 [ext_resource type="SpriteFrames" uid="uid://cadpw4urhhur3" path="res://resources/sprite_frames/rocket_launcher_cannon.tres" id="3_6k8hc"]
@@ -19,6 +20,7 @@ icon = ExtResource("4_5bwje")
 sprite_frames = ExtResource("6_27bij")
 attack_range = ExtResource("1_0boch")
 bullet_data = ExtResource("2_o0wnv")
+muzzle_flash = ExtResource("flash")
 muzzle_offset = Vector2(0, -14)
 cannon = ExtResource("3_6k8hc")
 turn_speed = 180.0
