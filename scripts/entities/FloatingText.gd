@@ -2,6 +2,7 @@ class_name FloatingText
 
 const FONT := preload("res://assets/fonts/Monogram.ttf")
 const COLOR := Color("#ffe082")
+const FONT_SIZE := 16
 const RISE := 12.0
 const DURATION := 0.6
 
@@ -10,12 +11,13 @@ static func spawn(parent: Node, position: Vector2, text: String, duration: float
 	var label := Label.new()
 	label.text = text
 	label.add_theme_font_override("font", FONT)
-	label.add_theme_font_size_override("font_size", 16)
+	label.add_theme_font_size_override("font_size", FONT_SIZE)
 	label.add_theme_color_override("font_color", color)
 	label.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	label.z_index = 10
-	label.reset_size()
 	parent.add_child(label)
+	# El tamaño se mide con la fuente, no con el Label, que fuera de un frame de layout puede dar un ancho erróneo.
+	label.size = FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE)
 	# Centrado sobre el punto; en global porque el padre (el camino) se mueve con el mapa centrado.
 	label.global_position = position - label.size / 2.0
 	var tween := label.create_tween().set_parallel()
