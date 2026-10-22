@@ -26,10 +26,17 @@ const FREEZE_FACTOR := 0.3
 const FREEZE_TIME := 4.0
 # Ataque orbital: un rayo vertical barre la fila elegida de izquierda a derecha durante ORBITAL_TIME.
 const ORBITAL_TIME := 2.0
-const ORBITAL_DPS := 120.0
+const ORBITAL_DPS := 400.0
 const ORBITAL_HALF_WIDTH := 6.0
 const ORBITAL_HALF_HEIGHT := 16.0
+const ORBITAL_FALL_TIME := 0.15
+# Temblor del mapa mientras dura el rayo: se repite cada ORBITAL_SHAKE_INTERVAL con este "daño" (amplitud).
+const ORBITAL_SHAKE_INTERVAL := 0.15
+const ORBITAL_SHAKE_DAMAGE := 40
+const ORBITAL_BOLT_STEP := 14.0
+const ORBITAL_BOLT_JITTER := 6.0
 const ORBITAL_BEAM_COLOR := Color("#40e0f0")
+const ORBITAL_GLOW_COLOR := Color(0.25, 0.88, 0.94, 0.3)
 const ORBITAL_CORE_COLOR := Color("#ffffff")
 const AIM_FILL_COLOR := Color(1.0, 0.7, 0.24, 0.15)
 const AIM_BORDER_COLOR := Color("#ecb23c")
@@ -46,6 +53,7 @@ var _cooldown_left: Dictionary[Power, float] = {Power.METEOR: 0.0, Power.FREEZE:
 var _aimed_power := -1
 var _orbital_row := 0.0
 var _orbital_elapsed := ORBITAL_TIME
+var _orbital_shake_left := 0.0
 
 func _ready() -> void:
 	# Elegir torre cancela el apuntado.
@@ -58,10 +66,14 @@ func _process(delta: float) -> void:
 		_cooldown_left[power] = maxf(_cooldown_left[power] - delta, 0.0)
 	if _orbital_elapsed < ORBITAL_TIME:
 		_orbital_elapsed += delta
+		_orbital_shake_left -= delta
+		if _orbital_shake_left <= 0.0:
+			_orbital_shake_left = ORBITAL_SHAKE_INTERVAL
+			(get_parent() as Level).shake_map(ORBITAL_SHAKE_DAMAGE)
 		var beam := _beam_position()
 		for enemy: Enemy in get_tree().get_nodes_in_group(&"enemies"):
 			var offset := (enemy.global_position - beam).abs()
-			if enemy.hp > 0 and offset.x <= ORBITAL_HALF_WIDTH and offset.y <= ORBITAL_HALF_HEIGHT:
+			if _orbital_elapsed >= ORBITAL_FALL_TIME and enemy.hp > 0 and offset.x <= ORBITAL_HALF_WIDTH and offset.y <= ORBITAL_HALF_HEIGHT:
 				enemy.take_damage(ORBITAL_DPS * delta)
 		queue_redraw()
 
@@ -112,11 +124,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _draw() -> void:
 	if _orbital_elapsed < ORBITAL_TIME:
-		var beam := to_local(_beam_position())
-		var top := to_local(Vector2(0.0, Level.GAME_AREA_RECT.position.y)).y
-		draw_rect(Rect2(beam.x - ORBITAL_HALF_WIDTH, top, ORBITAL_HALF_WIDTH * 2.0, beam.y - top), ORBITAL_BEAM_COLOR, true)
-		draw_rect(Rect2(beam.x - 1.0, top, 2.0, beam.y - top), ORBITAL_CORE_COLOR, true)
-		draw_rect(Rect2(beam.x - ORBITAL_HALF_WIDTH, beam.y - ORBITAL_HALF_HEIGHT, ORBITAL_HALF_WIDTH * 2.0, ORBITAL_HALF_HEIGHT * 2.0), ORBITAL_BEAM_COLOR, true)
+		_draw_bolt()
 	if _aimed_power == Power.ORBITAL:
 		var row := to_local(Vector2(Level.GAME_AREA_RECT.position.x, get_global_mouse_position().y)).round()
 		var band := Rect2(row.x, row.y - ORBITAL_HALF_HEIGHT, Level.GAME_AREA_RECT.size.x, ORBITAL_HALF_HEIGHT * 2.0)
@@ -177,3 +185,21 @@ func _fire_orbital(row_y: float) -> void:
 func _beam_position() -> Vector2:
 	var rect := Level.GAME_AREA_RECT
 	return Vector2(rect.position.x + rect.size.x * _orbital_elapsed / ORBITAL_TIME, _orbital_row)
+
+# Rayo en zigzag que cae desde arriba hasta la fila (en ORBITAL_FALL_TIME) y parpadea cada frame.
+func _draw_bolt() -> void:
+	var beam := to_local(_beam_position())
+	var top := to_local(Vector2(0.0, Level.GAME_AREA_RECT.position.y)).y
+	var bottom := lerpf(top, beam.y, minf(_orbital_elapsed / ORBITAL_FALL_TIME, 1.0))
+	var points := PackedVector2Array()
+	var y := top
+	while y < bottom:
+		points.append(Vector2(beam.x + randf_range(-ORBITAL_BOLT_JITTER, ORBITAL_BOLT_JITTER), y))
+		y += ORBITAL_BOLT_STEP
+	points.append(Vector2(beam.x, bottom))
+	draw_polyline(points, ORBITAL_GLOW_COLOR, ORBITAL_HALF_WIDTH * 3.0, false)
+	draw_polyline(points, ORBITAL_BEAM_COLOR, ORBITAL_HALF_WIDTH, false)
+	draw_polyline(points, ORBITAL_CORE_COLOR, 2.0, false)
+	# Destello del impacto en la fila.
+	draw_circle(Vector2(beam.x, bottom), ORBITAL_HALF_HEIGHT * randf_range(0.8, 1.3), ORBITAL_GLOW_COLOR)
+	draw_circle(Vector2(beam.x, bottom), ORBITAL_HALF_WIDTH, ORBITAL_CORE_COLOR)
