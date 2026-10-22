@@ -194,7 +194,22 @@ func die():
 	died.emit(data.reward)
 	_play_death_sound()
 	FloatingText.spawn(get_parent(), global_position, "+" + UiFormat.money(data.reward))
+	Debris.spawn(get_parent(), global_position, _sprite_colors(), effect_scale())
 	queue_free()
+
+# Colores opacos del frame actual del sprite (cada 2 px), para los restos.
+func _sprite_colors() -> Array[Color]:
+	var colors: Array[Color] = []
+	var texture := sprite.sprite_frames.get_frame_texture(sprite.animation, sprite.frame)
+	var image := texture.get_image() if texture else null
+	if image == null or image.is_compressed():
+		return colors
+	for y in range(0, image.get_height(), 2):
+		for x in range(0, image.get_width(), 2):
+			var color := image.get_pixel(x, y)
+			if color.a > 0.9:
+				colors.append(color)
+	return colors
 
 # El reproductor cuelga del padre (el camino) porque el enemigo se libera enseguida.
 func _play_death_sound() -> void:
