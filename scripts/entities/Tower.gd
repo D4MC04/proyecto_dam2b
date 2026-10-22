@@ -48,6 +48,11 @@ var _disable_tween: Tween
 var _sparks: EmpSparks
 # Ratón sobre la torre: dibuja el alcance.
 var _hovered := false
+## Seleccionada en el mapa (ver LevelState.sellable_tower): dibuja el alcance.
+var selected := false:
+	set(value):
+		selected = value
+		queue_redraw()
 
 const HOVER_HALF_SIZE := 8.0
 
@@ -86,8 +91,9 @@ func _ready() -> void:
 		add_child(FocusBeam.new())
 
 # Con la opción "mostrar rango" activada, cada torre dibuja su alcance bajo sus sprites.
+# Con la opción apagada, solo la que tiene el ratón encima o está seleccionada.
 func _draw() -> void:
-	if (Settings.get_value(&"show_tower_range") or _hovered) and data.attack_range:
+	if (Settings.get_value(&"show_tower_range") or _hovered or selected) and data.attack_range:
 		data.attack_range.draw(get_canvas_item(), BuildManager.RANGE_COLOR)
 
 # Con el ratón encima (casilla de 16 px) se ve el alcance aunque la opción esté apagada.

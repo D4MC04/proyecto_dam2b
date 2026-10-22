@@ -36,7 +36,11 @@ var sellable_tower: Tower:
 	set(value):
 		if sellable_tower == value:
 			return
+		if is_instance_valid(sellable_tower):
+			sellable_tower.selected = false
 		sellable_tower = value
+		if value != null:
+			value.selected = true
 		sellable_tower_changed.emit(value)
 
 ## Selecciona una torre colocada: enseña su ficha y habilita venderla.
