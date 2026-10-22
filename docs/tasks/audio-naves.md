@@ -1,8 +1,10 @@
 # Sonido de las naves enemigas
 
-Estado: aceptada
+Estado: propuesta
 Modelo recomendado: sonnet
 Esfuerzo recomendado: high
+
+Nota: se probó el motor en bucle (5 naves a la vez, -3 dB al duplicarse, mínimo -9 dB) y sonaba mal; se canceló. Si se retoma, probar otros valores o decidir qué audios se usan.
 
 ## Por qué
 Hay 9 audios en `assets/audio/effects/SpaceShips/` y ninguna nave los usa (`EnemyData.death_sound` existe, pero ningún `.tres` lo tiene asignado). Varios duran demasiado para ser una muerte (`NodrizaShip` 22 s, `DartShip` 20 s), así que primero hay que decidir qué son.
