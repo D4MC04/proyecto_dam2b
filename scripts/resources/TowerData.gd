@@ -32,6 +32,8 @@ const ACCENT_COLOR := Color("#40e0f0")
 @export var focus_beam: FocusBeamData
 # Opcional: sonido del disparo (en el bus SFX). En el haz continuo suena mientras el haz está activo.
 @export var shoot_sound: AudioStream
+# Opcional: sonido de carga de las torres con animación fire_0; suena hasta el fire_frame.
+@export var charge_sound: AudioStream
 # Opcional: torre en la que se convierte al fusionarla con otra igual; cost es lo que se paga por la fusión.
 @export var fusion: TowerData
 # Opcional: frase corta que se enseña al final de la ficha.

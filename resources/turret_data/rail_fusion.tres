@@ -8,10 +8,12 @@
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/rail_fusion_cannon.tres" id="7"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/rail_fusion_muzzle.tres" id="6"]
 [ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Rail/RailgunShoot.wav" id="snd"]
+[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Rail/RailgunCharging.wav" id="chg"]
 
 [resource]
 script = ExtResource("1")
 shoot_sound = ExtResource("snd")
+charge_sound = ExtResource("chg")
 name = "Rail Gauss"
 cost = 800
 attack_cooldown = 4.5

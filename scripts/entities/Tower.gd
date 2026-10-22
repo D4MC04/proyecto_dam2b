@@ -11,6 +11,9 @@ const DISABLED_TINT := Color(0.22, 0.25, 0.38)
 # Destello al volver a encenderse.
 const ENABLE_FLASH := Color(3, 3, 3)
 const ENABLE_FLASH_TIME := 0.3
+# Fundido al cortar el sonido de disparo cuando la torre se queda sin objetivo.
+const SHOOT_FADE_TIME := 0.12
+const SHOOT_FADE_DB := -40.0
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var cannon: AnimatedSprite2D = $Cannon
@@ -29,6 +32,9 @@ var _pending_shot := false
 var _sight: Line2D
 # Sonido de disparo; con poca polifonía, 10 torres juntas no saturan.
 var _shoot_player := AudioStreamPlayer2D.new()
+var _shoot_fade: Tween
+# Sonido de carga (opcional): suena desde que empieza fire_0 hasta el fire_frame.
+var _charge_player: AudioStreamPlayer2D
 # Apagada por un pulso EMP (ver disable): no apunta ni dispara.
 var disabled := false
 var _disable_tween: Tween
@@ -52,6 +58,11 @@ func _ready() -> void:
 	_shoot_player.bus = &"SFX"
 	_shoot_player.max_polyphony = 2
 	add_child(_shoot_player)
+	if data.charge_sound:
+		_charge_player = AudioStreamPlayer2D.new()
+		_charge_player.stream = data.charge_sound
+		_charge_player.bus = &"SFX"
+		add_child(_charge_player)
 	attack_range_shape.shape = data.attack_range
 	attack_timer.wait_time = data.attack_cooldown
 	attack_timer.timeout.connect(_on_attack_timeout)
@@ -73,6 +84,9 @@ func _process(delta: float) -> void:
 		return
 	var target := _get_target()
 	if target == null:
+		# El haz (continuo o de carga) lleva su propio corte y no debe apagar el disparo que acaba de salir.
+		if not data.focus_beam and not data.beam:
+			_stop_shoot_sound()
 		return
 	# Gira poco a poco por el camino más corto; sin enemigo se queda donde está.
 	if data.turn_speed > 0:
@@ -106,8 +120,10 @@ func _on_attack_timeout() -> void:
 	# La onda es de área: sale aunque en rango solo haya naves camufladas.
 	var pulse_has_enemies := data.pulse != null and enemies_in_range.any(is_instance_valid)
 	if target == null and not pulse_has_enemies:
+		_stop_shoot_sound()
 		return
 	if _is_static():
+		_start_charge()
 		cannon.play(&"fire_0")
 		return
 	if _is_aimed(target):
@@ -128,24 +144,56 @@ func _on_cannon_frame_changed() -> void:
 		_sight.visible = firing and cannon.frame < data.beam.fire_frame
 	if not firing:
 		return
+	if _charge_player and cannon.frame == _fire_frame():
+		_charge_player.stop()
 	if data.pulse and cannon.frame == data.pulse.fire_frame:
-		_shoot_player.play()
+		_play_shoot()
 		Pulse.spawn(self)
 	elif data.chain and cannon.frame == data.chain.fire_frame:
 		var target := _get_target()
 		if target:
-			_shoot_player.play()
+			_play_shoot()
 			Chain.spawn(self, target)
 	elif data.beam and cannon.frame == data.beam.fire_frame:
-		_shoot_player.play()
+		_play_shoot()
 		Beam.spawn(self)
+
+# Frame de fire_0 en el que sale el ataque de la torre estática o de haz.
+func _fire_frame() -> int:
+	if data.beam:
+		return data.beam.fire_frame
+	if data.chain:
+		return data.chain.fire_frame
+	if data.pulse:
+		return data.pulse.fire_frame
+	return -1
+
+func _start_charge() -> void:
+	if _charge_player:
+		_charge_player.play()
+
+# Un disparo nuevo cancela el fundido en curso y devuelve el volumen normal.
+func _play_shoot() -> void:
+	if _shoot_fade:
+		_shoot_fade.kill()
+	_shoot_player.volume_db = 0.0
+	_shoot_player.play()
+
+# Sin objetivo, el disparo que siga sonando se apaga con un fundido corto.
+func _stop_shoot_sound() -> void:
+	if not _shoot_player.playing or (_shoot_fade and _shoot_fade.is_valid()):
+		return
+	_shoot_fade = create_tween()
+	_shoot_fade.tween_property(_shoot_player, "volume_db", SHOOT_FADE_DB, SHOOT_FADE_TIME)
+	_shoot_fade.tween_callback(_shoot_player.stop)
 
 func _shoot(target: Enemy) -> void:
 	if data.beam:
 		# Empieza la carga; el haz sale después, hacia donde apunte el cañón en ese momento.
+		_start_charge()
 		cannon.play(&"fire_0")
 		return
-	_shoot_player.play()
+	_play_shoot()
 	var bullet: Bullet = bullet_scene.instantiate()
 	get_parent().add_child(bullet)
 	# La boca gira con el cañón (sin cañón, su rotación es 0 y no cambia nada).
@@ -190,6 +238,9 @@ func disable(seconds: float) -> void:
 	# Corta la carga o el disparo que estuviera a medias.
 	if cannon.sprite_frames and cannon.animation != &"default":
 		cannon.play(&"default")
+	if _charge_player:
+		_charge_player.stop()
+	_stop_shoot_sound()
 	# El cañón se queda quieto aunque algo vuelva a lanzar su animación.
 	cannon.speed_scale = 0.0
 	if _sparks == null:

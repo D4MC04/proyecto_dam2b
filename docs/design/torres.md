@@ -78,7 +78,11 @@ Al cumplirse el cooldown:
 
 ### Sonido
 
-`Tower` crea un `AudioStreamPlayer2D` (bus `SFX`, polifonía 2) con `TowerData.shoot_sound`. Suena en cada disparo: al lanzar la bala, y en el `fire_frame` de la onda, la cadena y el haz (así el sonido va con el efecto, no con la carga). En el haz continuo (`FocusBeam`) suena mientras el haz está activo: se repite si el audio acaba antes y se corta al soltar. `BulletData.hit_sound` (opcional, solo el Cañón pesado y su fusión) suena al impactar, en un reproductor aparte porque la bala se libera. No se usan aún los sonidos de carga (`RailgunCharging`, `IceCharging`, `CharginTower`).
+`Tower` crea un `AudioStreamPlayer2D` (bus `SFX`, polifonía 2) con `TowerData.shoot_sound`. Suena en cada disparo: al lanzar la bala, y en el `fire_frame` de la onda, la cadena y el haz (así el sonido va con el efecto, no con la carga). En el haz continuo (`FocusBeam`) suena mientras el haz está activo: se repite si el audio acaba antes y se corta al soltar. `BulletData.hit_sound` (opcional, solo el Cañón pesado y su fusión) suena al impactar, en un reproductor aparte porque la bala se libera.
+
+**Corte del disparo:** cuando la torre se queda sin objetivo (en `_process` para las de bala, en `_on_attack_timeout` para todas) o la apaga un EMP, el disparo que siga sonando baja `volume_db` a -40 dB en 0,12 s (`Tween`) y se para. Un disparo nuevo cancela el fundido y devuelve `volume_db` a 0. El Rail (haz) no se corta en `_process`, para que su disparo no se apague justo al matar al objetivo; el haz continuo lo gestiona `FocusBeam`.
+
+**Carga:** `TowerData.charge_sound` (opcional) crea un segundo reproductor (bus `SFX`). Suena al empezar `fire_0` (en `_shoot` del haz y en `_on_attack_timeout` de las estáticas) y se para en el `fire_frame`, cuando sale el disparo, o al apagarla un EMP. Lo llevan el Rail y la Tesla con sus fusiones (`RailgunCharging`, `CharginTower`). La Cryo no, porque `IceCharging` dura 9,6 s. Los sonidos son más largos que la carga (Rail: 1,6 s de 4,1 s; Tesla: 0,19 s de 1,16 s), así que se oye solo su inicio.
 
 Las torres de onda y de cadena no giran el cañón ni usan `_process`.
 
