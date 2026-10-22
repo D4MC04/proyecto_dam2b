@@ -8,7 +8,7 @@ enum Step { PICK_TOWER, PLACE_TOWER, START_WAVE, WAIT_WAVE_END, INSPECT_TOWER, F
 
 const TEXTS: Dictionary[Step, String] = {
 	Step.PICK_TOWER: "¡Hola, recluta! Los enemigos vienen a por la estación. Elige una torre en la barra de la derecha.",
-	Step.PLACE_TOWER: "Bien. Ahora haz clic en un planeta libre del mapa para colocarla.",
+	Step.PLACE_TOWER: "Bien. Ahora haz clic en un asteroide con plataforma libre para colocarla.",
 	Step.START_WAVE: "Lista la defensa. Abre la pestaña Oleadas y pulsa Siguiente oleada (o Espacio).",
 	Step.INSPECT_TOWER: "¡Oleada superada! Suelta la torre de la tienda con clic derecho y haz clic en una de las tuyas del mapa para ver su ficha.",
 	Step.FUSE_INFO: "Desde la ficha puedes venderla. Y si eliges la misma torre en la tienda y haces clic encima, se fusiona en una más fuerte.",
