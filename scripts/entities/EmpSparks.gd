@@ -7,8 +7,10 @@ const SPARK_COLORS: Array[Color] = [Color("#2a6ae6"), Color("#78bcff"), Color("#
 const SPARK_COUNT := 4
 # Las chispas caen dentro de la torre (32x32) y asoman un poco por los bordes.
 const HALF_SIZE := 14
-const HOP_TIME := 0.06
 const BLINK_TIME := 0.25
+# En los últimos FAST_BLINK_LEFT segundos el parpadeo se acelera hasta FAST_BLINK_TIME, como aviso de que vuelve.
+const FAST_BLINK_TIME := 0.06
+const FAST_BLINK_LEFT := 2.0
 
 # Icono "sin energía": rayo ámbar con contorno, tachado en rojo (ver docs/design/art.md).
 const ICON: Array[String] = [
@@ -32,23 +34,27 @@ const SLASH_COLOR := Color("#f0323c")
 # Esquina de arriba a la izquierda del icono, por encima de la torre.
 const ICON_ORIGIN := Vector2(-4, -28)
 
-var _hop := 0.0
 var _blink := 0.0
 var _icon_visible := true
+# Segundos que quedan de apagada (la torre los fija con start).
+var _left := 0.0
 
 func _ready() -> void:
 	z_index = 1
 
+## Empieza (o renueva) la cuenta atrás de `seconds` segundos.
+func start(seconds: float) -> void:
+	_left = seconds
+
 func _process(delta: float) -> void:
-	_hop += delta
 	_blink += delta
-	if _blink >= BLINK_TIME:
+	_left = maxf(_left - delta, 0.0)
+	var blink_time := lerpf(FAST_BLINK_TIME, BLINK_TIME, clampf(_left / FAST_BLINK_LEFT, 0.0, 1.0))
+	if _blink >= blink_time:
 		_blink = 0.0
 		_icon_visible = not _icon_visible
-		queue_redraw()
-	if _hop >= HOP_TIME:
-		_hop = 0.0
-		queue_redraw()
+	# Cada frame las chispas cambian de sitio.
+	queue_redraw()
 
 func _draw() -> void:
 	for i: int in SPARK_COUNT:
