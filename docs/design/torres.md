@@ -25,7 +25,7 @@ La fusionada es otro `TowerData` (`resources/turret_data/<x>_fusion.tres`) con s
 | Fusionada | Sustituye a | Coste | Daño | Alcance | Cadencia (s) | Diferencia |
 |---|---|---|---|---|---|---|
 | Cañón cuádruple | Cañón doble | 160 | 6 | 64 | 0,15 | Cuatro cañones, ráfaga rápida |
-| Láser doble | Láser | 320 | 22 | 128 | 0,6 → 0,06 | La bala perfora a 1 enemigo extra (`pierce`); sobrecalentamiento mejor: 80 disparos, parada de 4 s |
+| Láser doble | Láser | 320 | 22 | 128 | 0,6 → 0,06 | La bala perfora a 1 enemigo extra (`pierce`); sobrecalentamiento mejor: 65 disparos, parada de 4 s |
 | Cryo ventisca | Cryo | 400 | 8 | 96 | 2,0 | Onda mayor (`wave_scale` 1,5), frena al 35 % durante 4,5 s |
 | Cañón de asedio | Cañón pesado | 480 | 90 | 96 | 1,6 | Explota en área de 40 px (`splash_radius`) |
 | Tormenta | Tesla | 560 | 35 | 120 | 1,3 | Cadena de 6 objetivos, saltos de 80 px |
@@ -124,7 +124,7 @@ Recursos en `resources/turret_data/`:
 | Archivo | Nombre | Coste | Cooldown (s) | Rango (px) | Giro (°/s) | Ataque |
 |---|---|---|---|---|---|---|
 | `turret` | Cañón doble | 100 | 0,25 | 56 | 240 | Bala: 5 de daño, 300 px/s |
-| `laser` | Láser | 200 | 0,8 | 112 | 180 | Bala: 15 de daño, 250 px/s, con estela. Sobrecalentamiento: 0,8 → 0,07 s, 55 disparos (a tope desde el 28), parada de 5 s |
+| `laser` | Láser | 200 | 0,8 | 112 | 180 | Bala: 15 de daño, 250 px/s, con estela. Sobrecalentamiento: 0,8 → 0,07 s, 45 disparos (a tope desde el 23), sin objetivo se enfría en 6 s, parada de 5 s |
 | `cryo` | Cryo | 250 | 2,0 | 64 | no gira | Onda: 5 de daño, velocidad al 55 % durante 3,5 s |
 | `rocket_launcher` | Cañón pesado | 300 | 1,5 | 88 | 180 | Bala: 45 de daño y explota en área de 30 px, 200 px/s |
 | `tesla` | Tesla | 350 | 1,3 | 110 | no gira | Cadena: 25 de daño, 3 enemigos, saltos de 64 px |
