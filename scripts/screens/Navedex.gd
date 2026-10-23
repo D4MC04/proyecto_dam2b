@@ -106,7 +106,7 @@ func _show_detail(data: InspectableData) -> void:
 	if tower != null:
 		tower_icon.texture = tower.icon
 		if tower.fusion != null:
-			fusion_label.text = "FUSIÓN: " + tower.fusion.name.to_upper()
+			fusion_label.text = "MEJORA: " + tower.fusion.name.to_upper()
 	else:
 		var enemy := data as EnemyData
 		sprite.sprite_frames = enemy.sprite_frames

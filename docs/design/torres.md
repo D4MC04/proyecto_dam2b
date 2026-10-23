@@ -8,16 +8,16 @@ En `_unhandled_input`:
 
 - **Mover el ratón**: si hay torre seleccionada y la casilla bajo el cursor es construible, muestra una vista previa en el centro de la casilla: el icono de la torre al 60 % de opacidad y su rango dibujado en blanco al 15 %. Si no, la oculta.
 - **Clic izquierdo**: si hay torre seleccionada, `grid.can_build(cell)` y `state.spend_money(data.cost)`, instancia la torre como hija de `BuildManager`, la coloca en el centro de la casilla y la registra en `Grid`.
-- **Clic izquierdo sobre una torre ya colocada** (se mira antes que lo de colocar): si hay torre seleccionada en la tienda, es la misma que la colocada y tiene `fusion`, se fusiona (ver abajo). Si no, `state.inspect_placed(tower)`; la ficha enseña la torre y aparece el botón de vender.
+- **Clic izquierdo sobre una torre ya colocada** (se mira antes que lo de colocar): siempre `state.inspect_placed(tower)` (no fusiona por clic); la ficha enseña la torre y aparecen los botones de vender y, si tiene `fusion`, de mejorar (ver abajo).
 - **Clic derecho**: pone `state.selected_tower = null` y oculta la vista previa.
 
 `stop_building()` oculta la vista previa y hace que `_unhandled_input` deje de hacer nada el resto de la partida. Lo llama `Level` al perder o ganar.
 
 Tras colocar una torre la selección se mantiene, así que se pueden colocar varias seguidas.
 
-## Fusionar
+## Mejorar (fusión)
 
-Con una torre seleccionada en la tienda, clic sobre una torre igual ya colocada (`placed.data == selected_tower`) que tenga `TowerData.fusion`. `BuildManager._fuse` gasta `fusion.cost` (sin dinero no hace nada), quita la torre vieja (`remove_child` + `queue_free`, para que `Grid` libere la casilla antes de registrar la nueva), instancia la fusionada en la misma casilla con `invested = vieja.invested + fusion.cost`, la registra en `Grid` y la inspecciona. La selección de la tienda se mantiene. Sobre una torre fusionable la vista previa enseña el icono de la fusionada al 60 % y su rango. La fusionada no tiene `fusion`, así que no se vuelve a fusionar, y no sale en la tienda.
+Se selecciona una torre colocada que tenga `TowerData.fusion` y se pulsa "Mejorar (-X€)" en la ficha (`InfoPanel.upgrade_requested` -> `LevelUI` -> `LevelState.upgrade_requested` -> `BuildManager.upgrade_selected`, solo en `PLAYING`). Gasta `fusion.cost` (sin dinero no hace nada), quita la torre vieja (`remove_child` + `queue_free`, para que `Grid` libere la casilla antes de registrar la nueva), instancia la fusionada en la misma casilla con `invested = vieja.invested + fusion.cost`, la registra en `Grid` y la inspecciona. La selección de la tienda no cambia. La fusionada no tiene `fusion`, así que no enseña el botón ni se vuelve a mejorar, y no sale en la tienda.
 
 La fusionada es otro `TowerData` (`resources/turret_data/<x>_fusion.tres`) con sprites en `assets/sprites/towers/<x>_fusion/` y ataque propio; el campo `fusion` de la base la enlaza:
 
@@ -33,7 +33,7 @@ La fusionada es otro `TowerData` (`resources/turret_data/<x>_fusion.tres`) con s
 
 ## Vender
 
-Al construir en una casilla libre, `BuildManager` emite `LevelState.tower_placed` (no al fusionar); la escucha el tutorial.
+Al construir en una casilla libre, `BuildManager` emite `LevelState.tower_placed` (no al mejorar); la escucha el tutorial.
 
 `LevelState.sellable_tower` es la torre colocada seleccionada. `inspect_placed` la fija junto con `inspected`; cualquier otro cambio de `inspected` la suelta. `LevelState.sell_selected_tower()` suma `Tower.get_sell_value()` (mitad de `Tower.invested`, redondeada hacia abajo; `invested` es el coste al colocar y suma `fusion.cost` al fusionar), hace `queue_free` de la torre (al salir del árbol `Grid.register_tower` libera la casilla) y suelta la selección. Al vender sale un `+X€` flotante sobre la casilla (`FloatingText`, ver [enemigos.md](enemigos.md)). No cuenta en el resumen de partida. Solo vende en `PLAYING` (lo comprueba `LevelUI`).
 
@@ -180,7 +180,7 @@ Límite: `Effect` y `HealEffect` se apuntan al grupo `effects`; `Effect.has_room
 
 ## Dudas
 
-- Una torre colocada solo se puede fusionar o vender; no hay más mejoras.
+- Una torre colocada solo se puede mejorar (fusión) o vender; no hay más mejoras.
 - `disintegrator.tres` tiene `attack_cooldown = 1.0`, que el código no usa para esa torre.
 - El nombre de archivo `rocket_launcher` corresponde a la torre que se llama "Cañón pesado", y `turret` a "Cañón doble". La carpeta es `turret_data` y la clase `TowerData`.
 

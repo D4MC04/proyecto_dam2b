@@ -11,7 +11,7 @@ const TEXTS: Dictionary[Step, String] = {
 	Step.PLACE_TOWER: "Bien. Ahora haz clic en un asteroide con plataforma libre para colocarla.",
 	Step.START_WAVE: "Lista la defensa. Abre la pestaña Oleadas y pulsa Siguiente oleada (o Espacio).",
 	Step.INSPECT_TOWER: "¡Oleada superada! Suelta la torre de la tienda con clic derecho y haz clic en una de las tuyas del mapa para ver su ficha.",
-	Step.FUSE_INFO: "Desde la ficha puedes venderla. Y si eliges la misma torre en la tienda y haces clic encima, se fusiona en una más fuerte.",
+	Step.FUSE_INFO: "Desde la ficha puedes venderla o, si tiene mejora, pulsar Mejorar para convertirla en una más fuerte.",
 	Step.POWERS: "Tienes dos poderes en la ficha: Q lanza un meteorito y E congela a los enemigos. Prueba uno.",
 	Step.DONE: "¡Eso es! El resto es cosa tuya. Suerte ahí fuera.",
 }
