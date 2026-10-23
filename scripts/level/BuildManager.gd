@@ -61,13 +61,10 @@ func _try_place(mouse_pos: Vector2) -> void:
 		state.inspect_placed(grid.towers[cell])
 		return
 
-	# Clic en un sitio vacío sin torre de la tienda elegida: se quita la selección (ficha, botones y alcance).
-	if data == null:
-		state.inspected = null
-		return
-
-	if not grid.can_build(cell):
-		state.sellable_tower = null
+	# Clic donde no se puede construir (el espacio, o cualquier sitio sin torre de la tienda elegida):
+	# se suelta todo, la torre de la tienda y la colocada (ficha, botones y alcance).
+	if data == null or not grid.can_build(cell):
+		_deselect_all()
 		return
 
 	if not state.spend_money(data.cost):
@@ -84,6 +81,11 @@ func _try_place(mouse_pos: Vector2) -> void:
 	state.tower_placed.emit()
 	GameState.add_stat("built_" + data.resource_path.get_file().get_basename())
 
+	_hide_preview()
+
+func _deselect_all() -> void:
+	state.selected_tower = null
+	state.inspected = null
 	_hide_preview()
 
 ## Mejora la torre colocada seleccionada: la sustituye por su versión mejorada en la misma casilla.
