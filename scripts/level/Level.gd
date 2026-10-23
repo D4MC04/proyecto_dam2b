@@ -42,6 +42,10 @@ func _ready() -> void:
 	game_state.tower_placed.connect(func() -> void: GameState.add_stat("towers"))
 	$Powers.power_used.connect(func(_power: Powers.Power) -> void: GameState.add_stat("powers"))
 
+func _process(delta: float) -> void:
+	# En tiempo real: delta ya viene multiplicado por la velocidad del juego.
+	GameState.add_play_time(delta / maxf(Engine.time_scale, 0.01))
+
 func setup(data: LevelData) -> void:
 	map = data.map.instantiate()
 	map.name = "Map"

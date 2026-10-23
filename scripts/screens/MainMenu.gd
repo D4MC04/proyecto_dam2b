@@ -5,6 +5,8 @@ var start_on_level_selection: bool = false
 @onready var main_panel: VBoxContainer = $TitleScreen
 @onready var level_selection_panel: VBoxContainer = $LevelSelectionScreen
 @onready var level_buttons_container: GridContainer = %LevelButtonsContainer
+@onready var stats_panel: VBoxContainer = $StatsScreen
+@onready var stats_label: Label = %StatsLabel
 @onready var navedex: Navedex = $Navedex
 @onready var options_menu: OptionsMenu = $OptionsMenu
 
@@ -73,6 +75,26 @@ func _on_navedex_button_pressed() -> void:
 
 func _on_navedex_back_pressed() -> void:
 	_transition(navedex, main_panel)
+
+@warning_ignore("integer_division")
+func _on_stats_button_pressed() -> void:
+	var seconds := int(GameState.play_time)
+	var favorite: String = GameState.favorite_tower()
+	var tower_name := "-"
+	if favorite != "":
+		tower_name = (load(Navedex.TOWER_DIR + favorite + ".tres") as TowerData).name
+	stats_label.text = "
+".join([
+		"Naves destruidas: %d" % GameState.stats.get("kills", 0),
+		"Dinero gastado: %s" % UiFormat.money(GameState.stats.get("spent", 0)),
+		"Tiempo jugado: %dh %02dm" % [seconds / 3600, seconds % 3600 / 60],
+		"Torre favorita: %s" % tower_name,
+		"Niveles ganados: %d" % GameState.stats.get("wins", 0),
+	])
+	_transition(main_panel, stats_panel)
+
+func _on_stats_back_pressed() -> void:
+	_transition(stats_panel, main_panel)
 
 func _on_quit_button_pressed() -> void:
 	get_tree().quit()
