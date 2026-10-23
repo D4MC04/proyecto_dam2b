@@ -21,7 +21,10 @@ var _progress := 0.0
 
 ## Anillo verde que se expande hasta `radius` y se desvanece. Cuelga de `parent` y se libera solo.
 static func spawn_ring(parent: Node, position: Vector2, radius: float) -> void:
+	if not Effect.has_room(parent.get_tree()):
+		return
 	var effect := HealEffect.new()
+	effect.add_to_group(Effect.GROUP)
 	effect._radius = radius
 	parent.add_child(effect)
 	# En global porque el padre (el camino) se mueve con el mapa centrado.
@@ -30,7 +33,10 @@ static func spawn_ring(parent: Node, position: Vector2, radius: float) -> void:
 
 ## Chispas de 1 px que suben desde una nave de `size` px y se desvanecen. Cuelga de la nave para seguirla.
 static func spawn_sparks(target: Node2D, size: float) -> void:
+	if not Effect.has_room(target.get_tree()):
+		return
 	var effect := HealEffect.new()
+	effect.add_to_group(Effect.GROUP)
 	effect.z_index = 5
 	for i: int in SPARK_COUNT:
 		var start := Vector2(randf_range(-0.35, 0.35), randf_range(-0.2, 0.3)) * size

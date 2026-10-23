@@ -48,7 +48,7 @@ Al construir en una casilla libre, `BuildManager` emite `LevelState.tower_placed
 
 En `_ready` copia de `data: TowerData` los sprites, la forma del rango y `attack_cooldown`, y arranca el temporizador.
 
-Si la opción `show_tower_range` de `Settings` está activada, `_draw` pinta el rango de la torre bajo sus sprites, con el mismo color que la vista previa (`BuildManager.RANGE_COLOR`). Cada torre escucha `Settings.changed` y se redibuja, así que el rango aparece o desaparece al cambiar la opción en plena partida.
+Si la opción `show_tower_range` de `Settings` está activada, `_draw` pinta el rango de la torre bajo sus sprites, con el mismo color que la vista previa (`BuildManager.RANGE_COLOR`). Cada torre escucha `Settings.changed` y se redibuja, así que el rango aparece o desaparece al cambiar la opción en plena partida. Además, con el ratón sobre la torre (`_physics_process`, casilla de 16 px) también lo dibuja aunque la opción esté apagada, y lo mismo mientras está seleccionada en el mapa (`selected`, que pone `LevelState.sellable_tower`).
 
 ### Objetivo
 
@@ -169,6 +169,8 @@ Recursos en `resources/turret_data/`:
 ### Effect
 
 `scripts/Effect.gd`: `Effect.spawn(parent, frames, pos, size)` crea un `AnimatedSprite2D` que reproduce una animación una vez y se libera. Lo usan todos los ataques para impactos y fogonazos.
+
+Límite: `Effect` y `HealEffect` se apuntan al grupo `effects`; `Effect.has_room(tree)` comprueba que haya menos de `MAX_EFFECTS` (60) vivos, o `MAX_EFFECTS_LOW` (20) si el juego va por debajo de `LOW_FPS` (45 FPS): se ajusta solo, sin opción en el menú. Si no hay hueco, el efecto no se crea. `EmpSparks` (uno por torre, no ráfagas) no cuenta.
 
 ## Comunicación con el resto
 
