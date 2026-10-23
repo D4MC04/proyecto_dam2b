@@ -5,6 +5,8 @@ class_name InfoPanel
 
 ## El jugador pulsa "Vender"; es una petición, el dinero y la torre los gestiona LevelState.
 signal sell_requested
+## El jugador pulsa "Mejorar"; la torre y el dinero los gestiona BuildManager.
+signal upgrade_requested
 
 # Fuente a 16 px (6 px por carácter) en los 110 px útiles de la pantalla de la barra
 # (128 px menos 6 de marco y 3 de margen a cada lado): 18 caracteres por línea (108 px).
@@ -41,6 +43,7 @@ const CONFIRM_SELL_TEXT := "¿Seguro?"
 @onready var scroll_hint: Control = %ScrollHint
 @onready var scan_flash: Control = %ScanFlash
 @onready var sell_button: Button = %SellButton
+@onready var upgrade_button: Button = %UpgradeButton
 @onready var meteor_button: PowerButton = %MeteorButton
 @onready var freeze_button: PowerButton = %FreezeButton
 @onready var orbital_button: PowerButton = %OrbitalButton
@@ -58,6 +61,7 @@ func _ready() -> void:
 	name_label.text = "A\nA"
 	name_label.custom_minimum_size.y = name_label.get_combined_minimum_size().y
 	sell_button.pressed.connect(_on_sell_pressed)
+	upgrade_button.pressed.connect(upgrade_requested.emit)
 	scroll_hint.draw.connect(_draw_scroll_hint)
 	scroll_hint.modulate.a = 0.0
 	var scroll_bar := stat_scroll.get_v_scroll_bar()
@@ -66,10 +70,11 @@ func _ready() -> void:
 	show_sellable(null)
 	_show_idle()
 
-## Enseña el botón "Vender (+X)" de una torre colocada; con null lo oculta.
+## Enseña los botones "Vender (+X)" y, si tiene mejora, "Mejorar (-X)" de una torre colocada; con null los oculta.
 func show_sellable(tower: Tower) -> void:
 	_confirming_sell = false
 	sell_button.visible = tower != null
+	upgrade_button.visible = tower != null and tower.data.fusion != null
 	for row in _tower_rows:
 		if is_instance_valid(row):
 			row.queue_free()
@@ -85,6 +90,8 @@ func show_sellable(tower: Tower) -> void:
 			_tower_rows.append(row)
 	if tower != null:
 		sell_button.text = "Vender (+%s)" % UiFormat.money(tower.get_sell_value())
+		if tower.data.fusion != null:
+			upgrade_button.text = "Mejorar (-%s)" % UiFormat.money(tower.data.fusion.cost)
 
 # Vender siempre pide confirmar con un segundo clic.
 func _on_sell_pressed() -> void:

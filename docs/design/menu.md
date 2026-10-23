@@ -62,7 +62,7 @@ Todos son `Node2D` que dibujan o crean sprites por código, con posiciones y tie
 
 ## Navedex
 
-`scenes/Navedex.tscn` + `scripts/screens/Navedex.gd` (clase `Navedex`). Archivo de naves y torres, accesible con "ARCHIVO" en el título (mismo fundido de 0,25 s que Jugar/Opciones; emite `back_pressed` con "Volver"). Panel holograma (`OverlayFrame`) con cabecera `// ARCHIVO`, una `TabBar` NAVES / TORRES, a la izquierda una cuadrícula de 4 columnas (celdas `EnemyCell` sin contador, que valen para cualquier `InspectableData`) y a la derecha el detalle: sprite (animado `up` en las naves, `icon` en las torres) a ×2, nombre, `description` y stats (`get_stats()` con `StatRow` a 24 px). En las torres base se añade una línea "FUSIÓN: nombre".
+`scenes/Navedex.tscn` + `scripts/screens/Navedex.gd` (clase `Navedex`). Archivo de naves y torres, accesible con "ARCHIVO" en el título (mismo fundido de 0,25 s que Jugar/Opciones; emite `back_pressed` con "Volver"). Panel holograma (`OverlayFrame`) con cabecera `// ARCHIVO`, una `TabBar` NAVES / TORRES, a la izquierda una cuadrícula de 4 columnas (celdas `EnemyCell` sin contador, que valen para cualquier `InspectableData`) y a la derecha el detalle: sprite (animado `up` en las naves, `icon` en las torres) a ×2, nombre, `description` y stats (`get_stats()` con `StatRow` a 24 px). En las torres base se añade una línea "MEJORA: nombre".
 
 - Un enemigo es "visto" si `GameState.has_seen_enemy(data)`. Los no vistos salen en silueta negra (`modulate` negro) y su detalle dice "???" sin stats.
 - Al mostrarse se refrescan las siluetas y se elige el primer enemigo.
@@ -73,7 +73,7 @@ Todos son `Node2D` que dibujan o crean sprites por código, con posiciones y tie
 
 Tercera pestaña de la Navedex, LOGROS: oculta cuadrícula y detalle y muestra `AchievementsList`, una línea `[X] nombre - descripción` por logro. Los 12 logros están en `GameState.ACHIEVEMENTS` (id -> nombre y descripción) y cómo se cumple cada uno en `GameState._is_done()`. Se guardan en `progress.cfg` (`unlocked`, más los contadores `stats` y `fused_towers`) y "Borrar progreso" los borra.
 
-- Contadores (`GameState.add_stat`): bajas (`Level`, por `enemy_died`), torres construidas, poderes usados, oleadas perfectas y niveles ganados. `register_fusion` lo llama `BuildManager._fuse`; `register_win(número, intacto)` lo llama `Game` al ganar (intacto = la estación con toda la vida).
+- Contadores (`GameState.add_stat`): bajas (`Level`, por `enemy_died`), torres construidas, poderes usados, oleadas perfectas y niveles ganados. `register_fusion` lo llama `BuildManager.upgrade_selected`; `register_win(número, intacto)` lo llama `Game` al ganar (intacto = la estación con toda la vida).
 - Los contadores se guardan con `flush()` al limpiar una oleada y al ganar o perder, no a cada baja; al desbloquear un logro se guarda al momento.
 - Al conseguir uno sale `LOGRO: nombre` arriba a la derecha 3 s y se desvanece (capa propia de `GameState`, también en pausa y victoria).
 

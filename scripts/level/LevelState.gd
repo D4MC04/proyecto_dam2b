@@ -5,8 +5,10 @@ signal money_changed(amount: int)
 signal selected_tower_changed(data: TowerData)
 signal inspected_changed(data: Resource)
 signal sellable_tower_changed(tower: Tower)
-## BuildManager la emite al colocar una torre nueva en una casilla libre (no al fusionar).
+## BuildManager la emite al colocar una torre nueva en una casilla libre (no al mejorar).
 signal tower_placed
+## El jugador pide mejorar la torre colocada seleccionada; la atiende BuildManager.
+signal upgrade_requested
 
 # Premio al limpiar una oleada (menos la última) sin que llegue ningún enemigo a la estación.
 const PERFECT_WAVE_BONUS := 25
