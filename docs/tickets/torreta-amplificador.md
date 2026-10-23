@@ -1,7 +1,7 @@
 # Torreta nueva: Amplificador
 
 Creador: David
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: opus
 Esfuerzo recomendado: high
 
