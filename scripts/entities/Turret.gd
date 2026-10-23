@@ -11,10 +11,11 @@ const DISABLED_TINT := Color(0.22, 0.25, 0.38)
 # Destello al volver a encenderse.
 const ENABLE_FLASH := Color(3, 3, 3)
 const ENABLE_FLASH_TIME := 0.3
-# Animación al construir (flash normal) y al fusionar (flash más fuerte).
-const BUILD_FLASH := Color(2, 2, 2)
-const FUSE_FLASH := Color(5, 5, 5)
-const BUILD_TIME := 0.35
+# Animación al construir o mejorar: la línea de escaneo tarda BUILD_TIME en subir por la torreta y
+# BUILD_TRAIL filas de estela salen por arriba antes de acabar.
+const BUILD_SHADER: Shader = preload("res://resources/shaders/hologram_build.gdshader")
+const BUILD_TIME := 0.8
+const BUILD_TRAIL := 5.0
 # Animación al vender: se encoge soltando chispas.
 const SELL_TIME := 0.25
 const SELL_SPARK_COLOR := Color("#ffe082")
@@ -372,14 +373,28 @@ func register_damage(amount: float, killed: bool) -> void:
 func get_sell_value() -> int:
 	return floori(invested / 2.0)
 
-## Aparece con escala de 0 a 1 con rebote y un destello (más fuerte si es una fusión).
-func play_build(fused := false) -> void:
-	scale = Vector2.ZERO
-	var flash := FUSE_FLASH if fused else BUILD_FLASH
-	var tween := create_tween().set_parallel()
-	tween.tween_property(self, "scale", Vector2.ONE, BUILD_TIME).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(sprite, "modulate", Color.WHITE, BUILD_TIME).from(flash)
-	tween.tween_property(cannon, "modulate", Color.WHITE, BUILD_TIME).from(flash)
+## Se materializa: una línea de escaneo cian sube por la base y el cañón; lo de encima es holograma.
+## Al acabar se quita el material y la torreta queda normal.
+func play_build() -> void:
+	# Mitad de la altura del sprite (los frames son de 32x32, con la torreta centrada).
+	var half_height := 0.0
+	for node: AnimatedSprite2D in [sprite, cannon]:
+		if node.sprite_frames:
+			var frame_texture := node.sprite_frames.get_frame_texture(node.animation, 0)
+			half_height = maxf(half_height, frame_texture.get_height() * node.scale.y * 0.5)
+	var material := ShaderMaterial.new()
+	material.shader = BUILD_SHADER
+	material.set_shader_parameter("line_start", global_position.y + half_height)
+	material.set_shader_parameter("line_end", global_position.y - half_height - BUILD_TRAIL)
+	material.set_shader_parameter("trail_length", BUILD_TRAIL)
+	material.set_shader_parameter("progress", 0.0)
+	sprite.material = material
+	cannon.material = material
+	var tween := create_tween()
+	tween.tween_method(func(value: float) -> void: material.set_shader_parameter("progress", value), 0.0, 1.0, BUILD_TIME)
+	tween.tween_callback(func() -> void:
+		sprite.material = null
+		cannon.material = null)
 
 ## Al vender: deja una copia visual que se encoge soltando chispas; la torreta real se libera ya.
 func play_sell() -> void:
