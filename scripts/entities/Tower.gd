@@ -25,11 +25,6 @@ const SHOOT_FADE_DB := -40.0
 const HEAT_TINT := Color(1.0, 0.3, 0.2)
 const OVERHEAT_FLASH := Color(2.5, 0.6, 0.3)
 const OVERHEAT_BLINK := 0.12
-# Humo gris en píxeles que sale de la torre cuando está muy caliente (desde SMOKE_HEAT) o sobrecalentada.
-const SMOKE_HEAT := 0.6
-# Las partículas salen naranjas (ascuas) y pasan a humo gris claro que se desvanece.
-const EMBER_COLOR := Color(1.0, 0.55, 0.2)
-const SMOKE_COLOR := Color(0.8, 0.8, 0.85, 0.9)
 # Con este calor ya dispara a la cadencia máxima; de ahí al sobrecalentamiento sigue a tope.
 const FULL_SPEED_HEAT := 0.5
 
@@ -54,7 +49,7 @@ var _pending_shot := false
 var _heat := 0.0
 var _overheat_left := 0.0
 var _heat_tinted := false
-var _smoke: CPUParticles2D
+var _heat_glow: HeatGlow
 # Mira de las torretas de haz; solo se ve durante la carga.
 var _sight: Line2D
 # Sonido de disparo; con poca polifonía, 10 torres juntas no saturan.
@@ -153,7 +148,7 @@ func _update_overheat(delta: float, has_target: bool) -> bool:
 			var flash_on := fmod(_overheat_left, OVERHEAT_BLINK * 2.0) < OVERHEAT_BLINK
 			_set_heat_tint(OVERHEAT_FLASH if flash_on else HEAT_TINT)
 			_heat_tinted = true
-			_set_smoke(true)
+			_show_heat(true)
 			return true
 		# Ya se ha enfriado: vuelve a la cadencia base.
 		_heat = 0.0
@@ -164,7 +159,7 @@ func _update_overheat(delta: float, has_target: bool) -> bool:
 	if _heat > 0.0 or _heat_tinted:
 		_set_heat_tint(Color.WHITE.lerp(HEAT_TINT, _heat))
 		_heat_tinted = _heat > 0.0
-	_set_smoke(_heat >= SMOKE_HEAT)
+	_show_heat(false)
 	return false
 
 # Cuanto más caliente, menos cooldown. Empieza lento, acelera (curva al cuadrado) y desde
@@ -173,34 +168,21 @@ func _heat_cooldown() -> float:
 	var t := minf(_heat / FULL_SPEED_HEAT, 1.0)
 	return lerpf(data.attack_cooldown, data.overheat_min_cooldown, t * t)
 
-# Enciende o apaga el humo; lo crea la primera vez que hace falta.
-func _set_smoke(on: bool) -> void:
-	if _smoke == null:
-		if not on:
+# Halo y chispas de calor (HeatGlow) en la boca del cañón; se crea la primera vez que hay calor.
+func _show_heat(overheated: bool) -> void:
+	if _heat_glow == null:
+		if _heat <= 0.0 and not overheated:
 			return
-		_smoke = CPUParticles2D.new()
-		_smoke.z_index = 1
-		_smoke.position = Vector2(0, -8)
-		_smoke.amount = 28
-		_smoke.lifetime = 1.6
-		_smoke.direction = Vector2.UP
-		_smoke.spread = 30.0
-		_smoke.gravity = Vector2(0, -20)
-		_smoke.initial_velocity_min = 8.0
-		_smoke.initial_velocity_max = 18.0
-		_smoke.scale_amount_min = 3.0
-		_smoke.scale_amount_max = 5.0
-		var fade := Gradient.new()
-		fade.set_color(0, EMBER_COLOR)
-		fade.add_point(0.25, SMOKE_COLOR)
-		fade.set_color(fade.get_point_count() - 1, Color(SMOKE_COLOR, 0.0))
-		_smoke.color_ramp = fade
-		add_child(_smoke)
-	_smoke.emitting = on
+		_heat_glow = HeatGlow.new()
+		_heat_glow.position = data.muzzle_offset
+		cannon.add_child(_heat_glow)
+	_heat_glow.heat = _heat
+	_heat_glow.overheated = overheated
 
 func _set_heat_tint(color: Color) -> void:
 	sprite.modulate = color
-	cannon.modulate = color
+	# self_modulate: el tinte no debe oscurecer el halo y las chispas (HeatGlow cuelga del cañón).
+	cannon.self_modulate = color
 
 # Cada disparo calienta; al llegar al máximo se para overheat_time segundos.
 func _add_heat() -> void:
