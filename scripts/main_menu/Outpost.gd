@@ -9,7 +9,7 @@ const STATION_ANIMATION: StringName = &"fase_0"
 # Cada torreta: sus datos y su posición respecto a la estación
 const TURRETS: Array[Array] = [
 	[preload("res://resources/turret_data/turret.tres"), Vector2(-58, -66)],
-	[preload("res://resources/turret_data/laser.tres"), Vector2(66, -30)],
+	[preload("res://resources/turret_data/minigun.tres"), Vector2(66, -30)],
 	[preload("res://resources/turret_data/turret.tres"), Vector2(26, 70)],
 ]
 

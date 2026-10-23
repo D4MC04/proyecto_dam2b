@@ -14,7 +14,7 @@
 [ext_resource type="Resource" uid="uid://cudlg71pc88wr" path="res://resources/level_data/level_9.tres" id="level_9"]
 [ext_resource type="Resource" uid="uid://cnbuncwscbxtt" path="res://resources/turret_data/turret.tres" id="9_jj5sp"]
 [ext_resource type="Resource" uid="uid://bh8qdvmr3kaj" path="res://resources/turret_data/rocket_launcher.tres" id="10_5ltge"]
-[ext_resource type="Resource" uid="uid://bi8dmx532elhj" path="res://resources/turret_data/laser.tres" id="11_1wlqr"]
+[ext_resource type="Resource" path="res://resources/turret_data/minigun.tres" id="11_1wlqr"]
 [ext_resource type="Resource" path="res://resources/turret_data/cryo.tres" id="cryo"]
 [ext_resource type="Resource" path="res://resources/turret_data/tesla.tres" id="tesla"]
 [ext_resource type="Resource" path="res://resources/turret_data/rail.tres" id="rail"]

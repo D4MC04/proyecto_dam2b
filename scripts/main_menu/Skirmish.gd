@@ -10,7 +10,7 @@ const SHIPS: Array[Array] = [
 	[preload("res://resources/sprite_frames/nave_agresiva.tres"), 180.0],
 	[preload("res://resources/sprite_frames/wasp.tres"), 0.0],
 ]
-const IMPACT_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/laser_impact.tres")
+const IMPACT_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/minigun_impact.tres")
 const SHIP_SCALE: float = 0.5
 # Las naves y sus impactos van oscurecidos, como lejanos, pero opacos: no transparentan lo que tengan detrás
 const SHIP_TINT: Color = Color(0.62, 0.66, 0.74)

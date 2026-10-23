@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="TurretData" format=3]
+
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="1"]
+[ext_resource type="Shape2D" path="res://resources/collision_shapes/minigun_fusion.tres" id="2"]
+[ext_resource type="Resource" path="res://resources/bullet_data/minigun_fusion_bullet.tres" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/turrets/minigun_fusion/minigun_full_up.png" id="4"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/minigun_fusion.tres" id="5"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/minigun_fusion_flash.tres" id="6"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/minigun_fusion_cannon.tres" id="7"]
+[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Turret/DobleLaserShoot.wav" id="snd"]
+
+[resource]
+script = ExtResource("1")
+shoot_sound = ExtResource("snd")
+name = "Minigun pesada"
+cost = 400
+attack_cooldown = 0.3
+icon = ExtResource("4")
+sprite_frames = ExtResource("5")
+attack_range = ExtResource("2")
+bullet_data = ExtResource("3")
+muzzle_flash = ExtResource("6")
+muzzle_offset = Vector2(0, -13)
+cannon = ExtResource("7")
+turn_speed = 270.0
+overheat_shots = 90
+overheat_min_cooldown = 0.04
+overheat_time = 2.0
+overheat_cool_time = 3.0
+description = "Más daño y alcance, dispara aún más rápido y aguanta más antes de sobrecalentarse."
+metadata/_custom_type_script = "uid://dmo7ci57slbqu"
