@@ -83,6 +83,7 @@ func _try_place(mouse_pos: Vector2) -> void:
 
 	grid.register_tower(cell, tower)
 	state.tower_placed.emit()
+	GameState.add_stat("built_" + data.resource_path.get_file().get_basename())
 
 	_hide_preview()
 
