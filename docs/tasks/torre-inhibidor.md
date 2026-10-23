@@ -2,7 +2,7 @@
 
 Estado: propuesta
 Modelo recomendado: opus
-Esfuerzo recomendado: medium
+Esfuerzo recomendado: high
 
 ## Por qué
 Las naves de los niveles 6 a 9 tienen habilidades (la Reparadora cura, el Espectro se camufla, la Saboteadora apaga torres con su EMP) y ninguna torre las contrarresta. El Pulso inhibidor las anula en su radio.

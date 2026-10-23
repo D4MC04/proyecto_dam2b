@@ -2,7 +2,7 @@
 
 Estado: propuesta
 Modelo recomendado: opus
-Esfuerzo recomendado: medium
+Esfuerzo recomendado: high
 
 ## Por qué
 Ninguna torre hace daño con el tiempo ni ataca en cono. El Lanzallamas quema todo lo que tiene delante a corta distancia y deja a las naves ardiendo, así que va bien contra grupos y contra la curación de la Reparadora.

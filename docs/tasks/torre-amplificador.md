@@ -2,7 +2,7 @@
 
 Estado: propuesta
 Modelo recomendado: opus
-Esfuerzo recomendado: medium
+Esfuerzo recomendado: high
 
 ## Por qué
 Todas las torres atacan; no hay ninguna de apoyo. El Amplificador no dispara: mejora a las torres que tiene alrededor, y eso hace pensar dónde poner cada una.

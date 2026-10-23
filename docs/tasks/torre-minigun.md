@@ -1,7 +1,7 @@
 # Torre nueva: Minigun (sustituye al Láser)
 
 Estado: propuesta
-Modelo recomendado: sonnet
+Modelo recomendado: opus
 Esfuerzo recomendado: medium
 
 ## Por qué
