@@ -11,11 +11,11 @@ const DISABLED_TINT := Color(0.22, 0.25, 0.38)
 # Destello al volver a encenderse.
 const ENABLE_FLASH := Color(3, 3, 3)
 const ENABLE_FLASH_TIME := 0.3
-# Animación al construir o mejorar: la línea de escaneo tarda BUILD_TIME en subir; la torreta mide
-# BUILD_HALF_HEIGHT px de alto desde su centro hacia cada lado.
+# Animación al construir o mejorar: la línea de escaneo tarda BUILD_TIME en subir por la torreta y
+# BUILD_TRAIL filas de estela salen por arriba antes de acabar.
 const BUILD_SHADER: Shader = preload("res://resources/shaders/hologram_build.gdshader")
-const BUILD_TIME := 0.6
-const BUILD_HALF_HEIGHT := 9.0
+const BUILD_TIME := 0.8
+const BUILD_TRAIL := 5.0
 # Animación al vender: se encoge soltando chispas.
 const SELL_TIME := 0.25
 const SELL_SPARK_COLOR := Color("#ffe082")
@@ -376,10 +376,17 @@ func get_sell_value() -> int:
 ## Se materializa: una línea de escaneo cian sube por la base y el cañón; lo de encima es holograma.
 ## Al acabar se quita el material y la torreta queda normal.
 func play_build() -> void:
+	# Mitad de la altura del sprite (los frames son de 32x32, con la torreta centrada).
+	var half_height := 0.0
+	for node: AnimatedSprite2D in [sprite, cannon]:
+		if node.sprite_frames:
+			var frame_texture := node.sprite_frames.get_frame_texture(node.animation, 0)
+			half_height = maxf(half_height, frame_texture.get_height() * node.scale.y * 0.5)
 	var material := ShaderMaterial.new()
 	material.shader = BUILD_SHADER
-	material.set_shader_parameter("center_y", global_position.y)
-	material.set_shader_parameter("half_height", BUILD_HALF_HEIGHT)
+	material.set_shader_parameter("line_start", global_position.y + half_height)
+	material.set_shader_parameter("line_end", global_position.y - half_height - BUILD_TRAIL)
+	material.set_shader_parameter("trail_length", BUILD_TRAIL)
 	material.set_shader_parameter("progress", 0.0)
 	sprite.material = material
 	cannon.material = material
