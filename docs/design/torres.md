@@ -74,7 +74,7 @@ Al cumplirse el cooldown:
 
 - `disabled = true`: `_process` no apunta, el `Timer` de cooldown se pausa (`paused`, así conserva lo que le quedaba) y el haz continuo (`FocusBeam`) se corta. Si el cañón estaba cargando o disparando vuelve a `default`, y el frame de disparo de onda, cadena o haz no se lanza.
 - Base y cañón se tiñen de azul muy oscuro (`DISABLED_TINT`) y el cañón se queda quieto (`speed_scale` 0).
-- Mientras dura, `EmpSparks` (`scripts/entities/EmpSparks.gd`) pinta en píxeles sin antialiasing 4 zigzags de chispas en `#2a6ae6`, `#78bcff` y `#e6f6ff` que cambian de sitio cada 0,06 s, y encima de la torre un icono de "sin energía" de 9x10 (rayo ámbar `#ecb23c`/`#ffe082` con contorno `#0c0e16`, tachado en diagonal con 2 px de `#f0323c`) que parpadea cada 0,25 s.
+- Mientras dura, `EmpSparks` (`scripts/entities/EmpSparks.gd`) pinta en píxeles sin antialiasing 4 zigzags de chispas en `#2a6ae6`, `#78bcff` y `#e6f6ff` que cambian de sitio cada 0,06 s, y encima de la torre un icono de "sin energía" de 9x10 (rayo ámbar `#ecb23c`/`#ffe082` con contorno `#0c0e16`, tachado en diagonal con 2 px de `#f0323c`) que parpadea cada 0,25 s. En los últimos 2 s el parpadeo se acelera poco a poco hasta 0,06 s, como aviso de que la torre está a punto de volver. `Tower.disable` le pasa la duración con `EmpSparks.start(seconds)`, también al renovarla.
 - A los `seconds` segundos (tween de la torre, sigue la velocidad del juego) vuelve a funcionar con un destello blanco de 0,3 s en base y cañón. Otro pulso mientras está apagada renueva la duración, no se acumula.
 
 ### Sonido
