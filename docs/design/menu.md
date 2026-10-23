@@ -62,11 +62,13 @@ Todos son `Node2D` que dibujan o crean sprites por código, con posiciones y tie
 
 ## Navedex
 
-`scenes/Navedex.tscn` + `scripts/screens/Navedex.gd` (clase `Navedex`). Archivo de naves y torretas, accesible con "Archivo" en el título (mismo fundido de 0,25 s que Jugar/Opciones; emite `back_pressed` con "Volver"). Panel holograma (`OverlayFrame`) con cabecera `// ARCHIVO`, una `TabBar` NAVES / TORRETAS, a la izquierda una cuadrícula de 4 columnas (celdas `EnemyCell` sin contador, que valen para cualquier `InspectableData`) y a la derecha el detalle: sprite (animado `up` en las naves, `icon` en las torretas) a ×2, nombre, `description` y stats (`get_stats()` con `StatRow` a 24 px). En las torretas base se añade una línea "MEJORA: nombre".
+`scenes/Navedex.tscn` + `scripts/screens/Navedex.gd` (clase `Navedex`). Archivo de naves y torretas, accesible con "Archivo" en el título (mismo fundido de 0,25 s que Jugar/Opciones; emite `back_pressed` con "Volver"). Panel holograma (`OverlayFrame`) con cabecera `// ARCHIVO`, una `TabBar` NAVES / TORRETAS, a la izquierda una cuadrícula de 4 columnas (celdas `EnemyCell` cuadradas de 64x64 y sin contador, que valen para cualquier `InspectableData`) y a la derecha el detalle: sprite (animado `up` en las naves, `icon` en las torretas) a ×2, nombre, `description` y stats (`get_stats()` con `StatRow` a 24 px). El panel tiene tamaño fijo: la cuadrícula mide 274x274, el detalle 420x340 (caben la nave con más texto y la torreta con más stats) y la lista de logros 718x340. El tamaño de las celdas lo fija `Navedex` (`CELL_SIZE`), no `EnemyCell.tscn`, que en la partida sigue igual.
+
+- Torretas: la cuadrícula solo tiene las base. En el detalle, `PrevButton` y `NextButton` (`<` y `>`) a los lados de la imagen pasan por la cadena base -> `TurretData.fusion` y vuelven; al cambiar se actualizan imagen, nombre, descripción y stats. Se desactivan en los extremos y en las naves son invisibles (no ocultos, para que la imagen no se mueva). "MEJORA: nombre" se ve en las versiones que aún tienen otra mejora.
 
 - Un enemigo es "visto" si `GameState.has_seen_enemy(data)`. Los no vistos salen en silueta negra (`modulate` negro) y su detalle dice "???" sin stats.
 - Al mostrarse se refrescan las siluetas y se elige el primer enemigo.
-- Las torretas (`TURRET_FILES`, cada base seguida de su fusión) siempre se ven completas.
+- Las torretas (`TURRET_FILES`, solo las base) siempre se ven completas.
 - Si se añade un enemigo o torreta nuevos, hay que añadirlo a `ENEMY_FILES` / `TURRET_FILES`.
 
 ### Logros
