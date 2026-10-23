@@ -26,8 +26,7 @@
 
 ## Flujo de tickets
 - Guía para el usuario: docs/CLAUDE-CODE.md. Formato de ticket: docs/tickets/_plantilla.md.
-- Comandos: `/ideas` (Claude propone tickets), `/add` (tickets con las ideas del usuario), `/board` (estado, choques y tandas), `/work nombre` (implementa), `/check` (revisa sin tocar nada), `/commit` (revisa lo pendiente, prueba y commitea en la rama), `/ship` (commitea lo pendiente, abre el PR y lo fusiona en main con squash), `/hub` (abre el chat central). `/proponer`, `/tickets`, `/hacer`, `/revisar` y `/new` son alias temporales de los anteriores.
-- Solo se implementan tickets con `Estado: aceptada`, cada uno en su rama `ticket/nombre` desde main. Nunca trabajar en main, salvo el commit del `Estado:` al aceptar.
+- Comandos: `/ideas` (Claude propone tickets), `/add` (tickets con las ideas del usuario), `/board` (estado, choques y tandas), `/work nombre` (implementa), `/check` (revisa sin tocar nada), `/commit` (revisa lo pendiente, prueba y commitea en la rama), `/ship` (commitea lo pendiente, abre el PR y lo fusiona en main con squash), `/hub` (abre el chat central).- Solo se implementan tickets con `Estado: aceptada`, cada uno en su rama `ticket/nombre` desde main. Nunca trabajar en main, salvo el commit del `Estado:` al aceptar.
 - Solo se commitea con `/commit` y solo se sube con `/ship` (o dentro de `/work` y `/ship`, que los usan). Frases como "commitea", "sube", "va bien" o "listo" no commitean ni suben nada: recordar al usuario el comando.
 - **Aceptar es la orden de empezar** (casillas o "acepto X"), sin esperar otro visto bueno:
   1. Cambiar solo la línea `Estado:` a `aceptada`. Commit en `main` solo de eso (sin probador) y `git push origin main`; si `origin/main` avanzó, antes `git pull --ff-only`.

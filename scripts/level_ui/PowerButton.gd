@@ -1,7 +1,7 @@
 extends Button
 class_name PowerButton
 ## Botón de un poder en la barra izquierda. Lee el estado de Powers cada frame y lo pinta:
-## la tecla a la izquierda, ámbar mientras se apunta y, en recarga, un oscurecido que se va
+## la tecla a la izquierda y el icono a la derecha, ámbar mientras se apunta y, en recarga, un oscurecido que se va
 ## vaciando con los segundos que faltan. Al pulsarlo solo emite pressed; LevelUI decide.
 
 const BG_COLOR := Color("#0e1626")
@@ -16,8 +16,8 @@ const ICON_DIM_COLOR := Color(1, 1, 1, 0.5)
 const COOLDOWN_COLOR := Color(0, 0, 0, 0.45)
 const SECONDS_COLOR := Color("#cce6ff")
 const KEY_COLOR := Color("#5a7a96")
-# Hueco de la tecla al borde izquierdo y alto de la fuente (Monogram a 16, línea de 13 px).
-const KEY_MARGIN := 5
+# Hueco de la tecla al borde izquierdo (el icono va a la derecha, con el mismo hueco) y alto de la fuente (Monogram a 16, línea de 13 px).
+const KEY_MARGIN := 4
 const FONT_SIZE := 16
 
 @export var power: Powers.Power
