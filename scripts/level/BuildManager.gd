@@ -61,10 +61,13 @@ func _try_place(mouse_pos: Vector2) -> void:
 		state.inspect_placed(grid.towers[cell])
 		return
 
+	# Clic en un sitio vacío sin torre de la tienda elegida: se quita la selección (ficha, botones y alcance).
 	if data == null:
+		state.inspected = null
 		return
 
 	if not grid.can_build(cell):
+		state.sellable_tower = null
 		return
 
 	if not state.spend_money(data.cost):

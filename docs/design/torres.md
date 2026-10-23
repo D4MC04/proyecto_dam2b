@@ -9,6 +9,7 @@ En `_unhandled_input`:
 - **Mover el ratón**: si hay torre seleccionada y la casilla bajo el cursor es construible, muestra una vista previa en el centro de la casilla: el icono de la torre al 60 % de opacidad y su rango dibujado en blanco al 15 %. Si no, la oculta.
 - **Clic izquierdo**: si hay torre seleccionada, `grid.can_build(cell)` y `state.spend_money(data.cost)`, instancia la torre como hija de `BuildManager`, la coloca en el centro de la casilla y la registra en `Grid`.
 - **Clic izquierdo sobre una torre ya colocada** (se mira antes que lo de colocar): siempre `state.inspect_placed(tower)` (no fusiona por clic); la ficha enseña la torre y aparecen los botones de vender y, si tiene `fusion`, de mejorar (ver abajo).
+- **Clic izquierdo en un sitio vacío**: sin torre de la tienda elegida, `state.inspected = null` (la ficha vuelve al escáner y se quita la selección: botones y alcance). Con torre de la tienda elegida pero en una casilla donde no se puede construir, solo `state.sellable_tower = null`.
 - **Clic derecho**: pone `state.selected_tower = null` y oculta la vista previa.
 
 `stop_building()` oculta la vista previa y hace que `_unhandled_input` deje de hacer nada el resto de la partida. Lo llama `Level` al perder o ganar.
