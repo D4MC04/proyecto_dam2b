@@ -145,14 +145,14 @@ custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "ARCHIVO"
+text = "Archivo"
 
 [node name="StatsButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons"]
 custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "ESTADÍSTICAS"
+text = "Stats"
 
 [node name="SettingsButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons" unique_id=528850060]
 custom_minimum_size = Vector2(204, 36)
