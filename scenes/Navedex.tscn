@@ -77,35 +77,38 @@ theme_override_constants/separation = 5
 
 [node name="SpriteBox" type="HBoxContainer" parent="Center/Frame/Margin/Box/Columns/Detail"]
 layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
 
 [node name="PrevButton" type="Button" parent="Center/Frame/Margin/Box/Columns/Detail/SpriteBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(40, 0)
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
+size_flags_vertical = 4
 focus_mode = 0
 theme_override_font_sizes/font_size = 24
 text = "<"
 
 [node name="SpriteHolder" type="Control" parent="Center/Frame/Margin/Box/Columns/Detail/SpriteBox"]
-custom_minimum_size = Vector2(0, 64)
+custom_minimum_size = Vector2(40, 64)
 layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="Sprite" type="AnimatedSprite2D" parent="Center/Frame/Margin/Box/Columns/Detail/SpriteBox/SpriteHolder"]
 unique_name_in_owner = true
-position = Vector2(170, 32)
+position = Vector2(20, 32)
 scale = Vector2(2, 2)
 
 [node name="TurretIcon" type="Sprite2D" parent="Center/Frame/Margin/Box/Columns/Detail/SpriteBox/SpriteHolder"]
 unique_name_in_owner = true
 visible = false
-position = Vector2(170, 32)
+position = Vector2(20, 32)
 scale = Vector2(2, 2)
 
 [node name="NextButton" type="Button" parent="Center/Frame/Margin/Box/Columns/Detail/SpriteBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(40, 0)
+custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
+size_flags_vertical = 4
 focus_mode = 0
 theme_override_font_sizes/font_size = 24
 text = ">"

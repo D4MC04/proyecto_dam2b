@@ -23,6 +23,8 @@ const CELL_SCENE: PackedScene = preload("res://scenes/level_ui/EnemyCell.tscn")
 const UNKNOWN_TEXT := "???"
 # Lado de las celdas cuadradas de la cuadrícula.
 const CELL_SIZE := 64
+# Lado de las flechas de torreta.
+const ARROW_SIZE := 28
 
 @onready var grid: GridContainer = %Grid
 @onready var tabs: TabBar = %Tabs
@@ -47,12 +49,31 @@ func _ready() -> void:
 	tabs.add_tab("NAVES")
 	tabs.add_tab("TORRETAS")
 	tabs.add_tab("LOGROS")
+	_style_arrow(prev_button)
+	_style_arrow(next_button)
 	prev_button.pressed.connect(_change_version.bind(-1))
 	next_button.pressed.connect(_change_version.bind(1))
 	tabs.tab_changed.connect(_build_grid)
 	_build_grid(TAB_ENEMIES)
 	visibility_changed.connect(_on_visibility_changed)
 	_on_visibility_changed()
+
+# Flecha pequeña con el mismo borde cian fino y relleno tenue que las celdas.
+func _style_arrow(button: Button) -> void:
+	button.custom_minimum_size = Vector2(ARROW_SIZE, ARROW_SIZE)
+	var normal := ClippedBoxStyle.create(TurretButton.BG_COLOR, TurretButton.BORDER_COLOR)
+	var hover := ClippedBoxStyle.create(TurretButton.HOVER_BG_COLOR, TurretButton.HOVER_BORDER_COLOR)
+	var disabled := ClippedBoxStyle.create(TurretButton.BG_COLOR, TurretButton.BORDER_COLOR.darkened(0.6))
+	for style: ClippedBoxStyle in [normal, hover, disabled]:
+		style.content_margin_left = 0
+		style.content_margin_right = 0
+		style.content_margin_top = 0
+		style.content_margin_bottom = 0
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", hover)
+	button.add_theme_stylebox_override("disabled", disabled)
+	button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 
 # Rellena la cuadrícula con las naves o las torretas según la pestaña.
 func _build_grid(tab: int) -> void:
@@ -71,6 +92,9 @@ func _build_grid(tab: int) -> void:
 	for file in (ENEMY_FILES if enemies else TURRET_FILES):
 		var data := load((ENEMY_DIR if enemies else TURRET_DIR) + file + ".tres") as InspectableData
 		var cell: EnemyCell = CELL_SCENE.instantiate()
+		cell.custom_minimum_size = Vector2(CELL_SIZE, CELL_SIZE)
+		cell.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		cell.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		grid.add_child(cell)
 		cell.setup(data, 0)
 		cell.count_label.hide()
