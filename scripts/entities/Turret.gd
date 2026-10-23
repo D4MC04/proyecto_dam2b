@@ -109,7 +109,7 @@ func _ready() -> void:
 # Con la opción apagada, solo la que tiene el ratón encima o está seleccionada.
 func _draw() -> void:
 	if (Settings.get_value(&"show_turret_range") or _hovered or selected) and data.attack_range:
-		data.attack_range.draw(get_canvas_item(), BuildManager.RANGE_COLOR)
+		BuildManager.draw_range_circle(self, data.attack_range)
 
 # Con el ratón encima (casilla de 16 px) se ve el alcance aunque la opción esté apagada.
 func _physics_process(_delta: float) -> void:

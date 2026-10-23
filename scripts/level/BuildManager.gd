@@ -6,7 +6,8 @@ class_name BuildManager
 # Mientras se apunta el meteorito no se coloca ni se selecciona nada.
 @export var powers: Powers
 
-const RANGE_COLOR := Color(1, 1, 1, 0.15)
+const RANGE_BORDER_COLOR := Color("40e0f0")
+const RANGE_FILL_COLOR := Color(0.25, 0.88, 0.94, 0.08)
 
 var state: LevelState
 
@@ -141,7 +142,14 @@ func _hide_preview() -> void:
 	_last_data = null
 
 func _draw_range() -> void:
-
-	if _last_data == null or _last_data.attack_range == null:
+	if _last_data == null:
 		return
-	_last_data.attack_range.draw(_range.get_canvas_item(), RANGE_COLOR)
+	draw_range_circle(_range, _last_data.attack_range)
+
+# Pinta el alcance en "canvas" (solo dentro de su _draw): relleno tenue y borde cian pixelado de 1 px.
+static func draw_range_circle(canvas: CanvasItem, shape: Shape2D) -> void:
+	var circle := shape as CircleShape2D
+	if circle == null:
+		return
+	canvas.draw_circle(Vector2.ZERO, circle.radius, RANGE_FILL_COLOR)
+	canvas.draw_arc(Vector2.ZERO, circle.radius, 0.0, TAU, 96, RANGE_BORDER_COLOR, 1.0, false)

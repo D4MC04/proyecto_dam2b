@@ -49,7 +49,7 @@ Al construir en una casilla libre, `BuildManager` emite `LevelState.turret_place
 
 En `_ready` copia de `data: TurretData` los sprites, la forma del rango y `attack_cooldown`, y arranca el temporizador.
 
-Si la opción `show_turret_range` de `Settings` está activada, `_draw` pinta el rango de la torreta bajo sus sprites, con el mismo color que la vista previa (`BuildManager.RANGE_COLOR`). Cada torreta escucha `Settings.changed` y se redibuja, así que el rango aparece o desaparece al cambiar la opción en plena partida. Además, con el ratón sobre la torreta (`_physics_process`, casilla de 16 px) también lo dibuja aunque la opción esté apagada, y lo mismo mientras está seleccionada en el mapa (`selected`, que pone `LevelState.sellable_turret`).
+Si la opción `show_turret_range` de `Settings` está activada, `_draw` pinta el rango de la torreta bajo sus sprites, con el mismo estilo que la vista previa: relleno cian casi transparente y borde cian `#40e0f0` de 1 px sin antialias, dibujado por `BuildManager.draw_range_circle` (`RANGE_FILL_COLOR`, `RANGE_BORDER_COLOR`). Cada torreta escucha `Settings.changed` y se redibuja, así que el rango aparece o desaparece al cambiar la opción en plena partida. Además, con el ratón sobre la torreta (`_physics_process`, casilla de 16 px) también lo dibuja aunque la opción esté apagada, y lo mismo mientras está seleccionada en el mapa (`selected`, que pone `LevelState.sellable_turret`).
 
 ### Objetivo
 
