@@ -33,8 +33,6 @@ git remote set-url origin https://tu-cuenta@github.com/D4MC04/proyecto_dam2b.git
 | `/ship` | Lo lleva todo a main sin que revises nada: commitea lo pendiente, trae `main` y resuelve conflictos, sube la rama, abre el PR y lo fusiona (squash) |
 | `/hub` | Abre el chat central (solo en la app de escritorio) |
 
-Los nombres antiguos (`/proponer`, `/tickets`, `/hacer`, `/revisar`, `/new`) siguen funcionando un tiempo como alias.
-
 ## El ciclo
 | Paso | Tú | Claude |
 |---|---|---|
