@@ -13,8 +13,7 @@ La casilla del mapa es de 16x16 px. Los sprites de juego son múltiplos de esa m
 | Torretas (base, cañón, icono `_full_up`) | 32x32 |
 | Enemigos pequeños (Dart, Wasp) | 24x24 |
 | Fragmentos de la Divisora | 20x20 |
-| Enemigos medianos y grandes (naves, Acorazado, Ariete, Nodriza, Reparadora, Divisora, UFO, Espectro) | 32x32 |
-| Spikey (`spiked_ship`) | 34x34 |
+| Enemigos medianos y grandes (naves, Acorazado, Ariete, Nodriza, Reparadora, Divisora, Espectro) | 32x32 |
 | Estación (`base/estacion/`) | 80x80 centrada en frames de 96x96 |
 | Escudo de la estación | 64x64 (escalado a 1,25 en juego) |
 | Bala del Cañón doble | 4x8 (tira de 8x8 con 2 frames) |
@@ -169,7 +168,7 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 - `_sheet`: tira horizontal de frames en una sola fila.
 - `_0`, `_1`, `_2`...: frames o variantes en archivos sueltos.
 - Estación: `estacion_fase_<n>_sheet.png` (fases de daño 0 a 3, 8 frames en bucle), `estacion_explosion_sheet.png` (10 frames) y `estacion_destruida.png` (1 frame).
-- Enemigos nuevos: `<nombre>_<frame>.png`. Los antiguos (`ufo`, `spiked_ship`): `up.png`, `down.png`, `left.png`, `right.png`.
+- Enemigos nuevos: `<nombre>_<frame>.png`.
 - Los `SpriteFrames` que agrupan estos PNG están en `resources/sprite_frames/` con el nombre de la torreta o el enemigo.
 
 ## Fuente
@@ -179,7 +178,6 @@ Monogram (`assets/fonts/Monogram.ttf`) es la única fuente del juego, puesta com
 ## Otros estilos presentes
 
 - `assets/tilesets/` (hierba, piedra, plantas, objetos, estructuras, muros): pack de exteriores en verdes oliva y marrones, con miles de colores por hoja y sombras semitransparentes. Lo usan los mapas de hierba (niveles 1, 3 y 4).
-- `enemies/ufo` y `enemies/spiked_ship`: verdes (`#80b33b`, `#87bb3c`) con contorno negro grisáceo y entre 34 y 82 colores por sprite.
 - `planets/`: tiras de 50 o 60 frames cuadrados de 30 a 210 px, con 3 a 11 colores y sin contorno. Se usan en el menú, reducidos por escala.
 - `bullets/red_bullet.png` (16x16, 129 colores) y `bullets/bullets.png` (1536x1024).
 - `base/space_station.png` (48x48, 41 colores).
@@ -193,7 +191,7 @@ Monogram (`assets/fonts/Monogram.ttf`) es la única fuente del juego, puesta com
 - No he podido determinar una dirección de luz: no la he medido, y a simple vista los sprites de torreta y enemigo parecen simétricos respecto a su eje vertical.
 - El contorno usa dos colores casi iguales (`#0c0e16` y `#0a0810`) según sea torreta o enemigo.
 - Prefijos de torreta que no coinciden con el nombre de su carpeta o de su recurso: `turret/t1_*`, `turret2/t2_*` (recurso `rocket_launcher`), `disintegrator/disint_*`.
-- Mezcla de idiomas en los nombres: `acorazado`, `ariete`, `nodriza`, `nave_normal`, `dart_hielo` frente a `wasp`, `ufo`, `spiked_ship`, `cryo`, `rail`.
+- Mezcla de idiomas en los nombres: `acorazado`, `ariete`, `nodriza`, `nave_normal`, `dart_hielo` frente a `wasp`, `cryo`, `rail`.
 - Nombres de enemigo que no siguen `<nombre>_<frame>`: `nave_agresiva_up.png`, `nave_normal_up_1.png`, `wasp/up_0.png`.
 - Nombres sin guion bajo en `planets/`: `planetagaseoso`, `planetalava1`, `planetaluna`, `planetarojo`, `saturnin`.
 - Archivos que ninguna escena, recurso o script referencia: `turrets/turret.png`, `bullets/bullets.png`, `backgrounds/fondo_1` a `fondo_6`, `fondo_nebula_1`, `fondo_nebula_2`, `Fondointernet.webp`, y en `planets/`: `planeta_2` a `planeta_11`, `planetagaseoso`, `planetalava` y `planetaluna`.
