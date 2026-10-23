@@ -21,6 +21,10 @@ const SELL_SPARK_COLOR := Color("#ffe082")
 # Fundido al cortar el sonido de disparo cuando la torre se queda sin objetivo.
 const SHOOT_FADE_TIME := 0.12
 const SHOOT_FADE_DB := -40.0
+# Sobrecalentamiento: tinte con el calor al máximo y parpadeo (cada OVERHEAT_BLINK s) mientras está parada.
+const HEAT_TINT := Color(1.0, 0.3, 0.2)
+const OVERHEAT_FLASH := Color(2.5, 0.6, 0.3)
+const OVERHEAT_BLINK := 0.12
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var cannon: AnimatedSprite2D = $Cannon
@@ -38,6 +42,11 @@ var _shots := 0
 var _target: Enemy = null
 # Cooldown cumplido, a la espera de que el cañón termine de girar hacia el enemigo.
 var _pending_shot := false
+# Sobrecalentamiento (ver TowerData.overheat_shots): calor de 0 a 1, segundos que le quedan parada
+# y si base y cañón llevan tinte de calor (para devolverles el blanco una sola vez al enfriarse).
+var _heat := 0.0
+var _overheat_left := 0.0
+var _heat_tinted := false
 # Mira de las torretas de haz; solo se ve durante la carga.
 var _sight: Line2D
 # Sonido de disparo; con poca polifonía, 10 torres juntas no saturan.
@@ -111,6 +120,8 @@ func _process(delta: float) -> void:
 	if disabled:
 		return
 	var target := _get_target()
+	if data.overheat_shots > 0 and _update_overheat(delta, target != null):
+		return
 	if target == null:
 		# El haz (continuo o de carga) lleva su propio corte y no debe apagar el disparo que acaba de salir.
 		if not data.focus_beam and not data.beam:
@@ -125,6 +136,44 @@ func _process(delta: float) -> void:
 		_pending_shot = false
 		attack_timer.start()
 		_shoot(target)
+
+## Enfría o cuenta la parada y tiñe la torre según el calor. Devuelve true mientras está sobrecalentada.
+func _update_overheat(delta: float, has_target: bool) -> bool:
+	if _overheat_left > 0.0:
+		_overheat_left -= delta
+		if _overheat_left > 0.0:
+			var flash_on := fmod(_overheat_left, OVERHEAT_BLINK * 2.0) < OVERHEAT_BLINK
+			_set_heat_tint(OVERHEAT_FLASH if flash_on else HEAT_TINT)
+			_heat_tinted = true
+			return true
+		# Ya se ha enfriado: vuelve a la cadencia base.
+		_heat = 0.0
+		attack_timer.start(data.attack_cooldown)
+	elif not has_target and _heat > 0.0:
+		_heat = move_toward(_heat, 0.0, delta / data.overheat_cool_time)
+		attack_timer.wait_time = _heat_cooldown()
+	if _heat > 0.0 or _heat_tinted:
+		_set_heat_tint(Color.WHITE.lerp(HEAT_TINT, _heat))
+		_heat_tinted = _heat > 0.0
+	return false
+
+# Cuanto más caliente, menos cooldown.
+func _heat_cooldown() -> float:
+	return lerpf(data.attack_cooldown, data.overheat_min_cooldown, _heat)
+
+func _set_heat_tint(color: Color) -> void:
+	sprite.modulate = color
+	cannon.modulate = color
+
+# Cada disparo calienta; al llegar al máximo se para overheat_time segundos.
+func _add_heat() -> void:
+	_heat = minf(_heat + 1.0 / data.overheat_shots, 1.0)
+	if _heat >= 0.999:
+		_heat = 1.0
+		_overheat_left = data.overheat_time
+		attack_timer.stop()
+	else:
+		attack_timer.start(_heat_cooldown())
 
 # El sprite del cañón mira hacia arriba: ángulo hacia el enemigo más 90°.
 func _target_angle(target: Enemy) -> float:
@@ -236,6 +285,8 @@ func _shoot(target: Enemy) -> void:
 	if fire_anims > 0:
 		cannon.play("fire_%d" % (_shots % fire_anims))
 	_shots += 1
+	if data.overheat_shots > 0:
+		_add_heat()
 
 # Mantiene el objetivo mientras siga vivo y dentro del rango.
 func _get_target() -> Enemy:

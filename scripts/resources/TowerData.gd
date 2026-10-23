@@ -30,6 +30,14 @@ const ACCENT_COLOR := Color("#40e0f0")
 # Opcional: el cañón gira y apunta como siempre, pero en vez de balas mantiene un haz continuo
 # sobre el objetivo que sube de nivel con el tiempo. No usa attack_cooldown.
 @export var focus_beam: FocusBeamData
+# Opcional (torres de bala): sobrecalentamiento. Cada disparo seguido calienta la torre y acorta el
+# cooldown desde attack_cooldown hasta overheat_min_cooldown; al llegar a overheat_shots disparos se para
+# overheat_time segundos y vuelve a la cadencia base. Sin objetivo se enfría del todo en overheat_cool_time s.
+# Con overheat_shots = 0 (por defecto) no hay sobrecalentamiento.
+@export var overheat_shots: int = 0
+@export var overheat_min_cooldown: float = 0.0
+@export var overheat_time: float = 0.0
+@export var overheat_cool_time: float = 3.0
 # Opcional: sonido del disparo (en el bus SFX). En el haz continuo suena mientras el haz está activo.
 @export var shoot_sound: AudioStream
 # Opcional: sonido de carga de las torres con animación fire_0; suena hasta el fire_frame.
@@ -48,6 +56,10 @@ func get_stats() -> Array[StatEntry]:
 	# El haz continuo no usa el cooldown.
 	if focus_beam == null:
 		stats.append(StatEntry.new("cooldown", "CADENCIA", UiFormat.seconds(attack_cooldown)))
+	if overheat_shots > 0:
+		stats.append(StatEntry.new("cooldown", "CAD. MÁX", UiFormat.seconds(overheat_min_cooldown)))
+		stats.append(StatEntry.new("targets", "AGUANTE", str(overheat_shots)))
+		stats.append(StatEntry.new("duration", "PARADA", UiFormat.seconds(overheat_time)))
 	var attack := get_attack()
 	if attack != null:
 		stats.append_array(attack.get_stats())
