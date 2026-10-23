@@ -8,6 +8,9 @@ const SPARK_COUNT := 4
 # Las chispas caen dentro de la torre (32x32) y asoman un poco por los bordes.
 const HALF_SIZE := 14
 const BLINK_TIME := 0.25
+# En los últimos FAST_BLINK_LEFT segundos el parpadeo se acelera hasta FAST_BLINK_TIME, como aviso de que vuelve.
+const FAST_BLINK_TIME := 0.06
+const FAST_BLINK_LEFT := 2.0
 
 # Icono "sin energía": rayo ámbar con contorno, tachado en rojo (ver docs/design/art.md).
 const ICON: Array[String] = [
@@ -30,16 +33,10 @@ const ICON_COLORS: Dictionary[String, Color] = {
 const SLASH_COLOR := Color("#f0323c")
 # Esquina de arriba a la izquierda del icono, por encima de la torre.
 const ICON_ORIGIN := Vector2(-4, -28)
-# Contador circular del tiempo que falta: a la derecha del icono.
-const TIMER_CENTER := Vector2(10, -23)
-const TIMER_RADIUS := 4.0
-const TIMER_BG_COLOR := Color("#0c0e16")
-const TIMER_COLOR := Color("#78bcff")
 
 var _blink := 0.0
 var _icon_visible := true
-# Segundos totales de la apagada y los que quedan (la torre los fija con start).
-var _total := 0.0
+# Segundos que quedan de apagada (la torre los fija con start).
 var _left := 0.0
 
 func _ready() -> void:
@@ -47,16 +44,16 @@ func _ready() -> void:
 
 ## Empieza (o renueva) la cuenta atrás de `seconds` segundos.
 func start(seconds: float) -> void:
-	_total = seconds
 	_left = seconds
 
 func _process(delta: float) -> void:
 	_blink += delta
 	_left = maxf(_left - delta, 0.0)
-	if _blink >= BLINK_TIME:
+	var blink_time := lerpf(FAST_BLINK_TIME, BLINK_TIME, clampf(_left / FAST_BLINK_LEFT, 0.0, 1.0))
+	if _blink >= blink_time:
 		_blink = 0.0
 		_icon_visible = not _icon_visible
-	# Cada frame: el contador baja y las chispas cambian de sitio.
+	# Cada frame las chispas cambian de sitio.
 	queue_redraw()
 
 func _draw() -> void:
@@ -69,18 +66,6 @@ func _draw() -> void:
 			point += Vector2(side if step % 2 else -side, 1)
 	if _icon_visible:
 		_draw_icon()
-	_draw_timer()
-
-# Anillo de fondo y arco que se vacía según el tiempo que queda.
-func _draw_timer() -> void:
-	draw_circle(TIMER_CENTER, TIMER_RADIUS + 1.0, TIMER_BG_COLOR)
-	if _total <= 0.0:
-		return
-	var fraction := _left / _total
-	if fraction <= 0.0:
-		return
-	var start_angle := -PI / 2.0
-	draw_arc(TIMER_CENTER, TIMER_RADIUS, start_angle, start_angle + TAU * fraction, 16, TIMER_COLOR, 2.0, false)
 
 func _draw_icon() -> void:
 	for y: int in ICON.size():
