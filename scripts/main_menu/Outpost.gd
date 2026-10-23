@@ -1,20 +1,20 @@
 extends Node2D
 class_name Outpost
-## Puesto defensivo del menú: la estación del jugador con unas torres alrededor, con los mismos
-## sprites y animaciones que en los niveles. Las torres giran y disparan cuando Skirmish las usa.
+## Puesto defensivo del menú: la estación del jugador con unas torretas alrededor, con los mismos
+## sprites y animaciones que en los niveles. Las torretas giran y disparan cuando Skirmish las usa.
 ## En la escena va a la escala y con el tono de las naves de Skirmish, como parte del fondo.
 
 const STATION_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/estacion.tres")
 const STATION_ANIMATION: StringName = &"fase_0"
-# Cada torre: sus datos y su posición respecto a la estación
-const TOWERS: Array[Array] = [
+# Cada torreta: sus datos y su posición respecto a la estación
+const TURRETS: Array[Array] = [
 	[preload("res://resources/turret_data/turret.tres"), Vector2(-58, -66)],
 	[preload("res://resources/turret_data/laser.tres"), Vector2(66, -30)],
 	[preload("res://resources/turret_data/turret.tres"), Vector2(26, 70)],
 ]
 
 var _cannons: Array[AnimatedSprite2D] = []
-var _data: Array[TowerData] = []
+var _data: Array[TurretData] = []
 
 
 func _ready() -> void:
@@ -23,11 +23,11 @@ func _ready() -> void:
 	station.sprite_frames = STATION_FRAMES
 	add_child(station)
 	station.play(STATION_ANIMATION)
-	for entry: Array in TOWERS:
-		_add_tower(entry[0], entry[1])
+	for entry: Array in TURRETS:
+		_add_turret(entry[0], entry[1])
 
 
-func _add_tower(data: TowerData, offset: Vector2) -> void:
+func _add_turret(data: TurretData, offset: Vector2) -> void:
 	var base: AnimatedSprite2D = AnimatedSprite2D.new()
 	base.sprite_frames = data.sprite_frames
 	base.position = offset
@@ -43,7 +43,7 @@ func _add_tower(data: TowerData, offset: Vector2) -> void:
 	_data.append(data)
 
 
-## Gira la torre más cercana hacia target (en coordenadas globales), anima el disparo y devuelve
+## Gira la torreta más cercana hacia target (en coordenadas globales), anima el disparo y devuelve
 ## la posición global de su boca, de donde sale el disparo.
 func fire_at(target: Vector2) -> Vector2:
 	var best: int = 0
@@ -51,7 +51,7 @@ func fire_at(target: Vector2) -> Vector2:
 		if _cannons[i].global_position.distance_to(target) < _cannons[best].global_position.distance_to(target):
 			best = i
 	var cannon: AnimatedSprite2D = _cannons[best]
-	# Los cañones miran hacia arriba, como en Tower._target_angle
+	# Los cañones miran hacia arriba, como en Turret._target_angle
 	cannon.rotation = (target - cannon.global_position).angle() + PI / 2.0
 	if cannon.sprite_frames.has_animation(&"fire_0"):
 		cannon.play(&"fire_0")

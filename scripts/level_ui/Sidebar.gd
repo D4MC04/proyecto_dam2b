@@ -1,7 +1,7 @@
 extends PanelContainer
 class_name Sidebar
 
-signal tower_selected(data: TowerData)
+signal turret_selected(data: TurretData)
 ## Petición de enseñar algo en la ficha; no guarda qué está inspeccionado.
 signal inspect_requested(data: Resource)
 ## Petición de lanzar la siguiente oleada.
@@ -14,10 +14,10 @@ signal fast_speed_toggled(enabled: bool)
 ## Estado de la oleada que enseña el pie; lo decide LevelUI.
 enum WaveStatus { READY, IN_PROGRESS, COMPLETE }
 
-# Torres con atajo de teclado (1-7), en el orden de la rejilla.
-const TOWER_SHORTCUT_COUNT := 7
+# Torretas con atajo de teclado (1-7), en el orden de la rejilla.
+const TURRET_SHORTCUT_COUNT := 7
 
-const TOWER_BUTTON: PackedScene = preload("res://scenes/level_ui/TowerButton.tscn")
+const TURRET_BUTTON: PackedScene = preload("res://scenes/level_ui/TurretButton.tscn")
 
 const WAVE_BLOCK: PackedScene = preload("res://scenes/level_ui/WaveBlock.tscn")
 
@@ -42,10 +42,10 @@ const NEXT_GLOW_COLOR := Color("#befaff")
 const AUTO_HOVER_BORDER_COLOR := Color("#96641e")
 const AUTO_ON_BORDER_COLOR := Color("#ecb23c")
 const AUTO_ON_HOVER_BORDER_COLOR := Color("#ffe082")
-# Fondo de pestaña mezclado al 25 % con el ámbar, como la torre seleccionada.
+# Fondo de pestaña mezclado al 25 % con el ámbar, como la torreta seleccionada.
 const AUTO_ON_BG_COLOR := Color("#453d2b")
 const CONTROL_ICON_DIM_COLOR := Color(1, 1, 1, 0.3)
-# Rejilla de torres con la selección bloqueada.
+# Rejilla de torretas con la selección bloqueada.
 const LOCKED_GRID_COLOR := Color(1, 1, 1, 0.5)
 # Duración de medio ciclo del parpadeo del botón de siguiente oleada.
 const NEXT_PULSE_TIME := 0.5
@@ -60,12 +60,12 @@ const STATUS_COLORS: Dictionary[WaveStatus, Color] = {
 	WaveStatus.COMPLETE: Color("#7fa6b8"),
 }
 
-@onready var towers_tab: Button = %TowersTab
+@onready var turrets_tab: Button = %TurretsTab
 @onready var waves_tab: Button = %WavesTab
-@onready var towers_page: Control = %TowersPage
+@onready var turrets_page: Control = %TurretsPage
 @onready var waves_page: Control = %WavesPage
 @onready var money_label: Label = %MoneyLabel
-@onready var tower_buttons: GridContainer = %TowerButtons
+@onready var turret_buttons: GridContainer = %TurretButtons
 @onready var wave_blocks: Control = %WaveBlocks
 @onready var prev_wave_arrow: Button = %PrevWaveArrow
 @onready var next_wave_arrow: Button = %NextWaveArrow
@@ -80,7 +80,7 @@ const STATUS_COLORS: Dictionary[WaveStatus, Color] = {
 @onready var speed_button: Button = %SpeedButton
 
 var _money := 0
-var _buttons: Array[TowerButton] = []
+var _buttons: Array[TurretButton] = []
 var _wave_blocks: Array[WaveBlock] = []
 var _current_wave := -1
 var _viewed_wave := 0
@@ -94,10 +94,10 @@ var _station_hit_tween: Tween
 
 func _ready() -> void:
 	var tab_group := ButtonGroup.new()
-	for tab in [towers_tab, waves_tab]:
+	for tab in [turrets_tab, waves_tab]:
 		tab.button_group = tab_group
 		_style_tab(tab)
-	towers_tab.toggled.connect(_on_tab_toggled)
+	turrets_tab.toggled.connect(_on_tab_toggled)
 	_style_wave_controls()
 	station_bar.add_theme_stylebox_override("background", _station_style(TAB_BG_COLOR, TAB_BORDER_COLOR))
 	next_wave_button.pressed.connect(next_wave_requested.emit)
@@ -106,21 +106,21 @@ func _ready() -> void:
 	prev_wave_arrow.pressed.connect(func() -> void: view_wave(_viewed_wave - 1))
 	next_wave_arrow.pressed.connect(func() -> void: view_wave(_viewed_wave + 1))
 
-func build_buttons(towers: Array[TowerData]) -> void:
+func build_buttons(turrets: Array[TurretData]) -> void:
 	for b in _buttons:
 		b.queue_free()
 	_buttons.clear()
-	for data in towers:
-		var button: TowerButton = TOWER_BUTTON.instantiate()
-		tower_buttons.add_child(button)
+	for data in turrets:
+		var button: TurretButton = TURRET_BUTTON.instantiate()
+		turret_buttons.add_child(button)
 		button.setup(data, _money)
 		button.set_selection_locked(_selection_locked)
 		button.selection_changed.connect(_on_button_selection_changed)
 		button.inspect_requested.connect(inspect_requested.emit)
 		_buttons.append(button)
 
-## Pulsa el botón de torre número `index` (desde 0) como un clic; no hace nada si no existe.
-func press_tower_button(index: int) -> void:
+## Pulsa el botón de torreta número `index` (desde 0) como un clic; no hace nada si no existe.
+func press_turret_button(index: int) -> void:
 	if index < _buttons.size():
 		_buttons[index].pressed.emit()
 
@@ -161,15 +161,15 @@ func _station_style(bg: Color, border: Color) -> StyleBoxFlat:
 	style.border_color = border
 	return style
 
-## Refleja la selección de LevelState sin volver a emitir tower_selected.
-func show_selected(data: TowerData) -> void:
+## Refleja la selección de LevelState sin volver a emitir turret_selected.
+func show_selected(data: TurretData) -> void:
 	for b in _buttons:
 		b.set_selected(data != null and b.data == data)
 
-## Con una pantalla abierta la rejilla se atenúa y el clic izquierdo en una torre solo enseña su ficha.
+## Con una pantalla abierta la rejilla se atenúa y el clic izquierdo en una torreta solo enseña su ficha.
 func set_selection_locked(locked: bool) -> void:
 	_selection_locked = locked
-	tower_buttons.modulate = LOCKED_GRID_COLOR if locked else Color.WHITE
+	turret_buttons.modulate = LOCKED_GRID_COLOR if locked else Color.WHITE
 	for b in _buttons:
 		b.set_selection_locked(locked)
 
@@ -242,12 +242,12 @@ func show_fast_speed(enabled: bool) -> void:
 	speed_button.set_pressed_no_signal(enabled)
 	speed_button.text = "×2" if enabled else "×1"
 
-func _on_button_selection_changed(data: TowerData, on: bool) -> void:
-	tower_selected.emit(data if on else null)
+func _on_button_selection_changed(data: TurretData, on: bool) -> void:
+	turret_selected.emit(data if on else null)
 
-func _on_tab_toggled(towers_active: bool) -> void:
-	towers_page.visible = towers_active
-	waves_page.visible = not towers_active
+func _on_tab_toggled(turrets_active: bool) -> void:
+	turrets_page.visible = turrets_active
+	waves_page.visible = not turrets_active
 
 func _style_wave_controls() -> void:
 	_next_normal_style = ClippedBoxStyle.create(TAB_BG_COLOR, NEXT_BORDER_COLOR)

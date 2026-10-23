@@ -8,7 +8,7 @@ Esfuerzo recomendado: high
 Los niveles se acaban. Un modo de oleadas sin fin que cada vez aprietan más da rejugabilidad y un récord que batir.
 
 ## Qué hay que hacer
-- Botón "Infinito" en la selección de nivel del menú principal. Usa un mapa que ya existe (el del nivel 3 o el que mejor quede, sin tocar mapas) y todas las torres.
+- Botón "Infinito" en la selección de nivel del menú principal. Usa un mapa que ya existe (el del nivel 3 o el que mejor quede, sin tocar mapas) y todas las torretas.
 - Oleadas generadas por código: cada vez que se limpia una, se genera la siguiente (más enemigos, más tipos y más duros según el número de oleada; los enemigos de `resources/enemy_data/`). `Spawner` nunca se queda sin oleadas en este modo: no hay victoria.
 - La vida de los enemigos sube un poco por oleada (multiplicador al instanciarlos, sin cambiar los `.tres`).
 - Al perder, la pantalla de derrota enseña la oleada alcanzada y el récord; si se bate, "¡NUEVO RÉCORD!".

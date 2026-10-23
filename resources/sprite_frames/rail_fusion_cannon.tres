@@ -1,9 +1,9 @@
 [gd_resource type="SpriteFrames" format=3 uid="uid://ufviqe64sn3b"]
 
-[ext_resource type="Texture2D" uid="uid://cv6ah2jn6ebol" path="res://assets/sprites/towers/rail_fusion/rail_cannon_idle_sheet.png" id="1"]
-[ext_resource type="Texture2D" uid="uid://dmkcbvagip5kb" path="res://assets/sprites/towers/rail_fusion/rail_cannon_charge_sheet.png" id="2"]
-[ext_resource type="Texture2D" uid="uid://cjjthbbhsmmx8" path="res://assets/sprites/towers/rail_fusion/rail_cannon_fire_sheet.png" id="3"]
-[ext_resource type="Texture2D" uid="uid://cfn4furfd87w6" path="res://assets/sprites/towers/rail_fusion/rail_cannon_recover_sheet.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://cv6ah2jn6ebol" path="res://assets/sprites/turrets/rail_fusion/rail_cannon_idle_sheet.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://dmkcbvagip5kb" path="res://assets/sprites/turrets/rail_fusion/rail_cannon_charge_sheet.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://cjjthbbhsmmx8" path="res://assets/sprites/turrets/rail_fusion/rail_cannon_fire_sheet.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://cfn4furfd87w6" path="res://assets/sprites/turrets/rail_fusion/rail_cannon_recover_sheet.png" id="4"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0"]
 atlas = ExtResource("1")

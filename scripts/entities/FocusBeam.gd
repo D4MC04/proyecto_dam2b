@@ -4,7 +4,7 @@ class_name FocusBeam
 # cada frame, y sube de nivel cuanto más tiempo lleva sobre el mismo enemigo.
 # El cañón anima "default" en reposo y "fire_0", "fire_1"... (en loop), una por nivel.
 
-var _tower: Tower
+var _turret: Turret
 var _data: FocusBeamData
 var _locked: Enemy
 var _lock_time := 0.0
@@ -16,8 +16,8 @@ var _muzzle := AnimatedSprite2D.new()
 var _impact := AnimatedSprite2D.new()
 
 func _ready() -> void:
-	_tower = get_parent()
-	_data = _tower.data.focus_beam
+	_turret = get_parent()
+	_data = _turret.data.focus_beam
 	# Por encima de torretas y enemigos.
 	z_index = 1
 	_line.points = [Vector2.ZERO, Vector2.ZERO]
@@ -29,21 +29,21 @@ func _ready() -> void:
 	_impact.z_index = 1
 	add_child(_impact)
 	_show(false)
-	_tower.cannon.play(&"default")
+	_turret.cannon.play(&"default")
 
 func _process(delta: float) -> void:
-	var target := _tower._get_target()
+	var target := _turret._get_target()
 	if target != _locked:
 		_untint()
 		_locked = target
 		_lock_time = 0.0
-	var firing := target != null and not _tower.disabled and _tower._is_aimed(target)
+	var firing := target != null and not _turret.disabled and _turret._is_aimed(target)
 	_show(firing)
 	# El sonido dura lo que el haz: se repite si termina antes y para al cortarse.
-	if firing and not _tower._shoot_player.playing:
-		_tower._shoot_player.play()
+	if firing and not _turret._shoot_player.playing:
+		_turret._shoot_player.play()
 	if not firing:
-		_tower._shoot_player.stop()
+		_turret._shoot_player.stop()
 		# Sin alineación se corta el haz, pero el nivel se conserva mientras el objetivo sea el mismo.
 		_untint()
 		_set_level(-1)
@@ -51,7 +51,7 @@ func _process(delta: float) -> void:
 	_set_level(mini(int(_lock_time / _data.level_time), _data.damage_per_second.size() - 1))
 	_lock_time += delta
 	_time += delta
-	var from := _tower.data.muzzle_offset.rotated(_tower.cannon.rotation)
+	var from := _turret.data.muzzle_offset.rotated(_turret.cannon.rotation)
 	_muzzle.position = from
 	_line.set_point_position(0, from)
 	_line.set_point_position(1, to_local(target.global_position))
@@ -60,10 +60,10 @@ func _process(delta: float) -> void:
 	_impact.global_position = target.global_position
 	_impact.scale = Vector2.ONE * target.effect_scale()
 	target.sprite.modulate = target._rest_color().lerp(_data.tint, _data.tint_amount[_level])
-	target.take_damage(_data.damage_per_second[_level] * delta, _tower)
+	target.take_damage(_data.damage_per_second[_level] * delta, _turret)
 	if target.hp <= 0:
 		if _data.death_frames:
-			Effect.spawn(_tower.get_parent(), _data.death_frames, target.global_position, target.effect_scale())
+			Effect.spawn(_turret.get_parent(), _data.death_frames, target.global_position, target.effect_scale())
 		_locked = null
 
 func _show(firing: bool) -> void:
@@ -79,9 +79,9 @@ func _set_level(level: int) -> void:
 		return
 	_level = level
 	if level < 0:
-		_tower.cannon.play(&"default")
+		_turret.cannon.play(&"default")
 		return
-	_tower.cannon.play("fire_%d" % level)
+	_turret.cannon.play("fire_%d" % level)
 	_impact.sprite_frames = _data.impact_frames[level]
 	_impact.play()
 	_muzzle.sprite_frames = _data.muzzle_frames[level]

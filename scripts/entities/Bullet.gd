@@ -5,8 +5,8 @@ class_name Bullet
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 
 var data: BulletData
-# Torre que la disparó (para apuntarle el daño y las bajas).
-var source: Tower
+# Torreta que la disparó (para apuntarle el daño y las bajas).
+var source: Turret
 var target: Enemy
 var direction: Vector2
 # Enemigos ya golpeados (con perforación no se daña dos veces al mismo).

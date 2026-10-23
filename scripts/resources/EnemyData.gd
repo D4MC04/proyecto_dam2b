@@ -1,7 +1,7 @@
 extends InspectableData
 class_name EnemyData
 
-# Rojo de motor de los enemigos (ver docs/design/art.md); acento de su ficha, distinto al de las torres.
+# Rojo de motor de los enemigos (ver docs/design/art.md); acento de su ficha, distinto al de las torretas.
 const ACCENT_COLOR := Color("#f0323c")
 const INSPECT_TAG := "ENEMIGO"
 
@@ -28,7 +28,7 @@ const INSPECT_TAG := "ENEMIGO"
 # Trozos que suelta al morir, de izquierda a derecha según su dibujo (ninguno si está vacío).
 # Si sus SpriteFrames tienen la animación "crack", se ve un instante antes de partirse.
 @export var split_into: Array[EnemyData] = []
-# Pulso EMP (Saboteadora): cada `emp_interval` s apaga `emp_disable_time` s las torres
+# Pulso EMP (Saboteadora): cada `emp_interval` s apaga `emp_disable_time` s las torretas
 # a `emp_radius` px o menos. Con `emp_interval` a 0 no suelta pulsos.
 @export var emp_interval: float = 0.0
 @export var emp_radius: float = 48.0

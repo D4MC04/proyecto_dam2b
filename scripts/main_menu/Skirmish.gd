@@ -24,7 +24,7 @@ const KILL_CHANCE: float = 0.4
 # Franjas verticales (fracción de la altura) por las que pasan; el centro queda libre para los botones
 const LANES: Array[Vector2] = [Vector2(0.05, 0.2), Vector2(0.8, 0.95)]
 
-# Si está, los disparos salen de sus torres; si no, de fuera de la pantalla
+# Si está, los disparos salen de sus torretas; si no, de fuera de la pantalla
 @export var outpost: Outpost
 
 var viewport_size: Vector2

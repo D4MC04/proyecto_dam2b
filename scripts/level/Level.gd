@@ -17,7 +17,7 @@ const SHAKE_REFERENCE_DAMAGE := 40.0
 const GAME_AREA_RECT := Rect2(128.0, 0.0, 704.0, 540.0)
 
 var map: Map
-var towers: Array[TowerData]
+var turrets: Array[TurretData]
 var base: Base
 var _shake_tween: Tween
 var _map_origin: Vector2
@@ -40,7 +40,7 @@ func _ready() -> void:
 	spawner.enemy_reached_end.connect(func(_damage: int) -> void: _leaks_this_wave += 1)
 	spawner.wave_cleared.connect(_on_wave_cleared)
 	spawner.enemy_died.connect(func(_reward: int) -> void: GameState.add_stat("kills"))
-	game_state.tower_placed.connect(func() -> void: GameState.add_stat("towers"))
+	game_state.turret_placed.connect(func() -> void: GameState.add_stat("turrets"))
 	$Powers.power_used.connect(func(_power: Powers.Power) -> void: GameState.add_stat("powers"))
 
 func _process(delta: float) -> void:
@@ -50,7 +50,7 @@ func _process(delta: float) -> void:
 func setup(data: LevelData) -> void:
 	map = data.map.instantiate()
 	map.name = "Map"
-	towers = data.towers
+	turrets = data.turrets
 	add_child(map)
 	move_child(map, 0)
 	_center_map()
@@ -66,13 +66,13 @@ func setup(data: LevelData) -> void:
 func get_run_stats() -> RunStats:
 	var stats := RunStats.new(spawner.get_wave_index() + 1, spawner.waves.size(),
 			game_state.enemies_destroyed, game_state.money_spent)
-	stats.top_tower_name = game_state.retired_top_name
-	stats.top_tower_kills = game_state.retired_top_kills
-	for node: Node in get_tree().get_nodes_in_group(&"towers"):
-		var tower := node as Tower
-		if tower != null and not tower.is_queued_for_deletion() and tower.kills > stats.top_tower_kills:
-			stats.top_tower_kills = tower.kills
-			stats.top_tower_name = tower.data.name
+	stats.top_turret_name = game_state.retired_top_name
+	stats.top_turret_kills = game_state.retired_top_kills
+	for node: Node in get_tree().get_nodes_in_group(&"turrets"):
+		var turret := node as Turret
+		if turret != null and not turret.is_queued_for_deletion() and turret.kills > stats.top_turret_kills:
+			stats.top_turret_kills = turret.kills
+			stats.top_turret_name = turret.data.name
 	return stats
 
 # Desplaza el mapa para que su rectángulo útil quede centrado en el área de juego en los dos ejes.

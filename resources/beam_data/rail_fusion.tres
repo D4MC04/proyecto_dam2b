@@ -2,11 +2,11 @@
 
 [ext_resource type="Script" path="res://scripts/resources/BeamData.gd" id="1"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/rail_fusion_impact.tres" id="2"]
-[ext_resource type="Texture2D" path="res://assets/sprites/towers/rail_fusion/rail_laser.png" id="3"]
-[ext_resource type="Texture2D" path="res://assets/sprites/towers/rail_fusion/rail_beam_0.png" id="b0"]
-[ext_resource type="Texture2D" path="res://assets/sprites/towers/rail_fusion/rail_beam_1.png" id="b1"]
-[ext_resource type="Texture2D" path="res://assets/sprites/towers/rail_fusion/rail_beam_2.png" id="b2"]
-[ext_resource type="Texture2D" path="res://assets/sprites/towers/rail_fusion/rail_beam_3.png" id="b3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/turrets/rail_fusion/rail_laser.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/turrets/rail_fusion/rail_beam_0.png" id="b0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/turrets/rail_fusion/rail_beam_1.png" id="b1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/turrets/rail_fusion/rail_beam_2.png" id="b2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/turrets/rail_fusion/rail_beam_3.png" id="b3"]
 
 [resource]
 script = ExtResource("1")

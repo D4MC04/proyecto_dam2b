@@ -5,7 +5,7 @@ Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 
 ## Por qué
-Falta un enemigo en masa que dé sentido a las torres de área.
+Falta un enemigo en masa que dé sentido a las torretas de área.
 
 ## Qué hay que hacer
 - Naves diminutas (8x8) que salen en grupos de 10 muy juntas, con 5-10 de vida.

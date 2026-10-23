@@ -1,11 +1,11 @@
 extends Node2D
 class_name EmpSparks
-# Lo que se ve sobre una torre apagada por un pulso EMP, todo en píxeles sin antialiasing:
+# Lo que se ve sobre una torreta apagada por un pulso EMP, todo en píxeles sin antialiasing:
 # chispas azules en zigzag que saltan sin parar y, encima, un rayo tachado que parpadea.
 
 const SPARK_COLORS: Array[Color] = [Color("#2a6ae6"), Color("#78bcff"), Color("#e6f6ff")]
 const SPARK_COUNT := 4
-# Las chispas caen dentro de la torre (32x32) y asoman un poco por los bordes.
+# Las chispas caen dentro de la torreta (32x32) y asoman un poco por los bordes.
 const HALF_SIZE := 14
 const BLINK_TIME := 0.25
 # En los últimos FAST_BLINK_LEFT segundos el parpadeo se acelera hasta FAST_BLINK_TIME, como aviso de que vuelve.
@@ -31,12 +31,12 @@ const ICON_COLORS: Dictionary[String, Color] = {
 	"y": Color("#ffe082"),
 }
 const SLASH_COLOR := Color("#f0323c")
-# Esquina de arriba a la izquierda del icono, por encima de la torre.
+# Esquina de arriba a la izquierda del icono, por encima de la torreta.
 const ICON_ORIGIN := Vector2(-4, -28)
 
 var _blink := 0.0
 var _icon_visible := true
-# Segundos que quedan de apagada (la torre los fija con start).
+# Segundos que quedan de apagada (la torreta los fija con start).
 var _left := 0.0
 
 func _ready() -> void:

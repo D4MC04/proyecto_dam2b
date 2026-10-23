@@ -2,12 +2,12 @@ extends Node
 class_name LevelState
 
 signal money_changed(amount: int)
-signal selected_tower_changed(data: TowerData)
+signal selected_turret_changed(data: TurretData)
 signal inspected_changed(data: Resource)
-signal sellable_tower_changed(tower: Tower)
-## BuildManager la emite al colocar una torre nueva en una casilla libre (no al mejorar).
-signal tower_placed
-## El jugador pide mejorar la torre colocada seleccionada; la atiende BuildManager.
+signal sellable_turret_changed(turret: Turret)
+## BuildManager la emite al colocar una torreta nueva en una casilla libre (no al mejorar).
+signal turret_placed
+## El jugador pide mejorar la torreta colocada seleccionada; la atiende BuildManager.
 signal upgrade_requested
 
 # Premio al limpiar una oleada (menos la última) sin que llegue ningún enemigo a la estación.
@@ -17,51 +17,51 @@ var money := 5000
 # Recuento de la partida para el resumen. Al reiniciar se crea un LevelState nuevo, así que vuelven a 0.
 var enemies_destroyed := 0
 var money_spent := 0
-var selected_tower: TowerData:
+var selected_turret: TurretData:
 	set(value):
-		if selected_tower == value:
+		if selected_turret == value:
 			return
-		selected_tower = value
-		selected_tower_changed.emit(value)
-## Lo que enseña la ficha (de momento TowerData). null = aún no se ha inspeccionado nada.
+		selected_turret = value
+		selected_turret_changed.emit(value)
+## Lo que enseña la ficha (de momento TurretData). null = aún no se ha inspeccionado nada.
 var inspected: Resource:
 	set(value):
-		# Inspeccionar cualquier cosa suelta la torre colocada que se pudiera vender.
-		sellable_tower = null
+		# Inspeccionar cualquier cosa suelta la torreta colocada que se pudiera vender.
+		sellable_turret = null
 		if inspected == value:
 			return
 		inspected = value
 		inspected_changed.emit(value)
 
-## Torre colocada seleccionada en el mapa, la que enseña el botón de vender. null = ninguna.
-var sellable_tower: Tower:
+## Torreta colocada seleccionada en el mapa, la que enseña el botón de vender. null = ninguna.
+var sellable_turret: Turret:
 	set(value):
-		if sellable_tower == value:
+		if sellable_turret == value:
 			return
-		if is_instance_valid(sellable_tower):
-			sellable_tower.selected = false
-		sellable_tower = value
+		if is_instance_valid(sellable_turret):
+			sellable_turret.selected = false
+		sellable_turret = value
 		if value != null:
 			value.selected = true
-		sellable_tower_changed.emit(value)
+		sellable_turret_changed.emit(value)
 
-## Selecciona una torre colocada: enseña su ficha y habilita venderla.
-func inspect_placed(tower: Tower) -> void:
-	inspected = tower.data
-	sellable_tower = tower
+## Selecciona una torreta colocada: enseña su ficha y habilita venderla.
+func inspect_placed(turret: Turret) -> void:
+	inspected = turret.data
+	sellable_turret = turret
 
-## Vende la torre colocada seleccionada: devuelve la mitad de lo invertido y la quita del mapa
+## Vende la torreta colocada seleccionada: devuelve la mitad de lo invertido y la quita del mapa
 ## (al salir del árbol, Grid libera su casilla).
-func sell_selected_tower() -> void:
-	if not is_instance_valid(sellable_tower):
+func sell_selected_turret() -> void:
+	if not is_instance_valid(sellable_turret):
 		return
-	var value := sellable_tower.get_sell_value()
+	var value := sellable_turret.get_sell_value()
 	add_money(value)
-	FloatingText.spawn(sellable_tower.get_parent(), sellable_tower.global_position, "+" + UiFormat.money(value))
-	_note_retired(sellable_tower)
-	sellable_tower.play_sell()
-	sellable_tower.queue_free()
-	sellable_tower = null
+	FloatingText.spawn(sellable_turret.get_parent(), sellable_turret.global_position, "+" + UiFormat.money(value))
+	_note_retired(sellable_turret)
+	sellable_turret.play_sell()
+	sellable_turret.queue_free()
+	sellable_turret = null
 
 func add_money(amount: int) -> void:
 	money += amount
@@ -76,14 +76,14 @@ func spend_money(amount: int) -> bool:
 	money_changed.emit(money)
 	return true
 
-## Mejor torre vendida (se guarda al venderla para que cuente en el resumen).
+## Mejor torreta vendida (se guarda al venderla para que cuente en el resumen).
 var retired_top_name := ""
 var retired_top_kills := 0
 
-func _note_retired(tower: Tower) -> void:
-	if tower.kills > retired_top_kills:
-		retired_top_kills = tower.kills
-		retired_top_name = tower.data.name
+func _note_retired(turret: Turret) -> void:
+	if turret.kills > retired_top_kills:
+		retired_top_kills = turret.kills
+		retired_top_name = turret.data.name
 
 ## Un enemigo destruido: suma su recompensa y lo cuenta.
 func register_enemy_destroyed(reward: int) -> void:

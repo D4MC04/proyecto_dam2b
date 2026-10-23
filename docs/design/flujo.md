@@ -13,7 +13,7 @@ Definidos en `project.godot`, en este orden:
 
 `GameData.levels` tiene 6 entradas. Su contenido está en [niveles.md](niveles.md).
 
-`GameState` carga `current_level` y `tutorial_done` de `user://progress.cfg` (`ConfigFile`, sección `progress`; solo acepta un entero >= 1 y un booleano) y los guarda en `complete_level`, `complete_tutorial` y `reset_progress`. `GameState` guarda también `play_time` (segundos jugados, que suma `Level._process` en tiempo real) y los contadores `stats` `spent` (dinero gastado, desde `LevelState.spend_money`) y `built_<torre>` (torres construidas, desde `BuildManager`); `reset_progress` los borra. `Settings` guarda las opciones en su propio archivo.
+`GameState` carga `current_level` y `tutorial_done` de `user://progress.cfg` (`ConfigFile`, sección `progress`; solo acepta un entero >= 1 y un booleano) y los guarda en `complete_level`, `complete_tutorial` y `reset_progress`. `GameState` guarda también `play_time` (segundos jugados, que suma `Level._process` en tiempo real) y los contadores `stats` `spent` (dinero gastado, desde `LevelState.spend_money`) y `built_<torreta>` (torretas construidas, desde `BuildManager`); `reset_progress` los borra. `Settings` guarda las opciones en su propio archivo.
 
 ## Escena Game
 
@@ -33,7 +33,7 @@ En `_ready`:
 3. Llama a `_setup_level()`:
    - `level.setup(level_data)`
    - conecta `level.lost` a `_on_level_lost` y `level.won` a `_on_level_won`
-   - `ui.setup_powers(...)` con el `Powers` del nivel y después `ui.setup(level.game_state, level.towers, level_number, level.spawner, has_next_level)` (`has_next_level` es true si el nivel está en `GameData.levels` y no es el último), que conecta la UI con el `LevelState` y el `Spawner` del nivel (ver [ui.md](ui.md)).
+   - `ui.setup_powers(...)` con el `Powers` del nivel y después `ui.setup(level.game_state, level.turrets, level_number, level.spawner, has_next_level)` (`has_next_level` es true si el nivel está en `GameData.levels` y no es el último), que conecta la UI con el `LevelState` y el `Spawner` del nivel (ver [ui.md](ui.md)).
 
 ### Acciones de la UI
 
@@ -45,7 +45,7 @@ Cuando la estación se destruye, `Level` deja de construir y ya no puede ganar, 
 
 ### Victoria
 
-`Level` emite `won` al limpiar la última oleada (y solo si no ha emitido `lost`) y `Game` pasa a la UI el resumen de la partida (`ui.show_run_stats(level.get_run_stats())`) y después llama a `ui.set_state(LevelUI.UiState.WON)`. La UI no congela el juego al momento: durante un respiro de 0,6 s sigue a velocidad normal (se ve explotar al último enemigo), sin selección de torre ni Escape, y después pausa el árbol y muestra `VictoryScreen`, que entra deslizando y cuenta los números del resumen (ver [ui.md](ui.md)). "Siguiente nivel" ejecuta `_next_level()`: cambia `level_data` al siguiente de `GameData.levels` y llama a `_restart_level()`, así que no se cambia de escena y la cabecera, las oleadas, la tienda, el dinero y la ficha se rehacen para el nivel nuevo. "Menú" usa `QUIT`. `_on_level_won` llama antes a `GameState.complete_level(número del nivel)`: si era el más alto desbloqueado y no es el último, sube `current_level` y guarda; si no, no hace nada. Así "Siguiente nivel" ya está desbloqueado.
+`Level` emite `won` al limpiar la última oleada (y solo si no ha emitido `lost`) y `Game` pasa a la UI el resumen de la partida (`ui.show_run_stats(level.get_run_stats())`) y después llama a `ui.set_state(LevelUI.UiState.WON)`. La UI no congela el juego al momento: durante un respiro de 0,6 s sigue a velocidad normal (se ve explotar al último enemigo), sin selección de torreta ni Escape, y después pausa el árbol y muestra `VictoryScreen`, que entra deslizando y cuenta los números del resumen (ver [ui.md](ui.md)). "Siguiente nivel" ejecuta `_next_level()`: cambia `level_data` al siguiente de `GameData.levels` y llama a `_restart_level()`, así que no se cambia de escena y la cabecera, las oleadas, la tienda, el dinero y la ficha se rehacen para el nivel nuevo. "Menú" usa `QUIT`. `_on_level_won` llama antes a `GameState.complete_level(número del nivel)`: si era el más alto desbloqueado y no es el último, sube `current_level` y guarda; si no, no hace nada. Así "Siguiente nivel" ya está desbloqueado.
 
 ### Reinicio
 

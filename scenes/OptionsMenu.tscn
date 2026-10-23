@@ -204,13 +204,13 @@ theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 9
 columns = 2
 
-[node name="TowerRangeLabel" type="Label" parent="Center/Frame/Margin/Box/Sections/RightColumn/GameGrid"]
+[node name="TurretRangeLabel" type="Label" parent="Center/Frame/Margin/Box/Sections/RightColumn/GameGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 24
-text = "Rango de torres"
+text = "Rango de torretas"
 
-[node name="TowerRangeButton" type="Button" parent="Center/Frame/Margin/Box/Sections/RightColumn/GameGrid"]
+[node name="TurretRangeButton" type="Button" parent="Center/Frame/Margin/Box/Sections/RightColumn/GameGrid"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(54, 24)
 layout_mode = 2

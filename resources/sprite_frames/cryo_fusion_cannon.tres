@@ -1,9 +1,9 @@
 [gd_resource type="SpriteFrames" format=3 uid="uid://ctpduh3evf5hq"]
 
-[ext_resource type="Texture2D" uid="uid://e35yx6t1hxr5" path="res://assets/sprites/towers/cryo_fusion/cryo_cannon_idle_sheet.png" id="1"]
-[ext_resource type="Texture2D" uid="uid://n5pbff0lujum" path="res://assets/sprites/towers/cryo_fusion/cryo_cannon_charge_sheet.png" id="2"]
-[ext_resource type="Texture2D" uid="uid://bslldr3ckfh4e" path="res://assets/sprites/towers/cryo_fusion/cryo_cannon_pulse_sheet.png" id="3"]
-[ext_resource type="Texture2D" uid="uid://b16q3yg2grfpn" path="res://assets/sprites/towers/cryo_fusion/cryo_cannon_cool_sheet.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://e35yx6t1hxr5" path="res://assets/sprites/turrets/cryo_fusion/cryo_cannon_idle_sheet.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://n5pbff0lujum" path="res://assets/sprites/turrets/cryo_fusion/cryo_cannon_charge_sheet.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://bslldr3ckfh4e" path="res://assets/sprites/turrets/cryo_fusion/cryo_cannon_pulse_sheet.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://b16q3yg2grfpn" path="res://assets/sprites/turrets/cryo_fusion/cryo_cannon_cool_sheet.png" id="4"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0"]
 atlas = ExtResource("1")

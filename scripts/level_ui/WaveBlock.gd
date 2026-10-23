@@ -8,7 +8,7 @@ enum State { PAST, CURRENT, NEXT, FUTURE }
 
 const ENEMY_CELL: PackedScene = preload("res://scenes/level_ui/EnemyCell.tscn")
 
-## Alto de la celda en la barra: el mismo que el de TowerButton (el Navedex mantiene el mínimo de la escena).
+## Alto de la celda en la barra: el mismo que el de TurretButton (el Navedex mantiene el mínimo de la escena).
 const CELL_HEIGHT := 56.0
 
 const TITLE_BG_COLOR := Color("#0e1626")
