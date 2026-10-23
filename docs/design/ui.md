@@ -83,6 +83,7 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
   - `StatScroll`: `ScrollContainer` vertical (sin barra visible, como los de la barra derecha; la pista de que hay más abajo es `ScrollHint`, ver abajo) con las filas de stat, una línea `#1c4a60` y la descripción en `#5a7a96` con salto de línea automático (la línea y la descripción se ocultan si no hay descripción). La cabecera no entra en el scroll. Al cambiar de ficha vuelve arriba.
   - `ScrollHint`: `Control` de 5 px de alto entre `StatScroll` y `SellButton` que pinta un triángulo ▼ de 7x4 px en `#40e0f0` centrado. Solo es visible (por transparencia, para que su hueco no cambie el alto del scroll) cuando queda contenido por debajo: `_update_scroll_hint()` mira la `VScrollBar` interna (`value_changed` y `changed`) y lo apaga al llegar al final o si la ficha cabe entera. Se eligió la flecha y no una barra fina porque cabe en el estilo de las esquinas y las marcas del holograma, no roba ancho a los 110 px y se dibuja con rects como el resto; no se usa el glifo ▼ de texto porque Monogram no lo trae seguro.
   - Cada fila la crea `StatRow.create(entry, index)` (ver abajo).
+  - `UpgradeButton`: sobre el de vender, "Mejorar (-X€)" con X = `fusion.cost`; solo se ve si la torre colocada seleccionada tiene `fusion` (lo decide `show_sellable`). Emite `upgrade_requested`; `LevelUI._on_upgrade_requested` lo reenvía a `LevelState.upgrade_requested` solo en `PLAYING`. Sin dinero no hace nada.
   - `SellButton`: botón del tema (esquinas recortadas) al final de `DetailView`, "Vender (+X€)", con X = la mitad de lo invertido en la torre (`Tower.get_sell_value()`, también tras fusionarla). Solo se ve con una torre colocada seleccionada: `show_sellable(tower)` (null lo oculta); además añade al final de la ficha dos filas, BAJAS y HECHO (daño), con `tower.kills` y `tower.damage_dealt` abreviados (se rehacen en cada selección, no se actualizan en vivo). Con cualquier torre, el primer clic cambia el texto a "¿Seguro?" y el segundo vende, conectado a `LevelState.sellable_tower_changed`. Emite `sell_requested`; `LevelUI._on_sell_requested` llama a `LevelState.sell_selected_tower()` solo en `PLAYING`. Ver [torres.md](torres.md).
 - `ScanFlash`: `ColorRect` cian al 20 % que tapa `Screen` durante 2 frames cada vez que cambia el contenido.
 - `PowersHeader` (`ScreenHeader` con `// PODERES`) y `PowersRow` (4 px de separación), entre `Screen` y `ScanFooter`, con `MeteorButton`, `FreezeButton` y `OrbitalButton` (ver "Poderes").
@@ -123,10 +124,10 @@ Tres `PowerButton` (`scripts/level_ui/PowerButton.gd`) en `InfoPanel/Content/Pow
 - Solo sale en el nivel 1 mientras `GameState.tutorial_done` es false. `LevelUI.setup` llama a `start(state, spawner, powers)` en el nivel 1 y a `stop()` en los demás; al reiniciar vuelve a empezar desde el primer paso (las señales del nivel anterior se liberan con él).
 - Pasos; cada uno espera a que el jugador lo haga:
   1. Elegir torre (`LevelState.selected_tower_changed` no nulo). Si se suelta la torre en el paso 2, vuelve a este.
-  2. Colocarla en un asteroide con plataforma (`LevelState.tower_placed`, que emite `BuildManager` al construir, no al fusionar).
+  2. Colocarla en un asteroide con plataforma (`LevelState.tower_placed`, que emite `BuildManager` al construir, no al mejorar).
   3. Lanzar la oleada (`Spawner.wave_started`; lanzarla antes con Espacio también vale). El recuadro se esconde mientras dura la oleada 1.
   4. Al acabar (`Spawner.wave_cleared`): soltar la torre de la tienda con clic derecho y hacer clic en una torre del mapa (`LevelState.sellable_tower_changed` no nulo).
-  5. Venta y fusión: informativo, sigue con "Entendido".
+  5. Venta y mejora: informativo, sigue con "Entendido".
   6. Poderes: usar Q o E (`Powers.power_used`, que el meteorito emite al caer).
   7. Despedida: se cierra con "Entendido" o sola a los 4 s.
 - Un borde ámbar `#ecb23c` de 1 px parpadea (0,4 s encendido, 0,4 s apagado) a 2 px alrededor de lo que hay que pulsar: la rejilla de torres (o la pestaña Torres si no está abierta), `NextWaveButton` (o la pestaña Oleadas) y la fila de poderes.

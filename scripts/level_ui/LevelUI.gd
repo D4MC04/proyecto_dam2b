@@ -61,6 +61,7 @@ func _ready() -> void:
 	sidebar.tower_selected.connect(_on_tower_selected)
 	sidebar.inspect_requested.connect(_on_inspect_requested)
 	info_panel.sell_requested.connect(_on_sell_requested)
+	info_panel.upgrade_requested.connect(_on_upgrade_requested)
 	sidebar.next_wave_requested.connect(_on_next_wave_requested)
 	sidebar.auto_waves_toggled.connect(_on_auto_waves_toggled)
 	sidebar.fast_speed_toggled.connect(_on_fast_speed_toggled)
@@ -156,6 +157,11 @@ func _on_inspect_requested(data: Resource) -> void:
 func _on_sell_requested() -> void:
 	if is_instance_valid(_level_state) and _ui_state == UiState.PLAYING:
 		_level_state.sell_selected_tower()
+
+# Solo se mejora jugando, igual que vender.
+func _on_upgrade_requested() -> void:
+	if is_instance_valid(_level_state) and _ui_state == UiState.PLAYING:
+		_level_state.upgrade_requested.emit()
 
 # Cambia el Spawner que sigue la pestaña Oleadas, desconectando el anterior.
 func _connect_spawner(spawner: Spawner) -> void:

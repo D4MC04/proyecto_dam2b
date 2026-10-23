@@ -57,18 +57,14 @@ func _try_place(mouse_pos: Vector2) -> void:
 	var cell := grid.cell(mouse_pos)
 	var data := state.selected_tower
 	if grid.towers.has(cell):
-		var placed: Tower = grid.towers[cell]
-		if _can_fuse(placed):
-			_fuse(cell, placed)
-		else:
-			# Clic en una torre ya colocada: se selecciona (ficha y botón de vender).
-			state.inspect_placed(placed)
+		# Clic en una torre ya colocada: se selecciona (ficha, vender y mejorar).
+		state.inspect_placed(grid.towers[cell])
 		return
 
-	if data == null:
-		return
-
-	if not grid.can_build(cell):
+	# Clic donde no se puede construir (el espacio, o cualquier sitio sin torre de la tienda elegida):
+	# se suelta todo, la torre de la tienda y la colocada (ficha, botones y alcance).
+	if data == null or not grid.can_build(cell):
+		_deselect_all()
 		return
 
 	if not state.spend_money(data.cost):
@@ -87,15 +83,21 @@ func _try_place(mouse_pos: Vector2) -> void:
 
 	_hide_preview()
 
-# La torre seleccionada en la tienda es igual que la colocada y esta tiene fusión.
-func _can_fuse(placed: Tower) -> bool:
-	return state.selected_tower != null and placed.data == state.selected_tower and placed.data.fusion != null
+func _deselect_all() -> void:
+	state.selected_tower = null
+	state.inspected = null
+	_hide_preview()
 
-# Sustituye la torre colocada por su fusionada en la misma casilla.
-func _fuse(cell: Vector2i, old: Tower) -> void:
+## Mejora la torre colocada seleccionada: la sustituye por su versión mejorada en la misma casilla.
+## Sin torre seleccionada, sin mejora o sin dinero no hace nada.
+func upgrade_selected() -> void:
+	var old := state.sellable_tower
+	if not _building or not is_instance_valid(old) or old.data.fusion == null:
+		return
 	var fused := old.data.fusion
 	if not state.spend_money(fused.cost):
 		return
+	var cell := grid.cell(old.global_position)
 	var tower: Tower = tower_scene.instantiate()
 	tower.data = fused
 	tower.invested = old.invested + fused.cost
@@ -119,18 +121,15 @@ func _update_preview(mouse_pos: Vector2) -> void:
 		_hide_preview()
 		return
 	var cell := grid.cell(mouse_pos)
-	# Sobre una torre fusionable se enseña la fusionada; si no, solo en casillas libres.
-	var shown := data
-	if grid.towers.has(cell) and _can_fuse(grid.towers[cell]):
-		shown = data.fusion
-	elif not grid.can_build(cell):
+	# La vista previa solo se enseña en casillas libres.
+	if not grid.can_build(cell):
 		_hide_preview()
 		return
 
-	if cell != _last_cell or shown != _last_data:
+	if cell != _last_cell or data != _last_data:
 		_last_cell = cell
-		_last_data = shown
-		_sprite.texture = shown.icon
+		_last_data = data
+		_sprite.texture = data.icon
 		_preview.global_position = grid.center(cell)
 		_range.queue_redraw()
 	_preview.visible = true

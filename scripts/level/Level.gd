@@ -33,6 +33,7 @@ var _leaks_this_wave := 0
 
 func _ready() -> void:
 	build_manager.state = game_state
+	game_state.upgrade_requested.connect(build_manager.upgrade_selected)
 	spawner.enemy_died.connect(game_state.register_enemy_destroyed)
 	spawner.all_waves_cleared.connect(_win)
 	spawner.wave_started.connect(func(_index: int, _total: int) -> void: _leaks_this_wave = 0)

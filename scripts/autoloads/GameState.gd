@@ -18,8 +18,8 @@ const ACHIEVEMENTS: Dictionary = {
 	"kills_1000": ["Exterminador", "Destruye 1000 naves"],
 	"seen_10": ["Observador", "Descubre 10 tipos de nave"],
 	"towers_50": ["Constructor", "Construye 50 torres"],
-	"fuse_first": ["Primera fusión", "Fusiona una torre"],
-	"fuse_all": ["Maestro de fusiones", "Fusiona todas las torres"],
+	"fuse_first": ["Primera mejora", "Mejora una torre"],
+	"fuse_all": ["Maestro de mejoras", "Mejora todas las torres"],
 	"power_first": ["Poder desatado", "Usa un poder"],
 	"perfect_10": ["Defensa perfecta", "Logra 10 oleadas perfectas"],
 }
