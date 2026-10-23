@@ -48,6 +48,8 @@ const CONFIRM_SELL_TEXT := "¿Seguro?"
 var _accent := Color.WHITE
 var _flash_id := 0
 var _confirming_sell := false
+# Filas de bajas y daño de la torre seleccionada; se rehacen en cada selección.
+var _tower_rows: Array[Node] = []
 
 func _ready() -> void:
 	icon_pad.draw.connect(_draw_icon_pad)
@@ -68,6 +70,19 @@ func _ready() -> void:
 func show_sellable(tower: Tower) -> void:
 	_confirming_sell = false
 	sell_button.visible = tower != null
+	for row in _tower_rows:
+		if is_instance_valid(row):
+			row.queue_free()
+	_tower_rows.clear()
+	if tower != null:
+		var entries: Array[StatEntry] = [
+			StatEntry.new("kills", "BAJAS", UiFormat.abbreviate(tower.kills)),
+			StatEntry.new("damage", "HECHO", UiFormat.abbreviate(roundi(tower.damage_dealt))),
+		]
+		for entry in entries:
+			var row := StatRow.create(entry, stat_rows.get_child_count())
+			stat_rows.add_child(row)
+			_tower_rows.append(row)
 	if tower != null:
 		sell_button.text = "Vender (+%s)" % UiFormat.money(tower.get_sell_value())
 

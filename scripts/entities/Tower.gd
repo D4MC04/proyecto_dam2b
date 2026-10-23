@@ -30,6 +30,9 @@ const SHOOT_FADE_DB := -40.0
 
 # Dinero total gastado en esta torre (colocación y fusiones); la venta devuelve la mitad.
 var invested := 0
+# Bajas y daño hecho por esta torre (la fusión los hereda).
+var kills := 0
+var damage_dealt := 0.0
 var enemies_in_range: Array[Enemy] = []
 var _shots := 0
 var _target: Enemy = null
@@ -225,6 +228,7 @@ func _shoot(target: Enemy) -> void:
 	# Con dos cañones (muzzle_offset.x != 0) los disparos alternan de lado.
 	var muzzle := data.muzzle_offset * Vector2(-1 if _shots % 2 else 1, 1)
 	bullet.global_position = global_position + muzzle.rotated(cannon.rotation)
+	bullet.source = self
 	bullet.setup(data.bullet_data, target)
 	if data.muzzle_flash:
 		Effect.spawn(cannon, data.muzzle_flash, bullet.global_position, data.bullet_data.sprite_scale)
@@ -286,6 +290,12 @@ func _enable() -> void:
 	tween.tween_property(cannon, "modulate", Color.WHITE, ENABLE_FLASH_TIME).from(ENABLE_FLASH)
 	_sparks.queue_free()
 	_sparks = null
+
+## Apunta el daño que ha hecho un disparo suyo y si ha matado.
+func register_damage(amount: float, killed: bool) -> void:
+	damage_dealt += amount
+	if killed:
+		kills += 1
 
 ## Dinero que devuelve vender la torre: la mitad de lo invertido, redondeada hacia abajo.
 func get_sell_value() -> int:

@@ -30,7 +30,7 @@ static func spawn(tower: Tower) -> void:
 		var along := offset.dot(direction)
 		if along < 0 or along > data.length or absf(offset.cross(direction)) > data.half_width:
 			continue
-		enemy.take_damage(data.damage)
+		enemy.take_damage(data.damage, tower)
 		if enemy.hp > 0:
 			enemy.flash()
 		if data.impact_frames:

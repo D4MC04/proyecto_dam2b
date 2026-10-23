@@ -187,3 +187,7 @@ Límite: `Effect` y `HealEffect` se apuntan al grupo `effects`; `Effect.has_room
 ## Animaciones de construir, fusionar y vender
 
 `Tower.play_build(fused)` (se llama tras añadirla al árbol): escala 0 a 1 en 0,35 s con rebote (`TRANS_BACK`) y destello de `sprite` y `cannon`; al fusionar el destello es más fuerte (`FUSE_FLASH`). `Tower.play_sell()` (la llama `LevelState.sell_selected_tower` antes del `queue_free`) deja una copia visual de la torre que se encoge en 0,25 s con chispas (`CPUParticles2D`) y se libera sola; la casilla queda libre al instante.
+
+## Bajas y daño por torre
+
+`Tower.kills` y `Tower.damage_dealt` cuentan lo que ha hecho cada torre. Todos sus ataques (`Bullet.source`, `Beam`, `Chain`, `Pulse`, `FocusBeam`) llaman a `Enemy.take_damage(amount, source)`, que avisa con `Tower.register_damage(dealt, killed)` (el daño es lo que de verdad quitó, sin pasarse de la vida que quedaba). Los poderes no pasan torre y no cuentan. La fusión hereda ambos contadores. Al vender, `LevelState` guarda la mejor torre vendida (`retired_top_name`/`retired_top_kills`) para que siga contando en el resumen.

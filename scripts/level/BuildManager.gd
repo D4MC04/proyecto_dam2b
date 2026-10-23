@@ -99,6 +99,8 @@ func _fuse(cell: Vector2i, old: Tower) -> void:
 	var tower: Tower = tower_scene.instantiate()
 	tower.data = fused
 	tower.invested = old.invested + fused.cost
+	tower.kills = old.kills
+	tower.damage_dealt = old.damage_dealt
 	# Se saca del árbol ya (tree_exiting libera la casilla) para que no borre el registro de la nueva.
 	remove_child(old)
 	old.queue_free()

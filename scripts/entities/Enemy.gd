@@ -100,8 +100,13 @@ func _update_animation():
 		# El sprite base mira hacia arriba; se gira en pasos de 90°.
 		sprite.rotation = snappedf(direction.angle() + PI / 2, PI / 2) + deg_to_rad(data.rotation_offset)
 
-func take_damage(amount: float):
+## `source`: la torre que hiere (null si es un poder u otra cosa); se apunta el daño y la baja.
+func take_damage(amount: float, source: Tower = null):
+	var was_alive := hp > 0
+	var dealt := clampf(amount, 0.0, maxf(hp, 0.0))
 	hp -= amount
+	if is_instance_valid(source):
+		source.register_damage(dealt, was_alive and hp <= 0)
 	_health_bar.update(hp, max_hp)
 	if hp <= 0:
 		die()
