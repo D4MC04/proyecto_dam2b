@@ -1,5 +1,6 @@
 # Jefe para el nivel 8: Saboteadora madre
 
+Creador: Renzo
 Estado: propuesta
 Modelo recomendado: opus
 Esfuerzo recomendado: high

@@ -1,5 +1,6 @@
 # Nave nueva: Kamikaze
 
+Creador: Renzo
 Estado: propuesta
 Modelo recomendado: opus
 Esfuerzo recomendado: high

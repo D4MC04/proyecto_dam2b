@@ -1,5 +1,6 @@
 # Nave nueva: Minadora
 
+Creador: Renzo
 Estado: propuesta
 Modelo recomendado: opus
 Esfuerzo recomendado: high

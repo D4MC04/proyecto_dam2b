@@ -1,5 +1,6 @@
 # Botones Archivo y Estadísticas capitalizados
 
+Creador: David
 Estado: aceptada
 Modelo recomendado: haiku
 Esfuerzo recomendado: low

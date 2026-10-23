@@ -1,5 +1,6 @@
 # Chispas de vender en todas direcciones
 
+Creador: David
 Estado: aceptada
 Modelo recomendado: haiku
 Esfuerzo recomendado: low

@@ -1,5 +1,6 @@
 # Arreglar attack_cooldown del Disintegrator
 
+Creador: Renzo
 Estado: propuesta
 Modelo recomendado: haiku
 Esfuerzo recomendado: low

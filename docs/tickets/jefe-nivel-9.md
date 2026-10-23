@@ -1,5 +1,6 @@
 # Jefe final para el nivel 9
 
+Creador: Renzo
 Estado: propuesta
 Modelo recomendado: opus
 Esfuerzo recomendado: high

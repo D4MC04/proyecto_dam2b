@@ -1,5 +1,6 @@
 # Entrada de la Nodriza más espectacular
 
+Creador: Renzo
 Estado: propuesta
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium

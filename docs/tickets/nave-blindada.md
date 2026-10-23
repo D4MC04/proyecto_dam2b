@@ -1,5 +1,6 @@
 # Nave nueva: Blindada frontal
 
+Creador: Renzo
 Estado: propuesta
 Modelo recomendado: opus
 Esfuerzo recomendado: medium

@@ -1,5 +1,6 @@
 # Animación de colocar y mejorar: holograma que se solidifica
 
+Creador: David
 Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium

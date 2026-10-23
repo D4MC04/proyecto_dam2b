@@ -1,5 +1,6 @@
 # Torreta nueva: Lanzallamas
 
+Creador: David
 Estado: propuesta
 Modelo recomendado: opus
 Esfuerzo recomendado: high

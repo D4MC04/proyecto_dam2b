@@ -1,5 +1,6 @@
 # Búsqueda de objetivo más barata en las torretas
 
+Creador: Renzo
 Estado: propuesta
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium

@@ -1,5 +1,6 @@
 # Torreta nueva: Minigun (sustituye al Láser)
 
+Creador: David
 Estado: propuesta
 Modelo recomendado: opus
 Esfuerzo recomendado: medium

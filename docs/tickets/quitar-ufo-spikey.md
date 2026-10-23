@@ -1,5 +1,6 @@
 # Quitar UFO y Spikey
 
+Creador: David
 Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium

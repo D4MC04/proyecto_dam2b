@@ -1,5 +1,6 @@
 # Nave nueva: Fásica
 
+Creador: Renzo
 Estado: propuesta
 Modelo recomendado: opus
 Esfuerzo recomendado: medium

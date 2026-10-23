@@ -1,5 +1,6 @@
 # Nave nueva: Portadora de drones
 
+Creador: Renzo
 Estado: propuesta
 Modelo recomendado: opus
 Esfuerzo recomendado: high

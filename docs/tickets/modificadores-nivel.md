@@ -1,5 +1,6 @@
 # Modificadores al rejugar niveles
 
+Creador: Renzo
 Estado: propuesta
 Modelo recomendado: opus
 Esfuerzo recomendado: medium
