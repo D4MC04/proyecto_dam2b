@@ -198,7 +198,7 @@ Límite: `Effect` y `HealEffect` se apuntan al grupo `effects`; `Effect.has_room
 
 ## Animaciones de construir, fusionar y vender
 
-`Turret.play_build(fused)` (se llama tras añadirla al árbol): escala 0 a 1 en 0,35 s con rebote (`TRANS_BACK`) y destello de `sprite` y `cannon`; al fusionar el destello es más fuerte (`FUSE_FLASH`). `Turret.play_sell()` (la llama `LevelState.sell_selected_turret` antes del `queue_free`) deja una copia visual de la torreta que se encoge en 0,25 s con chispas (`CPUParticles2D`) y se libera sola; la casilla queda libre al instante.
+`Turret.play_build(fused)` (se llama tras añadirla al árbol): escala 0 a 1 en 0,35 s con rebote (`TRANS_BACK`) y destello de `sprite` y `cannon`; al fusionar el destello es más fuerte (`FUSE_FLASH`). `Turret.play_sell()` (la llama `LevelState.sell_selected_turret` antes del `queue_free`) deja una copia visual de la torreta que se encoge en 0,25 s con chispas (`CPUParticles2D`, sin gravedad, en todas direcciones y con frenado `damping` de 40) y se libera sola; la casilla queda libre al instante.
 
 ## Bajas y daño por torreta
 

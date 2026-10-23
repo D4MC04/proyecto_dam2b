@@ -397,6 +397,10 @@ func play_sell() -> void:
 	sparks.amount = 10
 	sparks.lifetime = SELL_TIME * 2.0
 	sparks.spread = 180.0
+	# Sin gravedad: las chispas salen en todas direcciones y frenan, como un estallido.
+	sparks.gravity = Vector2.ZERO
+	sparks.damping_min = 40.0
+	sparks.damping_max = 40.0
 	sparks.initial_velocity_min = 30.0
 	sparks.initial_velocity_max = 70.0
 	sparks.scale_amount_min = 2.0
