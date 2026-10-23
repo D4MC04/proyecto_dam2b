@@ -25,6 +25,9 @@ const SHOOT_FADE_DB := -40.0
 const HEAT_TINT := Color(1.0, 0.3, 0.2)
 const OVERHEAT_FLASH := Color(2.5, 0.6, 0.3)
 const OVERHEAT_BLINK := 0.12
+# Humo gris en píxeles que sale de la torre cuando está muy caliente (desde SMOKE_HEAT) o sobrecalentada.
+const SMOKE_HEAT := 0.8
+const SMOKE_COLOR := Color(0.55, 0.55, 0.6, 0.8)
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var cannon: AnimatedSprite2D = $Cannon
@@ -47,6 +50,7 @@ var _pending_shot := false
 var _heat := 0.0
 var _overheat_left := 0.0
 var _heat_tinted := false
+var _smoke: CPUParticles2D
 # Mira de las torretas de haz; solo se ve durante la carga.
 var _sight: Line2D
 # Sonido de disparo; con poca polifonía, 10 torres juntas no saturan.
@@ -145,6 +149,7 @@ func _update_overheat(delta: float, has_target: bool) -> bool:
 			var flash_on := fmod(_overheat_left, OVERHEAT_BLINK * 2.0) < OVERHEAT_BLINK
 			_set_heat_tint(OVERHEAT_FLASH if flash_on else HEAT_TINT)
 			_heat_tinted = true
+			_set_smoke(true)
 			return true
 		# Ya se ha enfriado: vuelve a la cadencia base.
 		_heat = 0.0
@@ -155,11 +160,37 @@ func _update_overheat(delta: float, has_target: bool) -> bool:
 	if _heat > 0.0 or _heat_tinted:
 		_set_heat_tint(Color.WHITE.lerp(HEAT_TINT, _heat))
 		_heat_tinted = _heat > 0.0
+	_set_smoke(_heat >= SMOKE_HEAT)
 	return false
 
-# Cuanto más caliente, menos cooldown.
+# Cuanto más caliente, menos cooldown. Con el calor al cuadrado empieza lento y acelera al final.
 func _heat_cooldown() -> float:
-	return lerpf(data.attack_cooldown, data.overheat_min_cooldown, _heat)
+	return lerpf(data.attack_cooldown, data.overheat_min_cooldown, _heat * _heat)
+
+# Enciende o apaga el humo; lo crea la primera vez que hace falta.
+func _set_smoke(on: bool) -> void:
+	if _smoke == null:
+		if not on:
+			return
+		_smoke = CPUParticles2D.new()
+		_smoke.z_index = 1
+		_smoke.position = Vector2(0, -8)
+		_smoke.amount = 14
+		_smoke.lifetime = 1.2
+		_smoke.direction = Vector2.UP
+		_smoke.spread = 25.0
+		_smoke.gravity = Vector2(0, -12)
+		_smoke.initial_velocity_min = 6.0
+		_smoke.initial_velocity_max = 14.0
+		_smoke.scale_amount_min = 2.0
+		_smoke.scale_amount_max = 3.0
+		_smoke.color = SMOKE_COLOR
+		var fade := Gradient.new()
+		fade.set_color(0, Color.WHITE)
+		fade.set_color(1, Color(1, 1, 1, 0))
+		_smoke.color_ramp = fade
+		add_child(_smoke)
+	_smoke.emitting = on
 
 func _set_heat_tint(color: Color) -> void:
 	sprite.modulate = color
