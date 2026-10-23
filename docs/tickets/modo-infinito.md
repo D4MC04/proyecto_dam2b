@@ -1,5 +1,6 @@
 # Modo infinito con récord de oleada
 
+Creador: Renzo
 Estado: propuesta
 Modelo recomendado: opus
 Esfuerzo recomendado: high

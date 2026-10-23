@@ -1,5 +1,6 @@
 # Pausar al perder el foco de la ventana
 
+Creador: Renzo
 Estado: propuesta
 Modelo recomendado: haiku
 Esfuerzo recomendado: low

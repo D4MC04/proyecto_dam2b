@@ -1,5 +1,6 @@
 # Título corto del ticket
 
+Creador: nombre
 Estado: propuesta
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium

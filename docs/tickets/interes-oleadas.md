@@ -1,5 +1,6 @@
 # Interés por el dinero ahorrado
 
+Creador: Renzo
 Estado: propuesta
 Modelo recomendado: sonnet
 Esfuerzo recomendado: low

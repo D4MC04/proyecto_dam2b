@@ -1,5 +1,6 @@
 # Archivo: tamaño fijo, celdas cuadradas y mejoras con flechas
 
+Creador: David
 Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium

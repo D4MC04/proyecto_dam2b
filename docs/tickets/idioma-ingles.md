@@ -1,5 +1,6 @@
 # Traducción al inglés
 
+Creador: Renzo
 Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: high

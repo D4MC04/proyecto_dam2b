@@ -1,5 +1,6 @@
 # Jefe para el nivel 5: Acorazado real
 
+Creador: Renzo
 Estado: propuesta
 Modelo recomendado: opus
 Esfuerzo recomendado: high

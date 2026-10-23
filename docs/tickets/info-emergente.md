@@ -1,5 +1,6 @@
 # Info emergente en botones de torreta
 
+Creador: Renzo
 Estado: propuesta
 Modelo recomendado: sonnet
 Esfuerzo recomendado: low

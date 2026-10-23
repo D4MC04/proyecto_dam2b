@@ -1,5 +1,6 @@
 # Nave nueva: Regeneradora
 
+Creador: Renzo
 Estado: propuesta
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium

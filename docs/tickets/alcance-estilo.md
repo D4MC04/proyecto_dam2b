@@ -1,5 +1,6 @@
 # Área de alcance con estilo del juego
 
+Creador: David
 Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium

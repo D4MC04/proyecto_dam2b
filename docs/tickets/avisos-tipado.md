@@ -1,5 +1,6 @@
 # Avisos de tipado como error
 
+Creador: Renzo
 Estado: propuesta
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium

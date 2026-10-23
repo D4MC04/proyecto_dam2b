@@ -1,5 +1,6 @@
 # Números de daño opcionales
 
+Creador: Renzo
 Estado: propuesta
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium

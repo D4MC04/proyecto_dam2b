@@ -1,5 +1,6 @@
 # Separar tecla e icono en los botones de poderes
 
+Creador: David
 Estado: aceptada
 Modelo recomendado: sonnet
 Esfuerzo recomendado: low

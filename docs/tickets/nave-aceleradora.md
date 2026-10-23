@@ -1,5 +1,6 @@
 # Nave nueva: Aceleradora
 
+Creador: Renzo
 Estado: propuesta
 Modelo recomendado: opus
 Esfuerzo recomendado: medium
