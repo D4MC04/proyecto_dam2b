@@ -1,11 +1,11 @@
 ---
 name: work
-description: Implementa un ticket aceptado de docs/tasks/, lo prueba en headless y deja pasos para probarlo a mano.
+description: Implementa un ticket aceptado de docs/tickets/, lo prueba en headless y deja pasos para probarlo a mano.
 disable-model-invocation: true
 argument-hint: "nombre-del-ticket"
 ---
 
-Implementa el ticket `docs/tasks/$ARGUMENTS.md`.
+Implementa el ticket `docs/tickets/$ARGUMENTS.md`.
 
 1. Lee el ticket. Si no existe o no pone `Estado: aceptada`, para y díselo al usuario (si en este chat ha dicho "acepto $ARGUMENTS", cambia tú el estado a `aceptada` y sigue).
 2. Comprueba con `git status` que no hay cambios sin guardar de otra cosa. Si los hay, para y pregunta. Crea la rama `ticket/$ARGUMENTS` desde `main` (si ya existe, cámbiate a ella).

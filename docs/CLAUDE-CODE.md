@@ -38,7 +38,7 @@ Los nombres antiguos (`/proponer`, `/tickets`, `/hacer`, `/revisar`, `/new`) sig
 ## El ciclo
 | Paso | Tú | Claude |
 |---|---|---|
-| 1 | `/add` con lo que quieres arreglar, o `/ideas` si quieres propuestas | Escribe los tickets en `docs/tasks/` con `Estado: propuesta` |
+| 1 | `/add` con lo que quieres arreglar, o `/ideas` si quieres propuestas | Escribe los tickets en `docs/tickets/` con `Estado: propuesta` |
 | 2 | Marcas las casillas de los que aceptas (o dices "acepto X"). `/board` te los lista cuando quieras. Borras los que no quieras | Cambia `Estado:` a `aceptada` y empieza (ver abajo) |
 | 3 | `/work nombre` (si no lo lanzó ya el chat central) | Crea la rama `ticket/nombre`, implementa, actualiza docs, borra el ticket, hace `/commit`, abre Godot y te da pasos para probar |
 | 4 | Pruebas en Godot (solo F5) | Si algo falla, se lo dices en el mismo chat: lo arregla y hace otro `/commit` |
@@ -53,7 +53,7 @@ Si cambias algo a mano (en Godot o en el código), escribe `/commit` para guarda
 
 **`/hub`**: abre el chat central (Opus, en la carpeta principal, sobre `main`) y borra el chat donde lo escribiste (la app te pide confirmar el borrado). El chat central reparte tickets, recibe los avisos de subida y mantiene `main` local actualizado. Los chats de ticket van en worktree y no pueden tocar la carpeta principal, por eso lo hace él. Con `/ship todo`, sube él mismo todos los tickets listos.
 
-Los tickets siguen el formato de `docs/tasks/_plantilla.md`. Puedes escribir tú uno a mano y lanzar `/work` igual.
+Los tickets siguen el formato de `docs/tickets/_plantilla.md`. Puedes escribir tú uno a mano y lanzar `/work` igual.
 
 ## Qué modelo usar
 Se cambia en el selector de modelo de la app. Algunos comandos fijan el suyo y lo usan aunque el chat esté en otro: `/ideas` y `/check` van en Opus; `/board`, `/hub` y el `probador`, en Haiku. `/add`, `/work`, `/commit` y `/ship` usan el del chat.
