@@ -13,16 +13,18 @@ const ENEMY_FILES: Array[String] = [
 	"saboteadora",
 ]
 const TURRET_DIR := "res://resources/turret_data/"
-# Cada torreta base va seguida de su fusión.
+# Solo las torretas base; sus mejoras se ven con las flechas del detalle.
 const TURRET_FILES: Array[String] = [
-	"turret", "turret_fusion", "laser", "laser_fusion", "rocket_launcher", "rocket_launcher_fusion",
-	"cryo", "cryo_fusion", "disintegrator", "disintegrator_fusion", "rail", "rail_fusion",
-	"tesla", "tesla_fusion",
+	"turret", "laser", "rocket_launcher", "cryo", "disintegrator", "rail", "tesla",
 ]
 const TAB_ENEMIES := 0
 const TAB_ACHIEVEMENTS := 2
 const CELL_SCENE: PackedScene = preload("res://scenes/level_ui/EnemyCell.tscn")
 const UNKNOWN_TEXT := "???"
+# Lado de las celdas cuadradas de la cuadrícula.
+const CELL_SIZE := 64
+# Lado de las flechas de torreta.
+const ARROW_SIZE := 28
 
 @onready var grid: GridContainer = %Grid
 @onready var tabs: TabBar = %Tabs
@@ -34,18 +36,44 @@ const UNKNOWN_TEXT := "???"
 @onready var stat_rows: VBoxContainer = %StatRows
 @onready var detail: VBoxContainer = %Detail
 @onready var achievements_list: Label = %AchievementsList
+@onready var prev_button: Button = %PrevButton
+@onready var next_button: Button = %NextButton
 
 var _cells: Dictionary[InspectableData, EnemyCell] = {}
+# Cadena de versiones de la torreta mostrada (base, mejora...) y cuál se ve.
+var _versions: Array[TurretData] = []
+var _version_index := 0
 
 func _ready() -> void:
 	%VolverButton.pressed.connect(back_pressed.emit)
 	tabs.add_tab("NAVES")
 	tabs.add_tab("TORRETAS")
 	tabs.add_tab("LOGROS")
+	_style_arrow(prev_button)
+	_style_arrow(next_button)
+	prev_button.pressed.connect(_change_version.bind(-1))
+	next_button.pressed.connect(_change_version.bind(1))
 	tabs.tab_changed.connect(_build_grid)
 	_build_grid(TAB_ENEMIES)
 	visibility_changed.connect(_on_visibility_changed)
 	_on_visibility_changed()
+
+# Flecha pequeña con el mismo borde cian fino y relleno tenue que las celdas.
+func _style_arrow(button: Button) -> void:
+	button.custom_minimum_size = Vector2(ARROW_SIZE, ARROW_SIZE)
+	var normal := ClippedBoxStyle.create(TurretButton.BG_COLOR, TurretButton.BORDER_COLOR)
+	var hover := ClippedBoxStyle.create(TurretButton.HOVER_BG_COLOR, TurretButton.HOVER_BORDER_COLOR)
+	var disabled := ClippedBoxStyle.create(TurretButton.BG_COLOR, TurretButton.BORDER_COLOR.darkened(0.6))
+	for style: ClippedBoxStyle in [normal, hover, disabled]:
+		style.content_margin_left = 0
+		style.content_margin_right = 0
+		style.content_margin_top = 0
+		style.content_margin_bottom = 0
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", hover)
+	button.add_theme_stylebox_override("disabled", disabled)
+	button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 
 # Rellena la cuadrícula con las naves o las torretas según la pestaña.
 func _build_grid(tab: int) -> void:
@@ -64,6 +92,9 @@ func _build_grid(tab: int) -> void:
 	for file in (ENEMY_FILES if enemies else TURRET_FILES):
 		var data := load((ENEMY_DIR if enemies else TURRET_DIR) + file + ".tres") as InspectableData
 		var cell: EnemyCell = CELL_SCENE.instantiate()
+		cell.custom_minimum_size = Vector2(CELL_SIZE, CELL_SIZE)
+		cell.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		cell.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		grid.add_child(cell)
 		cell.setup(data, 0)
 		cell.count_label.hide()
@@ -98,10 +129,35 @@ func _show_achievements() -> void:
 	achievements_list.text = "\n".join(lines)
 
 func _show_detail(data: InspectableData) -> void:
+	_versions.clear()
+	_version_index = 0
+	var base := data as TurretData
+	if base != null:
+		# Base y mejoras encadenadas.
+		var turret: TurretData = base
+		while turret != null:
+			_versions.append(turret)
+			turret = turret.fusion
+	_show_entry(data)
+
+# Pasa a la versión anterior (-1) o siguiente (+1) de la torreta.
+func _change_version(step: int) -> void:
+	_version_index = clampi(_version_index + step, 0, _versions.size() - 1)
+	_show_entry(_versions[_version_index])
+
+func _show_entry(data: InspectableData) -> void:
 	var seen := _is_known(data)
 	var turret := data as TurretData
 	sprite.visible = turret == null
 	turret_icon.visible = turret != null
+	prev_button.disabled = _version_index <= 0
+	next_button.disabled = _version_index >= _versions.size() - 1
+	# Invisibles (no ocultos) en las naves para que la imagen no se mueva.
+	prev_button.modulate.a = 1.0 if turret != null else 0.0
+	next_button.modulate.a = 1.0 if turret != null else 0.0
+	if turret == null:
+		prev_button.disabled = true
+		next_button.disabled = true
 	fusion_label.visible = turret != null and turret.fusion != null
 	if turret != null:
 		turret_icon.texture = turret.icon

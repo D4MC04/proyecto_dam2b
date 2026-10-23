@@ -55,6 +55,7 @@ theme_override_constants/separation = 24
 
 [node name="Grid" type="GridContainer" parent="Center/Frame/Margin/Box/Columns"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(274, 274)
 layout_mode = 2
 size_flags_vertical = 0
 theme_override_constants/h_separation = 6
@@ -64,30 +65,53 @@ columns = 4
 [node name="AchievementsList" type="Label" parent="Center/Frame/Margin/Box/Columns"]
 unique_name_in_owner = true
 visible = false
-custom_minimum_size = Vector2(560, 0)
+custom_minimum_size = Vector2(718, 340)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 
 [node name="Detail" type="VBoxContainer" parent="Center/Frame/Margin/Box/Columns"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(300, 0)
+custom_minimum_size = Vector2(420, 340)
 layout_mode = 2
-theme_override_constants/separation = 9
+theme_override_constants/separation = 5
 
-[node name="SpriteBox" type="Control" parent="Center/Frame/Margin/Box/Columns/Detail"]
-custom_minimum_size = Vector2(0, 64)
+[node name="SpriteBox" type="HBoxContainer" parent="Center/Frame/Margin/Box/Columns/Detail"]
 layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
 
-[node name="Sprite" type="AnimatedSprite2D" parent="Center/Frame/Margin/Box/Columns/Detail/SpriteBox"]
+[node name="PrevButton" type="Button" parent="Center/Frame/Margin/Box/Columns/Detail/SpriteBox"]
 unique_name_in_owner = true
-position = Vector2(150, 32)
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_vertical = 4
+focus_mode = 0
+theme_override_font_sizes/font_size = 24
+text = "<"
+
+[node name="SpriteHolder" type="Control" parent="Center/Frame/Margin/Box/Columns/Detail/SpriteBox"]
+custom_minimum_size = Vector2(40, 64)
+layout_mode = 2
+
+[node name="Sprite" type="AnimatedSprite2D" parent="Center/Frame/Margin/Box/Columns/Detail/SpriteBox/SpriteHolder"]
+unique_name_in_owner = true
+position = Vector2(20, 32)
 scale = Vector2(2, 2)
 
-[node name="TurretIcon" type="Sprite2D" parent="Center/Frame/Margin/Box/Columns/Detail/SpriteBox"]
+[node name="TurretIcon" type="Sprite2D" parent="Center/Frame/Margin/Box/Columns/Detail/SpriteBox/SpriteHolder"]
 unique_name_in_owner = true
 visible = false
-position = Vector2(150, 32)
+position = Vector2(20, 32)
 scale = Vector2(2, 2)
+
+[node name="NextButton" type="Button" parent="Center/Frame/Margin/Box/Columns/Detail/SpriteBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_vertical = 4
+focus_mode = 0
+theme_override_font_sizes/font_size = 24
+text = ">"
 
 [node name="NameLabel" type="Label" parent="Center/Frame/Margin/Box/Columns/Detail"]
 unique_name_in_owner = true
@@ -98,7 +122,7 @@ horizontal_alignment = 1
 
 [node name="DescriptionLabel" type="Label" parent="Center/Frame/Margin/Box/Columns/Detail"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(300, 60)
+custom_minimum_size = Vector2(420, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 autowrap_mode = 3
