@@ -61,7 +61,7 @@ Se cambia en el selector de modelo de la app. Algunos comandos fijan el suyo y l
 | Modelo | Cuándo |
 |---|---|
 | **Haiku** | Preguntas rápidas ("¿dónde se define X?"), renombres o cambios mecánicos. Barato y rápido. |
-| **Sonnet** | Por defecto para `/work` y `/add`: tickets normales de 1-3 archivos (una torre nueva, un ajuste de UI, un enemigo). |
+| **Sonnet** | Por defecto para `/work` y `/add`: tickets normales de 1-3 archivos (una torreta nueva, un ajuste de UI, un enemigo). |
 | **Opus** | Diseñar un sistema nuevo, bugs que Sonnet no saca a la primera, tickets que tocan varios sistemas. |
 
 Regla simple: empieza en Sonnet. Si da vueltas o falla dos veces, sube a Opus. Si es algo mecánico, baja a Haiku. Cada ticket lleva un "Modelo recomendado" y un "Esfuerzo recomendado".

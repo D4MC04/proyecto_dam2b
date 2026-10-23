@@ -1,9 +1,9 @@
-[gd_resource type="Resource" script_class="TowerData" format=3 uid="uid://ccgd0f62u5qog"]
+[gd_resource type="Resource" script_class="TurretData" format=3 uid="uid://ccgd0f62u5qog"]
 
-[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TowerData.gd" id="1"]
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="1"]
 [ext_resource type="Shape2D" path="res://resources/collision_shapes/cryo.tres" id="2"]
 [ext_resource type="Resource" path="res://resources/pulse_data/cryo.tres" id="3"]
-[ext_resource type="Texture2D" uid="uid://cwv4okasjffpt" path="res://assets/sprites/towers/cryo/cryo_full_up.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://cwv4okasjffpt" path="res://assets/sprites/turrets/cryo/cryo_full_up.png" id="4"]
 [ext_resource type="SpriteFrames" uid="uid://div55a8it87po" path="res://resources/sprite_frames/cryo.tres" id="5"]
 [ext_resource type="SpriteFrames" uid="uid://cmw10e08iqwex" path="res://resources/sprite_frames/cryo_cannon.tres" id="7"]
 [ext_resource type="Resource" path="res://resources/turret_data/cryo_fusion.tres" id="fusion"]

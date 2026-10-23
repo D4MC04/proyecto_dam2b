@@ -83,7 +83,7 @@ unique_name_in_owner = true
 position = Vector2(150, 32)
 scale = Vector2(2, 2)
 
-[node name="TowerIcon" type="Sprite2D" parent="Center/Frame/Margin/Box/Columns/Detail/SpriteBox"]
+[node name="TurretIcon" type="Sprite2D" parent="Center/Frame/Margin/Box/Columns/Detail/SpriteBox"]
 unique_name_in_owner = true
 visible = false
 position = Vector2(150, 32)

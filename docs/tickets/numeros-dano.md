@@ -5,7 +5,7 @@ Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 
 ## Por qué
-No se ve cuánto daño hace cada torre.
+No se ve cuánto daño hace cada torreta.
 
 ## Qué hay que hacer
 - Número pequeño que sube y se desvanece al recibir daño una nave (agrupar golpes muy seguidos).

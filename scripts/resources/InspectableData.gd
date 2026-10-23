@@ -1,7 +1,7 @@
 extends Resource
 class_name InspectableData
 ## Contrato común de lo que se puede enseñar en la ficha de la barra izquierda.
-## Lo cumplen TowerData y EnemyData; la ficha solo usa estos métodos.
+## Lo cumplen TurretData y EnemyData; la ficha solo usa estos métodos.
 
 ## Icono grande (hasta 34x34, se enseña a escala 1).
 func get_inspect_icon() -> Texture2D:

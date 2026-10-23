@@ -4,13 +4,13 @@ class_name TutorialHints
 ## juego y cada paso espera a que el jugador haga lo que se pide. Un borde parpadeante señala lo que
 ## hay que pulsar. Al acabarlo o saltarlo se guarda en GameState y no vuelve a salir.
 
-enum Step { PICK_TOWER, PLACE_TOWER, START_WAVE, WAIT_WAVE_END, INSPECT_TOWER, FUSE_INFO, POWERS, DONE }
+enum Step { PICK_TURRET, PLACE_TURRET, START_WAVE, WAIT_WAVE_END, INSPECT_TURRET, FUSE_INFO, POWERS, DONE }
 
 const TEXTS: Dictionary[Step, String] = {
-	Step.PICK_TOWER: "¡Hola, recluta! Los enemigos vienen a por la estación. Elige una torre en la barra de la derecha.",
-	Step.PLACE_TOWER: "Bien. Ahora haz clic en un asteroide con plataforma libre para colocarla.",
+	Step.PICK_TURRET: "¡Hola, recluta! Los enemigos vienen a por la estación. Elige una torreta en la barra de la derecha.",
+	Step.PLACE_TURRET: "Bien. Ahora haz clic en un asteroide con plataforma libre para colocarla.",
 	Step.START_WAVE: "Lista la defensa. Abre la pestaña Oleadas y pulsa Siguiente oleada (o Espacio).",
-	Step.INSPECT_TOWER: "¡Oleada superada! Suelta la torre de la tienda con clic derecho y haz clic en una de las tuyas del mapa para ver su ficha.",
+	Step.INSPECT_TURRET: "¡Oleada superada! Suelta la torreta de la tienda con clic derecho y haz clic en una de las tuyas del mapa para ver su ficha.",
 	Step.FUSE_INFO: "Desde la ficha puedes venderla o, si tiene mejora, pulsar Mejorar para convertirla en una más fuerte.",
 	Step.POWERS: "Tienes dos poderes en la ficha: Q lanza un meteorito y E congela a los enemigos. Prueba uno.",
 	Step.DONE: "¡Eso es! El resto es cosa tuya. Suerte ahí fuera.",
@@ -47,17 +47,17 @@ func _ready() -> void:
 
 ## Empieza el tutorial con el nivel recién montado. Las señales del nivel anterior se van con él.
 func start(state: LevelState, spawner: Spawner, powers: Powers) -> void:
-	state.selected_tower_changed.connect(_on_selected_tower_changed)
-	state.tower_placed.connect(_advance_from.bind(Step.PLACE_TOWER, Step.START_WAVE))
-	state.sellable_tower_changed.connect(func(tower: Tower) -> void:
-		if tower != null:
-			_advance_from(Step.INSPECT_TOWER, Step.FUSE_INFO))
+	state.selected_turret_changed.connect(_on_selected_turret_changed)
+	state.turret_placed.connect(_advance_from.bind(Step.PLACE_TURRET, Step.START_WAVE))
+	state.sellable_turret_changed.connect(func(turret: Turret) -> void:
+		if turret != null:
+			_advance_from(Step.INSPECT_TURRET, Step.FUSE_INFO))
 	spawner.wave_started.connect(_on_wave_started.unbind(2))
 	# bind y unbind se aplican de derecha a izquierda: se quita el argumento de la señal y se añaden los pasos.
-	spawner.wave_cleared.connect(_advance_from.bind(Step.WAIT_WAVE_END, Step.INSPECT_TOWER).unbind(1))
+	spawner.wave_cleared.connect(_advance_from.bind(Step.WAIT_WAVE_END, Step.INSPECT_TURRET).unbind(1))
 	powers.power_used.connect(_advance_from.bind(Step.POWERS, Step.DONE).unbind(1))
 	_set_active(true)
-	_show_step(Step.PICK_TOWER)
+	_show_step(Step.PICK_TURRET)
 
 ## Quita el tutorial sin guardar nada (otro nivel o ya hecho).
 func stop() -> void:
@@ -91,12 +91,12 @@ func _advance_from(from: Step, next: Step) -> void:
 	if _active and _step == from:
 		_show_step(next)
 
-# Elegir torre avanza; soltarla antes de colocarla vuelve a pedirla.
-func _on_selected_tower_changed(data: TowerData) -> void:
+# Elegir torreta avanza; soltarla antes de colocarla vuelve a pedirla.
+func _on_selected_turret_changed(data: TurretData) -> void:
 	if data != null:
-		_advance_from(Step.PICK_TOWER, Step.PLACE_TOWER)
+		_advance_from(Step.PICK_TURRET, Step.PLACE_TURRET)
 	else:
-		_advance_from(Step.PLACE_TOWER, Step.PICK_TOWER)
+		_advance_from(Step.PLACE_TURRET, Step.PICK_TURRET)
 
 # Lanzar la oleada 1 antes de tiempo también vale: el tutorial espera a que acabe.
 func _on_wave_started() -> void:
@@ -122,8 +122,8 @@ func _process(delta: float) -> void:
 # Lo que hay que pulsar en el paso actual; null si no hay nada que señalar.
 func _highlight_target() -> Control:
 	match _step:
-		Step.PICK_TOWER:
-			return sidebar.tower_buttons if sidebar.towers_page.visible else sidebar.towers_tab
+		Step.PICK_TURRET:
+			return sidebar.turret_buttons if sidebar.turrets_page.visible else sidebar.turrets_tab
 		Step.START_WAVE:
 			return sidebar.next_wave_button if sidebar.waves_page.visible else sidebar.waves_tab
 		Step.POWERS:

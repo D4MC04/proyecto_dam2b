@@ -6,7 +6,7 @@
 
 - Raíz `Enemy`: `PathFollow2D` con `rotates = false` y `loop = false`.
 - `AnimatedSprite2D`: el sprite.
-- `Area2D/CollisionShape2D`: la zona que detectan las torres y las balas.
+- `Area2D/CollisionShape2D`: la zona que detectan las torretas y las balas.
 
 El `Spawner` lo añade como hijo de un `Path2D` del mapa y llama a `setup(enemy_data)`, que copia velocidad y vida, asigna `sprite_frames` y `collision_shape`, y mete el nodo en el grupo `enemies`.
 
@@ -52,7 +52,7 @@ Según la dirección del último movimiento sobre su camino (posición local, as
 
 Si `data.cloak_interval > 0`, `setup()` arranca un tween en bucle: visible `cloak_interval` s y camuflado `cloak_time` s (el Espectro: 4 y 2). Al camuflarse pone `cloaked = true` y el sprite se disuelve en 0,3 s (`CLOAK_DISSOLVE_TIME`) con `resources/shaders/cloak_dissolve.gdshader`, un `ShaderMaterial` propio de cada Espectro: píxel a píxel de la punta a la cola, en franjas de interferencia (las filas pares van algo por detrás) y con un borde morado `#aa78ff` que avanza; los píxeles disueltos quedan al 20 % (`CLOAK_ALPHA`). La barra de vida baja al 20 % a la vez. Al reaparecer, la misma animación al revés. Todo va sobre la rejilla de píxeles de la textura, sin antialiasing, y no toca el `modulate` del sprite (destello y tinte de ralentización siguen igual).
 
-Mientras está camuflado las torres no lo eligen: `Tower._best_enemy()` lo salta y `_get_target()` suelta al objetivo que se camufla. Los ataques de área sí le dan: la onda del Cryo (sale aunque en rango solo haya naves camufladas), el meteorito, el haz del Rail, la explosión del Cañón pesado y los saltos del rayo Tesla.
+Mientras está camuflado las torretas no lo eligen: `Turret._best_enemy()` lo salta y `_get_target()` suelta al objetivo que se camufla. Los ataques de área sí le dan: la onda del Cryo (sale aunque en rango solo haya naves camufladas), el meteorito, el haz del Rail, la explosión del Cañón pesado y los saltos del rayo Tesla.
 
 El sprite (`assets/sprites/enemies/espectro/espectro_0` a `_2`, 32x32, mirando hacia arriba, `rotate_sprite = true`) lo genera `scripts/tools/make_espectro.gd` (`godot --headless --path . -s scripts/tools/make_espectro.gd`): caza furtivo en forma de manta raya que ocupa los 32 px de ancho: alas anchas en flecha con costuras de panel, dos aletas delanteras, cabina pequeña, dos motores grises con llama y luces tenues (rojas en la punta de las alas, violeta en las alas); morado oscuro y casi negro, con la mitad derecha en sombra. Los frames cambian las llamas y la luz violeta. Usa la colisión de la Nave agresiva (radio 12). Sale en las tres oleadas del nivel 7.
 
@@ -93,14 +93,14 @@ Sprites: `assets/sprites/enemies/divisora/` (`divisora_0..2.png` de 32x32, `divi
   - Es inestable y va a más con la carga: late cada vez más rápido (de 12 a 60 rad/s), cambia de tamaño a tirones (medios píxeles y saltos de 1 px), vibra 1 px y chispea con píxeles blancos, morados `#aa78ff` y rojizos `#f0323c`.
   - Suelta hasta 4 rayos de 1 px en zigzag desde su borde hacia fuera, en `#78bcff` y `#e6f6ff`, cada vez más largos (de 3 a 12 px) y frecuentes.
   - En los últimos 0,3 s la nave tiembla 1 px (posición del sprite) y va al 25 % de su velocidad.
-  - Al acabar, la nave recupera velocidad, da un destello (`flash()`) y `EmpWave.spawn(enemy)` crea en el padre de la nave (el camino, así que no la sigue) un destello blanco de 12 px durante 0,08 s y un anillo de 4 px de grueso (`RING_COLORS`, de fuera a dentro: `#e6f6ff`, dos de `#78bcff` y estela `#2a6ae6`) que sale de golpe hasta `emp_radius` (96 px, 6 casillas: el anillo llega justo hasta ese radio) en 0,3 s, rápido al principio y frenando al final, y se desvanece en 0,2 s. Cada torre del grupo `towers` por la que pasa el borde recibe `Tower.disable(emp_disable_time)` (3 s; ver [torres.md](torres.md)) una sola vez por pulso.
+  - Al acabar, la nave recupera velocidad, da un destello (`flash()`) y `EmpWave.spawn(enemy)` crea en el padre de la nave (el camino, así que no la sigue) un destello blanco de 12 px durante 0,08 s y un anillo de 4 px de grueso (`RING_COLORS`, de fuera a dentro: `#e6f6ff`, dos de `#78bcff` y estela `#2a6ae6`) que sale de golpe hasta `emp_radius` (96 px, 6 casillas: el anillo llega justo hasta ese radio) en 0,3 s, rápido al principio y frenando al final, y se desvanece en 0,2 s. Cada torreta del grupo `turrets` por la que pasa el borde recibe `Turret.disable(emp_disable_time)` (3 s; ver [torretas.md](torretas.md)) una sola vez por pulso.
 - Sprite: `assets/sprites/enemies/saboteadora/saboteadora_0` a `_2.png` (32x32, mirando hacia arriba, `rotate_sprite = true`), generados por `scripts/tools/make_saboteadora.gd` (`godot --headless --path . -s scripts/tools/make_saboteadora.gd`) a partir de una cuadrícula de texto con la mitad izquierda. Casco gris de enemigo, dos antenas delante, dos bobinas laterales con anillos azul eléctrico (`#16307a`, `#2a6ae6`, `#78bcff`, `#e6f6ff`), núcleo redondo en el centro y dos motores rojos. En los 3 frames laten el núcleo, las chispas de las antenas y las llamas.
 
 ### Efectos visuales
 
 - `flash()`: destello de golpe de 0,15 s; vuelve al color normal o al tinte de ralentización.
 - `effect_scale()`: tamaño mayor del frame dividido entre 32. Lo usan los ataques para escalar los efectos de 32 px al tamaño del enemigo.
-- Al morir (no al llegar a la estación), `die()` lanza `FloatingText.spawn(get_parent(), global_position, "+" + UiFormat.money(reward))` (`scripts/entities/FloatingText.gd`, estática, sin escena): un `Label` con la fuente Monogram a 16 px, sin suavizado, dorado `#ffe082` y `z_index` 10, centrado en la posición global del enemigo (el tamaño del texto se mide con `Font.get_string_size`, no con el `Label`), que sube 12 px, se desvanece en 0,6 s y se libera. Cuelga del padre y su tween sigue el `time_scale` del juego. También lo usa la venta de torres.
+- Al morir (no al llegar a la estación), `die()` lanza `FloatingText.spawn(get_parent(), global_position, "+" + UiFormat.money(reward))` (`scripts/entities/FloatingText.gd`, estática, sin escena): un `Label` con la fuente Monogram a 16 px, sin suavizado, dorado `#ffe082` y `z_index` 10, centrado en la posición global del enemigo (el tamaño del texto se mide con `Font.get_string_size`, no con el `Label`), que sube 12 px, se desvanece en 0,6 s y se libera. Cuelga del padre y su tween sigue el `time_scale` del juego. También lo usa la venta de torretas.
 - Al morir, `die()` también lanza `Debris.spawn()` (`scripts/entities/Debris.gd`, `Node2D` que cuelga del padre y se libera solo; sigue el `time_scale`): un destello blanco de 16 px en el primer frame, un anillo de humo gris (`draw_arc`) que crece y se desvanece, y 5-8 trozos cuadrados de 2-3 px con colores sacados del frame actual del sprite. Salen en direcciones al azar a 50-130 px/s, giran, frenan y se desvanecen en 0,5 s. Con `effect_scale()` mayor que 1 (naves grandes) salen más trozos, más grandes y más lejos, y el destello y el anillo crecen. No sale al llegar a la estación.
 - Barra de vida (`scripts/entities/HealthBar.gd`, hija del enemigo creada en `setup()`): `draw_rect` sin suavizado encima del sprite, del ancho del frame (`effect_scale() * 32`), 2 px de alto con contorno negro y fondo `#14060a`. Relleno verde, ámbar `#ecb23c` por debajo del 50 % y rojo `#f0323c` por debajo del 25 %. Oculta con la vida llena; `take_damage()` la actualiza. No gira (el `PathFollow2D` tiene `rotates = false`; solo gira el sprite).
 
@@ -118,5 +118,5 @@ Sprites: `assets/sprites/enemies/divisora/` (`divisora_0..2.png` de 32x32, `divi
 
 - Señales `died(reward)` y `reached_end(damage)`: las recoge `Spawner` y las reenvía a `Level` (dinero y derrota).
 - Grupo `enemies`: lo consultan `Beam` y `Chain` para buscar objetivos.
-- Las torres lo detectan por el `Area2D` y leen `get_remaining_distance()` (longitud del camino - `progress`), `hp` y `global_position`.
+- Las torretas lo detectan por el `Area2D` y leen `get_remaining_distance()` (longitud del camino - `progress`), `hp` y `global_position`.
 - `FocusBeam` modifica directamente `sprite.modulate` y llama a `_rest_color()`.

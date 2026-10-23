@@ -26,7 +26,7 @@ var _confirm_id: int = 0
 	&"fullscreen": %FullscreenButton,
 	&"vsync": %VsyncButton,
 	&"show_fps": %FpsButton,
-	&"show_tower_range": %TowerRangeButton,
+	&"show_turret_range": %TurretRangeButton,
 }
 
 func _ready() -> void:

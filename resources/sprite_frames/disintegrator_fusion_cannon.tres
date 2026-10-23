@@ -1,9 +1,9 @@
 [gd_resource type="SpriteFrames" format=3 uid="uid://bby2sj1lbl17h"]
 
-[ext_resource type="Texture2D" uid="uid://bphywk7k5vv4u" path="res://assets/sprites/towers/disintegrator_fusion/disint_cannon_idle_sheet.png" id="1"]
-[ext_resource type="Texture2D" uid="uid://dxroc7mwcdeo6" path="res://assets/sprites/towers/disintegrator_fusion/disint_cannon_fire_l1_sheet.png" id="2"]
-[ext_resource type="Texture2D" uid="uid://c7wm5ansivfmi" path="res://assets/sprites/towers/disintegrator_fusion/disint_cannon_fire_l2_sheet.png" id="3"]
-[ext_resource type="Texture2D" uid="uid://bmjwuusajcsjs" path="res://assets/sprites/towers/disintegrator_fusion/disint_cannon_fire_l3_sheet.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://bphywk7k5vv4u" path="res://assets/sprites/turrets/disintegrator_fusion/disint_cannon_idle_sheet.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://dxroc7mwcdeo6" path="res://assets/sprites/turrets/disintegrator_fusion/disint_cannon_fire_l1_sheet.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://c7wm5ansivfmi" path="res://assets/sprites/turrets/disintegrator_fusion/disint_cannon_fire_l2_sheet.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://bmjwuusajcsjs" path="res://assets/sprites/turrets/disintegrator_fusion/disint_cannon_fire_l3_sheet.png" id="4"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0"]
 atlas = ExtResource("1")

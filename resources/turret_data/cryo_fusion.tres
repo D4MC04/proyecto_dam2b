@@ -1,9 +1,9 @@
-[gd_resource type="Resource" script_class="TowerData" format=3]
+[gd_resource type="Resource" script_class="TurretData" format=3]
 
-[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TowerData.gd" id="1"]
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="1"]
 [ext_resource type="Shape2D" path="res://resources/collision_shapes/cryo_fusion.tres" id="2"]
 [ext_resource type="Resource" path="res://resources/pulse_data/cryo_fusion.tres" id="3"]
-[ext_resource type="Texture2D" path="res://assets/sprites/towers/cryo_fusion/cryo_full_up.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/turrets/cryo_fusion/cryo_full_up.png" id="4"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/cryo_fusion.tres" id="5"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/cryo_fusion_cannon.tres" id="7"]
 [ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Cryo/IceShoot.wav" id="snd"]

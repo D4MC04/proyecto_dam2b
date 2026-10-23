@@ -3,7 +3,7 @@
 [ext_resource type="Texture2D" uid="uid://batdeutfwq307" path="res://assets/tilesets/espacio/espacio_rocas.png" id="1_ojfck"]
 [ext_resource type="Texture2D" uid="uid://0ppdt08dl6a1" path="res://assets/tilesets/espacio/espacio_animados.png" id="3_1utaq"]
 [ext_resource type="Texture2D" uid="uid://cfjxe2s6w2rqr" path="res://assets/tilesets/espacio/espacio_gravilla.png" id="4_gravel"]
-[ext_resource type="Texture2D" uid="uid://ge8cbc5gqsuq" path="res://assets/tilesets/espacio/espacio_casillas_torre.png" id="5_tower_slots"]
+[ext_resource type="Texture2D" uid="uid://ge8cbc5gqsuq" path="res://assets/tilesets/espacio/espacio_casillas_torreta.png" id="5_turret_slots"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_vbt0s"]
 resource_name = "Rocas y chatarra"
@@ -541,9 +541,9 @@ texture = ExtResource("4_gravel")
 6:2/0 = 0
 7:2/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_tower_slots"]
-resource_name = "Asteroides con plataforma (casillas de torre)"
-texture = ExtResource("5_tower_slots")
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_turret_slots"]
+resource_name = "Asteroides con plataforma (casillas de torreta)"
+texture = ExtResource("5_turret_slots")
 0:0/size_in_atlas = Vector2i(2, 2)
 0:0/0 = 0
 2:0/size_in_atlas = Vector2i(2, 2)
@@ -605,4 +605,4 @@ texture = ExtResource("5_tower_slots")
 sources/0 = SubResource("TileSetAtlasSource_vbt0s")
 sources/2 = SubResource("TileSetAtlasSource_r5kmk")
 sources/3 = SubResource("TileSetAtlasSource_gravel")
-sources/4 = SubResource("TileSetAtlasSource_tower_slots")
+sources/4 = SubResource("TileSetAtlasSource_turret_slots")

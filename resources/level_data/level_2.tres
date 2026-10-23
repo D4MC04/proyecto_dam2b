@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://c216ua6g8ynhl" path="res://scenes/maps/levels/Level2.tscn" id="1_wvv31"]
 [ext_resource type="Script" uid="uid://du40p5btlpgd0" path="res://scripts/resources/LevelData.gd" id="2_s45o5"]
-[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TowerData.gd" id="3_k4sjs"]
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="3_k4sjs"]
 [ext_resource type="Resource" uid="uid://cnbuncwscbxtt" path="res://resources/turret_data/turret.tres" id="4_wvv31"]
 [ext_resource type="Resource" uid="uid://bh8qdvmr3kaj" path="res://resources/turret_data/rocket_launcher.tres" id="5_s45o5"]
 [ext_resource type="Resource" uid="uid://bi8dmx532elhj" path="res://resources/turret_data/laser.tres" id="6_k4sjs"]
@@ -18,6 +18,6 @@
 [resource]
 script = ExtResource("2_s45o5")
 map = ExtResource("1_wvv31")
-towers = Array[ExtResource("3_k4sjs")]([ExtResource("4_wvv31"), ExtResource("5_s45o5"), ExtResource("6_k4sjs"), ExtResource("cryo")])
+turrets = Array[ExtResource("3_k4sjs")]([ExtResource("4_wvv31"), ExtResource("5_s45o5"), ExtResource("6_k4sjs"), ExtResource("cryo")])
 waves = Array[ExtResource("7_q5l4p")]([ExtResource("8_wvv31"), ExtResource("wave_2_2"), ExtResource("wave_2_3"), ExtResource("12_q5l4p"), ExtResource("13_iyd5v"), ExtResource("14_758qn")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"

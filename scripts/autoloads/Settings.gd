@@ -14,6 +14,11 @@ const VOLUME_BUSES: Dictionary[StringName, StringName] = {
 	&"sfx_volume": &"SFX",
 }
 
+# Opción -> nombre que tenía en versiones anteriores del archivo de opciones.
+const LEGACY_KEYS: Dictionary[StringName, StringName] = {
+	&"show_turret_range": &"show_tower_range",
+}
+
 # Valores por defecto; los volúmenes son lineales, de 0 a 1.
 var _values: Dictionary[StringName, Variant] = {
 	&"master_volume": 1.0,
@@ -23,15 +28,17 @@ var _values: Dictionary[StringName, Variant] = {
 	&"fullscreen": false,
 	&"vsync": true,
 	&"show_fps": false,
-	&"show_tower_range": false,
+	&"show_turret_range": false,
 }
 
 func _ready() -> void:
 	var file := ConfigFile.new()
 	if file.load(PATH) == OK:
 		for key in _values:
+			# Si el archivo trae la clave con el nombre antiguo, se lee una vez para no perder el valor.
+			var fallback: Variant = file.get_value(SECTION, LEGACY_KEYS.get(key, key), _values[key])
 			# El archivo lo puede editar cualquiera: solo se aceptan valores del tipo esperado.
-			var value: Variant = file.get_value(SECTION, key, _values[key])
+			var value: Variant = file.get_value(SECTION, key, fallback)
 			if typeof(value) == typeof(_values[key]):
 				_values[key] = value
 	for key in _values:

@@ -1,6 +1,6 @@
 class_name Navedex
 extends Control
-## Archivo del menú con pestañas Naves y Torres: cuadrícula con todos y detalle del elegido.
+## Archivo del menú con pestañas Naves y Torretas: cuadrícula con todos y detalle del elegido.
 ## Los que aún no han salido en una partida se ven en silueta y con "???".
 
 signal back_pressed
@@ -12,9 +12,9 @@ const ENEMY_FILES: Array[String] = [
 	"espectro", "divisora", "fragmento_divisora_central",
 	"saboteadora",
 ]
-const TOWER_DIR := "res://resources/turret_data/"
-# Cada torre base va seguida de su fusión.
-const TOWER_FILES: Array[String] = [
+const TURRET_DIR := "res://resources/turret_data/"
+# Cada torreta base va seguida de su fusión.
+const TURRET_FILES: Array[String] = [
 	"turret", "turret_fusion", "laser", "laser_fusion", "rocket_launcher", "rocket_launcher_fusion",
 	"cryo", "cryo_fusion", "disintegrator", "disintegrator_fusion", "rail", "rail_fusion",
 	"tesla", "tesla_fusion",
@@ -27,7 +27,7 @@ const UNKNOWN_TEXT := "???"
 @onready var grid: GridContainer = %Grid
 @onready var tabs: TabBar = %Tabs
 @onready var sprite: AnimatedSprite2D = %Sprite
-@onready var tower_icon: Sprite2D = %TowerIcon
+@onready var turret_icon: Sprite2D = %TurretIcon
 @onready var fusion_label: Label = %FusionLabel
 @onready var name_label: Label = %NameLabel
 @onready var description_label: Label = %DescriptionLabel
@@ -40,14 +40,14 @@ var _cells: Dictionary[InspectableData, EnemyCell] = {}
 func _ready() -> void:
 	%VolverButton.pressed.connect(back_pressed.emit)
 	tabs.add_tab("NAVES")
-	tabs.add_tab("TORRES")
+	tabs.add_tab("TORRETAS")
 	tabs.add_tab("LOGROS")
 	tabs.tab_changed.connect(_build_grid)
 	_build_grid(TAB_ENEMIES)
 	visibility_changed.connect(_on_visibility_changed)
 	_on_visibility_changed()
 
-# Rellena la cuadrícula con las naves o las torres según la pestaña.
+# Rellena la cuadrícula con las naves o las torretas según la pestaña.
 func _build_grid(tab: int) -> void:
 	var achievements := tab == TAB_ACHIEVEMENTS
 	grid.visible = not achievements
@@ -61,8 +61,8 @@ func _build_grid(tab: int) -> void:
 		cell.queue_free()
 	_cells.clear()
 	var enemies := tab == TAB_ENEMIES
-	for file in (ENEMY_FILES if enemies else TOWER_FILES):
-		var data := load((ENEMY_DIR if enemies else TOWER_DIR) + file + ".tres") as InspectableData
+	for file in (ENEMY_FILES if enemies else TURRET_FILES):
+		var data := load((ENEMY_DIR if enemies else TURRET_DIR) + file + ".tres") as InspectableData
 		var cell: EnemyCell = CELL_SCENE.instantiate()
 		grid.add_child(cell)
 		cell.setup(data, 0)
@@ -84,7 +84,7 @@ func _on_visibility_changed() -> void:
 		_cells[data].icon_rect.modulate = Color.WHITE if _is_known(data) else Color.BLACK
 	_show_detail(_cells.keys()[0])
 
-# Las torres siempre se conocen; las naves, solo si ya han salido en una partida.
+# Las torretas siempre se conocen; las naves, solo si ya han salido en una partida.
 func _is_known(data: InspectableData) -> bool:
 	var enemy := data as EnemyData
 	return enemy == null or GameState.has_seen_enemy(enemy)
@@ -99,14 +99,14 @@ func _show_achievements() -> void:
 
 func _show_detail(data: InspectableData) -> void:
 	var seen := _is_known(data)
-	var tower := data as TowerData
-	sprite.visible = tower == null
-	tower_icon.visible = tower != null
-	fusion_label.visible = tower != null and tower.fusion != null
-	if tower != null:
-		tower_icon.texture = tower.icon
-		if tower.fusion != null:
-			fusion_label.text = "MEJORA: " + tower.fusion.name.to_upper()
+	var turret := data as TurretData
+	sprite.visible = turret == null
+	turret_icon.visible = turret != null
+	fusion_label.visible = turret != null and turret.fusion != null
+	if turret != null:
+		turret_icon.texture = turret.icon
+		if turret.fusion != null:
+			fusion_label.text = "MEJORA: " + turret.fusion.name.to_upper()
 	else:
 		var enemy := data as EnemyData
 		sprite.sprite_frames = enemy.sprite_frames

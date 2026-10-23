@@ -1,11 +1,11 @@
 [gd_resource type="SpriteFrames" format=3 uid="uid://bgg5hlu3qnu68"]
 
-[ext_resource type="Texture2D" uid="uid://dltxj4b3yk1cq" path="res://assets/sprites/towers/turret2_fusion/t2_impact_0.png" id="1"]
-[ext_resource type="Texture2D" uid="uid://bokb42sn10owv" path="res://assets/sprites/towers/turret2_fusion/t2_impact_1.png" id="2"]
-[ext_resource type="Texture2D" uid="uid://d16wdb75gip3i" path="res://assets/sprites/towers/turret2_fusion/t2_impact_2.png" id="3"]
-[ext_resource type="Texture2D" uid="uid://crlyrq3xt01dr" path="res://assets/sprites/towers/turret2_fusion/t2_impact_3.png" id="4"]
-[ext_resource type="Texture2D" uid="uid://bgq0h1uh2spm8" path="res://assets/sprites/towers/turret2_fusion/t2_impact_4.png" id="5"]
-[ext_resource type="Texture2D" uid="uid://y8js3vgnow7l" path="res://assets/sprites/towers/turret2_fusion/t2_impact_5.png" id="6"]
+[ext_resource type="Texture2D" uid="uid://dltxj4b3yk1cq" path="res://assets/sprites/turrets/turret2_fusion/t2_impact_0.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://bokb42sn10owv" path="res://assets/sprites/turrets/turret2_fusion/t2_impact_1.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://d16wdb75gip3i" path="res://assets/sprites/turrets/turret2_fusion/t2_impact_2.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://crlyrq3xt01dr" path="res://assets/sprites/turrets/turret2_fusion/t2_impact_3.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://bgq0h1uh2spm8" path="res://assets/sprites/turrets/turret2_fusion/t2_impact_4.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://y8js3vgnow7l" path="res://assets/sprites/turrets/turret2_fusion/t2_impact_5.png" id="6"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0"]
 atlas = ExtResource("1")

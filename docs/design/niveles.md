@@ -6,17 +6,17 @@
 
 | Nodo | Script | Función |
 |---|---|---|
-| `LevelState` | `scripts/level/LevelState.gd` | Dinero, torre seleccionada, lo inspeccionado en la ficha y los contadores de la partida |
+| `LevelState` | `scripts/level/LevelState.gd` | Dinero, torreta seleccionada, lo inspeccionado en la ficha y los contadores de la partida |
 | `Grid` | `scripts/level/Grid.gd` | Qué casillas son camino o hueco y cuáles están ocupadas |
 | `Spawner` | `scripts/level/Spawner.gd` | Lanza las oleadas, crea sus enemigos y cuenta los vivos |
-| `BuildManager` | `scripts/level/BuildManager.gd` | Coloca torres; ver [torres.md](torres.md) |
+| `BuildManager` | `scripts/level/BuildManager.gd` | Coloca torretas; ver [torretas.md](torretas.md) |
 | `Powers` | `scripts/level/Powers.gd` | Poderes del jugador (meteorito, congelar y ataque orbital); ver "Poderes" |
 
 `Level.setup(data: LevelData)`:
 
 1. Instancia `data.map`, lo llama `Map` y lo pone como primer hijo.
 2. `_center_map()`: centra el mapa en el área de juego, en horizontal y en vertical (ver "Centrado del mapa").
-3. Guarda `data.towers` en `towers`.
+3. Guarda `data.turrets` en `turrets`.
 4. `grid.setup(map.logic_map)`.
 5. `spawner.setup(map.get_paths(), data.waves)`.
 6. Guarda en `base` el nodo `SpaceStation` del mapa, conecta `spawner.enemy_reached_end` a `base.take_damage` (el daño lo trae la señal, de `EnemyData.base_damage`) y `base.destroyed` a `_lose`.
@@ -34,11 +34,11 @@ Un nivel acaba una sola vez: `_lose` y `_win` comparten la marca `_finished` y, 
 
 Detrás del mapa, `Level.tscn` tiene dos nodos de decoración con los scripts del menú: `Comets` y `Satellites` (z_index -1, para que queden por debajo de `Map` y de las barras). Están en x = 128 con `area_size` 704x540, o sea solo cruzan el área de juego. Son menos frecuentes que en el menú: cometas cada 8 a 16 s (`wait_min`/`wait_max`) y satélites con 30 a 60 s entre uno y otro (`gap_min`/`gap_max`). Sobre los mapas de espacio el fondo `SpaceBackground` los tapa.
 
-Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de la UI: `BuildManager` no coloca torres ni enseña la vista previa (ver [torres.md](torres.md)). Durante la cámara lenta de la derrota y el respiro de la victoria el juego sigue corriendo. Durante la cámara lenta los enemigos siguen moviéndose y las torres disparando; los que mueran aún cuentan y dan dinero, pero el resultado no cambia.
+Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de la UI: `BuildManager` no coloca torretas ni enseña la vista previa (ver [torretas.md](torretas.md)). Durante la cámara lenta de la derrota y el respiro de la victoria el juego sigue corriendo. Durante la cámara lenta los enemigos siguen moviéndose y las torretas disparando; los que mueran aún cuentan y dan dinero, pero el resultado no cambia.
 
 `get_run_stats() -> RunStats` construye el resumen de la partida: oleada alcanzada (`spawner.get_wave_index() + 1`, 0 si no se lanzó ninguna), total de oleadas (`spawner.waves.size()`), enemigos destruidos y dinero gastado (de `LevelState`). Lo usa `Game` al perder.
 
-**`RunStats`** (`scripts/level/RunStats.gd`, `RefCounted`): objeto de datos con `wave_reached`, `wave_total`, `enemies_destroyed` y `money_spent`, todos `int`, más `top_tower_name` y `top_tower_kills` (la torre con más bajas, vivas y vendidas; vacío/0 si ninguna mató). Se crea con `RunStats.new(reached, total, destroyed, spent)`. Lo pinta `RunSummary` (ver [ui.md](ui.md)).
+**`RunStats`** (`scripts/level/RunStats.gd`, `RefCounted`): objeto de datos con `wave_reached`, `wave_total`, `enemies_destroyed` y `money_spent`, todos `int`, más `top_turret_name` y `top_turret_kills` (la torreta con más bajas, vivas y vendidas; vacío/0 si ninguna mató). Se crea con `RunStats.new(reached, total, destroyed, spent)`. Lo pinta `RunSummary` (ver [ui.md](ui.md)).
 
 ## Poderes
 
@@ -50,8 +50,8 @@ Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de l
 | `FREEZE` | E | Todos los enemigos vivos a `FREEZE_FACTOR` (30 %) de velocidad durante `FREEZE_TIME` (4 s), con `Enemy.slow` y la escarcha del Cryo (`cryo_frost.tres`) | 60 s |
 | `ORBITAL` | R | Modo apuntar (una franja horizontal sigue al cursor); al hacer clic, un rayo vertical recorre esa fila de izquierda a derecha de `GAME_AREA_RECT` en `ORBITAL_TIME` (2 s) y daña `ORBITAL_DPS` (400/s) a los enemigos vivos a `ORBITAL_HALF_WIDTH` (6 px) en x y `ORBITAL_HALF_HEIGHT` (16 px) en y de él | 75 s |
 
-- `use(power)`: si el poder no está listo no hace nada. Meteorito y ataque orbital: si ya se apuntaba ese poder, cancela; si no, suelta la torre seleccionada (`state.selected_tower = null`) y entra en modo apuntar. Congelar se lanza ya.
-- **Apuntado:** pinta en `_draw` un círculo del radio del área en el cursor (relleno ámbar al 15 % y borde de 1 px `#ecb23c`, sin antialiasing). En `_unhandled_input`, clic izquierdo lanza el meteorito ahí y clic derecho cancela; los dos marcan el evento como gestionado. Mientras se apunta, `BuildManager` ignora la entrada (su `powers`, asignado en la escena), así que no coloca ni selecciona torres. Elegir torre (`selected_tower_changed` con una torre) cancela el apuntado. `cancel_aiming()` lo quita.
+- `use(power)`: si el poder no está listo no hace nada. Meteorito y ataque orbital: si ya se apuntaba ese poder, cancela; si no, suelta la torreta seleccionada (`state.selected_turret = null`) y entra en modo apuntar. Congelar se lanza ya.
+- **Apuntado:** pinta en `_draw` un círculo del radio del área en el cursor (relleno ámbar al 15 % y borde de 1 px `#ecb23c`, sin antialiasing). En `_unhandled_input`, clic izquierdo lanza el meteorito ahí y clic derecho cancela; los dos marcan el evento como gestionado. Mientras se apunta, `BuildManager` ignora la entrada (su `powers`, asignado en la escena), así que no coloca ni selecciona torretas. Elegir torreta (`selected_turret_changed` con una torreta) cancela el apuntado. `cancel_aiming()` lo quita.
 - **Ataque orbital:** la recarga empieza al hacer clic. El rayo es un zigzag cian con núcleo blanco y destello (`_draw_bolt`, se re-sortea cada frame para que parpadee) que cae desde arriba en `ORBITAL_FALL_TIME` (0,15 s; hasta entonces no daña) y luego barre. Mientras dura, el mapa tiembla con `Level.shake_map(ORBITAL_SHAKE_DAMAGE)` cada `ORBITAL_SHAKE_INTERVAL` (0,15 s). Se mueve en `_process`, así que sigue la velocidad del juego y la pausa. `get_aimed_power()` da el poder apuntado (-1 si ninguno); `PowerButton` lo usa para el ámbar.
 - **Meteorito:** la recarga empieza al hacer clic. El cometa del fondo (`cometa.png`) cae en `METEOR_FALL_TIME` (0,3 s) desde `METEOR_FALL_OFFSET` (-90, -150) respecto al punto; al llegar, explosión del lanzacohetes (`rocket_launcher_impact.tres`) a ×3 y `RocketExplosion.wav` (bus SFX), y el daño a los enemigos del área con `hp > 0`.
 
@@ -62,18 +62,18 @@ Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de l
 - `spend_money(amount)` devuelve `false` si no alcanza; si alcanza resta, suma `amount` a `money_spent`, emite `money_changed` y devuelve `true`.
 - `PERFECT_WAVE_BONUS` (25): premio por limpiar una oleada sin que llegue ningún enemigo a la estación. Lo aplica `Level._on_wave_cleared` (ver "Escena Level").
 - Contadores de la partida: `enemies_destroyed` y `money_spent`, que empiezan en 0. `register_enemy_destroyed(reward)` suma 1 a `enemies_destroyed` y llama a `add_money(reward)`. No hace falta reiniciarlos: al reiniciar se crea un `LevelState` nuevo.
-- `selected_tower: TowerData` es la torre que se colocará al hacer clic y la única fuente de la selección. Su setter emite `selected_tower_changed(data)` solo si el valor cambia. Lo escribe `LevelUI` cuando la barra lateral lo pide y `BuildManager` (a `null`) al cancelar con clic derecho.
-- `inspected: Resource` es lo que enseña la ficha (de momento un `TowerData`; es `Resource` para que valga también para enemigos) y la única fuente de lo inspeccionado. Su setter emite `inspected_changed(data)` solo si el valor cambia. Empieza en null y solo lo escribe `LevelUI`; deseleccionar no lo toca. Al reiniciar se crea un `LevelState` nuevo, así que vuelve a null.
+- `selected_turret: TurretData` es la torreta que se colocará al hacer clic y la única fuente de la selección. Su setter emite `selected_turret_changed(data)` solo si el valor cambia. Lo escribe `LevelUI` cuando la barra lateral lo pide y `BuildManager` (a `null`) al cancelar con clic derecho.
+- `inspected: Resource` es lo que enseña la ficha (de momento un `TurretData`; es `Resource` para que valga también para enemigos) y la única fuente de lo inspeccionado. Su setter emite `inspected_changed(data)` solo si el valor cambia. Empieza en null y solo lo escribe `LevelUI`; deseleccionar no lo toca. Al reiniciar se crea un `LevelState` nuevo, así que vuelve a null.
 
 ## Datos de nivel
 
-- `LevelData` (`scripts/resources/LevelData.gd`): `map: PackedScene`, `towers: Array[TowerData]`, `waves: Array[WaveData]`.
+- `LevelData` (`scripts/resources/LevelData.gd`): `map: PackedScene`, `turrets: Array[TurretData]`, `waves: Array[WaveData]`.
 - `WaveData`: `entries: Array[SpawnEntry]` y `health_multiplier: float` (1.0 por defecto; multiplica la vida máxima de todos los enemigos de la oleada, también los trozos de la Divisora; la recompensa no cambia).
 - `SpawnEntry`: `enemy_data: EnemyData`, `time: float` (segundos desde el inicio de la oleada), `path_index: int`.
 
 Niveles registrados en `GameData.levels`:
 
-| Nivel | Mapa | Torres disponibles | Oleadas | Naves por oleada (1.ª → última) | Naves nuevas (protagonistas) | Caminos |
+| Nivel | Mapa | Torretas disponibles | Oleadas | Naves por oleada (1.ª → última) | Naves nuevas (protagonistas) | Caminos |
 |---|---|---|---|---|---|---|
 | 1 | `maps/levels/Level1.tscn` | Cañón doble, Cañón pesado, Láser | 5 | 7 → 13 | Darts y Wasp | 1 |
 | 2 | `maps/levels/Level2.tscn` | las anteriores + Cryo | 6 | 10 → 21 | Nave normal y UFO | 2 |
@@ -170,7 +170,7 @@ Base: `scenes/maps/Map.tscn` + `scripts/level/Map.gd` (clase `Map`). Nodos:
 
 El área de juego va de x = 128 a x = 832 y de y = 0 a y = 540 (ver [ui.md](ui.md)), con centro en `Level.GAME_AREA_CENTER` = (480, 270). `Level._center_map()` suma a `map.position` la distancia, redondeada a píxeles enteros en los dos ejes, entre ese centro y el centro del rectángulo útil (contando la posición propia de `Map`). Ningún `.tscn` de mapa lleva posiciones de centrado: un mapa nuevo se centra solo, y al reiniciar el nivel se vuelve a centrar.
 
-`Grid`, `BuildManager` y los enemigos no necesitan saberlo: `Grid` convierte con `to_local`/`to_global` de `LogicMap`, las torres y la vista previa se colocan con `grid.center` y los enemigos son hijos de los `Path2D` del mapa.
+`Grid`, `BuildManager` y los enemigos no necesitan saberlo: `Grid` convierte con `to_local`/`to_global` de `LogicMap`, las torretas y la vista previa se colocan con `grid.center` y los enemigos son hijos de los `Path2D` del mapa.
 
 Todos los mapas de nivel miden 43x33 casillas (688x528 px), así que todos quedan igual: `Map` en (136, 6) y rectángulo útil de x = 136 a 824 y de y = 6 a 534. Sobran 8 px a cada lado y 6 px arriba y abajo, que cubre la decoración del margen (ver abajo).
 
@@ -185,8 +185,8 @@ Los 9 mapas están en `scenes/maps/levels/` (`Level1.tscn` a `Level9.tscn`). Los
 | `Gravel` | Gravilla y estrellas que parpadean en todo el campo; nada en el pasillo |
 | `Lights` | Luces del centro del pasillo en los tramos rectos |
 | `VisualMap` | Rocas, chatarra, piezas especiales y balizas |
-| `TowerSlots` | Los asteroides con plataforma de las casillas de torre |
-| `LogicMap` | `visible = false`; cubre las 43x33 casillas: camino (`path`), hueco de torre (`slot`) o decorado (`scenery`) |
+| `TurretSlots` | Los asteroides con plataforma de las casillas de torreta |
+| `LogicMap` | `visible = false`; cubre las 43x33 casillas: camino (`path`), hueco de torreta (`slot`) o decorado (`scenery`) |
 
 | Nivel | Idea | Estación (casilla del centro) | Caminos | Rocas (`rocks`) |
 |---|---|---|---|---|
@@ -200,7 +200,7 @@ Los 9 mapas están en `scenes/maps/levels/` (`Level1.tscn` a `Level9.tscn`). Los
 | 8 | Dos entradas arriba que se parten en un atajo y una vuelta larga, con caminos simétricos | abajo centro (21, 28) | 4 | dark, lava, crystal |
 | 9 | Una entrada en cada esquina partida en dos rutas, con caminos simétricos en los dos ejes | centro (21, 16) | 8 | dark, crystal, lava, ice |
 
-En los niveles 4, 8 y 9 los caminos y las casillas de torre son simétricos; la decoración y la forma y la familia de cada asteroide de casilla de torre, no.
+En los niveles 4, 8 y 9 los caminos y las casillas de torreta son simétricos; la decoración y la forma y la familia de cada asteroide de casilla de torreta, no.
 
 Los caminos empiezan 2 casillas fuera del mapa (los enemigos entran desde fuera de la pantalla, tapados por las barras o el borde) y acaban 40 px antes del centro de la estación, dentro de su borde. Los caminos que comparten tramo pasan por los mismos puntos.
 
@@ -214,16 +214,16 @@ Los 9 mapas los genera `scripts/tools/map_generator.gd` a partir de `resources/m
 godot --headless --path . -s scripts/tools/map_generator.gd -- [N ...]
 ```
 
-Sin números genera los 9. **La fuente de verdad es el `.txt`**: el script reescribe el `.tscn` entero (conserva su uid), así que los retoques hechos en el editor se pierden al regenerar. Cada `.txt` da la semilla de la decoración, las familias de roca del nivel (`rocks`; la primera es la principal), la casilla de la estación, los caminos (puntos en casillas, con tramos horizontales o verticales) y las casillas de torre (`slots`).
+Sin números genera los 9. **La fuente de verdad es el `.txt`**: el script reescribe el `.tscn` entero (conserva su uid), así que los retoques hechos en el editor se pierden al regenerar. Cada `.txt` da la semilla de la decoración, las familias de roca del nivel (`rocks`; la primera es la principal), la casilla de la estación, los caminos (puntos en casillas, con tramos horizontales o verticales) y las casillas de torreta (`slots`).
 
 Con eso, el script:
 
 - Pone la estación en el centro de su casilla. Mide 96x96 px, así que sobresale media casilla por cada lado.
-- Llena `LogicMap` y pone en cada casilla de torre un asteroide con plataforma (pieza de 2x2 de `espacio_casillas_torre.png`, ver [art.md](art.md)) de la familia de roca de su zona; las casillas a 8 o menos usan formas distintas (si quedan: hay 4 por familia).
+- Llena `LogicMap` y pone en cada casilla de torreta un asteroide con plataforma (pieza de 2x2 de `espacio_casillas_torreta.png`, ver [art.md](art.md)) de la familia de roca de su zona; las casillas a 8 o menos usan formas distintas (si quedan: hay 4 por familia).
 - Calcula el **pasillo** (las casillas a 1 casilla o menos de un camino, en distancia de Chebyshev) y la **orilla** (las que están a 2, justo al lado del pasillo). Todo lo que no es pasillo es **campo**. Donde dos caminos se juntan o se cruzan, los pasillos se funden.
 - La **densidad** del campo sale de un ruido (de 0,65 a 1), no baja de 0,9 en las 2 casillas del borde del mapa y se multiplica por 1,25 a 3 casillas del camino y por 1,5 a 4 o más: el campo se espesa al alejarse del pasillo, para que ninguna bolsa de campo rodeada de orilla parezca vacía.
 - En `Lights`, una luz cada 2 casillas en los tramos rectos del centro del pasillo (dos piezas que alternan en los horizontales y otras dos en los verticales), sin luces en esquinas, cruces ni dentro de la estación.
-- En `VisualMap` no pone nada en el pasillo ni en la estación ni en las casillas de torre (ni en sus 8 casillas de alrededor). En el campo, por este orden:
+- En `VisualMap` no pone nada en el pasillo ni en la estación ni en las casillas de torreta (ni en sus 8 casillas de alrededor). En el campo, por este orden:
   1. **Balizas** a los dos lados de la boca de cada pasillo, en la casilla del borde.
   2. **Piezas especiales**: 3 o 4 entre la nave estrellada, el satélite con astronauta, la roca con ovni y el satélite animado, a 3 casillas o más del camino, fuera de las 2 casillas del borde, a 10 o más entre ellas y con una casilla libre alrededor.
   3. **Restos**: de 1 a 3 restos grandes (casco roto, contenedor, depósito, viga o antena), a 3 casillas o más del camino, fuera del borde y a 8 o más entre ellos, con chatarra pequeña alrededor, cada vez menos al alejarse.
@@ -260,8 +260,8 @@ Lo que sobresale del área queda tapado por las barras, que son opacas.
 
 Funciones:
 
-- `can_build(c)`: la casilla es `slot` y no tiene torre.
-- `register_tower(c, t)`: apunta la torre y la borra del registro cuando el nodo sale del árbol.
+- `can_build(c)`: la casilla es `slot` y no tiene torreta.
+- `register_turret(c, t)`: apunta la torreta y la borra del registro cuando el nodo sale del árbol.
 - `cell(p)` y `center(c)`: conversión entre posición global y casilla.
 
 ## Dudas

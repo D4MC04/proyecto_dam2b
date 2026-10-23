@@ -33,7 +33,7 @@ var _slow_tween: Tween
 var _frost: AnimatedSprite2D
 var _health_bar: HealthBar
 
-# Camuflado: las torres no lo eligen como objetivo, pero los ataques de área le dan.
+# Camuflado: las torretas no lo eligen como objetivo, pero los ataques de área le dan.
 var cloaked := false
 const CLOAK_ALPHA := 0.2
 # Disolución por píxeles con borde morado al camuflarse y al reaparecer.
@@ -100,15 +100,15 @@ func _update_animation():
 		# El sprite base mira hacia arriba; se gira en pasos de 90°.
 		sprite.rotation = snappedf(direction.angle() + PI / 2, PI / 2) + deg_to_rad(data.rotation_offset)
 
-## `source`: la torre que hiere (null si es un poder u otra cosa); se apunta el daño y la baja.
-# `source` va sin tipo Tower a propósito: una bala sigue volando aunque su torre se venda o se mejore,
-# y pasar una torre ya borrada a un parámetro tipado da error antes de poder comprobarla.
+## `source`: la torreta que hiere (null si es un poder u otra cosa); se apunta el daño y la baja.
+# `source` va sin tipo Turret a propósito: una bala sigue volando aunque su torreta se venda o se mejore,
+# y pasar una torreta ya borrada a un parámetro tipado da error antes de poder comprobarla.
 func take_damage(amount: float, source: Variant = null):
 	var was_alive := hp > 0
 	var dealt := clampf(amount, 0.0, maxf(hp, 0.0))
 	hp -= amount
 	if is_instance_valid(source):
-		(source as Tower).register_damage(dealt, was_alive and hp <= 0)
+		(source as Turret).register_damage(dealt, was_alive and hp <= 0)
 	_health_bar.update(hp, max_hp)
 	if hp <= 0:
 		die()

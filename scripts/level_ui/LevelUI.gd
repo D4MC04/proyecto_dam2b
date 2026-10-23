@@ -58,7 +58,7 @@ func _ready() -> void:
 	Settings.changed.connect(_update_fps_label.unbind(1))
 	for screen: OverlayScreen in _screens_by_state.values():
 		screen.option_chosen.connect(_on_option_chosen)
-	sidebar.tower_selected.connect(_on_tower_selected)
+	sidebar.turret_selected.connect(_on_turret_selected)
 	sidebar.inspect_requested.connect(_on_inspect_requested)
 	info_panel.sell_requested.connect(_on_sell_requested)
 	info_panel.upgrade_requested.connect(_on_upgrade_requested)
@@ -80,7 +80,7 @@ func _update_fps_label() -> void:
 func _process(_delta: float) -> void:
 	fps_label.text = "%d FPS" % Engine.get_frames_per_second()
 
-func setup(state: LevelState, towers: Array[TowerData], level_number: int, spawner: Spawner, has_next_level: bool, base: Base) -> void:
+func setup(state: LevelState, turrets: Array[TurretData], level_number: int, spawner: Spawner, has_next_level: bool, base: Base) -> void:
 	victory_screen.set_option_visible(OverlayScreen.Option.NEXT_LEVEL, has_next_level)
 	level_indicator.set_level_number(level_number)
 	_connect_spawner(spawner)
@@ -92,22 +92,22 @@ func setup(state: LevelState, towers: Array[TowerData], level_number: int, spawn
 	if is_instance_valid(_level_state):
 		if _level_state.money_changed.is_connected(sidebar.set_money):
 			_level_state.money_changed.disconnect(sidebar.set_money)
-		if _level_state.selected_tower_changed.is_connected(sidebar.show_selected):
-			_level_state.selected_tower_changed.disconnect(sidebar.show_selected)
+		if _level_state.selected_turret_changed.is_connected(sidebar.show_selected):
+			_level_state.selected_turret_changed.disconnect(sidebar.show_selected)
 		if _level_state.inspected_changed.is_connected(info_panel.show_inspected):
 			_level_state.inspected_changed.disconnect(info_panel.show_inspected)
-		if _level_state.sellable_tower_changed.is_connected(info_panel.show_sellable):
-			_level_state.sellable_tower_changed.disconnect(info_panel.show_sellable)
+		if _level_state.sellable_turret_changed.is_connected(info_panel.show_sellable):
+			_level_state.sellable_turret_changed.disconnect(info_panel.show_sellable)
 	_level_state = state
 	state.money_changed.connect(sidebar.set_money)
-	state.selected_tower_changed.connect(sidebar.show_selected)
+	state.selected_turret_changed.connect(sidebar.show_selected)
 	state.inspected_changed.connect(info_panel.show_inspected)
-	state.sellable_tower_changed.connect(info_panel.show_sellable)
-	sidebar.build_buttons(towers)
+	state.sellable_turret_changed.connect(info_panel.show_sellable)
+	sidebar.build_buttons(turrets)
 	sidebar.set_money(state.money)
 	# Un LevelState nuevo (al empezar o reiniciar) no tiene nada inspeccionado: la ficha vuelve al escáner.
 	info_panel.show_inspected(state.inspected)
-	info_panel.show_sellable(state.sellable_tower)
+	info_panel.show_sellable(state.sellable_turret)
 	# El tutorial sale en el nivel 1 hasta que se acaba o se salta; necesita setup_powers antes.
 	if level_number == 1 and not GameState.tutorial_done:
 		tutorial_hints.start(state, spawner, _powers)
@@ -145,9 +145,9 @@ func _use_power(power: Powers.Power) -> void:
 	if is_instance_valid(_powers) and _ui_state == UiState.PLAYING:
 		_powers.use(power)
 
-func _on_tower_selected(data: TowerData) -> void:
+func _on_turret_selected(data: TurretData) -> void:
 	if is_instance_valid(_level_state):
-		_level_state.selected_tower = data
+		_level_state.selected_turret = data
 
 func _on_inspect_requested(data: Resource) -> void:
 	if is_instance_valid(_level_state):
@@ -156,7 +156,7 @@ func _on_inspect_requested(data: Resource) -> void:
 # Solo se vende jugando: con pausa, derrota o victoria el botón no hace nada.
 func _on_sell_requested() -> void:
 	if is_instance_valid(_level_state) and _ui_state == UiState.PLAYING:
-		_level_state.sell_selected_tower()
+		_level_state.sell_selected_turret()
 
 # Solo se mejora jugando, igual que vender.
 func _on_upgrade_requested() -> void:
@@ -252,7 +252,7 @@ func set_state(new_state: UiState) -> void:
 		_set_fast_speed(false)
 	Engine.time_scale = FAST_SPEED if _fast_speed and new_state == UiState.PLAYING else 1.0
 	# Con cualquier pantalla abierta (o en camino, durante la cámara lenta o el respiro) no se puede
-	# seleccionar torre.
+	# seleccionar torreta.
 	sidebar.set_selection_locked(new_state != UiState.PLAYING)
 	# Tampoco se sigue apuntando el meteorito.
 	if new_state != UiState.PLAYING and is_instance_valid(_powers):
@@ -306,9 +306,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 # Atajos de teclado: pasan por los mismos botones que el ratón. Solo se llaman jugando.
 func _handle_shortcut(event: InputEvent) -> bool:
-	for i in Sidebar.TOWER_SHORTCUT_COUNT:
-		if event.is_action_pressed("select_tower_%d" % (i + 1)):
-			sidebar.press_tower_button(i)
+	for i in Sidebar.TURRET_SHORTCUT_COUNT:
+		if event.is_action_pressed("select_turret_%d" % (i + 1)):
+			sidebar.press_turret_button(i)
 			return true
 	if event.is_action_pressed("next_wave"):
 		sidebar.next_wave_button.pressed.emit()

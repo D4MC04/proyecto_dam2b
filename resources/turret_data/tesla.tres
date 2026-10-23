@@ -1,14 +1,14 @@
-[gd_resource type="Resource" script_class="TowerData" format=3 uid="uid://lgewscsj1aah"]
+[gd_resource type="Resource" script_class="TurretData" format=3 uid="uid://lgewscsj1aah"]
 
-[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TowerData.gd" id="1"]
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="1"]
 [ext_resource type="Shape2D" path="res://resources/collision_shapes/tesla.tres" id="2"]
 [ext_resource type="Resource" path="res://resources/chain_data/tesla.tres" id="3"]
-[ext_resource type="Texture2D" uid="uid://cs0p0ssjiiam6" path="res://assets/sprites/towers/tesla/tesla_full_up.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://cs0p0ssjiiam6" path="res://assets/sprites/turrets/tesla/tesla_full_up.png" id="4"]
 [ext_resource type="SpriteFrames" uid="uid://b7yknmuje1jst" path="res://resources/sprite_frames/tesla.tres" id="5"]
 [ext_resource type="SpriteFrames" uid="uid://bsiiwspudjsv2" path="res://resources/sprite_frames/tesla_cannon.tres" id="7"]
 [ext_resource type="Resource" path="res://resources/turret_data/tesla_fusion.tres" id="fusion"]
 [ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Tesla/ElectricZap.wav" id="snd"]
-[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Tesla/CharginTower.wav" id="chg"]
+[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Tesla/CharginTurret.wav" id="chg"]
 
 [resource]
 script = ExtResource("1")

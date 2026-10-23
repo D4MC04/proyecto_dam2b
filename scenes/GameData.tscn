@@ -7,7 +7,7 @@
 [ext_resource type="Resource" uid="uid://cdvockyn4xmod" path="res://resources/level_data/level_3.tres" id="5_fvrfv"]
 [ext_resource type="Resource" uid="uid://snokbicbogox" path="res://resources/level_data/level_4.tres" id="6_24vlh"]
 [ext_resource type="PackedScene" uid="uid://csp2bvvtlr7ym" path="res://scenes/maps/levels/Level5.tscn" id="7_hvbbc"]
-[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TowerData.gd" id="8_c77oh"]
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="8_c77oh"]
 [ext_resource type="Resource" uid="uid://cqd4c6x6gpivw" path="res://resources/level_data/level_6.tres" id="8_huf1t"]
 [ext_resource type="Resource" uid="uid://du1m11e7dny05" path="res://resources/level_data/level_7.tres" id="level_7"]
 [ext_resource type="Resource" uid="uid://87w2swl8ngsf" path="res://resources/level_data/level_8.tres" id="level_8"]
@@ -31,7 +31,7 @@
 [sub_resource type="Resource" id="Resource_aj4ja"]
 script = ExtResource("2_5qiqv")
 map = ExtResource("7_hvbbc")
-towers = Array[ExtResource("8_c77oh")]([ExtResource("9_jj5sp"), ExtResource("10_5ltge"), ExtResource("11_1wlqr"), ExtResource("cryo"), ExtResource("tesla"), ExtResource("rail"), ExtResource("disintegrator")])
+turrets = Array[ExtResource("8_c77oh")]([ExtResource("9_jj5sp"), ExtResource("10_5ltge"), ExtResource("11_1wlqr"), ExtResource("cryo"), ExtResource("tesla"), ExtResource("rail"), ExtResource("disintegrator")])
 waves = Array[ExtResource("12_anhds")]([ExtResource("13_6l3k6"), ExtResource("wave_5_2"), ExtResource("wave_5_3"), ExtResource("wave_5_4"), ExtResource("wave_5_5"), ExtResource("wave_5_6"), ExtResource("wave_5_7")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"
 
