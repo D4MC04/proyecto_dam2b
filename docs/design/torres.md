@@ -25,7 +25,7 @@ La fusionada es otro `TowerData` (`resources/turret_data/<x>_fusion.tres`) con s
 | Fusionada | Sustituye a | Coste | Daño | Alcance | Cadencia (s) | Diferencia |
 |---|---|---|---|---|---|---|
 | Cañón cuádruple | Cañón doble | 160 | 6 | 64 | 0,15 | Cuatro cañones, ráfaga rápida |
-| Láser doble | Láser | 320 | 22 | 128 | 0,6 → 0,05 | La bala perfora a 1 enemigo extra (`pierce`); sobrecalentamiento mejor: 60 disparos, parada de 2,5 s |
+| Láser doble | Láser | 320 | 22 | 128 | 0,6 → 0,06 | La bala perfora a 1 enemigo extra (`pierce`); sobrecalentamiento mejor: 100 disparos, parada de 2,5 s |
 | Cryo ventisca | Cryo | 400 | 8 | 96 | 2,0 | Onda mayor (`wave_scale` 1,5), frena al 35 % durante 4,5 s |
 | Cañón de asedio | Cañón pesado | 480 | 90 | 96 | 1,6 | Explota en área de 40 px (`splash_radius`) |
 | Tormenta | Tesla | 560 | 35 | 120 | 1,3 | Cadena de 6 objetivos, saltos de 80 px |
@@ -72,9 +72,9 @@ Al cumplirse el cooldown:
 
 Opcional, solo torres de bala (Láser y Láser doble). Lo activa `TowerData.overheat_shots > 0`; sin configurar no cambia nada.
 
-- `Tower._heat` va de 0 a 1 y sube `1 / overheat_shots` en cada disparo. El siguiente cooldown es `lerp(attack_cooldown, overheat_min_cooldown, _heat²)`: con el cuadrado empieza lento y acelera al final (se reinicia el `Timer` con ese valor).
+- `Tower._heat` va de 0 a 1 y sube `1 / overheat_shots` en cada disparo. El siguiente cooldown es `lerp(attack_cooldown, overheat_min_cooldown, t²)` con `t = min(_heat / FULL_SPEED_HEAT, 1)`: empieza lento, acelera, y desde la mitad del calor (`FULL_SPEED_HEAT` 0,5) dispara a tope hasta sobrecalentarse (se reinicia el `Timer` con ese valor).
 - Al llegar a 1 se sobrecalienta: para el `Timer`, no apunta ni dispara durante `overheat_time` s y base y cañón parpadean entre rojo (`HEAT_TINT`) y rojo brillante (`OVERHEAT_FLASH`) cada 0,12 s. Luego `_heat` vuelve a 0 y dispara a la cadencia base.
-- Humo: un `CPUParticles2D` (`_smoke`, se crea la primera vez) suelta cuadraditos grises de 2-3 px que suben y se desvanecen, desde `SMOKE_HEAT` (0,8 de calor) y durante toda la parada.
+- Humo: un `CPUParticles2D` (`_smoke`, se crea la primera vez) suelta 28 cuadraditos de 3-5 px que salen naranjas (ascuas) y pasan a humo gris claro que sube y se desvanece, desde `SMOKE_HEAT` (0,6 de calor) y durante toda la parada.
 - Sin objetivo se enfría poco a poco: pierde todo el calor en `overheat_cool_time` s.
 - Base y cañón se tiñen de blanco a rojo según el calor. Con el EMP todo esto se congela (no se enfría ni cuenta la parada).
 - Valores: Láser 0,5 → 0,15 s, 15 disparos, parada 2 s; Láser doble 0,4 → 0,1 s, 25 disparos, parada 1,5 s. Ambos se enfrían en 3 s.
@@ -124,7 +124,7 @@ Recursos en `resources/turret_data/`:
 | Archivo | Nombre | Coste | Cooldown (s) | Rango (px) | Giro (°/s) | Ataque |
 |---|---|---|---|---|---|---|
 | `turret` | Cañón doble | 100 | 0,25 | 56 | 240 | Bala: 5 de daño, 300 px/s |
-| `laser` | Láser | 200 | 0,8 | 112 | 180 | Bala: 15 de daño, 250 px/s, con estela. Sobrecalentamiento: 0,8 → 0,06 s en 40 disparos, parada de 3 s |
+| `laser` | Láser | 200 | 0,8 | 112 | 180 | Bala: 15 de daño, 250 px/s, con estela. Sobrecalentamiento: 0,8 → 0,07 s, 70 disparos (a tope desde el 35), parada de 3 s |
 | `cryo` | Cryo | 250 | 2,0 | 64 | no gira | Onda: 5 de daño, velocidad al 55 % durante 3,5 s |
 | `rocket_launcher` | Cañón pesado | 300 | 1,5 | 88 | 180 | Bala: 45 de daño y explota en área de 30 px, 200 px/s |
 | `tesla` | Tesla | 350 | 1,3 | 110 | no gira | Cadena: 25 de daño, 3 enemigos, saltos de 64 px |

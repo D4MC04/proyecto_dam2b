@@ -26,8 +26,12 @@ const HEAT_TINT := Color(1.0, 0.3, 0.2)
 const OVERHEAT_FLASH := Color(2.5, 0.6, 0.3)
 const OVERHEAT_BLINK := 0.12
 # Humo gris en píxeles que sale de la torre cuando está muy caliente (desde SMOKE_HEAT) o sobrecalentada.
-const SMOKE_HEAT := 0.8
-const SMOKE_COLOR := Color(0.55, 0.55, 0.6, 0.8)
+const SMOKE_HEAT := 0.6
+# Las partículas salen naranjas (ascuas) y pasan a humo gris claro que se desvanece.
+const EMBER_COLOR := Color(1.0, 0.55, 0.2)
+const SMOKE_COLOR := Color(0.8, 0.8, 0.85, 0.9)
+# Con este calor ya dispara a la cadencia máxima; de ahí al sobrecalentamiento sigue a tope.
+const FULL_SPEED_HEAT := 0.5
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var cannon: AnimatedSprite2D = $Cannon
@@ -163,9 +167,11 @@ func _update_overheat(delta: float, has_target: bool) -> bool:
 	_set_smoke(_heat >= SMOKE_HEAT)
 	return false
 
-# Cuanto más caliente, menos cooldown. Con el calor al cuadrado empieza lento y acelera al final.
+# Cuanto más caliente, menos cooldown. Empieza lento, acelera (curva al cuadrado) y desde
+# FULL_SPEED_HEAT dispara a la cadencia máxima hasta sobrecalentarse.
 func _heat_cooldown() -> float:
-	return lerpf(data.attack_cooldown, data.overheat_min_cooldown, _heat * _heat)
+	var t := minf(_heat / FULL_SPEED_HEAT, 1.0)
+	return lerpf(data.attack_cooldown, data.overheat_min_cooldown, t * t)
 
 # Enciende o apaga el humo; lo crea la primera vez que hace falta.
 func _set_smoke(on: bool) -> void:
@@ -175,19 +181,19 @@ func _set_smoke(on: bool) -> void:
 		_smoke = CPUParticles2D.new()
 		_smoke.z_index = 1
 		_smoke.position = Vector2(0, -8)
-		_smoke.amount = 14
-		_smoke.lifetime = 1.2
+		_smoke.amount = 28
+		_smoke.lifetime = 1.6
 		_smoke.direction = Vector2.UP
-		_smoke.spread = 25.0
-		_smoke.gravity = Vector2(0, -12)
-		_smoke.initial_velocity_min = 6.0
-		_smoke.initial_velocity_max = 14.0
-		_smoke.scale_amount_min = 2.0
-		_smoke.scale_amount_max = 3.0
-		_smoke.color = SMOKE_COLOR
+		_smoke.spread = 30.0
+		_smoke.gravity = Vector2(0, -20)
+		_smoke.initial_velocity_min = 8.0
+		_smoke.initial_velocity_max = 18.0
+		_smoke.scale_amount_min = 3.0
+		_smoke.scale_amount_max = 5.0
 		var fade := Gradient.new()
-		fade.set_color(0, Color.WHITE)
-		fade.set_color(1, Color(1, 1, 1, 0))
+		fade.set_color(0, EMBER_COLOR)
+		fade.add_point(0.25, SMOKE_COLOR)
+		fade.set_color(fade.get_point_count() - 1, Color(SMOKE_COLOR, 0.0))
 		_smoke.color_ramp = fade
 		add_child(_smoke)
 	_smoke.emitting = on
