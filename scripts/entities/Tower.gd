@@ -275,6 +275,7 @@ func disable(seconds: float) -> void:
 	if _sparks == null:
 		_sparks = EmpSparks.new()
 		add_child(_sparks)
+	_sparks.start(seconds)
 	if _disable_tween:
 		_disable_tween.kill()
 	_disable_tween = create_tween()
