@@ -9,7 +9,6 @@ const SHIPS: Array[Array] = [
 	[preload("res://resources/sprite_frames/nave_normal.tres"), 180.0],
 	[preload("res://resources/sprite_frames/nave_agresiva.tres"), 180.0],
 	[preload("res://resources/sprite_frames/wasp.tres"), 0.0],
-	[preload("res://resources/sprite_frames/ufo.tres"), null],
 ]
 const IMPACT_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/laser_impact.tres")
 const SHIP_SCALE: float = 0.5

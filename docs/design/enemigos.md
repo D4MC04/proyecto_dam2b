@@ -24,9 +24,7 @@ Recursos en `resources/enemy_data/`:
 | `dart_verde` | Dart verde | 25 | 90 | 25 | 5 | 8 | 1 |
 | `wasp` | Wasp | 75 | 60 | 40 | 5 | 9 | 1 |
 | `nave_normal` | Nave normal | 60 | 36 | 25 | 10 | 12 | 2 |
-| `ufo` | UFO | 75 | 50 | 28 | 10 | 12 | 2 |
 | `nave_agresiva` | Nave agresiva | 90 | 48 | 35 | 10 | 12 | 3 |
-| `spiked_ship` | Spikey | 150 | 25 | 40 | 10 | 14 | 3 |
 | `acorazado` | Acorazado | 360 | 25 | 110 | 20 | 14 | 4 |
 | `ariete` | Ariete | 200 | 40 | 70 | 20 | 13 | 5 |
 | `nodriza` | Nodriza | 400 | 40 | 150 | 40 | 14 | 6 |
@@ -46,7 +44,7 @@ Cada frame: `progress += speed * _slow * delta`. Cuando `progress_ratio >= 1.0` 
 
 ### Animación
 
-Según la dirección del último movimiento sobre su camino (posición local, así que el temblor del mapa no la cambia) reproduce `right`, `left`, `down` o `up`. Si `data.rotate_sprite` es `true`, además gira el sprite en pasos de 90° (el sprite base mira hacia arriba) y suma `rotation_offset`. `ufo` y `spiked_ship` no rotan: tienen un sprite distinto por dirección.
+Según la dirección del último movimiento sobre su camino (posición local, así que el temblor del mapa no la cambia) reproduce `right`, `left`, `down` o `up`. Si `data.rotate_sprite` es `true`, además gira el sprite en pasos de 90° (el sprite base mira hacia arriba) y suma `rotation_offset`.
 
 ### Camuflaje
 

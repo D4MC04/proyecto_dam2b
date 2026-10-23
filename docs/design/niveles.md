@@ -76,8 +76,8 @@ Niveles registrados en `GameData.levels`:
 | Nivel | Mapa | Torretas disponibles | Oleadas | Naves por oleada (1.ª → última) | Naves nuevas (protagonistas) | Caminos |
 |---|---|---|---|---|---|---|
 | 1 | `maps/levels/Level1.tscn` | Cañón doble, Cañón pesado, Láser | 5 | 7 → 13 | Darts y Wasp | 1 |
-| 2 | `maps/levels/Level2.tscn` | las anteriores + Cryo | 6 | 10 → 21 | Nave normal y UFO | 2 |
-| 3 | `maps/levels/Level3.tscn` | las anteriores + Tesla | 6 | 11 → 26 | Nave agresiva y Spikey | 2 |
+| 2 | `maps/levels/Level2.tscn` | las anteriores + Cryo | 6 | 10 → 21 | Nave normal | 2 |
+| 3 | `maps/levels/Level3.tscn` | las anteriores + Tesla | 6 | 11 → 26 | Nave agresiva | 2 |
 | 4 | `maps/levels/Level4.tscn` | las anteriores + Rail | 7 | 9 → 24 | Acorazado | 2 |
 | 5 | `maps/levels/Level5.tscn` | las anteriores + Disintegrator | 7 | 11 → 33 | Ariete y Divisora | 2 |
 | 6 | `maps/levels/Level6.tscn` | las 7 | 8 | 17 → 42 (la última con la Nodriza) | Reparadora | 3 |
