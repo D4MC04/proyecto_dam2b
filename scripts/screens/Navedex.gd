@@ -24,8 +24,8 @@ const UNKNOWN_TEXT := "???"
 # Lado de las celdas cuadradas de la cuadrícula.
 const CELL_SIZE := 64
 const ACHIEVEMENT_ICON_DIR := "res://assets/ui/achievements/"
-# Icono de logro (16x16 ×2), ancho de cada fila (dos por línea) y color del logro sin conseguir.
-const ACHIEVEMENT_ICON_SIZE := 32
+# Icono de logro (16x16 ×3), ancho de cada fila (dos por línea) y color del logro sin conseguir.
+const ACHIEVEMENT_ICON_SIZE := 48
 const ACHIEVEMENT_ROW_WIDTH := 350
 const LOCKED_COLOR := Color(0.3, 0.3, 0.35)
 # Lado de las flechas de torreta.
