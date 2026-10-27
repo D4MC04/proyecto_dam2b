@@ -1,6 +1,6 @@
 # Batalla final contra el jefe que envía las naves
 
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: opus
 Esfuerzo recomendado: high
 
