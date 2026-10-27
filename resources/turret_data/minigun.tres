@@ -28,6 +28,7 @@ overheat_shots = 60
 overheat_min_cooldown = 0.05
 overheat_time = 3.0
 overheat_cool_time = 3.0
+spin_up_time = 0.35
 fusion = ExtResource("fusion")
 description = "Empieza lenta y acelera hasta una lluvia de balas, pero se sobrecalienta y para un momento."
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

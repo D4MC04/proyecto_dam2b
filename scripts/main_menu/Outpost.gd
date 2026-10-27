@@ -13,6 +13,10 @@ const TURRETS: Array[Array] = [
 	[preload("res://resources/turret_data/turret.tres"), Vector2(26, 70)],
 ]
 
+# Torretas de tubos rotativos (animación "spin"): velocidad al disparar y segundos en frenar
+const SPIN_SPEED: float = 4.0
+const SPIN_DOWN_TIME: float = 1.0
+
 var _cannons: Array[AnimatedSprite2D] = []
 var _data: Array[TurretData] = []
 
@@ -55,4 +59,9 @@ func fire_at(target: Vector2) -> Vector2:
 	cannon.rotation = (target - cannon.global_position).angle() + PI / 2.0
 	if cannon.sprite_frames.has_animation(&"fire_0"):
 		cannon.play(&"fire_0")
+	elif cannon.sprite_frames.has_animation(&"spin"):
+		# Tubos rotativos: giran deprisa y frenan poco a poco
+		cannon.play(&"spin")
+		var tween: Tween = cannon.create_tween()
+		tween.tween_property(cannon, "speed_scale", 0.0, SPIN_DOWN_TIME).from(SPIN_SPEED)
 	return cannon.to_global(_data[best].muzzle_offset)

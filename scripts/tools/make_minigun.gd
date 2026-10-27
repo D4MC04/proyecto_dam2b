@@ -4,8 +4,8 @@ extends SceneTree
 ##
 ## Uso: godot --headless --path . -s scripts/tools/make_minigun.gd
 ##
-## Por carpeta: minigun_base.png (32x32), minigun_cannon_sheet.png (5 frames de 32x32: reposo,
-## fire_0 y fire_1 con las bocas encendidas, los tubos girando y la cinta de munición avanzando),
+## Por carpeta: minigun_base.png (32x32), minigun_cannon_sheet.png (4 frames de 32x32 del giro de
+## los tubos, el primero también es el reposo; la cinta de munición avanza en cada uno),
 ## minigun_full_up.png (icono con base y cañón), minigun_flash_sheet.png (3 frames de 16x16),
 ## minigun_bullet_sheet.png (2 frames de 4x8, trazadora) y minigun_impact_sheet.png (4 frames de
 ## 16x16).
@@ -17,7 +17,7 @@ extends SceneTree
 
 const SIZE: int = 32
 const EFFECT_SIZE: int = 16
-const CANNON_FRAMES: int = 5
+const CANNON_FRAMES: int = 4
 
 const OUTLINE: Color = Color("#0c0e16")
 # Metal gris azulado de las torretas, de sombra a luz (ver docs/design/art.md)
@@ -93,24 +93,17 @@ const HEAVY_HOUSING: Array[String] = [
 	"32O2O2O2O2O2O211",
 ]
 const HOUSING_TOP: int = 14
-# Tubos (x 9 a 22, el ancho de la carcasa): separadores de contorno, cuatro tubos de 2 px y el eje
-# en el centro (x 15 y 16)
-const TUBE_SEPARATORS: Array[int] = [9, 12, 19, 22]
-const TUBES: Array[Array] = [[10, 11], [13, 14], [15, 16], [17, 18], [20, 21]]
+# Haz de tubos (x 9 a 22, el ancho de la carcasa): los bordes son contorno fijo y dentro se dibuja un
+# cilindro de TUBE_COUNT tubos visto de lado; cada frame de giro lo rota un cuarto de tubo, así los
+# tubos se desplazan de lado y se estrechan al llegar al borde, como al girar de verdad.
+const TUBE_LEFT: int = 9
+const TUBE_RIGHT: int = 22
+const TUBE_COUNT: int = 6
+# Parte de cada tubo que es hueco oscuro entre tubos
+const TUBE_GAP: float = 0.3
 # Filas bajo las bocas: "T" tubos, "C"/"c" abrazadera con acento, "R"/"r" abrazadera de acento, "M" de metal
 const TUBE_ROWS: Array[String] = ["T", "T", "C", "c", "T", "T", "T", "T"]
 const HEAVY_TUBE_ROWS: Array[String] = ["T", "T", "R", "r", "T", "T", "M", "T", "T"]
-# Sombreado de cada tubo (y el eje) en las dos fases del giro, de izquierda a derecha
-const TUBE_SHADES: Array[Array] = [
-	["32", "43", "11", "32", "21"],
-	["23", "34", "11", "23", "12"],
-]
-# Bocas de los tubos: en reposo, encendidas al disparar y apagándose
-const BORES: Array[Array] = [
-	["1O", "1O", "11", "O1", "O1"],
-	["bc", "cw", "bb", "wc", "cb"],
-	["ab", "ba", "aa", "ab", "ba"],
-]
 # Ventana de la cinta de munición en las cajas laterales (filas 16 a 22)
 const BELT_TOP: int = 16
 const BELT_BOTTOM: int = 22
@@ -206,13 +199,12 @@ func _draw_heavy_base() -> void:
 
 # --- Cañón ---
 
-## Frame 0: reposo. 1 y 2: fire_0. 3 y 4: fire_1. El primer frame de cada disparo enciende las bocas,
-## el segundo las apaga; los tubos alternan su sombreado y la cinta de munición avanza un paso.
+## Frames del giro (el 0 es también el reposo): en cada uno el haz de tubos rota un cuarto de tubo
+## y la cinta de munición avanza un paso.
 func _make_cannon(frame: int) -> Image:
 	_image = Image.create(SIZE, SIZE, false, Image.FORMAT_RGBA8)
-	var bore: int = [0, 1, 2, 1, 2][frame]
-	var spin: int = [0, 1, 0, 1, 0][frame]
-	var belt: int = [0, 1, 0, 1, 0][frame]
+	var spin: float = frame / float(CANNON_FRAMES)
+	var belt: int = frame % 2
 	var housing: Array[String] = HEAVY_HOUSING if _heavy else HOUSING
 	var half_width: int = housing[0].length() / 2
 	var housing_left: int = 16 - half_width
@@ -239,12 +231,12 @@ func _make_cannon(frame: int) -> Image:
 	# Tubos: filas de cañón, abrazaderas y bocas
 	var top: int = 3 if _heavy else 4
 	var rows: Array[String] = HEAVY_TUBE_ROWS if _heavy else TUBE_ROWS
-	_draw_tube_row(top, BORES[bore])
+	_draw_tube_row(top, spin, true)
 	for i: int in rows.size():
 		var y: int = top + 1 + i
 		match rows[i]:
 			"T":
-				_draw_tube_row(y, TUBE_SHADES[spin])
+				_draw_tube_row(y, spin, false)
 			"C":
 				_paint_row(9, y, "333333bb222211")
 			"c":
@@ -259,12 +251,35 @@ func _make_cannon(frame: int) -> Image:
 	return _image
 
 
-## Una fila de los tubos y el eje con sus separadores; `shades` da los colores de cada tubo.
-func _draw_tube_row(y: int, shades: Array) -> void:
-	for x: int in TUBE_SEPARATORS:
-		_put(x, y, OUTLINE)
-	for tube: int in TUBES.size():
-		_paint_row(TUBES[tube][0], y, shades[tube])
+## Una fila del haz de tubos girado `spin` tubos (0 a 1). Cada columna mira qué parte del cilindro
+## se ve en ella: hueco entre tubos (contorno) o tubo, con luz arriba a la izquierda y el brillo
+## donde el tubo se curva hacia la luz. En la fila de las bocas (`bores`) el centro del tubo es hueco.
+func _draw_tube_row(y: int, spin: float, bores: bool) -> void:
+	_put(TUBE_LEFT, y, OUTLINE)
+	_put(TUBE_RIGHT, y, OUTLINE)
+	var center: float = (TUBE_LEFT + TUBE_RIGHT + 1) / 2.0
+	var radius: float = (TUBE_RIGHT - TUBE_LEFT - 1) / 2.0
+	for x: int in range(TUBE_LEFT + 1, TUBE_RIGHT):
+		# Posición en el cilindro: u de -1 (izquierda) a 1 (derecha) y su ángulo
+		var u: float = (x + 0.5 - center) / radius
+		var angle: float = asin(clampf(u, -1.0, 1.0))
+		var local: float = fposmod(angle / TAU * TUBE_COUNT + spin, 1.0)
+		if local < TUBE_GAP:
+			_put(x, y, OUTLINE)
+			continue
+		var t: float = (local - TUBE_GAP) / (1.0 - TUBE_GAP)
+		if bores:
+			_put(x, y, OUTLINE if absf(t - 0.5) < 0.3 else METAL[0])
+			continue
+		var light: float = 0.85 - 2.2 * absf(t - 0.35) - 0.7 * u
+		if light > 0.8:
+			_put(x, y, METAL[3])
+		elif light > 0.35:
+			_put(x, y, METAL[2])
+		elif light > -0.1:
+			_put(x, y, METAL[1])
+		else:
+			_put(x, y, METAL[0])
 
 
 # --- Efectos (sin contorno) ---

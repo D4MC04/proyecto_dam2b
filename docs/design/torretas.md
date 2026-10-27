@@ -79,6 +79,15 @@ Opcional, solo torretas de bala (Minigun y Minigun pesada). Lo activa `TurretDat
 - Base y cañón se tiñen de blanco a rojo según el calor. Con el EMP todo esto se congela (no se enfría ni cuenta la parada).
 - Valores: Minigun 0,4 → 0,05 s, 60 disparos, parada 3 s; Minigun pesada 0,3 → 0,04 s, 90 disparos, parada 2 s. Ambas se enfrían en 3 s. El halo de calor sale en la boca de los tubos (`muzzle_offset` (0, -13)).
 
+### Tubos rotativos
+
+Opcional, solo torretas de bala (Minigun y Minigun pesada). Lo activa `TurretData.spin_up_time > 0`; el cañón tiene, en vez de `fire_0`/`fire_1`, una animación `spin` en bucle (4 frames a 12 FPS) que se reproduce siempre y cuya velocidad (`speed_scale`) lleva `Turret._update_spin`.
+
+- `Turret._spin` va de 0 (parados) a 1 (listos). Con objetivo y sin sobrecalentar sube en `spin_up_time` s (Minigun 0,35, Minigun pesada 0,3); si no, baja en `SPIN_DOWN_TIME` (0,6 s).
+- Hasta que `_spin` llega a 1 no dispara: el cooldown cumplido queda pendiente (`_pending_shot`) y la bala sale en cuanto los tubos están a tope y el cañón alineado. Así los tubos empiezan a girar un momento antes del primer disparo.
+- La velocidad de la animación es `_spin × attack_cooldown / cooldown actual` (con sobrecalentamiento, el de `_heat_cooldown`), con tope `SPIN_MAX_SCALE` (5, unos 60 FPS): gira más deprisa cuanto más rápido dispara, y frena al enfriarse o quedarse sin objetivo.
+- Sobrecalentada frena hasta pararse y, al volver, tiene que arrancar otra vez. Un EMP los para en seco (`_spin = 0`).
+
 ### Apagada por EMP
 
 `Turret.disable(seconds)` (lo llama el pulso EMP de la Saboteadora, ver [enemigos.md](enemigos.md)). Todas las torretas están en el grupo `turrets`.
@@ -100,7 +109,7 @@ Las torretas de onda y de cadena no giran el cañón ni usan `_process`.
 
 ## Datos
 
-`TurretData` (`scripts/resources/TurretData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`. `overheat_shots`, `overheat_min_cooldown`, `overheat_time`, `overheat_cool_time`: sobrecalentamiento opcional (ver Disparo). `shoot_sound`: sonido del disparo. `fusion`: el `TurretData` en el que se convierte al fusionarla con otra igual (null en las fusionadas). Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 7 torretas la tienen. La ficha pinta todas las torretas en cian `#40e0f0` (`TurretData.ACCENT_COLOR`, ver [ui.md](ui.md)).
+`TurretData` (`scripts/resources/TurretData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`. `overheat_shots`, `overheat_min_cooldown`, `overheat_time`, `overheat_cool_time`: sobrecalentamiento opcional (ver Disparo). `spin_up_time`: tubos rotativos opcionales (ver Tubos rotativos). `shoot_sound`: sonido del disparo. `fusion`: el `TurretData` en el que se convierte al fusionarla con otra igual (null en las fusionadas). Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 7 torretas la tienen. La ficha pinta todas las torretas en cian `#40e0f0` (`TurretData.ACCENT_COLOR`, ver [ui.md](ui.md)).
 
 Funciones para la ficha:
 
@@ -141,7 +150,7 @@ Recursos en `resources/turret_data/`:
 - Persigue al objetivo: corrige la dirección cada frame mientras el objetivo exista; si desaparece sigue recta.
 - Daña al primer `Enemy` cuya área toque, sea o no el objetivo, deja la animación `impact_frames` y se libera.
 - Se libera sola a los 5 s.
-- El cañón reproduce `fire_0`, `fire_1`... alternando en cada disparo.
+- El cañón reproduce `fire_0`, `fire_1`... alternando en cada disparo (solo cuenta las animaciones `fire_N`; los tubos rotativos no tienen y siguen con su `spin`).
 
 ### Onda
 
