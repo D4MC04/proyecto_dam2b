@@ -17,6 +17,8 @@ Reglas:
 - Cada ticket cabe en una sesión: pocos archivos, un objetivo claro, algo que se pueda probar a mano en el juego.
 - Ninguno contradice "Decidido". Si una idea buena lo contradice, no la escribas: menciónala al usuario aparte.
 - Pon el modelo recomendado y el esfuerzo recomendado (`low`, `medium`, `high`, `xhigh` o `max`) según `docs/CLAUDE-CODE.md` (haiku mecánico, sonnet normal, opus varios sistemas o diseño).
+- Rellena "Qué leer" con lo que ya has mirado: las secciones de `docs/design/` (archivo › título) y las funciones o nodos concretos. Así `/work` no tiene que volver a buscarlo.
+- Pon `Prioridad` (alta, media o baja) y deja `Responsable` vacío.
 - No toques código ni otros archivos. Solo crear tickets.
 
-Al acabar, da al usuario una lista de una línea por ticket (nombre del archivo + qué aporta) y termina con las casillas para aceptar (ver "Casillas para aceptar" en CLAUDE.md).
+Al acabar, da al usuario una lista de una línea por ticket (nombre del archivo + qué aporta) y termina con las casillas de `.claude/skills/accept/SKILL.md`.

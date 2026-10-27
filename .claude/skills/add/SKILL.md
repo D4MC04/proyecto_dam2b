@@ -10,8 +10,8 @@ Crea tickets con las ideas del usuario: $ARGUMENTS
 1. Separa las ideas (por `;`, líneas o números). Si no hay ninguna, pregunta qué quiere. Una idea que no cabe en una sesión se parte en varios tickets; dos ideas pequeñas que tocan lo mismo pueden ir juntas.
 2. Mira los tickets que ya hay en `docs/tickets/` para no repetirlos (si ya existe, dilo en vez de duplicarlo).
 3. Comprueba la sección "Decidido" de `docs/DESIGN.md`. Si una idea la contradice, no escribas su ticket: avisa al usuario y sigue con las demás.
-4. Busca en el código dónde está lo que hay que cambiar (Grep y trozos, no archivos enteros), solo lo justo para rellenar "Qué hay que hacer" y "Archivos que toca". Si una idea es tan vaga que no sabes qué cambiar, pregunta con AskUserQuestion en vez de adivinar.
-5. Escribe cada ticket en `docs/tickets/nombre-en-kebab-case.md` con el formato de `docs/tickets/_plantilla.md` y `Estado: propuesta`. Respeta lo que pidió el usuario: no añadas extras. Modelo y esfuerzo según `docs/CLAUDE-CODE.md`.
+4. Busca en el código dónde está lo que hay que cambiar (Grep y trozos, no archivos enteros), solo lo justo para rellenar "Qué hay que hacer", "Qué leer" (secciones de `docs/design/` como archivo › título, y funciones o nodos concretos) y "Archivos que toca". Si una idea es tan vaga que no sabes qué cambiar, pregunta con AskUserQuestion en vez de adivinar.
+5. Escribe cada ticket en `docs/tickets/nombre-en-kebab-case.md` con el formato de `docs/tickets/_plantilla.md` y `Estado: propuesta`. Respeta lo que pidió el usuario: no añadas extras. Modelo y esfuerzo según `docs/CLAUDE-CODE.md`. `Prioridad` media salvo que el usuario diga otra; `Responsable` el que diga el usuario, o vacío.
 6. No toques código ni otros archivos.
 
-Al acabar, una línea por ticket (archivo + qué arregla) y termina con las casillas para aceptar (ver "Casillas para aceptar" en CLAUDE.md).
+Al acabar, una línea por ticket (archivo + qué arregla) y termina con las casillas de `.claude/skills/accept/SKILL.md`.

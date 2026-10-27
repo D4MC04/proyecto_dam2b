@@ -23,6 +23,11 @@ const CELL_SCENE: PackedScene = preload("res://scenes/level_ui/EnemyCell.tscn")
 const UNKNOWN_TEXT := "???"
 # Lado de las celdas cuadradas de la cuadrícula.
 const CELL_SIZE := 64
+const ACHIEVEMENT_ICON_DIR := "res://assets/ui/achievements/"
+# Icono de logro (16x16 ×3), ancho de cada fila (dos por línea) y color del logro sin conseguir.
+const ACHIEVEMENT_ICON_SIZE := 48
+const ACHIEVEMENT_ROW_WIDTH := 350
+const LOCKED_COLOR := Color(0.3, 0.3, 0.35)
 # Lado de las flechas de torreta.
 const ARROW_SIZE := 28
 
@@ -35,7 +40,7 @@ const ARROW_SIZE := 28
 @onready var description_label: Label = %DescriptionLabel
 @onready var stat_rows: VBoxContainer = %StatRows
 @onready var detail: VBoxContainer = %Detail
-@onready var achievements_list: Label = %AchievementsList
+@onready var achievements_list: GridContainer = %AchievementsList
 @onready var prev_button: Button = %PrevButton
 @onready var next_button: Button = %NextButton
 
@@ -121,12 +126,40 @@ func _is_known(data: InspectableData) -> bool:
 	return enemy == null or GameState.has_seen_enemy(enemy)
 
 func _show_achievements() -> void:
-	var lines: Array[String] = []
+	for child in achievements_list.get_children():
+		child.free()
 	for id: String in GameState.ACHIEVEMENTS:
 		var info: Array = GameState.ACHIEVEMENTS[id]
 		var done: bool = id in GameState.unlocked
-		lines.append("[%s] %s - %s" % ["X" if done else " ", info[0], info[1]])
-	achievements_list.text = "\n".join(lines)
+		achievements_list.add_child(_make_achievement_row(id, info[0], info[1], done))
+
+# Fila de un logro: icono a la izquierda y nombre y descripción a la derecha; apagada si falta por conseguir.
+func _make_achievement_row(id: String, title: String, description: String, done: bool) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.custom_minimum_size = Vector2(ACHIEVEMENT_ROW_WIDTH, 0)
+	row.add_theme_constant_override("separation", 10)
+	row.modulate = Color.WHITE if done else LOCKED_COLOR
+	var icon := TextureRect.new()
+	icon.texture = load(ACHIEVEMENT_ICON_DIR + id + ".png")
+	icon.custom_minimum_size = Vector2.ONE * ACHIEVEMENT_ICON_SIZE
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(icon)
+	var texts := VBoxContainer.new()
+	texts.add_theme_constant_override("separation", 0)
+	var name_text := Label.new()
+	name_text.text = title
+	name_text.add_theme_font_size_override("font_size", 24)
+	var description_text := Label.new()
+	description_text.text = description
+	description_text.add_theme_font_size_override("font_size", 18)
+	description_text.modulate = Color(1, 1, 1, 0.7)
+	texts.add_child(name_text)
+	texts.add_child(description_text)
+	row.add_child(texts)
+	return row
 
 func _show_detail(data: InspectableData) -> void:
 	_versions.clear()

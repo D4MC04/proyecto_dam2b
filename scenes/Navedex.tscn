@@ -62,12 +62,15 @@ theme_override_constants/h_separation = 6
 theme_override_constants/v_separation = 6
 columns = 4
 
-[node name="AchievementsList" type="Label" parent="Center/Frame/Margin/Box/Columns"]
+[node name="AchievementsList" type="GridContainer" parent="Center/Frame/Margin/Box/Columns"]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(718, 340)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+size_flags_vertical = 0
+theme_override_constants/h_separation = 18
+theme_override_constants/v_separation = 4
+columns = 2
 
 [node name="Detail" type="VBoxContainer" parent="Center/Frame/Margin/Box/Columns"]
 unique_name_in_owner = true

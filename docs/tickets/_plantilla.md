@@ -1,7 +1,9 @@
 # Título corto del ticket
 
 Creador: nombre
+Responsable: nombre (vacío si nadie lo ha cogido)
 Estado: propuesta
+Prioridad: media
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
 
@@ -11,6 +13,11 @@ Qué mejora en el juego o qué problema arregla. Una o dos frases.
 ## Qué hay que hacer
 - Paso concreto 1
 - Paso concreto 2
+
+## Qué leer
+Solo esto; `/work` no lee nada más de docs/design.
+- docs/design/archivo.md › "Título de la sección"
+- scripts/archivo.gd › `función()` o nodo
 
 ## Archivos que toca
 - scripts/...
