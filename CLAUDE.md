@@ -19,31 +19,27 @@
 
 ## Documentación
 - Diseño actual: @docs/DESIGN.md. El detalle por sistema está en docs/design/: leer solo el que toque.
-- Tareas en `docs/tasks/nombre.md`. Hacer solo la tarea indicada.
+- Tickets en `docs/tickets/nombre.md`. Hacer solo el ticket indicado.
 - Antes de implementar, comprobar que no contradice la sección "Decidido" de DESIGN.md. Si contradice, parar y avisar.
 - Al terminar una tarea: actualizar el docs/design/ afectado (y DESIGN.md si cambia algo general) y borrar el archivo de la tarea.
 - No crear otros .md sin que se pida.
 
 ## Flujo de tickets
-- Guía para el usuario: docs/CLAUDE-CODE.md. Formato de ticket: docs/tasks/_plantilla.md.
-- Comandos: `/ideas` (Claude propone tickets), `/add` (tickets con las ideas del usuario), `/board` (estado, choques y tandas), `/work nombre` (implementa), `/check` (revisa sin tocar nada), `/commit` (revisa lo pendiente, prueba y commitea en la rama), `/ship` (commitea lo pendiente, abre el PR y lo fusiona en main con squash), `/hub` (abre el chat central). `/proponer`, `/tickets`, `/hacer`, `/revisar` y `/new` son alias temporales de los anteriores.
+- Guía para el usuario: docs/CLAUDE-CODE.md. Formato de ticket: docs/tickets/_plantilla.md.
+- Comandos: `/ideas` (Claude propone tickets), `/add` (tickets con las ideas del usuario), `/board` (estado, choques y tandas), `/accept` (acepta y arranca tickets), `/work nombre` (implementa), `/fix` (arregla lo que falla al probar), `/check` (revisa sin tocar nada), `/commit` (revisa lo pendiente, prueba y commitea en la rama), `/ship` (commitea lo pendiente, abre el PR y lo fusiona en main con squash), `/hub` (abre el chat central o le hace el relevo).
 - Solo se implementan tickets con `Estado: aceptada`, cada uno en su rama `ticket/nombre` desde main. Nunca trabajar en main, salvo el commit del `Estado:` al aceptar.
 - Solo se commitea con `/commit` y solo se sube con `/ship` (o dentro de `/work` y `/ship`, que los usan). Frases como "commitea", "sube", "va bien" o "listo" no commitean ni suben nada: recordar al usuario el comando.
-- **Aceptar es la orden de empezar** (casillas o "acepto X"), sin esperar otro visto bueno:
-  1. Cambiar solo la línea `Estado:` a `aceptada`. Commit en `main` solo de eso (sin probador) y `git push origin main`; si `origin/main` avanzó, antes `git pull --ff-only`.
-  2. Si hay herramienta `start_session` (app de escritorio): enseguida, un chat con worktree (`user_asked`) por cada ticket aceptado de la primera tanda que no choque con otro, con `/work nombre` y su modelo y esfuerzo. Si no la hay: decir al usuario que lance `/work nombre`.
-  3. Los que chocan esperan a que el anterior esté en main; el chat central los lanza al recibir el aviso de subida.
-- **Casillas para aceptar** (al final de `/ideas`, `/add` y `/board`, si hay tickets en `Estado: propuesta`): AskUserQuestion en multiSelect, una opción por ticket (etiqueta: nombre; descripción: qué aporta, modelo, esfuerzo y tanda), máximo 4 por pregunta y hasta 4 preguntas agrupadas por tanda. Los marcados se aceptan como arriba; si no marca ninguno, no se cambia nada.
-- **Chat central** (`/hub`): carpeta principal, rama `main`, en Opus. Reparte tickets, recibe los avisos de subida y deja `main` local al día para que el usuario nunca haga `git pull` a mano.
+- **Aceptar** (casillas o "acepto X") es la orden de empezar: seguir `.claude/skills/accept/SKILL.md`. Cada ticket va en su propio chat con worktree, no como subagente.
+- **Chat central** (`/hub`): carpeta principal, rama `main`, en Sonnet. Reparte tickets, recibe los avisos de subida y deja `main` local al día para que el usuario nunca haga `git pull` a mano. No implementa tickets.
 - Para probar, usar el agente `probador`.
 - Comandos `gh`: si existe la variable `GH_USER`, lanzarlos con la cuenta de este proyecto sin guardar el token: `GH_TOKEN="$(gh auth token --user "$GH_USER")" gh ...`.
 - Avisar al usuario de qué comando toca, al final de la respuesta, en una línea:
   - Pregunta qué tickets quedan o cuáles se pueden hacer a la vez → `/board`.
   - Quiere arreglar o añadir algo concreto → `/add`. Pide ideas → `/ideas`.
   - Ticket aceptado → `/work nombre`, con el modelo y el esfuerzo que pone el ticket.
-  - Tras `/work` → probar a mano en Godot y luego `/ship`.
+  - Tras `/work` → probar a mano en Godot; si falla, `/fix qué falla`; si va bien, `/ship`.
   - Ticket ya en main → decir que su chat, su worktree y su rama ya se borraron.
-  - Chat largo o tema distinto al del chat → abrir chat nuevo.
+  - Otro ticket o tema distinto al del chat → chat nuevo. Chat central de más de ~60k → `/hub` (relevo).
   - Tarea mecánica en Opus → bajar a Sonnet o Haiku. Sonnet atascado dos veces → subir a Opus.
 
 ## Ahorro de tokens

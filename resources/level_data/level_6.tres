@@ -2,10 +2,10 @@
 
 [ext_resource type="PackedScene" uid="uid://cf2uma64pwkfq" path="res://scenes/maps/levels/Level6.tscn" id="1_npfra"]
 [ext_resource type="Script" uid="uid://du40p5btlpgd0" path="res://scripts/resources/LevelData.gd" id="2_xvb3k"]
-[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TowerData.gd" id="3_j73uf"]
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="3_j73uf"]
 [ext_resource type="Resource" uid="uid://cnbuncwscbxtt" path="res://resources/turret_data/turret.tres" id="4_npfra"]
 [ext_resource type="Resource" uid="uid://bh8qdvmr3kaj" path="res://resources/turret_data/rocket_launcher.tres" id="5_xvb3k"]
-[ext_resource type="Resource" uid="uid://bi8dmx532elhj" path="res://resources/turret_data/laser.tres" id="6_j73uf"]
+[ext_resource type="Resource" path="res://resources/turret_data/minigun.tres" id="6_j73uf"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="7_4aa7w"]
 [ext_resource type="Resource" uid="uid://ojf1udgbevrh" path="res://resources/wave_data/level_6.tres" id="8_npfra"]
 [ext_resource type="Resource" uid="uid://q31rie6ri1ut" path="res://resources/wave_data/level_6_4.tres" id="15_2p2t8"]
@@ -23,6 +23,6 @@
 [resource]
 script = ExtResource("2_xvb3k")
 map = ExtResource("1_npfra")
-towers = Array[ExtResource("3_j73uf")]([ExtResource("4_npfra"), ExtResource("5_xvb3k"), ExtResource("6_j73uf"), ExtResource("cryo"), ExtResource("tesla"), ExtResource("rail"), ExtResource("disintegrator")])
+turrets = Array[ExtResource("3_j73uf")]([ExtResource("4_npfra"), ExtResource("5_xvb3k"), ExtResource("6_j73uf"), ExtResource("cryo"), ExtResource("tesla"), ExtResource("rail"), ExtResource("disintegrator")])
 waves = Array[ExtResource("7_4aa7w")]([ExtResource("8_npfra"), ExtResource("wave_6_2"), ExtResource("wave_6_3"), ExtResource("15_2p2t8"), ExtResource("16_nup4k"), ExtResource("17_cis4x"), ExtResource("18_i3h8c"), ExtResource("19_uhiu2")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"

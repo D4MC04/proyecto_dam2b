@@ -79,16 +79,16 @@ func _on_navedex_back_pressed() -> void:
 @warning_ignore("integer_division")
 func _on_stats_button_pressed() -> void:
 	var seconds := int(GameState.play_time)
-	var favorite: String = GameState.favorite_tower()
-	var tower_name := "-"
+	var favorite: String = GameState.favorite_turret()
+	var turret_name := "-"
 	if favorite != "":
-		tower_name = (load(Navedex.TOWER_DIR + favorite + ".tres") as TowerData).name
+		turret_name = (load(Navedex.TURRET_DIR + favorite + ".tres") as TurretData).name
 	stats_label.text = "
 ".join([
 		"Naves destruidas: %d" % GameState.stats.get("kills", 0),
 		"Dinero gastado: %s" % UiFormat.money(GameState.stats.get("spent", 0)),
 		"Tiempo jugado: %dh %02dm" % [seconds / 3600, seconds % 3600 / 60],
-		"Torre favorita: %s" % tower_name,
+		"Torreta favorita: %s" % turret_name,
 		"Niveles ganados: %d" % GameState.stats.get("wins", 0),
 	])
 	_transition(main_panel, stats_panel)

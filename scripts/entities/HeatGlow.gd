@@ -1,6 +1,6 @@
 extends Node2D
 class_name HeatGlow
-# Calor del Láser (ver Tower._update_overheat), todo en píxeles sin antialiasing: un halo
+# Calor de la Minigun (ver Turret._update_overheat), todo en píxeles sin antialiasing: un halo
 # naranja que crece con el calor y chispas de metal al rojo que saltan cada vez más.
 # Sobrecalentada, el halo palpita y salen muchas más chispas.
 
@@ -19,7 +19,7 @@ const SPARK_LIFE := 0.5
 # De recién salida a apagándose: amarillo, naranja, rojo.
 const SPARK_COLORS: Array[Color] = [Color("#fff1a0"), Color("#ffa040"), Color("#e0402a")]
 
-## Calor de 0 a 1 y si está sobrecalentada; los pone la torre cada frame.
+## Calor de 0 a 1 y si está sobrecalentada; los pone la torreta cada frame.
 var heat := 0.0
 var overheated := false
 

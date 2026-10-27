@@ -1,9 +1,9 @@
-[gd_resource type="Resource" script_class="TowerData" format=3 uid="uid://b8ynt6u20qgqi"]
+[gd_resource type="Resource" script_class="TurretData" format=3 uid="uid://b8ynt6u20qgqi"]
 
-[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TowerData.gd" id="1"]
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="1"]
 [ext_resource type="Shape2D" path="res://resources/collision_shapes/rail.tres" id="2"]
 [ext_resource type="Resource" path="res://resources/beam_data/rail.tres" id="3"]
-[ext_resource type="Texture2D" uid="uid://divon6g4mh7v0" path="res://assets/sprites/towers/rail/rail_full_up.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://divon6g4mh7v0" path="res://assets/sprites/turrets/rail/rail_full_up.png" id="4"]
 [ext_resource type="SpriteFrames" uid="uid://dj16d163bkadu" path="res://resources/sprite_frames/rail.tres" id="5"]
 [ext_resource type="SpriteFrames" uid="uid://cymifejgssp2m" path="res://resources/sprite_frames/rail_muzzle.tres" id="6"]
 [ext_resource type="SpriteFrames" uid="uid://cwbs1ip1mk7kd" path="res://resources/sprite_frames/rail_cannon.tres" id="7"]

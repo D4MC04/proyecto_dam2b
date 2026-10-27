@@ -9,9 +9,8 @@ const SHIPS: Array[Array] = [
 	[preload("res://resources/sprite_frames/nave_normal.tres"), 180.0],
 	[preload("res://resources/sprite_frames/nave_agresiva.tres"), 180.0],
 	[preload("res://resources/sprite_frames/wasp.tres"), 0.0],
-	[preload("res://resources/sprite_frames/ufo.tres"), null],
 ]
-const IMPACT_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/laser_impact.tres")
+const IMPACT_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/minigun_impact.tres")
 const SHIP_SCALE: float = 0.5
 # Las naves y sus impactos van oscurecidos, como lejanos, pero opacos: no transparentan lo que tengan detrás
 const SHIP_TINT: Color = Color(0.62, 0.66, 0.74)
@@ -24,7 +23,7 @@ const KILL_CHANCE: float = 0.4
 # Franjas verticales (fracción de la altura) por las que pasan; el centro queda libre para los botones
 const LANES: Array[Vector2] = [Vector2(0.05, 0.2), Vector2(0.8, 0.95)]
 
-# Si está, los disparos salen de sus torres; si no, de fuera de la pantalla
+# Si está, los disparos salen de sus torretas; si no, de fuera de la pantalla
 @export var outpost: Outpost
 
 var viewport_size: Vector2

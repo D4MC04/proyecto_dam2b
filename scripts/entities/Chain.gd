@@ -10,12 +10,12 @@ var _targets: Array[Enemy] = []
 var _age := 0.0
 var _variant := randi()
 
-static func spawn(tower: Tower, first: Enemy) -> void:
-	var data := tower.data.chain
+static func spawn(turret: Turret, first: Enemy) -> void:
+	var data := turret.data.chain
 	var chain := Chain.new()
 	chain._data = data
-	chain._targets = _pick_targets(first, data, tower.get_tree().get_nodes_in_group(&"enemies"))
-	chain.add_point(tower.global_position)
+	chain._targets = _pick_targets(first, data, turret.get_tree().get_nodes_in_group(&"enemies"))
+	chain.add_point(turret.global_position)
 	for enemy in chain._targets:
 		chain.add_point(enemy.global_position)
 	chain.texture = data.bolt_textures[chain._variant % data.bolt_textures.size()]
@@ -24,10 +24,10 @@ static func spawn(tower: Tower, first: Enemy) -> void:
 	chain.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	# Por encima de torretas y enemigos.
 	chain.z_index = 1
-	var world := tower.get_parent()
+	var world := turret.get_parent()
 	world.add_child(chain)
 	for enemy in chain._targets:
-		enemy.take_damage(data.damage, tower)
+		enemy.take_damage(data.damage, turret)
 		if enemy.hp > 0:
 			enemy.flash()
 		if data.impact_frames:

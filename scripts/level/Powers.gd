@@ -56,8 +56,8 @@ var _orbital_elapsed := ORBITAL_TIME
 var _orbital_shake_left := 0.0
 
 func _ready() -> void:
-	# Elegir torre cancela el apuntado.
-	state.selected_tower_changed.connect(func(data: TowerData) -> void:
+	# Elegir torreta cancela el apuntado.
+	state.selected_turret_changed.connect(func(data: TurretData) -> void:
 		if data != null:
 			cancel_aiming())
 
@@ -98,8 +98,8 @@ func use(power: Power) -> void:
 	elif power == Power.FREEZE:
 		_freeze()
 	else:
-		# Apuntando no se coloca torre: se suelta la seleccionada.
-		state.selected_tower = null
+		# Apuntando no se coloca torreta: se suelta la seleccionada.
+		state.selected_turret = null
 		_aimed_power = power
 		queue_redraw()
 

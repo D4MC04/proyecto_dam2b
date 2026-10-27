@@ -3,7 +3,7 @@ class_name Grid
 
 var logic_map: TileMapLayer
 var slot_cells: Dictionary = {}
-var towers: Dictionary = {}
+var turrets: Dictionary = {}
 
 func setup(lm: TileMapLayer) -> void:
 	logic_map = lm
@@ -15,11 +15,11 @@ func setup(lm: TileMapLayer) -> void:
 				slot_cells[c] = true
 
 func can_build(c: Vector2i) -> bool:
-	return slot_cells.has(c) and not towers.has(c)
+	return slot_cells.has(c) and not turrets.has(c)
 
-func register_tower(c: Vector2i, t: Node) -> void:
-	towers[c] = t
-	t.tree_exiting.connect(func(): towers.erase(c))
+func register_turret(c: Vector2i, t: Node) -> void:
+	turrets[c] = t
+	t.tree_exiting.connect(func(): turrets.erase(c))
 
 func cell(p: Vector2) -> Vector2i:
 	return logic_map.local_to_map(logic_map.to_local(p))

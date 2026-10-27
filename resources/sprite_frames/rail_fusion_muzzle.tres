@@ -1,6 +1,6 @@
 [gd_resource type="SpriteFrames" format=3 uid="uid://cbsg5td3pmdyv"]
 
-[ext_resource type="Texture2D" uid="uid://c533cvoej46hb" path="res://assets/sprites/towers/rail_fusion/rail_muzzle_sheet.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://c533cvoej46hb" path="res://assets/sprites/turrets/rail_fusion/rail_muzzle_sheet.png" id="1"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0"]
 atlas = ExtResource("1")

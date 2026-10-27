@@ -1,65 +1,69 @@
 [gd_resource type="Resource" script_class="WaveData" format=3 uid="uid://byedhj4f4e5em"]
 
-[ext_resource type="Resource" uid="uid://ct17eiklf1sb7" path="res://resources/enemy_data/ufo.tres" id="2_kfbas"]
-[ext_resource type="Resource" uid="uid://d2xfg8qmcw3va" path="res://resources/enemy_data/nave_normal.tres" id="3_rlxhh"]
-[ext_resource type="Script" uid="uid://cwc32qenwkwf3" path="res://scripts/resources/SpawnEntry.gd" id="entry"]
-[ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="wave"]
+[ext_resource type="Script" uid="uid://cwc32qenwkwf3" path="res://scripts/resources/SpawnEntry.gd" id="1_ix3ac"]
+[ext_resource type="Resource" uid="uid://d2xfg8qmcw3va" path="res://resources/enemy_data/nave_normal.tres" id="2_kfbas"]
+[ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="3_rlxhh"]
 
-[sub_resource type="Resource" id="Resource_q68sd"]
-script = ExtResource("entry")
+[sub_resource type="Resource" id="Resource_ix3ac"]
+script = ExtResource("1_ix3ac")
 enemy_data = ExtResource("2_kfbas")
 time = 3.0
 
-[sub_resource type="Resource" id="Resource_83f0x"]
-script = ExtResource("entry")
+[sub_resource type="Resource" id="Resource_kfbas"]
+script = ExtResource("1_ix3ac")
 enemy_data = ExtResource("2_kfbas")
-time = 3.8
+time = 3.7
 path_index = 1
+
+[sub_resource type="Resource" id="Resource_rlxhh"]
+script = ExtResource("1_ix3ac")
+enemy_data = ExtResource("2_kfbas")
+time = 4.4
+
+[sub_resource type="Resource" id="Resource_q68sd"]
+script = ExtResource("1_ix3ac")
+enemy_data = ExtResource("2_kfbas")
+time = 5.0
+path_index = 1
+
+[sub_resource type="Resource" id="Resource_83f0x"]
+script = ExtResource("1_ix3ac")
+enemy_data = ExtResource("2_kfbas")
+time = 7.4
 
 [sub_resource type="Resource" id="Resource_levk6"]
-script = ExtResource("entry")
+script = ExtResource("1_ix3ac")
 enemy_data = ExtResource("2_kfbas")
-time = 4.5
+time = 8.1
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_yxyl4"]
-script = ExtResource("entry")
+script = ExtResource("1_ix3ac")
 enemy_data = ExtResource("2_kfbas")
-time = 5.3
-path_index = 1
+time = 8.8
 
 [sub_resource type="Resource" id="Resource_2rpqw"]
-script = ExtResource("entry")
+script = ExtResource("1_ix3ac")
 enemy_data = ExtResource("2_kfbas")
-time = 7.7
+time = 9.4
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_3q2n0"]
-script = ExtResource("entry")
+script = ExtResource("1_ix3ac")
 enemy_data = ExtResource("2_kfbas")
-time = 8.4
-path_index = 1
+time = 11.8
 
 [sub_resource type="Resource" id="Resource_mdjro"]
-script = ExtResource("entry")
+script = ExtResource("1_ix3ac")
 enemy_data = ExtResource("2_kfbas")
-time = 9.2
+time = 12.5
+path_index = 1
 
 [sub_resource type="Resource" id="Resource_k4sip"]
-script = ExtResource("entry")
+script = ExtResource("1_ix3ac")
 enemy_data = ExtResource("2_kfbas")
-time = 9.9
-path_index = 1
-
-[sub_resource type="Resource" id="Resource_g4stj"]
-script = ExtResource("entry")
-enemy_data = ExtResource("3_rlxhh")
-time = 12.3
-
-[sub_resource type="Resource" id="Resource_fw76r"]
-script = ExtResource("entry")
-enemy_data = ExtResource("3_rlxhh")
-time = 13.0
-path_index = 1
+time = 13.2
 
 [resource]
-script = ExtResource("wave")
-entries = Array[ExtResource("entry")]([SubResource("Resource_q68sd"), SubResource("Resource_83f0x"), SubResource("Resource_levk6"), SubResource("Resource_yxyl4"), SubResource("Resource_2rpqw"), SubResource("Resource_3q2n0"), SubResource("Resource_mdjro"), SubResource("Resource_k4sip"), SubResource("Resource_g4stj"), SubResource("Resource_fw76r")])
+script = ExtResource("3_rlxhh")
+entries = Array[ExtResource("1_ix3ac")]([SubResource("Resource_ix3ac"), SubResource("Resource_kfbas"), SubResource("Resource_rlxhh"), SubResource("Resource_q68sd"), SubResource("Resource_83f0x"), SubResource("Resource_levk6"), SubResource("Resource_yxyl4"), SubResource("Resource_2rpqw"), SubResource("Resource_3q2n0"), SubResource("Resource_mdjro"), SubResource("Resource_k4sip")])

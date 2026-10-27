@@ -1,7 +1,7 @@
 extends Button
 class_name EnemyCell
 
-## Petición de enseñar este enemigo o torre en la ficha (clic izquierdo o derecho); no guarda qué está inspeccionado.
+## Petición de enseñar este enemigo o torreta en la ficha (clic izquierdo o derecho); no guarda qué está inspeccionado.
 signal inspect_requested(data: InspectableData)
 
 @onready var icon_rect: TextureRect = %IconRect
@@ -11,8 +11,8 @@ var data: InspectableData
 
 func _ready() -> void:
 	pressed.connect(_on_pressed)
-	add_theme_stylebox_override("normal", ClippedBoxStyle.create(TowerButton.BG_COLOR, TowerButton.BORDER_COLOR))
-	var hover := ClippedBoxStyle.create(TowerButton.HOVER_BG_COLOR, TowerButton.HOVER_BORDER_COLOR)
+	add_theme_stylebox_override("normal", ClippedBoxStyle.create(TurretButton.BG_COLOR, TurretButton.BORDER_COLOR))
+	var hover := ClippedBoxStyle.create(TurretButton.HOVER_BG_COLOR, TurretButton.HOVER_BORDER_COLOR)
 	add_theme_stylebox_override("hover", hover)
 	add_theme_stylebox_override("pressed", hover)
 	add_theme_stylebox_override("hover_pressed", hover)

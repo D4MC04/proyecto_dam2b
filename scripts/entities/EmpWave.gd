@@ -1,7 +1,7 @@
 extends Node2D
 class_name EmpWave
 # Pulso EMP de la Saboteadora: un anillo azul de píxeles que crece desde la nave y apaga
-# las torres por las que pasa su borde. Se queda donde salió, no sigue a la nave.
+# las torretas por las que pasa su borde. Se queda donde salió, no sigue a la nave.
 
 # Borde de fuera a dentro: frente blanco, dos píxeles de azul claro y estela azul.
 const RING_COLORS: Array[Color] = [Color("#e6f6ff"), Color("#78bcff"), Color("#78bcff"), Color("#2a6ae6")]
@@ -16,7 +16,7 @@ const FLASH_TIME := 0.08
 var _radius := 0.0
 var _time := 0.0
 var _disable_time: float
-var _hit: Array[Tower] = []
+var _hit: Array[Turret] = []
 
 ## Le pone a la nave un temporizador que cada `emp_interval` segundos empieza a cargar un pulso
 ## (EmpCharge), que sale al acabar la carga.
@@ -30,7 +30,7 @@ static func attach(enemy: Enemy) -> void:
 static func spawn(enemy: Enemy) -> void:
 	var wave := EmpWave.new()
 	wave._disable_time = enemy.data.emp_disable_time
-	# Por encima de torres y enemigos.
+	# Por encima de torretas y enemigos.
 	wave.z_index = 1
 	enemy.get_parent().add_child(wave)
 	# Centro en mitad de un píxel para que el anillo caiga en la rejilla.
@@ -43,10 +43,10 @@ static func spawn(enemy: Enemy) -> void:
 func _process(delta: float) -> void:
 	_time += delta
 	queue_redraw()
-	for tower: Tower in get_tree().get_nodes_in_group(&"towers"):
-		if not _hit.has(tower) and global_position.distance_to(tower.global_position) <= _radius:
-			_hit.append(tower)
-			tower.disable(_disable_time)
+	for turret: Turret in get_tree().get_nodes_in_group(&"turrets"):
+		if not _hit.has(turret) and global_position.distance_to(turret.global_position) <= _radius:
+			_hit.append(turret)
+			turret.disable(_disable_time)
 
 func _draw() -> void:
 	if _time < FLASH_TIME:

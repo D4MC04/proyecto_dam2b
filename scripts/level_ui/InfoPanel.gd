@@ -3,9 +3,9 @@ class_name InfoPanel
 ## Ficha de la barra izquierda. Enseña lo inspeccionado en LevelState (lo recibe por
 ## show_inspected) y pinta las filas que le dan, sin saber qué stats existen.
 
-## El jugador pulsa "Vender"; es una petición, el dinero y la torre los gestiona LevelState.
+## El jugador pulsa "Vender"; es una petición, el dinero y la torreta los gestiona LevelState.
 signal sell_requested
-## El jugador pulsa "Mejorar"; la torre y el dinero los gestiona BuildManager.
+## El jugador pulsa "Mejorar"; la torreta y el dinero los gestiona BuildManager.
 signal upgrade_requested
 
 # Fuente a 16 px (6 px por carácter) en los 110 px útiles de la pantalla de la barra
@@ -51,8 +51,8 @@ const CONFIRM_SELL_TEXT := "¿Seguro?"
 var _accent := Color.WHITE
 var _flash_id := 0
 var _confirming_sell := false
-# Filas de bajas y daño de la torre seleccionada; se rehacen en cada selección.
-var _tower_rows: Array[Node] = []
+# Filas de bajas y daño de la torreta seleccionada; se rehacen en cada selección.
+var _turret_rows: Array[Node] = []
 
 func _ready() -> void:
 	icon_pad.draw.connect(_draw_icon_pad)
@@ -70,28 +70,28 @@ func _ready() -> void:
 	show_sellable(null)
 	_show_idle()
 
-## Enseña los botones "Vender (+X)" y, si tiene mejora, "Mejorar (-X)" de una torre colocada; con null los oculta.
-func show_sellable(tower: Tower) -> void:
+## Enseña los botones "Vender (+X)" y, si tiene mejora, "Mejorar (-X)" de una torreta colocada; con null los oculta.
+func show_sellable(turret: Turret) -> void:
 	_confirming_sell = false
-	sell_button.visible = tower != null
-	upgrade_button.visible = tower != null and tower.data.fusion != null
-	for row in _tower_rows:
+	sell_button.visible = turret != null
+	upgrade_button.visible = turret != null and turret.data.fusion != null
+	for row in _turret_rows:
 		if is_instance_valid(row):
 			row.queue_free()
-	_tower_rows.clear()
-	if tower != null:
+	_turret_rows.clear()
+	if turret != null:
 		var entries: Array[StatEntry] = [
-			StatEntry.new("kills", "BAJAS", UiFormat.abbreviate(tower.kills)),
-			StatEntry.new("damage", "HECHO", UiFormat.abbreviate(roundi(tower.damage_dealt))),
+			StatEntry.new("kills", "BAJAS", UiFormat.abbreviate(turret.kills)),
+			StatEntry.new("damage", "HECHO", UiFormat.abbreviate(roundi(turret.damage_dealt))),
 		]
 		for entry in entries:
 			var row := StatRow.create(entry, stat_rows.get_child_count())
 			stat_rows.add_child(row)
-			_tower_rows.append(row)
-	if tower != null:
-		sell_button.text = "Vender (+%s)" % UiFormat.money(tower.get_sell_value())
-		if tower.data.fusion != null:
-			upgrade_button.text = "Mejorar (-%s)" % UiFormat.money(tower.data.fusion.cost)
+			_turret_rows.append(row)
+	if turret != null:
+		sell_button.text = "Vender (+%s)" % UiFormat.money(turret.get_sell_value())
+		if turret.data.fusion != null:
+			upgrade_button.text = "Mejorar (-%s)" % UiFormat.money(turret.data.fusion.cost)
 
 # Vender siempre pide confirmar con un segundo clic.
 func _on_sell_pressed() -> void:

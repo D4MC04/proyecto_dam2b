@@ -27,21 +27,21 @@ git remote set-url origin https://tu-cuenta@github.com/D4MC04/proyecto_dam2b.git
 | `/add idea 1; idea 2` | Convierte **tus** ideas (arreglos o cosas nuevas) en tickets |
 | `/ideas [tema]` | Claude **propone** 3-5 tickets (opcional: sobre un tema) |
 | `/board` | Tablero: lista los tickets, dice cuáles chocan (tocan los mismos archivos) y en qué tandas hacerlos |
+| `/accept [nombres]` | Acepta tickets (con casillas si no dices cuáles) y abre un chat por ticket con `/work` |
 | `/work nombre` | Implementa el ticket en su rama, lo prueba y te da pasos para probarlo en Godot |
+| `/fix qué falla` | Arregla lo que viste mal al probar, en la misma rama, y reabre Godot |
 | `/check` | Revisa la rama sin tocar nada y te explica qué cambia |
 | `/commit` | Revisa lo que no está commiteado, lo prueba y, si sale bien, hace un commit en la rama explicando el cambio. No sube nada |
 | `/ship` | Lo lleva todo a main sin que revises nada: commitea lo pendiente, trae `main` y resuelve conflictos, sube la rama, abre el PR y lo fusiona (squash) |
-| `/hub` | Abre el chat central (solo en la app de escritorio) |
-
-Los nombres antiguos (`/proponer`, `/tickets`, `/hacer`, `/revisar`, `/new`) siguen funcionando un tiempo como alias.
+| `/hub` | Abre el chat central (solo en la app de escritorio). Escrito en un central lleno, le hace el relevo |
 
 ## El ciclo
 | Paso | Tú | Claude |
 |---|---|---|
-| 1 | `/add` con lo que quieres arreglar, o `/ideas` si quieres propuestas | Escribe los tickets en `docs/tasks/` con `Estado: propuesta` |
-| 2 | Marcas las casillas de los que aceptas (o dices "acepto X"). `/board` te los lista cuando quieras. Borras los que no quieras | Cambia `Estado:` a `aceptada` y empieza (ver abajo) |
-| 3 | `/work nombre` (si no lo lanzó ya el chat central) | Crea la rama `ticket/nombre`, implementa, actualiza docs, borra el ticket, hace `/commit`, abre Godot y te da pasos para probar |
-| 4 | Pruebas en Godot (solo F5) | Si algo falla, se lo dices en el mismo chat: lo arregla y hace otro `/commit` |
+| 1 | `/add` con lo que quieres arreglar, o `/ideas` si quieres propuestas | Escribe los tickets en `docs/tickets/` con `Estado: propuesta` |
+| 2 | Marcas las casillas de los que aceptas (o `/accept nombre`). `/board` te los lista por prioridad cuando quieras. Borras los que no quieras | Cambia `Estado:` a `aceptada` y abre un chat por ticket (ver abajo) |
+| 3 | `/work nombre` (si no lo lanzó ya `/accept`) | Crea la rama `ticket/nombre`, lee solo lo que pone "Qué leer" del ticket, implementa, actualiza docs, borra el ticket, hace `/commit`, abre Godot y te da pasos para probar |
+| 4 | Pruebas en Godot (solo F5) | Si algo falla, `/fix qué falla` en el chat de ese ticket: lo arregla, hace `/commit` y reabre Godot |
 | 5 | `/ship` | Commitea lo pendiente, trae `main`, resuelve conflictos, sube la rama, abre el PR y lo fusiona en main con squash (un commit por ticket). Te da el enlace del PR |
 | 6 | — (no haces `git pull`) | Deja tu `main` local al día y borra la rama. En chats con worktree lo hace el chat central, que además archiva el chat del ticket (se puede recuperar desde Archivados) y quita su worktree. Si Godot está abierto en esa carpeta, ciérralo |
 
@@ -51,17 +51,22 @@ Si cambias algo a mano (en Godot o en el código), escribe `/commit` para guarda
 
 **Varios tickets a la vez** (app de escritorio): al aceptar, Claude sube el cambio de `Estado:` a main (los worktrees salen de lo que hay en main) y abre un chat con worktree por cada ticket que no choque con otro, ya con `/work`. Los que chocan esperan a que el anterior esté en main. En la extensión de VS Code no se pueden abrir chats solos: lanza tú `/work` en cada chat.
 
-**`/hub`**: abre el chat central (Opus, en la carpeta principal, sobre `main`) y borra el chat donde lo escribiste (la app te pide confirmar el borrado). El chat central reparte tickets, recibe los avisos de subida y mantiene `main` local actualizado. Los chats de ticket van en worktree y no pueden tocar la carpeta principal, por eso lo hace él. Con `/ship todo`, sube él mismo todos los tickets listos.
+**`/hub`**: abre el chat central (Sonnet, en la carpeta principal, sobre `main`) y borra el chat donde lo escribiste (la app te pide confirmar el borrado). El chat central reparte tickets, recibe los avisos de subida y mantiene `main` local actualizado; no implementa. Los chats de ticket van en worktree y no pueden tocar la carpeta principal, por eso lo hace él. Con `/ship todo`, sube él mismo todos los tickets listos.
 
-Los tickets siguen el formato de `docs/tasks/_plantilla.md`. Puedes escribir tú uno a mano y lanzar `/work` igual.
+**¿Sigo en este chat o abro otro?** Cada mensaje envía una parte fija de unos 75k tokens (herramientas, conectores, skills, instrucciones), sea el chat nuevo o viejo, más todo el historial de ese chat. Un chat nuevo no paga más que uno viejo: solo pierde lo que el viejo ya había leído. Si el próximo ticket toca los mismos archivos y el chat aún es corto (menos de ~40k de mensajes), puede seguir ahí.
+- Otro ticket u otro tema → chat nuevo.
+- Mismo ticket y el chat va por menos de ~60k → sigue en él (lo que ya leyó le sirve).
+- El chat central pasa de ~60k (él te avisa) → `/hub` ahí mismo: abre un central nuevo con un resumen de 10 líneas de los tickets en marcha y cierra el viejo. Es el **relevo**.
+
+Los tickets siguen el formato de `docs/tickets/_plantilla.md`. Puedes escribir tú uno a mano y lanzar `/work` igual.
 
 ## Qué modelo usar
-Se cambia en el selector de modelo de la app. Algunos comandos fijan el suyo y lo usan aunque el chat esté en otro: `/ideas` y `/check` van en Opus; `/board`, `/hub` y el `probador`, en Haiku. `/add`, `/work`, `/commit` y `/ship` usan el del chat.
+Se cambia en el selector de modelo de la app. Algunos comandos fijan el suyo y lo usan aunque el chat esté en otro: `/ideas` y `/check` van en Opus; `/board`, `/accept`, `/hub` y el `probador`, en Haiku (el chat central que abre `/hub` va en Sonnet). `/add`, `/work`, `/fix`, `/commit` y `/ship` usan el del chat.
 
 | Modelo | Cuándo |
 |---|---|
 | **Haiku** | Preguntas rápidas ("¿dónde se define X?"), renombres o cambios mecánicos. Barato y rápido. |
-| **Sonnet** | Por defecto para `/work` y `/add`: tickets normales de 1-3 archivos (una torre nueva, un ajuste de UI, un enemigo). |
+| **Sonnet** | Por defecto para `/work` y `/add`: tickets normales de 1-3 archivos (una torreta nueva, un ajuste de UI, un enemigo). |
 | **Opus** | Diseñar un sistema nuevo, bugs que Sonnet no saca a la primera, tickets que tocan varios sistemas. |
 
 Regla simple: empieza en Sonnet. Si da vueltas o falla dos veces, sube a Opus. Si es algo mecánico, baja a Haiku. Cada ticket lleva un "Modelo recomendado" y un "Esfuerzo recomendado".

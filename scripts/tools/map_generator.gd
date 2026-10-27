@@ -16,7 +16,7 @@ extends SceneTree
 ##   station = 5 16              casilla del centro de la estación
 ##   path = -2,4 11,4 11,10 ...  un camino por línea, con tramos horizontales o verticales;
 ##                               empieza fuera del mapa y acaba en el centro de la estación
-##   slots = 7,6 12,6 ...        casillas de torre (un asteroide con plataforma en cada una)
+##   slots = 7,6 12,6 ...        casillas de torreta (un asteroide con plataforma en cada una)
 ##   rocks = grey brown ice      familias de roca del nivel (grey, brown, dark, ore, ice, crystal,
 ##                               lava); la primera es la principal y cierra el borde del mapa
 ## Las líneas vacías y las que empiezan por "#" se ignoran.
@@ -34,7 +34,7 @@ const LOGIC_TILESET: String = "res://resources/tilesets/logic_tileset.tres"
 
 # Fuentes de tileset_espacio.tres
 const ROCKS: int = 0
-const TOWER_SLOTS: int = 4
+const TURRET_SLOTS: int = 4
 const ANIMATED: int = 2
 const GRAVEL: int = 3
 # Alternativa de las piezas con algún lado par (2x2, 2x1, 1x2, 3x2): desplazada media casilla
@@ -119,14 +119,14 @@ const TWINKLES: Array[int] = [0, 6, 12]
 # Luces de la pista (atlas de animados): las horizontales y las verticales alternan dos piezas
 const LIGHTS_HORIZONTAL: Array[Vector2i] = [Vector2i(18, 0), Vector2i(22, 0)]
 const LIGHTS_VERTICAL: Array[Vector2i] = [Vector2i(26, 0), Vector2i(0, 1)]
-# Asteroides con plataforma de las casillas de torre (fuente TOWER_SLOTS, piezas de 2x2): una fila
-# por familia de roca y TOWER_SLOT_SHAPES formas por fila (ver make_tower_slot_tiles.gd)
-const TOWER_SLOT_ROWS: Dictionary[String, int] = {
+# Asteroides con plataforma de las casillas de torreta (fuente TURRET_SLOTS, piezas de 2x2): una fila
+# por familia de roca y TURRET_SLOT_SHAPES formas por fila (ver make_turret_slot_tiles.gd)
+const TURRET_SLOT_ROWS: Dictionary[String, int] = {
 	"grey": 0, "brown": 1, "dark": 2, "ore": 3, "ice": 4, "crystal": 5, "lava": 6,
 }
-const TOWER_SLOT_SHAPES: int = 4
-# Casillas de torre a esta distancia o menos usan formas distintas
-const TOWER_SLOT_SPREAD: int = 8
+const TURRET_SLOT_SHAPES: int = 4
+# Casillas de torreta a esta distancia o menos usan formas distintas
+const TURRET_SLOT_SPREAD: int = 8
 
 
 ## Pieza del tileset: fuente, casilla del atlas y tamaño en casillas.
@@ -251,7 +251,7 @@ func _generate(n: int) -> void:
 		push_error("No se puede guardar %s (%s)" % [scene_path, error_string(error)])
 		return
 	_write_uids(scene_path, old_uid if old_uid != ResourceUID.INVALID_ID else ResourceUID.create_id())
-	print("%s -> %s (%d caminos, %d casillas de torre)" % [DATA_PATH % n, scene_path, layout.paths.size(), layout.slots.size()])
+	print("%s -> %s (%d caminos, %d casillas de torreta)" % [DATA_PATH % n, scene_path, layout.paths.size(), layout.slots.size()])
 
 
 ## Uid escrito en la cabecera del .tscn, o INVALID_ID si el archivo no existe o no lo tiene.
@@ -340,7 +340,7 @@ func _build_map(layout: LevelLayout) -> Node2D:
 	var gravel: TileMapLayer = _add_layer(map, "Gravel", space_tileset)
 	var lights: TileMapLayer = _add_layer(map, "Lights", space_tileset)
 	var scenery: TileMapLayer = _add_layer(map, "VisualMap", space_tileset)
-	var tower_slots: TileMapLayer = _add_layer(map, "TowerSlots", space_tileset)
+	var turret_slots: TileMapLayer = _add_layer(map, "TurretSlots", space_tileset)
 	var logic: TileMapLayer = _add_layer(map, "LogicMap", load(LOGIC_TILESET))
 	logic.visible = false
 	logic.modulate = Color(1, 1, 1, 0.39215687)
@@ -354,7 +354,7 @@ func _build_map(layout: LevelLayout) -> Node2D:
 	_solid = {}
 	_mark(layout.station, STATION_RADIUS)
 
-	_place_tower_slots(tower_slots, layout.slots)
+	_place_turret_slots(turret_slots, layout.slots)
 	_place_entrances(scenery, _find_entrances(layout))
 	_place_lights(lights, path_cells, layout.station)
 	_place_landmarks(scenery)
@@ -506,7 +506,7 @@ func _is_shore(cell: Vector2i) -> bool:
 	return _distance.get(cell, 99) == SHORE_DISTANCE
 
 
-## Ni el pasillo ni algo ya puesto (estación, casilla de torre o decorado).
+## Ni el pasillo ni algo ya puesto (estación, casilla de torreta o decorado).
 func _is_free(cell: Vector2i) -> bool:
 	return not _blocked.has(cell) and not _is_corridor(cell)
 
@@ -530,7 +530,7 @@ func _density_at(cell: Vector2i) -> float:
 	return density * (1.0 + DEPTH_BONUS * depth)
 
 
-## Tapa el cuadrado de lado radius * 2 + 1 (estación y casillas de torre): queda ocupado y se ve.
+## Tapa el cuadrado de lado radius * 2 + 1 (estación y casillas de torreta): queda ocupado y se ve.
 func _mark(center: Vector2i, radius: int) -> void:
 	var rect: Rect2i = Rect2i(center - Vector2i.ONE * radius, Vector2i.ONE * (radius * 2 + 1))
 	_block(rect)
@@ -636,21 +636,21 @@ func _rect_distance(cell: Vector2i, rect: Rect2i) -> int:
 	return maxi(dx, dy)
 
 
-## Cada casilla de torre lleva un asteroide de la familia de su zona, con una forma distinta de la
+## Cada casilla de torreta lleva un asteroide de la familia de su zona, con una forma distinta de la
 ## de las casillas cercanas.
-func _place_tower_slots(layer: TileMapLayer, cells: Array[Vector2i]) -> void:
+func _place_turret_slots(layer: TileMapLayer, cells: Array[Vector2i]) -> void:
 	var used: Dictionary[Vector2i, int] = {}
 	for cell: Vector2i in cells:
 		var options: Array[int] = []
-		options.assign(range(TOWER_SLOT_SHAPES))
+		options.assign(range(TURRET_SLOT_SHAPES))
 		for other: Vector2i in used:
-			if _chebyshev(cell, other) <= TOWER_SLOT_SPREAD:
+			if _chebyshev(cell, other) <= TURRET_SLOT_SPREAD:
 				options.erase(used[other])
 		if options.is_empty():
-			options.assign(range(TOWER_SLOT_SHAPES))
+			options.assign(range(TURRET_SLOT_SHAPES))
 		var shape: int = options[_rng.randi_range(0, options.size() - 1)]
 		used[cell] = shape
-		layer.set_cell(cell, TOWER_SLOTS, Vector2i(shape, TOWER_SLOT_ROWS[_family_at(cell)]) * 2)
+		layer.set_cell(cell, TURRET_SLOTS, Vector2i(shape, TURRET_SLOT_ROWS[_family_at(cell)]) * 2)
 		_mark(cell, 1)
 
 
@@ -852,7 +852,7 @@ func _place_gravel(layer: TileMapLayer) -> void:
 		layer.set_cell(cell, GRAVEL, Vector2i(column, GRAVEL_ROWS[_family_at(cell)]))
 
 
-## Toda la cuadrícula: camino, hueco de torre o decorado.
+## Toda la cuadrícula: camino, hueco de torreta o decorado.
 func _fill_logic(layer: TileMapLayer, path_cells: Dictionary[Vector2i, int], layout: LevelLayout) -> void:
 	for y: int in MAP_SIZE.y:
 		for x: int in MAP_SIZE.x:

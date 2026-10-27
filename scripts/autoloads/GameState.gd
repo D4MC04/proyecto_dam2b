@@ -17,9 +17,9 @@ const ACHIEVEMENTS: Dictionary = {
 	"kills_100": ["Cazador", "Destruye 100 naves"],
 	"kills_1000": ["Exterminador", "Destruye 1000 naves"],
 	"seen_10": ["Observador", "Descubre 10 tipos de nave"],
-	"towers_50": ["Constructor", "Construye 50 torres"],
-	"fuse_first": ["Primera mejora", "Mejora una torre"],
-	"fuse_all": ["Maestro de mejoras", "Mejora todas las torres"],
+	"turrets_50": ["Constructor", "Construye 50 torretas"],
+	"fuse_first": ["Primera mejora", "Mejora una torreta"],
+	"fuse_all": ["Maestro de mejoras", "Mejora todas las torretas"],
 	"power_first": ["Poder desatado", "Usa un poder"],
 	"perfect_10": ["Defensa perfecta", "Logra 10 oleadas perfectas"],
 }
@@ -30,10 +30,10 @@ var current_level: int = 1
 var tutorial_done := false
 # Enemigos que ya han salido en una partida, por nombre de archivo del EnemyData.
 var seen_enemies: Array[String] = []
-# Contadores acumulados entre partidas: wins, kills, towers, powers, perfect_waves, spent y built_<torre>.
+# Contadores acumulados entre partidas: wins, kills, turrets, powers, perfect_waves, spent y built_<torreta>.
 var stats: Dictionary = {}
-# Torres fusionadas alguna vez, por nombre de archivo.
-var fused_towers: Array[String] = []
+# Torretas fusionadas alguna vez, por nombre de archivo.
+var fused_turrets: Array[String] = []
 var unlocked: Array[String] = []
 # Segundos jugados en niveles, en tiempo real.
 var play_time: float = 0.0
@@ -61,8 +61,15 @@ func _ready() -> void:
 			for key: Variant in counters:
 				if typeof(key) == TYPE_STRING and typeof(counters[key]) == TYPE_INT:
 					stats[key] = counters[key]
-		_load_list(file, "fused_towers", fused_towers)
+		# El progreso guardado antes del cambio de tower a turret usa los nombres antiguos: se pasan a los nuevos.
+		_load_list(file, "fused_turrets" if file.has_section_key(SECTION, "fused_turrets") else "fused_towers", fused_turrets)
 		_load_list(file, "unlocked", unlocked)
+		if stats.has("towers"):
+			stats["turrets"] = stats.get("turrets", 0) + stats["towers"]
+			stats.erase("towers")
+		var old_achievement := unlocked.find("towers_50")
+		if old_achievement >= 0:
+			unlocked[old_achievement] = "turrets_50"
 		var time: Variant = file.get_value(SECTION, "play_time", 0.0)
 		if typeof(time) == TYPE_FLOAT and time >= 0.0:
 			play_time = time
@@ -96,7 +103,7 @@ func mark_enemy_seen(data: EnemyData) -> void:
 	_check_achievements()
 	_save()
 
-## Suma `amount` a un contador de logros (wins, kills, towers, powers, perfect_waves). No guarda: ver flush().
+## Suma `amount` a un contador de logros (wins, kills, turrets, powers, perfect_waves). No guarda: ver flush().
 func add_stat(key: String, amount: int = 1) -> void:
 	stats[key] = stats.get(key, 0) + amount
 	_check_achievements()
@@ -105,8 +112,8 @@ func add_stat(key: String, amount: int = 1) -> void:
 func add_play_time(seconds: float) -> void:
 	play_time += seconds
 
-## Torre más construida: su nombre de archivo sin extensión, o "" si no se ha construido ninguna.
-func favorite_tower() -> String:
+## Torreta más construida: su nombre de archivo sin extensión, o "" si no se ha construido ninguna.
+func favorite_turret() -> String:
 	var best := ""
 	var best_count := 0
 	for key: String in stats:
@@ -115,11 +122,11 @@ func favorite_tower() -> String:
 			best_count = stats[key]
 	return best
 
-## Anota que esta torre se ha fusionado alguna vez.
-func register_fusion(fused: TowerData) -> void:
+## Anota que esta torreta se ha fusionado alguna vez.
+func register_fusion(fused: TurretData) -> void:
 	var file := fused.resource_path.get_file()
-	if file not in fused_towers:
-		fused_towers.append(file)
+	if file not in fused_turrets:
+		fused_turrets.append(file)
 	_check_achievements()
 
 ## Un nivel se ha ganado; `flawless` es que la estación acabó sin daño.
@@ -142,9 +149,9 @@ func _is_done(id: String) -> bool:
 		"kills_100": return stats.get("kills", 0) >= 100
 		"kills_1000": return stats.get("kills", 0) >= 1000
 		"seen_10": return seen_enemies.size() >= 10
-		"towers_50": return stats.get("towers", 0) >= 50
-		"fuse_first": return not fused_towers.is_empty()
-		"fuse_all": return fused_towers.size() >= Navedex.TOWER_FILES.size() / 2
+		"turrets_50": return stats.get("turrets", 0) >= 50
+		"fuse_first": return not fused_turrets.is_empty()
+		"fuse_all": return fused_turrets.size() >= Navedex.TURRET_FILES.size() / 2
 		"power_first": return stats.get("powers", 0) >= 1
 		"perfect_10": return stats.get("perfect_waves", 0) >= 10
 	return false
@@ -201,7 +208,7 @@ func reset_progress() -> void:
 	tutorial_done = false
 	seen_enemies.clear()
 	stats.clear()
-	fused_towers.clear()
+	fused_turrets.clear()
 	unlocked.clear()
 	play_time = 0.0
 	_save()
@@ -213,7 +220,7 @@ func _save() -> void:
 	file.set_value(SECTION, "tutorial_done", tutorial_done)
 	file.set_value(SECTION, "seen_enemies", seen_enemies)
 	file.set_value(SECTION, "stats", stats)
-	file.set_value(SECTION, "fused_towers", fused_towers)
+	file.set_value(SECTION, "fused_turrets", fused_turrets)
 	file.set_value(SECTION, "unlocked", unlocked)
 	file.set_value(SECTION, "play_time", play_time)
 	if file.save(PATH) != OK:

@@ -1,122 +1,114 @@
 [gd_resource type="Resource" script_class="WaveData" format=3 uid="uid://ddnr8ijuvulpj"]
 
-[ext_resource type="Resource" path="res://resources/enemy_data/saboteadora.tres" id="2_olr6r"]
-[ext_resource type="Resource" path="res://resources/enemy_data/divisora.tres" id="3_6xlw8"]
-[ext_resource type="Resource" path="res://resources/enemy_data/espectro.tres" id="4_tthg8"]
-[ext_resource type="Resource" uid="uid://c4ef5gd8nr04u" path="res://resources/enemy_data/spiked_ship.tres" id="5_nohci"]
-[ext_resource type="Resource" uid="uid://dgfq6h7o6qtu8" path="res://resources/enemy_data/ariete.tres" id="6_njtvf"]
-[ext_resource type="Script" uid="uid://cwc32qenwkwf3" path="res://scripts/resources/SpawnEntry.gd" id="entry"]
-[ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="wave"]
+[ext_resource type="Script" uid="uid://cwc32qenwkwf3" path="res://scripts/resources/SpawnEntry.gd" id="1_s8ts3"]
+[ext_resource type="Resource" path="res://resources/enemy_data/saboteadora.tres" id="2_nq1rv"]
+[ext_resource type="Resource" path="res://resources/enemy_data/espectro.tres" id="3_olr6r"]
+[ext_resource type="Resource" uid="uid://dgfq6h7o6qtu8" path="res://resources/enemy_data/ariete.tres" id="4_6xlw8"]
+[ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="5_tthg8"]
 
-[sub_resource type="Resource" id="Resource_hfap0"]
-script = ExtResource("entry")
-enemy_data = ExtResource("2_olr6r")
+[sub_resource type="Resource" id="Resource_s8ts3"]
+script = ExtResource("1_s8ts3")
+enemy_data = ExtResource("2_nq1rv")
 time = 3.0
 
-[sub_resource type="Resource" id="Resource_wgo2r"]
-script = ExtResource("entry")
-enemy_data = ExtResource("2_olr6r")
+[sub_resource type="Resource" id="Resource_nq1rv"]
+script = ExtResource("1_s8ts3")
+enemy_data = ExtResource("2_nq1rv")
 time = 4.0
 path_index = 1
 
-[sub_resource type="Resource" id="Resource_kx7nx"]
-script = ExtResource("entry")
-enemy_data = ExtResource("3_6xlw8")
+[sub_resource type="Resource" id="Resource_olr6r"]
+script = ExtResource("1_s8ts3")
+enemy_data = ExtResource("2_nq1rv")
 time = 5.6
 path_index = 2
 
-[sub_resource type="Resource" id="Resource_js5jq"]
-script = ExtResource("entry")
-enemy_data = ExtResource("3_6xlw8")
-time = 6.8
+[sub_resource type="Resource" id="Resource_6xlw8"]
+script = ExtResource("1_s8ts3")
+enemy_data = ExtResource("2_nq1rv")
+time = 6.7
 path_index = 3
 
-[sub_resource type="Resource" id="Resource_0yq7a"]
-script = ExtResource("entry")
-enemy_data = ExtResource("2_olr6r")
-time = 8.4
+[sub_resource type="Resource" id="Resource_tthg8"]
+script = ExtResource("1_s8ts3")
+enemy_data = ExtResource("2_nq1rv")
+time = 8.3
 
-[sub_resource type="Resource" id="Resource_dtnp0"]
-script = ExtResource("entry")
-enemy_data = ExtResource("2_olr6r")
-time = 9.4
+[sub_resource type="Resource" id="Resource_nohci"]
+script = ExtResource("1_s8ts3")
+enemy_data = ExtResource("2_nq1rv")
+time = 9.3
 path_index = 1
 
-[sub_resource type="Resource" id="Resource_oep6d"]
-script = ExtResource("entry")
-enemy_data = ExtResource("4_tthg8")
-time = 11.0
+[sub_resource type="Resource" id="Resource_njtvf"]
+script = ExtResource("1_s8ts3")
+enemy_data = ExtResource("3_olr6r")
+time = 10.9
 path_index = 2
 
-[sub_resource type="Resource" id="Resource_wpxtc"]
-script = ExtResource("entry")
-enemy_data = ExtResource("4_tthg8")
-time = 11.8
+[sub_resource type="Resource" id="Resource_hfap0"]
+script = ExtResource("1_s8ts3")
+enemy_data = ExtResource("3_olr6r")
+time = 11.7
 path_index = 3
 
-[sub_resource type="Resource" id="Resource_5rpbg"]
-script = ExtResource("entry")
-enemy_data = ExtResource("4_tthg8")
-time = 12.5
+[sub_resource type="Resource" id="Resource_wgo2r"]
+script = ExtResource("1_s8ts3")
+enemy_data = ExtResource("3_olr6r")
+time = 12.4
 
-[sub_resource type="Resource" id="Resource_4w440"]
-script = ExtResource("entry")
-enemy_data = ExtResource("2_olr6r")
+[sub_resource type="Resource" id="Resource_kx7nx"]
+script = ExtResource("1_s8ts3")
+enemy_data = ExtResource("2_nq1rv")
 time = 14.1
 path_index = 1
 
-[sub_resource type="Resource" id="Resource_yp77b"]
-script = ExtResource("entry")
-enemy_data = ExtResource("2_olr6r")
-time = 15.2
+[sub_resource type="Resource" id="Resource_js5jq"]
+script = ExtResource("1_s8ts3")
+enemy_data = ExtResource("2_nq1rv")
+time = 15.1
 path_index = 2
 
-[sub_resource type="Resource" id="Resource_hoxr0"]
-script = ExtResource("entry")
-enemy_data = ExtResource("5_nohci")
-time = 16.8
+[sub_resource type="Resource" id="Resource_0yq7a"]
+script = ExtResource("1_s8ts3")
+enemy_data = ExtResource("4_6xlw8")
+time = 16.7
 path_index = 3
 
-[sub_resource type="Resource" id="Resource_7h3kn"]
-script = ExtResource("entry")
-enemy_data = ExtResource("5_nohci")
-time = 17.5
-
-[sub_resource type="Resource" id="Resource_gsg6a"]
-script = ExtResource("entry")
-enemy_data = ExtResource("5_nohci")
+[sub_resource type="Resource" id="Resource_dtnp0"]
+script = ExtResource("1_s8ts3")
+enemy_data = ExtResource("2_nq1rv")
 time = 18.3
+
+[sub_resource type="Resource" id="Resource_oep6d"]
+script = ExtResource("1_s8ts3")
+enemy_data = ExtResource("2_nq1rv")
+time = 19.3
 path_index = 1
 
-[sub_resource type="Resource" id="Resource_lvvg8"]
-script = ExtResource("entry")
-enemy_data = ExtResource("2_olr6r")
-time = 19.9
+[sub_resource type="Resource" id="Resource_wpxtc"]
+script = ExtResource("1_s8ts3")
+enemy_data = ExtResource("4_6xlw8")
+time = 21.0
 path_index = 2
 
-[sub_resource type="Resource" id="Resource_b24qr"]
-script = ExtResource("entry")
-enemy_data = ExtResource("2_olr6r")
-time = 20.9
+[sub_resource type="Resource" id="Resource_5rpbg"]
+script = ExtResource("1_s8ts3")
+enemy_data = ExtResource("2_nq1rv")
+time = 22.6
 path_index = 3
 
-[sub_resource type="Resource" id="Resource_imfmv"]
-script = ExtResource("entry")
-enemy_data = ExtResource("6_njtvf")
-time = 22.5
+[sub_resource type="Resource" id="Resource_4w440"]
+script = ExtResource("1_s8ts3")
+enemy_data = ExtResource("2_nq1rv")
+time = 23.6
 
-[sub_resource type="Resource" id="Resource_i5swq"]
-script = ExtResource("entry")
-enemy_data = ExtResource("2_olr6r")
-time = 24.2
-path_index = 1
-
-[sub_resource type="Resource" id="Resource_qqkdu"]
-script = ExtResource("entry")
-enemy_data = ExtResource("2_olr6r")
+[sub_resource type="Resource" id="Resource_yp77b"]
+script = ExtResource("1_s8ts3")
+enemy_data = ExtResource("4_6xlw8")
 time = 25.2
-path_index = 2
+path_index = 1
 
 [resource]
-script = ExtResource("wave")
-entries = Array[ExtResource("entry")]([SubResource("Resource_hfap0"), SubResource("Resource_wgo2r"), SubResource("Resource_kx7nx"), SubResource("Resource_js5jq"), SubResource("Resource_0yq7a"), SubResource("Resource_dtnp0"), SubResource("Resource_oep6d"), SubResource("Resource_wpxtc"), SubResource("Resource_5rpbg"), SubResource("Resource_4w440"), SubResource("Resource_yp77b"), SubResource("Resource_hoxr0"), SubResource("Resource_7h3kn"), SubResource("Resource_gsg6a"), SubResource("Resource_lvvg8"), SubResource("Resource_b24qr"), SubResource("Resource_imfmv"), SubResource("Resource_i5swq"), SubResource("Resource_qqkdu")])
+script = ExtResource("5_tthg8")
+entries = Array[ExtResource("1_s8ts3")]([SubResource("Resource_s8ts3"), SubResource("Resource_nq1rv"), SubResource("Resource_olr6r"), SubResource("Resource_6xlw8"), SubResource("Resource_tthg8"), SubResource("Resource_nohci"), SubResource("Resource_njtvf"), SubResource("Resource_hfap0"), SubResource("Resource_wgo2r"), SubResource("Resource_kx7nx"), SubResource("Resource_js5jq"), SubResource("Resource_0yq7a"), SubResource("Resource_dtnp0"), SubResource("Resource_oep6d"), SubResource("Resource_wpxtc"), SubResource("Resource_5rpbg"), SubResource("Resource_4w440"), SubResource("Resource_yp77b")])

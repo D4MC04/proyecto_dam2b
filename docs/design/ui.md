@@ -26,18 +26,18 @@ Las dos barras son una tablet: un marco de metal y, dentro, una pantalla oscura.
 - **Pantalla:** líneas de barrido (filas alternas `#08111f` y `#060d18`) y corchetes en L de 4 px en `#40e0f0` en las cuatro esquinas.
 - **Margen de contenido:** 3 px dentro de la pantalla (`SCREEN_PADDING`). En una barra de 128x540 el contenido queda en 110x508 px, empezando en (9, 11).
 
-**`ScreenHeader`** (`scenes/level_ui/ScreenHeader.tscn` + `scripts/level_ui/ScreenHeader.gd`, `VBoxContainer` con `@tool`): cabecera de pantalla reutilizable. `@export var title` (sin el prefijo); enseña `"// " + title` en `#40e0f0` a 16 px y debajo una regla de marcas pintada en `_draw` de su hijo `Ruler`: línea de 1 px `#1c7496` a todo el ancho con marcas hacia abajo de 2 px cada 4 px y de 3 px cada 16 px (4 px de alto). Se usa en tres sitios: `// ANÁLISIS` arriba de la barra izquierda, `// TORRES` entre los créditos y la rejilla de torres y `// OLEADAS` arriba de la pestaña Oleadas. La regla se pinta con `ScreenHeader.draw_ruler(item, origin, width, color)` (estática), que también usa el panel holograma de `OverlayFrame`.
+**`ScreenHeader`** (`scenes/level_ui/ScreenHeader.tscn` + `scripts/level_ui/ScreenHeader.gd`, `VBoxContainer` con `@tool`): cabecera de pantalla reutilizable. `@export var title` (sin el prefijo); enseña `"// " + title` en `#40e0f0` a 16 px y debajo una regla de marcas pintada en `_draw` de su hijo `Ruler`: línea de 1 px `#1c7496` a todo el ancho con marcas hacia abajo de 2 px cada 4 px y de 3 px cada 16 px (4 px de alto). Se usa en tres sitios: `// ANÁLISIS` arriba de la barra izquierda, `// TORRETAS` entre los créditos y la rejilla de torretas y `// OLEADAS` arriba de la pestaña Oleadas. La regla se pinta con `ScreenHeader.draw_ruler(item, origin, width, color)` (estática), que también usa el panel holograma de `OverlayFrame`.
 
 **Pies:** cada barra acaba con una fila de texto a 16 px dentro de la pantalla. Los dos son un `MarginContainer` con 4 px a cada lado, así que sus textos quedan 4 px más adentro que los botones de encima. La izquierda, `ScanFooter`, es decorativa: solo `ModelLabel` "MK3" a la derecha, en `#1c7496`. La derecha es el pie de oleadas (ver "Pie de la barra").
 
-**Sin tooltips:** ningún control del juego tiene `tooltip_text`. Los nombres que antes salían en tooltip están escritos (filas de stat) o se ven en la ficha (torres y enemigos).
+**Sin tooltips:** ningún control del juego tiene `tooltip_text`. Los nombres que antes salían en tooltip están escritos (filas de stat) o se ven en la ficha (torretas y enemigos).
 
 - `FpsLabel`: arriba a la izquierda del área de juego, muestra `"%d FPS"` cada frame. Solo se ve con la opción `show_fps` de `Settings` activada; `LevelUI` escucha `Settings.changed`, así que aparece o desaparece al momento. `_process` solo está activo mientras se ve.
 
 Funciones de `LevelUI`:
 
-- `setup(state, towers, level_number, spawner, has_next_level, base)`: oculta la opción `NEXT_LEVEL` de `VictoryScreen` si `has_next_level` es false (`LevelUI` no lee `GameData`; se lo dice `Game`), pasa el número de nivel al `LevelIndicator`, prepara la pestaña Oleadas (ver más abajo), conecta la vida de la base (ver "Vida de la estación"), conecta `state.money_changed` a `sidebar.set_money`, `state.selected_tower_changed` a `sidebar.show_selected` y `state.inspected_changed` a `info_panel.show_inspected`, crea los botones de torre, muestra el dinero inicial y pide a la ficha que enseñe `state.inspected` (null en un `LevelState` nuevo, así que al empezar o reiniciar vuelve al escáner). Si había un `LevelState` anterior, desconecta las tres.
-- `_on_tower_selected(data)`: recibe `Sidebar.tower_selected` y escribe `selected_tower` en el `LevelState`. Es el único camino de la barra lateral a la selección.
+- `setup(state, turrets, level_number, spawner, has_next_level, base)`: oculta la opción `NEXT_LEVEL` de `VictoryScreen` si `has_next_level` es false (`LevelUI` no lee `GameData`; se lo dice `Game`), pasa el número de nivel al `LevelIndicator`, prepara la pestaña Oleadas (ver más abajo), conecta la vida de la base (ver "Vida de la estación"), conecta `state.money_changed` a `sidebar.set_money`, `state.selected_turret_changed` a `sidebar.show_selected` y `state.inspected_changed` a `info_panel.show_inspected`, crea los botones de torreta, muestra el dinero inicial y pide a la ficha que enseñe `state.inspected` (null en un `LevelState` nuevo, así que al empezar o reiniciar vuelve al escáner). Si había un `LevelState` anterior, desconecta las tres.
+- `_on_turret_selected(data)`: recibe `Sidebar.turret_selected` y escribe `selected_turret` en el `LevelState`. Es el único camino de la barra lateral a la selección.
 - `_on_inspect_requested(data)`: recibe `Sidebar.inspect_requested` y escribe `inspected` en el `LevelState`. Es el único camino a lo inspeccionado.
 
 **Estado de la UI.** Enum `UiState { PLAYING, PAUSED, LOST, WON }` guardado en `_ui_state`. `set_state(new_state)` es la única función que escribe la visibilidad de las pantallas, `get_tree().paused` y `Engine.time_scale`:
@@ -52,8 +52,8 @@ Funciones de `LevelUI`:
 La relación estado → pantalla está solo en el diccionario `_screens_by_state`; una pantalla nueva se añade ahí. `_ready` conecta `option_chosen` de todas las pantallas del diccionario y empieza en `PLAYING`.
 
 - Acción `ui_cancel` (Escape): en `PLAYING` pasa a `PAUSED` y en `PAUSED` vuelve a `PLAYING`. En `LOST` y `WON` (también durante la cámara lenta y el respiro) no hace nada (ni marca el evento como gestionado).
-- **Atajos de teclado** (solo en `PLAYING`; en pausa, derrota y victoria `_handle_shortcut` ni se llama). Acciones del Input Map en `project.godot`: `select_tower_1`…`select_tower_7` (teclas 1-7), `next_wave` (Espacio), `toggle_auto` (A), `toggle_speed` (F), `power_meteor` (Q), `power_freeze` (E) y `power_orbital` (R), por tecla física. `LevelUI._unhandled_input` las traduce a los mismos botones que el ratón: 1-7 llaman a `Sidebar.press_tower_button(i)` (emite `pressed` del i-ésimo `TowerButton` en el orden de la rejilla, así que sin dinero o con selección bloqueada no hacen nada); Espacio emite `pressed` de `NextWaveButton` (el `Spawner` solo lanza si la anterior acabó); A y F invierten `button_pressed` de `AutoWaveButton` y `SpeedButton`; Q, E y R llaman a `_use_power` como los botones de poder. No se escribe la tecla en los botones (salvo en los de poder, ver "Poderes").
-- Bloqueo de la selección: `set_state` es lo único que lo decide. Llama a `sidebar.set_selection_locked(new_state != PLAYING)`, así que con pausa (plegada o no), derrota (desde que empieza la cámara lenta) o victoria (desde que empieza el respiro) no se puede seleccionar torre.
+- **Atajos de teclado** (solo en `PLAYING`; en pausa, derrota y victoria `_handle_shortcut` ni se llama). Acciones del Input Map en `project.godot`: `select_turret_1`…`select_turret_7` (teclas 1-7), `next_wave` (Espacio), `toggle_auto` (A), `toggle_speed` (F), `power_meteor` (Q), `power_freeze` (E) y `power_orbital` (R), por tecla física. `LevelUI._unhandled_input` las traduce a los mismos botones que el ratón: 1-7 llaman a `Sidebar.press_turret_button(i)` (emite `pressed` del i-ésimo `TurretButton` en el orden de la rejilla, así que sin dinero o con selección bloqueada no hacen nada); Espacio emite `pressed` de `NextWaveButton` (el `Spawner` solo lanza si la anterior acabó); A y F invierten `button_pressed` de `AutoWaveButton` y `SpeedButton`; Q, E y R llaman a `_use_power` como los botones de poder. No se escribe la tecla en los botones (salvo en los de poder, ver "Poderes").
+- Bloqueo de la selección: `set_state` es lo único que lo decide. Llama a `sidebar.set_selection_locked(new_state != PLAYING)`, así que con pausa (plegada o no), derrota (desde que empieza la cámara lenta) o victoria (desde que empieza el respiro) no se puede seleccionar torreta.
 - `show_run_stats(stats: RunStats)`: pasa el resumen de partida a `GameOverScreen` y a `VictoryScreen`. Lo llama `Game` antes de `set_state(LOST)` o `set_state(WON)`; la UI no lee el `Level` ni el `LevelState` para el resumen.
 
 **Secuencias de derrota y victoria.** `set_state(LOST)` y `set_state(WON)` no congelan el juego de golpe. Las dos usan el mismo tween (`_screen_delay`):
@@ -79,20 +79,20 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 - `ScanFooter`: el pie decorativo "MK3" (ver "Barras: tablet física").
 - **`IdleView` (reposo):** el escáner (`ScannerDisplay`, ver abajo), "SIN OBJETIVO" en ámbar `#ecb23c` y la ayuda "Clic derecho para analizar" en `#7fa6b8`, ambos con salto de línea automático y centrados. Se ve al empezar el nivel y al reiniciar; en cuanto se inspecciona algo no vuelve hasta el siguiente reinicio.
 - **`DetailView`:**
-  - Cabecera fija: `IconPad` (todo el ancho útil, 42 px de alto) con el icono a escala 1 centrado (cabe el Spikey de 34x34), fondo `#060b14` con una rejilla de puntos `#14304a` cada 4 px y esquinas de 4 px en el color de acento (se pinta en el `draw` de `IconPad`). El acento es fijo por clase: cian `#40e0f0` en todas las torres y rojo en todos los enemigos; `NameLabel` con el nombre en `#befaff`, en mayúsculas y partido por palabras en líneas de 18 caracteres, 2 como mucho (una palabra más larga se corta con guion: "Disinteg-rator"), con alto fijo de 2 líneas para que la cabecera mida siempre lo mismo; y `TypeTag` con la etiqueta del tipo (de ataque en las torres, "ENEMIGO" en los enemigos) en el color de acento sobre el fondo mezclado al 20 % con el acento. El nombre se pasa a mayúsculas ("CAÑÓN DOBLE", "LÁSER").
+  - Cabecera fija: `IconPad` (todo el ancho útil, 42 px de alto) con el icono a escala 1 centrado, fondo `#060b14` con una rejilla de puntos `#14304a` cada 4 px y esquinas de 4 px en el color de acento (se pinta en el `draw` de `IconPad`). El acento es fijo por clase: cian `#40e0f0` en todas las torretas y rojo en todos los enemigos; `NameLabel` con el nombre en `#befaff`, en mayúsculas y partido por palabras en líneas de 18 caracteres, 2 como mucho (una palabra más larga se corta con guion: "Disinteg-rator"), con alto fijo de 2 líneas para que la cabecera mida siempre lo mismo; y `TypeTag` con la etiqueta del tipo (de ataque en las torretas, "ENEMIGO" en los enemigos) en el color de acento sobre el fondo mezclado al 20 % con el acento. El nombre se pasa a mayúsculas ("CAÑÓN DOBLE", "LÁSER").
   - `StatScroll`: `ScrollContainer` vertical (sin barra visible, como los de la barra derecha; la pista de que hay más abajo es `ScrollHint`, ver abajo) con las filas de stat, una línea `#1c4a60` y la descripción en `#5a7a96` con salto de línea automático (la línea y la descripción se ocultan si no hay descripción). La cabecera no entra en el scroll. Al cambiar de ficha vuelve arriba.
   - `ScrollHint`: `Control` de 5 px de alto entre `StatScroll` y `SellButton` que pinta un triángulo ▼ de 7x4 px en `#40e0f0` centrado. Solo es visible (por transparencia, para que su hueco no cambie el alto del scroll) cuando queda contenido por debajo: `_update_scroll_hint()` mira la `VScrollBar` interna (`value_changed` y `changed`) y lo apaga al llegar al final o si la ficha cabe entera. Se eligió la flecha y no una barra fina porque cabe en el estilo de las esquinas y las marcas del holograma, no roba ancho a los 110 px y se dibuja con rects como el resto; no se usa el glifo ▼ de texto porque Monogram no lo trae seguro.
   - Cada fila la crea `StatRow.create(entry, index)` (ver abajo).
-  - `UpgradeButton`: sobre el de vender, "Mejorar (-X€)" con X = `fusion.cost`; solo se ve si la torre colocada seleccionada tiene `fusion` (lo decide `show_sellable`). Emite `upgrade_requested`; `LevelUI._on_upgrade_requested` lo reenvía a `LevelState.upgrade_requested` solo en `PLAYING`. Sin dinero no hace nada.
-  - `SellButton`: botón del tema (esquinas recortadas) al final de `DetailView`, "Vender (+X€)", con X = la mitad de lo invertido en la torre (`Tower.get_sell_value()`, también tras fusionarla). Solo se ve con una torre colocada seleccionada: `show_sellable(tower)` (null lo oculta); además añade al final de la ficha dos filas, BAJAS y HECHO (daño), con `tower.kills` y `tower.damage_dealt` abreviados (se rehacen en cada selección, no se actualizan en vivo). Con cualquier torre, el primer clic cambia el texto a "¿Seguro?" y el segundo vende, conectado a `LevelState.sellable_tower_changed`. Emite `sell_requested`; `LevelUI._on_sell_requested` llama a `LevelState.sell_selected_tower()` solo en `PLAYING`. Ver [torres.md](torres.md).
+  - `UpgradeButton`: sobre el de vender, "Mejorar (-X€)" con X = `fusion.cost`; solo se ve si la torreta colocada seleccionada tiene `fusion` (lo decide `show_sellable`). Emite `upgrade_requested`; `LevelUI._on_upgrade_requested` lo reenvía a `LevelState.upgrade_requested` solo en `PLAYING`. Sin dinero no hace nada.
+  - `SellButton`: botón del tema (esquinas recortadas) al final de `DetailView`, "Vender (+X€)", con X = la mitad de lo invertido en la torreta (`Turret.get_sell_value()`, también tras fusionarla). Solo se ve con una torreta colocada seleccionada: `show_sellable(turret)` (null lo oculta); además añade al final de la ficha dos filas, BAJAS y HECHO (daño), con `turret.kills` y `turret.damage_dealt` abreviados (se rehacen en cada selección, no se actualizan en vivo). Con cualquier torreta, el primer clic cambia el texto a "¿Seguro?" y el segundo vende, conectado a `LevelState.sellable_turret_changed`. Emite `sell_requested`; `LevelUI._on_sell_requested` llama a `LevelState.sell_selected_turret()` solo en `PLAYING`. Ver [torretas.md](torretas.md).
 - `ScanFlash`: `ColorRect` cian al 20 % que tapa `Screen` durante 2 frames cada vez que cambia el contenido.
 - `PowersHeader` (`ScreenHeader` con `// PODERES`) y `PowersRow` (4 px de separación), entre `Screen` y `ScanFooter`, con `MeteorButton`, `FreezeButton` y `OrbitalButton` (ver "Poderes").
 
-`show_inspected(data: Resource)`: con un `InspectableData` pinta lo que da el contrato común; con null (o cualquier otra cosa), el reposo. La ficha no distingue torres de enemigos ni sabe qué stats existen: crea una fila por cada `StatEntry` que recibe.
+`show_inspected(data: Resource)`: con un `InspectableData` pinta lo que da el contrato común; con null (o cualquier otra cosa), el reposo. La ficha no distingue torretas de enemigos ni sabe qué stats existen: crea una fila por cada `StatEntry` que recibe.
 
-**`InspectableData`** (`scripts/resources/InspectableData.gd`, `Resource`): contrato de lo inspeccionable, que cumplen `TowerData` y `EnemyData` y cualquier cosa futura que se quiera enseñar (torres colocadas, enemigos del mapa). Métodos: `get_inspect_icon()`, `get_inspect_name()`, `get_inspect_tag()` (9 caracteres como máximo), `get_inspect_accent()`, `get_stats()` y `get_inspect_description()`. Los valores por defecto están vacíos. Torres: icono, `name`, tipo de ataque, `TowerData.ACCENT_COLOR` (cian `#40e0f0`, el mismo en todas) y `description`. Enemigos: primer frame de `up`, `name`, "ENEMIGO", `EnemyData.ACCENT_COLOR` (rojo de motor `#f0323c`), y `description`.
+**`InspectableData`** (`scripts/resources/InspectableData.gd`, `Resource`): contrato de lo inspeccionable, que cumplen `TurretData` y `EnemyData` y cualquier cosa futura que se quiera enseñar (torretas colocadas, enemigos del mapa). Métodos: `get_inspect_icon()`, `get_inspect_name()`, `get_inspect_tag()` (9 caracteres como máximo), `get_inspect_accent()`, `get_stats()` y `get_inspect_description()`. Los valores por defecto están vacíos. Torretas: icono, `name`, tipo de ataque, `TurretData.ACCENT_COLOR` (cian `#40e0f0`, el mismo en todas) y `description`. Enemigos: primer frame de `up`, `name`, "ENEMIGO", `EnemyData.ACCENT_COLOR` (rojo de motor `#f0323c`), y `description`.
 
-**`StatEntry`** (`scripts/level_ui/StatEntry.gd`, `RefCounted`): `icon: Texture2D`, `label: String` (nombre corto en mayúsculas: COSTE, DAÑO, VEL. BALA, BOTÍN…) y `value: String` ya formateado. `StatEntry.new(icon_name, label, value)` carga `assets/ui/stat_icons/<icon_name>.png`. Una fila de la ficha mide 110 px con 3 px de margen a cada lado, así que el contenido mide 104: icono de 8, hueco de 4, nombre, hueco de 4 y valor; quedan 88 px (14 caracteres de 6 px) entre nombre y valor. `MAX_LABEL_CHARS = 9` (54 px) es el nombre más largo y `MAX_VALUE_CHARS = 7` (42 px) el valor más largo, que cabe con un nombre de hasta 7 caracteres (con uno de 9 caben 5). Con las torres y enemigos actuales la fila más larga es "CADENCIA 0.25s" (78 px). Las filas las dan `TowerData.get_stats()`, los `get_stats()` de cada tipo de ataque (ver [torres.md](torres.md)) y `EnemyData.get_stats()` (ver [enemigos.md](enemigos.md)).
+**`StatEntry`** (`scripts/level_ui/StatEntry.gd`, `RefCounted`): `icon: Texture2D`, `label: String` (nombre corto en mayúsculas: COSTE, DAÑO, VEL. BALA, BOTÍN…) y `value: String` ya formateado. `StatEntry.new(icon_name, label, value)` carga `assets/ui/stat_icons/<icon_name>.png`. Una fila de la ficha mide 110 px con 3 px de margen a cada lado, así que el contenido mide 104: icono de 8, hueco de 4, nombre, hueco de 4 y valor; quedan 88 px (14 caracteres de 6 px) entre nombre y valor. `MAX_LABEL_CHARS = 9` (54 px) es el nombre más largo y `MAX_VALUE_CHARS = 7` (42 px) el valor más largo, que cabe con un nombre de hasta 7 caracteres (con uno de 9 caben 5). Con las torretas y enemigos actuales la fila más larga es "CADENCIA 0.25s" (78 px). Las filas las dan `TurretData.get_stats()`, los `get_stats()` de cada tipo de ataque (ver [torretas.md](torretas.md)) y `EnemyData.get_stats()` (ver [enemigos.md](enemigos.md)).
 
 **`StatRow`** (`scripts/level_ui/StatRow.gd`): `StatRow.create(entry, index, h_margin = 3, v_margin = 1, font_size = 16, icon_box = 8, icon_top = ICON_TOP, separation = SEPARATION)` devuelve la fila de un `StatEntry`: `PanelContainer` con fondo alterno según `index` (`#0b2132` / `#091d2c`), el icono de 8x8, el nombre en `#5a7a96` y el valor a la derecha en `#cce6ff` (se recorta si no cabe). Entre icono, nombre y valor hay `SEPARATION` (4 px). Los cuatro últimos parámetros escalan la fila (los usa `RunSummary`). El icono va 3 px por debajo del borde de arriba de la línea de texto (`ICON_TOP`) para quedar centrado con las mayúsculas. La fila y todo lo de dentro tienen `mouse_filter = IGNORE`: no recogen el ratón y la rueda llega directa al scroll de la ficha (y el clic, al `RunSummary` de debajo). La usan la ficha (márgenes por defecto: 3 px a los lados y 1 arriba y abajo) y `RunSummary`.
 
@@ -100,15 +100,15 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
 **Interacción:**
 
-- Clic derecho en un `TowerButton` (aunque no se pueda pagar y con el juego en pausa): enseña su ficha sin seleccionarla.
-- Clic izquierdo: la selecciona (si se puede pagar) y enseña su ficha. Con una pantalla abierta (selección bloqueada) solo enseña la ficha, sin seleccionar ni soltar; la torre ya seleccionada se conserva.
-- Clic izquierdo o derecho en una `EnemyCell` de la pestaña Oleadas (también en pausa): enseña la ficha del enemigo sin tocar la selección de torre.
+- Clic derecho en un `TurretButton` (aunque no se pueda pagar y con el juego en pausa): enseña su ficha sin seleccionarla.
+- Clic izquierdo: la selecciona (si se puede pagar) y enseña su ficha. Con una pantalla abierta (selección bloqueada) solo enseña la ficha, sin seleccionar ni soltar; la torreta ya seleccionada se conserva.
+- Clic izquierdo o derecho en una `EnemyCell` de la pestaña Oleadas (también en pausa): enseña la ficha del enemigo sin tocar la selección de torreta.
 - Deseleccionar (clic derecho en el mapa o quedarse sin dinero) no cambia la ficha.
-- `TowerButton.inspect_requested` → `Sidebar.inspect_requested` (o `EnemyCell.inspect_requested` → `WaveBlock.inspect_requested` → `Sidebar.inspect_requested`) → `LevelUI` escribe `LevelState.inspected` → `LevelState.inspected_changed` → `InfoPanel.show_inspected`. Nadie más guarda qué está inspeccionado.
+- `TurretButton.inspect_requested` → `Sidebar.inspect_requested` (o `EnemyCell.inspect_requested` → `WaveBlock.inspect_requested` → `Sidebar.inspect_requested`) → `LevelUI` escribe `LevelState.inspected` → `LevelState.inspected_changed` → `InfoPanel.show_inspected`. Nadie más guarda qué está inspeccionado.
 
 ## Poderes
 
-Tres `PowerButton` (`scripts/level_ui/PowerButton.gd`) en `InfoPanel/Content/PowersRow`, de unos 35x24 cada uno (se reparten los 110 px útiles), sin foco ni tooltip: `MeteorButton` (icono `assets/ui/power_meteor.png`, tecla Q) y `FreezeButton` (`power_freeze.png`, tecla E) y `OrbitalButton` (`power_orbital.png`, tecla R). La lógica está en `Powers` (ver [niveles.md](niveles.md)).
+Tres `PowerButton` (`scripts/level_ui/PowerButton.gd`) en `InfoPanel/Content/PowersRow`, de unos 35x24 cada uno (se reparten los 110 px útiles), sin foco ni tooltip: `MeteorButton` (icono `assets/ui/power_meteor.png`, tecla Q) y `FreezeButton` (`power_freeze.png`, tecla E) y `OrbitalButton` (`power_orbital.png`, tecla R). La lógica está en `Powers` (ver [niveles.md](niveles.md)). La letra se pinta a 4 px del borde izquierdo y el icono (16 px) va alineado a la derecha con el mismo hueco, dejando unos 5 px de aire entre los dos.
 
 - Icono de 16x16 centrado y la letra de la tecla (`key_label`) a 5 px del borde izquierdo en `#5a7a96`.
 - Estilos con `ClippedBoxStyle.create`: normal fondo `#0e1626` y borde `#1c7496`; hover borde `#40e0f0`; mientras se apunta el meteorito, el normal pasa al ámbar de AUTO (fondo `#453d2b`, borde `#ecb23c`).
@@ -123,14 +123,14 @@ Tres `PowerButton` (`scripts/level_ui/PowerButton.gd`) en `InfoPanel/Content/Pow
 - Dentro: el retrato `assets/ui/guide_portrait.png` (32x32 a ×2), el nombre "NOVA" en ámbar `#ecb23c`, el mensaje en `#cce6ff` (aparece letra a letra, 0,02 s por carácter, como si hablara) y los botones "Entendido" (solo en los pasos informativos) y "Saltar".
 - Solo sale en el nivel 1 mientras `GameState.tutorial_done` es false. `LevelUI.setup` llama a `start(state, spawner, powers)` en el nivel 1 y a `stop()` en los demás; al reiniciar vuelve a empezar desde el primer paso (las señales del nivel anterior se liberan con él).
 - Pasos; cada uno espera a que el jugador lo haga:
-  1. Elegir torre (`LevelState.selected_tower_changed` no nulo). Si se suelta la torre en el paso 2, vuelve a este.
-  2. Colocarla en un asteroide con plataforma (`LevelState.tower_placed`, que emite `BuildManager` al construir, no al mejorar).
+  1. Elegir torreta (`LevelState.selected_turret_changed` no nulo). Si se suelta la torreta en el paso 2, vuelve a este.
+  2. Colocarla en un asteroide con plataforma (`LevelState.turret_placed`, que emite `BuildManager` al construir, no al mejorar).
   3. Lanzar la oleada (`Spawner.wave_started`; lanzarla antes con Espacio también vale). El recuadro se esconde mientras dura la oleada 1.
-  4. Al acabar (`Spawner.wave_cleared`): soltar la torre de la tienda con clic derecho y hacer clic en una torre del mapa (`LevelState.sellable_tower_changed` no nulo).
+  4. Al acabar (`Spawner.wave_cleared`): soltar la torreta de la tienda con clic derecho y hacer clic en una torreta del mapa (`LevelState.sellable_turret_changed` no nulo).
   5. Venta y mejora: informativo, sigue con "Entendido".
   6. Poderes: usar Q o E (`Powers.power_used`, que el meteorito emite al caer).
   7. Despedida: se cierra con "Entendido" o sola a los 4 s.
-- Un borde ámbar `#ecb23c` de 1 px parpadea (0,4 s encendido, 0,4 s apagado) a 2 px alrededor de lo que hay que pulsar: la rejilla de torres (o la pestaña Torres si no está abierta), `NextWaveButton` (o la pestaña Oleadas) y la fila de poderes.
+- Un borde ámbar `#ecb23c` de 1 px parpadea (0,4 s encendido, 0,4 s apagado) a 2 px alrededor de lo que hay que pulsar: la rejilla de torretas (o la pestaña Torretas si no está abierta), `NextWaveButton` (o la pestaña Oleadas) y la fila de poderes.
 - Al acabar o con "Saltar" llama a `GameState.complete_tutorial()` y se esconde.
 - `LevelUI.set_state` lo esconde fuera de `PLAYING` (no tapa la pausa ni señala por encima de ella).
 
@@ -158,23 +158,23 @@ El `Portal` de un camino que saca la Nodriza tiembla con más fuerza (`Portal.BO
 
 ## Sidebar
 
-`scenes/level_ui/Sidebar.tscn` + `scripts/level_ui/Sidebar.gd` (clase `Sidebar`). Estilo de tablet compartido con `InfoPanel`: quedan 110 px de ancho útil. Lo que se estira con los contenedores (pestañas, cabecera de créditos, cabeceras `//`, título de oleada) ocupa todo ese ancho; lo de ancho fijo (controles de oleada, rejilla de torres y rejilla de enemigos) va centrado en horizontal.
+`scenes/level_ui/Sidebar.tscn` + `scripts/level_ui/Sidebar.gd` (clase `Sidebar`). Estilo de tablet compartido con `InfoPanel`: quedan 110 px de ancho útil. Lo que se estira con los contenedores (pestañas, cabecera de créditos, cabeceras `//`, título de oleada) ocupa todo ese ancho; lo de ancho fijo (controles de oleada, rejilla de torretas y rejilla de enemigos) va centrado en horizontal.
 
-- **Pestañas:** `TabBar` con dos botones de icono de 16x16 (`TowersTab` y `WavesTab`, 24 px de alto, en un `ButtonGroup`, 4 px de separación) que se reparten todo el ancho a partes iguales (53 px cada uno), y una página por pestaña (`TowersPage`, `WavesPage`) de las que solo una es visible. No hay texto ni tooltip. Torres está activa al empezar. Los iconos son `assets/ui/tab_towers.png` y `tab_waves.png`. Los estilos de pestaña se crean en `_ready` con `ClippedBoxStyle.create` (forma recortada, ver "Botones"): la inactiva tiene borde `#1c4a60` e icono atenuado; la activa, fondo `#14304a`, borde `#40e0f0` e icono a plena luz. Ver "Pestaña Oleadas" para `WavesPage`.
-- **`TowersPage`**, de arriba abajo:
+- **Pestañas:** `TabBar` con dos botones de icono de 16x16 (`TurretsTab` y `WavesTab`, 24 px de alto, en un `ButtonGroup`, 4 px de separación) que se reparten todo el ancho a partes iguales (53 px cada uno), y una página por pestaña (`TurretsPage`, `WavesPage`) de las que solo una es visible. No hay texto ni tooltip. Torretas está activa al empezar. Los iconos son `assets/ui/tab_turrets.png` y `tab_waves.png`. Los estilos de pestaña se crean en `_ready` con `ClippedBoxStyle.create` (forma recortada, ver "Botones"): la inactiva tiene borde `#1c4a60` e icono atenuado; la activa, fondo `#14304a`, borde `#40e0f0` e icono a plena luz. Ver "Pestaña Oleadas" para `WavesPage`.
+- **`TurretsPage`**, de arriba abajo:
   - `CreditsHeader`: `PanelContainer` con un `StyleBoxFlat` propio de la escena (fondo `#221e19`, borde de 1 px `#96641e`, margen de 4 px a los lados y 2 arriba y abajo). Dentro, `CreditsRow` con 4 px de separación: a la izquierda la moneda (`stat_icons/cost.png`, el icono de COSTE, bajada 3 px como en las filas de stat) y "CRÉDITOS" en `#ecb23c`; a la derecha `MoneyLabel` con la cantidad en `#ffe082`, formato `UiFormat.money`.
-  - `TowersHeader`: `ScreenHeader` con `// TORRES`.
-  - `TowerScroll` (`ScrollContainer`, scroll vertical sin barra visible, horizontal desactivado) con `TowerMargin` (`MarginContainer` con 1 px arriba y abajo, para que los corchetes de la torre seleccionada no se recorten) y dentro `TowerButtons`, un `GridContainer` de 2 columnas con 4 px de separación (2 x 52 + 4 = 108 px de ancho), centrado. Los créditos y la cabecera no entran en el scroll, así que no se mueven.
-- `build_buttons(towers)`: borra los botones anteriores y crea un `TowerButton` por torre.
+  - `TurretsHeader`: `ScreenHeader` con `// TORRETAS`.
+  - `TurretScroll` (`ScrollContainer`, scroll vertical sin barra visible, horizontal desactivado) con `TurretMargin` (`MarginContainer` con 1 px arriba y abajo, para que los corchetes de la torreta seleccionada no se recorten) y dentro `TurretButtons`, un `GridContainer` de 2 columnas con 4 px de separación (2 x 52 + 4 = 108 px de ancho), centrado. Los créditos y la cabecera no entran en el scroll, así que no se mueven.
+- `build_buttons(turrets)`: borra los botones anteriores y crea un `TurretButton` por torreta.
 - `set_money(amount)`: actualiza la etiqueta y avisa a cada botón.
-- Señal `tower_selected(data)`: petición de cambio, con la torre al pulsar un botón y con `null` al soltarla. No guarda la selección.
-- Señal `inspect_requested(data)`: reenvía la de cada `TowerButton`; petición de enseñar algo en la ficha.
-- `set_selection_locked(locked)`: guarda el bloqueo, atenúa `TowerButtons` al 50 % (la cabecera de créditos no cambia) y se lo pasa a cada `TowerButton` (también a los que cree `build_buttons`). Solo lo llama `LevelUI.set_state`.
-- `show_selected(data)`: marca el botón de esa torre y desmarca los demás (todos con `null`). No emite nada.
+- Señal `turret_selected(data)`: petición de cambio, con la torreta al pulsar un botón y con `null` al soltarla. No guarda la selección.
+- Señal `inspect_requested(data)`: reenvía la de cada `TurretButton`; petición de enseñar algo en la ficha.
+- `set_selection_locked(locked)`: guarda el bloqueo, atenúa `TurretButtons` al 50 % (la cabecera de créditos no cambia) y se lo pasa a cada `TurretButton` (también a los que cree `build_buttons`). Solo lo llama `LevelUI.set_state`.
+- `show_selected(data)`: marca el botón de esa torreta y desmarca los demás (todos con `null`). No emite nada.
 
-## TowerButton
+## TurretButton
 
-`scenes/level_ui/TowerButton.tscn` + `scripts/level_ui/TowerButton.gd` (clase `TowerButton`). `Button` de 52x56 sin `toggle_mode` ni `ButtonGroup`, sin foco: el estado seleccionado es solo visual y lo dicta `Sidebar.show_selected` mediante `set_selected`.
+`scenes/level_ui/TurretButton.tscn` + `scripts/level_ui/TurretButton.gd` (clase `TurretButton`). `Button` de 52x56 sin `toggle_mode` ni `ButtonGroup`, sin foco: el estado seleccionado es solo visual y lo dicta `Sidebar.show_selected` mediante `set_selected`.
 
 - Contenido: `data.icon` a 32x32 (sin escalar) centrado arriba, con 3 px de hueco hasta el borde de arriba y 9 a cada lado, y debajo (2 px más abajo) el coste centrado, a 16 px. El coste va con `UiFormat.money` (siempre con `€`); con 52 px caben sus 7 caracteres, así que no se limita. Sin tooltip: el nombre se ve en la ficha.
 - Estados (cajas recortadas de `ClippedBoxStyle.create`, borde de 1 px, creadas en `_refresh`):
@@ -182,8 +182,8 @@ El `Portal` de un camino que saca la Nodriza tiembla con más fuerza (`Portal.BO
   - Hover: fondo `#16243c`, borde `#40e0f0`.
   - Seleccionada: borde ámbar `#ecb23c` y fondo mezclado con el ámbar (25 %); con el ratón encima, 40 % y borde `#ffe082`. Además, corchetes en L de 4 px en `#ecb23c` justo por fuera de las cuatro esquinas, pintados en `_draw`.
   - Sin dinero: icono al 35 % de opacidad y coste en rojo `#ff3c5a` (con dinero, ámbar `#ecb23c`); sin resalte al pasar el ratón. El botón no está `disabled`, así que recibe todos los eventos de ratón (para el clic derecho de la ficha), pero el clic izquierdo no hace nada.
-- Señal `selection_changed(data, on)`: petición, no estado. Con `set_selection_locked(true)` no se emite (ni por clic ni por quedarse sin dinero; al desbloquear, si la torre seleccionada ya no se puede pagar, pide soltarla). El clic izquierdo pide seleccionar (`on = true`) o, si ya estaba seleccionada, soltar. Si estando seleccionada deja de llegarle el dinero, pide soltarla.
-- Señal `inspect_requested(data)`: petición de enseñar la torre en la ficha. La emiten el clic izquierdo (antes de comprobar el dinero) y el clic derecho, que se recoge en `_gui_input` y se marca como gestionado.
+- Señal `selection_changed(data, on)`: petición, no estado. Con `set_selection_locked(true)` no se emite (ni por clic ni por quedarse sin dinero; al desbloquear, si la torreta seleccionada ya no se puede pagar, pide soltarla). El clic izquierdo pide seleccionar (`on = true`) o, si ya estaba seleccionada, soltar. Si estando seleccionada deja de llegarle el dinero, pide soltarla.
+- Señal `inspect_requested(data)`: petición de enseñar la torreta en la ficha. La emiten el clic izquierdo (antes de comprobar el dinero) y el clic derecho, que se recoge en `_gui_input` y se marca como gestionado.
 
 ## Pestaña Oleadas
 
@@ -199,14 +199,14 @@ El `Portal` de un camino que saca la Nodriza tiembla con más fuerza (`Portal.BO
   - `SpeedButton` ("×1" / "×2", `toggle_mode`). Mismo estilo que AUTO (ámbar al estar activo, es decir, a ×2). Emite `Sidebar.fast_speed_toggled(enabled)`, una petición: el estado lo guarda `LevelUI._fast_speed` y la barra lo refleja con `show_fast_speed(enabled)` (sin volver a emitir, y cambia el texto).
   - `Sidebar.set_next_wave_available(available, inviting)` activa o atenúa el botón y arranca o para el parpadeo.
 - `Sidebar.build_waves(waves)`: borra los bloques anteriores y crea uno por `WaveData`.
-- **`WaveBlock`** (`scenes/level_ui/WaveBlock.tscn` + `scripts/level_ui/WaveBlock.gd`): solo la rejilla `Cells` de 2 columnas (52 px, 4 px de separación: 108 px, alineada con la de torres) de `EnemyCell`, centrada en horizontal. Agrupa las entradas por `EnemyData`, con el total de cada tipo, en orden de primera aparición (por `time`). No hay datos de enemigos en la UI. El título vive en `WaveNav`; `WaveBlock.apply_title_style(panel, label, state)` (estático) lo pinta.
+- **`WaveBlock`** (`scenes/level_ui/WaveBlock.tscn` + `scripts/level_ui/WaveBlock.gd`): solo la rejilla `Cells` de 2 columnas (52 px, 4 px de separación: 108 px, alineada con la de torretas) de `EnemyCell`, centrada en horizontal. Agrupa las entradas por `EnemyData`, con el total de cada tipo, en orden de primera aparición (por `time`). No hay datos de enemigos en la UI. El título vive en `WaveNav`; `WaveBlock.apply_title_style(panel, label, state)` (estático) lo pinta.
 - **Estados:** `WaveBlock.State`, respecto a la oleada en curso (la última lanzada). En curso: título con fondo `#14304a`, borde y texto `#40e0f0`. Pasada: todo atenuado al 40 % de opacidad (bloque y título). Próxima (la siguiente a la en curso; antes de empezar, la primera): fondo `#0e1626`, borde `#96641e` y texto `#ecb23c`. Futura: fondo `#0e1626`, borde `#1c4a60` y texto `#7fa6b8`.
-- **`EnemyCell`** (`scenes/level_ui/EnemyCell.tscn` + `scripts/level_ui/EnemyCell.gd`): `Button` de 52x44 (el ancho de `TowerButton`; en la barra `WaveBlock` lo sube a 56 de alto con `CELL_HEIGHT`, como `TowerButton`; en el Navedex se queda en 44) con la forma recortada (`ClippedBoxStyle.create`) y los colores de `TowerButton`. Sprite = primer frame de `up` a escala 1, centrado en horizontal en un área de todo el ancho y 34 de alto (el Spikey, de 34, deja 9 px a cada lado), y debajo `"×N"` a 16 px (el conjunto, centrado en vertical dentro de la celda) (abreviado con `UiFormat`). Sin tooltip: el nombre se ve en la ficha. Emite `inspect_requested(data)` con el clic izquierdo y con el derecho (este se recoge en `_gui_input`); `WaveBlock` y `Sidebar` lo reenvían.
+- **`EnemyCell`** (`scenes/level_ui/EnemyCell.tscn` + `scripts/level_ui/EnemyCell.gd`): `Button` de 52x44 (el ancho de `TurretButton`; en la barra `WaveBlock` lo sube a 56 de alto con `CELL_HEIGHT`, como `TurretButton`; en el Navedex se queda en 44) con la forma recortada (`ClippedBoxStyle.create`) y los colores de `TurretButton`. Sprite = primer frame de `up` a escala 1, centrado en horizontal en un área de todo el ancho y 34 de alto, y debajo `"×N"` a 16 px (el conjunto, centrado en vertical dentro de la celda) (abreviado con `UiFormat`). Sin tooltip: el nombre se ve en la ficha. Emite `inspect_requested(data)` con el clic izquierdo y con el derecho (este se recoge en `_gui_input`); `WaveBlock` y `Sidebar` lo reenvían.
 - `LevelUI.setup(..., spawner)` llama a `_connect_spawner`: desconecta el `Spawner` anterior si lo había, construye los bloques con `spawner.waves`, refleja la oleada (`get_wave_index()`) y AUTO, y conecta `wave_started`, `wave_cleared` y `auto_waves_changed`. `next_wave_requested` llama a `spawner.start_next_wave()` y `auto_waves_toggled` escribe `spawner.auto_waves`.
 
 ### Pie de la barra
 
-`WaveFooter` (`MarginContainer` con 4 px a cada lado al final de `Content`, fuera de las páginas, así que se ve en Torres y en Oleadas) con la fila `FooterRow` y texto a 16: a la izquierda `FooterWaveLabel` "OL. X/Y" y a la derecha `FooterStatusLabel`. X es la oleada en curso o, si no hay ninguna, la siguiente que se va a lanzar (antes de empezar, "OL. 1/Y"; nunca 0).
+`WaveFooter` (`MarginContainer` con 4 px a cada lado al final de `Content`, fuera de las páginas, así que se ve en Torretas y en Oleadas) con la fila `FooterRow` y texto a 16: a la izquierda `FooterWaveLabel` "OL. X/Y" y a la derecha `FooterStatusLabel`. X es la oleada en curso o, si no hay ninguna, la siguiente que se va a lanzar (antes de empezar, "OL. 1/Y"; nunca 0).
 
 | `Sidebar.WaveStatus` | Texto | Color | Cuándo |
 |---|---|---|---|
@@ -218,7 +218,7 @@ El `Portal` de un camino que saca la Nodriza tiembla con más fuerza (`Portal.BO
 
 ## Vida de la estación
 
-`StationBox` (dentro de `StationMargin`, `MarginContainer` con 4 px a cada lado como el pie, al final de `Content` y justo encima del pie, así que se ve en Torres y en Oleadas): "ESTACIÓN" a 16 y debajo `StationBar` (`ProgressBar` de 8 px de alto, sin porcentaje) con `StationValueLabel` `actual/máximo` a su derecha. Fondo de la barra `#0e1626` con borde `#1c4a60`; relleno `#40e0f0`. Con menos del 30 % de vida (`Sidebar.STATION_DANGER_FRACTION`) relleno y número pasan al rojo de peligro `#ff3c5a`.
+`StationBox` (dentro de `StationMargin`, `MarginContainer` con 4 px a cada lado como el pie, al final de `Content` y justo encima del pie, así que se ve en Torretas y en Oleadas): "ESTACIÓN" a 16 y debajo `StationBar` (`ProgressBar` de 8 px de alto, sin porcentaje) con `StationValueLabel` `actual/máximo` a su derecha. Fondo de la barra `#0e1626` con borde `#1c4a60`; relleno `#40e0f0`. Con menos del 30 % de vida (`Sidebar.STATION_DANGER_FRACTION`) relleno y número pasan al rojo de peligro `#ff3c5a`.
 
 - `Sidebar.set_station_health(current, maximum)`: lo único que toca la barra. Si la vida baja respecto a la anterior (la primera llamada no cuenta), relleno y número parten del rojo de peligro y vuelven a su color en `STATION_HIT_TIME` (0,3 s).
 - Alarma de vida baja: `LowHealthVignette` (`ColorRect` con shader, en `GameArea`, bajo las pantallas) es una viñeta roja en los bordes que late (`VIGNETTE_MIN/MAX_INTENSITY`, `VIGNETTE_PULSE_TIME`) con menos del 25 % de vida (`LevelUI.LOW_HEALTH_FRACTION`). Se apaga si la vida sube y al perder o ganar.
@@ -253,7 +253,7 @@ Todos los botones del juego son una **caja con esquinas recortadas**: la esquina
 | `disabled` | `#060b14` | `#1c4a60` | `#5a7a96` |
 | `focus` | `StyleBoxEmpty`: sin marca, el juego es de ratón | | |
 
-**Botones de las barras** (pestañas, INICIAR, AUTO, flechas `<` `>`, `TowerButton` y `EnemyCell`): crean sus estilos por código con `ClippedBoxStyle.create`, con sus propios colores y estados (ver cada uno). `FoldButton` (plegar la pausa) es un botón de icono sin caja.
+**Botones de las barras** (pestañas, INICIAR, AUTO, flechas `<` `>`, `TurretButton` y `EnemyCell`): crean sus estilos por código con `ClippedBoxStyle.create`, con sus propios colores y estados (ver cada uno). `FoldButton` (plegar la pausa) es un botón de icono sin caja.
 
 ## OverlayScreen
 
@@ -344,7 +344,7 @@ No dibuja nada propio en `_draw`. Miden 204x36 (texto a 24) con 9 px de separaci
 - `count_up(duration, delay = 0.0)`: opcional, después de `show_stats`. Pone enemigos destruidos y dinero gastado a 0 y, tras `delay` segundos, los hace contar hasta su valor en `duration` segundos (tween de tiempo real, curva cuártica que frena al final). Cada paso pasa por `UiFormat.abbreviate` o `UiFormat.money`, así que el texto tiene el formato del valor final y las filas (de ancho fijo) no saltan. La oleada no cuenta. `finish_count()` corta el conteo y deja los valores finales; `is_counting()` dice si hay uno en curso. Lo usa la victoria.
 - `StatRow.get_value_label(row)` da la etiqueta del valor de una fila para cambiar su texto sin rehacerla.
 
-Si alguna torre ha matado, añade dos filas: TORRE (nombre de la mejor, en mayúsculas) y SUS BAJAS.
+Si alguna torreta ha matado, añade dos filas: TORRETA (nombre de la mejor, en mayúsculas) y SUS BAJAS.
 
 `RunStats` está en [niveles.md](niveles.md).
 
@@ -366,18 +366,18 @@ Opciones "Siguiente nivel" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción qu
 | Origen | Señal | Destino |
 |---|---|---|
 | `LevelState` | `money_changed` | `Sidebar.set_money` |
-| `LevelState` | `selected_tower_changed` | `Sidebar.show_selected` |
+| `LevelState` | `selected_turret_changed` | `Sidebar.show_selected` |
 | `LevelState` | `inspected_changed` | `InfoPanel.show_inspected` |
-| `LevelState` | `sellable_tower_changed` | `InfoPanel.show_sellable` |
-| `InfoPanel` | `sell_requested` | `LevelUI._on_sell_requested` (`LevelState.sell_selected_tower`) |
+| `LevelState` | `sellable_turret_changed` | `InfoPanel.show_sellable` |
+| `InfoPanel` | `sell_requested` | `LevelUI._on_sell_requested` (`LevelState.sell_selected_turret`) |
 | `Spawner` | `wave_started` | `LevelUI._on_wave_started` (`Sidebar.set_current_wave`, controles y pie) |
 | `Spawner` | `wave_cleared` | `LevelUI._on_wave_cleared` (`Sidebar.view_wave` a la siguiente, controles y pie) |
 | `Spawner` | `auto_waves_changed` | `Sidebar.show_auto_waves` |
-| `Sidebar` | `tower_selected` | `LevelUI._on_tower_selected` (escribe en `LevelState`) |
+| `Sidebar` | `turret_selected` | `LevelUI._on_turret_selected` (escribe en `LevelState`) |
 | `Sidebar` | `inspect_requested` | `LevelUI._on_inspect_requested` (escribe `LevelState.inspected`) |
 | `Sidebar` | `next_wave_requested` | `LevelUI._on_next_wave_requested` (`Spawner.start_next_wave`) |
 | `Sidebar` | `auto_waves_toggled` | `LevelUI._on_auto_waves_toggled` (escribe `Spawner.auto_waves`) |
-| `LevelState`, `Spawner`, `Powers` | `selected_tower_changed`, `tower_placed`, `sellable_tower_changed`, `wave_started`, `wave_cleared`, `power_used` | `TutorialHints` (solo en el tutorial del nivel 1) |
+| `LevelState`, `Spawner`, `Powers` | `selected_turret_changed`, `turret_placed`, `sellable_turret_changed`, `wave_started`, `wave_cleared`, `power_used` | `TutorialHints` (solo en el tutorial del nivel 1) |
 | `MeteorButton`, `FreezeButton` | `pressed` | `LevelUI._use_power` (`Powers.use`, solo en `PLAYING`) |
 | `Sidebar` | `fast_speed_toggled` | `LevelUI._on_fast_speed_toggled` (cambia `_fast_speed` y reaplica `time_scale`) |
 | `PauseMenu`, `GameOverScreen`, `VictoryScreen` | `option_chosen` | `LevelUI._on_option_chosen` (`RESUME` lo resuelve ella) |

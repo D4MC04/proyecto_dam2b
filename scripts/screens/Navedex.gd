@@ -1,6 +1,6 @@
 class_name Navedex
 extends Control
-## Archivo del menú con pestañas Naves y Torres: cuadrícula con todos y detalle del elegido.
+## Archivo del menú con pestañas Naves y Torretas: cuadrícula con todos y detalle del elegido.
 ## Los que aún no han salido en una partida se ven en silueta y con "???".
 
 signal back_pressed
@@ -8,46 +8,79 @@ signal back_pressed
 const ENEMY_DIR := "res://resources/enemy_data/"
 const ENEMY_FILES: Array[String] = [
 	"dart_verde", "dart_rojo", "dart_morado", "dart_hielo", "wasp", "nave_normal",
-	"nave_agresiva", "spiked_ship", "ufo", "ariete", "acorazado", "nodriza", "reparadora",
+	"nave_agresiva", "ariete", "acorazado", "nodriza", "reparadora",
 	"espectro", "divisora", "fragmento_divisora_central",
 	"saboteadora",
 ]
-const TOWER_DIR := "res://resources/turret_data/"
-# Cada torre base va seguida de su fusión.
-const TOWER_FILES: Array[String] = [
-	"turret", "turret_fusion", "laser", "laser_fusion", "rocket_launcher", "rocket_launcher_fusion",
-	"cryo", "cryo_fusion", "disintegrator", "disintegrator_fusion", "rail", "rail_fusion",
-	"tesla", "tesla_fusion",
+const TURRET_DIR := "res://resources/turret_data/"
+# Solo las torretas base; sus mejoras se ven con las flechas del detalle.
+const TURRET_FILES: Array[String] = [
+	"turret", "minigun", "rocket_launcher", "cryo", "disintegrator", "rail", "tesla",
 ]
 const TAB_ENEMIES := 0
 const TAB_ACHIEVEMENTS := 2
 const CELL_SCENE: PackedScene = preload("res://scenes/level_ui/EnemyCell.tscn")
 const UNKNOWN_TEXT := "???"
+# Lado de las celdas cuadradas de la cuadrícula.
+const CELL_SIZE := 64
+const ACHIEVEMENT_ICON_DIR := "res://assets/ui/achievements/"
+# Icono de logro (16x16 ×3), ancho de cada fila (dos por línea) y color del logro sin conseguir.
+const ACHIEVEMENT_ICON_SIZE := 48
+const ACHIEVEMENT_ROW_WIDTH := 350
+const LOCKED_COLOR := Color(0.3, 0.3, 0.35)
+# Lado de las flechas de torreta.
+const ARROW_SIZE := 28
 
 @onready var grid: GridContainer = %Grid
 @onready var tabs: TabBar = %Tabs
 @onready var sprite: AnimatedSprite2D = %Sprite
-@onready var tower_icon: Sprite2D = %TowerIcon
+@onready var turret_icon: Sprite2D = %TurretIcon
 @onready var fusion_label: Label = %FusionLabel
 @onready var name_label: Label = %NameLabel
 @onready var description_label: Label = %DescriptionLabel
 @onready var stat_rows: VBoxContainer = %StatRows
 @onready var detail: VBoxContainer = %Detail
-@onready var achievements_list: Label = %AchievementsList
+@onready var achievements_list: GridContainer = %AchievementsList
+@onready var prev_button: Button = %PrevButton
+@onready var next_button: Button = %NextButton
 
 var _cells: Dictionary[InspectableData, EnemyCell] = {}
+# Cadena de versiones de la torreta mostrada (base, mejora...) y cuál se ve.
+var _versions: Array[TurretData] = []
+var _version_index := 0
 
 func _ready() -> void:
 	%VolverButton.pressed.connect(back_pressed.emit)
 	tabs.add_tab("NAVES")
-	tabs.add_tab("TORRES")
+	tabs.add_tab("TORRETAS")
 	tabs.add_tab("LOGROS")
+	_style_arrow(prev_button)
+	_style_arrow(next_button)
+	prev_button.pressed.connect(_change_version.bind(-1))
+	next_button.pressed.connect(_change_version.bind(1))
 	tabs.tab_changed.connect(_build_grid)
 	_build_grid(TAB_ENEMIES)
 	visibility_changed.connect(_on_visibility_changed)
 	_on_visibility_changed()
 
-# Rellena la cuadrícula con las naves o las torres según la pestaña.
+# Flecha pequeña con el mismo borde cian fino y relleno tenue que las celdas.
+func _style_arrow(button: Button) -> void:
+	button.custom_minimum_size = Vector2(ARROW_SIZE, ARROW_SIZE)
+	var normal := ClippedBoxStyle.create(TurretButton.BG_COLOR, TurretButton.BORDER_COLOR)
+	var hover := ClippedBoxStyle.create(TurretButton.HOVER_BG_COLOR, TurretButton.HOVER_BORDER_COLOR)
+	var disabled := ClippedBoxStyle.create(TurretButton.BG_COLOR, TurretButton.BORDER_COLOR.darkened(0.6))
+	for style: ClippedBoxStyle in [normal, hover, disabled]:
+		style.content_margin_left = 0
+		style.content_margin_right = 0
+		style.content_margin_top = 0
+		style.content_margin_bottom = 0
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", hover)
+	button.add_theme_stylebox_override("disabled", disabled)
+	button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+
+# Rellena la cuadrícula con las naves o las torretas según la pestaña.
 func _build_grid(tab: int) -> void:
 	var achievements := tab == TAB_ACHIEVEMENTS
 	grid.visible = not achievements
@@ -61,9 +94,12 @@ func _build_grid(tab: int) -> void:
 		cell.queue_free()
 	_cells.clear()
 	var enemies := tab == TAB_ENEMIES
-	for file in (ENEMY_FILES if enemies else TOWER_FILES):
-		var data := load((ENEMY_DIR if enemies else TOWER_DIR) + file + ".tres") as InspectableData
+	for file in (ENEMY_FILES if enemies else TURRET_FILES):
+		var data := load((ENEMY_DIR if enemies else TURRET_DIR) + file + ".tres") as InspectableData
 		var cell: EnemyCell = CELL_SCENE.instantiate()
+		cell.custom_minimum_size = Vector2(CELL_SIZE, CELL_SIZE)
+		cell.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		cell.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 		grid.add_child(cell)
 		cell.setup(data, 0)
 		cell.count_label.hide()
@@ -84,29 +120,82 @@ func _on_visibility_changed() -> void:
 		_cells[data].icon_rect.modulate = Color.WHITE if _is_known(data) else Color.BLACK
 	_show_detail(_cells.keys()[0])
 
-# Las torres siempre se conocen; las naves, solo si ya han salido en una partida.
+# Las torretas siempre se conocen; las naves, solo si ya han salido en una partida.
 func _is_known(data: InspectableData) -> bool:
 	var enemy := data as EnemyData
 	return enemy == null or GameState.has_seen_enemy(enemy)
 
 func _show_achievements() -> void:
-	var lines: Array[String] = []
+	for child in achievements_list.get_children():
+		child.free()
 	for id: String in GameState.ACHIEVEMENTS:
 		var info: Array = GameState.ACHIEVEMENTS[id]
 		var done: bool = id in GameState.unlocked
-		lines.append("[%s] %s - %s" % ["X" if done else " ", info[0], info[1]])
-	achievements_list.text = "\n".join(lines)
+		achievements_list.add_child(_make_achievement_row(id, info[0], info[1], done))
+
+# Fila de un logro: icono a la izquierda y nombre y descripción a la derecha; apagada si falta por conseguir.
+func _make_achievement_row(id: String, title: String, description: String, done: bool) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.custom_minimum_size = Vector2(ACHIEVEMENT_ROW_WIDTH, 0)
+	row.add_theme_constant_override("separation", 10)
+	row.modulate = Color.WHITE if done else LOCKED_COLOR
+	var icon := TextureRect.new()
+	icon.texture = load(ACHIEVEMENT_ICON_DIR + id + ".png")
+	icon.custom_minimum_size = Vector2.ONE * ACHIEVEMENT_ICON_SIZE
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(icon)
+	var texts := VBoxContainer.new()
+	texts.add_theme_constant_override("separation", 0)
+	var name_text := Label.new()
+	name_text.text = title
+	name_text.add_theme_font_size_override("font_size", 24)
+	var description_text := Label.new()
+	description_text.text = description
+	description_text.add_theme_font_size_override("font_size", 18)
+	description_text.modulate = Color(1, 1, 1, 0.7)
+	texts.add_child(name_text)
+	texts.add_child(description_text)
+	row.add_child(texts)
+	return row
 
 func _show_detail(data: InspectableData) -> void:
+	_versions.clear()
+	_version_index = 0
+	var base := data as TurretData
+	if base != null:
+		# Base y mejoras encadenadas.
+		var turret: TurretData = base
+		while turret != null:
+			_versions.append(turret)
+			turret = turret.fusion
+	_show_entry(data)
+
+# Pasa a la versión anterior (-1) o siguiente (+1) de la torreta.
+func _change_version(step: int) -> void:
+	_version_index = clampi(_version_index + step, 0, _versions.size() - 1)
+	_show_entry(_versions[_version_index])
+
+func _show_entry(data: InspectableData) -> void:
 	var seen := _is_known(data)
-	var tower := data as TowerData
-	sprite.visible = tower == null
-	tower_icon.visible = tower != null
-	fusion_label.visible = tower != null and tower.fusion != null
-	if tower != null:
-		tower_icon.texture = tower.icon
-		if tower.fusion != null:
-			fusion_label.text = "MEJORA: " + tower.fusion.name.to_upper()
+	var turret := data as TurretData
+	sprite.visible = turret == null
+	turret_icon.visible = turret != null
+	prev_button.disabled = _version_index <= 0
+	next_button.disabled = _version_index >= _versions.size() - 1
+	# Invisibles (no ocultos) en las naves para que la imagen no se mueva.
+	prev_button.modulate.a = 1.0 if turret != null else 0.0
+	next_button.modulate.a = 1.0 if turret != null else 0.0
+	if turret == null:
+		prev_button.disabled = true
+		next_button.disabled = true
+	fusion_label.visible = turret != null and turret.fusion != null
+	if turret != null:
+		turret_icon.texture = turret.icon
+		if turret.fusion != null:
+			fusion_label.text = "MEJORA: " + turret.fusion.name.to_upper()
 	else:
 		var enemy := data as EnemyData
 		sprite.sprite_frames = enemy.sprite_frames
