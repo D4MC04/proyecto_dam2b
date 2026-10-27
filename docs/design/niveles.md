@@ -82,8 +82,8 @@ Niveles registrados en `GameData.levels`:
 | 5 | `maps/levels/Level5.tscn` | las anteriores + Disintegrator | 7 | 11 → 33 | Ariete y Divisora | 2 |
 | 6 | `maps/levels/Level6.tscn` | las 7 | 8 | 17 → 42 (la última con la Nodriza) | Reparadora | 3 |
 | 7 | `maps/levels/Level7.tscn` | las 7 | 9 | 21 → 47 | Espectro | 4 |
-| 8 | `maps/levels/Level8.tscn` | las 7 | 9 | 19 → 48 | Saboteadora | 4 |
-| 9 | `maps/levels/Level9.tscn` | las 7 | 10 | 27 → 60 (la última con la Nodriza) | Espectro, Saboteadora, Divisora y Reparadora (y todas las demás) | 8 |
+| 8 | `maps/levels/Level8.tscn` | las 7 + Amplificador | 9 | 19 → 48 | Saboteadora | 4 |
+| 9 | `maps/levels/Level9.tscn` | las 8 | 10 | 27 → 60 (la última con la Nodriza) | Espectro, Saboteadora, Divisora y Reparadora (y todas las demás) | 8 |
 
 Las oleadas son `WaveData` en `resources/wave_data/level_N.tres` (la primera) y `level_N_K.tres` (la K). Los niveles 1 a 4 y 6 a 9 están en `resources/level_data/level_N.tres`; el 5 está definido como subrecurso dentro de `scenes/GameData.tscn` (`level_5.tres` también existe y lleva las mismas oleadas).
 

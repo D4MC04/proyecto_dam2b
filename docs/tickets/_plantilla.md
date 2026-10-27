@@ -13,6 +13,7 @@ Qué mejora en el juego o qué problema arregla. Una o dos frases.
 ## Qué hay que hacer
 - Paso concreto 1
 - Paso concreto 2
+- Si es una torreta nueva que ataca: su efecto de Amplificador (`amp_effect`, ver docs/design/torretas.md › "Amplificador").
 
 ## Qué leer
 Solo esto; `/work` no lee nada más de docs/design.

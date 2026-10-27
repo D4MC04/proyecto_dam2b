@@ -7,6 +7,7 @@
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/turret_fusion.tres" id="5"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/turret_fusion_cannon.tres" id="7"]
 [ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Turret/DobleLaserShoot.wav" id="snd"]
+[ext_resource type="Resource" path="res://resources/amp_effects/turret.tres" id="amp"]
 
 [resource]
 script = ExtResource("1")
@@ -21,5 +22,6 @@ bullet_data = ExtResource("3")
 muzzle_offset = Vector2(-5, -12)
 cannon = ExtResource("7")
 turn_speed = 240.0
+amp_effect = ExtResource("amp")
 description = "Cuatro cañones y una ráfaga muy rápida. Fusión de dos Cañones dobles."
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

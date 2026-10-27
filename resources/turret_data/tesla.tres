@@ -9,6 +9,7 @@
 [ext_resource type="Resource" path="res://resources/turret_data/tesla_fusion.tres" id="fusion"]
 [ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Tesla/ElectricZap.wav" id="snd"]
 [ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Tesla/CharginTurret.wav" id="chg"]
+[ext_resource type="Resource" path="res://resources/amp_effects/tesla.tres" id="amp"]
 
 [resource]
 script = ExtResource("1")
@@ -23,5 +24,6 @@ attack_range = ExtResource("2")
 cannon = ExtResource("7")
 chain = ExtResource("3")
 fusion = ExtResource("fusion")
+amp_effect = ExtResource("amp")
 description = "Un rayo salta de enemigo en enemigo y alcanza a varios a la vez."
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

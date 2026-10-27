@@ -9,6 +9,7 @@
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/rail_fusion_muzzle.tres" id="6"]
 [ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Rail/RailgunShoot.wav" id="snd"]
 [ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Rail/RailgunCharging.wav" id="chg"]
+[ext_resource type="Resource" path="res://resources/amp_effects/rail.tres" id="amp"]
 
 [resource]
 script = ExtResource("1")
@@ -25,5 +26,6 @@ muzzle_offset = Vector2(0, -14)
 cannon = ExtResource("7")
 turn_speed = 45.0
 beam = ExtResource("3")
+amp_effect = ExtResource("amp")
 description = "Un haz ancho y larguísimo que barre toda la línea. Fusión de dos Rail."
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

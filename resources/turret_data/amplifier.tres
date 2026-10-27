@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="TurretData" format=3]
+
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/turrets/amplifier/amplifier_full_up.png" id="2"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/amplifier.tres" id="3"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/amplifier_cannon.tres" id="4"]
+[ext_resource type="Resource" path="res://resources/turret_data/amplifier_fusion.tres" id="fusion"]
+[ext_resource type="Shape2D" path="res://resources/collision_shapes/amplifier.tres" id="5"]
+
+[resource]
+script = ExtResource("1")
+name = "Amplificador"
+cost = 400
+icon = ExtResource("2")
+sprite_frames = ExtResource("3")
+attack_range = ExtResource("5")
+cannon = ExtResource("4")
+amplifier_level = 1
+fusion = ExtResource("fusion")
+description = "No dispara: mejora a las torretas que tiene cerca, cada una a su manera."
+metadata/_custom_type_script = "uid://dmo7ci57slbqu"

@@ -44,6 +44,7 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 | Tesla | cobre `#783e20`, `#ce743c`; rayo `#5a3caa`, `#40e0f0`, `#f0faff` |
 | Rail | ámbar `#ecb23c`; haz `#1c7496`, `#40e0f0`, `#f0faff` con borde `#aa78ff` |
 | Disintegrator | magenta `#6e1a64`, `#be30a0`, `#ff5ad2`, `#ffafeb`, `#fff5fc` |
+| Amplificador | ámbar `#96641e`, `#ecb23c`, `#ffe082`, `#fff8e6`; aura y marca de torreta amplificada en `#ecb23c` y `#ffe082` |
 
 - **Torretas fusionadas** (`assets/sprites/turrets/<torreta>_fusion/`, mismos tamaños, frames y nombres que la base, p. ej. `turret_fusion/t1_base.png`): misma familia que la base, más detalladas, con acento nuevo.
 
@@ -56,10 +57,12 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 | Tormenta | violeta `#5a3caa`; cuatro bobinas, rayos lilas |
 | Rail Gauss | cian; segundo capacitor; haz dorado de 32x15 |
 | Aniquilador | dorado y blanco; aletas exteriores |
+| Amplificador mayor | el mismo ámbar; aro discontinuo en la base, cúpula más grande y cuatro luces pequeñas más |
 
 - **Motores y luces de enemigos**: `#8c1628`, `#f0323c`, `#ff8c5a`, `#ffdc78`.
 - **Naranja de la Divisora** (casco, de sombra a luz): `#7a3014`, `#d2641e`, `#f59a3c`, `#ffd08a`; cabina `#1e244a`, `#344682`. Tres módulos: casco central con cabina, punta roja y bodega con luz, y dos vainas laterales con aleta y motor propio, sujetas con abrazaderas de metal. Al morir se parte en tres trozos de 20x20 recortados de su dibujo (cada vaina, y el casco central sin la bodega) y antes enseña `divisora_crack.png`, con las abrazaderas partidas en luz (`#ffdc78`, `#fffae6`). Todo lo genera `scripts/tools/make_divisora_sprites.gd` (mitad izquierda en texto, reflejada).
 - **Minigun y Minigun pesada** (`turrets/minigun/` y `turrets/minigun_fusion/`, mismos nombres en las dos): no se dibujan a mano, las genera `scripts/tools/make_minigun.gd` (`godot --headless --path . -s scripts/tools/make_minigun.gd`). Se dibujan con plantillas de texto (un carácter por píxel). La base es la misma silueta y luz que `turret/t1_base.png`, con luces de acento en las esquinas, arriba y abajo y ranuras de ventilación a los lados. El cañón, de la fila 3 a la 25 como el del Cañón doble: haz de seis tubos dibujado como un cilindro visto de lado (los tubos se desplazan de lado y se estrechan en los bordes al girar) con una abrazadera de acento, carcasa con rotor de núcleo de acento, franja y rejilla, y dos cajas laterales con la cinta de munición a la vista. `minigun_cannon_sheet.png` tiene 4 frames de giro (un cuarto de tubo cada uno, con la cinta avanzando); el primero es también el reposo (`default`) y los cuatro forman `spin`, en bucle. Fogonazo hacia arriba (3 frames de 16x16), trazadora de 2x6 px dentro del frame de 4x8 e impacto de chispas en anillo (4 frames de 16x16), sin contorno.
+- **Amplificador y Amplificador mayor** (`turrets/amplifier/` y `turrets/amplifier_fusion/`, mismos nombres en las dos): no se dibujan a mano, los genera `scripts/tools/make_amplifier.gd` (`godot --headless --path . -s scripts/tools/make_amplifier.gd`), que también hace `assets/ui/stat_icons/amp.png`. La base es la plantilla del Cañón doble con las luces en ámbar. En vez de cañón lleva un emisor que no gira (`amplifier_cannon_idle_sheet.png`, 4 frames en bucle): cúpula con un aro de metal de 2 px y un núcleo de ámbar en anillos que late (oscuro, medio, claro, medio), y cuatro brazos en diagonal acabados en una luz que se encienden de una en una, como un faro. El mayor añade a la base un aro discontinuo de ámbar (como la Minigun pesada) y luces más grandes en las esquinas, una cúpula más grande y cuatro luces pequeñas sobre el aro. El icono (`amplifier_full_up.png`) enseña el núcleo encendido.
 - **Reparadora** (`enemies/reparadora/reparadora_up_1` a `_3`): no se dibuja a mano, la genera `scripts/tools/make_reparadora.gd` (`godot --headless --path . -s scripts/tools/make_reparadora.gd`). Casco redondeado en el metal de los enemigos con un blanco `#f4f8ff` para los brillos, franjas, cabina y núcleo en la rampa verde `#0e3a24`, `#1c7440`, `#3cb860`, `#7ee89a`, `#c4f5d0`, `#f0fff4`, dos brazos con módulos de reparación (pinzas con un emisor verde) y llamas verdes. Los frames cambian el latido del núcleo, el emisor y la llama.
 - **Variantes de Dart**: mismo dibujo con el casco en azul hielo, morado, rojo o verde.
 - **Escudo de la base**: `#40e0f0`, `#aaf5ff`, `#ebffff`, semitransparente.
@@ -117,6 +120,7 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 | `dps.png` | llama | magenta `#be30a0`, `#ff5ad2`, `#ffafeb` |
 | `splash.png` | explosión en disco (daño en área) | rojo `#dc461e`, naranja `#ff8c32`, crema `#ffe28c` |
 | `level_time.png` | tres barras de nivel crecientes | magenta `#be30a0`, `#ff5ad2`, `#ffafeb` |
+| `amp.png` | dos chevrones hacia arriba (fila de amplificación de la ficha) | ámbar `#96641e`, `#ecb23c`, `#ffe082` |
 | `health.png` | corazón | verde `#1c7440`, `#3cb860`, `#c4f5d0` |
 | `reward.png` | lingote de oro | ámbar `#96641e`, `#ecb23c`, `#ffe082` |
 | `wave.png` | nave enemiga mirando hacia arriba con la llama del motor (oleada alcanzada, en el resumen de partida) | morado `#221632`, `#462c62`, `#785096`; motor `#f0323c` |

@@ -7,6 +7,7 @@
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/cryo_fusion.tres" id="5"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/cryo_fusion_cannon.tres" id="7"]
 [ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Cryo/IceShoot.wav" id="snd"]
+[ext_resource type="Resource" path="res://resources/amp_effects/cryo.tres" id="amp"]
 
 [resource]
 script = ExtResource("1")
@@ -19,5 +20,6 @@ sprite_frames = ExtResource("5")
 attack_range = ExtResource("2")
 cannon = ExtResource("7")
 pulse = ExtResource("3")
+amp_effect = ExtResource("amp")
 description = "Una ventisca que casi congela todo lo que alcanza. Fusión de dos Cryo."
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

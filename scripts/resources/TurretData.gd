@@ -49,12 +49,24 @@ const ACCENT_COLOR := Color("#40e0f0")
 @export var charge_sound: AudioStream
 # Opcional: torreta en la que se convierte al fusionarla con otra igual; cost es lo que se paga por la fusión.
 @export var fusion: TurretData
+# Lo que gana la torreta dentro del aura de un Amplificador (cada torreta mejora su propia mecánica).
+# Toda torreta que ataca debe tenerlo; las fusionadas usan el mismo que su base.
+@export var amp_effect: AmpEffect
+# Si es mayor que 0 la torreta es un Amplificador de ese nivel (1 normal, 2 mayor): no ataca y
+# amplifica a las torretas que tengan el centro dentro de attack_range (su aura).
+@export var amplifier_level: int = 0
 # Opcional: frase corta que se enseña al final de la ficha.
 @export_multiline var description: String
 
 ## Filas de la ficha: las comunes a todas las torretas y las de su tipo de ataque.
 func get_stats() -> Array[StatEntry]:
 	var stats: Array[StatEntry] = [StatEntry.new("cost", "COSTE", UiFormat.money(cost))]
+	if is_amplifier():
+		# Sin ataque ni cadencia: solo el radio del aura (lo que gana cada torreta sale en su ficha).
+		var aura := attack_range as CircleShape2D
+		if aura != null:
+			stats.append(StatEntry.new("range", "AURA", UiFormat.number(aura.radius)))
+		return stats
 	var circle := attack_range as CircleShape2D
 	if circle != null:
 		stats.append(StatEntry.new("range", "ALCANCE", UiFormat.number(circle.radius)))
@@ -82,8 +94,14 @@ func get_attack() -> Resource:
 		return pulse
 	return bullet_data
 
+## Torreta de apoyo: no ataca y amplifica a sus vecinas.
+func is_amplifier() -> bool:
+	return amplifier_level > 0
+
 ## Etiqueta corta del tipo de ataque para la ficha (9 caracteres como máximo).
 func get_attack_label() -> String:
+	if is_amplifier():
+		return "APOYO"
 	if focus_beam != null:
 		return "HAZ CONT."
 	if beam != null:

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="AmpEffect" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/AmpEffect.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+kind = 5
+normal = 2.0
+major = 3.0

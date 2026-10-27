@@ -8,6 +8,7 @@
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/tesla_fusion_cannon.tres" id="7"]
 [ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Tesla/ElectricZap.wav" id="snd"]
 [ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Tesla/CharginTurret.wav" id="chg"]
+[ext_resource type="Resource" path="res://resources/amp_effects/tesla.tres" id="amp"]
 
 [resource]
 script = ExtResource("1")
@@ -21,5 +22,6 @@ sprite_frames = ExtResource("5")
 attack_range = ExtResource("2")
 cannon = ExtResource("7")
 chain = ExtResource("3")
+amp_effect = ExtResource("amp")
 description = "Una tormenta eléctrica que salta entre hasta seis enemigos. Fusión de dos Tesla."
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

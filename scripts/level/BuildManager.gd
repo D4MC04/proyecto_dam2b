@@ -144,7 +144,11 @@ func _hide_preview() -> void:
 func _draw_range() -> void:
 	if _last_data == null:
 		return
-	draw_range_circle(_range, _last_data.attack_range)
+	# El Amplificador no ataca: enseña su aura en ámbar.
+	if _last_data.is_amplifier():
+		AmpAura.draw_circle_aura(_range, _last_data.attack_range)
+	else:
+		draw_range_circle(_range, _last_data.attack_range)
 
 # Pinta el alcance en "canvas" (solo dentro de su _draw): relleno tenue y borde cian pixelado de 1 px.
 static func draw_range_circle(canvas: CanvasItem, shape: Shape2D) -> void:

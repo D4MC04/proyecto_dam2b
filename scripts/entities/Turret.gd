@@ -1,6 +1,11 @@
 class_name Turret
 extends Node2D
 
+## Ha cambiado el nivel de amplificación (ver set_amplification).
+signal amplification_changed
+## Se ha apagado por un EMP o ha vuelto; si es un Amplificador, Grid recalcula las auras.
+signal power_changed
+
 @export var data: TurretData
 @export var bullet_scene: PackedScene
 
@@ -67,6 +72,9 @@ var _charge_player: AudioStreamPlayer2D
 # Apagada por un pulso EMP (ver disable): no apunta ni dispara.
 var disabled := false
 var _disable_tween: Tween
+## Nivel del mejor Amplificador encendido de las casillas vecinas (0 = ninguno); lo pone Grid.
+var amp_level := 0
+var _amp_mark: AmpMark
 var _sparks: EmpSparks
 # Ratón sobre la torreta: dibuja el alcance.
 var _hovered := false
@@ -101,6 +109,13 @@ func _ready() -> void:
 		_charge_player.stream = data.charge_sound
 		_charge_player.bus = &"SFX"
 		add_child(_charge_player)
+	if data.is_amplifier():
+		# Sin ataque: no apunta ni dispara. El emisor brilla en bucle y se pinta el borde del aura.
+		set_process(false)
+		attack_timer.stop()
+		cannon.play()
+		add_child(AmpAura.new())
+		return
 	attack_range_shape.shape = data.attack_range
 	attack_timer.wait_time = data.attack_cooldown
 	attack_timer.timeout.connect(_on_attack_timeout)
@@ -119,8 +134,9 @@ func _ready() -> void:
 # Con la opción "mostrar rango" activada, cada torreta dibuja su alcance bajo sus sprites.
 # Con la opción apagada, solo la que tiene el ratón encima o está seleccionada.
 func _draw() -> void:
-	if (Settings.get_value(&"show_turret_range") or _hovered or selected) and data.attack_range:
-		BuildManager.draw_range_circle(self, data.attack_range)
+	if (Settings.get_value(&"show_turret_range") or _hovered or selected) and attack_range_shape.shape:
+		# La forma del detector, que crece con el efecto de alcance del Amplificador.
+		BuildManager.draw_range_circle(self, attack_range_shape.shape)
 
 # Con el ratón encima (casilla de 16 px) se ve el alcance aunque la opción esté apagada.
 func _physics_process(_delta: float) -> void:
@@ -197,7 +213,9 @@ func _update_overheat(delta: float, has_target: bool) -> bool:
 # Cuanto más caliente, menos cooldown. Empieza lento, acelera (curva al cuadrado) y desde
 # FULL_SPEED_HEAT dispara a la cadencia máxima hasta sobrecalentarse.
 func _heat_cooldown() -> float:
-	var t := minf(_heat / FULL_SPEED_HEAT, 1.0)
+	# Amplificada llega antes a la cadencia máxima.
+	var full_speed_heat := FULL_SPEED_HEAT / amp_value(AmpEffect.Kind.HEAT, 1.0)
+	var t := minf(_heat / full_speed_heat, 1.0)
 	return lerpf(data.attack_cooldown, data.overheat_min_cooldown, t * t)
 
 # Halo y chispas de calor (HeatGlow) en la boca del cañón; se crea la primera vez que hay calor.
@@ -283,6 +301,8 @@ func _on_cannon_frame_changed() -> void:
 			_play_shoot()
 			Chain.spawn(self, target)
 	elif data.beam and cannon.frame == data.beam.fire_frame:
+		# La carga amplificada va más rápida; el disparo y la recuperación, a su velocidad.
+		cannon.speed_scale = 1.0
 		_play_shoot()
 		Beam.spawn(self)
 
@@ -320,6 +340,7 @@ func _shoot(target: Enemy) -> void:
 		# Empieza la carga; el haz sale después, hacia donde apunte el cañón en ese momento.
 		_start_charge()
 		cannon.play(&"fire_0")
+		cannon.speed_scale = amp_value(AmpEffect.Kind.CHARGE, 1.0)
 		return
 	_play_shoot()
 	var bullet: Bullet = bullet_scene.instantiate()
@@ -390,6 +411,7 @@ func disable(seconds: float) -> void:
 	_disable_tween = create_tween()
 	_disable_tween.tween_interval(seconds)
 	_disable_tween.tween_callback(_enable)
+	power_changed.emit()
 
 func _enable() -> void:
 	disabled = false
@@ -400,6 +422,41 @@ func _enable() -> void:
 	tween.tween_property(cannon, "modulate", Color.WHITE, ENABLE_FLASH_TIME).from(ENABLE_FLASH)
 	_sparks.queue_free()
 	_sparks = null
+	power_changed.emit()
+
+## Valor del efecto `kind` de amplificación de esta torreta (ver AmpEffect), o `fallback` si no está
+## amplificada o su efecto es otro.
+func amp_value(kind: AmpEffect.Kind, fallback: float = 0.0) -> float:
+	if amp_level == 0 or data.amp_effect == null or data.amp_effect.kind != kind:
+		return fallback
+	return data.amp_effect.get_value(amp_level)
+
+## Lo llama Grid con el nivel del mejor Amplificador encendido de alrededor (0 = ninguno).
+## Las torretas sin efecto (los propios Amplificadores) se quedan sin amplificar.
+func set_amplification(level: int) -> void:
+	if data.amp_effect == null:
+		level = 0
+	if level == amp_level:
+		return
+	amp_level = level
+	_update_range()
+	if _amp_mark == null:
+		_amp_mark = AmpMark.new()
+		add_child(_amp_mark)
+	_amp_mark.visible = level > 0
+	queue_redraw()
+	amplification_changed.emit()
+
+# Con el efecto de alcance el detector usa un círculo propio más grande (el de data es compartido).
+func _update_range() -> void:
+	var circle := data.attack_range as CircleShape2D
+	var bonus := amp_value(AmpEffect.Kind.RANGE)
+	if circle == null or bonus <= 0.0:
+		attack_range_shape.shape = data.attack_range
+		return
+	var amplified := CircleShape2D.new()
+	amplified.radius = circle.radius * (1.0 + bonus)
+	attack_range_shape.shape = amplified
 
 ## Apunta el daño que ha hecho un disparo suyo y si ha matado.
 func register_damage(amount: float, killed: bool) -> void:

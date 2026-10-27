@@ -14,7 +14,9 @@ static func spawn(turret: Turret, first: Enemy) -> void:
 	var data := turret.data.chain
 	var chain := Chain.new()
 	chain._data = data
-	chain._targets = _pick_targets(first, data, turret.get_tree().get_nodes_in_group(&"enemies"))
+	# Amplificada salta a más enemigos.
+	var max_targets := data.max_targets + roundi(turret.amp_value(AmpEffect.Kind.TARGETS))
+	chain._targets = _pick_targets(first, data, max_targets, turret.get_tree().get_nodes_in_group(&"enemies"))
 	chain.add_point(turret.global_position)
 	for enemy in chain._targets:
 		chain.add_point(enemy.global_position)
@@ -35,9 +37,9 @@ static func spawn(turret: Turret, first: Enemy) -> void:
 			Effect.spawn(enemy if enemy.hp > 0 else world, data.impact_frames, enemy.global_position, enemy.effect_scale())
 
 # Cada salto va al enemigo más cercano al último alcanzado, dentro de jump_range y sin repetir.
-static func _pick_targets(first: Enemy, data: ChainData, enemies: Array[Node]) -> Array[Enemy]:
+static func _pick_targets(first: Enemy, data: ChainData, max_targets: int, enemies: Array[Node]) -> Array[Enemy]:
 	var targets: Array[Enemy] = [first]
-	while targets.size() < data.max_targets:
+	while targets.size() < max_targets:
 		var last: Enemy = targets[-1]
 		var next: Enemy = null
 		var best := data.jump_range
