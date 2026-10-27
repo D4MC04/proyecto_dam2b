@@ -38,6 +38,11 @@ const ACCENT_COLOR := Color("#40e0f0")
 @export var overheat_min_cooldown: float = 0.0
 @export var overheat_time: float = 0.0
 @export var overheat_cool_time: float = 3.0
+# Opcional (torretas de bala): tubos rotativos. El cañón reproduce en bucle su animación "spin" a una
+# velocidad que sigue a la cadencia, y los tubos tienen que girar spin_up_time s antes de disparar.
+# Sin objetivo, sobrecalentada o apagada por un EMP frena y tiene que volver a arrancar.
+# Con spin_up_time = 0 (por defecto) no hay giro.
+@export var spin_up_time: float = 0.0
 # Opcional: sonido del disparo (en el bus SFX). En el haz continuo suena mientras el haz está activo.
 @export var shoot_sound: AudioStream
 # Opcional: sonido de carga de las torretas con animación fire_0; suena hasta el fire_frame.

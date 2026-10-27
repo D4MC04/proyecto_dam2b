@@ -15,7 +15,7 @@ const ENEMY_FILES: Array[String] = [
 const TURRET_DIR := "res://resources/turret_data/"
 # Solo las torretas base; sus mejoras se ven con las flechas del detalle.
 const TURRET_FILES: Array[String] = [
-	"turret", "laser", "rocket_launcher", "cryo", "disintegrator", "rail", "tesla",
+	"turret", "minigun", "rocket_launcher", "cryo", "disintegrator", "rail", "tesla",
 ]
 const TAB_ENEMIES := 0
 const TAB_ACHIEVEMENTS := 2

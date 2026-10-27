@@ -6,7 +6,7 @@
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="3_ismlj"]
 [ext_resource type="Resource" uid="uid://cnbuncwscbxtt" path="res://resources/turret_data/turret.tres" id="4_jcob0"]
 [ext_resource type="Resource" uid="uid://bh8qdvmr3kaj" path="res://resources/turret_data/rocket_launcher.tres" id="5_0wb63"]
-[ext_resource type="Resource" uid="uid://bi8dmx532elhj" path="res://resources/turret_data/laser.tres" id="6_ismlj"]
+[ext_resource type="Resource" path="res://resources/turret_data/minigun.tres" id="6_ismlj"]
 [ext_resource type="Resource" uid="uid://5hge2mvmeyue" path="res://resources/wave_data/level_1.tres" id="8_ismlj"]
 [ext_resource type="Resource" uid="uid://fdnmfx2e2w4i" path="res://resources/wave_data/level_1_4.tres" id="11_rhpp2"]
 [ext_resource type="Resource" uid="uid://h885whcu6pjs" path="res://resources/wave_data/level_1_5.tres" id="12_itr4j"]

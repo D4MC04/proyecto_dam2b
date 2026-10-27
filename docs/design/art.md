@@ -16,7 +16,7 @@ La casilla del mapa es de 16x16 px. Los sprites de juego son múltiplos de esa m
 | Enemigos medianos y grandes (naves, Acorazado, Ariete, Nodriza, Reparadora, Divisora, Espectro) | 32x32 |
 | Estación (`base/estacion/`) | 80x80 centrada en frames de 96x96 |
 | Escudo de la estación | 64x64 (escalado a 1,25 en juego) |
-| Bala del Cañón doble | 4x8 (tira de 8x8 con 2 frames) |
+| Bala del Cañón doble y trazadora de la Minigun | 4x8 (tira de 8x8 con 2 frames) |
 | Proyectil del Cañón pesado | 8x14 (tira de 16x14) |
 | Impactos de bala | 16x16 y 24x24 |
 | Efectos sobre un enemigo (impacto, escarcha, muerte) | 32x32 |
@@ -39,7 +39,7 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 |---|---|
 | Cañón doble | cian `#1c7496`, `#40e0f0`, `#befaff` |
 | Cañón pesado | ámbar `#96641e`, `#ecb23c`, `#ffe082`; explosión `#dc461e`, `#ff8c32`, `#ffe28c` |
-| Láser | rojo `#961432`, `#ff3c5a`, `#ffaabe` |
+| Minigun | naranja trazadora `#a8401a`, `#ff7326`, `#ffc890`, `#fff4e0` |
 | Cryo | azul hielo `#245296`, `#54a0e2`, `#a6defa`, `#ecfaff` |
 | Tesla | cobre `#783e20`, `#ce743c`; rayo `#5a3caa`, `#40e0f0`, `#f0faff` |
 | Rail | ámbar `#ecb23c`; haz `#1c7496`, `#40e0f0`, `#f0faff` con borde `#aa78ff` |
@@ -50,7 +50,7 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 | Fusionada | Acento nuevo |
 |---|---|
 | Cañón cuádruple | verde `#1c7440`, `#3cb860`; cuatro cañones |
-| Láser doble | magenta (desde el rojo); dos cañones paralelos |
+| Minigun pesada | rojo `#961432`, `#ff3c5a`, `#ffaabe`; carcasa más ancha, dos abrazaderas, franjas de aviso, aro discontinuo alrededor del hueco de la base |
 | Cryo ventisca | blanco azulado; cristales diagonales |
 | Cañón de asedio | rojo `#dc461e`; boca ancha, vainas laterales; impactos de 32x32 |
 | Tormenta | violeta `#5a3caa`; cuatro bobinas, rayos lilas |
@@ -59,6 +59,7 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 
 - **Motores y luces de enemigos**: `#8c1628`, `#f0323c`, `#ff8c5a`, `#ffdc78`.
 - **Naranja de la Divisora** (casco, de sombra a luz): `#7a3014`, `#d2641e`, `#f59a3c`, `#ffd08a`; cabina `#1e244a`, `#344682`. Tres módulos: casco central con cabina, punta roja y bodega con luz, y dos vainas laterales con aleta y motor propio, sujetas con abrazaderas de metal. Al morir se parte en tres trozos de 20x20 recortados de su dibujo (cada vaina, y el casco central sin la bodega) y antes enseña `divisora_crack.png`, con las abrazaderas partidas en luz (`#ffdc78`, `#fffae6`). Todo lo genera `scripts/tools/make_divisora_sprites.gd` (mitad izquierda en texto, reflejada).
+- **Minigun y Minigun pesada** (`turrets/minigun/` y `turrets/minigun_fusion/`, mismos nombres en las dos): no se dibujan a mano, las genera `scripts/tools/make_minigun.gd` (`godot --headless --path . -s scripts/tools/make_minigun.gd`). Se dibujan con plantillas de texto (un carácter por píxel). La base es la misma silueta y luz que `turret/t1_base.png`, con luces de acento en las esquinas, arriba y abajo y ranuras de ventilación a los lados. El cañón, de la fila 3 a la 25 como el del Cañón doble: haz de seis tubos dibujado como un cilindro visto de lado (los tubos se desplazan de lado y se estrechan en los bordes al girar) con una abrazadera de acento, carcasa con rotor de núcleo de acento, franja y rejilla, y dos cajas laterales con la cinta de munición a la vista. `minigun_cannon_sheet.png` tiene 4 frames de giro (un cuarto de tubo cada uno, con la cinta avanzando); el primero es también el reposo (`default`) y los cuatro forman `spin`, en bucle. Fogonazo hacia arriba (3 frames de 16x16), trazadora de 2x6 px dentro del frame de 4x8 e impacto de chispas en anillo (4 frames de 16x16), sin contorno.
 - **Reparadora** (`enemies/reparadora/reparadora_up_1` a `_3`): no se dibuja a mano, la genera `scripts/tools/make_reparadora.gd` (`godot --headless --path . -s scripts/tools/make_reparadora.gd`). Casco redondeado en el metal de los enemigos con un blanco `#f4f8ff` para los brillos, franjas, cabina y núcleo en la rampa verde `#0e3a24`, `#1c7440`, `#3cb860`, `#7ee89a`, `#c4f5d0`, `#f0fff4`, dos brazos con módulos de reparación (pinzas con un emisor verde) y llamas verdes. Los frames cambian el latido del núcleo, el emisor y la llama.
 - **Variantes de Dart**: mismo dibujo con el casco en azul hielo, morado, rojo o verde.
 - **Escudo de la base**: `#40e0f0`, `#aaf5ff`, `#ebffff`, semitransparente.
@@ -154,7 +155,7 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 
 ## Animación
 
-- Cañones de torreta: `default` (reposo) y `fire_0`, `fire_1`... (disparo, sin bucle). `default` está en bucle en Cryo, Tesla, Rail y Disintegrator. El Cañón doble tiene `fire_0` y `fire_1`; el Láser solo tiene `default`. En el Disintegrator, `fire_0` a `fire_2` son un bucle por nivel de haz.
+- Cañones de torreta: `default` (reposo) y `fire_0`, `fire_1`... (disparo, sin bucle). `default` está en bucle en Cryo, Tesla, Rail y Disintegrator. El Cañón doble tiene `fire_0` y `fire_1`. La Minigun no tiene animación de disparo: tiene `spin`, en bucle, cuya velocidad lleva el código (ver [torretas.md](torretas.md)). En el Disintegrator, `fire_0` a `fire_2` son un bucle por nivel de haz.
 - Enemigos: Acorazado, Ariete, Nodriza, Reparadora, Divisora, Wasp, Espectro y los Dart tienen 3 frames; Nave normal y Nave agresiva, 1. Las cuatro animaciones `up`, `down`, `left` y `right` existen en todos; en los que tienen el dibujo mirando hacia arriba, el giro se hace por código.
 - Los sprites de torreta y enemigo se dibujan mirando hacia arriba.
 

@@ -1,6 +1,6 @@
 extends Node2D
 class_name HeatGlow
-# Calor del Láser (ver Turret._update_overheat), todo en píxeles sin antialiasing: un halo
+# Calor de la Minigun (ver Turret._update_overheat), todo en píxeles sin antialiasing: un halo
 # naranja que crece con el calor y chispas de metal al rojo que saltan cada vez más.
 # Sobrecalentada, el halo palpita y salen muchas más chispas.
 

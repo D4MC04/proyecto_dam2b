@@ -28,6 +28,10 @@ const OVERHEAT_FLASH := Color(2.5, 0.6, 0.3)
 const OVERHEAT_BLINK := 0.12
 # Con este calor ya dispara a la cadencia máxima; de ahí al sobrecalentamiento sigue a tope.
 const FULL_SPEED_HEAT := 0.5
+# Tubos rotativos (ver TurretData.spin_up_time): segundos en frenar del todo y tope de velocidad de
+# la animación "spin" respecto a la de la cadencia base, para que a tope no pase de 60 frames/s.
+const SPIN_DOWN_TIME := 0.6
+const SPIN_MAX_SCALE := 5.0
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var cannon: AnimatedSprite2D = $Cannon
@@ -51,6 +55,8 @@ var _heat := 0.0
 var _overheat_left := 0.0
 var _heat_tinted := false
 var _heat_glow: HeatGlow
+# Tubos rotativos: 0 parados, 1 girando lo bastante para disparar.
+var _spin := 0.0
 # Mira de las torretas de haz; solo se ve durante la carga.
 var _sight: Line2D
 # Sonido de disparo; con poca polifonía, 10 torretas juntas no saturan.
@@ -101,6 +107,10 @@ func _ready() -> void:
 	attack_range_area.area_entered.connect(_on_area_entered)
 	attack_range_area.area_exited.connect(_on_area_exited)
 	attack_timer.start()
+	if _has_spin():
+		# Los tubos empiezan parados: la animación corre a la velocidad que marque _update_spin.
+		cannon.speed_scale = 0.0
+		cannon.play(&"spin")
 	if data.focus_beam:
 		# El haz continuo no dispara por cooldown: lo lleva su propio nodo.
 		attack_timer.stop()
@@ -124,7 +134,10 @@ func _process(delta: float) -> void:
 	if disabled:
 		return
 	var target := _get_target()
-	if data.overheat_shots > 0 and _update_overheat(delta, target != null):
+	var overheated := data.overheat_shots > 0 and _update_overheat(delta, target != null)
+	if _has_spin():
+		_update_spin(delta, target != null and not overheated)
+	if overheated:
 		return
 	if target == null:
 		# El haz (continuo o de carga) lleva su propio corte y no debe apagar el disparo que acaba de salir.
@@ -136,10 +149,28 @@ func _process(delta: float) -> void:
 		cannon.rotation = rotate_toward(cannon.rotation, _target_angle(target), deg_to_rad(data.turn_speed) * delta)
 	else:
 		cannon.rotation = _target_angle(target)
-	if _pending_shot and _is_aimed(target):
+	if _pending_shot and _is_aimed(target) and _is_spun_up():
 		_pending_shot = false
 		attack_timer.start()
 		_shoot(target)
+
+func _has_spin() -> bool:
+	return data.spin_up_time > 0.0
+
+# Sin tubos rotativos siempre está lista; con ellos, cuando han terminado de arrancar.
+func _is_spun_up() -> bool:
+	return not _has_spin() or _spin >= 1.0
+
+## Arranca los tubos (en spin_up_time s) mientras quiere disparar y los frena (en SPIN_DOWN_TIME s)
+## si no. La animación "spin" va más rápida cuanto menor es el cooldown actual, así que acelera y
+## frena con la cadencia.
+func _update_spin(delta: float, wanted: bool) -> void:
+	if wanted:
+		_spin = move_toward(_spin, 1.0, delta / data.spin_up_time)
+	else:
+		_spin = move_toward(_spin, 0.0, delta / SPIN_DOWN_TIME)
+	var cooldown := _heat_cooldown() if data.overheat_shots > 0 else data.attack_cooldown
+	cannon.speed_scale = _spin * minf(data.attack_cooldown / cooldown, SPIN_MAX_SCALE)
 
 ## Enfría o cuenta la parada y tiñe la torreta según el calor. Devuelve true mientras está sobrecalentada.
 func _update_overheat(delta: float, has_target: bool) -> bool:
@@ -223,10 +254,10 @@ func _on_attack_timeout() -> void:
 		_start_charge()
 		cannon.play(&"fire_0")
 		return
-	if _is_aimed(target):
+	if _is_aimed(target) and _is_spun_up():
 		_shoot(target)
 	else:
-		# El cooldown no se gasta: dispara en cuanto el cañón quede alineado.
+		# El cooldown no se gasta: dispara en cuanto el cañón quede alineado (y los tubos girando).
 		_pending_shot = true
 		attack_timer.stop()
 
@@ -301,7 +332,12 @@ func _shoot(target: Enemy) -> void:
 	bullet.setup(data.bullet_data, target)
 	if data.muzzle_flash:
 		Effect.spawn(cannon, data.muzzle_flash, bullet.global_position, data.bullet_data.sprite_scale)
-	var fire_anims := data.cannon.get_animation_names().size() - 1 if data.cannon else 0
+	# Las animaciones de disparo son las fire_N (los tubos rotativos no tienen: su "spin" no se corta).
+	var fire_anims := 0
+	if data.cannon:
+		for animation: String in data.cannon.get_animation_names():
+			if animation.begins_with("fire_"):
+				fire_anims += 1
 	if fire_anims > 0:
 		cannon.play("fire_%d" % (_shots % fire_anims))
 	_shots += 1
@@ -335,8 +371,10 @@ func disable(seconds: float) -> void:
 	attack_timer.paused = true
 	sprite.modulate = DISABLED_TINT
 	cannon.modulate = DISABLED_TINT
-	# Corta la carga o el disparo que estuviera a medias.
-	if cannon.sprite_frames and cannon.animation != &"default":
+	# Corta la carga o el disparo que estuviera a medias. Los tubos rotativos se paran en seco y al
+	# volver tienen que arrancar otra vez.
+	_spin = 0.0
+	if cannon.sprite_frames and cannon.animation != &"default" and not _has_spin():
 		cannon.play(&"default")
 	if _charge_player:
 		_charge_player.stop()
