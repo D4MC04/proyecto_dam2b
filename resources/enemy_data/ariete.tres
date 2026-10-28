@@ -7,9 +7,9 @@
 [resource]
 script = ExtResource("1_data")
 name = "Ariete"
-hp = 200.0
+hp = 240.0
 speed = 40
-reward = 70
+reward = 95
 base_damage = 20
 description = "Nave de embestida con casco reforzado."
 sprite_frames = ExtResource("3_frames")

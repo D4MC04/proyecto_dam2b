@@ -13,7 +13,7 @@
 script = ExtResource("1")
 shoot_sound = ExtResource("snd")
 name = "Cryo ventisca"
-cost = 400
+cost = 500
 attack_cooldown = 2.0
 icon = ExtResource("4")
 sprite_frames = ExtResource("5")

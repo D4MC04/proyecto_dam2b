@@ -54,6 +54,7 @@ func setup(data: LevelData) -> void:
 	map = data.map.instantiate()
 	map.name = "Map"
 	turrets = data.turrets
+	game_state.money = data.starting_money
 	add_child(map)
 	move_child(map, 0)
 	_center_map()

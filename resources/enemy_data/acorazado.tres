@@ -7,9 +7,9 @@
 [resource]
 script = ExtResource("1_data")
 name = "Acorazado"
-hp = 360.0
+hp = 420.0
 speed = 25
-reward = 110
+reward = 135
 base_damage = 20
 description = "Blindaje pesado. Muy lento y difícil de abatir."
 sprite_frames = ExtResource("3_frames")

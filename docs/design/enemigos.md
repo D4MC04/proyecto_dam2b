@@ -18,23 +18,25 @@ Recursos en `resources/enemy_data/`:
 
 | Archivo | Nombre | Vida | Velocidad | Recompensa | Daño a la estación | Radio de colisión | Primer nivel en que sale |
 |---|---|---|---|---|---|---|---|
-| `dart_hielo` | Dart de hielo | 25 | 90 | 25 | 5 | 8 | 1 |
-| `dart_morado` | Dart morado | 25 | 90 | 25 | 5 | 8 | 1 |
-| `dart_rojo` | Dart rojo | 25 | 90 | 25 | 5 | 8 | 1 |
-| `dart_verde` | Dart verde | 25 | 90 | 25 | 5 | 8 | 1 |
-| `wasp` | Wasp | 75 | 60 | 40 | 5 | 9 | 1 |
-| `nave_normal` | Nave normal | 60 | 36 | 25 | 10 | 12 | 2 |
-| `nave_agresiva` | Nave agresiva | 90 | 48 | 35 | 10 | 12 | 3 |
-| `acorazado` | Acorazado | 360 | 25 | 110 | 20 | 14 | 4 |
-| `ariete` | Ariete | 200 | 40 | 70 | 20 | 13 | 5 |
-| `nodriza` | Nodriza | 400 | 40 | 150 | 40 | 14 | 6 |
-| `reparadora` | Reparadora | 90 | 38 | 50 | 5 | 12 | 6 |
-| `espectro` | Espectro | 70 | 55 | 40 | 10 | 12 | 7 |
-| `divisora` | Divisora | 120 | 35 | 30 | 15 | 13 | 5 |
+| `dart_hielo` | Dart de hielo | 25 | 90 | 15 | 5 | 8 | 1 |
+| `dart_morado` | Dart morado | 25 | 90 | 15 | 5 | 8 | 1 |
+| `dart_rojo` | Dart rojo | 25 | 90 | 15 | 5 | 8 | 1 |
+| `dart_verde` | Dart verde | 25 | 90 | 15 | 5 | 8 | 1 |
+| `wasp` | Wasp | 75 | 60 | 35 | 5 | 9 | 1 |
+| `nave_normal` | Nave normal | 80 | 36 | 30 | 10 | 12 | 2 |
+| `nave_agresiva` | Nave agresiva | 110 | 48 | 50 | 10 | 12 | 3 |
+| `acorazado` | Acorazado | 420 | 25 | 135 | 20 | 14 | 4 |
+| `ariete` | Ariete | 240 | 40 | 95 | 20 | 13 | 5 |
+| `nodriza` | Nodriza | 600 | 40 | 250 | 40 | 14 | 6 |
+| `reparadora` | Reparadora | 90 | 38 | 45 | 5 | 12 | 6 |
+| `espectro` | Espectro | 80 | 55 | 55 | 10 | 12 | 7 |
+| `divisora` | Divisora | 120 | 35 | 45 | 15 | 13 | 5 |
 | `fragmento_divisora_izquierdo`, `_central`, `_derecho` | Fragmento de Divisora | 25 | 50 | 10 | 5 | 7 | 5 (al partirse la Divisora) |
 | `saboteadora` | Saboteadora | 110 | 30 | 55 | 10 | 13 | 8 |
 
 Los cuatro Dart tienen los mismos valores; solo cambia el sprite.
+
+Balance de recompensas: `reward` ≈ 0,4 × vida × √(velocidad / 40) × un factor por habilidad (Reparadora ×1,3, Espectro ×1,4, Saboteadora ×1,5), redondeado a 5. La Divisora y sus tres fragmentos suman 75 €.
 
 ## Comportamiento
 

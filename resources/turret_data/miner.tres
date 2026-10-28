@@ -9,12 +9,12 @@
 [resource]
 script = ExtResource("1")
 name = "Minero"
-cost = 250
+cost = 300
 attack_cooldown = 5.0
 icon = ExtResource("2")
 sprite_frames = ExtResource("3")
 cannon = ExtResource("4")
-money_amount = 15
+money_amount = 10
 fusion = ExtResource("fusion")
 description = "No dispara: durante las oleadas perfora asteroides y saca oro."
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

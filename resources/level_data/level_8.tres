@@ -27,6 +27,7 @@
 [resource]
 script = ExtResource("2_xvb3k")
 map = ExtResource("1_npfra")
+starting_money = 1800
 turrets = Array[ExtResource("3_j73uf")]([ExtResource("4_npfra"), ExtResource("6_j73uf"), ExtResource("cryo"), ExtResource("5_xvb3k"), ExtResource("miner"), ExtResource("tesla"), ExtResource("orbiter"), ExtResource("amplifier")])
 waves = Array[ExtResource("7_4aa7w")]([ExtResource("8_npfra"), ExtResource("wave_8_2"), ExtResource("wave_8_3"), ExtResource("15_8w1lj"), ExtResource("16_o35mu"), ExtResource("17_uk22x"), ExtResource("18_7wp0h"), ExtResource("19_8kra8"), ExtResource("20_iivre")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"

@@ -10,7 +10,7 @@
 [resource]
 script = ExtResource("1")
 name = "Amplificador"
-cost = 400
+cost = 500
 icon = ExtResource("2")
 sprite_frames = ExtResource("3")
 attack_range = ExtResource("5")

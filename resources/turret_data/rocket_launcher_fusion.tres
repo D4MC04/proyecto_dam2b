@@ -13,7 +13,7 @@
 script = ExtResource("1")
 shoot_sound = ExtResource("snd")
 name = "Cañón de asedio"
-cost = 480
+cost = 600
 attack_cooldown = 1.6
 icon = ExtResource("4")
 sprite_frames = ExtResource("5")

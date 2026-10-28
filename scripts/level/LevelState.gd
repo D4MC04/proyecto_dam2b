@@ -15,7 +15,8 @@ signal wave_in_progress_changed(active: bool)
 # Premio al limpiar una oleada (menos la última) sin que llegue ningún enemigo a la estación.
 const PERFECT_WAVE_BONUS := 25
 
-var money := 5000
+# Lo fija Level.setup con LevelData.starting_money.
+var money := 0
 # Recuento de la partida para el resumen. Al reiniciar se crea un LevelState nuevo, así que vuelven a 0.
 var enemies_destroyed := 0
 var money_spent := 0
