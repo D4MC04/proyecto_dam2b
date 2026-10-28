@@ -50,12 +50,13 @@ Al construir en una casilla libre, `BuildManager` emite `LevelState.turret_place
 
 En `_ready` copia de `data: TurretData` los sprites, la forma del rango y `attack_cooldown`, y arranca el temporizador.
 
-Si la opción `show_turret_range` de `Settings` está activada, `_draw` pinta el rango de la torreta bajo sus sprites (la forma del detector, que crece con el efecto de alcance del Amplificador), con el mismo estilo que la vista previa: relleno cian casi transparente y borde cian `#40e0f0` de 1 px sin antialias, dibujado por `BuildManager.draw_range_circle` (`RANGE_FILL_COLOR`, `RANGE_BORDER_COLOR`). Cada torreta escucha `Settings.changed` y se redibuja, así que el rango aparece o desaparece al cambiar la opción en plena partida. Además, con el ratón sobre la torreta (`_physics_process`, casilla de 16 px) también lo dibuja aunque la opción esté apagada, y lo mismo mientras está seleccionada en el mapa (`selected`, que pone `LevelState.sellable_turret`).
+Si la opción `show_turret_range` de `Settings` está activada, `_draw` pinta el rango de la torreta bajo sus sprites (la forma del detector, que crece con el efecto de alcance del Amplificador), con el mismo estilo que la vista previa: relleno cian casi transparente y borde cian `#40e0f0` de 1 px sin antialias, dibujado por `BuildManager.draw_range_circle` (`RANGE_FILL_COLOR`, `RANGE_BORDER_COLOR`). Con `TurretData.min_range` > 0 (Orbitador) el alcance es un anillo: el relleno va solo entre `min_range` y el radio del detector, y el borde se pinta en los dos radios; igual en la vista previa. Cada torreta escucha `Settings.changed` y se redibuja, así que el rango aparece o desaparece al cambiar la opción en plena partida. Además, con el ratón sobre la torreta (`_physics_process`, casilla de 16 px) también lo dibuja aunque la opción esté apagada, y lo mismo mientras está seleccionada en el mapa (`selected`, que pone `LevelState.sellable_turret`).
 
 ### Objetivo
 
 - `enemies_in_range` se mantiene con las señales `area_entered` y `area_exited` del detector.
 - `_get_target()` conserva el objetivo mientras siga vivo y dentro del rango. Si no, elige el enemigo al que menos le falta para llegar a la estación (`Enemy.get_remaining_distance()`), aunque esté en otro camino.
+- Con `TurretData.min_range` > 0 el rango es un anillo: `_is_too_close()` descarta como objetivo a los enemigos a menos de `min_range` del centro.
 
 ### Apuntado
 
@@ -110,13 +111,13 @@ Las torretas de onda y de cadena no giran el cañón ni usan `_process`.
 
 ## Datos
 
-`TurretData` (`scripts/resources/TurretData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`. `overheat_shots`, `overheat_min_cooldown`, `overheat_time`, `overheat_cool_time`: sobrecalentamiento opcional (ver Disparo). `spin_up_time`: tubos rotativos opcionales (ver Tubos rotativos). `shoot_sound`: sonido del disparo. `amp_effect`: lo que gana dentro del aura de un Amplificador; `amplifier_level`: mayor que 0 en los Amplificadores (ver "Amplificador"). `fusion`: el `TurretData` en el que se convierte al fusionarla con otra igual (null en las fusionadas). Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 7 torretas la tienen. La ficha pinta todas las torretas en cian `#40e0f0` (`TurretData.ACCENT_COLOR`, ver [ui.md](ui.md)).
+`TurretData` (`scripts/resources/TurretData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`, `orbit`. `min_range`: radio mínimo opcional; con más de 0 el alcance es un anillo entre él y `attack_range` (ver Objetivo). `overheat_shots`, `overheat_min_cooldown`, `overheat_time`, `overheat_cool_time`: sobrecalentamiento opcional (ver Disparo). `spin_up_time`: tubos rotativos opcionales (ver Tubos rotativos). `shoot_sound`: sonido del disparo. `amp_effect`: lo que gana dentro del aura de un Amplificador; `amplifier_level`: mayor que 0 en los Amplificadores (ver "Amplificador"). `fusion`: el `TurretData` en el que se convierte al fusionarla con otra igual (null en las fusionadas). Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 8 torretas que atacan la tienen. La ficha pinta todas las torretas en cian `#40e0f0` (`TurretData.ACCENT_COLOR`, ver [ui.md](ui.md)).
 
 Funciones para la ficha:
 
-- `get_stats() -> Array[StatEntry]`: en el Amplificador solo COSTE y AURA (radio de `attack_range`). En las demás, filas comunes (COSTE con `€`, ALCANCE = radio del `CircleShape2D` de `attack_range`, CADENCIA = `attack_cooldown` en segundos salvo en el haz continuo; con sobrecalentamiento, además CAD. MÁX, AGUANTE (disparos) y PARADA) seguidas de las del ataque. Los nombres de fila son cortos y en mayúsculas (9 caracteres como mucho, ver `StatEntry` en [ui.md](ui.md)).
+- `get_stats() -> Array[StatEntry]`: en el Amplificador solo COSTE y AURA (radio de `attack_range`). En las demás, filas comunes (COSTE con `€`, ALCANCE = radio del `CircleShape2D` de `attack_range` (con `min_range`, "mínimo-máximo", p. ej. `40-64`), CADENCIA = `attack_cooldown` en segundos salvo en el haz continuo; con sobrecalentamiento, además CAD. MÁX, AGUANTE (disparos) y PARADA) seguidas de las del ataque. Los nombres de fila son cortos y en mayúsculas (9 caracteres como mucho, ver `StatEntry` en [ui.md](ui.md)).
 - `get_attack() -> Resource`: el `*Data` de ataque que tenga (o null).
-- `get_attack_label()`: "BALA", "ONDA", "CADENA", "HAZ", "HAZ CONT." o "APOYO" (Amplificador, `is_amplifier()`).
+- `get_attack_label()`: "BALA", "ONDA", "CADENA", "HAZ", "HAZ CONT.", "ÓRBITA" o "APOYO" (Amplificador, `is_amplifier()`).
 - Cada `*Data` de ataque tiene su `get_stats()`:
 
 | Clase | Filas |
@@ -125,6 +126,7 @@ Funciones para la ficha:
 | `PulseData` | DAÑO, FRENADO (`-45%` con `slow_factor` 0,55), DURACIÓN (de la ralentización) |
 | `ChainData` | DAÑO, OBJETIVOS (`max_targets`), SALTO (`jump_range`) |
 | `BeamData` | DAÑO, PERFORA ("TODOS") |
+| `OrbitData` | DAÑO, ÁREA (`splash_radius`), CARGAS (`max_orbs`), GIRO (`orbit_speed`, en °/s) |
 | `FocusBeamData` | DPS (`40/80` si cabe en `StatEntry.MAX_VALUE_CHARS`, 7 caracteres; si no, una fila por nivel: DPS N1 `40`, DPS N2 `80`, DPS N3 `160`), T. NIVEL |
 
 Los valores usan `UiFormat.abbreviate`, `UiFormat.number` y `UiFormat.seconds`. Un stat nuevo es una entrada más en el `get_stats()` que toque; la ficha no cambia.
@@ -140,6 +142,7 @@ Recursos en `resources/turret_data/`:
 | `tesla` | Tesla | 350 | 1,3 | 110 | no gira | Cadena: 25 de daño, 3 enemigos, saltos de 64 px |
 | `rail` | Rail | 500 | 5,0 | 160 | 45 | Haz: 150 de daño a toda la línea, 700 px de largo |
 | `disintegrator` | Disintegrator | 600 | no se usa | 112 | 140 | Haz continuo: 40, 80 y 160 de daño/s |
+| `orbiter` | Orbitador | 350 | 1,6 | anillo 40-64 | no gira | Órbita: cargas de 35 de daño en área de 22 px, hasta 4, a 90°/s. Mejora: Cinturón (`orbiter_fusion`, 450): 1,0 s, 50 de daño, área 26, hasta 5, a 110°/s. Sin sonido |
 | `amplifier` | Amplificador | 400 | no se usa | aura 100 | no gira | Ninguno: amplifica a las torretas de alrededor |
 
 ## Amplificador
@@ -158,9 +161,10 @@ Torreta de apoyo (`amplifier.tres`, mejora `amplifier_fusion.tres`, desde el niv
 | Tesla | `TARGETS` | +2 / +3 objetivos | `Chain.spawn` |
 | Rail | `CHARGE` | ×2 / ×3 | `Turret._shoot`: `fire_0` va a esa velocidad hasta el `fire_frame` y luego a 1 |
 | Disintegrator | `LEVEL_TIME` | ×2 / ×3 | `FocusBeam`: `level_time` se divide |
+| Orbitador | `ORBIT_SPEED` | ×1,5 / ×2 | `Orbit._process`: las cargas giran más rápido |
 
 - **Visual**: `AmpAura` (`scripts/entities/AmpAura.gd`, hijo del Amplificador, detrás de sus sprites, como la onda de la Cryo) suelta una onda cada 2,5 s (la primera a los 0,4 s): un anillo de 1 px sin antialias que crece en 1,1 s desde el borde del emisor (10 px) hasta el radio del aura, frenando al final, con el frente en `#ffe082` y dos ecos 2 y 4 px por dentro en `#ecb23c` y `#96641e`, y se apaga al llegar. Al pasar por una torreta amplificada le lanza `Turret.flash_amp`, una versión ligera y en ámbar del escaneo de construir (`resources/shaders/amp_scan.gdshader`, 0,45 s): la torreta sigue sólida, una línea ámbar casi blanca sube por filas de píxeles con 3 filas de estela (la última punteada) y el contorno del sprite brilla en ámbar y se apaga en 3 pasos. No pisa la animación de construir, y construir o mejorar la corta. Con el Amplificador apagado por un EMP no salen ondas. El alcance fijo (relleno casi transparente y borde `#ecb23c`, `AmpAura.draw_circle_aura`) solo se pinta donde las demás torretas pintan el suyo: al pasar el ratón, con la torreta seleccionada, con la opción de mostrar alcances y en la vista previa de `BuildManager`.
-- **Ficha**: la de una torreta amplificada añade una fila con lo que gana (`AmpEffect.get_stat`, icono `amp.png`: ALCANCE, ÁREA, ACELERA, FRENADO, OBJETIVOS, CARGA o SUBE NIV.). `Turret.amplification_changed` la rehace si cambia el aura con la ficha abierta (ver [ui.md](ui.md)).
+- **Ficha**: la de una torreta amplificada añade una fila con lo que gana (`AmpEffect.get_stat`, icono `amp.png`: ALCANCE, ÁREA, ACELERA, FRENADO, OBJETIVOS, CARGA o SUBE NIV. o GIRO). `Turret.amplification_changed` la rehace si cambia el aura con la ficha abierta (ver [ui.md](ui.md)).
 
 ## Tipos de ataque
 
@@ -208,6 +212,16 @@ Torreta de apoyo (`amplifier.tres`, mejora `amplifier_fusion.tres`, desde el niv
 - El nivel del haz es `tiempo sobre el mismo enemigo / level_time`, hasta el último nivel. Cambia el daño por segundo, las texturas del haz, el brillo de la boca, el impacto y cuánto se tiñe el enemigo.
 - Al cambiar de objetivo el tiempo vuelve a 0. Si solo se pierde la alineación, el haz se corta pero el tiempo acumulado se conserva.
 - Si el haz mata al enemigo deja la animación `death_frames`.
+
+### Órbita
+
+`scripts/entities/Orbit.gd` + `OrbitData`. Torreta: Orbitador (y su mejora, el Cinturón).
+
+- No apunta ni elige objetivo. El emisor no gira (`_is_static`) y `default` está en bucle. En cada cooldown, si hay menos de `max_orbs` cargas en órbita, reproduce `fire_0` y en `fire_frame` (3) genera una; con la órbita llena no hace nada. Genera también sin enemigos, así que entre oleadas se llena.
+- `Orbit` es un nodo hijo de la torreta (por encima de torretas y enemigos) y sus hijos son las cargas (`AnimatedSprite2D` con `orb_frames`). Todas giran juntas a `orbit_speed` °/s alrededor de la torreta, a medio camino entre `min_range` y el radio de `attack_range` (52 px). Cada carga nueva sale en espiral desde el borde del emisor (6 px) hasta la órbita en `deploy_time` s, frenando al final, y se coloca en medio del hueco más grande entre las que ya giran, así que quedan repartidas.
+- Ya en órbita, choca con el primer enemigo del rango cuyo centro quede a menos de medio ancho del anillo (12 px), aunque esté camuflado (no apunta, choca). Mientras sale en espiral no choca: por eso no alcanza a lo que pasa pegado a la torreta.
+- Al chocar hace `damage` a todos los enemigos a menos de `splash_radius` y deja `impact_frames` a escala `impact_scale` (2, un anillo de unos 23 px de radio).
+- Con un EMP las cargas se quedan quietas y no chocan; al venderla o mejorarla, las cargas desaparecen con ella.
 
 ### Effect
 

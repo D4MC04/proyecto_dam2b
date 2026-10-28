@@ -148,12 +148,18 @@ func _draw_range() -> void:
 	if _last_data.is_amplifier():
 		AmpAura.draw_circle_aura(_range, _last_data.attack_range)
 	else:
-		draw_range_circle(_range, _last_data.attack_range)
+		draw_range_circle(_range, _last_data.attack_range, _last_data.min_range)
 
 # Pinta el alcance en "canvas" (solo dentro de su _draw): relleno tenue y borde cian pixelado de 1 px.
-static func draw_range_circle(canvas: CanvasItem, shape: Shape2D) -> void:
+# Con min_range > 0 es un anillo: relleno solo entre los dos radios y borde también por dentro.
+static func draw_range_circle(canvas: CanvasItem, shape: Shape2D, min_range: float = 0.0) -> void:
 	var circle := shape as CircleShape2D
 	if circle == null:
 		return
-	canvas.draw_circle(Vector2.ZERO, circle.radius, RANGE_FILL_COLOR)
+	if min_range > 0.0:
+		var width := circle.radius - min_range
+		canvas.draw_arc(Vector2.ZERO, min_range + width / 2.0, 0.0, TAU, 96, RANGE_FILL_COLOR, width, false)
+		canvas.draw_arc(Vector2.ZERO, min_range, 0.0, TAU, 96, RANGE_BORDER_COLOR, 1.0, false)
+	else:
+		canvas.draw_circle(Vector2.ZERO, circle.radius, RANGE_FILL_COLOR)
 	canvas.draw_arc(Vector2.ZERO, circle.radius, 0.0, TAU, 96, RANGE_BORDER_COLOR, 1.0, false)

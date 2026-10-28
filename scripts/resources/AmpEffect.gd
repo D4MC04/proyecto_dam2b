@@ -19,6 +19,8 @@ enum Kind {
 	CHARGE,
 	## Disintegrator: el haz continuo sube de nivel `valor` veces más rápido.
 	LEVEL_TIME,
+	## Orbitador: las cargas giran `valor` veces más rápido.
+	ORBIT_SPEED,
 }
 
 # El frenado amplificado nunca deja a un enemigo por debajo de esta parte de su velocidad.
@@ -50,6 +52,8 @@ func get_stat(level: int) -> StatEntry:
 			return StatEntry.new("amp", "CARGA", _times(value))
 		Kind.LEVEL_TIME:
 			return StatEntry.new("amp", "SUBE NIV.", _times(value))
+		Kind.ORBIT_SPEED:
+			return StatEntry.new("amp", "GIRO", _times(value))
 	return StatEntry.new("amp", "AMPLIF.", "")
 
 func _percent(value: float) -> String:
