@@ -20,6 +20,6 @@
 [resource]
 script = ExtResource("2_tsf7d")
 map = ExtResource("1_o5mxm")
-turrets = Array[ExtResource("3_kbbha")]([ExtResource("4_o5mxm"), ExtResource("5_tsf7d"), ExtResource("6_kbbha"), ExtResource("cryo"), ExtResource("tesla"), ExtResource("miner")])
+turrets = Array[ExtResource("3_kbbha")]([ExtResource("4_o5mxm"), ExtResource("6_kbbha"), ExtResource("cryo")])
 waves = Array[ExtResource("7_qiau8")]([ExtResource("8_o5mxm"), ExtResource("wave_3_2"), ExtResource("wave_3_3"), ExtResource("13_wkj43"), ExtResource("14_yo3fj"), ExtResource("15_hiot2")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"

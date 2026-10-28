@@ -29,14 +29,16 @@
 [ext_resource type="Resource" uid="uid://cafe2hkljmyra" path="res://resources/wave_data/level_5_6.tres" id="wave_5_6"]
 [ext_resource type="Resource" uid="uid://jmeikaimgm2e" path="res://resources/wave_data/level_5_7.tres" id="wave_5_7"]
 [ext_resource type="Resource" path="res://resources/turret_data/miner.tres" id="miner"]
+[ext_resource type="Resource" path="res://resources/turret_data/orbiter.tres" id="orbiter"]
 
 [sub_resource type="Resource" id="Resource_aj4ja"]
 script = ExtResource("2_5qiqv")
 map = ExtResource("7_hvbbc")
-turrets = Array[ExtResource("8_c77oh")]([ExtResource("9_jj5sp"), ExtResource("10_5ltge"), ExtResource("11_1wlqr"), ExtResource("cryo"), ExtResource("tesla"), ExtResource("rail"), ExtResource("disintegrator"), ExtResource("amplifier"), ExtResource("miner")])
+turrets = Array[ExtResource("8_c77oh")]([ExtResource("9_jj5sp"), ExtResource("11_1wlqr"), ExtResource("cryo"), ExtResource("10_5ltge"), ExtResource("miner")])
 waves = Array[ExtResource("12_anhds")]([ExtResource("13_6l3k6"), ExtResource("wave_5_2"), ExtResource("wave_5_3"), ExtResource("wave_5_4"), ExtResource("wave_5_5"), ExtResource("wave_5_6"), ExtResource("wave_5_7")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"
 
 [node name="GameData" type="Node" unique_id=1456673338]
 script = ExtResource("1_fa5ai")
+turret_order = Array[ExtResource("8_c77oh")]([ExtResource("9_jj5sp"), ExtResource("11_1wlqr"), ExtResource("cryo"), ExtResource("10_5ltge"), ExtResource("miner"), ExtResource("tesla"), ExtResource("orbiter"), ExtResource("amplifier"), ExtResource("disintegrator"), ExtResource("rail")])
 levels = Array[ExtResource("2_5qiqv")]([ExtResource("3_8md65"), ExtResource("4_d0bd5"), ExtResource("5_fvrfv"), ExtResource("6_24vlh"), SubResource("Resource_aj4ja"), ExtResource("8_huf1t"), ExtResource("level_7"), ExtResource("level_8"), ExtResource("level_9")])
