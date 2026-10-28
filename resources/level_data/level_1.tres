@@ -5,11 +5,14 @@
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="2_ujpww"]
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="3_ismlj"]
 [ext_resource type="Resource" uid="uid://cnbuncwscbxtt" path="res://resources/turret_data/turret.tres" id="4_jcob0"]
-[ext_resource type="Resource" uid="uid://bh8qdvmr3kaj" path="res://resources/turret_data/rocket_launcher.tres" id="5_0wb63"]
-[ext_resource type="Resource" path="res://resources/turret_data/minigun.tres" id="6_ismlj"]
 [ext_resource type="Resource" uid="uid://5hge2mvmeyue" path="res://resources/wave_data/level_1.tres" id="8_ismlj"]
+[ext_resource type="Resource" uid="uid://cvrncq1x77fgj" path="res://resources/wave_data/level_1_6.tres" id="11_ibpya"]
 [ext_resource type="Resource" uid="uid://fdnmfx2e2w4i" path="res://resources/wave_data/level_1_4.tres" id="11_rhpp2"]
+[ext_resource type="Resource" uid="uid://dw6721abvpbtc" path="res://resources/wave_data/level_1_7.tres" id="12_c0s30"]
 [ext_resource type="Resource" uid="uid://h885whcu6pjs" path="res://resources/wave_data/level_1_5.tres" id="12_itr4j"]
+[ext_resource type="Resource" uid="uid://bqlg7eur012h4" path="res://resources/wave_data/level_1_8.tres" id="13_4r1fs"]
+[ext_resource type="Resource" uid="uid://b6w7flke7g61j" path="res://resources/wave_data/level_1_9.tres" id="14_1uuav"]
+[ext_resource type="Resource" uid="uid://c77xjuhi84tck" path="res://resources/wave_data/level_1_10.tres" id="15_3flve"]
 [ext_resource type="Resource" uid="uid://c8o7xttuhxo68" path="res://resources/wave_data/level_1_2.tres" id="wave_1_2"]
 [ext_resource type="Resource" uid="uid://dn7bxkkle6bma" path="res://resources/wave_data/level_1_3.tres" id="wave_1_3"]
 
@@ -18,5 +21,5 @@ script = ExtResource("1_obkt0")
 map = ExtResource("1_jcob0")
 starting_money = 300
 turrets = Array[ExtResource("3_ismlj")]([ExtResource("4_jcob0")])
-waves = Array[ExtResource("2_ujpww")]([ExtResource("8_ismlj"), ExtResource("wave_1_2"), ExtResource("wave_1_3"), ExtResource("11_rhpp2"), ExtResource("12_itr4j")])
+waves = Array[ExtResource("2_ujpww")]([ExtResource("8_ismlj"), ExtResource("wave_1_2"), ExtResource("wave_1_3"), ExtResource("11_rhpp2"), ExtResource("12_itr4j"), ExtResource("11_ibpya"), ExtResource("12_c0s30"), ExtResource("13_4r1fs"), ExtResource("14_1uuav"), ExtResource("15_3flve")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"

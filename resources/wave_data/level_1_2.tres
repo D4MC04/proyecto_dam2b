@@ -15,39 +15,44 @@ time = 2.0
 [sub_resource type="Resource" id="Resource_kedio"]
 script = ExtResource("1_kedio")
 enemy_data = ExtResource("5_7i0dt")
-time = 3.1
+time = 2.9
 
 [sub_resource type="Resource" id="Resource_5hn52"]
 script = ExtResource("1_kedio")
 enemy_data = ExtResource("5_7i0dt")
-time = 4.1
+time = 3.9
 
 [sub_resource type="Resource" id="Resource_pefg2"]
 script = ExtResource("1_kedio")
 enemy_data = ExtResource("2_5hn52")
-time = 6.5
+time = 6.2
 
 [sub_resource type="Resource" id="Resource_i8437"]
 script = ExtResource("1_kedio")
 enemy_data = ExtResource("4_i8437")
-time = 7.1
+time = 6.7
 
 [sub_resource type="Resource" id="Resource_7i0dt"]
 script = ExtResource("1_kedio")
 enemy_data = ExtResource("2_5hn52")
-time = 7.8
+time = 7.3
 
 [sub_resource type="Resource" id="Resource_b8see"]
 script = ExtResource("1_kedio")
 enemy_data = ExtResource("3_pefg2")
-time = 8.4
+time = 7.9
 
 [sub_resource type="Resource" id="Resource_ftv8i"]
 script = ExtResource("1_kedio")
 enemy_data = ExtResource("3_pefg2")
-time = 9.1
+time = 8.4
+
+[sub_resource type="Resource" id="Resource_e2lif"]
+script = ExtResource("1_kedio")
+enemy_data = ExtResource("4_i8437")
+time = 9.0
 
 [resource]
 script = ExtResource("7_ftv8i")
 health_multiplier = 1.05
-entries = Array[ExtResource("1_kedio")]([SubResource("Resource_gfr8r"), SubResource("Resource_kedio"), SubResource("Resource_5hn52"), SubResource("Resource_pefg2"), SubResource("Resource_i8437"), SubResource("Resource_7i0dt"), SubResource("Resource_b8see"), SubResource("Resource_ftv8i")])
+entries = Array[ExtResource("1_kedio")]([SubResource("Resource_gfr8r"), SubResource("Resource_kedio"), SubResource("Resource_5hn52"), SubResource("Resource_pefg2"), SubResource("Resource_i8437"), SubResource("Resource_7i0dt"), SubResource("Resource_b8see"), SubResource("Resource_ftv8i"), SubResource("Resource_e2lif")])

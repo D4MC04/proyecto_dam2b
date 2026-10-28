@@ -77,32 +77,33 @@ Niveles registrados en `GameData.levels`:
 
 | Nivel | Mapa | Dinero inicial | Torretas disponibles | Oleadas | Naves por oleada (1.ª → última) | Naves nuevas (protagonistas) | Caminos |
 |---|---|---|---|---|---|---|---|
-| 1 | `maps/levels/Level1.tscn` | 300 € | Cañón doble | 5 | 7 → 13 | Darts y Wasp | 1 |
-| 2 | `maps/levels/Level2.tscn` | 500 € | las anteriores + Minigun | 6 | 10 → 21 | Nave normal | 2 |
-| 3 | `maps/levels/Level3.tscn` | 700 € | las anteriores + Cryo | 6 | 11 → 26 | Nave agresiva | 2 |
-| 4 | `maps/levels/Level4.tscn` | 900 € | las anteriores + Cañón pesado | 7 | 9 → 24 | Acorazado | 2 |
-| 5 | `maps/levels/Level5.tscn` | 1100 € | las anteriores + Minero | 7 | 11 → 33 | Ariete y Divisora | 2 |
-| 6 | `maps/levels/Level6.tscn` | 1300 € | las anteriores + Tesla | 8 | 17 → 42 (la última con la Nodriza) | Reparadora | 3 |
-| 7 | `maps/levels/Level7.tscn` | 1500 € | las anteriores + Orbitador | 9 | 21 → 47 | Espectro | 4 |
-| 8 | `maps/levels/Level8.tscn` | 1800 € | las anteriores + Amplificador | 9 | 19 → 48 | Saboteadora | 4 |
-| 9 | `maps/levels/Level9.tscn` | 2200 € | las anteriores + Disintegrator (9 de 10) | 10 | 27 → 60 (la última con la Nodriza) | Espectro, Saboteadora, Divisora y Reparadora (y todas las demás) | 8 |
+| 1 | `maps/levels/Level1.tscn` | 300 € | Cañón doble | 10 | 8 → 20 | Darts y Wasp | 1 |
+| 2 | `maps/levels/Level2.tscn` | 500 € | las anteriores + Minigun | 10 | 11 → 26 | Nave normal | 2 |
+| 3 | `maps/levels/Level3.tscn` | 700 € | las anteriores + Cryo | 10 | 13 → 26 | Nave agresiva | 2 |
+| 4 | `maps/levels/Level4.tscn` | 900 € | las anteriores + Cañón pesado | 10 | 14 → 23 | Acorazado | 2 |
+| 5 | `maps/levels/Level5.tscn` | 1100 € | las anteriores + Minero | 10 | 9 → 28 | Ariete y Divisora | 2 |
+| 6 | `maps/levels/Level6.tscn` | 1300 € | las anteriores + Tesla | 10 | 18 → 39 (la última con la Nodriza) | Reparadora | 3 |
+| 7 | `maps/levels/Level7.tscn` | 1500 € | las anteriores + Orbitador | 10 | 19 → 40 | Espectro | 4 |
+| 8 | `maps/levels/Level8.tscn` | 1800 € | las anteriores + Amplificador | 10 | 22 → 48 | Saboteadora | 4 |
+| 9 | `maps/levels/Level9.tscn` | 2200 € | las anteriores + Disintegrator (9 de 10) | 10 | 29 → 58 (la última con la Nodriza) | Espectro, Saboteadora, Divisora y Reparadora (y todas las demás) | 8 |
 
 Las oleadas son `WaveData` en `resources/wave_data/level_N.tres` (la primera) y `level_N_K.tres` (la K). Los niveles 1 a 4 y 6 a 9 están en `resources/level_data/level_N.tres`; el 5 está definido como subrecurso dentro de `scenes/GameData.tscn` (`level_5.tres` también existe y lleva las mismas oleadas).
 
 ### Generador de oleadas
 
-Las oleadas no se escriben a mano: las genera `scripts/tools/make_waves.gd` (`godot --headless --path . -s scripts/tools/make_waves.gd`) a partir de su tabla `LEVELS`, y para retocarlas se cambia la tabla y se vuelve a lanzar. Por nivel, la tabla dice: número de oleadas, caminos del mapa, cuántas naves seguidas van por cada camino, presupuesto de la primera oleada, cuánto crece por oleada, separación inicial entre naves, naves nuevas del nivel, naves de niveles anteriores y si sale la Nodriza.
+Las oleadas no se escriben a mano: las genera `scripts/tools/make_waves.gd` (`godot --headless --path . -s scripts/tools/make_waves.gd`) a partir de su tabla `LEVELS`, y para retocarlas se cambia la tabla y se vuelve a lanzar. Por nivel, la tabla dice: número de oleadas (10 en todos), caminos del mapa, presupuesto de la primera oleada, cuánto crece por oleada, separación inicial entre naves, naves nuevas del nivel, naves de niveles anteriores (ordenadas de más fáciles a más duras) y si sale la Nodriza.
 
-- **Presupuesto**: cada nave cuesta su `reward` más la de sus trozos (la Divisora, 45 + 3 × 10). La oleada K gasta `presupuesto × crecimiento^(K-1)` y saca al menos una nave más que la anterior. El presupuesto inicial de cada nivel es mayor que el del anterior (175, 260, 380, 500, 620, 740, 860, 980 y 1100), así que la primera oleada de un nivel es más dura que la del anterior.
-- **Grupos**: las naves salen en grupos del mismo tipo. Los grupos alternan entre las naves nuevas del nivel (los pares) y todas las del nivel, para que las nuevas sean las protagonistas desde la primera oleada. El tamaño del grupo es su valor (100 + 15 por oleada) entre el coste de la nave, de 1 a 6. "dart" es un Dart de color al azar.
-- **Tiempos**: la primera nave sale a 3 s en la primera oleada y a 2 s en las demás. La separación entre naves empieza en la de la tabla (de 1 s en el nivel 1 a 0,6 s en el 9), se multiplica por 0,93 en cada oleada (mínimo 0,3 s) y por el coste de la nave entre 35 (de 0,6 a 2), así que las naves caras van más separadas. Entre grupos hay una pausa de 2,5 separaciones. Los tiempos se redondean a décimas.
+- **Presupuesto**: cada nave cuesta su `reward` más la de sus trozos (la Divisora, 45 + 3 × 10). La oleada K gasta `presupuesto × crecimiento^(K-1)` y saca al menos una nave más que la anterior. El presupuesto inicial de cada nivel es mayor que el del anterior (150, 230, 330, 440, 560, 680, 800, 920 y 1050) y crece un 12-13 % por oleada, así que la última oleada gasta unas 3 veces la primera.
+- **Naves del nivel**: las nuevas del nivel salen desde la primera oleada y las de niveles anteriores se van sumando por orden de la lista (de las fáciles a las duras) hasta estar todas en la oleada 7. Un grupo nunca repite el tipo del anterior (si hay otro posible).
+- **Grupos**: las naves salen en grupos del mismo tipo. Los grupos alternan entre las naves nuevas del nivel (los pares) y las disponibles del nivel, para que las nuevas sean las protagonistas. El tamaño del grupo es su valor (100 + 15 por oleada, como mucho `presupuesto / caminos` para que haya al menos un grupo por camino) entre el coste de la nave, de 1 a 6. "dart" es un Dart de color al azar.
+- **Tiempos**: la primera nave sale a 3 s en la primera oleada y a 2 s en las demás. La separación entre naves empieza en la de la tabla (de 1 s en el nivel 1 a 0,6 s en el 9), se multiplica por 0,93 en cada oleada (mínimo 0,3 s) y por el coste de la nave entre 35 (de 0,6 a 2), así que las naves caras van más separadas. Entre grupos hay una pausa de 2,5 separaciones. En niveles con varios caminos el siguiente grupo sale cuando el anterior lleva el 100 % de su duración en la primera oleada y el 40 % en la última, así que los grupos de distintos caminos se solapan cada vez más. Los tiempos se redondean a décimas.
 - **Vida**: `health_multiplier` = 1 + 0,05 por oleada (1,0 la primera, 1,45 la décima).
-- **Nodriza**: solo en la última oleada de los niveles 6 y 9, una, al final.
-- **Caminos**: las entradas, ordenadas por tiempo, van por turnos a los caminos 0, 1, 2… (`path_index` = posición % caminos). El nivel 4 las reparte de dos en dos (`path_index` = (posición / 2) % 2).
+- **Nodriza**: solo en la última oleada de los niveles 6 y 9, una, al final (después de que haya salido todo lo demás).
+- **Caminos**: cada grupo va entero por un camino, sacado de una bolsa mezclada con todos los caminos del mapa: se usan todos antes de repetir y nunca el mismo camino en dos grupos seguidos. Cada oleada usa todos los caminos del nivel.
 - Las tiradas usan una semilla fija por nivel y oleada: volver a lanzarlo da las mismas naves y tiempos (los ids de los subrecursos sí cambian).
 - Los `.tres` que ya existen se cargan y se rellenan, así conservan su uid. Como Godot guarda sin uid desde `-s`, el script los vuelve a escribir en la cabecera y en los `ext_resource` (como `map_generator.gd`). Para el nivel 5 añade a `GameData.tscn` las `ext_resource` que falten (`wave_5_K`) y reescribe su línea `waves`, sin tocar el resto de la escena.
 - El dinero inicial (`LevelData.starting_money`) no se toca: si un nivel no se puede ganar, se ajusta la tabla.
-- El presupuesto cuenta en recompensas (`reward`). Con el balance de economía (recompensas por vida y velocidad, ver [enemigos.md](enemigos.md)) las recompensas de las naves de nivel alto cambiaron: si hace falta, hay que retocar los presupuestos de la tabla.
+- El presupuesto cuenta en recompensas (`reward`). Si cambian las recompensas de las naves (ver [enemigos.md](enemigos.md)), hay que retocar los presupuestos de la tabla.
 
 ## Spawner
 

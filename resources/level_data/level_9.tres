@@ -15,16 +15,15 @@
 [ext_resource type="Resource" uid="uid://duqskyo51yqtd" path="res://resources/wave_data/level_9_8.tres" id="19_ftqjb"]
 [ext_resource type="Resource" uid="uid://djotd8do8ggcy" path="res://resources/wave_data/level_9_9.tres" id="20_ylr5n"]
 [ext_resource type="Resource" uid="uid://u48gcb2pk8vp" path="res://resources/wave_data/level_9_10.tres" id="21_bir6h"]
+[ext_resource type="Resource" path="res://resources/turret_data/amplifier.tres" id="amplifier"]
 [ext_resource type="Resource" uid="uid://ccgd0f62u5qog" path="res://resources/turret_data/cryo.tres" id="cryo"]
 [ext_resource type="Resource" uid="uid://irudbi4pkbda" path="res://resources/turret_data/disintegrator.tres" id="disintegrator"]
-[ext_resource type="Resource" path="res://resources/turret_data/amplifier.tres" id="amplifier"]
-[ext_resource type="Resource" uid="uid://b8ynt6u20qgqi" path="res://resources/turret_data/rail.tres" id="rail"]
+[ext_resource type="Resource" path="res://resources/turret_data/miner.tres" id="miner"]
+[ext_resource type="Resource" path="res://resources/turret_data/orbiter.tres" id="orbiter"]
 [ext_resource type="Resource" uid="uid://lgewscsj1aah" path="res://resources/turret_data/tesla.tres" id="tesla"]
 [ext_resource type="Resource" uid="uid://btpwskhg8om7s" path="res://resources/wave_data/level_9_2.tres" id="wave_9_2"]
 [ext_resource type="Resource" uid="uid://bw2hcukj2jww1" path="res://resources/wave_data/level_9_3.tres" id="wave_9_3"]
-[ext_resource type="Resource" path="res://resources/turret_data/miner.tres" id="miner"]
 
-[ext_resource type="Resource" path="res://resources/turret_data/orbiter.tres" id="orbiter"]
 [resource]
 script = ExtResource("2_xvb3k")
 map = ExtResource("1_npfra")

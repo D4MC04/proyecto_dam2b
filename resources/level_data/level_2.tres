@@ -4,21 +4,22 @@
 [ext_resource type="Script" uid="uid://du40p5btlpgd0" path="res://scripts/resources/LevelData.gd" id="2_s45o5"]
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="3_k4sjs"]
 [ext_resource type="Resource" uid="uid://cnbuncwscbxtt" path="res://resources/turret_data/turret.tres" id="4_wvv31"]
-[ext_resource type="Resource" uid="uid://bh8qdvmr3kaj" path="res://resources/turret_data/rocket_launcher.tres" id="5_s45o5"]
 [ext_resource type="Resource" path="res://resources/turret_data/minigun.tres" id="6_k4sjs"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="7_q5l4p"]
 [ext_resource type="Resource" uid="uid://byedhj4f4e5em" path="res://resources/wave_data/level_2.tres" id="8_wvv31"]
 [ext_resource type="Resource" uid="uid://bevcl7ku6q57g" path="res://resources/wave_data/level_2_4.tres" id="12_q5l4p"]
+[ext_resource type="Resource" uid="uid://bhujilkqgk2jf" path="res://resources/wave_data/level_2_7.tres" id="13_758qn"]
 [ext_resource type="Resource" uid="uid://bfkh3kma8p1c1" path="res://resources/wave_data/level_2_5.tres" id="13_iyd5v"]
+[ext_resource type="Resource" uid="uid://bjdkyw8jrlpcf" path="res://resources/wave_data/level_2_8.tres" id="14_2vhsr"]
 [ext_resource type="Resource" uid="uid://dnsflp07o65xt" path="res://resources/wave_data/level_2_6.tres" id="14_758qn"]
-[ext_resource type="Resource" uid="uid://ccgd0f62u5qog" path="res://resources/turret_data/cryo.tres" id="cryo"]
+[ext_resource type="Resource" uid="uid://58ytumlr06gr" path="res://resources/wave_data/level_2_9.tres" id="15_g5enw"]
+[ext_resource type="Resource" uid="uid://domqegbyeo8gi" path="res://resources/wave_data/level_2_10.tres" id="16_wxgxa"]
 [ext_resource type="Resource" uid="uid://cwgkspsqvi7t6" path="res://resources/wave_data/level_2_2.tres" id="wave_2_2"]
 [ext_resource type="Resource" uid="uid://cgf1mne37rvte" path="res://resources/wave_data/level_2_3.tres" id="wave_2_3"]
 
 [resource]
 script = ExtResource("2_s45o5")
 map = ExtResource("1_wvv31")
-starting_money = 500
 turrets = Array[ExtResource("3_k4sjs")]([ExtResource("4_wvv31"), ExtResource("6_k4sjs")])
-waves = Array[ExtResource("7_q5l4p")]([ExtResource("8_wvv31"), ExtResource("wave_2_2"), ExtResource("wave_2_3"), ExtResource("12_q5l4p"), ExtResource("13_iyd5v"), ExtResource("14_758qn")])
+waves = Array[ExtResource("7_q5l4p")]([ExtResource("8_wvv31"), ExtResource("wave_2_2"), ExtResource("wave_2_3"), ExtResource("12_q5l4p"), ExtResource("13_iyd5v"), ExtResource("14_758qn"), ExtResource("13_758qn"), ExtResource("14_2vhsr"), ExtResource("15_g5enw"), ExtResource("16_wxgxa")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"

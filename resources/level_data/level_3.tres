@@ -4,23 +4,24 @@
 [ext_resource type="Script" uid="uid://du40p5btlpgd0" path="res://scripts/resources/LevelData.gd" id="2_tsf7d"]
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="3_kbbha"]
 [ext_resource type="Resource" uid="uid://cnbuncwscbxtt" path="res://resources/turret_data/turret.tres" id="4_o5mxm"]
-[ext_resource type="Resource" uid="uid://bh8qdvmr3kaj" path="res://resources/turret_data/rocket_launcher.tres" id="5_tsf7d"]
 [ext_resource type="Resource" path="res://resources/turret_data/minigun.tres" id="6_kbbha"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="7_qiau8"]
 [ext_resource type="Resource" uid="uid://cs06lspqp8epi" path="res://resources/wave_data/level_3.tres" id="8_o5mxm"]
 [ext_resource type="Resource" uid="uid://bg4cquli7piea" path="res://resources/wave_data/level_3_4.tres" id="13_wkj43"]
+[ext_resource type="Resource" uid="uid://cg1rlcemmyu6u" path="res://resources/wave_data/level_3_7.tres" id="14_hiot2"]
 [ext_resource type="Resource" uid="uid://b2qkj50osoolg" path="res://resources/wave_data/level_3_5.tres" id="14_yo3fj"]
 [ext_resource type="Resource" uid="uid://fe0mibkwl0a1" path="res://resources/wave_data/level_3_6.tres" id="15_hiot2"]
+[ext_resource type="Resource" uid="uid://digkk0n3v3kbl" path="res://resources/wave_data/level_3_8.tres" id="15_hmtch"]
+[ext_resource type="Resource" uid="uid://brggk6o13j8w7" path="res://resources/wave_data/level_3_9.tres" id="16_bxe6u"]
+[ext_resource type="Resource" uid="uid://2s5qvucbf2tb" path="res://resources/wave_data/level_3_10.tres" id="17_cmatw"]
 [ext_resource type="Resource" uid="uid://ccgd0f62u5qog" path="res://resources/turret_data/cryo.tres" id="cryo"]
-[ext_resource type="Resource" uid="uid://lgewscsj1aah" path="res://resources/turret_data/tesla.tres" id="tesla"]
 [ext_resource type="Resource" uid="uid://cbm8lo8x37606" path="res://resources/wave_data/level_3_2.tres" id="wave_3_2"]
 [ext_resource type="Resource" uid="uid://cvi1skyg8050j" path="res://resources/wave_data/level_3_3.tres" id="wave_3_3"]
-[ext_resource type="Resource" path="res://resources/turret_data/miner.tres" id="miner"]
 
 [resource]
 script = ExtResource("2_tsf7d")
 map = ExtResource("1_o5mxm")
 starting_money = 700
 turrets = Array[ExtResource("3_kbbha")]([ExtResource("4_o5mxm"), ExtResource("6_kbbha"), ExtResource("cryo")])
-waves = Array[ExtResource("7_qiau8")]([ExtResource("8_o5mxm"), ExtResource("wave_3_2"), ExtResource("wave_3_3"), ExtResource("13_wkj43"), ExtResource("14_yo3fj"), ExtResource("15_hiot2")])
+waves = Array[ExtResource("7_qiau8")]([ExtResource("8_o5mxm"), ExtResource("wave_3_2"), ExtResource("wave_3_3"), ExtResource("13_wkj43"), ExtResource("14_yo3fj"), ExtResource("15_hiot2"), ExtResource("14_hiot2"), ExtResource("15_hmtch"), ExtResource("16_bxe6u"), ExtResource("17_cmatw")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"
