@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="OrbitData" format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/OrbitData.gd" id="1"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/orbiter_orb.tres" id="2"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/orbiter_impact.tres" id="3"]
+
+[resource]
+script = ExtResource("1")
+damage = 35.0
+splash_radius = 22.0
+max_orbs = 4
+orbit_speed = 90.0
+deploy_time = 0.6
+orb_frames = ExtResource("2")
+impact_frames = ExtResource("3")
+impact_scale = 2.0
+fire_frame = 3

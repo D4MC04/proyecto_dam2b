@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="TurretData" format=3]
+
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/turrets/orbiter/orbiter_full_up.png" id="2"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/orbiter.tres" id="3"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/orbiter_cannon.tres" id="4"]
+[ext_resource type="Shape2D" path="res://resources/collision_shapes/orbiter.tres" id="5"]
+[ext_resource type="Resource" path="res://resources/orbit_data/orbiter.tres" id="6"]
+[ext_resource type="Resource" path="res://resources/amp_effects/orbiter.tres" id="amp"]
+[ext_resource type="Resource" path="res://resources/turret_data/orbiter_fusion.tres" id="fusion"]
+
+[resource]
+script = ExtResource("1")
+name = "Orbitador"
+cost = 350
+attack_cooldown = 1.6
+icon = ExtResource("2")
+sprite_frames = ExtResource("3")
+attack_range = ExtResource("5")
+min_range = 40.0
+cannon = ExtResource("4")
+orbit = ExtResource("6")
+fusion = ExtResource("fusion")
+amp_effect = ExtResource("amp")
+description = "Genera cargas de plasma que giran a su alrededor y explotan al chocar. No llega a lo que pasa pegado a ella."
+metadata/_custom_type_script = "uid://dmo7ci57slbqu"

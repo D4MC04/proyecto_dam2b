@@ -87,6 +87,8 @@ var _sparks: EmpSparks
 # la vuelta de reposo del cañón para generar.
 var _level_state: LevelState
 var _mine_pending := false
+# Órbita de los proyectiles (solo torretas de órbita, ver TurretData.orbit).
+var _orbit: Orbit
 # Ratón sobre la torreta: dibuja el alcance.
 var _hovered := false
 ## Seleccionada en el mapa (ver LevelState.sellable_turret): dibuja el alcance.
@@ -144,6 +146,9 @@ func _ready() -> void:
 		# El haz continuo no dispara por cooldown: lo lleva su propio nodo.
 		attack_timer.stop()
 		add_child(FocusBeam.new())
+	if data.orbit:
+		_orbit = Orbit.new()
+		add_child(_orbit)
 
 # Con la opción "mostrar rango" activada, cada torreta dibuja su alcance bajo sus sprites.
 # Con la opción apagada, solo la que tiene el ratón encima o está seleccionada.
@@ -155,7 +160,7 @@ func _draw() -> void:
 		AmpAura.draw_circle_aura(self, data.attack_range)
 	elif attack_range_shape.shape:
 		# La forma del detector, que crece con el efecto de alcance del Amplificador.
-		BuildManager.draw_range_circle(self, attack_range_shape.shape)
+		BuildManager.draw_range_circle(self, attack_range_shape.shape, data.min_range)
 
 # Con el ratón encima (casilla de 16 px) se ve el alcance aunque la opción esté apagada.
 func _physics_process(_delta: float) -> void:
@@ -309,6 +314,12 @@ func _on_area_exited(area: Area2D) -> void:
 		enemies_in_range.erase(enemy)
 
 func _on_attack_timeout() -> void:
+	if data.orbit:
+		# No apunta: genera un proyectil en cada cooldown mientras quepa en la órbita.
+		if not _orbit.is_full():
+			_start_charge()
+			cannon.play(&"fire_0")
+		return
 	var target := _get_target()
 	# La onda es de área: sale aunque en rango solo haya naves camufladas.
 	var pulse_has_enemies := data.pulse != null and enemies_in_range.any(is_instance_valid)
@@ -326,9 +337,9 @@ func _on_attack_timeout() -> void:
 		_pending_shot = true
 		attack_timer.stop()
 
-# Torretas de onda o de rayo: el cañón no gira ni dispara balas.
+# Torretas de onda, de rayo o de órbita: el cañón no gira ni dispara balas.
 func _is_static() -> bool:
-	return data.pulse != null or data.chain != null
+	return data.pulse != null or data.chain != null or data.orbit != null
 
 # La onda, el rayo o el haz salen en su frame de la animación de disparo.
 func _on_cannon_frame_changed() -> void:
@@ -352,6 +363,9 @@ func _on_cannon_frame_changed() -> void:
 		cannon.speed_scale = 1.0
 		_play_shoot()
 		Beam.spawn(self)
+	elif data.orbit and cannon.frame == data.orbit.fire_frame:
+		_play_shoot()
+		_orbit.spawn_orb()
 
 # Frame de fire_0 en el que sale el ataque de la torreta estática o de haz.
 func _fire_frame() -> int:
@@ -361,6 +375,8 @@ func _fire_frame() -> int:
 		return data.chain.fire_frame
 	if data.pulse:
 		return data.pulse.fire_frame
+	if data.orbit:
+		return data.orbit.fire_frame
 	return -1
 
 func _start_charge() -> void:
@@ -414,7 +430,7 @@ func _shoot(target: Enemy) -> void:
 
 # Mantiene el objetivo mientras siga vivo y dentro del rango.
 func _get_target() -> Enemy:
-	if not is_instance_valid(_target) or not enemies_in_range.has(_target) or _target.cloaked:
+	if not is_instance_valid(_target) or not enemies_in_range.has(_target) or _target.cloaked or _is_too_close(_target):
 		_target = _best_enemy()
 	return _target
 
@@ -423,14 +439,18 @@ func _best_enemy() -> Enemy:
 	var best: Enemy = null
 	var best_remaining: float = INF
 	for enemy in enemies_in_range:
-		# Las naves camufladas no se apuntan.
-		if enemy.cloaked:
+		# Las naves camufladas no se apuntan, ni las que están dentro del radio mínimo.
+		if enemy.cloaked or _is_too_close(enemy):
 			continue
 		var remaining := enemy.get_remaining_distance()
 		if remaining < best_remaining:
 			best_remaining = remaining
 			best = enemy
 	return best
+
+# Con rango en anillo (min_range > 0) no llega a lo que tiene más cerca que min_range.
+func _is_too_close(enemy: Enemy) -> bool:
+	return data.min_range > 0.0 and enemy.global_position.distance_to(global_position) < data.min_range
 
 ## La apaga `seconds` segundos: no apunta ni dispara, se oscurece y le saltan chispas.
 ## Si ya estaba apagada se renueva la duración, no se acumula.

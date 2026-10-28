@@ -10,6 +10,9 @@ const ACCENT_COLOR := Color("#40e0f0")
 @export var icon: Texture2D
 @export var sprite_frames: SpriteFrames
 @export var attack_range: Shape2D
+# Opcional: radio mínimo (px). Con más de 0 el alcance es un anillo entre este radio y el de attack_range:
+# no elige objetivos más cerca y el rango se dibuja como anillo.
+@export var min_range: float = 0.0
 @export var bullet_data: BulletData
 # Opcionales: destello (sin loop) al disparar y posición de la boca del cañón respecto al centro.
 @export var muzzle_flash: SpriteFrames
@@ -30,6 +33,9 @@ const ACCENT_COLOR := Color("#40e0f0")
 # Opcional: el cañón gira y apunta como siempre, pero en vez de balas mantiene un haz continuo
 # sobre el objetivo que sube de nivel con el tiempo. No usa attack_cooldown.
 @export var focus_beam: FocusBeamData
+# Opcional: el emisor no gira ni apunta; en cada cooldown genera un proyectil que gira alrededor de la
+# torreta, en el anillo de alcance, y explota al chocar con un enemigo. "fire_0" es la animación de generarlo.
+@export var orbit: OrbitData
 # Opcional (torretas de bala): sobrecalentamiento. Cada disparo seguido calienta la torreta y acorta el
 # cooldown desde attack_cooldown hasta overheat_min_cooldown; al llegar a overheat_shots disparos se para
 # overheat_time segundos y vuelve a la cadencia base. Sin objetivo se enfría del todo en overheat_cool_time s.
@@ -77,7 +83,10 @@ func get_stats() -> Array[StatEntry]:
 		return stats
 	var circle := attack_range as CircleShape2D
 	if circle != null:
-		stats.append(StatEntry.new("range", "ALCANCE", UiFormat.number(circle.radius)))
+		var reach := UiFormat.number(circle.radius)
+		if min_range > 0.0:
+			reach = UiFormat.number(min_range) + "-" + reach
+		stats.append(StatEntry.new("range", "ALCANCE", reach))
 	# El haz continuo no usa el cooldown.
 	if focus_beam == null:
 		stats.append(StatEntry.new("cooldown", "CADENCIA", UiFormat.seconds(attack_cooldown)))
@@ -90,8 +99,11 @@ func get_stats() -> Array[StatEntry]:
 		stats.append_array(attack.get_stats())
 	return stats
 
-## Datos del ataque de la torreta (BulletData, PulseData, ChainData, BeamData o FocusBeamData), o null.
+## Datos del ataque de la torreta (BulletData, PulseData, ChainData, BeamData, FocusBeamData u
+## OrbitData), o null.
 func get_attack() -> Resource:
+	if orbit != null:
+		return orbit
 	if focus_beam != null:
 		return focus_beam
 	if beam != null:
@@ -114,6 +126,8 @@ func is_miner() -> bool:
 func get_attack_label() -> String:
 	if is_amplifier() or is_miner():
 		return "APOYO"
+	if orbit != null:
+		return "ÓRBITA"
 	if focus_beam != null:
 		return "HAZ CONT."
 	if beam != null:
