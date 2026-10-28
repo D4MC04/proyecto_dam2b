@@ -6,13 +6,14 @@ extends SceneTree
 ## Uso: godot --headless --path . -s scripts/tools/make_amplifier.gd
 ##
 ## Por carpeta: amplifier_base.png (32x32), amplifier_cannon_idle_sheet.png (4 frames de 32x32 del
-## emisor, en bucle: el núcleo late y las luces de los brazos se encienden por turnos, como un faro)
+## emisor, en bucle: el cristal late y los segmentos del resonador se encienden por turnos, como un faro)
 ## y amplifier_full_up.png (icono con base y emisor).
 ##
 ## La base es la misma plantilla que la del Cañón doble y la Minigun (octógono de 32 px con hueco
-## central), con las luces en ámbar. El emisor no gira: es una cúpula de metal con un núcleo de ámbar
-## y cuatro brazos en diagonal acabados en una luz. El mayor añade un aro discontinuo de ámbar a la
-## base, cuatro luces pequeñas más (arriba, abajo y a los lados) y una cúpula más grande.
+## central), con las luces en ámbar. El emisor no gira: aro de metal con abrazaderas y luces, disco
+## resonador de ámbar por segmentos y cristal facetado en el centro (como la placa de la Tesla). El
+## mayor añade un aro discontinuo de ámbar a la base, un emisor más grande con más segmentos y luces
+## en las abrazaderas.
 ## Caracteres de las plantillas: "." vacío, "O" contorno, "1" a "4" metal de sombra a luz y "a" a
 ## "c" ámbar de oscuro a claro, "w" casi blanco.
 
@@ -75,10 +76,7 @@ const AMP_ICON: Array[String] = [
 ]
 
 const CENTER: Vector2 = Vector2(15.5, 15.5)
-# Luces de los brazos en diagonal (en el orden de las agujas del reloj) y, en el mayor, las pequeñas.
-const ARM_LIGHTS: Array[Vector2] = [Vector2(-8, -8), Vector2(8, -8), Vector2(8, 8), Vector2(-8, 8)]
-const SMALL_LIGHTS: Array[Vector2] = [Vector2(0, -10), Vector2(10, 0), Vector2(0, 10), Vector2(-10, 0)]
-# Brillo del núcleo en cada frame (índice en AMBER del tono de fuera): sube, llega arriba y baja.
+# Brillo del cristal en cada frame (índice en AMBER del tono de fuera): sube, llega arriba y baja.
 const CORE_LEVELS: Array[int] = [0, 1, 2, 1]
 
 var _image: Image
@@ -153,75 +151,113 @@ func _draw_major_ring() -> void:
 
 # --- Emisor ---
 
-## Un frame del emisor: brazos en diagonal con su luz, cúpula de metal y núcleo de ámbar.
-## Las luces de los brazos se encienden de una en una en el sentido de las agujas del reloj.
+## Un frame del emisor, de fuera a dentro: aro de metal con cuatro abrazaderas y cuatro luces en
+## diagonal, junta oscura, disco resonador de ámbar partido en segmentos por radios oscuros (con
+## bandas como las bobinas de la Tesla) y cristal facetado en el centro. Los segmentos se encienden
+## por turnos (giran como un faro) y el cristal late con CORE_LEVELS.
 func _make_emitter(frame: int) -> Image:
 	_image = Image.create(SIZE, SIZE, false, Image.FORMAT_RGBA8)
-	var dome_radius: float = 7.6 if _major else 7.0
-	# Brazos: barras de metal de 2 px desde la cúpula hasta cada luz, con luz arriba a la izquierda.
-	for light: Vector2 in ARM_LIGHTS:
-		_draw_arm(light)
-	# Luces de los brazos
-	for i: int in ARM_LIGHTS.size():
-		var lit: bool = i == frame
-		_fill_circle(CENTER + ARM_LIGHTS[i], 1.6, AMBER[2] if lit else AMBER[0])
-		_put(int(CENTER.x + ARM_LIGHTS[i].x), int(CENTER.y + ARM_LIGHTS[i].y), AMBER[3] if lit else AMBER[1])
-	if _major:
-		# Luces pequeñas sobre el aro de la base, entre los brazos: se encienden con la del brazo anterior.
-		for i: int in SMALL_LIGHTS.size():
-			var lit: bool = i == frame
-			_fill_circle(CENTER + SMALL_LIGHTS[i], 1.0, AMBER[2] if lit else AMBER[0])
-	# Cúpula: aro de metal de 2 px con luz arriba a la izquierda, junta oscura y núcleo dentro
+	var ring_radius: float = 9.9 if _major else 9.4
+	var core_radius: float = 5.0 if _major else 4.4
+	var segments: int = 12 if _major else 8
 	for y: int in SIZE:
 		for x: int in SIZE:
 			var offset: Vector2 = Vector2(x, y) - CENTER
 			var distance: float = offset.length()
-			if distance >= dome_radius:
+			if distance >= ring_radius:
 				continue
-			var light: float = -(offset.x + offset.y) / distance if distance > 0.0 else 0.0
-			if distance > dome_radius - 1.0:
-				_put(x, y, METAL[3] if light > 0.5 else (METAL[2] if light > -0.3 else METAL[1]))
-			elif distance > dome_radius - 2.0:
-				_put(x, y, METAL[2] if light > 0.5 else (METAL[1] if light > -0.3 else METAL[0]))
-			else:
-				# Junta oscura entre el aro y el núcleo
+			# Luz arriba a la izquierda: 1 de cara a la luz, -1 en sombra.
+			var light: float = -(offset.x + offset.y) / maxf(distance, 0.001) / sqrt(2.0)
+			if distance >= ring_radius - 2.0:
+				_put(x, y, _metal_lit(light, distance >= ring_radius - 1.0))
+			elif distance >= ring_radius - 3.0:
+				# Junta oscura entre el aro y el disco
 				_put(x, y, OUTLINE)
-	_draw_core(frame, dome_radius - 3.0)
+			else:
+				_put(x, y, _resonator_color(offset, distance, segments, frame, light))
+	_draw_crystal(frame, core_radius)
+	_draw_clamps(ring_radius)
+	_draw_ring_lights(ring_radius, frame)
 	_close_outline()
 	return _image
 
 
-## Barra de 2 px de grueso desde el centro hasta `light` (posición de su luz respecto al centro).
-func _draw_arm(light: Vector2) -> void:
-	var direction: Vector2 = light.normalized()
-	var length: float = light.length()
-	for y: int in SIZE:
-		for x: int in SIZE:
-			var offset: Vector2 = Vector2(x, y) - CENTER
-			var along: float = offset.dot(direction)
-			var across: float = offset.x * direction.y - offset.y * direction.x
-			if along < 0.0 or along > length or absf(across) > 1.0:
-				continue
-			# El lado que mira arriba a la izquierda recibe la luz.
-			var lit_side: bool = across * (direction.y - direction.x) <= 0.0
-			_put(x, y, METAL[2] if lit_side else METAL[1])
+## Metal del aro: banda de fuera más clara que la de dentro, las dos con luz arriba a la izquierda.
+func _metal_lit(light: float, outer: bool) -> Color:
+	var level: int = 2 if light > 0.45 else (1 if light > -0.35 else 0)
+	return METAL[mini(level + (1 if outer else 0), 3)]
 
 
-## Núcleo de ámbar de radio `radius`: late con CORE_LEVELS y tiene un brillo arriba a la izquierda.
-func _draw_core(frame: int, radius: float) -> void:
+## Disco resonador: radios oscuros entre segmentos, bandas alternas de ámbar y el segmento que toca
+## en este frame un tono más claro.
+func _resonator_color(offset: Vector2, distance: float, segments: int, frame: int, light: float) -> Color:
+	var turn: float = fposmod(offset.angle() / TAU + 0.25, 1.0) * segments
+	if fposmod(turn, 1.0) < 0.12 and distance > 3.0:
+		return AMBER[0].darkened(0.45)
+	var segment: int = int(turn)
+	var lit: bool = segment % FRAMES == frame
+	# Bandas concéntricas: la de fuera y la del medio más claras, como una bobina
+	var band: int = 1 if int(distance) % 2 == 1 else 0
+	var level: int = band + (1 if lit else 0) + (1 if light > 0.55 else 0) - (1 if light < -0.55 else 0)
+	return AMBER[clampi(level, 0, 3)]
+
+
+## Cristal de ámbar en rombo con cuatro caras: la de arriba a la izquierda es la más clara.
+func _draw_crystal(frame: int, radius: float) -> void:
 	var level: int = CORE_LEVELS[frame]
+	var size: float = radius - 0.6
 	for y: int in SIZE:
 		for x: int in SIZE:
 			var offset: Vector2 = Vector2(x, y) - CENTER
-			var distance: float = offset.length()
-			if distance >= radius:
+			var edge: float = absf(offset.x) + absf(offset.y)
+			if edge > size + 1.0:
 				continue
-			# Anillos de fuera a dentro, cada uno un tono más claro
-			var ring: int = 0 if distance >= radius - 1.2 else (1 if distance >= radius - 2.4 else 2)
-			_put(x, y, AMBER[mini(level + ring, 3)])
-	# Brillo arriba a la izquierda, más fuerte con el núcleo encendido
-	_put(14, 14, AMBER[3] if level > 0 else AMBER[2])
-	_put(15, 13, AMBER[3] if level > 1 else AMBER[2])
+			if edge > size:
+				# Contorno del cristal sobre el disco
+				_put(x, y, OUTLINE)
+				continue
+			var face: int
+			if offset.x < 0.0 and offset.y < 0.0:
+				face = 2
+			elif offset.x >= 0.0 and offset.y >= 0.0:
+				face = 0
+			else:
+				face = 1
+			_put(x, y, AMBER[mini(face + level, 3)])
+	# Brillo en la cara de luz
+	_put(14, 14, AMBER[3])
+	if level >= 2:
+		_put(15, 15, AMBER[3])
+
+
+## Cuatro abrazaderas de metal (arriba, abajo y a los lados) que sujetan el aro a la base, con una
+## ranura oscura en medio. En el mayor llevan una luz de ámbar en la punta.
+func _draw_clamps(ring_radius: float) -> void:
+	for direction: Vector2 in [Vector2.UP, Vector2.RIGHT, Vector2.DOWN, Vector2.LEFT]:
+		for y: int in SIZE:
+			for x: int in SIZE:
+				var offset: Vector2 = Vector2(x, y) - CENTER
+				var along: float = offset.dot(direction)
+				var across: float = offset.x * direction.y - offset.y * direction.x
+				if along < ring_radius - 2.0 or along > ring_radius + 2.5 or absf(across) > 1.6:
+					continue
+				if absf(across) < 0.6 and along > ring_radius + 1.5:
+					_put(x, y, AMBER[2] if _major else METAL[2])
+				elif absf(across) < 0.6 and along > ring_radius - 1.0:
+					# Ranura de la abrazadera
+					_put(x, y, OUTLINE)
+				else:
+					var light: float = -(direction.x + direction.y) - across * (direction.y - direction.x) * 0.5
+					_put(x, y, METAL[3] if light > 0.0 else METAL[1])
+
+
+## Cuatro luces de ámbar en diagonal sobre el aro, que se encienden con los segmentos.
+func _draw_ring_lights(ring_radius: float, frame: int) -> void:
+	var diagonals: Array[Vector2] = [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)]
+	for i: int in diagonals.size():
+		var center: Vector2 = CENTER + diagonals[i].normalized() * (ring_radius - 1.0)
+		var lit: bool = i == frame
+		_fill_circle(center, 0.9, AMBER[2] if lit else AMBER[0])
 
 
 # --- Icono de stat ---

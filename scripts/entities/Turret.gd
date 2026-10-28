@@ -21,6 +21,10 @@ const ENABLE_FLASH_TIME := 0.3
 const BUILD_SHADER: Shader = preload("res://resources/shaders/hologram_build.gdshader")
 const BUILD_TIME := 0.8
 const BUILD_TRAIL := 5.0
+# Al llegarle la onda de un Amplificador: escaneo ámbar ligero, más corto que el de construir.
+const AMP_SCAN_SHADER: Shader = preload("res://resources/shaders/amp_scan.gdshader")
+const AMP_SCAN_TIME := 0.45
+const AMP_SCAN_TRAIL := 3.0
 # Animación al vender: se encoge soltando chispas.
 const SELL_TIME := 0.25
 const SELL_SPARK_COLOR := Color("#ffe082")
@@ -72,9 +76,10 @@ var _charge_player: AudioStreamPlayer2D
 # Apagada por un pulso EMP (ver disable): no apunta ni dispara.
 var disabled := false
 var _disable_tween: Tween
-## Nivel del mejor Amplificador encendido de las casillas vecinas (0 = ninguno); lo pone Grid.
+## Nivel del mejor Amplificador encendido cuya aura la alcanza (0 = ninguno); lo pone Grid.
 var amp_level := 0
-var _amp_mark: AmpMark
+var _amp_scan: ShaderMaterial
+var _amp_scan_tween: Tween
 var _sparks: EmpSparks
 # Ratón sobre la torreta: dibuja el alcance.
 var _hovered := false
@@ -134,7 +139,12 @@ func _ready() -> void:
 # Con la opción "mostrar rango" activada, cada torreta dibuja su alcance bajo sus sprites.
 # Con la opción apagada, solo la que tiene el ratón encima o está seleccionada.
 func _draw() -> void:
-	if (Settings.get_value(&"show_turret_range") or _hovered or selected) and attack_range_shape.shape:
+	if not (Settings.get_value(&"show_turret_range") or _hovered or selected):
+		return
+	if data.is_amplifier():
+		# El aura, en ámbar.
+		AmpAura.draw_circle_aura(self, data.attack_range)
+	elif attack_range_shape.shape:
 		# La forma del detector, que crece con el efecto de alcance del Amplificador.
 		BuildManager.draw_range_circle(self, attack_range_shape.shape)
 
@@ -440,12 +450,32 @@ func set_amplification(level: int) -> void:
 		return
 	amp_level = level
 	_update_range()
-	if _amp_mark == null:
-		_amp_mark = AmpMark.new()
-		add_child(_amp_mark)
-	_amp_mark.visible = level > 0
 	queue_redraw()
 	amplification_changed.emit()
+
+## Cuando le llega la onda de un Amplificador (ver AmpAura): una línea ámbar sube por la torreta con
+## una estela corta y el contorno brilla y se apaga (resources/shaders/amp_scan.gdshader). No pisa la
+## animación de construir.
+func flash_amp() -> void:
+	if sprite.material != null and sprite.material != _amp_scan:
+		return
+	if _amp_scan == null:
+		_amp_scan = ShaderMaterial.new()
+		_amp_scan.shader = AMP_SCAN_SHADER
+		_amp_scan.set_shader_parameter("trail_length", AMP_SCAN_TRAIL)
+	var half_height := _half_height()
+	_amp_scan.set_shader_parameter("line_start", global_position.y + half_height)
+	_amp_scan.set_shader_parameter("line_end", global_position.y - half_height - AMP_SCAN_TRAIL)
+	_amp_scan.set_shader_parameter("progress", 0.0)
+	sprite.material = _amp_scan
+	cannon.material = _amp_scan
+	if _amp_scan_tween:
+		_amp_scan_tween.kill()
+	_amp_scan_tween = create_tween()
+	_amp_scan_tween.tween_method(func(value: float) -> void: _amp_scan.set_shader_parameter("progress", value), 0.0, 1.0, AMP_SCAN_TIME)
+	_amp_scan_tween.tween_callback(func() -> void:
+		sprite.material = null
+		cannon.material = null)
 
 # Con el efecto de alcance el detector usa un círculo propio más grande (el de data es compartido).
 func _update_range() -> void:
@@ -471,12 +501,10 @@ func get_sell_value() -> int:
 ## Se materializa: una línea de escaneo cian sube por la base y el cañón; lo de encima es holograma.
 ## Al acabar se quita el material y la torreta queda normal.
 func play_build() -> void:
-	# Mitad de la altura del sprite (los frames son de 32x32, con la torreta centrada).
-	var half_height := 0.0
-	for node: AnimatedSprite2D in [sprite, cannon]:
-		if node.sprite_frames:
-			var frame_texture := node.sprite_frames.get_frame_texture(node.animation, 0)
-			half_height = maxf(half_height, frame_texture.get_height() * node.scale.y * 0.5)
+	# El escaneo de construir manda sobre el de la onda del Amplificador.
+	if _amp_scan_tween:
+		_amp_scan_tween.kill()
+	var half_height := _half_height()
 	var material := ShaderMaterial.new()
 	material.shader = BUILD_SHADER
 	material.set_shader_parameter("line_start", global_position.y + half_height)
@@ -490,6 +518,15 @@ func play_build() -> void:
 	tween.tween_callback(func() -> void:
 		sprite.material = null
 		cannon.material = null)
+
+# Mitad de la altura del sprite (los frames son de 32x32, con la torreta centrada).
+func _half_height() -> float:
+	var half_height := 0.0
+	for node: AnimatedSprite2D in [sprite, cannon]:
+		if node.sprite_frames:
+			var frame_texture := node.sprite_frames.get_frame_texture(node.animation, 0)
+			half_height = maxf(half_height, frame_texture.get_height() * node.scale.y * 0.5)
+	return half_height
 
 ## Al vender: deja una copia visual que se encoge soltando chispas; la torreta real se libera ya.
 func play_sell() -> void:
