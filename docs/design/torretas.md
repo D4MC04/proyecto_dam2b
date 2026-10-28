@@ -111,13 +111,13 @@ Las torretas de onda y de cadena no giran el cañón ni usan `_process`.
 
 ## Datos
 
-`TurretData` (`scripts/resources/TurretData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`, `orbit`. `min_range`: radio mínimo opcional; con más de 0 el alcance es un anillo entre él y `attack_range` (ver Objetivo). `overheat_shots`, `overheat_min_cooldown`, `overheat_time`, `overheat_cool_time`: sobrecalentamiento opcional (ver Disparo). `spin_up_time`: tubos rotativos opcionales (ver Tubos rotativos). `shoot_sound`: sonido del disparo. `amp_effect`: lo que gana dentro del aura de un Amplificador; `amplifier_level`: mayor que 0 en los Amplificadores (ver "Amplificador"). `fusion`: el `TurretData` en el que se convierte al fusionarla con otra igual (null en las fusionadas). Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 8 torretas que atacan la tienen. La ficha pinta todas las torretas en cian `#40e0f0` (`TurretData.ACCENT_COLOR`, ver [ui.md](ui.md)).
+`TurretData` (`scripts/resources/TurretData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`, `orbit`. `min_range`: radio mínimo opcional; con más de 0 el alcance es un anillo entre él y `attack_range` (ver Objetivo). `overheat_shots`, `overheat_min_cooldown`, `overheat_time`, `overheat_cool_time`: sobrecalentamiento opcional (ver Disparo). `spin_up_time`: tubos rotativos opcionales (ver Tubos rotativos). `shoot_sound`: sonido del disparo. `amp_effect`: lo que gana dentro del aura de un Amplificador; `amplifier_level`: mayor que 0 en los Amplificadores (ver "Amplificador"). `money_amount`: mayor que 0 en los Mineros, el dinero que dan cada `attack_cooldown` s (ver "Minero"). `fusion`: el `TurretData` en el que se convierte al fusionarla con otra igual (null en las fusionadas). Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 8 torretas que atacan la tienen. La ficha pinta todas las torretas en cian `#40e0f0` (`TurretData.ACCENT_COLOR`, ver [ui.md](ui.md)).
 
 Funciones para la ficha:
 
-- `get_stats() -> Array[StatEntry]`: en el Amplificador solo COSTE y AURA (radio de `attack_range`). En las demás, filas comunes (COSTE con `€`, ALCANCE = radio del `CircleShape2D` de `attack_range` (con `min_range`, "mínimo-máximo", p. ej. `40-64`), CADENCIA = `attack_cooldown` en segundos salvo en el haz continuo; con sobrecalentamiento, además CAD. MÁX, AGUANTE (disparos) y PARADA) seguidas de las del ataque. Los nombres de fila son cortos y en mayúsculas (9 caracteres como mucho, ver `StatEntry` en [ui.md](ui.md)).
+- `get_stats() -> Array[StatEntry]`: en el Amplificador solo COSTE y AURA (radio de `attack_range`). En el Minero, COSTE, GANANCIA (`money_amount`, icono `reward`) e INTERVALO (`attack_cooldown`). En las demás, filas comunes (COSTE con `€`, ALCANCE = radio del `CircleShape2D` de `attack_range` (con `min_range`, "mínimo-máximo", p. ej. `40-64`), CADENCIA = `attack_cooldown` en segundos salvo en el haz continuo; con sobrecalentamiento, además CAD. MÁX, AGUANTE (disparos) y PARADA) seguidas de las del ataque. Los nombres de fila son cortos y en mayúsculas (9 caracteres como mucho, ver `StatEntry` en [ui.md](ui.md)).
 - `get_attack() -> Resource`: el `*Data` de ataque que tenga (o null).
-- `get_attack_label()`: "BALA", "ONDA", "CADENA", "HAZ", "HAZ CONT.", "ÓRBITA" o "APOYO" (Amplificador, `is_amplifier()`).
+- `get_attack_label()`: "BALA", "ONDA", "CADENA", "HAZ", "HAZ CONT.", "ÓRBITA" o "APOYO" (Amplificador, `is_amplifier()`, y Minero, `is_miner()`).
 - Cada `*Data` de ataque tiene su `get_stats()`:
 
 | Clase | Filas |
@@ -144,6 +144,7 @@ Recursos en `resources/turret_data/`:
 | `disintegrator` | Disintegrator | 600 | no se usa | 112 | 140 | Haz continuo: 40, 80 y 160 de daño/s |
 | `orbiter` | Orbitador | 350 | 1,6 | anillo 40-64 | no gira | Órbita: cargas de 35 de daño en área de 22 px, hasta 4, a 90°/s. Mejora: Cinturón (`orbiter_fusion`, 450): 1,0 s, 50 de daño, área 26, hasta 5, a 110°/s. Sin sonido |
 | `amplifier` | Amplificador | 400 | no se usa | aura 100 | no gira | Ninguno: amplifica a las torretas de alrededor |
+| `miner` | Minero | 250 | 5,0 (intervalo) | no tiene | no gira | Ninguno: +15€ cada 5 s de oleada (la Excavadora, +30€) |
 
 ## Amplificador
 
@@ -165,6 +166,15 @@ Torreta de apoyo (`amplifier.tres`, mejora `amplifier_fusion.tres`, desde el niv
 
 - **Visual**: `AmpAura` (`scripts/entities/AmpAura.gd`, hijo del Amplificador, detrás de sus sprites, como la onda de la Cryo) suelta una onda cada 2,5 s (la primera a los 0,4 s): un anillo de 1 px sin antialias que crece en 1,1 s desde el borde del emisor (10 px) hasta el radio del aura, frenando al final, con el frente en `#ffe082` y dos ecos 2 y 4 px por dentro en `#ecb23c` y `#96641e`, y se apaga al llegar. Al pasar por una torreta amplificada le lanza `Turret.flash_amp`, una versión ligera y en ámbar del escaneo de construir (`resources/shaders/amp_scan.gdshader`, 0,45 s): la torreta sigue sólida, una línea ámbar casi blanca sube por filas de píxeles con 3 filas de estela (la última punteada) y el contorno del sprite brilla en ámbar y se apaga en 3 pasos. No pisa la animación de construir, y construir o mejorar la corta. Con el Amplificador apagado por un EMP no salen ondas. El alcance fijo (relleno casi transparente y borde `#ecb23c`, `AmpAura.draw_circle_aura`) solo se pinta donde las demás torretas pintan el suyo: al pasar el ratón, con la torreta seleccionada, con la opción de mostrar alcances y en la vista previa de `BuildManager`.
 - **Ficha**: la de una torreta amplificada añade una fila con lo que gana (`AmpEffect.get_stat`, icono `amp.png`: ALCANCE, ÁREA, ACELERA, FRENADO, OBJETIVOS, CARGA o SUBE NIV. o GIRO). `Turret.amplification_changed` la rehace si cambia el aura con la ficha abierta (ver [ui.md](ui.md)).
+
+## Minero
+
+Torreta de apoyo que da dinero (`miner.tres`, mejora `miner_fusion.tres` "Excavadora" por 400€, desde el nivel 3). Su `TurretData` no tiene ataque ni alcance y lleva `money_amount` 15 (30 la Excavadora) y `attack_cooldown` 5 s. Sirve para invertir pronto: se paga sola en unos 85 s de oleada.
+
+- **Cuándo genera**: solo con una oleada en curso. `LevelState.wave_in_progress` se pone a true con `Spawner.wave_started` y a false con `Spawner.wave_cleared` (lo hace `Level`), y emite `wave_in_progress_changed`. `Turret._setup_miner` deja la torreta sin apuntar y con el `Timer` de `attack_cooldown` pausado mientras no hay oleada o está apagada (`_update_mine_timer`); entre oleadas conserva lo que le quedaba.
+- **Animación**: el cañón (`miner_cannon.tres`) anima `default` en bucle (4 frames a 6 fps: la broca gira dentro del pozo y saltan esquirlas de roca). Al cumplirse el `Timer`, espera a que acabe la vuelta de `default` (`animation_looped`) y reproduce `generate` (7 frames a 10 fps, sin bucle): la punta se pone dorada y suelta chispas, sale una pepita del pozo que se parte en dos y cada mitad cae en una tolva, que brilla y queda un poco más llena. En el frame 4 (`MINE_PAYOUT_FRAME`, cuando caen las pepitas) da el dinero con `LevelState.add_money` y saca el `+X€` con `FloatingText` sobre la torreta.
+- **EMP**: el pulso de la Saboteadora la apaga como a las demás: corta `generate` antes del cobro, pierde la generación pendiente y el `Timer` se queda en pausa hasta que vuelve.
+- No se amplifica (no tiene `amp_effect`) y no pinta alcance.
 
 ## Tipos de ataque
 

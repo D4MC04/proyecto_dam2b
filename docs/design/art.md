@@ -47,6 +47,7 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 | Disintegrator | magenta `#6e1a64`, `#be30a0`, `#ff5ad2`, `#ffafeb`, `#fff5fc` |
 | Amplificador | ámbar `#96641e`, `#ecb23c`, `#ffe082`, `#fff8e6`; ondas del aura en `#ffe082`, `#ecb23c` y `#96641e` |
 | Orbitador | violeta `#3c2a8a`, `#7a5ae6`, `#c0aaff`, `#f4f0ff`; cristal de la esfera `#1a1430` |
+| Minero | luces de cobre `#783e20`, `#ce743c`; oro de las tolvas y las pepitas `#523710`, `#96641e`, `#ecb23c`, `#ffe082`, `#fff8e6`; esquirlas de roca `#707688`, `#7c5842` |
 
 - **Torretas fusionadas** (`assets/sprites/turrets/<torreta>_fusion/`, mismos tamaños, frames y nombres que la base, p. ej. `turret_fusion/t1_base.png`): misma familia que la base, más detalladas, con acento nuevo.
 
@@ -60,6 +61,7 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 | Rail Gauss | cian; segundo capacitor; haz dorado de 32x15 |
 | Aniquilador | dorado y blanco; aletas exteriores |
 | Amplificador mayor | el mismo ámbar; aro discontinuo en la base, cúpula más grande y cuatro luces pequeñas más |
+| Excavadora | aro discontinuo de cobre y luces de oro en la base (la del Amplificador mayor), abrazaderas doradas en la carcasa y tolvas más llenas |
 | Cinturón | el mismo violeta con blanco `#ffffff`; aro discontinuo en la base, cuatro abrazaderas, tres brazos de remolino y núcleo, cargas e impacto con el centro blanco, para no confundirse con la Tormenta |
 
 - **Motores y luces de enemigos**: `#8c1628`, `#f0323c`, `#ff8c5a`, `#ffdc78`.
@@ -163,7 +165,7 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 
 ## Animación
 
-- Cañones de torreta: `default` (reposo) y `fire_0`, `fire_1`... (disparo, sin bucle). `default` está en bucle en Cryo, Tesla, Rail y Disintegrator. El Cañón doble tiene `fire_0` y `fire_1`. La Minigun no tiene animación de disparo: tiene `spin`, en bucle, cuya velocidad lleva el código (ver [torretas.md](torretas.md)). En el Disintegrator, `fire_0` a `fire_2` son un bucle por nivel de haz.
+- Cañones de torreta: `default` (reposo) y `fire_0`, `fire_1`... (disparo, sin bucle). `default` está en bucle en Cryo, Tesla, Rail y Disintegrator. El Cañón doble tiene `fire_0` y `fire_1`. La Minigun no tiene animación de disparo: tiene `spin`, en bucle, cuya velocidad lleva el código (ver [torretas.md](torretas.md)). En el Disintegrator, `fire_0` a `fire_2` son un bucle por nivel de haz. El Minero tiene `default` (4 frames, en bucle) y `generate` (7 frames, sin bucle).
 - Enemigos: Acorazado, Ariete, Nodriza, Reparadora, Divisora, Wasp, Espectro y los Dart tienen 3 frames; Nave normal y Nave agresiva, 1. Las cuatro animaciones `up`, `down`, `left` y `right` existen en todos; en los que tienen el dibujo mirando hacia arriba, el giro se hace por código.
 - Los sprites de torreta y enemigo se dibujan mirando hacia arriba.
 
@@ -173,7 +175,7 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 - Minúsculas con guion bajo.
 - Torretas: `<prefijo>_<parte>[_<estado>][_sheet].png`.
   - Partes: `base`, `cannon`, `full_up` (icono con base y cañón), `bullet`, `beam`, `bolt`, `impact`, `muzzle`, `flash`, `wave`, `frost`, `death`.
-  - Estados del cañón: `idle`, `charge`, `fire`, `pulse`, `cool`, `recover`.
+  - Estados del cañón: `idle`, `charge`, `fire`, `pulse`, `cool`, `recover`, `generate`.
   - Niveles del Disintegrator: `l1`, `l2`, `l3`.
 - `_sheet`: tira horizontal de frames en una sola fila.
 - `_0`, `_1`, `_2`...: frames o variantes en archivos sueltos.

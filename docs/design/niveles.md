@@ -77,13 +77,13 @@ Niveles registrados en `GameData.levels`:
 |---|---|---|---|---|---|---|
 | 1 | `maps/levels/Level1.tscn` | Cañón doble, Cañón pesado, Minigun | 5 | 7 → 13 | Darts y Wasp | 1 |
 | 2 | `maps/levels/Level2.tscn` | las anteriores + Cryo | 6 | 10 → 21 | Nave normal | 2 |
-| 3 | `maps/levels/Level3.tscn` | las anteriores + Tesla | 6 | 11 → 26 | Nave agresiva | 2 |
+| 3 | `maps/levels/Level3.tscn` | las anteriores + Tesla y Minero | 6 | 11 → 26 | Nave agresiva | 2 |
 | 4 | `maps/levels/Level4.tscn` | las anteriores + Rail | 7 | 9 → 24 | Acorazado | 2 |
 | 5 | `maps/levels/Level5.tscn` | las anteriores + Disintegrator | 7 | 11 → 33 | Ariete y Divisora | 2 |
-| 6 | `maps/levels/Level6.tscn` | las 7 + Orbitador | 8 | 17 → 42 (la última con la Nodriza) | Reparadora | 3 |
-| 7 | `maps/levels/Level7.tscn` | las 8 | 9 | 21 → 47 | Espectro | 4 |
-| 8 | `maps/levels/Level8.tscn` | las 8 + Amplificador | 9 | 19 → 48 | Saboteadora | 4 |
-| 9 | `maps/levels/Level9.tscn` | las 9 | 10 | 27 → 60 (la última con la Nodriza) | Espectro, Saboteadora, Divisora y Reparadora (y todas las demás) | 8 |
+| 6 | `maps/levels/Level6.tscn` | las 7 + Orbitador y Minero | 8 | 17 → 42 (la última con la Nodriza) | Reparadora | 3 |
+| 7 | `maps/levels/Level7.tscn` | las 9 | 9 | 21 → 47 | Espectro | 4 |
+| 8 | `maps/levels/Level8.tscn` | las 9 + Amplificador | 9 | 19 → 48 | Saboteadora | 4 |
+| 9 | `maps/levels/Level9.tscn` | las 10 | 10 | 27 → 60 (la última con la Nodriza) | Espectro, Saboteadora, Divisora y Reparadora (y todas las demás) | 8 |
 
 Las oleadas son `WaveData` en `resources/wave_data/level_N.tres` (la primera) y `level_N_K.tres` (la K). Los niveles 1 a 4 y 6 a 9 están en `resources/level_data/level_N.tres`; el 5 está definido como subrecurso dentro de `scenes/GameData.tscn` (`level_5.tres` también existe y lleva las mismas oleadas).
 

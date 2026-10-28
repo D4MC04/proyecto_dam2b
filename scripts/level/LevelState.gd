@@ -9,6 +9,8 @@ signal sellable_turret_changed(turret: Turret)
 signal turret_placed
 ## El jugador pide mejorar la torreta colocada seleccionada; la atiende BuildManager.
 signal upgrade_requested
+## Ha empezado o ha acabado una oleada (ver wave_in_progress).
+signal wave_in_progress_changed(active: bool)
 
 # Premio al limpiar una oleada (menos la última) sin que llegue ningún enemigo a la estación.
 const PERFECT_WAVE_BONUS := 25
@@ -17,6 +19,13 @@ var money := 5000
 # Recuento de la partida para el resumen. Al reiniciar se crea un LevelState nuevo, así que vuelven a 0.
 var enemies_destroyed := 0
 var money_spent := 0
+## Hay una oleada lanzada que aún no se ha limpiado. La pone Level con las señales del Spawner.
+var wave_in_progress := false:
+	set(value):
+		if wave_in_progress == value:
+			return
+		wave_in_progress = value
+		wave_in_progress_changed.emit(value)
 var selected_turret: TurretData:
 	set(value):
 		if selected_turret == value:

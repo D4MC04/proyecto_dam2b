@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="TurretData" format=3]
+
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/turrets/miner/miner_full_up.png" id="2"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/miner.tres" id="3"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/miner_cannon.tres" id="4"]
+[ext_resource type="Resource" path="res://resources/turret_data/miner_fusion.tres" id="fusion"]
+
+[resource]
+script = ExtResource("1")
+name = "Minero"
+cost = 250
+attack_cooldown = 5.0
+icon = ExtResource("2")
+sprite_frames = ExtResource("3")
+cannon = ExtResource("4")
+money_amount = 15
+fusion = ExtResource("fusion")
+description = "No dispara: durante las oleadas perfora asteroides y saca oro."
+metadata/_custom_type_script = "uid://dmo7ci57slbqu"
