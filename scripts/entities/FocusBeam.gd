@@ -48,7 +48,9 @@ func _process(delta: float) -> void:
 		_untint()
 		_set_level(-1)
 		return
-	_set_level(mini(int(_lock_time / _data.level_time), _data.damage_per_second.size() - 1))
+	# Amplificada sube de nivel más rápido.
+	var level_time := _data.level_time / _turret.amp_value(AmpEffect.Kind.LEVEL_TIME, 1.0)
+	_set_level(mini(int(_lock_time / level_time), _data.damage_per_second.size() - 1))
 	_lock_time += delta
 	_time += delta
 	var from := _turret.data.muzzle_offset.rotated(_turret.cannon.rotation)

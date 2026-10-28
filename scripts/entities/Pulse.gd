@@ -33,5 +33,12 @@ func _hit_ring() -> void:
 		if enemy.hp > 0:
 			if _data.impact_frames:
 				Effect.spawn(enemy, _data.impact_frames, enemy.global_position, enemy.effect_scale())
-			enemy.slow(_data.slow_factor, _data.slow_time, _data.frost_frames)
+			enemy.slow(_slow_factor(), _data.slow_time, _data.frost_frames)
 	_last_radius = radius
+
+# Amplificada frena más, pero sin bajar de AmpEffect.MIN_SLOW_FACTOR (ni subir si ya estaba por debajo).
+func _slow_factor() -> float:
+	var extra := _turret.amp_value(AmpEffect.Kind.SLOW)
+	if extra <= 0.0:
+		return _data.slow_factor
+	return minf(_data.slow_factor, maxf(_data.slow_factor * (1.0 - extra), AmpEffect.MIN_SLOW_FACTOR))

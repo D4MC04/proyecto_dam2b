@@ -51,8 +51,10 @@ const CONFIRM_SELL_TEXT := "¿Seguro?"
 var _accent := Color.WHITE
 var _flash_id := 0
 var _confirming_sell := false
-# Filas de bajas y daño de la torreta seleccionada; se rehacen en cada selección.
+# Filas de bajas, daño y amplificación de la torreta seleccionada; se rehacen en cada selección.
 var _turret_rows: Array[Node] = []
+# Torreta colocada que enseña la ficha; si cambia su amplificación, se rehacen sus filas.
+var _shown_turret: Turret
 
 func _ready() -> void:
 	icon_pad.draw.connect(_draw_icon_pad)
@@ -73,10 +75,18 @@ func _ready() -> void:
 ## Enseña los botones "Vender (+X)" y, si tiene mejora, "Mejorar (-X)" de una torreta colocada; con null los oculta.
 func show_sellable(turret: Turret) -> void:
 	_confirming_sell = false
+	if is_instance_valid(_shown_turret) and _shown_turret.amplification_changed.is_connected(_on_amplification_changed):
+		_shown_turret.amplification_changed.disconnect(_on_amplification_changed)
+	_shown_turret = turret
+	if turret != null:
+		turret.amplification_changed.connect(_on_amplification_changed)
 	sell_button.visible = turret != null
 	upgrade_button.visible = turret != null and turret.data.fusion != null
 	for row in _turret_rows:
 		if is_instance_valid(row):
+			# Fuera ya, para que las filas nuevas cuenten bien su posición (fondos alternos).
+			if row.get_parent() == stat_rows:
+				stat_rows.remove_child(row)
 			row.queue_free()
 	_turret_rows.clear()
 	if turret != null:
@@ -84,6 +94,9 @@ func show_sellable(turret: Turret) -> void:
 			StatEntry.new("kills", "BAJAS", UiFormat.abbreviate(turret.kills)),
 			StatEntry.new("damage", "HECHO", UiFormat.abbreviate(roundi(turret.damage_dealt))),
 		]
+		# Lo que gana dentro del aura de un Amplificador.
+		if turret.amp_level > 0:
+			entries.append(turret.data.amp_effect.get_stat(turret.amp_level))
 		for entry in entries:
 			var row := StatRow.create(entry, stat_rows.get_child_count())
 			stat_rows.add_child(row)
@@ -92,6 +105,10 @@ func show_sellable(turret: Turret) -> void:
 		sell_button.text = "Vender (+%s)" % UiFormat.money(turret.get_sell_value())
 		if turret.data.fusion != null:
 			upgrade_button.text = "Mejorar (-%s)" % UiFormat.money(turret.data.fusion.cost)
+
+# El aura de la torreta enseñada ha cambiado con la ficha abierta.
+func _on_amplification_changed() -> void:
+	show_sellable(_shown_turret)
 
 # Vender siempre pide confirmar con un segundo clic.
 func _on_sell_pressed() -> void:

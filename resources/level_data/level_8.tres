@@ -16,6 +16,7 @@
 [ext_resource type="Resource" uid="uid://ei2kru108dbq" path="res://resources/wave_data/level_8_9.tres" id="20_iivre"]
 [ext_resource type="Resource" uid="uid://ccgd0f62u5qog" path="res://resources/turret_data/cryo.tres" id="cryo"]
 [ext_resource type="Resource" uid="uid://irudbi4pkbda" path="res://resources/turret_data/disintegrator.tres" id="disintegrator"]
+[ext_resource type="Resource" path="res://resources/turret_data/amplifier.tres" id="amplifier"]
 [ext_resource type="Resource" uid="uid://b8ynt6u20qgqi" path="res://resources/turret_data/rail.tres" id="rail"]
 [ext_resource type="Resource" uid="uid://lgewscsj1aah" path="res://resources/turret_data/tesla.tres" id="tesla"]
 [ext_resource type="Resource" uid="uid://ykqgidkhe3lk" path="res://resources/wave_data/level_8_2.tres" id="wave_8_2"]
@@ -24,6 +25,6 @@
 [resource]
 script = ExtResource("2_xvb3k")
 map = ExtResource("1_npfra")
-turrets = Array[ExtResource("3_j73uf")]([ExtResource("4_npfra"), ExtResource("5_xvb3k"), ExtResource("6_j73uf"), ExtResource("cryo"), ExtResource("tesla"), ExtResource("rail"), ExtResource("disintegrator")])
+turrets = Array[ExtResource("3_j73uf")]([ExtResource("4_npfra"), ExtResource("5_xvb3k"), ExtResource("6_j73uf"), ExtResource("cryo"), ExtResource("tesla"), ExtResource("rail"), ExtResource("disintegrator"), ExtResource("amplifier")])
 waves = Array[ExtResource("7_4aa7w")]([ExtResource("8_npfra"), ExtResource("wave_8_2"), ExtResource("wave_8_3"), ExtResource("15_8w1lj"), ExtResource("16_o35mu"), ExtResource("17_uk22x"), ExtResource("18_7wp0h"), ExtResource("19_8kra8"), ExtResource("20_iivre")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"

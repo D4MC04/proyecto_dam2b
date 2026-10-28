@@ -68,18 +68,22 @@ func _on_area_entered(area: Area2D) -> void:
 	var enemy := area.get_parent()
 	if enemy is Enemy and not _hit.has(enemy):
 		_hit.append(enemy)
+		# Con la torreta amplificada la explosión es más grande (y su impacto también).
+		var splash_scale := 1.0
+		if is_instance_valid(source):
+			splash_scale += source.amp_value(AmpEffect.Kind.SPLASH)
 		if data.splash_radius > 0:
 			# Daño en área: todos los enemigos cerca del impacto, incluido el golpeado.
 			for node in get_tree().get_nodes_in_group(&"enemies"):
 				var other := node as Enemy
-				if other != null and other.global_position.distance_to(global_position) <= data.splash_radius:
+				if other != null and other.global_position.distance_to(global_position) <= data.splash_radius * splash_scale:
 					other.take_damage(data.damage, source)
 		else:
 			enemy.take_damage(data.damage, source)
 		if data.hit_sound:
 			_play_hit_sound()
 		if data.impact_frames:
-			Effect.spawn(get_parent(), data.impact_frames, global_position, data.sprite_scale)
+			Effect.spawn(get_parent(), data.impact_frames, global_position, data.sprite_scale * splash_scale)
 		if _hit.size() > data.pierce:
 			queue_free()
 		else:

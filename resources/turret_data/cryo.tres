@@ -8,6 +8,7 @@
 [ext_resource type="SpriteFrames" uid="uid://cmw10e08iqwex" path="res://resources/sprite_frames/cryo_cannon.tres" id="7"]
 [ext_resource type="Resource" path="res://resources/turret_data/cryo_fusion.tres" id="fusion"]
 [ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Cryo/IceShoot.wav" id="snd"]
+[ext_resource type="Resource" path="res://resources/amp_effects/cryo.tres" id="amp"]
 
 [resource]
 script = ExtResource("1")
@@ -21,5 +22,6 @@ attack_range = ExtResource("2")
 cannon = ExtResource("7")
 pulse = ExtResource("3")
 fusion = ExtResource("fusion")
+amp_effect = ExtResource("amp")
 description = "Lanza una onda helada que daña y frena a todos los enemigos cercanos."
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

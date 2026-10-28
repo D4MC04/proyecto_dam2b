@@ -6,7 +6,7 @@
 
 En `_unhandled_input`:
 
-- **Mover el ratón**: si hay torreta seleccionada y la casilla bajo el cursor es construible, muestra una vista previa en el centro de la casilla: el icono de la torreta al 60 % de opacidad y su rango dibujado en blanco al 15 %. Si no, la oculta.
+- **Mover el ratón**: si hay torreta seleccionada y la casilla bajo el cursor es construible, muestra una vista previa en el centro de la casilla: el icono de la torreta al 60 % de opacidad y su rango dibujado en blanco al 15 % (el Amplificador, su aura en ámbar, ver "Amplificador"). Si no, la oculta.
 - **Clic izquierdo**: si hay torreta seleccionada, `grid.can_build(cell)` y `state.spend_money(data.cost)`, instancia la torreta como hija de `BuildManager`, la coloca en el centro de la casilla y la registra en `Grid`.
 - **Clic izquierdo sobre una torreta ya colocada** (se mira antes que lo de colocar): siempre `state.inspect_placed(turret)` (no fusiona por clic); la ficha enseña la torreta y aparecen los botones de vender y, si tiene `fusion`, de mejorar (ver abajo).
 - **Clic izquierdo donde no se puede construir** (el espacio, o cualquier casilla vacía sin torreta de la tienda elegida): `_deselect_all()` suelta todo, como el clic derecho y además la torreta colocada: `state.selected_turret = null`, `state.inspected = null` (la ficha vuelve al escáner, sin botones ni alcance) y oculta la vista previa.
@@ -31,6 +31,7 @@ La fusionada es otro `TurretData` (`resources/turret_data/<x>_fusion.tres`) con 
 | Tormenta | Tesla | 560 | 35 | 120 | 1,3 | Cadena de 6 objetivos, saltos de 80 px |
 | Rail Gauss | Rail | 800 | 300 | 176 | 4,5 | Haz de 900 px y `half_width` 16 |
 | Aniquilador | Disintegrator | 960 | 70/150/320 por s | 128 | no se usa | Sube de nivel en la mitad de tiempo (`level_time` 0,75) |
+| Amplificador mayor | Amplificador | 800 | no ataca | aura 100 | no se usa | Las torretas de su aura ganan el efecto mayor |
 
 ## Vender
 
@@ -49,7 +50,7 @@ Al construir en una casilla libre, `BuildManager` emite `LevelState.turret_place
 
 En `_ready` copia de `data: TurretData` los sprites, la forma del rango y `attack_cooldown`, y arranca el temporizador.
 
-Si la opción `show_turret_range` de `Settings` está activada, `_draw` pinta el rango de la torreta bajo sus sprites, con el mismo estilo que la vista previa: relleno cian casi transparente y borde cian `#40e0f0` de 1 px sin antialias, dibujado por `BuildManager.draw_range_circle` (`RANGE_FILL_COLOR`, `RANGE_BORDER_COLOR`). Cada torreta escucha `Settings.changed` y se redibuja, así que el rango aparece o desaparece al cambiar la opción en plena partida. Además, con el ratón sobre la torreta (`_physics_process`, casilla de 16 px) también lo dibuja aunque la opción esté apagada, y lo mismo mientras está seleccionada en el mapa (`selected`, que pone `LevelState.sellable_turret`).
+Si la opción `show_turret_range` de `Settings` está activada, `_draw` pinta el rango de la torreta bajo sus sprites (la forma del detector, que crece con el efecto de alcance del Amplificador), con el mismo estilo que la vista previa: relleno cian casi transparente y borde cian `#40e0f0` de 1 px sin antialias, dibujado por `BuildManager.draw_range_circle` (`RANGE_FILL_COLOR`, `RANGE_BORDER_COLOR`). Cada torreta escucha `Settings.changed` y se redibuja, así que el rango aparece o desaparece al cambiar la opción en plena partida. Además, con el ratón sobre la torreta (`_physics_process`, casilla de 16 px) también lo dibuja aunque la opción esté apagada, y lo mismo mientras está seleccionada en el mapa (`selected`, que pone `LevelState.sellable_turret`).
 
 ### Objetivo
 
@@ -109,13 +110,13 @@ Las torretas de onda y de cadena no giran el cañón ni usan `_process`.
 
 ## Datos
 
-`TurretData` (`scripts/resources/TurretData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`. `overheat_shots`, `overheat_min_cooldown`, `overheat_time`, `overheat_cool_time`: sobrecalentamiento opcional (ver Disparo). `spin_up_time`: tubos rotativos opcionales (ver Tubos rotativos). `shoot_sound`: sonido del disparo. `fusion`: el `TurretData` en el que se convierte al fusionarla con otra igual (null en las fusionadas). Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 7 torretas la tienen. La ficha pinta todas las torretas en cian `#40e0f0` (`TurretData.ACCENT_COLOR`, ver [ui.md](ui.md)).
+`TurretData` (`scripts/resources/TurretData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`. `overheat_shots`, `overheat_min_cooldown`, `overheat_time`, `overheat_cool_time`: sobrecalentamiento opcional (ver Disparo). `spin_up_time`: tubos rotativos opcionales (ver Tubos rotativos). `shoot_sound`: sonido del disparo. `amp_effect`: lo que gana dentro del aura de un Amplificador; `amplifier_level`: mayor que 0 en los Amplificadores (ver "Amplificador"). `fusion`: el `TurretData` en el que se convierte al fusionarla con otra igual (null en las fusionadas). Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 7 torretas la tienen. La ficha pinta todas las torretas en cian `#40e0f0` (`TurretData.ACCENT_COLOR`, ver [ui.md](ui.md)).
 
 Funciones para la ficha:
 
-- `get_stats() -> Array[StatEntry]`: filas comunes (COSTE con `€`, ALCANCE = radio del `CircleShape2D` de `attack_range`, CADENCIA = `attack_cooldown` en segundos salvo en el haz continuo; con sobrecalentamiento, además CAD. MÁX, AGUANTE (disparos) y PARADA) seguidas de las del ataque. Los nombres de fila son cortos y en mayúsculas (9 caracteres como mucho, ver `StatEntry` en [ui.md](ui.md)).
+- `get_stats() -> Array[StatEntry]`: en el Amplificador solo COSTE y AURA (radio de `attack_range`). En las demás, filas comunes (COSTE con `€`, ALCANCE = radio del `CircleShape2D` de `attack_range`, CADENCIA = `attack_cooldown` en segundos salvo en el haz continuo; con sobrecalentamiento, además CAD. MÁX, AGUANTE (disparos) y PARADA) seguidas de las del ataque. Los nombres de fila son cortos y en mayúsculas (9 caracteres como mucho, ver `StatEntry` en [ui.md](ui.md)).
 - `get_attack() -> Resource`: el `*Data` de ataque que tenga (o null).
-- `get_attack_label()`: "BALA", "ONDA", "CADENA", "HAZ" o "HAZ CONT.".
+- `get_attack_label()`: "BALA", "ONDA", "CADENA", "HAZ", "HAZ CONT." o "APOYO" (Amplificador, `is_amplifier()`).
 - Cada `*Data` de ataque tiene su `get_stats()`:
 
 | Clase | Filas |
@@ -139,6 +140,27 @@ Recursos en `resources/turret_data/`:
 | `tesla` | Tesla | 350 | 1,3 | 110 | no gira | Cadena: 25 de daño, 3 enemigos, saltos de 64 px |
 | `rail` | Rail | 500 | 5,0 | 160 | 45 | Haz: 150 de daño a toda la línea, 700 px de largo |
 | `disintegrator` | Disintegrator | 600 | no se usa | 112 | 140 | Haz continuo: 40, 80 y 160 de daño/s |
+| `amplifier` | Amplificador | 400 | no se usa | aura 100 | no gira | Ninguno: amplifica a las torretas de alrededor |
+
+## Amplificador
+
+Torreta de apoyo (`amplifier.tres`, mejora `amplifier_fusion.tres`, desde el nivel 8). Su `TurretData` no tiene ataque y lleva `amplifier_level` 1 (2 el mayor). `Turret._ready` la deja sin apuntar, con el `Timer` parado, sin sonido y con el emisor (`cannon`, animación `default` en bucle) siempre animado; el EMP la apaga igual que a las demás.
+
+- **Aura**: círculo de `attack_range` (100 px, `collision_shapes/amplifier.tres`, igual en el mayor) alrededor del Amplificador. Una torreta está amplificada si su centro cae dentro del aura de un Amplificador encendido. Varios no se suman: cuenta el de más nivel. Lo calcula `Grid._update_amplification()`, que llama a `Turret.set_amplification(nivel)` en todas las torretas; se pide (`_queue_amplification`, una vez por frame como mucho) al registrar una torreta, al salir una del árbol (vender, mejorar) y cuando un Amplificador emite `Turret.power_changed` (se apaga por un EMP o vuelve). Las casillas de torreta de los mapas están separadas 5 o 6 casillas, así que el aura no se mide en casillas.
+- **Efecto**: cada torreta que ataca tiene en `TurretData.amp_effect` un `AmpEffect` (`scripts/resources/AmpEffect.gd`, recursos en `resources/amp_effects/`) con `kind`, `normal` (Amplificador) y `major` (Amplificador mayor). Las fusionadas usan el de su base. `Turret.amp_value(kind, fallback)` da el valor si está amplificada y su efecto es de ese tipo; si no, `fallback`. **Toda torreta nueva que ataque necesita su efecto.**
+
+| Torreta | `kind` | Normal / mayor | Dónde se aplica |
+|---|---|---|---|
+| Cañón doble | `RANGE` | +25 % / +40 % de alcance | `Turret._update_range`: el detector usa un círculo propio más grande (la forma de `data` es compartida) |
+| Cañón pesado | `SPLASH` | +50 % / +80 % de área | `Bullet`: radio de la explosión y escala del impacto |
+| Minigun | `HEAT` | ×2 / ×3 | `Turret._heat_cooldown`: `FULL_SPEED_HEAT` se divide; llega a la cadencia máxima en 15 / 10 disparos (la pesada en 22 / 15) |
+| Cryo | `SLOW` | +20 % / +30 % de frenado | `Pulse._slow_factor`: velocidad × (1 − valor), sin bajar de `AmpEffect.MIN_SLOW_FACTOR` (0,25) |
+| Tesla | `TARGETS` | +2 / +3 objetivos | `Chain.spawn` |
+| Rail | `CHARGE` | ×2 / ×3 | `Turret._shoot`: `fire_0` va a esa velocidad hasta el `fire_frame` y luego a 1 |
+| Disintegrator | `LEVEL_TIME` | ×2 / ×3 | `FocusBeam`: `level_time` se divide |
+
+- **Visual**: `AmpAura` (`scripts/entities/AmpAura.gd`, hijo del Amplificador, detrás de sus sprites, como la onda de la Cryo) suelta una onda cada 2,5 s (la primera a los 0,4 s): un anillo de 1 px sin antialias que crece en 1,1 s desde el borde del emisor (10 px) hasta el radio del aura, frenando al final, con el frente en `#ffe082` y dos ecos 2 y 4 px por dentro en `#ecb23c` y `#96641e`, y se apaga al llegar. Al pasar por una torreta amplificada le lanza `Turret.flash_amp`, una versión ligera y en ámbar del escaneo de construir (`resources/shaders/amp_scan.gdshader`, 0,45 s): la torreta sigue sólida, una línea ámbar casi blanca sube por filas de píxeles con 3 filas de estela (la última punteada) y el contorno del sprite brilla en ámbar y se apaga en 3 pasos. No pisa la animación de construir, y construir o mejorar la corta. Con el Amplificador apagado por un EMP no salen ondas. El alcance fijo (relleno casi transparente y borde `#ecb23c`, `AmpAura.draw_circle_aura`) solo se pinta donde las demás torretas pintan el suyo: al pasar el ratón, con la torreta seleccionada, con la opción de mostrar alcances y en la vista previa de `BuildManager`.
+- **Ficha**: la de una torreta amplificada añade una fila con lo que gana (`AmpEffect.get_stat`, icono `amp.png`: ALCANCE, ÁREA, ACELERA, FRENADO, OBJETIVOS, CARGA o SUBE NIV.). `Turret.amplification_changed` la rehace si cambia el aura con la ficha abierta (ver [ui.md](ui.md)).
 
 ## Tipos de ataque
 

@@ -8,6 +8,7 @@
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/minigun_fusion_flash.tres" id="6"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/minigun_fusion_cannon.tres" id="7"]
 [ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Turret/DobleLaserShoot.wav" id="snd"]
+[ext_resource type="Resource" path="res://resources/amp_effects/minigun.tres" id="amp"]
 
 [resource]
 script = ExtResource("1")
@@ -28,5 +29,6 @@ overheat_min_cooldown = 0.04
 overheat_time = 2.0
 overheat_cool_time = 3.0
 spin_up_time = 0.3
+amp_effect = ExtResource("amp")
 description = "Más daño y alcance, dispara aún más rápido y aguanta más antes de sobrecalentarse."
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"
