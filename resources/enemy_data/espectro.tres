@@ -7,9 +7,9 @@
 [resource]
 script = ExtResource("1_data")
 name = "Espectro"
-hp = 70.0
+hp = 80.0
 speed = 55
-reward = 40
+reward = 55
 base_damage = 10
 description = "Caza furtivo que se camufla a ratos: mientras tanto las torretas no lo apuntan, pero los ataques de área sí le dan."
 sprite_frames = ExtResource("3_frames")

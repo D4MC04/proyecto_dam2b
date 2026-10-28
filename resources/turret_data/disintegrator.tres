@@ -14,7 +14,7 @@
 script = ExtResource("1")
 shoot_sound = ExtResource("snd")
 name = "Disintegrator"
-cost = 600
+cost = 650
 attack_cooldown = 1.0
 icon = ExtResource("4")
 sprite_frames = ExtResource("5")

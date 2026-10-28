@@ -6,7 +6,7 @@
 
 [resource]
 script = ExtResource("1")
-damage = 35.0
+damage = 40.0
 splash_radius = 22.0
 max_orbs = 4
 orbit_speed = 90.0

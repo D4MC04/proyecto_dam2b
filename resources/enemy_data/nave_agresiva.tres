@@ -7,9 +7,9 @@
 [resource]
 script = ExtResource("1_data")
 name = "Nave agresiva"
-hp = 90.0
+hp = 110.0
 speed = 48
-reward = 35
+reward = 50
 base_damage = 10
 description = "Nave de combate más blindada y rápida que la normal."
 sprite_frames = ExtResource("3_frames")

@@ -18,20 +18,20 @@ Tras colocar una torreta la selección se mantiene, así que se pueden colocar v
 
 ## Mejorar (fusión)
 
-Se selecciona una torreta colocada que tenga `TurretData.fusion` y se pulsa "Mejorar (-X€)" en la ficha (`InfoPanel.upgrade_requested` -> `LevelUI` -> `LevelState.upgrade_requested` -> `BuildManager.upgrade_selected`, solo en `PLAYING`). Gasta `fusion.cost` (sin dinero no hace nada), quita la torreta vieja (`remove_child` + `queue_free`, para que `Grid` libere la casilla antes de registrar la nueva), instancia la fusionada en la misma casilla con `invested = vieja.invested + fusion.cost`, la registra en `Grid` y la inspecciona. La selección de la tienda no cambia. La fusionada no tiene `fusion`, así que no enseña el botón ni se vuelve a mejorar, y no sale en la tienda.
+Se selecciona una torreta colocada que tenga `TurretData.fusion` y se pulsa "Mejorar (-X€)" en la ficha (`InfoPanel.upgrade_requested` -> `LevelUI` -> `LevelState.upgrade_requested` -> `BuildManager.upgrade_selected`, solo en `PLAYING`). Gasta `fusion.cost`, siempre 2 × el coste de la base (sin dinero no hace nada), quita la torreta vieja (`remove_child` + `queue_free`, para que `Grid` libere la casilla antes de registrar la nueva), instancia la fusionada en la misma casilla con `invested = vieja.invested + fusion.cost`, la registra en `Grid` y la inspecciona. La selección de la tienda no cambia. La fusionada no tiene `fusion`, así que no enseña el botón ni se vuelve a mejorar, y no sale en la tienda.
 
 La fusionada es otro `TurretData` (`resources/turret_data/<x>_fusion.tres`) con sprites en `assets/sprites/turrets/<x>_fusion/` y ataque propio; el campo `fusion` de la base la enlaza:
 
 | Fusionada | Sustituye a | Coste | Daño | Alcance | Cadencia (s) | Diferencia |
 |---|---|---|---|---|---|---|
-| Cañón cuádruple | Cañón doble | 160 | 6 | 64 | 0,15 | Cuatro cañones, ráfaga rápida |
-| Minigun pesada | Minigun | 400 | 6 | 96 | 0,3 → 0,04 | Sobrecalentamiento mejor: 90 disparos, parada de 2 s |
-| Cryo ventisca | Cryo | 400 | 8 | 96 | 2,0 | Onda mayor (`wave_scale` 1,5), frena al 35 % durante 4,5 s |
-| Cañón de asedio | Cañón pesado | 480 | 90 | 96 | 1,6 | Explota en área de 40 px (`splash_radius`) |
-| Tormenta | Tesla | 560 | 35 | 120 | 1,3 | Cadena de 6 objetivos, saltos de 80 px |
-| Rail Gauss | Rail | 800 | 300 | 176 | 4,5 | Haz de 900 px y `half_width` 16 |
-| Aniquilador | Disintegrator | 960 | 70/150/320 por s | 128 | no se usa | Sube de nivel en la mitad de tiempo (`level_time` 0,75) |
-| Amplificador mayor | Amplificador | 800 | no ataca | aura 100 | no se usa | Las torretas de su aura ganan el efecto mayor |
+| Cañón cuádruple | Cañón doble | 200 | 7 | 64 | 0,15 | Cuatro cañones, ráfaga rápida |
+| Minigun pesada | Minigun | 400 | 10 | 96 | 0,3 → 0,04 | Sobrecalentamiento mejor: 90 disparos, parada de 2 s |
+| Cryo ventisca | Cryo | 500 | 8 | 96 | 2,0 | Onda mayor (`wave_scale` 1,5), frena al 35 % durante 4,5 s |
+| Cañón de asedio | Cañón pesado | 600 | 100 | 96 | 1,6 | Explota en área de 40 px (`splash_radius`) |
+| Tormenta | Tesla | 800 | 45 | 120 | 1,3 | Cadena de 6 objetivos, saltos de 80 px |
+| Rail Gauss | Rail | 1500 | 400 | 176 | 4,5 | Haz de 900 px y `half_width` 16 |
+| Aniquilador | Disintegrator | 1300 | 70/150/320 por s | 128 | no se usa | Sube de nivel en la mitad de tiempo (`level_time` 0,75) |
+| Amplificador mayor | Amplificador | 1000 | no ataca | aura 100 | no se usa | Las torretas de su aura ganan el efecto mayor |
 
 ## Vender
 
@@ -136,15 +136,17 @@ Recursos en `resources/turret_data/`:
 | Archivo | Nombre | Coste | Cooldown (s) | Rango (px) | Giro (°/s) | Ataque |
 |---|---|---|---|---|---|---|
 | `turret` | Cañón doble | 100 | 0,25 | 56 | 240 | Bala: 5 de daño, 300 px/s |
-| `minigun` | Minigun | 200 | 0,4 | 80 | 270 | Bala trazadora: 4 de daño, 400 px/s. Sobrecalentamiento: 0,4 → 0,05 s, 60 disparos (a tope desde el 30), parada de 3 s. Sonido provisional: `Turret/DobleLaserShoot.wav` |
+| `minigun` | Minigun | 200 | 0,4 | 80 | 270 | Bala trazadora: 6 de daño, 400 px/s. Sobrecalentamiento: 0,4 → 0,05 s, 60 disparos (a tope desde el 30), parada de 3 s. Sonido provisional: `Turret/DobleLaserShoot.wav` |
 | `cryo` | Cryo | 250 | 2,0 | 64 | no gira | Onda: 5 de daño, velocidad al 55 % durante 3,5 s |
 | `rocket_launcher` | Cañón pesado | 300 | 1,5 | 88 | 180 | Bala: 45 de daño y explota en área de 30 px, 200 px/s |
-| `tesla` | Tesla | 350 | 1,3 | 110 | no gira | Cadena: 25 de daño, 3 enemigos, saltos de 64 px |
-| `rail` | Rail | 500 | 5,0 | 160 | 45 | Haz: 150 de daño a toda la línea, 700 px de largo |
-| `disintegrator` | Disintegrator | 600 | no se usa | 112 | 140 | Haz continuo: 40, 80 y 160 de daño/s |
-| `orbiter` | Orbitador | 350 | 1,6 | anillo 40-64 | no gira | Órbita: cargas de 35 de daño en área de 22 px, hasta 4, a 90°/s. Mejora: Cinturón (`orbiter_fusion`, 450): 1,0 s, 50 de daño, área 26, hasta 5, a 110°/s. Sin sonido |
-| `amplifier` | Amplificador | 400 | no se usa | aura 100 | no gira | Ninguno: amplifica a las torretas de alrededor |
-| `miner` | Minero | 250 | 5,0 (intervalo) | no tiene | no gira | Ninguno: +15€ cada 5 s de oleada (la Excavadora, +30€) |
+| `tesla` | Tesla | 400 | 1,3 | 110 | no gira | Cadena: 30 de daño, 3 enemigos, saltos de 64 px |
+| `rail` | Rail | 750 | 5,0 | 160 | 45 | Haz: 200 de daño a toda la línea, 700 px de largo |
+| `disintegrator` | Disintegrator | 650 | no se usa | 112 | 140 | Haz continuo: 40, 80 y 160 de daño/s |
+| `orbiter` | Orbitador | 450 | 1,6 | anillo 40-64 | no gira | Órbita: cargas de 40 de daño en área de 22 px, hasta 4, a 90°/s. Mejora: Cinturón (`orbiter_fusion`, 900): 1,0 s, 60 de daño, área 26, hasta 5, a 110°/s. Sin sonido |
+| `amplifier` | Amplificador | 500 | no se usa | aura 100 | no gira | Ninguno: amplifica a las torretas de alrededor |
+| `miner` | Minero | 300 | 5,0 (intervalo) | no tiene | no gira | Ninguno: +10€ cada 5 s de oleada (la Excavadora, +20€) |
+
+Balance de costes: suben con el orden de desbloqueo (100, 200, 250, 300, 300, 400, 450, 500, 650 y 750 €) y cada mejora cuesta el doble que su base. El daño por segundo de una torreta de ataque ronda 0,1-0,2 por euro, más en las que pegan a varios o frenan. El Minero devuelve en unos 150 s de oleada lo que cuesta.
 
 ## Amplificador
 
@@ -169,7 +171,7 @@ Torreta de apoyo (`amplifier.tres`, mejora `amplifier_fusion.tres`, desde el niv
 
 ## Minero
 
-Torreta de apoyo que da dinero (`miner.tres`, mejora `miner_fusion.tres` "Excavadora" por 400€, desde el nivel 3). Su `TurretData` no tiene ataque ni alcance y lleva `money_amount` 15 (30 la Excavadora) y `attack_cooldown` 5 s. Sirve para invertir pronto: se paga sola en unos 85 s de oleada.
+Torreta de apoyo que da dinero (`miner.tres`, mejora `miner_fusion.tres` "Excavadora" por 600€, desde el nivel 5). Su `TurretData` no tiene ataque ni alcance y lleva `money_amount` 10 (20 la Excavadora) y `attack_cooldown` 5 s. Sirve para invertir pronto: se paga sola en unos 150 s de oleada.
 
 - **Cuándo genera**: solo con una oleada en curso. `LevelState.wave_in_progress` se pone a true con `Spawner.wave_started` y a false con `Spawner.wave_cleared` (lo hace `Level`), y emite `wave_in_progress_changed`. `Turret._setup_miner` deja la torreta sin apuntar y con el `Timer` de `attack_cooldown` pausado mientras no hay oleada o está apagada (`_update_mine_timer`); entre oleadas conserva lo que le quedaba.
 - **Animación**: el cañón (`miner_cannon.tres`) anima `default` en bucle (4 frames a 6 fps: la broca gira dentro del pozo y saltan esquirlas de roca). Al cumplirse el `Timer`, espera a que acabe la vuelta de `default` (`animation_looped`) y reproduce `generate` (7 frames a 10 fps, sin bucle): la punta se pone dorada y suelta chispas, sale una pepita del pozo que se parte en dos y cada mitad cae en una tolva, que brilla y queda un poco más llena. En el frame 4 (`MINE_PAYOUT_FRAME`, cuando caen las pepitas) da el dinero con `LevelState.add_money` y saca el `+X€` con `FloatingText` sobre la torreta.

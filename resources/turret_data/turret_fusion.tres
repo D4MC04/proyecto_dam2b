@@ -13,7 +13,7 @@
 script = ExtResource("1")
 shoot_sound = ExtResource("snd")
 name = "Cañón cuádruple"
-cost = 160
+cost = 200
 attack_cooldown = 0.15
 icon = ExtResource("4")
 sprite_frames = ExtResource("5")

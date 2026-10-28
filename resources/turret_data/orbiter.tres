@@ -12,7 +12,7 @@
 [resource]
 script = ExtResource("1")
 name = "Orbitador"
-cost = 350
+cost = 450
 attack_cooldown = 1.6
 icon = ExtResource("2")
 sprite_frames = ExtResource("3")
