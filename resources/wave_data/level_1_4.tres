@@ -16,52 +16,52 @@ time = 2.0
 [sub_resource type="Resource" id="Resource_jy0am"]
 script = ExtResource("1_m18l7")
 enemy_data = ExtResource("3_6r3p5")
-time = 2.6
+time = 2.5
 
 [sub_resource type="Resource" id="Resource_6r3p5"]
 script = ExtResource("1_m18l7")
 enemy_data = ExtResource("4_wxoa5")
-time = 3.1
+time = 3.0
 
 [sub_resource type="Resource" id="Resource_wxoa5"]
 script = ExtResource("1_m18l7")
 enemy_data = ExtResource("3_6r3p5")
-time = 3.7
+time = 3.4
 
 [sub_resource type="Resource" id="Resource_f7gpf"]
 script = ExtResource("1_m18l7")
 enemy_data = ExtResource("4_wxoa5")
-time = 4.3
+time = 3.9
 
 [sub_resource type="Resource" id="Resource_a0rm8"]
 script = ExtResource("1_m18l7")
 enemy_data = ExtResource("5_f7gpf")
-time = 4.9
+time = 4.4
 
 [sub_resource type="Resource" id="Resource_cbsvt"]
 script = ExtResource("1_m18l7")
 enemy_data = ExtResource("6_a0rm8")
-time = 6.9
+time = 6.4
 
 [sub_resource type="Resource" id="Resource_52gmq"]
 script = ExtResource("1_m18l7")
 enemy_data = ExtResource("6_a0rm8")
-time = 7.8
+time = 7.2
 
 [sub_resource type="Resource" id="Resource_2tv5b"]
 script = ExtResource("1_m18l7")
 enemy_data = ExtResource("6_a0rm8")
-time = 8.7
+time = 8.0
 
 [sub_resource type="Resource" id="Resource_40w0d"]
 script = ExtResource("1_m18l7")
 enemy_data = ExtResource("6_a0rm8")
-time = 9.6
+time = 8.8
 
 [sub_resource type="Resource" id="Resource_17bmx"]
 script = ExtResource("1_m18l7")
-enemy_data = ExtResource("6_a0rm8")
-time = 11.7
+enemy_data = ExtResource("4_wxoa5")
+time = 10.8
 
 [resource]
 script = ExtResource("7_cbsvt")

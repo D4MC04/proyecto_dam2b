@@ -10,7 +10,10 @@ extends SceneTree
 ## Cada oleada gasta un presupuesto: cada nave cuesta su recompensa (más la de sus trozos, si se
 ## parte). El presupuesto de la primera oleada sale de la tabla y crece por oleada; las naves salen
 ## en grupos del mismo tipo, cada vez más grandes y más juntos, y la vida sube un poco por oleada.
-## Los grupos alternan entre las naves nuevas del nivel (las protagonistas) y todas las del nivel.
+## Los grupos alternan entre las naves nuevas del nivel (las protagonistas) y todas las del nivel;
+## las naves de niveles anteriores se van sumando según avanzan las oleadas. Cada grupo va por un
+## camino, sacado de una bolsa mezclada para que se usen todos; en niveles con varios caminos los
+## grupos se solapan cada vez más.
 ## Las tiradas usan una semilla fija por nivel y oleada: volver a lanzarlo da las mismas oleadas.
 
 const WAVE_DIR := "res://resources/wave_data/"
@@ -34,6 +37,11 @@ const GAP_SHRINK := 0.93
 const MIN_GAP := 0.3
 ## Pausa entre grupos, en separaciones de nave.
 const GROUP_PAUSE := 2.5
+## Con varios caminos, el siguiente grupo sale cuando el anterior lleva esta fracción de su duración:
+## 1 en la primera oleada (uno detrás de otro) y MIN_OVERLAP_WAIT en la última.
+const MIN_OVERLAP_WAIT := 0.4
+## En cuántas oleadas se han sumado todas las naves de niveles anteriores.
+const OLD_RAMP_WAVES := 7
 ## Valor (en presupuesto) de un grupo en la primera oleada y cuánto crece por oleada.
 const GROUP_VALUE := 100.0
 const GROUP_VALUE_STEP := 15.0
@@ -41,27 +49,27 @@ const MAX_GROUP := 6
 ## Vida extra por oleada (la oleada K lleva 1 + HEALTH_STEP * (K - 1)).
 const HEALTH_STEP := 0.05
 
-## Por nivel: oleadas, caminos del mapa, naves por turno en cada camino (el nivel 4 las reparte de
-## dos en dos), presupuesto de la primera oleada, crecimiento por oleada, separación inicial entre
-## naves (s), naves nuevas del nivel, naves de niveles anteriores y si sale la Nodriza.
+## Por nivel: oleadas, caminos del mapa, presupuesto de la primera oleada, crecimiento por oleada,
+## separación inicial entre naves (s), naves nuevas del nivel, naves de niveles anteriores (de las
+## más fáciles a las más duras: se van sumando por ese orden) y si sale la Nodriza.
 const LEVELS: Array[Dictionary] = [
-	{"waves": 5, "paths": 1, "block": 1, "budget": 175.0, "growth": 1.25, "gap": 1.0,
+	{"waves": 10, "paths": 1, "budget": 150.0, "growth": 1.13, "gap": 1.0,
 		"new": [DART, "wasp"], "old": [], "boss": false},
-	{"waves": 6, "paths": 2, "block": 1, "budget": 260.0, "growth": 1.2, "gap": 0.95,
+	{"waves": 10, "paths": 2, "budget": 230.0, "growth": 1.13, "gap": 0.95,
 		"new": ["nave_normal"], "old": [DART, "wasp"], "boss": false},
-	{"waves": 6, "paths": 2, "block": 1, "budget": 380.0, "growth": 1.18, "gap": 0.9,
+	{"waves": 10, "paths": 2, "budget": 330.0, "growth": 1.125, "gap": 0.9,
 		"new": ["nave_agresiva"], "old": [DART, "wasp", "nave_normal"], "boss": false},
-	{"waves": 7, "paths": 2, "block": 2, "budget": 500.0, "growth": 1.16, "gap": 0.85,
+	{"waves": 10, "paths": 2, "budget": 440.0, "growth": 1.125, "gap": 0.85,
 		"new": ["acorazado"], "old": [DART, "wasp", "nave_normal", "nave_agresiva"], "boss": false},
-	{"waves": 7, "paths": 2, "block": 1, "budget": 620.0, "growth": 1.15, "gap": 0.8,
+	{"waves": 10, "paths": 2, "budget": 560.0, "growth": 1.12, "gap": 0.8,
 		"new": ["ariete", "divisora"], "old": ["wasp", "nave_normal", "nave_agresiva", "acorazado"], "boss": false},
-	{"waves": 8, "paths": 3, "block": 1, "budget": 740.0, "growth": 1.13, "gap": 0.75,
+	{"waves": 10, "paths": 3, "budget": 680.0, "growth": 1.12, "gap": 0.75,
 		"new": ["reparadora"], "old": ["wasp", "nave_normal", "nave_agresiva", "acorazado", "ariete", "divisora"], "boss": true},
-	{"waves": 9, "paths": 4, "block": 1, "budget": 860.0, "growth": 1.12, "gap": 0.7,
+	{"waves": 10, "paths": 4, "budget": 800.0, "growth": 1.12, "gap": 0.7,
 		"new": ["espectro"], "old": ["wasp", "nave_agresiva", "acorazado", "ariete", "divisora", "reparadora"], "boss": false},
-	{"waves": 9, "paths": 4, "block": 1, "budget": 980.0, "growth": 1.11, "gap": 0.65,
+	{"waves": 10, "paths": 4, "budget": 920.0, "growth": 1.12, "gap": 0.65,
 		"new": ["saboteadora"], "old": ["wasp", "nave_agresiva", "acorazado", "ariete", "divisora", "reparadora", "espectro"], "boss": false},
-	{"waves": 10, "paths": 8, "block": 1, "budget": 1100.0, "growth": 1.1, "gap": 0.6,
+	{"waves": 10, "paths": 8, "budget": 1050.0, "growth": 1.12, "gap": 0.6,
 		"new": ["espectro", "saboteadora", "divisora", "reparadora"],
 		"old": [DART, "wasp", "nave_normal", "nave_agresiva", "acorazado", "ariete"], "boss": true},
 ]
@@ -102,49 +110,91 @@ func _make_level(level_number: int, table: Dictionary) -> Array[WaveData]:
 # Saca naves hasta gastar el presupuesto y llegar a `min_ships` (una más que la oleada anterior).
 func _make_entries(table: Dictionary, k: int, min_ships: int, with_boss: bool, rng: RandomNumberGenerator) -> Array[SpawnEntry]:
 	var budget: float = table["budget"] * pow(table["growth"], k)
+	var paths: int = table["paths"]
 	var gap := maxf(table["gap"] * pow(GAP_SHRINK, k), MIN_GAP)
-	var group_value := GROUP_VALUE + GROUP_VALUE_STEP * k
+	# Con varios caminos los grupos se achican para que haya al menos uno por camino.
+	var group_value := minf(GROUP_VALUE + GROUP_VALUE_STEP * k, budget / paths)
 	var new_ships: Array = table["new"]
-	var all_ships: Array = new_ships + table["old"]
-	var ships: Array[EnemyData] = []
+	var all_ships: Array = new_ships + _unlocked_old(table["old"], k)
+	var groups: Array[Array] = []
 	var spent := 0.0
-	var group := 0
 	var count := 0
+	var last_key := ""
 	while spent < budget or count < min_ships:
 		# Los grupos pares son de naves nuevas, para que sean las protagonistas del nivel.
-		var pool: Array = new_ships if group % 2 == 0 else all_ships
-		var key: String = pool[rng.randi() % pool.size()]
+		var pool: Array = new_ships if groups.size() % 2 == 0 else all_ships
+		var key := _pick(pool, last_key, rng)
+		last_key = key
 		var cost := _cost(_enemy(key))
 		var size := clampi(roundi(group_value / cost), 1, MAX_GROUP)
 		size = clampi(maxi(ceili((budget - spent) / cost), min_ships - count), 1, size)
+		var group: Array[EnemyData] = []
 		for n in size:
-			ships.append(_enemy(key, rng))
+			group.append(_enemy(key, rng))
 			spent += cost
 			count += 1
-		# Un null marca el final del grupo.
-		ships.append(null)
-		group += 1
-	if with_boss:
-		ships.append(_enemy(BOSS))
+		groups.append(group)
 	var entries: Array[SpawnEntry] = []
-	var time := FIRST_WAVE_START if k == 0 else WAVE_START
-	var previous: EnemyData = null
-	for data in ships:
-		if data == null:
-			time += gap * GROUP_PAUSE
-			previous = null
-			continue
-		if previous != null:
-			time += gap * _spacing(previous)
-		var entry := SpawnEntry.new()
-		entry.enemy_data = data
-		# Redondeado a décimas: roundf(x * 10) / 10 da 2.9 y no 2.9000000000000004 como snappedf.
-		entry.time = roundf(time * 10.0) / 10.0
-		var position := entries.size()
-		entry.path_index = (position / table["block"]) % table["paths"]
-		entries.append(entry)
-		previous = data
+	var path_bag: Array[int] = []
+	var last_path := -1
+	var start := FIRST_WAVE_START if k == 0 else WAVE_START
+	var wait := lerpf(1.0, MIN_OVERLAP_WAIT, float(k) / (table["waves"] - 1)) if paths > 1 else 1.0
+	for group in groups:
+		var path := _next_path(path_bag, paths, last_path, rng)
+		last_path = path
+		var time := start
+		for n in group.size():
+			if n > 0:
+				time += gap * _spacing(group[n])
+			entries.append(_entry(group[n], time, path))
+		start += (time - start) * wait + gap * GROUP_PAUSE
+	if with_boss:
+		# La Nodriza sale la última, cuando ya han salido todas las demás.
+		var last_time := 0.0
+		for entry in entries:
+			last_time = maxf(last_time, entry.time)
+		entries.append(_entry(_enemy(BOSS), last_time + gap * GROUP_PAUSE, _next_path(path_bag, paths, last_path, rng)))
 	return entries
+
+
+func _entry(data: EnemyData, time: float, path: int) -> SpawnEntry:
+	var entry := SpawnEntry.new()
+	entry.enemy_data = data
+	# Redondeado a décimas: roundf(x * 10) / 10 da 2.9 y no 2.9000000000000004 como snappedf.
+	entry.time = roundf(time * 10.0) / 10.0
+	entry.path_index = path
+	return entry
+
+
+# Las naves de niveles anteriores que ya salen en la oleada k: van sumándose por orden de la lista.
+func _unlocked_old(old: Array, k: int) -> Array:
+	return old.slice(0, clampi(roundi(float(k + 1) * old.size() / OLD_RAMP_WAVES), mini(1, old.size()), old.size()))
+
+
+# Una nave de la lista que no sea la del grupo anterior (si hay otra).
+func _pick(pool: Array, last_key: String, rng: RandomNumberGenerator) -> String:
+	var options: Array = pool.filter(func(key: String) -> bool: return key != last_key)
+	if options.is_empty():
+		options = pool
+	return options[rng.randi() % options.size()]
+
+
+# Siguiente camino de una bolsa con todos mezclados: se usan todos antes de repetir y, si hay
+# más de uno, nunca el mismo camino dos grupos seguidos.
+func _next_path(bag: Array[int], paths: int, last_path: int, rng: RandomNumberGenerator) -> int:
+	if bag.is_empty():
+		for index in paths:
+			bag.append(index)
+		for i in range(paths - 1, 0, -1):
+			var j := rng.randi() % (i + 1)
+			var swap := bag[i]
+			bag[i] = bag[j]
+			bag[j] = swap
+		if paths > 1 and bag[0] == last_path:
+			var other := 1 + rng.randi() % (paths - 1)
+			bag[0] = bag[other]
+			bag[other] = last_path
+	return bag.pop_front()
 
 
 # Lo que cuesta una nave del presupuesto: su recompensa y la de sus trozos.

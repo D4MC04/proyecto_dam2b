@@ -14,19 +14,18 @@
 [ext_resource type="Resource" uid="uid://bagq6bwfqihv4" path="res://resources/wave_data/level_7_7.tres" id="18_ti04b"]
 [ext_resource type="Resource" uid="uid://kxae88hf3bys" path="res://resources/wave_data/level_7_8.tres" id="19_a7v7m"]
 [ext_resource type="Resource" uid="uid://bo64p2jq4riml" path="res://resources/wave_data/level_7_9.tres" id="20_sv71e"]
+[ext_resource type="Resource" uid="uid://detwovb8y38xy" path="res://resources/wave_data/level_7_10.tres" id="21_dw8wc"]
 [ext_resource type="Resource" uid="uid://ccgd0f62u5qog" path="res://resources/turret_data/cryo.tres" id="cryo"]
-[ext_resource type="Resource" uid="uid://irudbi4pkbda" path="res://resources/turret_data/disintegrator.tres" id="disintegrator"]
-[ext_resource type="Resource" uid="uid://b8ynt6u20qgqi" path="res://resources/turret_data/rail.tres" id="rail"]
+[ext_resource type="Resource" path="res://resources/turret_data/miner.tres" id="miner"]
+[ext_resource type="Resource" path="res://resources/turret_data/orbiter.tres" id="orbiter"]
 [ext_resource type="Resource" uid="uid://lgewscsj1aah" path="res://resources/turret_data/tesla.tres" id="tesla"]
 [ext_resource type="Resource" uid="uid://lum6vv00kjel" path="res://resources/wave_data/level_7_2.tres" id="wave_7_2"]
 [ext_resource type="Resource" uid="uid://8skj1u2t1j2p" path="res://resources/wave_data/level_7_3.tres" id="wave_7_3"]
-[ext_resource type="Resource" path="res://resources/turret_data/miner.tres" id="miner"]
 
-[ext_resource type="Resource" path="res://resources/turret_data/orbiter.tres" id="orbiter"]
 [resource]
 script = ExtResource("2_xvb3k")
 map = ExtResource("1_npfra")
 starting_money = 1500
 turrets = Array[ExtResource("3_j73uf")]([ExtResource("4_npfra"), ExtResource("6_j73uf"), ExtResource("cryo"), ExtResource("5_xvb3k"), ExtResource("miner"), ExtResource("tesla"), ExtResource("orbiter")])
-waves = Array[ExtResource("7_4aa7w")]([ExtResource("8_npfra"), ExtResource("wave_7_2"), ExtResource("wave_7_3"), ExtResource("15_u04mg"), ExtResource("16_dw8wc"), ExtResource("17_lc00w"), ExtResource("18_ti04b"), ExtResource("19_a7v7m"), ExtResource("20_sv71e")])
+waves = Array[ExtResource("7_4aa7w")]([ExtResource("8_npfra"), ExtResource("wave_7_2"), ExtResource("wave_7_3"), ExtResource("15_u04mg"), ExtResource("16_dw8wc"), ExtResource("17_lc00w"), ExtResource("18_ti04b"), ExtResource("19_a7v7m"), ExtResource("20_sv71e"), ExtResource("21_dw8wc")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"

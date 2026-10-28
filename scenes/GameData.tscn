@@ -28,6 +28,9 @@
 [ext_resource type="Resource" uid="uid://ddiru6e4rylj1" path="res://resources/wave_data/level_5_5.tres" id="wave_5_5"]
 [ext_resource type="Resource" uid="uid://cafe2hkljmyra" path="res://resources/wave_data/level_5_6.tres" id="wave_5_6"]
 [ext_resource type="Resource" uid="uid://jmeikaimgm2e" path="res://resources/wave_data/level_5_7.tres" id="wave_5_7"]
+[ext_resource type="Resource" uid="uid://qyi7i1rdkwgn" path="res://resources/wave_data/level_5_8.tres" id="wave_5_8"]
+[ext_resource type="Resource" uid="uid://bkhvvmqowkbog" path="res://resources/wave_data/level_5_9.tres" id="wave_5_9"]
+[ext_resource type="Resource" uid="uid://bvyumep7adl6j" path="res://resources/wave_data/level_5_10.tres" id="wave_5_10"]
 [ext_resource type="Resource" path="res://resources/turret_data/miner.tres" id="miner"]
 [ext_resource type="Resource" path="res://resources/turret_data/orbiter.tres" id="orbiter"]
 
@@ -36,7 +39,7 @@ script = ExtResource("2_5qiqv")
 map = ExtResource("7_hvbbc")
 starting_money = 1100
 turrets = Array[ExtResource("8_c77oh")]([ExtResource("9_jj5sp"), ExtResource("11_1wlqr"), ExtResource("cryo"), ExtResource("10_5ltge"), ExtResource("miner")])
-waves = Array[ExtResource("12_anhds")]([ExtResource("13_6l3k6"), ExtResource("wave_5_2"), ExtResource("wave_5_3"), ExtResource("wave_5_4"), ExtResource("wave_5_5"), ExtResource("wave_5_6"), ExtResource("wave_5_7")])
+waves = Array[ExtResource("12_anhds")]([ExtResource("13_6l3k6"), ExtResource("wave_5_2"), ExtResource("wave_5_3"), ExtResource("wave_5_4"), ExtResource("wave_5_5"), ExtResource("wave_5_6"), ExtResource("wave_5_7"), ExtResource("wave_5_8"), ExtResource("wave_5_9"), ExtResource("wave_5_10")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"
 
 [node name="GameData" type="Node" unique_id=1456673338]

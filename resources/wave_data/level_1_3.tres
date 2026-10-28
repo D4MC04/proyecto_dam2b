@@ -16,44 +16,49 @@ time = 2.0
 [sub_resource type="Resource" id="Resource_htyeg"]
 script = ExtResource("1_q180v")
 enemy_data = ExtResource("2_3amxn")
-time = 3.0
+time = 2.9
 
 [sub_resource type="Resource" id="Resource_p5e5j"]
 script = ExtResource("1_q180v")
 enemy_data = ExtResource("2_3amxn")
-time = 4.0
+time = 3.7
 
 [sub_resource type="Resource" id="Resource_3jpk8"]
 script = ExtResource("1_q180v")
-enemy_data = ExtResource("3_br2cg")
-time = 6.1
+enemy_data = ExtResource("2_3amxn")
+time = 4.6
 
 [sub_resource type="Resource" id="Resource_7x72o"]
 script = ExtResource("1_q180v")
-enemy_data = ExtResource("4_htyeg")
+enemy_data = ExtResource("3_br2cg")
 time = 6.8
 
 [sub_resource type="Resource" id="Resource_0t0bm"]
 script = ExtResource("1_q180v")
-enemy_data = ExtResource("5_p5e5j")
-time = 7.4
+enemy_data = ExtResource("4_htyeg")
+time = 7.3
 
 [sub_resource type="Resource" id="Resource_ae7gt"]
 script = ExtResource("1_q180v")
-enemy_data = ExtResource("6_3jpk8")
-time = 8.0
+enemy_data = ExtResource("5_p5e5j")
+time = 7.8
 
 [sub_resource type="Resource" id="Resource_b7rv4"]
 script = ExtResource("1_q180v")
-enemy_data = ExtResource("5_p5e5j")
-time = 8.6
+enemy_data = ExtResource("6_3jpk8")
+time = 8.3
 
 [sub_resource type="Resource" id="Resource_bj06g"]
 script = ExtResource("1_q180v")
-enemy_data = ExtResource("2_3amxn")
-time = 10.8
+enemy_data = ExtResource("5_p5e5j")
+time = 8.8
+
+[sub_resource type="Resource" id="Resource_pfjk7"]
+script = ExtResource("1_q180v")
+enemy_data = ExtResource("3_br2cg")
+time = 9.4
 
 [resource]
 script = ExtResource("3_iihy1")
 health_multiplier = 1.1
-entries = Array[ExtResource("1_q180v")]([SubResource("Resource_br2cg"), SubResource("Resource_htyeg"), SubResource("Resource_p5e5j"), SubResource("Resource_3jpk8"), SubResource("Resource_7x72o"), SubResource("Resource_0t0bm"), SubResource("Resource_ae7gt"), SubResource("Resource_b7rv4"), SubResource("Resource_bj06g")])
+entries = Array[ExtResource("1_q180v")]([SubResource("Resource_br2cg"), SubResource("Resource_htyeg"), SubResource("Resource_p5e5j"), SubResource("Resource_3jpk8"), SubResource("Resource_7x72o"), SubResource("Resource_0t0bm"), SubResource("Resource_ae7gt"), SubResource("Resource_b7rv4"), SubResource("Resource_bj06g"), SubResource("Resource_pfjk7")])

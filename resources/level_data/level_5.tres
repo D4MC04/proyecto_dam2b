@@ -11,19 +11,19 @@
 [ext_resource type="Resource" uid="uid://bys4hdpvtio1n" path="res://resources/wave_data/level_5_4.tres" id="15_nmo5j"]
 [ext_resource type="Resource" uid="uid://ddiru6e4rylj1" path="res://resources/wave_data/level_5_5.tres" id="16_w4qbs"]
 [ext_resource type="Resource" uid="uid://cafe2hkljmyra" path="res://resources/wave_data/level_5_6.tres" id="17_n5ixu"]
+[ext_resource type="Resource" uid="uid://qyi7i1rdkwgn" path="res://resources/wave_data/level_5_8.tres" id="17_w4qbs"]
+[ext_resource type="Resource" uid="uid://bkhvvmqowkbog" path="res://resources/wave_data/level_5_9.tres" id="18_n5ixu"]
 [ext_resource type="Resource" uid="uid://jmeikaimgm2e" path="res://resources/wave_data/level_5_7.tres" id="18_y5xw1"]
+[ext_resource type="Resource" uid="uid://bvyumep7adl6j" path="res://resources/wave_data/level_5_10.tres" id="19_y5xw1"]
 [ext_resource type="Resource" uid="uid://ccgd0f62u5qog" path="res://resources/turret_data/cryo.tres" id="cryo"]
-[ext_resource type="Resource" uid="uid://irudbi4pkbda" path="res://resources/turret_data/disintegrator.tres" id="disintegrator"]
-[ext_resource type="Resource" uid="uid://b8ynt6u20qgqi" path="res://resources/turret_data/rail.tres" id="rail"]
-[ext_resource type="Resource" uid="uid://lgewscsj1aah" path="res://resources/turret_data/tesla.tres" id="tesla"]
+[ext_resource type="Resource" path="res://resources/turret_data/miner.tres" id="miner"]
 [ext_resource type="Resource" uid="uid://cx712t6js31js" path="res://resources/wave_data/level_5_2.tres" id="wave_5_2"]
 [ext_resource type="Resource" uid="uid://c5fifdjnx7dl6" path="res://resources/wave_data/level_5_3.tres" id="wave_5_3"]
-[ext_resource type="Resource" path="res://resources/turret_data/miner.tres" id="miner"]
 
 [resource]
 script = ExtResource("2_mhbsq")
 map = ExtResource("1_e7mtc")
 starting_money = 1100
 turrets = Array[ExtResource("3_scr8y")]([ExtResource("4_e7mtc"), ExtResource("6_scr8y"), ExtResource("cryo"), ExtResource("5_mhbsq"), ExtResource("miner")])
-waves = Array[ExtResource("7_867eq")]([ExtResource("8_e7mtc"), ExtResource("wave_5_2"), ExtResource("wave_5_3"), ExtResource("15_nmo5j"), ExtResource("16_w4qbs"), ExtResource("17_n5ixu"), ExtResource("18_y5xw1")])
+waves = Array[ExtResource("7_867eq")]([ExtResource("8_e7mtc"), ExtResource("wave_5_2"), ExtResource("wave_5_3"), ExtResource("15_nmo5j"), ExtResource("16_w4qbs"), ExtResource("17_n5ixu"), ExtResource("18_y5xw1"), ExtResource("17_w4qbs"), ExtResource("18_n5ixu"), ExtResource("19_y5xw1")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"
