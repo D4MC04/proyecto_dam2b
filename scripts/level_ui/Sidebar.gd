@@ -106,14 +106,15 @@ func _ready() -> void:
 	prev_wave_arrow.pressed.connect(func() -> void: view_wave(_viewed_wave - 1))
 	next_wave_arrow.pressed.connect(func() -> void: view_wave(_viewed_wave + 1))
 
-func build_buttons(turrets: Array[TurretData]) -> void:
+## Crea un botón por cada torreta de `GameData.turret_order`; las que no están en `unlocked` salen bloqueadas.
+func build_buttons(unlocked: Array[TurretData]) -> void:
 	for b in _buttons:
 		b.queue_free()
 	_buttons.clear()
-	for data in turrets:
+	for data in GameData.turret_order:
 		var button: TurretButton = TURRET_BUTTON.instantiate()
 		turret_buttons.add_child(button)
-		button.setup(data, _money)
+		button.setup(data, _money, not unlocked.has(data))
 		button.set_selection_locked(_selection_locked)
 		button.selection_changed.connect(_on_button_selection_changed)
 		button.inspect_requested.connect(inspect_requested.emit)

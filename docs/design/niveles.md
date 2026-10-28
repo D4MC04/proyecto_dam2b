@@ -71,19 +71,21 @@ Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de l
 - `WaveData`: `entries: Array[SpawnEntry]` y `health_multiplier: float` (1.0 por defecto; multiplica la vida máxima de todos los enemigos de la oleada, también los trozos de la Divisora; la recompensa no cambia).
 - `SpawnEntry`: `enemy_data: EnemyData`, `time: float` (segundos desde el inicio de la oleada), `path_index: int`.
 
+Orden de desbloqueo (`GameData.turret_order`, la torreta N sale en el nivel N): Cañón doble, Minigun, Cryo, Cañón pesado, Minero, Tesla, Orbitador, Amplificador, Disintegrator y Rail. `LevelData.turrets` de cada nivel lleva las N primeras (el Rail, la 10.ª, llegará con el nivel 10, que aún no existe, y sale bloqueado en el 9). La barra de compra enseña siempre las 10; las que no están en `LevelData.turrets` salen bloqueadas.
+
 Niveles registrados en `GameData.levels`:
 
 | Nivel | Mapa | Torretas disponibles | Oleadas | Naves por oleada (1.ª → última) | Naves nuevas (protagonistas) | Caminos |
 |---|---|---|---|---|---|---|
-| 1 | `maps/levels/Level1.tscn` | Cañón doble, Cañón pesado, Minigun | 5 | 7 → 13 | Darts y Wasp | 1 |
-| 2 | `maps/levels/Level2.tscn` | las anteriores + Cryo | 6 | 10 → 21 | Nave normal | 2 |
-| 3 | `maps/levels/Level3.tscn` | las anteriores + Tesla y Minero | 6 | 11 → 26 | Nave agresiva | 2 |
-| 4 | `maps/levels/Level4.tscn` | las anteriores + Rail | 7 | 9 → 24 | Acorazado | 2 |
-| 5 | `maps/levels/Level5.tscn` | las anteriores + Disintegrator | 7 | 11 → 33 | Ariete y Divisora | 2 |
-| 6 | `maps/levels/Level6.tscn` | las 7 + Orbitador y Minero | 8 | 17 → 42 (la última con la Nodriza) | Reparadora | 3 |
-| 7 | `maps/levels/Level7.tscn` | las 9 | 9 | 21 → 47 | Espectro | 4 |
-| 8 | `maps/levels/Level8.tscn` | las 9 + Amplificador | 9 | 19 → 48 | Saboteadora | 4 |
-| 9 | `maps/levels/Level9.tscn` | las 10 | 10 | 27 → 60 (la última con la Nodriza) | Espectro, Saboteadora, Divisora y Reparadora (y todas las demás) | 8 |
+| 1 | `maps/levels/Level1.tscn` | Cañón doble | 5 | 7 → 13 | Darts y Wasp | 1 |
+| 2 | `maps/levels/Level2.tscn` | las anteriores + Minigun | 6 | 10 → 21 | Nave normal | 2 |
+| 3 | `maps/levels/Level3.tscn` | las anteriores + Cryo | 6 | 11 → 26 | Nave agresiva | 2 |
+| 4 | `maps/levels/Level4.tscn` | las anteriores + Cañón pesado | 7 | 9 → 24 | Acorazado | 2 |
+| 5 | `maps/levels/Level5.tscn` | las anteriores + Minero | 7 | 11 → 33 | Ariete y Divisora | 2 |
+| 6 | `maps/levels/Level6.tscn` | las anteriores + Tesla | 8 | 17 → 42 (la última con la Nodriza) | Reparadora | 3 |
+| 7 | `maps/levels/Level7.tscn` | las anteriores + Orbitador | 9 | 21 → 47 | Espectro | 4 |
+| 8 | `maps/levels/Level8.tscn` | las anteriores + Amplificador | 9 | 19 → 48 | Saboteadora | 4 |
+| 9 | `maps/levels/Level9.tscn` | las anteriores + Disintegrator (9 de 10) | 10 | 27 → 60 (la última con la Nodriza) | Espectro, Saboteadora, Divisora y Reparadora (y todas las demás) | 8 |
 
 Las oleadas son `WaveData` en `resources/wave_data/level_N.tres` (la primera) y `level_N_K.tres` (la K). Los niveles 1 a 4 y 6 a 9 están en `resources/level_data/level_N.tres`; el 5 está definido como subrecurso dentro de `scenes/GameData.tscn` (`level_5.tres` también existe y lleva las mismas oleadas).
 
