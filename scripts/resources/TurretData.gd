@@ -55,6 +55,9 @@ const ACCENT_COLOR := Color("#40e0f0")
 # Si es mayor que 0 la torreta es un Amplificador de ese nivel (1 normal, 2 mayor): no ataca y
 # amplifica a las torretas que tengan el centro dentro de attack_range (su aura).
 @export var amplifier_level: int = 0
+# Si es mayor que 0 la torreta es un Minero: no ataca y, mientras hay una oleada en curso, da este
+# dinero cada attack_cooldown segundos. El cañón anima "default" (reposo en bucle) y "generate" (sin bucle).
+@export var money_amount: int = 0
 # Opcional: frase corta que se enseña al final de la ficha.
 @export_multiline var description: String
 
@@ -66,6 +69,11 @@ func get_stats() -> Array[StatEntry]:
 		var aura := attack_range as CircleShape2D
 		if aura != null:
 			stats.append(StatEntry.new("range", "AURA", UiFormat.number(aura.radius)))
+		return stats
+	if is_miner():
+		# Sin ataque ni alcance: lo que saca y cada cuánto.
+		stats.append(StatEntry.new("reward", "GANANCIA", UiFormat.money(money_amount)))
+		stats.append(StatEntry.new("cooldown", "INTERVALO", UiFormat.seconds(attack_cooldown)))
 		return stats
 	var circle := attack_range as CircleShape2D
 	if circle != null:
@@ -98,9 +106,13 @@ func get_attack() -> Resource:
 func is_amplifier() -> bool:
 	return amplifier_level > 0
 
+## Torreta de apoyo: no ataca y da dinero durante las oleadas.
+func is_miner() -> bool:
+	return money_amount > 0
+
 ## Etiqueta corta del tipo de ataque para la ficha (9 caracteres como máximo).
 func get_attack_label() -> String:
-	if is_amplifier():
+	if is_amplifier() or is_miner():
 		return "APOYO"
 	if focus_beam != null:
 		return "HAZ CONT."

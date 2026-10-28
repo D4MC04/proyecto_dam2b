@@ -41,6 +41,8 @@ const FULL_SPEED_HEAT := 0.5
 # la animación "spin" respecto a la de la cadencia base, para que a tope no pase de 60 frames/s.
 const SPIN_DOWN_TIME := 0.6
 const SPIN_MAX_SCALE := 5.0
+# Minero: frame de "generate" en el que las pepitas caen en las tolvas y sale el dinero.
+const MINE_PAYOUT_FRAME := 4
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var cannon: AnimatedSprite2D = $Cannon
@@ -81,6 +83,10 @@ var amp_level := 0
 var _amp_scan: ShaderMaterial
 var _amp_scan_tween: Tween
 var _sparks: EmpSparks
+# Minero: estado del nivel (oleada en curso y dinero) y si ya cumplió su intervalo y espera a acabar
+# la vuelta de reposo del cañón para generar.
+var _level_state: LevelState
+var _mine_pending := false
 # Ratón sobre la torreta: dibuja el alcance.
 var _hovered := false
 ## Seleccionada en el mapa (ver LevelState.sellable_turret): dibuja el alcance.
@@ -120,6 +126,9 @@ func _ready() -> void:
 		attack_timer.stop()
 		cannon.play()
 		add_child(AmpAura.new())
+		return
+	if data.is_miner():
+		_setup_miner()
 		return
 	attack_range_shape.shape = data.attack_range
 	attack_timer.wait_time = data.attack_cooldown
@@ -182,6 +191,34 @@ func _process(delta: float) -> void:
 
 func _has_spin() -> bool:
 	return data.spin_up_time > 0.0
+
+# Sin ataque: no apunta. El Timer solo corre con una oleada en curso y la torreta encendida; al cumplirse
+# espera a que el cañón acabe su vuelta de reposo, reproduce "generate" y da el dinero en MINE_PAYOUT_FRAME.
+func _setup_miner() -> void:
+	set_process(false)
+	_level_state = (get_parent() as BuildManager).state
+	_level_state.wave_in_progress_changed.connect(_update_mine_timer.unbind(1))
+	cannon.play()
+	cannon.animation_looped.connect(_on_mine_idle_looped)
+	cannon.frame_changed.connect(_on_mine_frame_changed)
+	cannon.animation_finished.connect(cannon.play.bind(&"default"))
+	attack_timer.wait_time = data.attack_cooldown
+	attack_timer.timeout.connect(func() -> void: _mine_pending = true)
+	attack_timer.start()
+	_update_mine_timer()
+
+func _update_mine_timer() -> void:
+	attack_timer.paused = disabled or not _level_state.wave_in_progress
+
+func _on_mine_idle_looped() -> void:
+	if _mine_pending and not disabled and cannon.animation == &"default":
+		_mine_pending = false
+		cannon.play(&"generate")
+
+func _on_mine_frame_changed() -> void:
+	if cannon.animation == &"generate" and cannon.frame == MINE_PAYOUT_FRAME and not disabled:
+		_level_state.add_money(data.money_amount)
+		FloatingText.spawn(get_parent(), global_position, "+" + UiFormat.money(data.money_amount))
 
 # Sin tubos rotativos siempre está lista; con ellos, cuando han terminado de arrancar.
 func _is_spun_up() -> bool:
@@ -405,6 +442,8 @@ func disable(seconds: float) -> void:
 	# Corta la carga o el disparo que estuviera a medias. Los tubos rotativos se paran en seco y al
 	# volver tienen que arrancar otra vez.
 	_spin = 0.0
+	# El Minero pierde lo que fuera a sacar.
+	_mine_pending = false
 	if cannon.sprite_frames and cannon.animation != &"default" and not _has_spin():
 		cannon.play(&"default")
 	if _charge_player:
@@ -426,6 +465,9 @@ func disable(seconds: float) -> void:
 func _enable() -> void:
 	disabled = false
 	attack_timer.paused = false
+	if data.is_miner():
+		# Entre oleadas sigue parado.
+		_update_mine_timer()
 	cannon.speed_scale = 1.0
 	var tween := create_tween().set_parallel()
 	tween.tween_property(sprite, "modulate", Color.WHITE, ENABLE_FLASH_TIME).from(ENABLE_FLASH)

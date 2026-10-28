@@ -15,10 +15,11 @@
 [ext_resource type="Resource" uid="uid://lgewscsj1aah" path="res://resources/turret_data/tesla.tres" id="tesla"]
 [ext_resource type="Resource" uid="uid://cbm8lo8x37606" path="res://resources/wave_data/level_3_2.tres" id="wave_3_2"]
 [ext_resource type="Resource" uid="uid://cvi1skyg8050j" path="res://resources/wave_data/level_3_3.tres" id="wave_3_3"]
+[ext_resource type="Resource" path="res://resources/turret_data/miner.tres" id="miner"]
 
 [resource]
 script = ExtResource("2_tsf7d")
 map = ExtResource("1_o5mxm")
-turrets = Array[ExtResource("3_kbbha")]([ExtResource("4_o5mxm"), ExtResource("5_tsf7d"), ExtResource("6_kbbha"), ExtResource("cryo"), ExtResource("tesla")])
+turrets = Array[ExtResource("3_kbbha")]([ExtResource("4_o5mxm"), ExtResource("5_tsf7d"), ExtResource("6_kbbha"), ExtResource("cryo"), ExtResource("tesla"), ExtResource("miner")])
 waves = Array[ExtResource("7_qiau8")]([ExtResource("8_o5mxm"), ExtResource("wave_3_2"), ExtResource("wave_3_3"), ExtResource("13_wkj43"), ExtResource("14_yo3fj"), ExtResource("15_hiot2")])
 metadata/_custom_type_script = "uid://du40p5btlpgd0"

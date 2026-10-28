@@ -36,7 +36,10 @@ func _ready() -> void:
 	game_state.upgrade_requested.connect(build_manager.upgrade_selected)
 	spawner.enemy_died.connect(game_state.register_enemy_destroyed)
 	spawner.all_waves_cleared.connect(_win)
-	spawner.wave_started.connect(func(_index: int, _total: int) -> void: _leaks_this_wave = 0)
+	spawner.wave_started.connect(func(_index: int, _total: int) -> void:
+		_leaks_this_wave = 0
+		game_state.wave_in_progress = true)
+	spawner.wave_cleared.connect(func(_index: int) -> void: game_state.wave_in_progress = false)
 	spawner.enemy_reached_end.connect(func(_damage: int) -> void: _leaks_this_wave += 1)
 	spawner.wave_cleared.connect(_on_wave_cleared)
 	spawner.enemy_died.connect(func(_reward: int) -> void: GameState.add_stat("kills"))
