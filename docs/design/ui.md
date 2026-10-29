@@ -9,7 +9,7 @@ Todo cuelga de `scenes/level_ui/LevelUI.tscn`, instanciada dentro de `Game`. Los
 Estructura: `UI/HBoxContainer` (sin separación) con tres columnas, de izquierda a derecha:
 
 - `InfoPanel`: barra izquierda, 128 px, con la ficha (ver más abajo).
-- `GameArea`: zona del mapa, ocupa el resto (704x540 px con el viewport de 960x540). Contiene `FpsLabel`, `GameOverScreen`, `VictoryScreen` y `PauseMenu`, ocultos al empezar, así que el oscurecido y los menús no tapan las barras. El mapa se centra en esta columna desde `Level` (ver [niveles.md](niveles.md)).
+- `GameArea`: zona del mapa, ocupa el resto (704x540 px con el viewport de 960x540). Contiene `FpsLabel`, `TurretActions` (oculto hasta seleccionar una torreta, ver más abajo), `GameOverScreen`, `VictoryScreen` y `PauseMenu`, ocultos al empezar, así que el oscurecido y los menús no tapan las barras. El mapa se centra en esta columna desde `Level` (ver [niveles.md](niveles.md)).
 - `Sidebar`: barra derecha, 128 px.
 
 `GameArea` contiene además `LevelIndicator`, declarado antes que las pantallas para que estos lo tapen.
@@ -81,10 +81,9 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 - **`DetailView`:**
   - Cabecera fija: `IconPad` (todo el ancho útil, 42 px de alto) con el icono a escala 1 centrado, fondo `#060b14` con una rejilla de puntos `#14304a` cada 4 px y esquinas de 4 px en el color de acento (se pinta en el `draw` de `IconPad`). El acento es fijo por clase: cian `#40e0f0` en todas las torretas y rojo en todos los enemigos; `NameLabel` con el nombre en `#befaff`, en mayúsculas y partido por palabras en líneas de 18 caracteres, 2 como mucho (una palabra más larga se corta con guion: "Disinteg-rator"), con alto fijo de 2 líneas para que la cabecera mida siempre lo mismo; y `TypeTag` con la etiqueta del tipo (de ataque en las torretas, "ENEMIGO" en los enemigos) en el color de acento sobre el fondo mezclado al 20 % con el acento. El nombre se pasa a mayúsculas ("CAÑÓN DOBLE", "LÁSER").
   - `StatScroll`: `ScrollContainer` vertical (sin barra visible, como los de la barra derecha; la pista de que hay más abajo es `ScrollHint`, ver abajo) con las filas de stat, una línea `#1c4a60` y la descripción en `#5a7a96` con salto de línea automático (la línea y la descripción se ocultan si no hay descripción). La cabecera no entra en el scroll. Al cambiar de ficha vuelve arriba.
-  - `ScrollHint`: `Control` de 5 px de alto entre `StatScroll` y `SellButton` que pinta un triángulo ▼ de 7x4 px en `#40e0f0` centrado. Solo es visible (por transparencia, para que su hueco no cambie el alto del scroll) cuando queda contenido por debajo: `_update_scroll_hint()` mira la `VScrollBar` interna (`value_changed` y `changed`) y lo apaga al llegar al final o si la ficha cabe entera. Se eligió la flecha y no una barra fina porque cabe en el estilo de las esquinas y las marcas del holograma, no roba ancho a los 110 px y se dibuja con rects como el resto; no se usa el glifo ▼ de texto porque Monogram no lo trae seguro.
+  - `ScrollHint`: `Control` de 5 px de alto al final de `DetailView` que pinta un triángulo ▼ de 7x4 px en `#40e0f0` centrado. Solo es visible (por transparencia, para que su hueco no cambie el alto del scroll) cuando queda contenido por debajo: `_update_scroll_hint()` mira la `VScrollBar` interna (`value_changed` y `changed`) y lo apaga al llegar al final o si la ficha cabe entera. Se eligió la flecha y no una barra fina porque cabe en el estilo de las esquinas y las marcas del holograma, no roba ancho a los 110 px y se dibuja con rects como el resto; no se usa el glifo ▼ de texto porque Monogram no lo trae seguro.
   - Cada fila la crea `StatRow.create(entry, index)` (ver abajo).
-  - `UpgradeButton`: sobre el de vender, "Mejorar (-X€)" con X = `fusion.cost`; solo se ve si la torreta colocada seleccionada tiene `fusion` (lo decide `show_sellable`). Emite `upgrade_requested`; `LevelUI._on_upgrade_requested` lo reenvía a `LevelState.upgrade_requested` solo en `PLAYING`. Sin dinero no hace nada.
-  - `SellButton`: botón del tema (esquinas recortadas) al final de `DetailView`, "Vender (+X€)", con X = la mitad de lo invertido en la torreta (`Turret.get_sell_value()`, también tras fusionarla). Solo se ve con una torreta colocada seleccionada: `show_sellable(turret)` (null lo oculta); además añade al final de la ficha dos filas, BAJAS y HECHO (daño), con `turret.kills` y `turret.damage_dealt` abreviados (se rehacen en cada selección, no se actualizan en vivo), y si la torreta está amplificada una tercera con lo que gana (`AmpEffect.get_stat`, icono `amp.png`: p. ej. ÁREA `+50%`, ver [torretas.md](torretas.md) › "Amplificador"). Esa fila sí se rehace en vivo: la ficha escucha `Turret.amplification_changed` de la torreta enseñada. Con cualquier torreta, el primer clic cambia el texto a "¿Seguro?" y el segundo vende, conectado a `LevelState.sellable_turret_changed`. Emite `sell_requested`; `LevelUI._on_sell_requested` llama a `LevelState.sell_selected_turret()` solo en `PLAYING`. Ver [torretas.md](torretas.md).
+  - Torreta colocada seleccionada: `show_sellable(turret)` (null la quita) añade al final de la ficha dos filas, BAJAS y HECHO (daño), con `turret.kills` y `turret.damage_dealt` abreviados (se rehacen en cada selección, no se actualizan en vivo), y si la torreta está amplificada una tercera con lo que gana (`AmpEffect.get_stat`, icono `amp.png`: p. ej. ÁREA `+50%`, ver [torretas.md](torretas.md) › "Amplificador"). Esa fila sí se rehace en vivo: la ficha escucha `Turret.amplification_changed` de la torreta enseñada. Mejorar y vender ya no están aquí: van en `TurretActions`.
 - `ScanFlash`: `ColorRect` cian al 20 % que tapa `Screen` durante 2 frames cada vez que cambia el contenido.
 - `PowersHeader` (`ScreenHeader` con `// PODERES`) y `PowersRow` (4 px de separación), entre `Screen` y `ScanFooter`, con `MeteorButton`, `FreezeButton` y `OrbitalButton` (ver "Poderes").
 
@@ -105,6 +104,15 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 - Clic izquierdo o derecho en una `EnemyCell` de la pestaña Oleadas (también en pausa): enseña la ficha del enemigo sin tocar la selección de torreta.
 - Deseleccionar (clic derecho en el mapa o quedarse sin dinero) no cambia la ficha.
 - `TurretButton.inspect_requested` → `Sidebar.inspect_requested` (o `EnemyCell.inspect_requested` → `WaveBlock.inspect_requested` → `Sidebar.inspect_requested`) → `LevelUI` escribe `LevelState.inspected` → `LevelState.inspected_changed` → `InfoPanel.show_inspected`. Nadie más guarda qué está inspeccionado.
+
+## TurretActions (mejorar y vender)
+
+`scenes/level_ui/TurretActions.tscn` + `scripts/level_ui/TurretActions.gd` (clase `TurretActions`). `VBoxContainer` (2 px de separación, tema `menu_theme.tres`) dentro de `GameArea`, declarado antes de las pantallas de pausa, derrota y victoria para que ellas lo tapen. Oculto al empezar. Tiene dos botones de fuente 16 con estilos de `ClippedBoxStyle.create` (normal `#0e1626`/`#1c7496`, hover `#16243c`/`#40e0f0`, pressed `#14304a`/`#40e0f0`, disabled `#0a0f1a`/`#1c4a60` con texto al 30 %, como `NextWaveButton`; márgenes de texto de 8 px a los lados y 3 arriba y abajo):
+
+- `UpgradeButton`: "Mejorar (-X€)" con X = `fusion.cost`; solo se ve si la torreta tiene `fusion`. Apagado (`disabled`) mientras el dinero no llega a `fusion.cost`; `set_money` (conectado a `LevelState.money_changed`) lo enciende al llegar. Emite `upgrade_requested`; `LevelUI._on_upgrade_requested` lo reenvía a `LevelState.upgrade_requested` solo en `PLAYING`.
+- `SellButton`: "Vender (+X€)" con X = `Turret.get_sell_value()` (también tras fusionar). El primer clic cambia el texto a "¿Seguro?" y el segundo emite `sell_requested`; `LevelUI._on_sell_requested` llama a `LevelState.sell_selected_turret()` solo en `PLAYING`. Ver [torretas.md](torretas.md).
+
+`show_for(turret, money)` lo abre con la torreta colocada seleccionada (`LevelUI` lo llama con `LevelState.sellable_turret_changed` y en `setup`) y con null lo cierra (soltar la torreta, venderla o reiniciar). Tras mejorar, `BuildManager` inspecciona la torreta nueva y el recuadro se abre sobre ella. `_reposition` pasa la posición de la torreta del mapa a la de `GameArea` (`get_global_transform_with_canvas`, porque `LevelUI` es un `CanvasLayer`): centrado en x, con el borde de abajo a `TURRET_GAP` (22 px, para librar los cañones) del centro de la torreta y sin salirse del área; si arriba no cabe (torreta en el borde de arriba) sale debajo. Se recoloca al cambiar el texto (el ancho cambia). Los clics en sus botones no llegan al mapa; un clic en el espacio vacío suelta la torreta y lo cierra.
 
 ## Poderes
 
@@ -368,7 +376,10 @@ Opciones "Siguiente nivel" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción qu
 | `LevelState` | `selected_turret_changed` | `Sidebar.show_selected` |
 | `LevelState` | `inspected_changed` | `InfoPanel.show_inspected` |
 | `LevelState` | `sellable_turret_changed` | `InfoPanel.show_sellable` |
-| `InfoPanel` | `sell_requested` | `LevelUI._on_sell_requested` (`LevelState.sell_selected_turret`) |
+| `LevelState` | `sellable_turret_changed` | `LevelUI._on_sellable_turret_changed` (`TurretActions.show_for`) |
+| `LevelState` | `money_changed` | `TurretActions.set_money` |
+| `TurretActions` | `sell_requested` | `LevelUI._on_sell_requested` (`LevelState.sell_selected_turret`, solo en `PLAYING`) |
+| `TurretActions` | `upgrade_requested` | `LevelUI._on_upgrade_requested` (`LevelState.upgrade_requested`, solo en `PLAYING`) |
 | `Spawner` | `wave_started` | `LevelUI._on_wave_started` (`Sidebar.set_current_wave`, controles y pie) |
 | `Spawner` | `wave_cleared` | `LevelUI._on_wave_cleared` (`Sidebar.view_wave` a la siguiente, controles y pie) |
 | `Spawner` | `auto_waves_changed` | `Sidebar.show_auto_waves` |
