@@ -114,7 +114,7 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 | Archivo | Dibujo | Colores |
 |---|---|---|
 | `cost.png` | moneda | ámbar `#96641e`, `#ecb23c`, `#ffe082` |
-| `credits.png` | moneda pequeña (cabecera CRÉDITOS de la barra derecha; 8x7, mismo tamaño y hueco que `station.png` para que los dos iconos de la barra se vean iguales) | ámbar `#96641e`, `#ecb23c`, `#ffe082` |
+| `credits.png` | moneda pequeña (cabecera CRÉDITOS de la barra derecha; circular de 7x7, pegada a la izquierda del lienzo y con la altura del corazón de `station.png`, para que los dos iconos de la barra se vean igual de grandes) | ámbar `#96641e`, `#ecb23c`, `#ffe082` |
 | `range.png` | anillo con punto central | cian `#40e0f0`, `#befaff` |
 | `cooldown.png` | reloj con agujas oscuras | metal claro `#8c96aa`, `#d2dceb` |
 | `damage.png` | estallido | rojo `#961432`, `#ff3c5a`, `#ffaabe` |
