@@ -5,10 +5,22 @@ class_name TutorialHints
 ## hay que pulsar. Al acabarlo o saltarlo se guarda en GameState y no vuelve a salir.
 
 enum Step { PICK_TURRET, PLACE_TURRET, START_WAVE, WAIT_WAVE_END, INSPECT_TURRET, FUSE_INFO, POWERS, DONE }
+# Acciones del jugador que el tutorial puede bloquear; cada sitio donde entran pregunta con allows().
+enum Action { SELECT_TURRET, BUILD, RELEASE_TURRET, SELECT_PLACED, TAB_TURRETS, TAB_WAVES, NEXT_WAVE, WAVE_ARROWS,
+		TOGGLE_AUTO, TOGGLE_SPEED, UPGRADE, SELL, POWER_METEOR, POWER_FREEZE, POWER_ORBITAL }
+
+# Acciones que deja hacer cada paso; un paso sin entrada no deja ninguna. En DONE todo es libre.
+const ALLOWED_ACTIONS: Dictionary[Step, Array] = {
+	Step.PICK_TURRET: [Action.SELECT_TURRET, Action.TAB_TURRETS],
+	Step.PLACE_TURRET: [Action.BUILD, Action.RELEASE_TURRET],
+	Step.START_WAVE: [Action.TAB_WAVES, Action.NEXT_WAVE],
+	Step.INSPECT_TURRET: [Action.RELEASE_TURRET, Action.SELECT_PLACED],
+	Step.POWERS: [Action.POWER_METEOR, Action.POWER_FREEZE],
+}
 
 const TEXTS: Dictionary[Step, String] = {
 	Step.PICK_TURRET: "¡Hola, recluta! Los enemigos vienen a por la estación. Elige una torreta en la barra de la derecha.",
-	Step.PLACE_TURRET: "Bien. Ahora haz clic en un asteroide con plataforma libre para colocarla.",
+	Step.PLACE_TURRET: "Bien. Ahora haz clic en los asteroides con plataforma libre para colocar 2 torretas.",
 	Step.START_WAVE: "Lista la defensa. Abre la pestaña Oleadas y pulsa Siguiente oleada (o Espacio).",
 	Step.INSPECT_TURRET: "¡Oleada superada! Suelta la torreta de la tienda con clic derecho y haz clic en una de las tuyas del mapa para ver su ficha.",
 	Step.FUSE_INFO: "Desde la ficha puedes venderla o, si tiene mejora, pulsar Mejorar para convertirla en una más fuerte.",
@@ -17,6 +29,8 @@ const TEXTS: Dictionary[Step, String] = {
 }
 # Pasos que no esperan una acción del juego: se cierran con "Entendido".
 const INFO_STEPS: Array[Step] = [Step.FUSE_INFO, Step.DONE]
+# Torretas que hay que colocar para pasar del paso de colocar.
+const TURRETS_TO_PLACE := 2
 # Segundos por carácter del texto que va apareciendo, como si hablara.
 const TYPE_TIME_PER_CHAR := 0.02
 # El último mensaje se cierra solo tras estos segundos.
@@ -39,6 +53,7 @@ var _step := Step.DONE
 var _active := false
 var _typing: Tween
 var _blink_time := 0.0
+var _placed_count := 0
 
 func _ready() -> void:
 	ok_button.pressed.connect(_on_ok_pressed)
@@ -48,7 +63,8 @@ func _ready() -> void:
 ## Empieza el tutorial con el nivel recién montado. Las señales del nivel anterior se van con él.
 func start(state: LevelState, spawner: Spawner, powers: Powers) -> void:
 	state.selected_turret_changed.connect(_on_selected_turret_changed)
-	state.turret_placed.connect(_advance_from.bind(Step.PLACE_TURRET, Step.START_WAVE))
+	_placed_count = 0
+	state.turret_placed.connect(_on_turret_placed)
 	state.sellable_turret_changed.connect(func(turret: Turret) -> void:
 		if turret != null:
 			_advance_from(Step.INSPECT_TURRET, Step.FUSE_INFO))
@@ -62,6 +78,10 @@ func start(state: LevelState, spawner: Spawner, powers: Powers) -> void:
 ## Quita el tutorial sin guardar nada (otro nivel o ya hecho).
 func stop() -> void:
 	_set_active(false)
+
+## Si el paso actual deja hacer `action`. Sin tutorial en marcha todo está permitido.
+func allows(action: Action) -> bool:
+	return not _active or _step == Step.DONE or action in ALLOWED_ACTIONS.get(_step, [])
 
 func _set_active(active: bool) -> void:
 	_active = active
@@ -97,6 +117,13 @@ func _on_selected_turret_changed(data: TurretData) -> void:
 		_advance_from(Step.PICK_TURRET, Step.PLACE_TURRET)
 	else:
 		_advance_from(Step.PLACE_TURRET, Step.PICK_TURRET)
+
+# Una sola torreta no aguanta la oleada 1: el paso espera a que haya TURRETS_TO_PLACE.
+func _on_turret_placed() -> void:
+	if _active and _step == Step.PLACE_TURRET:
+		_placed_count += 1
+		if _placed_count >= TURRETS_TO_PLACE:
+			_show_step(Step.START_WAVE)
 
 # Lanzar la oleada 1 antes de tiempo también vale: el tutorial espera a que acabe.
 func _on_wave_started() -> void:

@@ -23,6 +23,12 @@ const LOW_HEALTH_FRACTION := 0.25
 const VIGNETTE_MIN_INTENSITY := 0.25
 const VIGNETTE_MAX_INTENSITY := 0.8
 const VIGNETTE_PULSE_TIME := 0.5
+# Acción del tutorial que corresponde a cada poder.
+const POWER_ACTIONS: Dictionary[Powers.Power, TutorialHints.Action] = {
+	Powers.Power.METEOR: TutorialHints.Action.POWER_METEOR,
+	Powers.Power.FREEZE: TutorialHints.Action.POWER_FREEZE,
+	Powers.Power.ORBITAL: TutorialHints.Action.POWER_ORBITAL,
+}
 
 @onready var game_over_screen: GameOverScreen = %GameOverScreen
 @onready var victory_screen: VictoryScreen = %VictoryScreen
@@ -71,6 +77,8 @@ func _ready() -> void:
 	info_panel.orbital_button.pressed.connect(_use_power.bind(Powers.Power.ORBITAL))
 	tutorial_hints.sidebar = sidebar
 	tutorial_hints.info_panel = info_panel
+	sidebar.tutorial_hints = tutorial_hints
+	turret_actions.tutorial_hints = tutorial_hints
 	set_state(UiState.PLAYING)
 
 # El contador de FPS solo se ve (y solo se actualiza) con la opción show_fps activada.
@@ -150,10 +158,13 @@ func _set_vignette(active: bool) -> void:
 
 # Los poderes solo se usan jugando.
 func _use_power(power: Powers.Power) -> void:
-	if is_instance_valid(_powers) and _ui_state == UiState.PLAYING:
+	if is_instance_valid(_powers) and _ui_state == UiState.PLAYING and tutorial_hints.allows(POWER_ACTIONS[power]):
 		_powers.use(power)
 
+# Elegir una torreta de la tienda; soltarla no se bloquea (también la pide el botón al quedarse sin dinero).
 func _on_turret_selected(data: TurretData) -> void:
+	if data != null and not tutorial_hints.allows(TutorialHints.Action.SELECT_TURRET):
+		return
 	if is_instance_valid(_level_state):
 		_level_state.selected_turret = data
 
@@ -323,7 +334,7 @@ func _handle_shortcut(event: InputEvent) -> bool:
 			sidebar.press_turret_button(i)
 			return true
 	if event.is_action_pressed("next_wave"):
-		sidebar.next_wave_button.pressed.emit()
+		sidebar.press_next_wave()
 	elif event.is_action_pressed("toggle_auto"):
 		sidebar.auto_wave_button.button_pressed = not sidebar.auto_wave_button.button_pressed
 	elif event.is_action_pressed("toggle_speed"):

@@ -79,6 +79,9 @@ const STATUS_COLORS: Dictionary[WaveStatus, Color] = {
 @onready var auto_wave_button: Button = %AutoWaveButton
 @onready var speed_button: Button = %SpeedButton
 
+## Lo pone LevelUI; con el tutorial en marcha decide qué controles responden.
+var tutorial_hints: TutorialHints
+
 var _money := 0
 var _buttons: Array[TurretButton] = []
 var _wave_blocks: Array[WaveBlock] = []
@@ -100,11 +103,11 @@ func _ready() -> void:
 	turrets_tab.toggled.connect(_on_tab_toggled)
 	_style_wave_controls()
 	station_bar.add_theme_stylebox_override("background", _station_style(TAB_BG_COLOR, TAB_BORDER_COLOR))
-	next_wave_button.pressed.connect(next_wave_requested.emit)
-	auto_wave_button.toggled.connect(auto_waves_toggled.emit)
-	speed_button.toggled.connect(fast_speed_toggled.emit)
-	prev_wave_arrow.pressed.connect(func() -> void: view_wave(_viewed_wave - 1))
-	next_wave_arrow.pressed.connect(func() -> void: view_wave(_viewed_wave + 1))
+	next_wave_button.pressed.connect(_on_next_wave_pressed)
+	auto_wave_button.toggled.connect(_on_auto_toggled)
+	speed_button.toggled.connect(_on_speed_toggled)
+	prev_wave_arrow.pressed.connect(_on_wave_arrow_pressed.bind(-1))
+	next_wave_arrow.pressed.connect(_on_wave_arrow_pressed.bind(1))
 
 ## Crea un botón por cada torreta de `GameData.turret_order`; las que no están en `unlocked` salen bloqueadas.
 func build_buttons(unlocked: Array[TurretData]) -> void:
@@ -247,8 +250,41 @@ func _on_button_selection_changed(data: TurretData, on: bool) -> void:
 	turret_selected.emit(data if on else null)
 
 func _on_tab_toggled(turrets_active: bool) -> void:
+	var action := TutorialHints.Action.TAB_TURRETS if turrets_active else TutorialHints.Action.TAB_WAVES
+	if tutorial_hints != null and not tutorial_hints.allows(action):
+		# El tutorial no deja cambiar de pestaña: las pestañas vuelven a la que sigue abierta.
+		turrets_tab.set_pressed_no_signal(turrets_page.visible)
+		waves_tab.set_pressed_no_signal(waves_page.visible)
+		return
 	turrets_page.visible = turrets_active
 	waves_page.visible = not turrets_active
+
+# Con el tutorial en marcha el botón solo vale desde la pestaña Oleadas (el pie se ve en las dos).
+func _on_next_wave_pressed() -> void:
+	if tutorial_hints == null or (tutorial_hints.allows(TutorialHints.Action.NEXT_WAVE) and waves_page.visible):
+		next_wave_requested.emit()
+
+## Atajo de teclado de siguiente oleada: vale desde cualquier pestaña.
+func press_next_wave() -> void:
+	if tutorial_hints == null or tutorial_hints.allows(TutorialHints.Action.NEXT_WAVE):
+		next_wave_button.pressed.emit()
+
+# Los interruptores bloqueados por el tutorial se devuelven a su estado sin emitir nada.
+func _on_auto_toggled(enabled: bool) -> void:
+	if tutorial_hints != null and not tutorial_hints.allows(TutorialHints.Action.TOGGLE_AUTO):
+		auto_wave_button.set_pressed_no_signal(not enabled)
+		return
+	auto_waves_toggled.emit(enabled)
+
+func _on_speed_toggled(enabled: bool) -> void:
+	if tutorial_hints != null and not tutorial_hints.allows(TutorialHints.Action.TOGGLE_SPEED):
+		speed_button.set_pressed_no_signal(not enabled)
+		return
+	fast_speed_toggled.emit(enabled)
+
+func _on_wave_arrow_pressed(step: int) -> void:
+	if tutorial_hints == null or tutorial_hints.allows(TutorialHints.Action.WAVE_ARROWS):
+		view_wave(_viewed_wave + step)
 
 func _style_wave_controls() -> void:
 	_next_normal_style = ClippedBoxStyle.create(TAB_BG_COLOR, NEXT_BORDER_COLOR)

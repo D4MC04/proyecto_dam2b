@@ -10,6 +10,8 @@ const RANGE_BORDER_COLOR := Color("40e0f0")
 const RANGE_FILL_COLOR := Color(0.25, 0.88, 0.94, 0.08)
 
 var state: LevelState
+## Lo pone Game; con el tutorial en marcha decide si se puede construir o seleccionar.
+var tutorial_hints: TutorialHints
 
 var _preview: Node2D
 var _range: Node2D
@@ -49,7 +51,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			_try_place(get_viewport().get_mouse_position())
-		elif event.button_index == MOUSE_BUTTON_RIGHT:
+		elif event.button_index == MOUSE_BUTTON_RIGHT and _tutorial_allows(TutorialHints.Action.RELEASE_TURRET):
 			state.selected_turret = null
 			_hide_preview()
 
@@ -59,13 +61,18 @@ func _try_place(mouse_pos: Vector2) -> void:
 	var data := state.selected_turret
 	if grid.turrets.has(cell):
 		# Clic en una torreta ya colocada: se selecciona (ficha, vender y mejorar).
-		state.inspect_placed(grid.turrets[cell])
+		if _tutorial_allows(TutorialHints.Action.SELECT_PLACED):
+			state.inspect_placed(grid.turrets[cell])
 		return
 
 	# Clic donde no se puede construir (el espacio, o cualquier sitio sin torreta de la tienda elegida):
 	# se suelta todo, la torreta de la tienda y la colocada (ficha, botones y alcance).
 	if data == null or not grid.can_build(cell):
-		_deselect_all()
+		if _tutorial_allows(TutorialHints.Action.RELEASE_TURRET):
+			_deselect_all()
+		return
+
+	if not _tutorial_allows(TutorialHints.Action.BUILD):
 		return
 
 	if not state.spend_money(data.cost):
@@ -83,6 +90,10 @@ func _try_place(mouse_pos: Vector2) -> void:
 	GameState.add_stat("built_" + data.resource_path.get_file().get_basename())
 
 	_hide_preview()
+
+# Sin tutorial en marcha (o fuera del nivel 1) todo está permitido.
+func _tutorial_allows(action: TutorialHints.Action) -> bool:
+	return tutorial_hints == null or tutorial_hints.allows(action)
 
 func _deselect_all() -> void:
 	state.selected_turret = null
