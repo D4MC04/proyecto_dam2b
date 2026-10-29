@@ -15,22 +15,21 @@ const SELECTED_HOVER_BORDER_COLOR := Color("#ffe082")
 const UNAFFORDABLE_COST_COLOR := Color("#ff3c5a")
 const AFFORDABLE_COST_COLOR := Color("#ecb23c")
 const UNAFFORDABLE_ICON_COLOR := Color(1, 1, 1, 0.35)
-# Torreta aún sin desbloquear: silueta oscura del icono con un candado encima.
-const LOCKED_ICON_COLOR := Color("#050810")
-const LOCKED_BORDER_COLOR := Color("#1c4a60")
-const LOCKED_PADLOCK_COLOR := Color("#7fa6b8")
-# Candado en píxeles (1 = cuerpo y arco, 0 = hueco), centrado sobre el icono.
-const PADLOCK_PIXELS: PackedStringArray = [
-	"..1111..",
-	".11..11.",
-	".11..11.",
-	"11111111",
-	"11111111",
-	"111..111",
-	"111..111",
-	"11111111",
-	"11111111",
+# Torreta aún sin desbloquear: caja roja, sin icono ni coste, con un "?" grande centrado.
+const LOCKED_BG_COLOR := Color("#2a0e18")
+const LOCKED_BORDER_COLOR := UNAFFORDABLE_COST_COLOR
+const LOCKED_MARK_COLOR := UNAFFORDABLE_COST_COLOR
+# "?" en píxeles (1 = pintado, 0 = hueco), centrado en el botón.
+const QUESTION_MARK_PIXELS: PackedStringArray = [
+	".111.",
+	"1...1",
+	"....1",
+	"...1.",
+	"..1..",
+	".....",
+	"..1..",
 ]
+const QUESTION_MARK_SCALE := 4.0
 # Largo de cada brazo de los corchetes que rodean la torreta seleccionada por fuera.
 const BRACKET_LENGTH := 4
 
@@ -53,7 +52,6 @@ func setup(turret_data: TurretData, money: int, locked := false) -> void:
 	data = turret_data
 	_locked = locked
 	icon_rect.texture = data.icon
-	# Bloqueada: el coste no se enseña (la etiqueta se queda vacía para no mover el icono).
 	cost_label.text = "" if locked else UiFormat.money(data.cost)
 	set_money(money)
 
@@ -104,7 +102,7 @@ func _on_pressed() -> void:
 # Corchetes en L en ámbar justo por fuera de las cuatro esquinas de la torreta seleccionada.
 func _draw() -> void:
 	if _locked:
-		_draw_padlock()
+		_draw_question_mark()
 		return
 	if not _selected:
 		return
@@ -119,25 +117,25 @@ func _draw() -> void:
 		draw_rect(Rect2(x_start, corner.y, BRACKET_LENGTH, 1), SELECTED_COLOR)
 		draw_rect(Rect2(corner.x, y_start, 1, BRACKET_LENGTH), SELECTED_COLOR)
 
-# Candado centrado sobre el icono, píxel a píxel.
-func _draw_padlock() -> void:
-	var pixels_size := Vector2(PADLOCK_PIXELS[0].length(), PADLOCK_PIXELS.size())
-	var origin := icon_rect.get_global_rect().get_center() - global_position - pixels_size / 2.0
+# "?" centrado en el botón, píxel a píxel (no depende del layout, así que no se mueve).
+func _draw_question_mark() -> void:
+	var pixels_size := Vector2(QUESTION_MARK_PIXELS[0].length(), QUESTION_MARK_PIXELS.size())
+	var origin := (size - pixels_size * QUESTION_MARK_SCALE) / 2.0
 	origin = origin.floor()
-	for y in PADLOCK_PIXELS.size():
-		for x in PADLOCK_PIXELS[y].length():
-			if PADLOCK_PIXELS[y][x] == "1":
-				draw_rect(Rect2(origin + Vector2(x, y), Vector2.ONE), LOCKED_PADLOCK_COLOR)
+	for y in QUESTION_MARK_PIXELS.size():
+		for x in QUESTION_MARK_PIXELS[y].length():
+			if QUESTION_MARK_PIXELS[y][x] == "1":
+				draw_rect(Rect2(origin + Vector2(x, y) * QUESTION_MARK_SCALE, Vector2.ONE * QUESTION_MARK_SCALE), LOCKED_MARK_COLOR)
 
 func _refresh() -> void:
 	if data == null:
 		return
 	if _locked:
-		var locked_style := ClippedBoxStyle.create(BG_COLOR, LOCKED_BORDER_COLOR)
+		var locked_style := ClippedBoxStyle.create(LOCKED_BG_COLOR, LOCKED_BORDER_COLOR)
 		for state in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
 			add_theme_stylebox_override(state, locked_style)
 		add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-		icon_rect.modulate = LOCKED_ICON_COLOR
+		icon_rect.modulate = Color.TRANSPARENT   # oculto sin quitarle el hueco al layout
 		queue_redraw()
 		return
 	var normal := ClippedBoxStyle.create(BG_COLOR, BORDER_COLOR)
