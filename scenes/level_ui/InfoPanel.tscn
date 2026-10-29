@@ -147,22 +147,6 @@ custom_minimum_size = Vector2(0, 5)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="UpgradeButton" type="Button" parent="Content/Screen/DetailView"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-focus_mode = 0
-theme_override_font_sizes/font_size = 16
-text = "Mejorar"
-
-[node name="SellButton" type="Button" parent="Content/Screen/DetailView"]
-unique_name_in_owner = true
-visible = false
-layout_mode = 2
-focus_mode = 0
-theme_override_font_sizes/font_size = 16
-text = "Vender"
-
 [node name="ScanFlash" type="ColorRect" parent="Content/Screen"]
 unique_name_in_owner = true
 visible = false
