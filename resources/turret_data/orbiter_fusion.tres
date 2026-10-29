@@ -11,7 +11,7 @@
 [resource]
 script = ExtResource("1")
 name = "Cinturón"
-cost = 900
+cost = 700
 attack_cooldown = 1.0
 icon = ExtResource("2")
 sprite_frames = ExtResource("3")

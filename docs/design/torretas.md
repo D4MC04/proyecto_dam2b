@@ -24,14 +24,15 @@ La fusionada es otro `TurretData` (`resources/turret_data/<x>_fusion.tres`) con 
 
 | Fusionada | Sustituye a | Coste | Daño | Alcance | Cadencia (s) | Diferencia |
 |---|---|---|---|---|---|---|
-| Cañón cuádruple | Cañón doble | 200 | 7 | 64 | 0,15 | Cuatro cañones, ráfaga rápida |
-| Minigun pesada | Minigun | 400 | 10 | 96 | 0,3 → 0,04 | Sobrecalentamiento mejor: 90 disparos, parada de 2 s |
-| Cryo ventisca | Cryo | 500 | 8 | 96 | 2,0 | Onda mayor (`wave_scale` 1,5), frena al 35 % durante 4,5 s |
+| Cañón cuádruple | Cañón doble | 200 | 8 | 72 | 0,15 | Cuatro cañones, ráfaga rápida |
+| Minigun pesada | Minigun | 400 | 14 | 96 | 0,3 → 0,04 | Sobrecalentamiento mejor: 90 disparos, parada de 2 s |
+| Cryo ventisca | Cryo | 500 | 12 | 96 | 2,0 | Onda mayor (`wave_scale` 1,5), frena al 35 % durante 4,5 s |
 | Cañón de asedio | Cañón pesado | 600 | 100 | 96 | 1,6 | Explota en área de 40 px (`splash_radius`) |
-| Tormenta | Tesla | 800 | 45 | 120 | 1,3 | Cadena de 6 objetivos, saltos de 80 px |
-| Rail Gauss | Rail | 1500 | 400 | 176 | 4,5 | Haz de 900 px y `half_width` 16 |
-| Aniquilador | Disintegrator | 1300 | 70/150/320 por s | 128 | no se usa | Sube de nivel en la mitad de tiempo (`level_time` 0,75) |
-| Amplificador mayor | Amplificador | 1000 | no ataca | aura 100 | no se usa | Las torretas de su aura ganan el efecto mayor |
+| Tormenta | Tesla | 700 | 50 | 120 | 1,3 | Cadena de 6 objetivos, saltos de 80 px |
+| Cinturón | Orbitador | 700 | 85 | anillo 40-64 | 1,0 | Hasta 5 cargas, área de 26 px, giran a 110°/s |
+| Rail Gauss | Rail | 1000 | 800 | 176 | 4,5 | Haz de 900 px y `half_width` 16 |
+| Aniquilador | Disintegrator | 900 | 60/130/280 por s | 128 | no se usa | Sube de nivel en la mitad de tiempo (`level_time` 0,75) |
+| Amplificador mayor | Amplificador | 800 | no ataca | aura 100 | no se usa | Las torretas de su aura ganan el efecto mayor |
 
 ## Vender
 
@@ -127,7 +128,7 @@ Funciones para la ficha:
 | `ChainData` | DAÑO, OBJETIVOS (`max_targets`), SALTO (`jump_range`) |
 | `BeamData` | DAÑO, PERFORA ("TODOS") |
 | `OrbitData` | DAÑO, ÁREA (`splash_radius`), CARGAS (`max_orbs`), GIRO (`orbit_speed`, en °/s) |
-| `FocusBeamData` | DPS (`40/80` si cabe en `StatEntry.MAX_VALUE_CHARS`, 7 caracteres; si no, una fila por nivel: DPS N1 `40`, DPS N2 `80`, DPS N3 `160`), T. NIVEL |
+| `FocusBeamData` | DPS (`35/70` si cabe en `StatEntry.MAX_VALUE_CHARS`, 7 caracteres; si no, una fila por nivel: DPS N1 `35`, DPS N2 `70`, DPS N3 `140`), T. NIVEL |
 
 Los valores usan `UiFormat.abbreviate`, `UiFormat.number` y `UiFormat.seconds`. Un stat nuevo es una entrada más en el `get_stats()` que toque; la ficha no cambia.
 
@@ -136,17 +137,51 @@ Recursos en `resources/turret_data/`:
 | Archivo | Nombre | Coste | Cooldown (s) | Rango (px) | Giro (°/s) | Ataque |
 |---|---|---|---|---|---|---|
 | `turret` | Cañón doble | 100 | 0,25 | 56 | 240 | Bala: 5 de daño, 300 px/s |
-| `minigun` | Minigun | 200 | 0,4 | 80 | 270 | Bala trazadora: 6 de daño, 400 px/s. Sobrecalentamiento: 0,4 → 0,05 s, 60 disparos (a tope desde el 30), parada de 3 s. Sonido provisional: `Turret/DobleLaserShoot.wav` |
-| `cryo` | Cryo | 250 | 2,0 | 64 | no gira | Onda: 5 de daño, velocidad al 55 % durante 3,5 s |
-| `rocket_launcher` | Cañón pesado | 300 | 1,5 | 88 | 180 | Bala: 45 de daño y explota en área de 30 px, 200 px/s |
-| `tesla` | Tesla | 400 | 1,3 | 110 | no gira | Cadena: 30 de daño, 3 enemigos, saltos de 64 px |
-| `rail` | Rail | 750 | 5,0 | 160 | 45 | Haz: 200 de daño a toda la línea, 700 px de largo |
-| `disintegrator` | Disintegrator | 650 | no se usa | 112 | 140 | Haz continuo: 40, 80 y 160 de daño/s |
-| `orbiter` | Orbitador | 450 | 1,6 | anillo 40-64 | no gira | Órbita: cargas de 40 de daño en área de 22 px, hasta 4, a 90°/s. Mejora: Cinturón (`orbiter_fusion`, 900): 1,0 s, 60 de daño, área 26, hasta 5, a 110°/s. Sin sonido |
-| `amplifier` | Amplificador | 500 | no se usa | aura 100 | no gira | Ninguno: amplifica a las torretas de alrededor |
+| `minigun` | Minigun | 200 | 0,4 | 80 | 270 | Bala trazadora: 8 de daño, 400 px/s. Sobrecalentamiento: 0,4 → 0,05 s, 60 disparos (a tope desde el 30), parada de 3 s. Sonido provisional: `Turret/DobleLaserShoot.wav` |
+| `cryo` | Cryo | 250 | 2,0 | 64 | no gira | Onda: 6 de daño, velocidad al 55 % durante 3,5 s |
+| `rocket_launcher` | Cañón pesado | 300 | 1,5 | 88 | 180 | Bala: 40 de daño y explota en área de 30 px, 200 px/s |
+| `tesla` | Tesla | 350 | 1,3 | 110 | no gira | Cadena: 30 de daño, 3 enemigos, saltos de 64 px |
+| `rail` | Rail | 500 | 5,0 | 160 | 45 | Haz: 450 de daño a toda la línea, 700 px de largo |
+| `disintegrator` | Disintegrator | 450 | no se usa | 112 | 140 | Haz continuo: 35, 70 y 140 de daño/s |
+| `orbiter` | Orbitador | 350 | 1,6 | anillo 40-64 | no gira | Órbita: cargas de 50 de daño en área de 22 px, hasta 4, a 90°/s. Mejora: Cinturón (`orbiter_fusion`, 700): 1,0 s, 85 de daño, área 26, hasta 5, a 110°/s. Sin sonido |
+| `amplifier` | Amplificador | 400 | no se usa | aura 100 | no gira | Ninguno: amplifica a las torretas de alrededor |
 | `miner` | Minero | 300 | 5,0 (intervalo) | no tiene | no gira | Ninguno: +10€ cada 5 s de oleada (la Excavadora, +20€) |
 
-Balance de costes: suben con el orden de desbloqueo (100, 200, 250, 300, 300, 400, 450, 500, 650 y 750 €) y cada mejora cuesta el doble que su base. El daño por segundo de una torreta de ataque ronda 0,1-0,2 por euro, más en las que pegan a varios o frenan. El Minero devuelve en unos 150 s de oleada lo que cuesta.
+Balance de costes: de 100 € la torreta base (Cañón doble) a 500 € la más cara (Rail); las demás entre 200 y 400 salvo el Disintegrator (450). Los costes siguen el orden de desbloqueo (100, 200, 250, 300, 300, 350, 350, 400, 450 y 500 €) y cada mejora cuesta el doble que su base (la torreta fusionada suma 3 × la base). Las torretas destacan por su mecánica, no por tener más números que las anteriores. El DPS contra un único enemigo **no** se fija en un rango: se reparte según lo fácil que sea que la torreta golpee a varios a la vez.
+
+- **El DPS a un objetivo baja con el área.** Una torreta que pega a varios a la vez tiene que hacer poco daño a cada uno, y se aprovecha más cuanto más junto va el enemigo (las oleadas del final sacan 30-58 naves por varios caminos). La referencia es el Cañón doble (0,20 DPS/€ a un objetivo, sin área). Con área pequeña y fiable (Cañón pesado, Tesla, Orbitador) el DPS/€ a un objetivo ronda 0,04-0,09 y el efectivo con el nº de objetivos habituales queda en 0,15-0,20; con área enorme (Cryo) cae a 0,01 a un objetivo y 0,07 efectivo, porque ahí lo que se paga es el frenado y el pico de 20 enemigos de un pulso, no el daño. Igualar el DPS a un objetivo haría de la Cryo la mejor torreta del juego.
+- **El DPS solo no vale.** Se mira además la utilidad (la Cryo da +82 % de tiempo en alcance a todas las torretas que cubren la zona, pero no se acumula: con una por zona basta; el Orbitador pega a los camuflados; la Tesla no falla y alcanza a los camuflados al saltar; el Amplificador y el Minero no atacan), la situacionalidad (Minigun: el DPS depende de la rampa y la parada; Disintegrator: depende del tiempo sobre el mismo enemigo), el alcance y el posicionamiento.
+- **Situacionales.** La Minigun parte de 19 DPS (como un Cañón doble) y solo llega a su pico (160 DPS) tras unos 9 s seguidos con objetivo, durante 1,5 s, antes de parar 3 s: su DPS medio de ciclo (35) es lo que se compara, no el pico. El Disintegrator hace 35 contra lo que muere rápido y 140 contra un enemigo duro que no suelta, así que se compara con la media de 6 s sobre el mismo enemigo (96). El Orbitador guarda 4 cargas entre oleadas (ráfaga de 200 de daño base), pero su ritmo sostenido son 0,6 cargas/s.
+- **El Rail sí tiene mucho DPS** (90 a un objetivo y 180 efectivo, 0,36 DPS/€, el doble que las demás): cuesta lo más, llega el último, gira a 45°/s, tarda 5 s entre disparos y su haz solo aprovecha varios enemigos si están alineados, así que exige colocarlo bien; contra naves pequeñas el daño sobrante se pierde (450 contra un Dart de 25 de vida), y se luce contra lo duro (Acorazado, Ariete, Nodriza). El Rail Gauss multiplica eso.
+- **Lo que justifica la cara es la casilla.** Los huecos son limitados (17-24 por nivel, ver `resources/map_data/`): en niveles avanzados se prefiere la cara porque saca más de una casilla (DPS por casilla de 20 en el Cañón doble a 234-444 en el Aniquilador y el Rail Gauss) y suma alcance, área o perforación, no porque las baratas sean malas por euro.
+- **Cañón doble:** básico pero digno. Alcance de 56 px (el menor), 5 de daño y sin área; su mejora llega a 72 px. Rinde 20 DPS por 100 € (3 Cañones dobles ≈ 1 Cañón pesado a 300 € contra grupos, y mejor contra un único enemigo duro), pero ocupa tres casillas y necesita estar pegado al camino. Sirve para aprender; con pocas casillas ya no tiene argumentos.
+- **Minero:** da +10 € cada 5 s con oleada en curso (+20 € la Excavadora). Cuesta 300 € (600 € la mejora, 900 € en total), así que se paga en unos 150 s de oleada (225 s la Excavadora, unas 3-4 oleadas): el retorno no depende del precio del resto de torretas. No es una torreta de combate, pero ocupa casilla: el coste de ponerlo es lo que se deja de defender.
+- **Amplificador (400 €, mayor 800 €):** con 2-4 torretas en su aura de 100 px suma entre +25 % y +50 % a cada una (Tesla +2 objetivos, Cañón pesado +50 % de área, Minigun llega antes a su cadencia máxima, Cryo +20 % de frenado): sale a cuenta con 3 torretas de 60-100 DPS dentro. Excepciones conocidas: en el Rail `CHARGE` solo adelanta el disparo, no sube su cadencia (el `Timer` va aparte), y el frenado de la Cryo ventisca ya está en el mínimo (`MIN_SLOW_FACTOR` 0,25) con el Amplificador normal, así que el mayor no le añade frenado.
+
+Los efectos del Amplificador (`amp_effect`) no cambian: multiplican lo que ya hace cada torreta, así que mantienen la proporción entre ellas.
+
+DPS efectivo = DPS a un objetivo × objetivos que se estiman golpeados por disparo en una oleada normal de los niveles 6-9 (naves a 20-30 px unas de otras, de 1 a 8 caminos). La Minigun usa la media de un ciclo completo (rampa + parada), el Disintegrator la de los 6 primeros segundos sobre el mismo enemigo, y el Orbitador el ritmo al que genera cargas. DPS/€ divide por lo invertido (base + mejora). DPS/casilla = DPS efectivo, porque todas ocupan una. Valores de ahora, con los de antes entre paréntesis:
+
+| Torreta | Invertido (€) | Objetivos | DPS a 1 objetivo | DPS efectivo = por casilla | DPS/€ (1 obj.) | DPS/€ (efectivo) |
+|---|---|---|---|---|---|---|
+| Cañón doble | 100 (100) | 1 | 20 (20) | 20 (20) | 0,20 (0,20) | 0,20 (0,20) |
+| Cañón cuádruple | 300 (300) | 1 | 53 (47) | 53 (47) | 0,18 (0,16) | 0,18 (0,16) |
+| Minigun | 200 (200) | 1 | 35 (27), pico 160 | 35 (27) | 0,18 (0,13) | 0,18 (0,13) |
+| Minigun pesada | 600 (600) | 1 | 91 (65), pico 350 | 91 (65) | 0,15 (0,11) | 0,15 (0,11) |
+| Cryo | 250 (250) | 6 | 3 (2) | 18 (15) + frena 45 % | 0,012 (0,010) | 0,07 (0,06) |
+| Cryo ventisca | 750 (750) | 9 | 6 (4) | 54 (36) + frena 65 % | 0,008 (0,005) | 0,07 (0,05) |
+| Cañón pesado | 300 (300) | 2,2 | 27 (30) | 59 (66) | 0,09 (0,10) | 0,20 (0,22) |
+| Cañón de asedio | 900 (900) | 2,8 | 62 (62) | 175 (175) | 0,07 (0,07) | 0,19 (0,19) |
+| Tesla | 350 (400) | 2,6 | 23 (23) | 60 (60) | 0,07 (0,06) | 0,17 (0,15) |
+| Tormenta | 1050 (1200) | 4,5 | 38 (35) | 173 (156) | 0,04 (0,03) | 0,16 (0,13) |
+| Orbitador | 350 (450) | 1,7 | 31 (25) | 53 (42) | 0,09 (0,06) | 0,15 (0,09) |
+| Cinturón | 1050 (1350) | 2 | 85 (60) | 170 (120) | 0,08 (0,04) | 0,16 (0,09) |
+| Disintegrator | 450 (650) | 1 | 35 → 96 → 140 (40 → 110 → 160) | 96 (110) | 0,21 (0,17) | 0,21 (0,17) |
+| Aniquilador | 1350 (1950) | 1 | 60 → 234 → 280 (70 → 268 → 320) | 234 (268) | 0,17 (0,14) | 0,17 (0,14) |
+| Rail | 500 (750) | 2 | 90 (40) | 180 (80) | 0,18 (0,05) | 0,36 (0,11) |
+| Rail Gauss | 1500 (2250) | 2,5 | 178 (89) | 444 (222) | 0,12 (0,04) | 0,30 (0,10) |
+
+En el Disintegrator y el Aniquilador, las tres cifras son el nivel 1 del haz (lo que hace contra lo que muere deprisa), la media de 6 s sobre el mismo enemigo y el nivel 3.
 
 ## Amplificador
 
