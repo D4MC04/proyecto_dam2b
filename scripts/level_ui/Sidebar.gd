@@ -135,7 +135,7 @@ func set_money(amount: int) -> void:
 func set_station_health(current: int, maximum: int) -> void:
 	station_bar.max_value = maximum
 	station_bar.value = current
-	station_value_label.text = "%d/%d" % [current, maximum]
+	station_value_label.text = str(current)
 	var danger := current < maximum * STATION_DANGER_FRACTION
 	var color := STATION_DANGER_COLOR if danger else STATION_BAR_COLOR
 	var label_color := color if danger else NEXT_GLOW_COLOR
