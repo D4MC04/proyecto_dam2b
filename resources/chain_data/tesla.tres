@@ -9,7 +9,7 @@
 
 [resource]
 script = ExtResource("1")
-damage = 30.0
+damage = 45.0
 max_targets = 3
 jump_range = 64.0
 bolt_textures = Array[Texture2D]([ExtResource("b0"), ExtResource("b1"), ExtResource("b2"), ExtResource("b3")])
