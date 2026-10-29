@@ -33,7 +33,9 @@ const QUESTION_MARK_SCALE := 4.0
 # Largo de cada brazo de los corchetes que rodean la torreta seleccionada por fuera.
 const BRACKET_LENGTH := 4
 
-@onready var icon_rect: TextureRect = %IconRect
+@onready var icon_rect: Control = %IconRect
+@onready var base_sprite: AnimatedSprite2D = %BaseSprite
+@onready var cannon_sprite: AnimatedSprite2D = %CannonSprite
 @onready var cost_label: Label = %CostLabel
 
 var data: TurretData
@@ -47,13 +49,36 @@ var _locked := false
 
 func _ready() -> void:
 	pressed.connect(_on_pressed)
+	icon_rect.resized.connect(_center_sprites)
+	_center_sprites()
 
 func setup(turret_data: TurretData, money: int, locked := false) -> void:
 	data = turret_data
 	_locked = locked
-	icon_rect.texture = data.icon
+	_setup_sprites()
 	cost_label.text = "" if locked else UiFormat.money(data.cost)
 	set_money(money)
+
+# Torreta en reposo mirando hacia arriba, como en el mapa: base y cañón en bucle.
+# Sin cañón o sin animación se queda en el primer frame.
+func _setup_sprites() -> void:
+	base_sprite.sprite_frames = data.sprite_frames
+	cannon_sprite.sprite_frames = data.cannon
+	_play_idle(base_sprite)
+	_play_idle(cannon_sprite)
+
+# IconRect ocupa todo el ancho del botón: los sprites van en su centro.
+func _center_sprites() -> void:
+	base_sprite.position = (icon_rect.size / 2.0).floor()
+	cannon_sprite.position = base_sprite.position
+
+func _play_idle(sprite: AnimatedSprite2D) -> void:
+	if sprite.sprite_frames == null:
+		return
+	for animation: StringName in [&"default", &"spin"]:
+		if sprite.sprite_frames.has_animation(animation):
+			sprite.play(animation)
+			return
 
 func set_money(amount: int) -> void:
 	_money = amount

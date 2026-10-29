@@ -182,7 +182,7 @@ El `Portal` de un camino que saca la Nodriza tiembla con más fuerza (`Portal.BO
 
 `scenes/level_ui/TurretButton.tscn` + `scripts/level_ui/TurretButton.gd` (clase `TurretButton`). `Button` de 52x56 sin `toggle_mode` ni `ButtonGroup`, sin foco: el estado seleccionado es solo visual y lo dicta `Sidebar.show_selected` mediante `set_selected`.
 
-- Contenido: `data.icon` a 32x32 (sin escalar) centrado arriba, con 3 px de hueco hasta el borde de arriba y 9 a cada lado, y debajo (2 px más abajo) el coste centrado, a 16 px. El coste va con `UiFormat.money` (siempre con `€`); con 52 px caben sus 7 caracteres, así que no se limita. Sin tooltip: el nombre se ve en la ficha.
+- Contenido: la torreta en reposo en un hueco de 32x32 (`IconRect`, un `Control` con dos `AnimatedSprite2D`: `BaseSprite` con `data.sprite_frames` y `CannonSprite` con `data.cannon`, centrados, escala 1, mirando hacia arriba) centrada arriba, con 3 px de hueco hasta el borde de arriba y 9 a cada lado, y debajo (2 px más abajo) el coste centrado, a 16 px. Cada sprite reproduce en bucle su `default` (o `spin` en la Minigun, a velocidad 1); sin cañón o sin esas animaciones se queda en el primer frame. La ficha sigue usando `data.icon`. El coste va con `UiFormat.money` (siempre con `€`); con 52 px caben sus 7 caracteres, así que no se limita. Sin tooltip: el nombre se ve en la ficha.
 - Estados (cajas recortadas de `ClippedBoxStyle.create`, borde de 1 px, creadas en `_refresh`):
   - Normal: fondo `#0e1626`, borde `#1c7496`.
   - Hover: fondo `#16243c`, borde `#40e0f0`.
