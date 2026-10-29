@@ -3,11 +3,6 @@ class_name InfoPanel
 ## Ficha de la barra izquierda. Enseña lo inspeccionado en LevelState (lo recibe por
 ## show_inspected) y pinta las filas que le dan, sin saber qué stats existen.
 
-## El jugador pulsa "Vender"; es una petición, el dinero y la torreta los gestiona LevelState.
-signal sell_requested
-## El jugador pulsa "Mejorar"; la torreta y el dinero los gestiona BuildManager.
-signal upgrade_requested
-
 # Fuente a 16 px (6 px por carácter) en los 110 px útiles de la pantalla de la barra
 # (128 px menos 6 de marco y 3 de margen a cada lado): 18 caracteres por línea (108 px).
 const NAME_MAX_CHARS := 18
@@ -26,8 +21,6 @@ const PAD_GRID_OFFSET := 2
 const HINT_COLOR := Color("#40e0f0")
 # Tolerancia en px para dar el scroll por llegado al final.
 const HINT_END_MARGIN := 1.0
-# Texto del botón mientras espera el segundo clic que confirma la venta.
-const CONFIRM_SELL_TEXT := "¿Seguro?"
 
 @onready var idle_view: Control = %IdleView
 @onready var detail_view: Control = %DetailView
@@ -42,15 +35,12 @@ const CONFIRM_SELL_TEXT := "¿Seguro?"
 @onready var description_label: Label = %DescriptionLabel
 @onready var scroll_hint: Control = %ScrollHint
 @onready var scan_flash: Control = %ScanFlash
-@onready var sell_button: Button = %SellButton
-@onready var upgrade_button: Button = %UpgradeButton
 @onready var meteor_button: PowerButton = %MeteorButton
 @onready var freeze_button: PowerButton = %FreezeButton
 @onready var orbital_button: PowerButton = %OrbitalButton
 
 var _accent := Color.WHITE
 var _flash_id := 0
-var _confirming_sell := false
 # Filas de bajas, daño y amplificación de la torreta seleccionada; se rehacen en cada selección.
 var _turret_rows: Array[Node] = []
 # Torreta colocada que enseña la ficha; si cambia su amplificación, se rehacen sus filas.
@@ -62,8 +52,6 @@ func _ready() -> void:
 	# Alto fijo de dos líneas para que la cabecera no cambie de tamaño entre fichas.
 	name_label.text = "A\nA"
 	name_label.custom_minimum_size.y = name_label.get_combined_minimum_size().y
-	sell_button.pressed.connect(_on_sell_pressed)
-	upgrade_button.pressed.connect(upgrade_requested.emit)
 	scroll_hint.draw.connect(_draw_scroll_hint)
 	scroll_hint.modulate.a = 0.0
 	var scroll_bar := stat_scroll.get_v_scroll_bar()
@@ -72,16 +60,13 @@ func _ready() -> void:
 	show_sellable(null)
 	_show_idle()
 
-## Enseña los botones "Vender (+X)" y, si tiene mejora, "Mejorar (-X)" de una torreta colocada; con null los oculta.
+## Enseña las filas BAJAS, HECHO y amplificación de una torreta colocada; con null las quita.
 func show_sellable(turret: Turret) -> void:
-	_confirming_sell = false
 	if is_instance_valid(_shown_turret) and _shown_turret.amplification_changed.is_connected(_on_amplification_changed):
 		_shown_turret.amplification_changed.disconnect(_on_amplification_changed)
 	_shown_turret = turret
 	if turret != null:
 		turret.amplification_changed.connect(_on_amplification_changed)
-	sell_button.visible = turret != null
-	upgrade_button.visible = turret != null and turret.data.fusion != null
 	for row in _turret_rows:
 		if is_instance_valid(row):
 			# Fuera ya, para que las filas nuevas cuenten bien su posición (fondos alternos).
@@ -101,22 +86,10 @@ func show_sellable(turret: Turret) -> void:
 			var row := StatRow.create(entry, stat_rows.get_child_count())
 			stat_rows.add_child(row)
 			_turret_rows.append(row)
-	if turret != null:
-		sell_button.text = "Vender (+%s)" % UiFormat.money(turret.get_sell_value())
-		if turret.data.fusion != null:
-			upgrade_button.text = "Mejorar (-%s)" % UiFormat.money(turret.data.fusion.cost)
 
 # El aura de la torreta enseñada ha cambiado con la ficha abierta.
 func _on_amplification_changed() -> void:
 	show_sellable(_shown_turret)
-
-# Vender siempre pide confirmar con un segundo clic.
-func _on_sell_pressed() -> void:
-	if _confirming_sell:
-		sell_requested.emit()
-		return
-	_confirming_sell = true
-	sell_button.text = CONFIRM_SELL_TEXT
 
 ## Enseña `data` en la ficha; con null vuelve al estado de reposo.
 func show_inspected(data: Resource) -> void:
