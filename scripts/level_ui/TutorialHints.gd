@@ -24,7 +24,7 @@ const TEXTS: Dictionary[Step, String] = {
 	Step.START_WAVE: "Lista la defensa. Abre la pestaña Oleadas y pulsa Siguiente oleada (o Espacio).",
 	Step.INSPECT_TURRET: "¡Oleada superada! Suelta la torreta de la tienda con clic derecho y haz clic en una de las tuyas del mapa para ver su ficha.",
 	Step.FUSE_INFO: "Desde la ficha puedes venderla o, si tiene mejora, pulsar Mejorar para convertirla en una más fuerte.",
-	Step.POWERS: "Tienes dos poderes en la ficha: Q lanza un meteorito y E congela a los enemigos. Prueba uno.",
+	Step.POWERS: "Tienes tres poderes en la ficha: Q lanza un meteorito, E congela a los enemigos y R dispara un rayo orbital que barre una fila. Prueba Q o E; el rayo es para luego.",
 	Step.DONE: "¡Eso es! El resto es cosa tuya. Suerte ahí fuera.",
 }
 # Pasos que no esperan una acción del juego: se cierran con "Entendido".
