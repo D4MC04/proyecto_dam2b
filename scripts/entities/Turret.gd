@@ -91,16 +91,27 @@ var _mine_pending := false
 var _orbit: Orbit
 # Ratón sobre la torreta: dibuja el alcance.
 var _hovered := false
-## Seleccionada en el mapa (ver LevelState.sellable_turret): dibuja el alcance.
+## Seleccionada en el mapa (ver LevelState.sellable_turret): dibuja un borde ámbar en su casilla.
 var selected := false:
 	set(value):
 		selected = value
-		queue_redraw()
+		_selection_border.visible = value
+		_selection_border.queue_redraw()
+# Borde de selección, por encima de los sprites.
+var _selection_border := Node2D.new()
 
 const HOVER_HALF_SIZE := 8.0
+const SELECTION_COLOR := Color("ecb23c")
+# Mitad del lado (px) de la rejilla donde se calcula el contorno; los sprites son de 32x32.
+const SELECTION_GRID_HALF := 20
+static var _image_cache: Dictionary = {}
 
 func _ready() -> void:
 	add_to_group(&"turrets")
+	_selection_border.z_index = 1
+	_selection_border.visible = selected
+	_selection_border.draw.connect(_draw_selection_border)
+	add_child(_selection_border)
 	# Si cambia una opción en plena partida, se vuelve a dibujar el rango.
 	Settings.changed.connect(queue_redraw.unbind(1))
 	sprite.sprite_frames = data.sprite_frames
@@ -151,9 +162,9 @@ func _ready() -> void:
 		add_child(_orbit)
 
 # Con la opción "mostrar rango" activada, cada torreta dibuja su alcance bajo sus sprites.
-# Con la opción apagada, solo la que tiene el ratón encima o está seleccionada.
+# Con la opción apagada, solo la que tiene el ratón encima (esté seleccionada o no).
 func _draw() -> void:
-	if not (Settings.get_value(&"show_turret_range") or _hovered or selected):
+	if not (Settings.get_value(&"show_turret_range") or _hovered):
 		return
 	if data.is_amplifier():
 		# El aura, en ámbar.
@@ -162,8 +173,51 @@ func _draw() -> void:
 		# La forma del detector, que crece con el efecto de alcance del Amplificador.
 		BuildManager.draw_range_circle(self, attack_range_shape.shape, data.min_range)
 
+# Contorno de 1 px alrededor de la silueta de la base y el cañón (en su frame y giro actuales), por
+# fuera de los píxeles opacos y sin antialiasing.
+func _draw_selection_border() -> void:
+	var size := SELECTION_GRID_HALF * 2
+	var opaque := PackedByteArray()
+	opaque.resize(size * size)
+	for node: AnimatedSprite2D in [sprite, cannon]:
+		if node.sprite_frames == null or not node.sprite_frames.has_animation(node.animation):
+			continue
+		var texture := node.sprite_frames.get_frame_texture(node.animation, node.frame)
+		if texture == null:
+			continue
+		var image := _opaque_image(texture)
+		var texture_size := texture.get_size()
+		for y in size:
+			for x in size:
+				var local := ((Vector2(x - SELECTION_GRID_HALF, y - SELECTION_GRID_HALF) + Vector2(0.5, 0.5) - node.position).rotated(-node.rotation)) / node.scale
+				var texel := Vector2i((local + texture_size * 0.5 - node.offset).floor()) if node.centered else Vector2i((local - node.offset).floor())
+				if texel.x >= 0 and texel.y >= 0 and texel.x < image.get_width() and texel.y < image.get_height() and image.get_pixelv(texel).a > 0.5:
+					opaque[y * size + x] = 1
+	for y in size:
+		for x in size:
+			if opaque[y * size + x] == 1:
+				continue
+			var touches := false
+			for step: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+				var nx := x + step.x
+				var ny := y + step.y
+				if nx >= 0 and ny >= 0 and nx < size and ny < size and opaque[ny * size + nx] == 1:
+					touches = true
+					break
+			if touches:
+				_selection_border.draw_rect(Rect2(x - SELECTION_GRID_HALF, y - SELECTION_GRID_HALF, 1, 1), SELECTION_COLOR)
+
+# Imagen de la textura, guardada para no pedirla a la GPU en cada redibujado.
+static func _opaque_image(texture: Texture2D) -> Image:
+	if not _image_cache.has(texture):
+		_image_cache[texture] = texture.get_image()
+	return _image_cache[texture]
+
 # Con el ratón encima (casilla de 16 px) se ve el alcance aunque la opción esté apagada.
 func _physics_process(_delta: float) -> void:
+	if selected:
+		# El cañón gira y cambia de frame: el contorno se recalcula.
+		_selection_border.queue_redraw()
 	var delta := (get_global_mouse_position() - global_position).abs()
 	var hovered: bool = maxf(delta.x, delta.y) <= HOVER_HALF_SIZE
 	if hovered != _hovered:
