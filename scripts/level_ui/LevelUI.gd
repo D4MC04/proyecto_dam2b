@@ -30,6 +30,7 @@ const VIGNETTE_PULSE_TIME := 0.5
 @onready var sidebar: Sidebar = %Sidebar
 @onready var level_indicator: LevelIndicator = %LevelIndicator
 @onready var info_panel: InfoPanel = %InfoPanel
+@onready var turret_actions: TurretActions = %TurretActions
 @onready var boss_alert: BossAlert = %BossAlert
 @onready var wave_announcer: WaveAnnouncer = %WaveAnnouncer
 @onready var low_health_vignette: ColorRect = %LowHealthVignette
@@ -60,8 +61,8 @@ func _ready() -> void:
 		screen.option_chosen.connect(_on_option_chosen)
 	sidebar.turret_selected.connect(_on_turret_selected)
 	sidebar.inspect_requested.connect(_on_inspect_requested)
-	info_panel.sell_requested.connect(_on_sell_requested)
-	info_panel.upgrade_requested.connect(_on_upgrade_requested)
+	turret_actions.sell_requested.connect(_on_sell_requested)
+	turret_actions.upgrade_requested.connect(_on_upgrade_requested)
 	sidebar.next_wave_requested.connect(_on_next_wave_requested)
 	sidebar.auto_waves_toggled.connect(_on_auto_waves_toggled)
 	sidebar.fast_speed_toggled.connect(_on_fast_speed_toggled)
@@ -98,16 +99,23 @@ func setup(state: LevelState, turrets: Array[TurretData], level_number: int, spa
 			_level_state.inspected_changed.disconnect(info_panel.show_inspected)
 		if _level_state.sellable_turret_changed.is_connected(info_panel.show_sellable):
 			_level_state.sellable_turret_changed.disconnect(info_panel.show_sellable)
+		if _level_state.sellable_turret_changed.is_connected(_on_sellable_turret_changed):
+			_level_state.sellable_turret_changed.disconnect(_on_sellable_turret_changed)
+		if _level_state.money_changed.is_connected(turret_actions.set_money):
+			_level_state.money_changed.disconnect(turret_actions.set_money)
 	_level_state = state
 	state.money_changed.connect(sidebar.set_money)
 	state.selected_turret_changed.connect(sidebar.show_selected)
 	state.inspected_changed.connect(info_panel.show_inspected)
 	state.sellable_turret_changed.connect(info_panel.show_sellable)
+	state.sellable_turret_changed.connect(_on_sellable_turret_changed)
+	state.money_changed.connect(turret_actions.set_money)
 	sidebar.build_buttons(turrets)
 	sidebar.set_money(state.money)
 	# Un LevelState nuevo (al empezar o reiniciar) no tiene nada inspeccionado: la ficha vuelve al escáner.
 	info_panel.show_inspected(state.inspected)
 	info_panel.show_sellable(state.sellable_turret)
+	turret_actions.show_for(state.sellable_turret, state.money)
 	# El tutorial sale en el nivel 1 hasta que se acaba o se salta; necesita setup_powers antes.
 	if level_number == 1 and not GameState.tutorial_done:
 		tutorial_hints.start(state, spawner, _powers)
@@ -148,6 +156,10 @@ func _use_power(power: Powers.Power) -> void:
 func _on_turret_selected(data: TurretData) -> void:
 	if is_instance_valid(_level_state):
 		_level_state.selected_turret = data
+
+# El recuadro de Mejorar y Vender sale sobre la torreta colocada seleccionada y se cierra al soltarla.
+func _on_sellable_turret_changed(turret: Turret) -> void:
+	turret_actions.show_for(turret, _level_state.money)
 
 func _on_inspect_requested(data: Resource) -> void:
 	if is_instance_valid(_level_state):

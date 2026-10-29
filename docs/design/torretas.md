@@ -8,7 +8,7 @@ En `_unhandled_input`:
 
 - **Mover el ratón**: si hay torreta seleccionada y la casilla bajo el cursor es construible, muestra una vista previa en el centro de la casilla: el icono de la torreta al 60 % de opacidad y su rango dibujado en blanco al 15 % (el Amplificador, su aura en ámbar, ver "Amplificador"). Si no, la oculta.
 - **Clic izquierdo**: si hay torreta seleccionada, `grid.can_build(cell)` y `state.spend_money(data.cost)`, instancia la torreta como hija de `BuildManager`, la coloca en el centro de la casilla y la registra en `Grid`.
-- **Clic izquierdo sobre una torreta ya colocada** (se mira antes que lo de colocar): siempre `state.inspect_placed(turret)` (no fusiona por clic); la ficha enseña la torreta y aparecen los botones de vender y, si tiene `fusion`, de mejorar (ver abajo).
+- **Clic izquierdo sobre una torreta ya colocada** (se mira antes que lo de colocar): siempre `state.inspect_placed(turret)` (no fusiona por clic); la ficha enseña la torreta y sale encima de ella el recuadro `TurretActions` con vender y, si tiene `fusion`, mejorar (ver abajo).
 - **Clic izquierdo donde no se puede construir** (el espacio, o cualquier casilla vacía sin torreta de la tienda elegida): `_deselect_all()` suelta todo, como el clic derecho y además la torreta colocada: `state.selected_turret = null`, `state.inspected = null` (la ficha vuelve al escáner, sin botones ni alcance) y oculta la vista previa.
 - **Clic derecho**: pone `state.selected_turret = null` y oculta la vista previa.
 
@@ -18,7 +18,7 @@ Tras colocar una torreta la selección se mantiene, así que se pueden colocar v
 
 ## Mejorar (fusión)
 
-Se selecciona una torreta colocada que tenga `TurretData.fusion` y se pulsa "Mejorar (-X€)" en la ficha (`InfoPanel.upgrade_requested` -> `LevelUI` -> `LevelState.upgrade_requested` -> `BuildManager.upgrade_selected`, solo en `PLAYING`). Gasta `fusion.cost`, siempre 2 × el coste de la base (sin dinero no hace nada), quita la torreta vieja (`remove_child` + `queue_free`, para que `Grid` libere la casilla antes de registrar la nueva), instancia la fusionada en la misma casilla con `invested = vieja.invested + fusion.cost`, la registra en `Grid` y la inspecciona. La selección de la tienda no cambia. La fusionada no tiene `fusion`, así que no enseña el botón ni se vuelve a mejorar, y no sale en la tienda.
+Se selecciona una torreta colocada que tenga `TurretData.fusion` y se pulsa "Mejorar (-X€)" en el recuadro `TurretActions` sobre la torreta (`TurretActions.upgrade_requested` -> `LevelUI` -> `LevelState.upgrade_requested` -> `BuildManager.upgrade_selected`, solo en `PLAYING`). Gasta `fusion.cost`, siempre 2 × el coste de la base (sin dinero el botón se ve apagado y no hace nada), quita la torreta vieja (`remove_child` + `queue_free`, para que `Grid` libere la casilla antes de registrar la nueva), instancia la fusionada en la misma casilla con `invested = vieja.invested + fusion.cost`, la registra en `Grid` y la inspecciona. La selección de la tienda no cambia. La fusionada no tiene `fusion`, así que no enseña el botón ni se vuelve a mejorar, y no sale en la tienda.
 
 La fusionada es otro `TurretData` (`resources/turret_data/<x>_fusion.tres`) con sprites en `assets/sprites/turrets/<x>_fusion/` y ataque propio; el campo `fusion` de la base la enlaza:
 
