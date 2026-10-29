@@ -16,8 +16,12 @@ const PRESSED_BG_COLOR := Color("#14304a")
 const DISABLED_BG_COLOR := Color("#0a0f1a")
 const DISABLED_BORDER_COLOR := Color("#1c4a60")
 const DISABLED_FONT_COLOR := Color(1, 1, 1, 0.3)
-# Hueco en px entre el centro de la torreta y el borde del recuadro (media casilla más un respiro).
-const TURRET_GAP := 10.0
+# Hueco en px entre el centro de la torreta y el borde del recuadro (media casilla, más lo que
+# sobresalen los cañones y un respiro).
+const TURRET_GAP := 22.0
+# Margen del texto de los botones al borde, en px.
+const BUTTON_H_MARGIN := 8.0
+const BUTTON_V_MARGIN := 3.0
 # Texto del botón mientras espera el segundo clic que confirma la venta.
 const CONFIRM_SELL_TEXT := "¿Seguro?"
 
@@ -84,9 +88,17 @@ func _reposition() -> void:
 	position = Vector2(roundf(x), roundf(y))
 
 func _style_button(button: Button) -> void:
-	button.add_theme_stylebox_override("normal", ClippedBoxStyle.create(BG_COLOR, BORDER_COLOR))
-	button.add_theme_stylebox_override("hover", ClippedBoxStyle.create(HOVER_BG_COLOR, HOVER_BORDER_COLOR))
-	button.add_theme_stylebox_override("pressed", ClippedBoxStyle.create(PRESSED_BG_COLOR, HOVER_BORDER_COLOR))
-	button.add_theme_stylebox_override("disabled", ClippedBoxStyle.create(DISABLED_BG_COLOR, DISABLED_BORDER_COLOR))
+	button.add_theme_stylebox_override("normal", _create_style(BG_COLOR, BORDER_COLOR))
+	button.add_theme_stylebox_override("hover", _create_style(HOVER_BG_COLOR, HOVER_BORDER_COLOR))
+	button.add_theme_stylebox_override("pressed", _create_style(PRESSED_BG_COLOR, HOVER_BORDER_COLOR))
+	button.add_theme_stylebox_override("disabled", _create_style(DISABLED_BG_COLOR, DISABLED_BORDER_COLOR))
 	button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	button.add_theme_color_override("font_disabled_color", DISABLED_FONT_COLOR)
+
+func _create_style(bg: Color, border: Color) -> ClippedBoxStyle:
+	var style := ClippedBoxStyle.create(bg, border)
+	style.content_margin_left = BUTTON_H_MARGIN
+	style.content_margin_right = BUTTON_H_MARGIN
+	style.content_margin_top = BUTTON_V_MARGIN
+	style.content_margin_bottom = BUTTON_V_MARGIN
+	return style
