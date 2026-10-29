@@ -15,21 +15,45 @@ const SELECTED_HOVER_BORDER_COLOR := Color("#ffe082")
 const UNAFFORDABLE_COST_COLOR := Color("#ff3c5a")
 const AFFORDABLE_COST_COLOR := Color("#ecb23c")
 const UNAFFORDABLE_ICON_COLOR := Color(1, 1, 1, 0.35)
-# Torreta aún sin desbloquear: caja roja, sin icono ni coste, con un "?" grande centrado.
-const LOCKED_BG_COLOR := Color("#2a0e18")
-const LOCKED_BORDER_COLOR := UNAFFORDABLE_COST_COLOR
-const LOCKED_MARK_COLOR := UNAFFORDABLE_COST_COLOR
-# "?" en píxeles (1 = pintado, 0 = hueco), centrado en el botón.
-const QUESTION_MARK_PIXELS: PackedStringArray = [
-	".111.",
-	"1...1",
-	"....1",
-	"...1.",
-	"..1..",
-	".....",
-	"..1..",
+# Torreta aún sin desbloquear: caja azul sin icono ni coste, con interferencia de pantalla
+# (ruido, líneas de barrido y cortes de señal) y un candado centrado.
+const LOCKED_SCAN_COLOR := Color("#122036")
+const LOCKED_NOISE_COLORS: Array[Color] = [Color("#1c4a60"), Color("#16303f"), Color("#2a6a88")]
+const LOCKED_NOISE_CHANCE := 0.18
+const LOCKED_NOISE_SEED := 7
+# Cortes de señal: fila (como fracción del alto) y desplazamiento en píxeles.
+const LOCKED_GLITCHES: Array[Vector2] = [Vector2(0.29, 5), Vector2(0.48, -7), Vector2(0.73, 9)]
+const LOCKED_GLITCH_COLOR := BORDER_COLOR
+const LOCKED_GLITCH_BRIGHT_COLOR := HOVER_BORDER_COLOR
+const LOCKED_GLITCH_BRIGHT_CHANCE := 0.3
+# Candado en píxeles: 1 = contorno, 2 = cuerpo, 3 = brillo, 4 = ojo de cerradura, 5 = sombra.
+const LOCK_PIXELS: PackedStringArray = [
+	"....1111111....",
+	"...133333331...",
+	"..13311111331..",
+	"..131.....131..",
+	"..131.....131..",
+	"..131.....131..",
+	"..131.....131..",
+	"111111111111111",
+	"133333333333331",
+	"122222222222221",
+	"122222222222221",
+	"122222244422221",
+	"122222244422221",
+	"122222244422221",
+	"122222224222221",
+	"122222224222221",
+	"155555555555551",
+	"111111111111111",
 ]
-const QUESTION_MARK_SCALE := 4.0
+const LOCK_COLORS := {
+	"1": HOVER_BORDER_COLOR,
+	"2": Color("#1c5d6d"),
+	"3": Color("#befaff"),
+	"4": Color("#0a1018"),
+	"5": Color("#144252"),
+}
 # Largo de cada brazo de los corchetes que rodean la torreta seleccionada por fuera.
 const BRACKET_LENGTH := 4
 
@@ -46,6 +70,9 @@ var _affordable := true
 var _selection_locked := false
 # Torreta sin desbloquear en este nivel: no se compra, no se selecciona y no enseña ficha.
 var _locked := false
+
+# Interferencia con candado ya pintada, por tamaño de botón: es la misma en todos los bloqueados.
+static var _locked_textures: Dictionary[Vector2i, ImageTexture] = {}
 
 func _ready() -> void:
 	pressed.connect(_on_pressed)
@@ -127,7 +154,7 @@ func _on_pressed() -> void:
 # Corchetes en L en ámbar justo por fuera de las cuatro esquinas de la torreta seleccionada.
 func _draw() -> void:
 	if _locked:
-		_draw_question_mark()
+		draw_texture(_get_locked_texture(Vector2i(size)), Vector2.ZERO)
 		return
 	if not _selected:
 		return
@@ -142,21 +169,65 @@ func _draw() -> void:
 		draw_rect(Rect2(x_start, corner.y, BRACKET_LENGTH, 1), SELECTED_COLOR)
 		draw_rect(Rect2(corner.x, y_start, 1, BRACKET_LENGTH), SELECTED_COLOR)
 
-# "?" centrado en el botón, píxel a píxel (no depende del layout, así que no se mueve).
-func _draw_question_mark() -> void:
-	var pixels_size := Vector2(QUESTION_MARK_PIXELS[0].length(), QUESTION_MARK_PIXELS.size())
-	var origin := (size - pixels_size * QUESTION_MARK_SCALE) / 2.0
-	origin = origin.floor()
-	for y in QUESTION_MARK_PIXELS.size():
-		for x in QUESTION_MARK_PIXELS[y].length():
-			if QUESTION_MARK_PIXELS[y][x] == "1":
-				draw_rect(Rect2(origin + Vector2(x, y) * QUESTION_MARK_SCALE, Vector2.ONE * QUESTION_MARK_SCALE), LOCKED_MARK_COLOR)
+static func _get_locked_texture(box_size: Vector2i) -> ImageTexture:
+	if not _locked_textures.has(box_size):
+		_locked_textures[box_size] = ImageTexture.create_from_image(_build_locked_image(box_size))
+	return _locked_textures[box_size]
+
+# Ruido, líneas de barrido, cortes de señal y candado en una imagen transparente que se pinta
+# sobre la caja; todo dentro de la caja recortada. Semilla fija: no cambia entre botones ni partidas.
+static func _build_locked_image(box_size: Vector2i) -> Image:
+	var image := Image.create_empty(box_size.x, box_size.y, false, Image.FORMAT_RGBA8)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = LOCKED_NOISE_SEED
+	var bounds := Rect2i(Vector2i.ZERO, box_size)
+	for y in range(1, box_size.y - 1):
+		for x in range(1, box_size.x - 1):
+			if not _inside_box(bounds, x, y):
+				continue
+			if y % 3 == 0:
+				image.set_pixel(x, y, LOCKED_SCAN_COLOR)
+			if rng.randf() < LOCKED_NOISE_CHANCE:
+				image.set_pixel(x, y, LOCKED_NOISE_COLORS[rng.randi() % LOCKED_NOISE_COLORS.size()])
+	for glitch in LOCKED_GLITCHES:
+		var y := int(box_size.y * glitch.x)
+		for x in range(2, box_size.x - 2):
+			var shifted := x + int(glitch.y)
+			if _inside_box(bounds, shifted, y) and rng.randf() < 0.8:
+				var bright := rng.randf() < LOCKED_GLITCH_BRIGHT_CHANCE
+				image.set_pixel(shifted, y, LOCKED_GLITCH_BRIGHT_COLOR if bright else LOCKED_GLITCH_COLOR)
+	_draw_lock_pixels(image, box_size)
+	return image
+
+# Dentro del interior de la caja recortada (sin el borde de 1 px).
+static func _inside_box(bounds: Rect2i, x: int, y: int) -> bool:
+	if y < 1 or y >= bounds.end.y - 1:
+		return false
+	var span := ClippedBoxStyle.row_span(bounds, ClippedBoxStyle.BUTTON_CLIP, y)
+	return x > span.x and x < span.y - 1
+
+# Candado centrado, con un halo de 1 px del color de fondo para que se lea sobre el ruido.
+static func _draw_lock_pixels(image: Image, box_size: Vector2i) -> void:
+	var lock_size := Vector2i(LOCK_PIXELS[0].length(), LOCK_PIXELS.size())
+	var origin := (box_size - lock_size) / 2
+	for y in lock_size.y:
+		for x in lock_size.x:
+			if LOCK_PIXELS[y][x] == ".":
+				continue
+			for dy in range(-1, 2):
+				for dx in range(-1, 2):
+					image.set_pixelv(origin + Vector2i(x + dx, y + dy), BG_COLOR)
+	for y in lock_size.y:
+		for x in lock_size.x:
+			var key := LOCK_PIXELS[y][x]
+			if key != ".":
+				image.set_pixelv(origin + Vector2i(x, y), LOCK_COLORS[key])
 
 func _refresh() -> void:
 	if data == null:
 		return
 	if _locked:
-		var locked_style := ClippedBoxStyle.create(LOCKED_BG_COLOR, LOCKED_BORDER_COLOR)
+		var locked_style := ClippedBoxStyle.create(BG_COLOR, BORDER_COLOR)
 		for state in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
 			add_theme_stylebox_override(state, locked_style)
 		add_theme_stylebox_override("focus", StyleBoxEmpty.new())
