@@ -15,12 +15,11 @@ const SELECTED_HOVER_BORDER_COLOR := Color("#ffe082")
 const UNAFFORDABLE_COST_COLOR := Color("#ff3c5a")
 const AFFORDABLE_COST_COLOR := Color("#ecb23c")
 const UNAFFORDABLE_ICON_COLOR := Color(1, 1, 1, 0.35)
-# Torreta aún sin desbloquear: caja roja, sin icono, con un "?" grande y "???" de coste.
+# Torreta aún sin desbloquear: caja roja, sin icono ni coste, con un "?" grande centrado.
 const LOCKED_BG_COLOR := Color("#2a0e18")
 const LOCKED_BORDER_COLOR := UNAFFORDABLE_COST_COLOR
 const LOCKED_MARK_COLOR := UNAFFORDABLE_COST_COLOR
-const LOCKED_COST_TEXT := "???"
-# "?" en píxeles (1 = pintado, 0 = hueco), centrado en el sitio del icono.
+# "?" en píxeles (1 = pintado, 0 = hueco), centrado en el botón.
 const QUESTION_MARK_PIXELS: PackedStringArray = [
 	".111.",
 	"1...1",
@@ -30,6 +29,7 @@ const QUESTION_MARK_PIXELS: PackedStringArray = [
 	".....",
 	"..1..",
 ]
+const QUESTION_MARK_SCALE := 4.0
 # Largo de cada brazo de los corchetes que rodean la torreta seleccionada por fuera.
 const BRACKET_LENGTH := 4
 
@@ -52,7 +52,7 @@ func setup(turret_data: TurretData, money: int, locked := false) -> void:
 	data = turret_data
 	_locked = locked
 	icon_rect.texture = data.icon
-	cost_label.text = LOCKED_COST_TEXT if locked else UiFormat.money(data.cost)
+	cost_label.text = "" if locked else UiFormat.money(data.cost)
 	set_money(money)
 
 func set_money(amount: int) -> void:
@@ -117,16 +117,15 @@ func _draw() -> void:
 		draw_rect(Rect2(x_start, corner.y, BRACKET_LENGTH, 1), SELECTED_COLOR)
 		draw_rect(Rect2(corner.x, y_start, 1, BRACKET_LENGTH), SELECTED_COLOR)
 
-# "?" centrado en el sitio del icono, píxel a píxel y ampliado todo lo que quepa.
+# "?" centrado en el botón, píxel a píxel (no depende del layout, así que no se mueve).
 func _draw_question_mark() -> void:
 	var pixels_size := Vector2(QUESTION_MARK_PIXELS[0].length(), QUESTION_MARK_PIXELS.size())
-	var scale_factor := maxf(1.0, floorf(minf(icon_rect.size.x / pixels_size.x, icon_rect.size.y / pixels_size.y)))
-	var origin := icon_rect.get_global_rect().get_center() - global_position - pixels_size * scale_factor / 2.0
+	var origin := (size - pixels_size * QUESTION_MARK_SCALE) / 2.0
 	origin = origin.floor()
 	for y in QUESTION_MARK_PIXELS.size():
 		for x in QUESTION_MARK_PIXELS[y].length():
 			if QUESTION_MARK_PIXELS[y][x] == "1":
-				draw_rect(Rect2(origin + Vector2(x, y) * scale_factor, Vector2.ONE * scale_factor), LOCKED_MARK_COLOR)
+				draw_rect(Rect2(origin + Vector2(x, y) * QUESTION_MARK_SCALE, Vector2.ONE * QUESTION_MARK_SCALE), LOCKED_MARK_COLOR)
 
 func _refresh() -> void:
 	if data == null:
@@ -136,8 +135,7 @@ func _refresh() -> void:
 		for state in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
 			add_theme_stylebox_override(state, locked_style)
 		add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-		icon_rect.visible = false
-		cost_label.add_theme_color_override("font_color", UNAFFORDABLE_COST_COLOR)
+		icon_rect.modulate = Color.TRANSPARENT   # oculto sin quitarle el hueco al layout
 		queue_redraw()
 		return
 	var normal := ClippedBoxStyle.create(BG_COLOR, BORDER_COLOR)
