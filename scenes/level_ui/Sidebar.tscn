@@ -55,42 +55,36 @@ toggle_mode = true
 icon = ExtResource("4_tabwaves")
 icon_alignment = 1
 
-[node name="TurretsPage" type="VBoxContainer" parent="Content" unique_id=1816200004]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_constants/separation = 4
-
-[node name="CreditsHeader" type="PanelContainer" parent="Content/TurretsPage" unique_id=1816200005]
+[node name="CreditsHeader" type="PanelContainer" parent="Content" unique_id=1816200005]
 layout_mode = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_credits")
 
-[node name="CreditsRow" type="HBoxContainer" parent="Content/TurretsPage/CreditsHeader"]
+[node name="CreditsRow" type="HBoxContainer" parent="Content/CreditsHeader"]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 4
 
-[node name="CoinMargin" type="MarginContainer" parent="Content/TurretsPage/CreditsHeader/CreditsRow"]
+[node name="CoinMargin" type="MarginContainer" parent="Content/CreditsHeader/CreditsRow"]
 layout_mode = 2
 size_flags_vertical = 0
 mouse_filter = 2
 theme_override_constants/margin_top = 3
 
-[node name="CoinIcon" type="TextureRect" parent="Content/TurretsPage/CreditsHeader/CreditsRow/CoinMargin"]
+[node name="CoinIcon" type="TextureRect" parent="Content/CreditsHeader/CreditsRow/CoinMargin"]
 custom_minimum_size = Vector2(8, 8)
 layout_mode = 2
 mouse_filter = 2
 texture = ExtResource("6_coin")
 stretch_mode = 3
 
-[node name="CreditsLabel" type="Label" parent="Content/TurretsPage/CreditsHeader/CreditsRow"]
+[node name="CreditsLabel" type="Label" parent="Content/CreditsHeader/CreditsRow"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9254902, 0.69803923, 0.23529412, 1)
 theme_override_font_sizes/font_size = 16
 text = "CRÉDITOS"
 
-[node name="MoneyLabel" type="Label" parent="Content/TurretsPage/CreditsHeader/CreditsRow" unique_id=651253998]
+[node name="MoneyLabel" type="Label" parent="Content/CreditsHeader/CreditsRow" unique_id=651253998]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -98,6 +92,12 @@ theme_override_colors/font_color = Color(1, 0.8784314, 0.50980395, 1)
 theme_override_font_sizes/font_size = 16
 horizontal_alignment = 2
 clip_text = true
+
+[node name="TurretsPage" type="VBoxContainer" parent="Content" unique_id=1816200004]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 4
 
 [node name="TurretsHeader" parent="Content/TurretsPage" instance=ExtResource("7_header")]
 layout_mode = 2
@@ -169,16 +169,22 @@ focus_mode = 0
 theme_override_font_sizes/font_size = 16
 text = ">"
 
-[node name="WaveBlocks" type="VBoxContainer" parent="Content/WavesPage"]
-unique_name_in_owner = true
+[node name="WaveScroll" type="ScrollContainer" parent="Content/WavesPage"]
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
 
-[node name="WaveControls" type="VBoxContainer" parent="Content/WavesPage"]
+[node name="WaveBlocks" type="VBoxContainer" parent="Content/WavesPage/WaveScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="WaveControls" type="VBoxContainer" parent="Content"]
 layout_mode = 2
 theme_override_constants/separation = 4
 
-[node name="NextWaveButton" type="Button" parent="Content/WavesPage/WaveControls"]
+[node name="NextWaveButton" type="Button" parent="Content/WaveControls"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(108, 24)
 layout_mode = 2
@@ -187,7 +193,7 @@ focus_mode = 0
 theme_override_font_sizes/font_size = 16
 text = "INICIAR"
 
-[node name="AutoWaveButton" type="Button" parent="Content/WavesPage/WaveControls"]
+[node name="AutoWaveButton" type="Button" parent="Content/WaveControls"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(108, 24)
 layout_mode = 2
@@ -197,7 +203,7 @@ theme_override_font_sizes/font_size = 16
 toggle_mode = true
 text = "AUTO"
 
-[node name="SpeedButton" type="Button" parent="Content/WavesPage/WaveControls"]
+[node name="SpeedButton" type="Button" parent="Content/WaveControls"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(108, 24)
 layout_mode = 2
