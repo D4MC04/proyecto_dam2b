@@ -63,6 +63,8 @@ Si la opción `show_turret_range` de `Settings` está activada, `_draw` pinta el
 
 Cada frame el cañón gira hacia el objetivo a `turn_speed` grados/s (0 = al instante). Sin objetivo se queda donde está. Se considera alineado dentro de 12° (`AIM_TOLERANCE`).
 
+Con `turn_speed > 0` no gira siempre por el camino más corto: elige el sentido (horario o antihorario) con el que alcanza antes al enemigo. Calcula la velocidad angular del enemigo alrededor de la torreta (`Enemy.get_move_velocity()`: tangente del camino por velocidad y ralentización) y, para cada sentido, tiempo = ángulo a recorrer / (velocidad de giro ∓ velocidad angular del enemigo). Un sentido en el que el enemigo escapa más rápido de lo que gira el cañón se descarta; si ninguno lo alcanza, gira hacia donde va el enemigo. El sentido elegido se mantiene mientras el objetivo sea el mismo, salvo que el contrario tarde menos del 70 % (`TURN_SWITCH_RATIO`). Ya alineado (dentro de `AIM_TOLERANCE`) sigue al enemigo por el camino corto.
+
 ### Disparo
 
 Al cumplirse el cooldown:
