@@ -153,6 +153,13 @@ func _use_power(power: Powers.Power) -> void:
 	if is_instance_valid(_powers) and _ui_state == UiState.PLAYING:
 		_powers.use(power)
 
+# Cualquier clic sobre la interfaz suelta la torreta colocada. Va diferido para que antes se atiendan
+# Mejorar y Vender; los clics sobre el mapa no pasan por aquí (los atiende BuildManager).
+func _input(event: InputEvent) -> void:
+	var click := event as InputEventMouseButton
+	if click != null and click.pressed and get_viewport().gui_get_hovered_control() != null and is_instance_valid(_level_state):
+		_level_state.set_deferred("sellable_turret", null)
+
 func _on_turret_selected(data: TurretData) -> void:
 	if is_instance_valid(_level_state):
 		_level_state.selected_turret = data

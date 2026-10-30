@@ -13,57 +13,57 @@ time = 2.0
 [sub_resource type="Resource" id="Resource_asm4l"]
 script = ExtResource("1_sitd1")
 enemy_data = ExtResource("divisora")
-time = 3.4
+time = 3.3
 
 [sub_resource type="Resource" id="Resource_sitd1"]
 script = ExtResource("1_sitd1")
 enemy_data = ExtResource("4_me1no")
-time = 4.9
+time = 4.8
 path_index = 1
 
 [sub_resource type="Resource" id="Resource_xmyol"]
 script = ExtResource("1_sitd1")
 enemy_data = ExtResource("divisora")
-time = 6.7
+time = 6.4
 
 [sub_resource type="Resource" id="Resource_usxnx"]
 script = ExtResource("1_sitd1")
 enemy_data = ExtResource("divisora")
-time = 8.0
+time = 7.8
 
 [sub_resource type="Resource" id="Resource_me1no"]
 script = ExtResource("1_sitd1")
 enemy_data = ExtResource("4_me1no")
-time = 9.6
+time = 9.2
 path_index = 1
 
 [sub_resource type="Resource" id="Resource_8p85a"]
 script = ExtResource("1_sitd1")
 enemy_data = ExtResource("divisora")
-time = 11.3
+time = 10.9
 
 [sub_resource type="Resource" id="Resource_x0h1p"]
 script = ExtResource("1_sitd1")
 enemy_data = ExtResource("divisora")
-time = 12.7
+time = 12.2
 
 [sub_resource type="Resource" id="Resource_tos4d"]
 script = ExtResource("1_sitd1")
 enemy_data = ExtResource("4_me1no")
-time = 14.2
+time = 13.6
 path_index = 1
 
 [sub_resource type="Resource" id="Resource_oh80r"]
 script = ExtResource("1_sitd1")
 enemy_data = ExtResource("divisora")
-time = 16.0
+time = 15.3
 
 [sub_resource type="Resource" id="Resource_tlh7w"]
 script = ExtResource("1_sitd1")
 enemy_data = ExtResource("divisora")
-time = 17.4
+time = 16.6
 
 [resource]
 script = ExtResource("6_x0h1p")
-health_multiplier = 1.1
+health_multiplier = 1.74
 entries = Array[ExtResource("1_sitd1")]([SubResource("Resource_bv2u1"), SubResource("Resource_asm4l"), SubResource("Resource_sitd1"), SubResource("Resource_xmyol"), SubResource("Resource_usxnx"), SubResource("Resource_me1no"), SubResource("Resource_8p85a"), SubResource("Resource_x0h1p"), SubResource("Resource_tos4d"), SubResource("Resource_oh80r"), SubResource("Resource_tlh7w")])
