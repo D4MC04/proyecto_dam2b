@@ -9,7 +9,8 @@ extends SceneTree
 ##
 ## Cada oleada gasta un presupuesto: cada nave cuesta su recompensa (más la de sus trozos, si se
 ## parte). El presupuesto de la primera oleada sale de la tabla y crece por oleada; las naves salen
-## en grupos del mismo tipo, cada vez más grandes y más juntos, y la vida sube un poco por oleada.
+## en grupos del mismo tipo, cada vez más grandes y más juntos, y la vida sube cada vez más deprisa
+## (`health` de la tabla): la recompensa no cambia con ella, así que la dificultad crece más que el dinero.
 ## Los grupos alternan entre las naves nuevas del nivel (las protagonistas) y todas las del nivel;
 ## las naves de niveles anteriores se van sumando según avanzan las oleadas. Cada grupo va por un
 ## camino, sacado de una bolsa mezclada para que se usen todos; en niveles con varios caminos los
@@ -33,43 +34,45 @@ const BOSS := "nodriza"
 const FIRST_WAVE_START := 3.0
 const WAVE_START := 2.0
 ## Cada oleada multiplica la separación entre naves por esto, sin bajar de MIN_GAP.
-const GAP_SHRINK := 0.93
+const GAP_SHRINK := 0.91
 const MIN_GAP := 0.3
 ## Pausa entre grupos, en separaciones de nave.
 const GROUP_PAUSE := 2.5
 ## Con varios caminos, el siguiente grupo sale cuando el anterior lleva esta fracción de su duración:
 ## 1 en la primera oleada (uno detrás de otro) y MIN_OVERLAP_WAIT en la última.
-const MIN_OVERLAP_WAIT := 0.4
+const MIN_OVERLAP_WAIT := 0.3
 ## En cuántas oleadas se han sumado todas las naves de niveles anteriores.
 const OLD_RAMP_WAVES := 7
 ## Valor (en presupuesto) de un grupo en la primera oleada y cuánto crece por oleada.
 const GROUP_VALUE := 100.0
 const GROUP_VALUE_STEP := 15.0
 const MAX_GROUP := 6
-## Vida extra por oleada (la oleada K lleva 1 + HEALTH_STEP * (K - 1)).
-const HEALTH_STEP := 0.05
+## Forma de la curva de vida: la vida pasa del primer valor de `health` al segundo con la oleada
+## elevada a esto (más de 1: sube poco al principio y mucho al final).
+const HEALTH_CURVE := 1.4
 
 ## Por nivel: oleadas, caminos del mapa, presupuesto de la primera oleada, crecimiento por oleada,
-## separación inicial entre naves (s), naves nuevas del nivel, naves de niveles anteriores (de las
-## más fáciles a las más duras: se van sumando por ese orden) y si sale la Nodriza.
+## separación inicial entre naves (s), multiplicador de vida de la primera y de la última oleada
+## (`health`, la recompensa no cambia con él), naves nuevas del nivel, naves de niveles anteriores
+## (de las más fáciles a las más duras: se van sumando por ese orden) y si sale la Nodriza.
 const LEVELS: Array[Dictionary] = [
-	{"waves": 10, "paths": 1, "budget": 150.0, "growth": 1.13, "gap": 1.0,
+	{"waves": 10, "paths": 1, "budget": 150.0, "growth": 1.13, "gap": 1.0, "health": Vector2(1.1, 2.8),
 		"new": [DART, "wasp"], "old": [], "boss": false},
-	{"waves": 10, "paths": 2, "budget": 230.0, "growth": 1.13, "gap": 0.95,
+	{"waves": 10, "paths": 2, "budget": 230.0, "growth": 1.13, "gap": 0.95, "health": Vector2(1.2, 2.5),
 		"new": ["nave_normal"], "old": [DART, "wasp"], "boss": false},
-	{"waves": 10, "paths": 2, "budget": 330.0, "growth": 1.125, "gap": 0.9,
+	{"waves": 10, "paths": 2, "budget": 330.0, "growth": 1.125, "gap": 0.9, "health": Vector2(1.4, 2.8),
 		"new": ["nave_agresiva"], "old": [DART, "wasp", "nave_normal"], "boss": false},
-	{"waves": 10, "paths": 2, "budget": 440.0, "growth": 1.125, "gap": 0.85,
+	{"waves": 10, "paths": 2, "budget": 440.0, "growth": 1.125, "gap": 0.85, "health": Vector2(1.4, 3.0),
 		"new": ["acorazado"], "old": [DART, "wasp", "nave_normal", "nave_agresiva"], "boss": false},
-	{"waves": 10, "paths": 2, "budget": 560.0, "growth": 1.12, "gap": 0.8,
+	{"waves": 10, "paths": 2, "budget": 560.0, "growth": 1.12, "gap": 0.8, "health": Vector2(1.5, 3.5),
 		"new": ["ariete", "divisora"], "old": ["wasp", "nave_normal", "nave_agresiva", "acorazado"], "boss": false},
-	{"waves": 10, "paths": 3, "budget": 680.0, "growth": 1.12, "gap": 0.75,
+	{"waves": 10, "paths": 3, "budget": 680.0, "growth": 1.12, "gap": 0.75, "health": Vector2(2.0, 4.2),
 		"new": ["reparadora"], "old": ["wasp", "nave_normal", "nave_agresiva", "acorazado", "ariete", "divisora"], "boss": true},
-	{"waves": 10, "paths": 4, "budget": 800.0, "growth": 1.12, "gap": 0.7,
+	{"waves": 10, "paths": 4, "budget": 800.0, "growth": 1.12, "gap": 0.7, "health": Vector2(2.3, 4.9),
 		"new": ["espectro"], "old": ["wasp", "nave_agresiva", "acorazado", "ariete", "divisora", "reparadora"], "boss": false},
-	{"waves": 10, "paths": 4, "budget": 920.0, "growth": 1.12, "gap": 0.65,
+	{"waves": 10, "paths": 4, "budget": 920.0, "growth": 1.12, "gap": 0.65, "health": Vector2(2.4, 5.3),
 		"new": ["saboteadora"], "old": ["wasp", "nave_agresiva", "acorazado", "ariete", "divisora", "reparadora", "espectro"], "boss": false},
-	{"waves": 10, "paths": 8, "budget": 1050.0, "growth": 1.12, "gap": 0.6,
+	{"waves": 10, "paths": 8, "budget": 1050.0, "growth": 1.12, "gap": 0.6, "health": Vector2(2.6, 5.5),
 		"new": ["espectro", "saboteadora", "divisora", "reparadora"],
 		"old": [DART, "wasp", "nave_normal", "nave_agresiva", "acorazado", "ariete"], "boss": true},
 ]
@@ -98,13 +101,19 @@ func _make_level(level_number: int, table: Dictionary) -> Array[WaveData]:
 		wave.entries = _make_entries(table, k, min_ships, is_last and table["boss"], rng)
 		min_ships = wave.entries.size() + 1
 		# Redondeado a centésimas, para que el .tres no guarde 1.1500000000000001.
-		wave.health_multiplier = roundf((1.0 + HEALTH_STEP * k) * 100.0) / 100.0
+		wave.health_multiplier = roundf(_health(table, k) * 100.0) / 100.0
 		_save(wave, path)
 		# Cargado desde el archivo, para que el nivel lo enlace y no lo meta dentro.
 		waves.append(load(path) as WaveData)
 		print("Nivel %d, oleada %d: %d naves, última a %.1f s, vida x%.2f" % [level_number, k + 1,
 				wave.entries.size(), wave.entries[-1].time, wave.health_multiplier])
 	return waves
+
+
+# Multiplicador de vida de la oleada k: sube de `health.x` a `health.y` con una curva que se acelera.
+func _health(table: Dictionary, k: int) -> float:
+	var health: Vector2 = table["health"]
+	return lerpf(health.x, health.y, pow(float(k) / (table["waves"] - 1), HEALTH_CURVE))
 
 
 # Saca naves hasta gastar el presupuesto y llegar a `min_ships` (una más que la oleada anterior).

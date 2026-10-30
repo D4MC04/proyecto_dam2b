@@ -6,50 +6,50 @@
 [ext_resource type="Script" uid="uid://cwc32qenwkwf3" path="res://scripts/resources/SpawnEntry.gd" id="entry"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="wave"]
 
-[sub_resource type="Resource" id="Resource_iafb5"]
+[sub_resource type="Resource" id="Resource_ikgoy"]
 script = ExtResource("entry")
 enemy_data = ExtResource("2_iafb5")
 time = 3.0
 path_index = 1
 
-[sub_resource type="Resource" id="Resource_1t2nv"]
+[sub_resource type="Resource" id="Resource_iafb5"]
 script = ExtResource("entry")
 enemy_data = ExtResource("3_ikgoy")
 time = 5.0
 
-[sub_resource type="Resource" id="Resource_l4wde"]
+[sub_resource type="Resource" id="Resource_1t2nv"]
 script = ExtResource("entry")
 enemy_data = ExtResource("3_ikgoy")
 time = 5.8
 
-[sub_resource type="Resource" id="Resource_dnvrp"]
+[sub_resource type="Resource" id="Resource_l4wde"]
 script = ExtResource("entry")
 enemy_data = ExtResource("3_ikgoy")
 time = 6.6
 
-[sub_resource type="Resource" id="Resource_yp7hu"]
+[sub_resource type="Resource" id="Resource_dnvrp"]
 script = ExtResource("entry")
 enemy_data = ExtResource("divisora")
 time = 8.6
 path_index = 1
 
-[sub_resource type="Resource" id="Resource_d3a5t"]
+[sub_resource type="Resource" id="Resource_yp7hu"]
 script = ExtResource("entry")
 enemy_data = ExtResource("2_iafb5")
 time = 10.6
 
-[sub_resource type="Resource" id="Resource_y883x"]
+[sub_resource type="Resource" id="Resource_d3a5t"]
 script = ExtResource("entry")
 enemy_data = ExtResource("divisora")
 time = 12.6
 path_index = 1
 
-[sub_resource type="Resource" id="Resource_5j4ce"]
+[sub_resource type="Resource" id="Resource_y883x"]
 script = ExtResource("entry")
 enemy_data = ExtResource("2_iafb5")
 time = 14.6
 
-[sub_resource type="Resource" id="Resource_dodu5"]
+[sub_resource type="Resource" id="Resource_5j4ce"]
 script = ExtResource("entry")
 enemy_data = ExtResource("divisora")
 time = 16.6
@@ -57,4 +57,5 @@ path_index = 1
 
 [resource]
 script = ExtResource("wave")
-entries = Array[ExtResource("entry")]([SubResource("Resource_iafb5"), SubResource("Resource_1t2nv"), SubResource("Resource_l4wde"), SubResource("Resource_dnvrp"), SubResource("Resource_yp7hu"), SubResource("Resource_d3a5t"), SubResource("Resource_y883x"), SubResource("Resource_5j4ce"), SubResource("Resource_dodu5")])
+health_multiplier = 1.5
+entries = Array[ExtResource("entry")]([SubResource("Resource_ikgoy"), SubResource("Resource_iafb5"), SubResource("Resource_1t2nv"), SubResource("Resource_l4wde"), SubResource("Resource_dnvrp"), SubResource("Resource_yp7hu"), SubResource("Resource_d3a5t"), SubResource("Resource_y883x"), SubResource("Resource_5j4ce")])
