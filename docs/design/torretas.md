@@ -38,7 +38,7 @@ La fusionada es otro `TurretData` (`resources/turret_data/<x>_fusion.tres`) con 
 
 Al construir en una casilla libre, `BuildManager` emite `LevelState.turret_placed` (no al mejorar); la escucha el tutorial.
 
-`LevelState.sellable_turret` es la torreta colocada seleccionada. `inspect_placed` la fija junto con `inspected`; cualquier otro cambio de `inspected` la suelta. `LevelState.sell_selected_turret()` suma `Turret.get_sell_value()` (mitad de `Turret.invested`, redondeada hacia abajo; `invested` es el coste al colocar y suma `fusion.cost` al fusionar), hace `queue_free` de la torreta (al salir del árbol `Grid.register_turret` libera la casilla) y suelta la selección. Al vender sale un `+X€` flotante sobre la casilla (`FloatingText`, ver [enemigos.md](enemigos.md)). No cuenta en el resumen de partida. Solo vende en `PLAYING` (lo comprueba `LevelUI`).
+`LevelState.sellable_turret` es la torreta colocada seleccionada. `inspect_placed` la fija junto con `inspected`; cualquier otro cambio de `inspected` la suelta. `BuildManager._try_place` suelta todo (`_deselect_all`) al pulsar la que ya está seleccionada, y cualquier clic sobre la interfaz también la suelta (`LevelUI._input`). `LevelState.sell_selected_turret()` suma `Turret.get_sell_value()` (mitad de `Turret.invested`, redondeada hacia abajo; `invested` es el coste al colocar y suma `fusion.cost` al fusionar), hace `queue_free` de la torreta (al salir del árbol `Grid.register_turret` libera la casilla) y suelta la selección. Al vender sale un `+X€` flotante sobre la casilla (`FloatingText`, ver [enemigos.md](enemigos.md)). No cuenta en el resumen de partida. Solo vende en `PLAYING` (lo comprueba `LevelUI`).
 
 ## Escena y script
 
