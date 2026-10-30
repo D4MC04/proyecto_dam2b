@@ -177,15 +177,21 @@ static func _build_locked_image(box_size: Vector2i) -> Image:
 	var image := Image.create_empty(box_size.x, box_size.y, false, Image.FORMAT_RGBA8)
 	var bounds := Rect2i(Vector2i.ZERO, box_size)
 	var silhouette := Rect2i((box_size - LOCKED_SILHOUETTE_SIZE) / 2, LOCKED_SILHOUETTE_SIZE)
+	# La rejilla y el punteado se cuentan desde el borde más cercano del botón, para que el plano
+	# sea simétrico en los dos ejes y no descompense el candado. Los puntos de la rejilla más
+	# cercanos al centro quedan a 2 px de él por cada lado.
+	var center := (box_size - Vector2i.ONE) / 2
+	var grid_offset := (center + Vector2i(2, 2)) % LOCKED_GRID_STEP
 	for y in box_size.y:
 		for x in box_size.x:
 			if not _inside_box(bounds, x, y):
 				continue
+			var folded := Vector2i(mini(x, box_size.x - 1 - x), mini(y, box_size.y - 1 - y))
 			if _in_silhouette(silhouette, x, y):
 				image.set_pixel(x, y, LOCKED_SILHOUETTE_COLORS[y % 2])
-			elif (x + y) % 2 == 0 and _touches_silhouette(silhouette, x, y):
+			elif _touches_silhouette(silhouette, x, y) and _is_outline_dot(silhouette, folded, x, y):
 				image.set_pixel(x, y, LOCKED_OUTLINE_COLOR)
-			elif x % LOCKED_GRID_STEP == 1 and y % LOCKED_GRID_STEP == 1:
+			elif folded % LOCKED_GRID_STEP == grid_offset:
 				image.set_pixel(x, y, LOCKED_GRID_COLOR)
 	_draw_lock_pixels(image, box_size)
 	return image
@@ -204,6 +210,16 @@ static func _touches_silhouette(rect: Rect2i, x: int, y: int) -> bool:
 		if _in_silhouette(rect, x + step.x, y + step.y):
 			return true
 	return false
+
+# Contorno punteado: las cuatro diagonales enteras (la escalera de píxeles que solo se tocan por
+# la esquina ya se ve punteada) y los tramos rectos un píxel sí y otro no, con dos puntos seguidos
+# en el centro de cada lado que lo marcan. `folded` es la distancia al borde más cercano del botón.
+static func _is_outline_dot(rect: Rect2i, folded: Vector2i, x: int, y: int) -> bool:
+	var on_side := x < rect.position.x or x >= rect.end.x
+	var on_top_or_bottom := y < rect.position.y or y >= rect.end.y
+	if not on_side and not on_top_or_bottom:
+		return true
+	return (folded.y if on_side else folded.x) % 2 == 1
 
 # Dentro del interior de la caja recortada (sin el borde de 1 px).
 static func _inside_box(bounds: Rect2i, x: int, y: int) -> bool:
