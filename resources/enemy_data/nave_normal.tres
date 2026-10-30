@@ -7,13 +7,13 @@
 [resource]
 script = ExtResource("1_data")
 name = "Nave normal"
-hp = 80.0
-speed = 36
-reward = 30
-base_damage = 10
-description = "Nave de transporte lenta y resistente."
+hp = 100.0
+speed = 50
+reward = 15
+base_damage = 15
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 rotate_sprite = true
 rotation_offset = 180.0
+description = "Nave de transporte lenta y resistente."
 metadata/_custom_type_script = "uid://do62ihbnaitnl"

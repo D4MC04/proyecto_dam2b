@@ -8,11 +8,11 @@
 script = ExtResource("1_data")
 name = "Dart de hielo"
 hp = 25
-speed = 90
-reward = 15
+speed = 100
+reward = 5
 base_damage = 5
-description = "Caza ligero de casco azul. Frágil y veloz."
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 rotate_sprite = true
+description = "Caza ligero de casco azul. Frágil y veloz."
 metadata/_custom_type_script = "uid://do62ihbnaitnl"

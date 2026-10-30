@@ -9,14 +9,14 @@
 [ext_resource type="Script" uid="uid://dd6xsyc7ng8u7" path="res://scripts/main_menu/Asteroids.gd" id="17_asteroids"]
 [ext_resource type="Script" uid="uid://pdd67yive1em" path="res://scripts/main_menu/Satellites.gd" id="18_satellites"]
 [ext_resource type="PackedScene" path="res://scenes/OptionsMenu.tscn" id="19_options"]
-[ext_resource type="Script" path="res://scripts/level_ui/OverlayFrame.gd" id="20_frame"]
+[ext_resource type="Script" uid="uid://cu5uq2sgohj00" path="res://scripts/level_ui/OverlayFrame.gd" id="20_frame"]
 [ext_resource type="PackedScene" path="res://scenes/level_ui/ScreenHeader.tscn" id="21_header"]
 [ext_resource type="PackedScene" path="res://scenes/Navedex.tscn" id="22_navedex"]
-[ext_resource type="Script" path="res://scripts/main_menu/Skirmish.gd" id="23_skirmish"]
+[ext_resource type="Script" uid="uid://da11cc2tt2ny8" path="res://scripts/main_menu/Skirmish.gd" id="23_skirmish"]
 [ext_resource type="PackedScene" path="res://scenes/MenuBackground.tscn" id="24_background"]
-[ext_resource type="Script" path="res://scripts/main_menu/Outpost.gd" id="25_outpost"]
-[ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/menu/menu_vignette.png" id="26_vignette"]
-[ext_resource type="Texture2D" path="res://assets/sprites/backgrounds/menu/menu_planet.png" id="27_planet"]
+[ext_resource type="Script" uid="uid://d2ksqjroaxlx6" path="res://scripts/main_menu/Outpost.gd" id="25_outpost"]
+[ext_resource type="Texture2D" uid="uid://bykflanuslq17" path="res://assets/sprites/backgrounds/menu/menu_vignette.png" id="26_vignette"]
+[ext_resource type="Texture2D" uid="uid://7sb0q5toos63" path="res://assets/sprites/backgrounds/menu/menu_planet.png" id="27_planet"]
 
 [node name="MainMenu" type="Control" unique_id=576679633]
 texture_filter = 1
@@ -38,12 +38,12 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
 
-[node name="MenuBackground" parent="." instance=ExtResource("24_background")]
+[node name="MenuBackground" parent="." unique_id=1933183231 instance=ExtResource("24_background")]
 
 [node name="StarField" type="Node2D" parent="." unique_id=933333249]
 script = ExtResource("2_stars")
 
-[node name="RingedPlanet" type="Sprite2D" parent="."]
+[node name="RingedPlanet" type="Sprite2D" parent="." unique_id=1013456220]
 position = Vector2(820, 446)
 texture = ExtResource("27_planet")
 
@@ -62,21 +62,21 @@ script = ExtResource("18_satellites")
 visible = false
 position = Vector2(81, 458.1)
 scale = Vector2(0.355, 0.33500007)
-frame_progress = 0.4903853
+frame_progress = 0.12431884
 sheet = ExtResource("12_asteroide1")
 fps = 10.0
 
-[node name="Outpost" type="Node2D" parent="."]
+[node name="Outpost" type="Node2D" parent="." unique_id=753478624]
 modulate = Color(0.62, 0.66, 0.74, 1)
 position = Vector2(120, 286)
 scale = Vector2(0.5, 0.5)
 script = ExtResource("25_outpost")
 
-[node name="Skirmish" type="Node2D" parent="." node_paths=PackedStringArray("outpost")]
+[node name="Skirmish" type="Node2D" parent="." unique_id=1817480808 node_paths=PackedStringArray("outpost")]
 script = ExtResource("23_skirmish")
 outpost = NodePath("../Outpost")
 
-[node name="Vignette" type="Sprite2D" parent="."]
+[node name="Vignette" type="Sprite2D" parent="." unique_id=1700312252]
 texture = ExtResource("26_vignette")
 centered = false
 
@@ -99,7 +99,7 @@ theme_override_font_sizes/font_size = 72
 text = "ASTRO ARTILLERY"
 horizontal_alignment = 1
 
-[node name="Subtitle" type="Label" parent="TitleScreen"]
+[node name="Subtitle" type="Label" parent="TitleScreen" unique_id=188734549]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
@@ -108,23 +108,23 @@ theme_override_font_sizes/font_size = 24
 text = "TOWER DEFENSE"
 horizontal_alignment = 1
 
-[node name="Spacer" type="Control" parent="TitleScreen"]
+[node name="Spacer" type="Control" parent="TitleScreen" unique_id=151698889]
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
 
-[node name="ButtonsPanel" type="PanelContainer" parent="TitleScreen"]
+[node name="ButtonsPanel" type="PanelContainer" parent="TitleScreen" unique_id=1254156262]
 layout_mode = 2
 size_flags_horizontal = 4
 script = ExtResource("20_frame")
 
-[node name="Margin" type="MarginContainer" parent="TitleScreen/ButtonsPanel"]
+[node name="Margin" type="MarginContainer" parent="TitleScreen/ButtonsPanel" unique_id=80995372]
 layout_mode = 2
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 21
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 21
 
-[node name="Content" type="VBoxContainer" parent="TitleScreen/ButtonsPanel/Margin"]
+[node name="Content" type="VBoxContainer" parent="TitleScreen/ButtonsPanel/Margin" unique_id=453307729]
 layout_mode = 2
 theme_override_constants/separation = 18
 
@@ -140,14 +140,14 @@ size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
 text = "Jugar"
 
-[node name="NavedexButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons"]
+[node name="NavedexButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons" unique_id=1727472087]
 custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
 text = "Archivo"
 
-[node name="StatsButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons"]
+[node name="StatsButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons" unique_id=703218131]
 custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -178,23 +178,23 @@ grow_horizontal = 2
 grow_vertical = 2
 alignment = 1
 
-[node name="LevelsPanel" type="PanelContainer" parent="LevelSelectionScreen"]
+[node name="LevelsPanel" type="PanelContainer" parent="LevelSelectionScreen" unique_id=1187171775]
 layout_mode = 2
 size_flags_horizontal = 4
 script = ExtResource("20_frame")
 
-[node name="Margin" type="MarginContainer" parent="LevelSelectionScreen/LevelsPanel"]
+[node name="Margin" type="MarginContainer" parent="LevelSelectionScreen/LevelsPanel" unique_id=1728181830]
 layout_mode = 2
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 21
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 21
 
-[node name="Content" type="VBoxContainer" parent="LevelSelectionScreen/LevelsPanel/Margin"]
+[node name="Content" type="VBoxContainer" parent="LevelSelectionScreen/LevelsPanel/Margin" unique_id=944862105]
 layout_mode = 2
 theme_override_constants/separation = 18
 
-[node name="Header" parent="LevelSelectionScreen/LevelsPanel/Margin/Content" instance=ExtResource("21_header")]
+[node name="Header" parent="LevelSelectionScreen/LevelsPanel/Margin/Content" unique_id=1281023251 instance=ExtResource("21_header")]
 layout_mode = 2
 title = "SECTORES DISPONIBLES"
 text_size = 24
@@ -214,7 +214,7 @@ size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
 text = "Volver"
 
-[node name="StatsScreen" type="VBoxContainer" parent="."]
+[node name="StatsScreen" type="VBoxContainer" parent="." unique_id=346163568]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -224,52 +224,52 @@ grow_horizontal = 2
 grow_vertical = 2
 alignment = 1
 
-[node name="StatsPanel" type="PanelContainer" parent="StatsScreen"]
+[node name="StatsPanel" type="PanelContainer" parent="StatsScreen" unique_id=41152293]
 layout_mode = 2
 size_flags_horizontal = 4
 script = ExtResource("20_frame")
 
-[node name="Margin" type="MarginContainer" parent="StatsScreen/StatsPanel"]
+[node name="Margin" type="MarginContainer" parent="StatsScreen/StatsPanel" unique_id=1651303938]
 layout_mode = 2
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 21
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 21
 
-[node name="Content" type="VBoxContainer" parent="StatsScreen/StatsPanel/Margin"]
+[node name="Content" type="VBoxContainer" parent="StatsScreen/StatsPanel/Margin" unique_id=16778367]
 layout_mode = 2
 theme_override_constants/separation = 18
 
-[node name="Header" parent="StatsScreen/StatsPanel/Margin/Content" instance=ExtResource("21_header")]
+[node name="Header" parent="StatsScreen/StatsPanel/Margin/Content" unique_id=1033965195 instance=ExtResource("21_header")]
 layout_mode = 2
 title = "ESTADÍSTICAS"
 text_size = 24
 
-[node name="StatsLabel" type="Label" parent="StatsScreen/StatsPanel/Margin/Content"]
+[node name="StatsLabel" type="Label" parent="StatsScreen/StatsPanel/Margin/Content" unique_id=1396226164]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 
-[node name="BackButton" type="Button" parent="StatsScreen/StatsPanel/Margin/Content"]
+[node name="BackButton" type="Button" parent="StatsScreen/StatsPanel/Margin/Content" unique_id=1593982123]
 custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
 text = "Volver"
 
-[node name="Navedex" parent="." instance=ExtResource("22_navedex")]
+[node name="Navedex" parent="." unique_id=276684204 instance=ExtResource("22_navedex")]
 visible = false
 layout_mode = 1
 
-[node name="OptionsMenu" parent="." instance=ExtResource("19_options")]
+[node name="OptionsMenu" parent="." unique_id=1195865161 instance=ExtResource("19_options")]
 visible = false
 layout_mode = 1
 
 [connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/PlayButton" to="." method="_on_play_button_pressed"]
 [connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/NavedexButton" to="." method="_on_navedex_button_pressed"]
-[connection signal="back_pressed" from="Navedex" to="." method="_on_navedex_back_pressed"]
 [connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/StatsButton" to="." method="_on_stats_button_pressed"]
-[connection signal="pressed" from="StatsScreen/StatsPanel/Margin/Content/BackButton" to="." method="_on_stats_back_pressed"]
 [connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/SettingsButton" to="." method="_on_settings_button_pressed"]
 [connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/QuitButton" to="." method="_on_quit_button_pressed"]
 [connection signal="pressed" from="LevelSelectionScreen/LevelsPanel/Margin/Content/VolverButton" to="." method="_on_volver_pressed"]
+[connection signal="pressed" from="StatsScreen/StatsPanel/Margin/Content/BackButton" to="." method="_on_stats_back_pressed"]
+[connection signal="back_pressed" from="Navedex" to="." method="_on_navedex_back_pressed"]
