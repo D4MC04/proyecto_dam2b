@@ -37,10 +37,10 @@ const LOCK_PIXELS: PackedStringArray = [
 	".1......1.",
 	"1111111111",
 	"1333333331",
+	"1222442221",
+	"1224444221",
 	"1224444221",
 	"1222442221",
-	"1222442221",
-	"1222222221",
 	"1555555551",
 	"1111111111",
 ]
@@ -183,7 +183,7 @@ static func _build_locked_image(box_size: Vector2i) -> Image:
 				continue
 			if _in_silhouette(silhouette, x, y):
 				image.set_pixel(x, y, LOCKED_SILHOUETTE_COLORS[y % 2])
-			elif _touches_silhouette(silhouette, x, y) and _is_outline_dot(silhouette, box_size, x, y):
+			elif (x + y) % 2 == 0 and _touches_silhouette(silhouette, x, y):
 				image.set_pixel(x, y, LOCKED_OUTLINE_COLOR)
 			elif x % LOCKED_GRID_STEP == 1 and y % LOCKED_GRID_STEP == 1:
 				image.set_pixel(x, y, LOCKED_GRID_COLOR)
@@ -204,17 +204,6 @@ static func _touches_silhouette(rect: Rect2i, x: int, y: int) -> bool:
 		if _in_silhouette(rect, x + step.x, y + step.y):
 			return true
 	return false
-
-# Punteado del contorno, simétrico en los dos ejes. En los tramos rectos, un píxel sí y otro no,
-# contando desde el borde más cercano del botón; en las diagonales, todos (la escalera de
-# píxeles que solo se tocan por la esquina ya se ve punteada).
-static func _is_outline_dot(rect: Rect2i, box_size: Vector2i, x: int, y: int) -> bool:
-	var on_side := x < rect.position.x or x >= rect.end.x
-	var on_top_or_bottom := y < rect.position.y or y >= rect.end.y
-	if not on_side and not on_top_or_bottom:
-		return true
-	var count := mini(y, box_size.y - 1 - y) if on_side else mini(x, box_size.x - 1 - x)
-	return count % 2 == 0
 
 # Dentro del interior de la caja recortada (sin el borde de 1 px).
 static func _inside_box(bounds: Rect2i, x: int, y: int) -> bool:
