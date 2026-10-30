@@ -30,9 +30,6 @@ const DART_COLORS: Array[String] = ["dart_rojo", "dart_verde", "dart_morado", "d
 ## El jefe: solo sale, uno, al final de la última oleada de los niveles que lo tienen en `boss`.
 const BOSS := "nodriza"
 
-## Segundo en que sale la primera nave: en la primera oleada y en las demás.
-const FIRST_WAVE_START := 3.0
-const WAVE_START := 2.0
 ## Cada oleada multiplica la separación entre naves por esto, sin bajar de MIN_GAP.
 const GAP_SHRINK := 0.91
 const MIN_GAP := 0.3
@@ -98,15 +95,16 @@ func _make_level(level_number: int, table: Dictionary) -> Array[WaveData]:
 		var rng := RandomNumberGenerator.new()
 		rng.seed = level_number * 1000 + k
 		var is_last := k == count - 1
-		wave.entries = _make_entries(table, k, min_ships, is_last and table["boss"], rng)
-		min_ships = wave.entries.size() + 1
+		wave.groups = _make_groups(table, k, min_ships, is_last and table["boss"], rng)
+		var entries := wave.get_entries()
+		min_ships = entries.size() + 1
 		# Redondeado a centésimas, para que el .tres no guarde 1.1500000000000001.
 		wave.health_multiplier = roundf(_health(table, k) * 100.0) / 100.0
 		_save(wave, path)
 		# Cargado desde el archivo, para que el nivel lo enlace y no lo meta dentro.
 		waves.append(load(path) as WaveData)
 		print("Nivel %d, oleada %d: %d naves, última a %.1f s, vida x%.2f" % [level_number, k + 1,
-				wave.entries.size(), wave.entries[-1].time, wave.health_multiplier])
+				entries.size(), entries[-1].time, wave.health_multiplier])
 	return waves
 
 
@@ -117,7 +115,7 @@ func _health(table: Dictionary, k: int) -> float:
 
 
 # Saca naves hasta gastar el presupuesto y llegar a `min_ships` (una más que la oleada anterior).
-func _make_entries(table: Dictionary, k: int, min_ships: int, with_boss: bool, rng: RandomNumberGenerator) -> Array[SpawnEntry]:
+func _make_groups(table: Dictionary, k: int, min_ships: int, with_boss: bool, rng: RandomNumberGenerator) -> Array[SpawnGroup]:
 	var budget: float = table["budget"] * pow(table["growth"], k)
 	var paths: int = table["paths"]
 	var gap := maxf(table["gap"] * pow(GAP_SHRINK, k), MIN_GAP)
@@ -143,36 +141,58 @@ func _make_entries(table: Dictionary, k: int, min_ships: int, with_boss: bool, r
 			spent += cost
 			count += 1
 		groups.append(group)
-	var entries: Array[SpawnEntry] = []
+	var result: Array[SpawnGroup] = []
 	var path_bag: Array[int] = []
 	var last_path := -1
-	var start := FIRST_WAVE_START if k == 0 else WAVE_START
+	# La primera nave sale en 0: la espera inicial la pone el Spawner (WAVE_START_DELAY).
+	var start := 0.0
+	# Segundo de la última nave del grupo anterior y de la última de todas (con solapes no coinciden).
+	var end := 0.0
+	var last_time := 0.0
 	var wait := lerpf(1.0, MIN_OVERLAP_WAIT, float(k) / (table["waves"] - 1)) if paths > 1 else 1.0
 	for group in groups:
 		var path := _next_path(path_bag, paths, last_path, rng)
 		last_path = path
 		var time := start
-		for n in group.size():
+		var n := 0
+		# Un SpawnGroup por tramo de naves iguales: los Darts de un grupo pueden ser de varios colores.
+		while n < group.size():
+			var run := 1
+			while n + run < group.size() and group[n + run] == group[n]:
+				run += 1
+			var spacing := gap * _spacing(group[n])
 			if n > 0:
-				time += gap * _spacing(group[n])
-			entries.append(_entry(group[n], time, path))
+				time += spacing
+			end = _add_group(result, group[n], run, spacing, path, time, end)
+			time = end
+			n += run
+		last_time = maxf(last_time, end)
 		start += (time - start) * wait + gap * GROUP_PAUSE
 	if with_boss:
 		# La Nodriza sale la última, cuando ya han salido todas las demás.
-		var last_time := 0.0
-		for entry in entries:
-			last_time = maxf(last_time, entry.time)
-		entries.append(_entry(_enemy(BOSS), last_time + gap * GROUP_PAUSE, _next_path(path_bag, paths, last_path, rng)))
-	return entries
+		_add_group(result, _enemy(BOSS), 1, 0.5, _next_path(path_bag, paths, last_path, rng), last_time + gap * GROUP_PAUSE, end)
+	return result
 
 
-func _entry(data: EnemyData, time: float, path: int) -> SpawnEntry:
-	var entry := SpawnEntry.new()
-	entry.enemy_data = data
-	# Redondeado a décimas: roundf(x * 10) / 10 da 2.9 y no 2.9000000000000004 como snappedf.
-	entry.time = roundf(time * 10.0) / 10.0
-	entry.path_index = path
-	return entry
+# Añade un grupo que empieza en `time`, ajustando la pausa del anterior (que acabó en `end`).
+# Devuelve el segundo de su última nave, calculado con los valores ya redondeados.
+func _add_group(result: Array[SpawnGroup], data: EnemyData, count: int, spacing: float, path: int, time: float, end: float) -> float:
+	var group := SpawnGroup.new()
+	group.enemy_data = data
+	group.count = count
+	group.spacing = _round(spacing)
+	group.path_index = path
+	var start := 0.0
+	if not result.is_empty():
+		result[-1].pause_after = _round(time - end)
+		start = end + result[-1].pause_after
+	result.append(group)
+	return start + group.spacing * (count - 1)
+
+
+# Redondeado a centésimas: roundf(x * 100) / 100 da 2.9 y no 2.9000000000000004 como snappedf.
+func _round(value: float) -> float:
+	return roundf(value * 100.0) / 100.0
 
 
 # Las naves de niveles anteriores que ya salen en la oleada k: van sumándose por orden de la lista.

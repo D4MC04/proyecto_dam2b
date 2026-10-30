@@ -51,7 +51,7 @@ Si cambias algo a mano (en Godot o en el código), escribe `/commit` para guarda
 
 **Varios tickets a la vez** (app de escritorio): al aceptar, Claude sube el cambio de `Estado:` a main (los worktrees salen de lo que hay en main) y abre un chat con worktree por cada ticket que no choque con otro, ya con `/work`. Los que chocan esperan a que el anterior esté en main. En la extensión de VS Code no se pueden abrir chats solos: lanza tú `/work` en cada chat.
 
-**`/hub`**: abre el chat central (Sonnet, en la carpeta principal, sobre `main`) y borra el chat donde lo escribiste (la app te pide confirmar el borrado). El chat central reparte tickets, recibe los avisos de subida y mantiene `main` local actualizado; no implementa. Los chats de ticket van en worktree y no pueden tocar la carpeta principal, por eso lo hace él. Con `/ship todo`, sube él mismo todos los tickets listos.
+**`/hub`**: abre el chat central (Opus high, en la carpeta principal, sobre `main`) y borra el chat donde lo escribiste (la app te pide confirmar el borrado). El chat central reparte tickets, recibe los avisos de subida y mantiene `main` local actualizado; no implementa. Los chats de ticket van en worktree y no pueden tocar la carpeta principal, por eso lo hace él. Con `/ship todo`, sube él mismo todos los tickets listos.
 
 **¿Sigo en este chat o abro otro?** Cada mensaje envía una parte fija de unos 75k tokens (herramientas, conectores, skills, instrucciones), sea el chat nuevo o viejo, más todo el historial de ese chat. Un chat nuevo no paga más que uno viejo: solo pierde lo que el viejo ya había leído. Si el próximo ticket toca los mismos archivos y el chat aún es corto (menos de ~40k de mensajes), puede seguir ahí.
 - Otro ticket u otro tema → chat nuevo.
@@ -61,7 +61,7 @@ Si cambias algo a mano (en Godot o en el código), escribe `/commit` para guarda
 Los tickets siguen el formato de `docs/tickets/_plantilla.md`. Puedes escribir tú uno a mano y lanzar `/work` igual.
 
 ## Qué modelo usar
-Se cambia en el selector de modelo de la app. Algunos comandos fijan el suyo y lo usan aunque el chat esté en otro: `/ideas` y `/check` van en Opus; `/board`, `/accept`, `/hub` y el `probador`, en Haiku (el chat central que abre `/hub` va en Sonnet). `/add`, `/work`, `/fix`, `/commit` y `/ship` usan el del chat.
+Se cambia en el selector de modelo de la app. Algunos comandos fijan el suyo y lo usan aunque el chat esté en otro: `/ideas` y `/check` van en Opus; `/board`, `/accept` y el `probador`, en Haiku; `/hub` y el chat central que abre van en Opus con esfuerzo high. `/add`, `/work`, `/fix`, `/commit` y `/ship` usan el del chat.
 
 | Modelo | Cuándo |
 |---|---|

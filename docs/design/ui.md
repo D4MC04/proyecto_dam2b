@@ -145,7 +145,7 @@ Tres `PowerButton` (`scripts/level_ui/PowerButton.gd`) en `InfoPanel/Content/Pow
 
 ## BossAlert
 
-`scripts/level_ui/BossAlert.gd` (clase `BossAlert`), `Control` a pantalla completa dentro de `GameArea` (declarado antes que las pantallas, ignora el ratón, oculto hasta que se usa). `LevelUI._on_wave_started` llama a `show_alert("Nodriza")` cuando `Spawner.wave_has_boss(index)` es true (la oleada tiene alguna entrada con la Nodriza). Dura 2 s en tiempo real, sin pausar el juego ni tapar las barras. Todo se pinta en `_draw`, sin antialiasing:
+`scripts/level_ui/BossAlert.gd` (clase `BossAlert`), `Control` a pantalla completa dentro de `GameArea` (declarado antes que las pantallas, ignora el ratón, oculto hasta que se usa). `LevelUI._on_wave_started` llama a `show_alert("Nodriza")` cuando `Spawner.wave_has_boss(index)` es true (la oleada tiene algún grupo con la Nodriza). Dura 2 s en tiempo real, sin pausar el juego ni tapar las barras. Todo se pinta en `_draw`, sin antialiasing:
 
 - Tinte rojo `#f0323c` sobre el área (hasta 35 % de opacidad) que late 4 veces, y borde rojo de 12 px que late con él.
 - Franja de lado a lado del área, centrada en vertical, de 120 px (`#7a0f18`), con rayas diagonales rojas y negras de 14 px arriba y abajo.

@@ -1,7 +1,7 @@
-[gd_resource type="SpriteFrames" format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://bq8bnnjgtr43d"]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/turrets/miner/miner_cannon_idle_sheet.png" id="1"]
-[ext_resource type="Texture2D" path="res://assets/sprites/turrets/miner/miner_cannon_generate_sheet.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://csdnnuyysx0ng" path="res://assets/sprites/turrets/miner/miner_cannon_idle_sheet.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://dw36a30pegdxo" path="res://assets/sprites/turrets/miner/miner_cannon_generate_sheet.png" id="2"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_default_0"]
 atlas = ExtResource("1")
@@ -52,52 +52,43 @@ animations = [{
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_default_0")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_default_1")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_default_2")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_default_3")
 }],
-"loop": true,
+"loop": 1,
 "name": &"default",
 "speed": 6.0
 }, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_generate_0")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_generate_1")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_generate_2")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_generate_3")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_generate_4")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_generate_5")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_generate_6")
 }],
-"loop": false,
+"loop": 0,
 "name": &"generate",
 "speed": 10.0
 }]

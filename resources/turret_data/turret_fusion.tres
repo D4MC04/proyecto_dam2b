@@ -1,20 +1,19 @@
-[gd_resource type="Resource" script_class="TurretData" format=3]
+[gd_resource type="Resource" script_class="TurretData" format=3 uid="uid://bqb718naye2qc"]
 
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="1"]
 [ext_resource type="Shape2D" path="res://resources/collision_shapes/turret_fusion.tres" id="2"]
-[ext_resource type="Resource" path="res://resources/bullet_data/turret_fusion_bullet.tres" id="3"]
-[ext_resource type="Texture2D" path="res://assets/sprites/turrets/turret_fusion/t1_full_up.png" id="4"]
-[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/turret_fusion.tres" id="5"]
-[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/turret_fusion_cannon.tres" id="7"]
-[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Turret/DobleLaserShoot.wav" id="snd"]
+[ext_resource type="Resource" uid="uid://bvcpujmtrd0xe" path="res://resources/bullet_data/turret_fusion_bullet.tres" id="3"]
+[ext_resource type="Texture2D" uid="uid://d1d7f8rqsio0" path="res://assets/sprites/turrets/turret_fusion/t1_full_up.png" id="4"]
+[ext_resource type="SpriteFrames" uid="uid://daapvk8tv8wsa" path="res://resources/sprite_frames/turret_fusion.tres" id="5"]
+[ext_resource type="SpriteFrames" uid="uid://be2dh6qjggwfh" path="res://resources/sprite_frames/turret_fusion_cannon.tres" id="7"]
 [ext_resource type="Resource" path="res://resources/amp_effects/turret.tres" id="amp"]
+[ext_resource type="AudioStream" uid="uid://b754bgcqp6rml" path="res://assets/audio/effects/Turrets/Turret/DobleLaserShoot.wav" id="snd"]
 
 [resource]
 script = ExtResource("1")
-shoot_sound = ExtResource("snd")
 name = "Cañón cuádruple"
 cost = 200
-attack_cooldown = 0.15
+attack_cooldown = 0.125
 icon = ExtResource("4")
 sprite_frames = ExtResource("5")
 attack_range = ExtResource("2")
@@ -22,6 +21,7 @@ bullet_data = ExtResource("3")
 muzzle_offset = Vector2(-5, -12)
 cannon = ExtResource("7")
 turn_speed = 240.0
+shoot_sound = ExtResource("snd")
 amp_effect = ExtResource("amp")
 description = "Cuatro cañones y una ráfaga muy rápida. Fusión de dos Cañones dobles."
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

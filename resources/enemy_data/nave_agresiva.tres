@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="EnemyData" format=3]
+[gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://ddbvifh0ad88b"]
 
 [ext_resource type="Script" uid="uid://do62ihbnaitnl" path="res://scripts/resources/EnemyData.gd" id="1_data"]
 [ext_resource type="Shape2D" path="res://resources/collision_shapes/nave_agresiva.tres" id="2_shape"]
@@ -10,10 +10,9 @@ name = "Nave agresiva"
 hp = 110.0
 speed = 48
 reward = 50
-base_damage = 10
-description = "Nave de combate más blindada y rápida que la normal."
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 rotate_sprite = true
 rotation_offset = 180.0
+description = "Nave de combate más blindada y rápida que la normal."
 metadata/_custom_type_script = "uid://do62ihbnaitnl"

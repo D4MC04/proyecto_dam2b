@@ -30,7 +30,7 @@
 - Solo se implementan tickets con `Estado: aceptada`, cada uno en su rama `ticket/nombre` desde main. Nunca trabajar en main, salvo el commit del `Estado:` al aceptar.
 - Solo se commitea con `/commit` y solo se sube con `/ship` (o dentro de `/work` y `/ship`, que los usan). Frases como "commitea", "sube", "va bien" o "listo" no commitean ni suben nada: recordar al usuario el comando.
 - **Aceptar** (casillas o "acepto X") es la orden de empezar: seguir `.claude/skills/accept/SKILL.md`. Cada ticket va en su propio chat con worktree, no como subagente.
-- **Chat central** (`/hub`): carpeta principal, rama `main`, en Sonnet. Reparte tickets, recibe los avisos de subida y deja `main` local al día para que el usuario nunca haga `git pull` a mano. No implementa tickets.
+- **Chat central** (`/hub`): carpeta principal, rama `main`, en Opus con esfuerzo high (necesita al menos el modelo y el esfuerzo de los tickets que lanza). Reparte tickets, recibe los avisos de subida y deja `main` local al día para que el usuario nunca haga `git pull` a mano. No implementa tickets.
 - Para probar, usar el agente `probador`.
 - Comandos `gh`: si existe la variable `GH_USER`, lanzarlos con la cuenta de este proyecto sin guardar el token: `GH_TOKEN="$(gh auth token --user "$GH_USER")" gh ...`.
 - Avisar al usuario de qué comando toca, al final de la respuesta, en una línea:

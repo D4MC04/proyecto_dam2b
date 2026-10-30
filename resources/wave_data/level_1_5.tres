@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="WaveData" format=3 uid="uid://h885whcu6pjs"]
 
-[ext_resource type="Script" uid="uid://cwc32qenwkwf3" path="res://scripts/resources/SpawnEntry.gd" id="1_v2u6e"]
+[ext_resource type="Script" uid="uid://dclc5suu1kxn3" path="res://scripts/resources/SpawnGroup.gd" id="1_v2u6e"]
 [ext_resource type="Resource" uid="uid://bfiipacu4434d" path="res://resources/enemy_data/wasp.tres" id="2_kbft7"]
 [ext_resource type="Resource" uid="uid://c7yydx2yg6klq" path="res://resources/enemy_data/dart_hielo.tres" id="3_1qksg"]
 [ext_resource type="Resource" uid="uid://cqrl6wryh28bv" path="res://resources/enemy_data/dart_morado.tres" id="4_l74lo"]
@@ -8,67 +8,45 @@
 [ext_resource type="Resource" uid="uid://bcvbohxs6cxsf" path="res://resources/enemy_data/dart_verde.tres" id="6_cl76v"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="7_k28yc"]
 
-[sub_resource type="Resource" id="Resource_v2u6e"]
+[sub_resource type="Resource" id="Resource_group1"]
 script = ExtResource("1_v2u6e")
 enemy_data = ExtResource("2_kbft7")
-time = 2.0
+count = 5
+spacing = 0.68
+pause_after = 1.78
 
-[sub_resource type="Resource" id="Resource_kbft7"]
-script = ExtResource("1_v2u6e")
-enemy_data = ExtResource("2_kbft7")
-time = 2.7
-
-[sub_resource type="Resource" id="Resource_1qksg"]
-script = ExtResource("1_v2u6e")
-enemy_data = ExtResource("2_kbft7")
-time = 3.4
-
-[sub_resource type="Resource" id="Resource_l74lo"]
-script = ExtResource("1_v2u6e")
-enemy_data = ExtResource("2_kbft7")
-time = 4.1
-
-[sub_resource type="Resource" id="Resource_to5do"]
-script = ExtResource("1_v2u6e")
-enemy_data = ExtResource("2_kbft7")
-time = 4.7
-
-[sub_resource type="Resource" id="Resource_cl76v"]
+[sub_resource type="Resource" id="Resource_group2"]
 script = ExtResource("1_v2u6e")
 enemy_data = ExtResource("4_l74lo")
-time = 6.5
+pause_after = 0.4
 
-[sub_resource type="Resource" id="Resource_k28yc"]
+[sub_resource type="Resource" id="Resource_group3"]
 script = ExtResource("1_v2u6e")
 enemy_data = ExtResource("3_1qksg")
-time = 6.9
+count = 2
+spacing = 0.4
+pause_after = 0.4
 
-[sub_resource type="Resource" id="Resource_qw5us"]
-script = ExtResource("1_v2u6e")
-enemy_data = ExtResource("3_1qksg")
-time = 7.3
-
-[sub_resource type="Resource" id="Resource_v4db4"]
+[sub_resource type="Resource" id="Resource_group4"]
 script = ExtResource("1_v2u6e")
 enemy_data = ExtResource("4_l74lo")
-time = 7.7
+pause_after = 0.4
 
-[sub_resource type="Resource" id="Resource_yhc76"]
+[sub_resource type="Resource" id="Resource_group5"]
 script = ExtResource("1_v2u6e")
 enemy_data = ExtResource("5_to5do")
-time = 8.1
+pause_after = 0.4
 
-[sub_resource type="Resource" id="Resource_37q27"]
+[sub_resource type="Resource" id="Resource_group6"]
 script = ExtResource("1_v2u6e")
 enemy_data = ExtResource("6_cl76v")
-time = 8.5
+pause_after = 1.7
 
-[sub_resource type="Resource" id="Resource_3qpik"]
+[sub_resource type="Resource" id="Resource_group7"]
 script = ExtResource("1_v2u6e")
 enemy_data = ExtResource("2_kbft7")
-time = 10.2
 
 [resource]
 script = ExtResource("7_k28yc")
 health_multiplier = 1.65
-entries = Array[ExtResource("1_v2u6e")]([SubResource("Resource_v2u6e"), SubResource("Resource_kbft7"), SubResource("Resource_1qksg"), SubResource("Resource_l74lo"), SubResource("Resource_to5do"), SubResource("Resource_cl76v"), SubResource("Resource_k28yc"), SubResource("Resource_qw5us"), SubResource("Resource_v4db4"), SubResource("Resource_yhc76"), SubResource("Resource_37q27"), SubResource("Resource_3qpik")])
+groups = Array[ExtResource("1_v2u6e")]([SubResource("Resource_group1"), SubResource("Resource_group2"), SubResource("Resource_group3"), SubResource("Resource_group4"), SubResource("Resource_group5"), SubResource("Resource_group6"), SubResource("Resource_group7")])
