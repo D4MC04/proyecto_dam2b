@@ -15,29 +15,34 @@ const SELECTED_HOVER_BORDER_COLOR := Color("#ffe082")
 const UNAFFORDABLE_COST_COLOR := Color("#ff3c5a")
 const AFFORDABLE_COST_COLOR := Color("#ecb23c")
 const UNAFFORDABLE_ICON_COLOR := Color(1, 1, 1, 0.35)
-# Torreta aún sin desbloquear: plano oculto de la torreta, sin icono ni coste. Caja más apagada
-# que la normal, rejilla de puntos, silueta rayada de la torreta con contorno punteado, centrada
-# en el botón, y un candado en su centro.
+# Torreta aún sin desbloquear: plano oculto, sin icono ni coste. Caja más apagada que la normal,
+# rejilla de puntos, silueta rayada de una torreta (octógono, igual en todas) con contorno
+# punteado, centrada en el botón, y un candado en su centro.
 const LOCKED_BG_COLOR := Color("#0a1220")
 const LOCKED_BORDER_COLOR := Color("#1c4a60")
 const LOCKED_GRID_COLOR := Color("#16283c")
 const LOCKED_GRID_STEP := 4
+# Tamaño par como el botón, para que la silueta y el candado queden centrados al píxel.
+const LOCKED_SILHOUETTE_SIZE := Vector2i(28, 28)
+# Píxeles recortados en diagonal en cada esquina del octógono.
+const LOCKED_SILHOUETTE_CUT := 8
 # Filas pares e impares de la silueta.
 const LOCKED_SILHOUETTE_COLORS: Array[Color] = [Color("#122a40"), Color("#0e2034")]
 const LOCKED_OUTLINE_COLOR := Color("#2a6a88")
 # Candado en píxeles: 1 = contorno, 2 = cuerpo, 3 = brillo, 4 = ojo de cerradura, 5 = sombra.
 const LOCK_PIXELS: PackedStringArray = [
-	"..11111..",
-	".1.....1.",
-	".1.....1.",
-	".1.....1.",
-	"111111111",
-	"133333331",
-	"122242221",
-	"122444221",
-	"122242221",
-	"155555551",
-	"111111111",
+	"..111111..",
+	".1......1.",
+	".1......1.",
+	".1......1.",
+	"1111111111",
+	"1333333331",
+	"1224444221",
+	"1222442221",
+	"1222442221",
+	"1222222221",
+	"1555555551",
+	"1111111111",
 ]
 const LOCK_COLORS := {
 	"1": HOVER_BORDER_COLOR,
@@ -63,8 +68,8 @@ var _selection_locked := false
 # Torreta sin desbloquear en este nivel: no se compra, no se selecciona y no enseña ficha.
 var _locked := false
 
-# Plano oculto ya pintado, por torreta y tamaño de botón.
-static var _locked_textures: Dictionary[String, ImageTexture] = {}
+# Plano oculto ya pintado, por tamaño de botón: es el mismo en todas las bloqueadas.
+static var _locked_textures: Dictionary[Vector2i, ImageTexture] = {}
 
 func _ready() -> void:
 	pressed.connect(_on_pressed)
@@ -94,16 +99,10 @@ func _center_sprites() -> void:
 func _play_idle(sprite: AnimatedSprite2D) -> void:
 	if sprite.sprite_frames == null:
 		return
-	var animation := _idle_animation(sprite.sprite_frames)
-	if animation != &"":
-		sprite.play(animation)
-
-# Animación en reposo: `default`, o `spin` en la Minigun; vacía si no tiene ninguna.
-static func _idle_animation(frames: SpriteFrames) -> StringName:
 	for animation: StringName in [&"default", &"spin"]:
-		if frames.has_animation(animation):
-			return animation
-	return &""
+		if sprite.sprite_frames.has_animation(animation):
+			sprite.play(animation)
+			return
 
 func set_money(amount: int) -> void:
 	_money = amount
@@ -152,7 +151,7 @@ func _on_pressed() -> void:
 # Corchetes en L en ámbar justo por fuera de las cuatro esquinas de la torreta seleccionada.
 func _draw() -> void:
 	if _locked:
-		draw_texture(_get_locked_texture(data, Vector2i(size)), Vector2.ZERO)
+		draw_texture(_get_locked_texture(Vector2i(size)), Vector2.ZERO)
 		return
 	if not _selected:
 		return
@@ -167,61 +166,51 @@ func _draw() -> void:
 		draw_rect(Rect2(x_start, corner.y, BRACKET_LENGTH, 1), SELECTED_COLOR)
 		draw_rect(Rect2(corner.x, y_start, 1, BRACKET_LENGTH), SELECTED_COLOR)
 
-static func _get_locked_texture(turret_data: TurretData, box_size: Vector2i) -> ImageTexture:
-	var key := "%d:%v" % [turret_data.get_instance_id(), box_size]
-	if not _locked_textures.has(key):
-		_locked_textures[key] = ImageTexture.create_from_image(_build_locked_image(turret_data, box_size))
-	return _locked_textures[key]
+static func _get_locked_texture(box_size: Vector2i) -> ImageTexture:
+	if not _locked_textures.has(box_size):
+		_locked_textures[box_size] = ImageTexture.create_from_image(_build_locked_image(box_size))
+	return _locked_textures[box_size]
 
 # Rejilla, silueta, contorno y candado en una imagen transparente que se pinta sobre la caja;
 # todo dentro de la caja recortada.
-static func _build_locked_image(turret_data: TurretData, box_size: Vector2i) -> Image:
+static func _build_locked_image(box_size: Vector2i) -> Image:
 	var image := Image.create_empty(box_size.x, box_size.y, false, Image.FORMAT_RGBA8)
 	var bounds := Rect2i(Vector2i.ZERO, box_size)
-	var silhouette := _silhouette_mask(turret_data, box_size)
+	var silhouette := Rect2i((box_size - LOCKED_SILHOUETTE_SIZE) / 2, LOCKED_SILHOUETTE_SIZE)
 	for y in box_size.y:
 		for x in box_size.x:
 			if not _inside_box(bounds, x, y):
 				continue
-			if silhouette.get_bit(x, y):
+			if _in_silhouette(silhouette, x, y):
 				image.set_pixel(x, y, LOCKED_SILHOUETTE_COLORS[y % 2])
-			elif (x + y) % 2 == 0 and _touches_mask(silhouette, bounds, x, y):
+			elif _touches_silhouette(silhouette, x, y) and _is_outline_dot(silhouette, box_size, x, y):
 				image.set_pixel(x, y, LOCKED_OUTLINE_COLOR)
 			elif x % LOCKED_GRID_STEP == 1 and y % LOCKED_GRID_STEP == 1:
 				image.set_pixel(x, y, LOCKED_GRID_COLOR)
 	_draw_lock_pixels(image, box_size)
 	return image
 
-# Píxeles opacos del primer frame en reposo de la base y del cañón, centrados en la caja igual
-# que los AnimatedSprite2D en IconRect.
-static func _silhouette_mask(turret_data: TurretData, box_size: Vector2i) -> BitMap:
-	var mask := BitMap.new()
-	mask.create(box_size)
-	var bounds := Rect2i(Vector2i.ZERO, box_size)
-	for frames: SpriteFrames in [turret_data.sprite_frames, turret_data.cannon]:
-		if frames == null:
-			continue
-		var animation := _idle_animation(frames)
-		if animation == &"" or frames.get_frame_count(animation) == 0:
-			continue
-		var image := frames.get_frame_texture(animation, 0).get_image()
-		if image.is_compressed():
-			image.decompress()
-		var origin := box_size / 2 - image.get_size() / 2
-		for y in image.get_height():
-			for x in image.get_width():
-				var point := origin + Vector2i(x, y)
-				if image.get_pixel(x, y).a > 0.0 and bounds.has_point(point):
-					mask.set_bitv(point, true)
-	return mask
+# Octógono: el rectángulo con las cuatro esquinas recortadas en diagonal.
+static func _in_silhouette(rect: Rect2i, x: int, y: int) -> bool:
+	if not rect.has_point(Vector2i(x, y)):
+		return false
+	var from_side := mini(x - rect.position.x, rect.end.x - 1 - x)
+	var from_top := mini(y - rect.position.y, rect.end.y - 1 - y)
+	return from_side + from_top >= LOCKED_SILHOUETTE_CUT
 
 # Píxel fuera de la silueta pegado a ella por un lado (no en diagonal): forma el contorno.
-static func _touches_mask(mask: BitMap, bounds: Rect2i, x: int, y: int) -> bool:
+static func _touches_silhouette(rect: Rect2i, x: int, y: int) -> bool:
 	for step: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
-		var neighbor := Vector2i(x, y) + step
-		if bounds.has_point(neighbor) and mask.get_bitv(neighbor):
+		if _in_silhouette(rect, x + step.x, y + step.y):
 			return true
 	return false
+
+# Punteado del contorno, simétrico en los dos ejes: un píxel sí y otro no, contando desde el borde
+# más cercano del botón (en vertical en los lados del octógono, en horizontal en el resto).
+static func _is_outline_dot(rect: Rect2i, box_size: Vector2i, x: int, y: int) -> bool:
+	var on_side := x < rect.position.x or x >= rect.end.x
+	var count := mini(y, box_size.y - 1 - y) if on_side else mini(x, box_size.x - 1 - x)
+	return count % 2 == 0
 
 # Dentro del interior de la caja recortada (sin el borde de 1 px).
 static func _inside_box(bounds: Rect2i, x: int, y: int) -> bool:
