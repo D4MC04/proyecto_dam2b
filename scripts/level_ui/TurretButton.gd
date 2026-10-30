@@ -22,10 +22,10 @@ const LOCKED_BG_COLOR := Color("#0a1220")
 const LOCKED_BORDER_COLOR := Color("#1c4a60")
 const LOCKED_GRID_COLOR := Color("#16283c")
 const LOCKED_GRID_STEP := 4
-# Tamaño par como el botón, para que la silueta y el candado queden centrados al píxel.
-const LOCKED_SILHOUETTE_SIZE := Vector2i(28, 28)
-# Píxeles recortados en diagonal en cada esquina del octógono.
-const LOCKED_SILHOUETTE_CUT := 8
+# Misma forma que la base de las torretas (30x30, 9 px recortados en cada esquina). Tamaño par
+# como el botón, para que la silueta y el candado queden centrados al píxel.
+const LOCKED_SILHOUETTE_SIZE := Vector2i(30, 30)
+const LOCKED_SILHOUETTE_CUT := 9
 # Filas pares e impares de la silueta.
 const LOCKED_SILHOUETTE_COLORS: Array[Color] = [Color("#122a40"), Color("#0e2034")]
 const LOCKED_OUTLINE_COLOR := Color("#2a6a88")
@@ -205,10 +205,14 @@ static func _touches_silhouette(rect: Rect2i, x: int, y: int) -> bool:
 			return true
 	return false
 
-# Punteado del contorno, simétrico en los dos ejes: un píxel sí y otro no, contando desde el borde
-# más cercano del botón (en vertical en los lados del octógono, en horizontal en el resto).
+# Punteado del contorno, simétrico en los dos ejes. En los tramos rectos, un píxel sí y otro no,
+# contando desde el borde más cercano del botón; en las diagonales, todos (la escalera de
+# píxeles que solo se tocan por la esquina ya se ve punteada).
 static func _is_outline_dot(rect: Rect2i, box_size: Vector2i, x: int, y: int) -> bool:
 	var on_side := x < rect.position.x or x >= rect.end.x
+	var on_top_or_bottom := y < rect.position.y or y >= rect.end.y
+	if not on_side and not on_top_or_bottom:
+		return true
 	var count := mini(y, box_size.y - 1 - y) if on_side else mini(x, box_size.x - 1 - x)
 	return count % 2 == 0
 
