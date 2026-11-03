@@ -17,6 +17,9 @@ const FLASH_TIME := 0.1
 var _jumping: bool = false
 
 func _ready() -> void:
+	# Temporal hasta la pantalla de ranuras (ticket pantalla-inicio-ranuras): sin ranura activa se usa la 1.
+	if GameState.active_slot == 0:
+		GameState.load_slot(1)
 	if start_on_level_selection:
 		main_panel.hide()
 		level_selection_panel.show()
