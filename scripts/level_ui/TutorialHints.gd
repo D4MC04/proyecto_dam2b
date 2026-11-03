@@ -4,7 +4,8 @@ class_name TutorialHints
 ## juego y cada paso espera a que el jugador haga lo que se pide. Un borde parpadeante señala lo que
 ## hay que pulsar. Al acabarlo o saltarlo se guarda en GameState y no vuelve a salir.
 
-enum Step { PICK_TURRET, PLACE_TURRET, START_WAVE, WAIT_WAVE_END, INSPECT_TURRET, FUSE_INFO, POWERS, DONE }
+enum Step { PICK_TURRET, PLACE_TURRET, SPEED_INFO, START_WAVE, WAIT_WAVE_END, INSPECT_TURRET, FUSE_INFO, DESELECT_INFO,
+		POWERS_INFO, POWERS, DONE }
 # Acciones del jugador que el tutorial puede bloquear; cada sitio donde entran pregunta con allows().
 enum Action { SELECT_TURRET, BUILD, RELEASE_TURRET, SELECT_PLACED, TAB_TURRETS, TAB_WAVES, NEXT_WAVE, WAVE_ARROWS,
 		TOGGLE_AUTO, TOGGLE_SPEED, UPGRADE, SELL, POWER_METEOR, POWER_FREEZE, POWER_ORBITAL }
@@ -13,6 +14,7 @@ enum Action { SELECT_TURRET, BUILD, RELEASE_TURRET, SELECT_PLACED, TAB_TURRETS, 
 const ALLOWED_ACTIONS: Dictionary[Step, Array] = {
 	Step.PICK_TURRET: [Action.SELECT_TURRET, Action.TAB_TURRETS],
 	Step.PLACE_TURRET: [Action.SELECT_TURRET, Action.BUILD, Action.RELEASE_TURRET],
+	Step.SPEED_INFO: [Action.TOGGLE_SPEED],
 	Step.START_WAVE: [Action.TAB_WAVES, Action.NEXT_WAVE, Action.TOGGLE_SPEED],
 	Step.WAIT_WAVE_END: [Action.TOGGLE_SPEED],
 	Step.INSPECT_TURRET: [Action.TAB_TURRETS, Action.RELEASE_TURRET, Action.SELECT_PLACED],
@@ -22,14 +24,24 @@ const ALLOWED_ACTIONS: Dictionary[Step, Array] = {
 const TEXTS: Dictionary[Step, String] = {
 	Step.PICK_TURRET: "¡Hola, recluta! Los enemigos vienen a por la estación. Elige una torreta en la barra de la derecha.",
 	Step.PLACE_TURRET: "Bien. Ahora haz clic en los asteroides con plataforma libre para colocar 3 torretas.",
-	Step.START_WAVE: "Lista la defensa. Abre la pestaña Oleadas y pulsa Siguiente oleada (o Espacio). Si se hace larga, el botón ×1 de abajo acelera el tiempo.",
-	Step.INSPECT_TURRET: "¡Oleada superada! Vuelve a la pestaña Torretas, suelta la torreta de la tienda con clic derecho y haz clic en una de las tuyas del mapa para ver su ficha.",
+	Step.SPEED_INFO: "Si una oleada se hace larga, el botón ×1 de abajo acelera el tiempo.",
+	Step.START_WAVE: "Lista la defensa. Abre la pestaña Oleadas y pulsa Siguiente oleada (o Espacio).",
+	Step.INSPECT_TURRET: "¡Oleada superada! Vuelve a la pestaña Torretas y haz clic en una de las tuyas del mapa para ver su ficha.",
 	Step.FUSE_INFO: "Desde la ficha puedes venderla o, si tiene mejora, pulsar Mejorar para convertirla en una más fuerte.",
-	Step.POWERS: "Tienes tres poderes en la ficha: Q lanza un meteorito, E congela a los enemigos y R dispara un rayo orbital que barre una fila. Prueba Q o E; el rayo es para luego.",
+	Step.DESELECT_INFO: "Para soltar la torreta de la tienda o cerrar la ficha, haz clic derecho o en un hueco vacío del mapa.",
+	Step.POWERS_INFO: "Tienes tres poderes en la ficha: meteorito (Q), congelar (E) y rayo orbital (R), que barre una fila.",
+	Step.POWERS: "Prueba uno: el meteorito (Q) o congelar (E). El rayo orbital es para luego.",
 	Step.DONE: "¡Eso es! El resto es cosa tuya. Suerte ahí fuera.",
 }
 # Pasos que no esperan una acción del juego: se cierran con "Entendido".
-const INFO_STEPS: Array[Step] = [Step.FUSE_INFO, Step.DONE]
+const INFO_STEPS: Array[Step] = [Step.SPEED_INFO, Step.FUSE_INFO, Step.DESELECT_INFO, Step.POWERS_INFO, Step.DONE]
+# Paso al que lleva "Entendido" en cada paso informativo (DONE cierra el tutorial).
+const NEXT_AFTER_OK: Dictionary[Step, Step] = {
+	Step.SPEED_INFO: Step.START_WAVE,
+	Step.FUSE_INFO: Step.DESELECT_INFO,
+	Step.DESELECT_INFO: Step.POWERS_INFO,
+	Step.POWERS_INFO: Step.POWERS,
+}
 # Torretas que hay que colocar para pasar del paso de colocar.
 const TURRETS_TO_PLACE := 3
 # Segundos por carácter del texto que va apareciendo, como si hablara.
@@ -126,7 +138,7 @@ func _on_turret_placed() -> void:
 	if _active and _step == Step.PLACE_TURRET:
 		_placed_count += 1
 		if _placed_count >= TURRETS_TO_PLACE:
-			_show_step(Step.START_WAVE)
+			_show_step(Step.SPEED_INFO)
 
 # Lanzar la oleada 1 antes de tiempo también vale: el tutorial espera a que acabe.
 func _on_wave_started() -> void:
@@ -134,8 +146,8 @@ func _on_wave_started() -> void:
 		_show_step(Step.WAIT_WAVE_END)
 
 func _on_ok_pressed() -> void:
-	if _step == Step.FUSE_INFO:
-		_show_step(Step.POWERS)
+	if NEXT_AFTER_OK.has(_step):
+		_show_step(NEXT_AFTER_OK[_step])
 	elif _step == Step.DONE:
 		_finish()
 
@@ -154,6 +166,8 @@ func _highlight_target() -> Control:
 	match _step:
 		Step.PICK_TURRET:
 			return sidebar.turret_buttons if sidebar.turrets_page.visible else sidebar.turrets_tab
+		Step.SPEED_INFO:
+			return sidebar.speed_button
 		Step.START_WAVE:
 			return sidebar.next_wave_button if sidebar.waves_page.visible else sidebar.waves_tab
 		Step.INSPECT_TURRET:
