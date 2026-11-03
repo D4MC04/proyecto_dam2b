@@ -7,8 +7,8 @@
 [resource]
 script = ExtResource("1_data")
 name = "Wasp"
-hp = 75
-speed = 75
+hp = 50.0
+speed = 100
 reward = 10
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")

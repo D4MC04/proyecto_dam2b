@@ -22,8 +22,8 @@ Recursos en `resources/enemy_data/`:
 | `dart_morado` | Dart morado | 25 | 90 | 15 | 5 | 8 | 1 |
 | `dart_rojo` | Dart rojo | 25 | 90 | 15 | 5 | 8 | 1 |
 | `dart_verde` | Dart verde | 25 | 90 | 15 | 5 | 8 | 1 |
-| `wasp` | Wasp | 75 | 60 | 35 | 5 | 9 | 1 |
-| `nave_normal` | Nave normal | 80 | 36 | 30 | 10 | 12 | 2 |
+| `wasp` | Wasp | 50 | 100 | 10 | 10 | 9 | 1 |
+| `nave_normal` | Nave normal | 100 | 75 | 15 | 15 | 12 | 2 |
 | `nave_agresiva` | Nave agresiva | 110 | 48 | 50 | 10 | 12 | 3 |
 | `acorazado` | Acorazado | 420 | 25 | 135 | 20 | 14 | 4 |
 | `ariete` | Ariete | 240 | 40 | 95 | 20 | 13 | 5 |
