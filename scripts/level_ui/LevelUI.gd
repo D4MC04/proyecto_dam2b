@@ -153,11 +153,15 @@ func _use_power(power: Powers.Power) -> void:
 	if is_instance_valid(_powers) and _ui_state == UiState.PLAYING:
 		_powers.use(power)
 
-# Cualquier clic sobre la interfaz suelta la torreta colocada. Va diferido para que antes se atiendan
-# Mejorar y Vender; los clics sobre el mapa no pasan por aquí (los atiende BuildManager).
+# Cualquier clic sobre la interfaz suelta la torreta colocada, menos en el recuadro de Mejorar y Vender:
+# los botones actúan al soltar el clic y necesitan la torreta (Mejorar la suelta después, y al vender
+# desaparece). Los clics sobre el mapa no pasan por aquí (los atiende BuildManager).
 func _input(event: InputEvent) -> void:
 	var click := event as InputEventMouseButton
-	if click != null and click.pressed and get_viewport().gui_get_hovered_control() != null and is_instance_valid(_level_state):
+	if click == null or not click.pressed or not is_instance_valid(_level_state):
+		return
+	var hovered := get_viewport().gui_get_hovered_control()
+	if hovered != null and hovered != turret_actions and not turret_actions.is_ancestor_of(hovered):
 		_level_state.set_deferred("sellable_turret", null)
 
 func _on_turret_selected(data: TurretData) -> void:
@@ -177,10 +181,11 @@ func _on_sell_requested() -> void:
 	if is_instance_valid(_level_state) and _ui_state == UiState.PLAYING:
 		_level_state.sell_selected_turret()
 
-# Solo se mejora jugando, igual que vender.
+# Solo se mejora jugando, igual que vender. Después de mejorar se suelta la torreta.
 func _on_upgrade_requested() -> void:
 	if is_instance_valid(_level_state) and _ui_state == UiState.PLAYING:
 		_level_state.upgrade_requested.emit()
+		_level_state.sellable_turret = null
 
 # Cambia el Spawner que sigue la pestaña Oleadas, desconectando el anterior.
 func _connect_spawner(spawner: Spawner) -> void:
