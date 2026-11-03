@@ -93,7 +93,7 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 
   Las opciones de las pantallas superpuestas son el mismo botón en el acento de su pantalla (fondos y bordes de `#060b14` mezclado con el acento, relleno al 35 % con el ratón encima y texto en el tono claro del acento). Los botones de las barras (pestañas, INICIAR, AUTO, flechas, torretas y celdas de enemigo) tienen la misma forma con sus propios colores.
 
-- **Panel holograma** (pausa, derrota, victoria, y en el menú principal los botones, la selección de nivel y Opciones): no es PNG; lo pinta `OverlayFrame` en código, en píxeles enteros, a partir del acento de cada pantalla (cian `#40e0f0`, rojo `#ff3c5a`, ámbar `#ecb23c`) y de su tono claro (`#befaff`, `#ffaabe`, `#ffe082`). Esquinas de arriba a la izquierda y de abajo a la derecha recortadas 6 px en diagonal. Ver [ui.md](ui.md).
+- **Panel holograma** (pausa, derrota, victoria, y en el menú principal los paneles que abre la oficina y "¿Salir del juego?"): no es PNG; lo pinta `OverlayFrame` en código, en píxeles enteros, a partir del acento de cada pantalla (cian `#40e0f0`, rojo `#ff3c5a`, ámbar `#ecb23c`) y de su tono claro (`#befaff`, `#ffaabe`, `#ffe082`). Esquinas de arriba a la izquierda y de abajo a la derecha recortadas 6 px en diagonal. Ver [ui.md](ui.md).
 
 | Parte | Color |
 |---|---|
@@ -150,6 +150,21 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 | Torreta seleccionada en la tienda | borde y corchetes exteriores `#ecb23c`, fondo `#0e1626` mezclado al 25 % con ese ámbar |
 
 - **Escáner de la ficha**: no es un PNG; `ScannerDisplay` lo pinta píxel a píxel en código (57x57, sin antialiasing), con los azules de la interfaz: disco `#0e1626`, anillos y cruz `#1c4a60`, anillo exterior `#1c7496`, marcas y ecos `#40e0f0`, barrido `#befaff`, estela `#1c7496` y `#14304a`. Ver [ui.md](ui.md).
+
+- **Oficina del menú**: no es PNG; la pintan en código `OfficeRoom` y los objetos de la oficina (`OfficeObject`) con los pinceles de `OfficePaint`, en píxeles enteros, sin antialiasing ni degradados, con contorno `#0c0e16` y bisel de 1 px (luz arriba a la izquierda, sombra abajo a la derecha). Lo único semitransparente son los reflejos del cristal (blanco azulado al 5 %) y la línea de escaneo de la tablet. Ver [menu.md](menu.md).
+
+| Parte | Colores |
+|---|---|
+| Paredes, techo, marco del ventanal y muebles | metal oscuro, más apagado que el de los objetos: `#0e1118` (sombra), `#151923`, `#1d2230` (cuerpo), `#2a3142` (luz) |
+| Objetos (monitor, base de la tablet, marcador, cuadro, hojas de la puerta) | la rampa del metal gris azulado `#343a4a`, `#606a7c`, `#96a2b6`, con `#d2dceb` en los interruptores; marco de la tablet `#262c3c` |
+| Pantallas | líneas de barrido `#08111f` y `#060d18`; marcador en `#0d0b0a` y `#090807` |
+| Luces y radar | cian `#1c7496`, `#40e0f0`, `#befaff`; anillos y estela del radar `#14304a`; ecos rojos `#961432`, `#ff3c5a`, `#ffaabe` |
+| Placas de texto ("CMDTE.", "CONDECORACIONES", contador de medallas) | fondo `#221e19`, bisel `#96641e` y `#120f0c`, texto `#ecb23c` o `#ffe082` |
+| Dígitos del marcador | encendidos `#ecb23c` (`#ffe082` con el ratón encima), apagados `#2a2014` |
+| Rayas de aviso (puerta y cuadro) | `#ecb23c` y `#0c0e16` en diagonal, de 4 px |
+| Cartel de salida | fondo `#0b1f14`, bisel `#1c7440`, texto `#3cb860` (`#7ee89a` con el ratón encima) |
+| Medallas | cinta de rayas en la rampa ámbar, roja o cian del símbolo de su icono; huecos vacíos `#08101c` con aro `#2a3142` |
+| Rótulo y corchetes del objeto con el ratón encima | caja `#13414f` con borde `#40e0f0`, texto y corchetes `#befaff` |
 
 ## Contorno
 

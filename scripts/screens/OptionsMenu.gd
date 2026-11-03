@@ -1,9 +1,12 @@
 class_name OptionsMenu
 extends Control
 
+## "Volver" sin panel de origen (abierto desde la oficina del menú, que hace el fundido).
+signal back_pressed
+
 const FADE_TIME := 0.25
 
-# Panel desde el que se abrió y al que vuelve "Volver" (título o menú de pausa).
+# Panel desde el que se abrió y al que vuelve "Volver" (menú de pausa); null si lo abre la oficina.
 var _opener: Control
 var _tween: Tween
 
@@ -51,7 +54,10 @@ func close() -> void:
 		_opener.show()
 
 func _on_back_button_pressed() -> void:
-	_fade(self, _opener)
+	if _opener:
+		_fade(self, _opener)
+	else:
+		back_pressed.emit()
 
 func _fade(from: Control, to: Control) -> void:
 	if _tween:

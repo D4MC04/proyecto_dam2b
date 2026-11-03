@@ -1,0 +1,62 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/screens/AchievementsScreen.gd" id="1_achievements"]
+[ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://scripts/level_ui/OverlayFrame.gd" id="3_frame"]
+[ext_resource type="PackedScene" path="res://scenes/level_ui/ScreenHeader.tscn" id="4_header"]
+
+[node name="AchievementsScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_achievements")
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Frame" type="PanelContainer" parent="Center"]
+layout_mode = 2
+script = ExtResource("3_frame")
+
+[node name="Margin" type="MarginContainer" parent="Center/Frame"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 21
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 21
+
+[node name="Box" type="VBoxContainer" parent="Center/Frame/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Header" parent="Center/Frame/Margin/Box" instance=ExtResource("4_header")]
+layout_mode = 2
+title = "LOGROS"
+text_size = 24
+
+[node name="AchievementsList" type="GridContainer" parent="Center/Frame/Margin/Box"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(718, 340)
+layout_mode = 2
+theme_override_constants/h_separation = 18
+theme_override_constants/v_separation = 4
+columns = 2
+
+[node name="VolverButton" type="Button" parent="Center/Frame/Margin/Box"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(204, 36)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+theme_override_font_sizes/font_size = 24
+text = "Volver"
