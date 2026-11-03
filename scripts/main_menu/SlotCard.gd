@@ -10,14 +10,20 @@ const CARD_SIZE := Vector2(432, 72)
 const CLIP := 6
 # Ancho de la pestaña del número, con su línea divisoria.
 const TAB_WIDTH := 56
-const TEXT_LEFT := TAB_WIDTH + 12
-const TEXT_RIGHT := 14
+const TEXT_LEFT := TAB_WIDTH + 18
+const TEXT_RIGHT := 22
 # Fila de arriba de cada línea de texto.
 const LINE_1_TOP := 15
 const LINE_2_TOP := 43
 const NUMBER_SIZE := 48
 const LINE_1_SIZE := 24
 const LINE_2_SIZE := 16
+# Medidas de Monogram en píxeles de la fuente (1 = font_size / 16): alto de mayúsculas y
+# números, ancho de un número (sin el hueco de 1 px que deja a la derecha) y su tamaño nativo.
+const GLYPH_CAP := 7
+const DIGIT_WIDTH := 5
+const FONT_BASE_SIZE := 16
+const ICON_GAP := 4
 
 const BG := Color("#081626")
 const BG_ALPHA := 0.92
@@ -37,7 +43,7 @@ const SCANLINE_DARKEN := 0.25
 # Línea de barrido que recorre la tarjeta con el ratón encima.
 const SWEEP_PERIOD := 1.4
 const SWEEP_MIX := 0.12
-const STAR_ICON: Texture2D = preload("res://assets/ui/achievements/first_win.png")
+const STAR_ICON: Texture2D = preload("res://assets/ui/slot_achievements.png")
 
 ## Ranura que representa (1..GameState.SLOT_COUNT).
 var slot: int = 1
@@ -129,9 +135,12 @@ func _draw() -> void:
 func _draw_content(hovered: bool) -> void:
 	var font := get_theme_font(&"font")
 	var number_color := ACCENT_LIGHT if hovered else (ACCENT if has_save() else BORDER)
-	var number_top := int((size.y - font.get_height(NUMBER_SIZE)) / 2.0)
-	_text(font, Vector2(1, number_top), str(slot), NUMBER_SIZE, number_color,
-			HORIZONTAL_ALIGNMENT_CENTER, TAB_WIDTH - 1)
+	# El número se centra por su tinta (no por la caja de la línea, que tiene hueco abajo y a la derecha).
+	var font_px := float(NUMBER_SIZE) / FONT_BASE_SIZE
+	var number_ink := Vector2(DIGIT_WIDTH, GLYPH_CAP) * font_px
+	var baseline := Vector2(roundf((TAB_WIDTH - number_ink.x) / 2.0), roundf((size.y + number_ink.y) / 2.0))
+	draw_string(font, baseline, str(slot), HORIZONTAL_ALIGNMENT_LEFT, -1, NUMBER_SIZE,
+			Color(number_color, content_alpha))
 	var width := int(size.x) - TEXT_LEFT - TEXT_RIGHT
 	if not has_save():
 		_text(font, Vector2(TEXT_LEFT, LINE_1_TOP), "+ NUEVA PARTIDA", LINE_1_SIZE,
@@ -145,8 +154,11 @@ func _draw_content(hovered: bool) -> void:
 	var achievements_width := int(font.get_string_size(achievements, HORIZONTAL_ALIGNMENT_LEFT, -1, LINE_1_SIZE).x)
 	var right := TEXT_LEFT + width
 	_text(font, Vector2(right - achievements_width, LINE_1_TOP), achievements, LINE_1_SIZE, AMBER)
-	var icon_top := LINE_1_TOP + int((font.get_height(LINE_1_SIZE) - STAR_ICON.get_height()) / 2.0)
-	draw_texture(STAR_ICON, Vector2(right - achievements_width - 4 - STAR_ICON.get_width(), icon_top),
+	# Icono centrado en el alto de los números, no en el de la línea.
+	var cap := GLYPH_CAP * float(LINE_1_SIZE) / FONT_BASE_SIZE
+	var line_1_baseline := LINE_1_TOP + roundf(font.get_ascent(LINE_1_SIZE))
+	var icon_top := roundf(line_1_baseline - (cap + STAR_ICON.get_height()) / 2.0)
+	draw_texture(STAR_ICON, Vector2(right - achievements_width - ICON_GAP - STAR_ICON.get_width(), icon_top),
 			Color(1, 1, 1, content_alpha))
 	# Segunda línea: fecha del último guardado a la izquierda y tiempo jugado a la derecha.
 	var saved := _format_date(_summary.saved_at)

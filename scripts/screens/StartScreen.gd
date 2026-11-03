@@ -7,10 +7,10 @@ extends Control
 enum Phase { TITLE, SLOTS, CONFIRM, ENTERING }
 
 const MAIN_MENU: PackedScene = preload("res://scenes/MainMenu.tscn")
-# Fila de arriba del bloque del título en cada fase.
-const TITLE_Y_INTRO := 168.0
-const TITLE_Y_SLOTS := 24.0
-const TITLE_MOVE_TIME := 0.45
+# Fila de arriba del bloque del título; al salir las ranuras sube TITLE_RISE px mientras se desvanece.
+const TITLE_Y := 168.0
+const TITLE_RISE := 16.0
+const TITLE_FADE_TIME := 0.35
 const INTRO_FADE_TIME := 0.6
 # Parpadeo de "PULSA CUALQUIER TECLA" (ciclo y parte encendida) y parpadeo rápido al pulsar.
 const BLINK_PERIOD := 1.0
@@ -62,7 +62,7 @@ func _ready() -> void:
 	slots_screen.hide()
 	confirm_layer.hide()
 	input_blocker.hide()
-	_set_title_y(TITLE_Y_INTRO)
+	_set_title_y(TITLE_Y)
 	title_block.modulate.a = 0.0
 	press_key_label.modulate.a = 0.0
 	var tween := create_tween()
@@ -159,10 +159,7 @@ func _show_slots() -> void:
 		ack.tween_callback(func() -> void: press_key_label.visible = not press_key_label.visible)
 		ack.tween_interval(ACK_BLINK_TIME)
 	ack.tween_callback(press_key_label.hide)
-	var move := create_tween()
-	move.tween_method(_set_title_y, title_block.position.y, TITLE_Y_SLOTS, TITLE_MOVE_TIME) \
-			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	await move.finished
+	await _fade_title(false)
 	_refresh_slots()
 	slots_screen.modulate.a = 1.0
 	slots_panel.modulate.a = 0.0
@@ -182,13 +179,18 @@ func _show_title() -> void:
 	fade.tween_property(slots_screen, "modulate:a", 0.0, FADE_TIME)
 	await fade.finished
 	slots_screen.hide()
-	var move := create_tween()
-	move.tween_method(_set_title_y, title_block.position.y, TITLE_Y_INTRO, TITLE_MOVE_TIME) \
-			.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
-	await move.finished
+	await _fade_title(true)
 	_blink_time = 0.0
 	_blinking = true
 	_set_busy(false)
+
+# El título se desvanece subiendo (o aparece bajando a su sitio).
+func _fade_title(appear: bool) -> void:
+	var tween := create_tween().set_parallel(true)
+	tween.tween_method(_set_title_y, title_block.position.y, TITLE_Y if appear else TITLE_Y - TITLE_RISE,
+			TITLE_FADE_TIME).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT if appear else Tween.EASE_IN)
+	tween.tween_property(title_block, "modulate:a", 1.0 if appear else 0.0, TITLE_FADE_TIME)
+	await tween.finished
 
 func _hide_card(i: int) -> void:
 	_rows[i].position.x = CARD_SLIDE
@@ -269,7 +271,6 @@ func _enter_slot(card: SlotCard) -> void:
 		GameState.flush()
 	# Todo menos la tarjeta elegida se apaga mientras ella destella.
 	var fade := create_tween().set_parallel(true)
-	fade.tween_property(title_block, "modulate:a", 0.0, FADE_TIME)
 	fade.tween_property(hint_label, "modulate:a", 0.0, FADE_TIME)
 	fade.tween_property(%SlotsHeader, "modulate:a", 0.0, FADE_TIME)
 	for i in _cards.size():
