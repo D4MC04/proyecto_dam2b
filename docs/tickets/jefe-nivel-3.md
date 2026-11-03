@@ -1,7 +1,7 @@
 # Jefe para el nivel 3: Coloso
 
 Creador: Renzo
-Estado: propuesta
+Estado: aceptada
 Modelo recomendado: opus
 Esfuerzo recomendado: high
 
