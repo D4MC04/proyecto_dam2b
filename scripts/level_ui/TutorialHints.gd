@@ -13,16 +13,17 @@ enum Action { SELECT_TURRET, BUILD, RELEASE_TURRET, SELECT_PLACED, TAB_TURRETS, 
 const ALLOWED_ACTIONS: Dictionary[Step, Array] = {
 	Step.PICK_TURRET: [Action.SELECT_TURRET, Action.TAB_TURRETS],
 	Step.PLACE_TURRET: [Action.BUILD, Action.RELEASE_TURRET],
-	Step.START_WAVE: [Action.TAB_WAVES, Action.NEXT_WAVE],
-	Step.INSPECT_TURRET: [Action.RELEASE_TURRET, Action.SELECT_PLACED],
+	Step.START_WAVE: [Action.TAB_WAVES, Action.NEXT_WAVE, Action.TOGGLE_SPEED],
+	Step.WAIT_WAVE_END: [Action.TOGGLE_SPEED],
+	Step.INSPECT_TURRET: [Action.TAB_TURRETS, Action.RELEASE_TURRET, Action.SELECT_PLACED],
 	Step.POWERS: [Action.POWER_METEOR, Action.POWER_FREEZE],
 }
 
 const TEXTS: Dictionary[Step, String] = {
 	Step.PICK_TURRET: "¡Hola, recluta! Los enemigos vienen a por la estación. Elige una torreta en la barra de la derecha.",
-	Step.PLACE_TURRET: "Bien. Ahora haz clic en los asteroides con plataforma libre para colocar 2 torretas.",
-	Step.START_WAVE: "Lista la defensa. Abre la pestaña Oleadas y pulsa Siguiente oleada (o Espacio).",
-	Step.INSPECT_TURRET: "¡Oleada superada! Suelta la torreta de la tienda con clic derecho y haz clic en una de las tuyas del mapa para ver su ficha.",
+	Step.PLACE_TURRET: "Bien. Ahora haz clic en los asteroides con plataforma libre para colocar 3 torretas.",
+	Step.START_WAVE: "Lista la defensa. Abre la pestaña Oleadas y pulsa Siguiente oleada (o Espacio). Si se hace larga, el botón ×1 de abajo acelera el tiempo.",
+	Step.INSPECT_TURRET: "¡Oleada superada! Vuelve a la pestaña Torretas, suelta la torreta de la tienda con clic derecho y haz clic en una de las tuyas del mapa para ver su ficha.",
 	Step.FUSE_INFO: "Desde la ficha puedes venderla o, si tiene mejora, pulsar Mejorar para convertirla en una más fuerte.",
 	Step.POWERS: "Tienes tres poderes en la ficha: Q lanza un meteorito, E congela a los enemigos y R dispara un rayo orbital que barre una fila. Prueba Q o E; el rayo es para luego.",
 	Step.DONE: "¡Eso es! El resto es cosa tuya. Suerte ahí fuera.",
@@ -30,7 +31,7 @@ const TEXTS: Dictionary[Step, String] = {
 # Pasos que no esperan una acción del juego: se cierran con "Entendido".
 const INFO_STEPS: Array[Step] = [Step.FUSE_INFO, Step.DONE]
 # Torretas que hay que colocar para pasar del paso de colocar.
-const TURRETS_TO_PLACE := 2
+const TURRETS_TO_PLACE := 3
 # Segundos por carácter del texto que va apareciendo, como si hablara.
 const TYPE_TIME_PER_CHAR := 0.02
 # El último mensaje se cierra solo tras estos segundos.
@@ -153,6 +154,8 @@ func _highlight_target() -> Control:
 			return sidebar.turret_buttons if sidebar.turrets_page.visible else sidebar.turrets_tab
 		Step.START_WAVE:
 			return sidebar.next_wave_button if sidebar.waves_page.visible else sidebar.waves_tab
+		Step.INSPECT_TURRET:
+			return null if sidebar.turrets_page.visible else sidebar.turrets_tab
 		Step.POWERS:
 			return info_panel.meteor_button.get_parent()
 	return null
