@@ -28,6 +28,9 @@ const CONFIRM_SELL_TEXT := "¿Seguro?"
 @onready var upgrade_button: Button = %UpgradeButton
 @onready var sell_button: Button = %SellButton
 
+## Lo pone LevelUI; con el tutorial en marcha decide si Mejorar y Vender responden.
+var tutorial_hints: TutorialHints
+
 var _turret: Turret
 var _money := 0
 var _confirming_sell := false
@@ -35,7 +38,7 @@ var _confirming_sell := false
 func _ready() -> void:
 	for button in [upgrade_button, sell_button]:
 		_style_button(button)
-	upgrade_button.pressed.connect(upgrade_requested.emit)
+	upgrade_button.pressed.connect(_on_upgrade_pressed)
 	sell_button.pressed.connect(_on_sell_pressed)
 	hide()
 
@@ -69,8 +72,14 @@ func _refresh() -> void:
 func _refresh_upgrade() -> void:
 	upgrade_button.disabled = _turret.data.fusion != null and _money < _turret.data.fusion.cost
 
+func _on_upgrade_pressed() -> void:
+	if tutorial_hints == null or tutorial_hints.allows(TutorialHints.Action.UPGRADE):
+		upgrade_requested.emit()
+
 # Vender siempre pide confirmar con un segundo clic.
 func _on_sell_pressed() -> void:
+	if tutorial_hints != null and not tutorial_hints.allows(TutorialHints.Action.SELL):
+		return
 	if _confirming_sell:
 		sell_requested.emit()
 		return
