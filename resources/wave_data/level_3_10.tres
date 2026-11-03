@@ -7,6 +7,7 @@
 [ext_resource type="Resource" uid="uid://cqrl6wryh28bv" path="res://resources/enemy_data/dart_morado.tres" id="5_hdmuo"]
 [ext_resource type="Resource" uid="uid://bfiipacu4434d" path="res://resources/enemy_data/wasp.tres" id="6_nooiv"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="7_ex8o0"]
+[ext_resource type="Resource" uid="uid://nvkasqtqc5xne" path="res://resources/enemy_data/coloso.tres" id="8_coloso"]
 
 [sub_resource type="Resource" id="Resource_group1"]
 script = ExtResource("1_y516q")
@@ -57,8 +58,14 @@ script = ExtResource("1_y516q")
 enemy_data = ExtResource("2_hy158")
 count = 4
 spacing = 0.53
+pause_after = 0.96
+
+[sub_resource type="Resource" id="Resource_group8"]
+script = ExtResource("1_y516q")
+enemy_data = ExtResource("8_coloso")
+path_index = 1
 
 [resource]
 script = ExtResource("7_ex8o0")
 health_multiplier = 2.8
-groups = Array[ExtResource("1_y516q")]([SubResource("Resource_group1"), SubResource("Resource_group2"), SubResource("Resource_group3"), SubResource("Resource_group4"), SubResource("Resource_group5"), SubResource("Resource_group6"), SubResource("Resource_group7")])
+groups = Array[ExtResource("1_y516q")]([SubResource("Resource_group1"), SubResource("Resource_group2"), SubResource("Resource_group3"), SubResource("Resource_group4"), SubResource("Resource_group5"), SubResource("Resource_group6"), SubResource("Resource_group7"), SubResource("Resource_group8")])

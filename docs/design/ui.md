@@ -148,18 +148,18 @@ Tres `PowerButton` (`scripts/level_ui/PowerButton.gd`) en `InfoPanel/Content/Pow
 
 ## BossAlert
 
-`scripts/level_ui/BossAlert.gd` (clase `BossAlert`), `Control` a pantalla completa dentro de `GameArea` (declarado antes que las pantallas, ignora el ratón, oculto hasta que se usa). `LevelUI._on_wave_started` llama a `show_alert("Nodriza")` cuando `Spawner.wave_has_boss(index)` es true (la oleada tiene algún grupo con la Nodriza). Dura 2 s en tiempo real, sin pausar el juego ni tapar las barras. Todo se pinta en `_draw`, sin antialiasing:
+`scripts/level_ui/BossAlert.gd` (clase `BossAlert`), `Control` a pantalla completa dentro de `GameArea` (declarado antes que las pantallas, ignora el ratón, oculto hasta que se usa). `LevelUI._on_wave_started` llama a `show_alert(jefe.name)` cuando `Spawner.get_wave_boss(index)` devuelve un jefe (la oleada tiene algún grupo con un `EnemyData` con `is_boss`: la Nodriza o el Coloso). Dura 2 s en tiempo real, sin pausar el juego ni tapar las barras. Todo se pinta en `_draw`, sin antialiasing:
 
 - Tinte rojo `#f0323c` sobre el área (hasta 35 % de opacidad) que late 4 veces, y borde rojo de 12 px que late con él.
 - Franja de lado a lado del área, centrada en vertical, de 120 px (`#7a0f18`), con rayas diagonales rojas y negras de 14 px arriba y abajo.
-- En el centro, "ALERTA" a 48 px y debajo "NODRIZA ACERCÁNDOSE" a 32 px (Monogram), en un `CenterContainer`.
+- En el centro, "ALERTA" a 48 px y debajo "<JEFE> ACERCÁNDOSE" (p. ej. "COLOSO ACERCÁNDOSE") a 32 px (Monogram), en un `CenterContainer`.
 - Sin sonido (se quitó la sirena a petición del usuario).
 
-El `Portal` de un camino que saca la Nodriza tiembla con más fuerza (`Portal.BOSS_SHAKE`, 3 px frente a 1).
+El `Portal` de un camino que saca un jefe tiembla con más fuerza (`Portal.BOSS_SHAKE`, 3 px frente a 1).
 
 ## WaveAnnouncer
 
-`scripts/level_ui/WaveAnnouncer.gd` (clase `WaveAnnouncer`), `Control` a pantalla completa dentro de `GameArea` junto a `BossAlert`, ignora el ratón. `LevelUI._on_wave_started` llama a `show_wave(número, total)` al lanzar cada oleada, salvo las que llevan Nodriza (esas enseñan solo `BossAlert`). Centro del área: "OLEADA N" a 48 px en `#40e0f0` y debajo "N / TOTAL" a 16 px en `#cce6ff`; en la última, "ÚLTIMA OLEADA". Entra en 0,25 s, se queda 1,5 s y se desvanece en 0,4 s, en tiempo real, sin pausar ni tapar las barras.
+`scripts/level_ui/WaveAnnouncer.gd` (clase `WaveAnnouncer`), `Control` a pantalla completa dentro de `GameArea` junto a `BossAlert`, ignora el ratón. `LevelUI._on_wave_started` llama a `show_wave(número, total)` al lanzar cada oleada, salvo las que llevan un jefe (esas enseñan solo `BossAlert`). Centro del área: "OLEADA N" a 48 px en `#40e0f0` y debajo "N / TOTAL" a 16 px en `#cce6ff`; en la última, "ÚLTIMA OLEADA". Entra en 0,25 s, se queda 1,5 s y se desvanece en 0,4 s, en tiempo real, sin pausar ni tapar las barras.
 
 ## LevelIndicator
 

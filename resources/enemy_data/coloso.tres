@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="EnemyData" format=3 uid="uid://nvkasqtqc5xne"]
+
+[ext_resource type="Script" uid="uid://do62ihbnaitnl" path="res://scripts/resources/EnemyData.gd" id="1_data"]
+[ext_resource type="Shape2D" path="res://resources/collision_shapes/coloso.tres" id="2_shape"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/coloso.tres" id="3_frames"]
+[ext_resource type="Resource" uid="uid://d2xfg8qmcw3va" path="res://resources/enemy_data/nave_normal.tres" id="4_drop"]
+
+[resource]
+script = ExtResource("1_data")
+name = "Coloso"
+hp = 700.0
+speed = 18
+reward = 200
+base_damage = 50
+sprite_frames = ExtResource("3_frames")
+collision_shape = ExtResource("2_shape")
+rotate_sprite = true
+description = "Acorazado gigante y muy lento. Al perder cada tercio de vida suelta naves de sus hangares."
+is_boss = true
+drop_enemy = ExtResource("4_drop")
+drop_count = 2
+metadata/_custom_type_script = "uid://do62ihbnaitnl"

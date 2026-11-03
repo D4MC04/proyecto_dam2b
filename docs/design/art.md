@@ -14,6 +14,7 @@ La casilla del mapa es de 16x16 px. Los sprites de juego son múltiplos de esa m
 | Enemigos pequeños (Dart, Wasp) | 24x24 |
 | Fragmentos de la Divisora | 20x20 |
 | Enemigos medianos y grandes (naves, Acorazado, Ariete, Nodriza, Reparadora, Divisora, Espectro) | 32x32 |
+| Jefe Coloso | 48x48 |
 | Estación (`base/estacion/`) | 80x80 centrada en frames de 96x96 |
 | Escudo de la estación | 64x64 (escalado a 1,25 en juego) |
 | Bala del Cañón doble y trazadora de la Minigun | 4x8 (tira de 8x8 con 2 frames) |
@@ -168,7 +169,7 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 ## Animación
 
 - Cañones de torreta: `default` (reposo) y `fire_0`, `fire_1`... (disparo, sin bucle). `default` está en bucle en Cryo, Tesla, Rail y Disintegrator. El Cañón doble tiene `fire_0` y `fire_1`. La Minigun no tiene animación de disparo: tiene `spin`, en bucle, cuya velocidad lleva el código (ver [torretas.md](torretas.md)). En el Disintegrator, `fire_0` a `fire_2` son un bucle por nivel de haz. El Minero tiene `default` (4 frames, en bucle) y `generate` (7 frames, sin bucle).
-- Enemigos: Acorazado, Ariete, Nodriza, Reparadora, Divisora, Wasp, Espectro y los Dart tienen 3 frames; Nave normal y Nave agresiva, 1. Las cuatro animaciones `up`, `down`, `left` y `right` existen en todos; en los que tienen el dibujo mirando hacia arriba, el giro se hace por código.
+- Enemigos: Acorazado, Ariete, Nodriza, Coloso, Reparadora, Divisora, Wasp, Espectro y los Dart tienen 3 frames; Nave normal y Nave agresiva, 1. Las cuatro animaciones `up`, `down`, `left` y `right` existen en todos; en los que tienen el dibujo mirando hacia arriba, el giro se hace por código.
 - Los sprites de torreta y enemigo se dibujan mirando hacia arriba.
 
 ## Convención de nombres

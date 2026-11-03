@@ -2,6 +2,8 @@ extends PathFollow2D
 class_name Enemy
 
 signal died(reward: int)
+## Ha perdido otro tramo de vida y suelta `count` naves `enemy_data` (ver EnemyData.drop_enemy).
+signal ships_dropped(enemy_data: EnemyData, count: int)
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var collision_shape: CollisionShape2D = $Area2D/CollisionShape2D
@@ -34,6 +36,8 @@ var _slow := 1.0
 var _slow_tween: Tween
 var _frost: AnimatedSprite2D
 var _health_bar: HealthBar
+# Tramos de vida perdidos por los que ya ha soltado naves.
+var _drops_done := 0
 
 # Camuflado: las torretas no lo eligen como objetivo, pero los ataques de área le dan.
 var cloaked := false
@@ -127,6 +131,18 @@ func take_damage(amount: float, source: Variant = null):
 	_health_bar.update(hp, max_hp)
 	if hp <= 0:
 		die()
+	else:
+		_check_drops()
+
+# Suelta naves por cada tramo de 1/drop_steps de vida perdido (solo una vez por tramo, aunque se cure).
+func _check_drops() -> void:
+	if data.drop_enemy == null or data.drop_count <= 0 or data.drop_steps <= 1:
+		return
+	var lost_steps := mini(floori((1.0 - hp / max_hp) * data.drop_steps), data.drop_steps - 1)
+	while _drops_done < lost_steps:
+		_drops_done += 1
+		flash()
+		ships_dropped.emit(data.drop_enemy, data.drop_count)
 
 ## Cura sin pasar de la vida máxima, con el número en verde, un destello y chispas. Con la vida llena no hace nada.
 func heal(amount: float) -> void:

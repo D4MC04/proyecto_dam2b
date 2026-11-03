@@ -12,7 +12,7 @@ El `Spawner` lo añade como hijo de un `Path2D` del mapa y llama a `setup(enemy_
 
 ## Datos
 
-`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `base_damage` (vida que quita a la estación al llegar al final, 10 por defecto), `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados), `cloak_interval` y `cloak_time` (camuflaje, ver Camuflaje; 0 = no se camufla), `death_sound` (`AudioStream`, ver Daño y muerte), `heal_aura` (solo la Reparadora, ver Curación), `emp_interval`, `emp_radius` y `emp_disable_time` (pulso EMP, ver Habilidades; `emp_interval` 0 = sin pulso), `split_into` (ver Partirse al morir) y `description` (frase corta para la ficha, ya rellena en todos). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da VIDA, VELOCIDAD (px/s), BOTÍN (la recompensa, con €) y DAÑO (`base_damage`); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
+`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `base_damage` (vida que quita a la estación al llegar al final, 10 por defecto), `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados), `cloak_interval` y `cloak_time` (camuflaje, ver Camuflaje; 0 = no se camufla), `death_sound` (`AudioStream`, ver Daño y muerte), `heal_aura` (solo la Reparadora, ver Curación), `emp_interval`, `emp_radius` y `emp_disable_time` (pulso EMP, ver Habilidades; `emp_interval` 0 = sin pulso), `split_into` (ver Partirse al morir), `is_boss`, `drop_enemy`, `drop_count` y `drop_steps` (ver Jefes) y `description` (frase corta para la ficha, ya rellena en todos). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da VIDA, VELOCIDAD (px/s), BOTÍN (la recompensa, con €) y DAÑO (`base_damage`); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
 
 Recursos en `resources/enemy_data/`:
 
@@ -27,7 +27,8 @@ Recursos en `resources/enemy_data/`:
 | `nave_agresiva` | Nave agresiva | 110 | 48 | 50 | 10 | 12 | 3 |
 | `acorazado` | Acorazado | 420 | 25 | 135 | 20 | 14 | 4 |
 | `ariete` | Ariete | 240 | 40 | 95 | 20 | 13 | 5 |
-| `nodriza` | Nodriza | 600 | 40 | 250 | 40 | 14 | 6 |
+| `coloso` | Coloso (jefe) | 700 | 18 | 200 | 50 | 20 | 3 |
+| `nodriza` | Nodriza (jefe) | 600 | 40 | 250 | 40 | 14 | 6 |
 | `reparadora` | Reparadora | 90 | 38 | 45 | 5 | 12 | 6 |
 | `espectro` | Espectro | 80 | 55 | 55 | 10 | 12 | 7 |
 | `divisora` | Divisora | 120 | 35 | 45 | 15 | 13 | 5 |
@@ -75,6 +76,14 @@ El sprite (`assets/sprites/enemies/espectro/espectro_0` a `_2`, 32x32, mirando h
 Solo la Divisora lo usa: se parte en sus tres módulos (`fragmento_divisora_izquierdo`, `_central` y `_derecho`, mismos valores; cambia el sprite). En el ARCHIVO sale solo el central, como "Fragmento de Divisora".
 
 Sprites: `assets/sprites/enemies/divisora/` (`divisora_0..2.png` de 32x32, `divisora_crack.png` y `fragmento_<lado>_0..2.png` de 20x20), todos mirando hacia arriba con `rotate_sprite = true`. Los genera `scripts/tools/make_divisora_sprites.gd` (`godot --headless --path . -s scripts/tools/make_divisora_sprites.gd`). Ver [art.md](art.md).
+
+### Jefes
+
+Con `is_boss = true` (la Nodriza y el Coloso) la oleada que lo trae sale con el aviso de jefe (`BossAlert`, con su nombre) en vez del anuncio de oleada, y el portal de su camino tiembla más (ver [ui.md](ui.md)). Lo detecta `Spawner.get_wave_boss(index)`. El generador de oleadas lo pone uno, al final de la última oleada de su nivel (ver [niveles.md](niveles.md)).
+
+**Soltar naves** (`drop_enemy`, `drop_count`, `drop_steps`): mientras vive, cada vez que pierde 1/`drop_steps` de su vida máxima, `Enemy._check_drops()` hace `flash()` y emite `ships_dropped(drop_enemy, drop_count)` una sola vez por tramo (aunque luego se cure). El golpe que lo mata no suelta nada. El `Spawner` crea las naves en diferido (el daño puede llegar dentro de una señal de física) en su punto del camino, repartidas de lado como los trozos de la Divisora y mirando hacia donde mira el jefe; mientras tanto cuentan como pendientes, así que la oleada no se da por limpia. Llevan el multiplicador de vida de la oleada.
+
+**Coloso** (nivel 3): acorazado lento y muy resistente; suelta 2 Naves normales al bajar de 2/3 y otras 2 al bajar de 1/3 de vida (`drop_steps` 3). Sprite `assets/sprites/enemies/coloso/coloso_0` a `_2.png` (48x48, mirando hacia arriba, `rotate_sprite = true`), generado por `scripts/tools/make_coloso.gd` (`godot --headless --path . -s scripts/tools/make_coloso.gd`) a partir de una cuadrícula de texto con la mitad izquierda, reflejada con las caras en sombra: casco morado de enemigo con placas de blindaje de metal, espolón de metal delante, puente con visor rojo, dos hangares laterales con luces rojas (de donde salen las naves) y cuatro motores. Los frames cambian las luces de los hangares y las llamas. Colisión propia de radio 20 (`collision_shapes/coloso.tres`).
 
 ### Ralentización
 

@@ -33,6 +33,13 @@ const INSPECT_TAG := "ENEMIGO"
 @export var emp_interval: float = 0.0
 @export var emp_radius: float = 48.0
 @export var emp_disable_time: float = 3.0
+# Jefe: su oleada sale con el aviso de jefe (BossAlert) y su portal tiembla más.
+@export var is_boss: bool = false
+# Naves que suelta mientras vive: `drop_count` naves `drop_enemy` cada vez que pierde
+# 1/`drop_steps` de su vida máxima (con 3, al bajar de 2/3 y de 1/3). Sin `drop_enemy` no suelta nada.
+@export var drop_enemy: EnemyData
+@export var drop_count: int = 0
+@export var drop_steps: int = 3
 
 func get_inspect_icon() -> Texture2D:
 	if sprite_frames != null and sprite_frames.has_animation("up"):

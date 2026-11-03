@@ -14,7 +14,6 @@ signal all_waves_cleared
 ## Se emite al cambiar `auto_waves`.
 signal auto_waves_changed(enabled: bool)
 
-const NODRIZA: EnemyData = preload("res://resources/enemy_data/nodriza.tres")
 const ENEMY_SCENE: PackedScene = preload("res://scenes/entities/Enemy.tscn")
 ## Al partirse: segundos que se ve agrietada, separación en px entre trozos al salir (de lado,
 ## según su dibujo), cuánto más se alejan y en cuántos segundos vuelven al camino.
@@ -78,9 +77,12 @@ func start_next_wave() -> bool:
 	wave_started.emit(_wave_index, waves.size())
 	return true
 
-## La oleada `index` trae la Nodriza (el jefe).
-func wave_has_boss(index: int) -> bool:
-	return waves[index].groups.any(func(group: SpawnGroup) -> bool: return group.enemy_data == NODRIZA and group.count > 0)
+## El jefe (`EnemyData.is_boss`) que trae la oleada `index`, o null si no trae ninguno.
+func get_wave_boss(index: int) -> EnemyData:
+	for group in waves[index].groups:
+		if group.enemy_data.is_boss and group.count > 0:
+			return group.enemy_data
+	return null
 
 func can_start_next_wave() -> bool:
 	return is_clear() and has_waves_left()
@@ -140,6 +142,7 @@ func _spawn_enemy(data: EnemyData, path: Path2D, progress: float) -> Enemy:
 	_alive[enemy] = true
 	enemy.reached_end.connect(_on_enemy_reached_end.bind(enemy))
 	enemy.died.connect(_on_enemy_died.bind(enemy))
+	enemy.ships_dropped.connect(_on_ships_dropped.bind(enemy))
 	return enemy
 
 # Abre un portal a la entrada de cada camino que use la oleada.
@@ -153,8 +156,8 @@ func _open_portals() -> void:
 		portal.position = curve.sample_baked(PORTAL_OFFSET)
 		# La grieta (horizontal en Portal) queda atravesada al camino; girada en múltiplos de 90° para no deformar los píxeles.
 		var direction := curve.sample_baked(PORTAL_OFFSET + 1.0) - portal.position
-		# La Nodriza sale con un temblor más fuerte.
-		if _entries.any(func(e: SpawnEntry) -> bool: return e.path_index % paths.size() == index and e.enemy_data == NODRIZA):
+		# Los jefes salen con un temblor más fuerte.
+		if _entries.any(func(e: SpawnEntry) -> bool: return e.path_index % paths.size() == index and e.enemy_data.is_boss):
 			portal.shake_strength = Portal.BOSS_SHAKE
 		portal.rotation = snappedf(direction.angle() + PI / 2.0, PI / 2.0)
 		paths[index].add_child(portal)
@@ -196,16 +199,42 @@ func _crack(enemy: Enemy) -> void:
 # no el enemigo, para que el empujón no cambie hacia dónde mira.
 func _split(data: EnemyData, path: Path2D, progress: float, sprite_rotation: float) -> void:
 	_pending_splits -= 1
-	var side := Vector2.RIGHT.rotated(sprite_rotation)
-	var count := data.split_into.size()
-	for i in count:
-		var piece := _spawn_enemy(data.split_into[i], path, progress)
-		var offset := side * (i - (count - 1) / 2.0)
+	for piece in _scatter(data.split_into, path, progress, Vector2.RIGHT.rotated(sprite_rotation)):
 		piece.sprite.rotation = sprite_rotation
+
+# Una nave (el Coloso) suelta naves al perder otro tramo de vida. Se crean en diferido, porque
+# el daño puede llegar dentro de una señal de física (el `area_entered` de la bala), y cuentan
+# como pendientes para que la oleada no se dé por limpia si el jefe muere en ese mismo frame.
+func _on_ships_dropped(data: EnemyData, count: int, enemy: Enemy) -> void:
+	var pieces: Array[EnemyData] = []
+	for i in count:
+		pieces.append(data)
+	_pending_splits += 1
+	_drop_ships.call_deferred(pieces, enemy.get_parent() as Path2D, enemy.progress, enemy.sprite.rotation)
+
+# Las naves soltadas salen a los lados de la que las suelta, mirando hacia donde mira ella.
+func _drop_ships(pieces: Array[EnemyData], path: Path2D, progress: float, sprite_rotation: float) -> void:
+	_pending_splits -= 1
+	if is_instance_valid(path):
+		for piece in _scatter(pieces, path, progress, Vector2.RIGHT.rotated(sprite_rotation)):
+			if piece.data.rotate_sprite:
+				piece.sprite.rotation = sprite_rotation + deg_to_rad(piece.data.rotation_offset)
+	_check_cleared()
+
+# Crea las naves `pieces` en el punto `progress` del camino, repartidas a lo largo de `side` (de
+# izquierda a derecha) con destello; salen despedidas de lado y vuelven al camino.
+func _scatter(pieces: Array[EnemyData], path: Path2D, progress: float, side: Vector2) -> Array[Enemy]:
+	var result: Array[Enemy] = []
+	var count := pieces.size()
+	for i in count:
+		var piece := _spawn_enemy(pieces[i], path, progress)
+		var offset := side * (i - (count - 1) / 2.0)
 		piece.flash()
 		var tween := piece.create_tween()
 		tween.tween_property(piece.sprite, "position", offset * (SPLIT_GAP + SPLIT_PUSH), SPLIT_PUSH_TIME).from(offset * SPLIT_GAP)
 		tween.tween_property(piece.sprite, "position", Vector2.ZERO, SPLIT_RETURN_TIME).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
+		result.append(piece)
+	return result
 
 func _on_enemy_reached_end(damage: int, enemy: Enemy) -> void:
 	if not _alive.erase(enemy):

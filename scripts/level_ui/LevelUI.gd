@@ -220,8 +220,9 @@ func _spawner_connections(spawner: Spawner) -> Array[Array]:
 	]
 
 func _on_wave_started(index: int, total: int) -> void:
-	if _spawner.wave_has_boss(index):
-		boss_alert.show_alert("Nodriza")
+	var boss := _spawner.get_wave_boss(index)
+	if boss != null:
+		boss_alert.show_alert(boss.name)
 	else:
 		wave_announcer.show_wave(index + 1, total)
 	sidebar.set_current_wave(index)

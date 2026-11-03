@@ -27,8 +27,6 @@ const SCENE_LEVEL := 5
 ## "dart" es un Dart de color al azar.
 const DART := "dart"
 const DART_COLORS: Array[String] = ["dart_rojo", "dart_verde", "dart_morado", "dart_hielo"]
-## El jefe: solo sale, uno, al final de la última oleada de los niveles que lo tienen en `boss`.
-const BOSS := "nodriza"
 
 ## Cada oleada multiplica la separación entre naves por esto, sin bajar de MIN_GAP.
 const GAP_SHRINK := 0.91
@@ -51,27 +49,28 @@ const HEALTH_CURVE := 1.4
 ## Por nivel: oleadas, caminos del mapa, presupuesto de la primera oleada, crecimiento por oleada,
 ## separación inicial entre naves (s), multiplicador de vida de la primera y de la última oleada
 ## (`health`, la recompensa no cambia con él), naves nuevas del nivel, naves de niveles anteriores
-## (de las más fáciles a las más duras: se van sumando por ese orden) y si sale la Nodriza.
+## (de las más fáciles a las más duras: se van sumando por ese orden) y el jefe (`boss`: sale uno,
+## al final de la última oleada; "" si el nivel no tiene).
 const LEVELS: Array[Dictionary] = [
 	{"waves": 10, "paths": 1, "budget": 150.0, "growth": 1.13, "gap": 1.0, "health": Vector2(1.1, 2.8),
-		"new": [DART, "wasp"], "old": [], "boss": false},
+		"new": [DART, "wasp"], "old": [], "boss": ""},
 	{"waves": 10, "paths": 2, "budget": 230.0, "growth": 1.13, "gap": 0.95, "health": Vector2(1.2, 2.5),
-		"new": ["nave_normal"], "old": [DART, "wasp"], "boss": false},
+		"new": ["nave_normal"], "old": [DART, "wasp"], "boss": ""},
 	{"waves": 10, "paths": 2, "budget": 330.0, "growth": 1.125, "gap": 0.9, "health": Vector2(1.4, 2.8),
-		"new": ["nave_agresiva"], "old": [DART, "wasp", "nave_normal"], "boss": false},
+		"new": ["nave_agresiva"], "old": [DART, "wasp", "nave_normal"], "boss": "coloso"},
 	{"waves": 10, "paths": 2, "budget": 440.0, "growth": 1.125, "gap": 0.85, "health": Vector2(1.4, 3.0),
-		"new": ["acorazado"], "old": [DART, "wasp", "nave_normal", "nave_agresiva"], "boss": false},
+		"new": ["acorazado"], "old": [DART, "wasp", "nave_normal", "nave_agresiva"], "boss": ""},
 	{"waves": 10, "paths": 2, "budget": 560.0, "growth": 1.12, "gap": 0.8, "health": Vector2(1.5, 3.5),
-		"new": ["ariete", "divisora"], "old": ["wasp", "nave_normal", "nave_agresiva", "acorazado"], "boss": false},
+		"new": ["ariete", "divisora"], "old": ["wasp", "nave_normal", "nave_agresiva", "acorazado"], "boss": ""},
 	{"waves": 10, "paths": 3, "budget": 680.0, "growth": 1.12, "gap": 0.75, "health": Vector2(2.0, 4.2),
-		"new": ["reparadora"], "old": ["wasp", "nave_normal", "nave_agresiva", "acorazado", "ariete", "divisora"], "boss": true},
+		"new": ["reparadora"], "old": ["wasp", "nave_normal", "nave_agresiva", "acorazado", "ariete", "divisora"], "boss": "nodriza"},
 	{"waves": 10, "paths": 4, "budget": 800.0, "growth": 1.12, "gap": 0.7, "health": Vector2(2.3, 4.9),
-		"new": ["espectro"], "old": ["wasp", "nave_agresiva", "acorazado", "ariete", "divisora", "reparadora"], "boss": false},
+		"new": ["espectro"], "old": ["wasp", "nave_agresiva", "acorazado", "ariete", "divisora", "reparadora"], "boss": ""},
 	{"waves": 10, "paths": 4, "budget": 920.0, "growth": 1.12, "gap": 0.65, "health": Vector2(2.4, 5.3),
-		"new": ["saboteadora"], "old": ["wasp", "nave_agresiva", "acorazado", "ariete", "divisora", "reparadora", "espectro"], "boss": false},
+		"new": ["saboteadora"], "old": ["wasp", "nave_agresiva", "acorazado", "ariete", "divisora", "reparadora", "espectro"], "boss": ""},
 	{"waves": 10, "paths": 8, "budget": 1050.0, "growth": 1.12, "gap": 0.6, "health": Vector2(2.6, 5.5),
 		"new": ["espectro", "saboteadora", "divisora", "reparadora"],
-		"old": [DART, "wasp", "nave_normal", "nave_agresiva", "acorazado", "ariete"], "boss": true},
+		"old": [DART, "wasp", "nave_normal", "nave_agresiva", "acorazado", "ariete"], "boss": "nodriza"},
 ]
 
 var _enemies: Dictionary[String, EnemyData] = {}
@@ -95,7 +94,7 @@ func _make_level(level_number: int, table: Dictionary) -> Array[WaveData]:
 		var rng := RandomNumberGenerator.new()
 		rng.seed = level_number * 1000 + k
 		var is_last := k == count - 1
-		wave.groups = _make_groups(table, k, min_ships, is_last and table["boss"], rng)
+		wave.groups = _make_groups(table, k, min_ships, table["boss"] if is_last else "", rng)
 		var entries := wave.get_entries()
 		min_ships = entries.size() + 1
 		# Redondeado a centésimas, para que el .tres no guarde 1.1500000000000001.
@@ -114,8 +113,9 @@ func _health(table: Dictionary, k: int) -> float:
 	return lerpf(health.x, health.y, pow(float(k) / (table["waves"] - 1), HEALTH_CURVE))
 
 
-# Saca naves hasta gastar el presupuesto y llegar a `min_ships` (una más que la oleada anterior).
-func _make_groups(table: Dictionary, k: int, min_ships: int, with_boss: bool, rng: RandomNumberGenerator) -> Array[SpawnGroup]:
+# Saca naves hasta gastar el presupuesto y llegar a `min_ships` (una más que la oleada anterior);
+# si `boss` no está vacío, ese jefe sale al final.
+func _make_groups(table: Dictionary, k: int, min_ships: int, boss: String, rng: RandomNumberGenerator) -> Array[SpawnGroup]:
 	var budget: float = table["budget"] * pow(table["growth"], k)
 	var paths: int = table["paths"]
 	var gap := maxf(table["gap"] * pow(GAP_SHRINK, k), MIN_GAP)
@@ -168,9 +168,9 @@ func _make_groups(table: Dictionary, k: int, min_ships: int, with_boss: bool, rn
 			n += run
 		last_time = maxf(last_time, end)
 		start += (time - start) * wait + gap * GROUP_PAUSE
-	if with_boss:
-		# La Nodriza sale la última, cuando ya han salido todas las demás.
-		_add_group(result, _enemy(BOSS), 1, 0.5, _next_path(path_bag, paths, last_path, rng), last_time + gap * GROUP_PAUSE, end)
+	if not boss.is_empty():
+		# El jefe sale el último, cuando ya han salido todas las demás.
+		_add_group(result, _enemy(boss), 1, 0.5, _next_path(path_bag, paths, last_path, rng), last_time + gap * GROUP_PAUSE, end)
 	return result
 
 
