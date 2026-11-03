@@ -13,7 +13,7 @@ Definidos en `project.godot`, en este orden:
 
 `GameData.levels` tiene 6 entradas. Su contenido está en [niveles.md](niveles.md).
 
-`GameState` carga `current_level` y `tutorial_done` de `user://progress.cfg` (`ConfigFile`, sección `progress`; solo acepta un entero >= 1 y un booleano) y los guarda en `complete_level`, `complete_tutorial` y `reset_progress`. `GameState` guarda también `play_time` (segundos jugados, que suma `Level._process` en tiempo real) y los contadores `stats` `spent` (dinero gastado, desde `LevelState.spend_money`) y `built_<torreta>` (torretas construidas, desde `BuildManager`); `reset_progress` los borra. `Settings` guarda las opciones en su propio archivo.
+`GameState` guarda el progreso en 3 ranuras independientes (`SLOT_COUNT`), un `ConfigFile` por ranura en `user://saves/slot_N.cfg` (sección `progress`). `active_slot` (0 = ninguna al arrancar; mientras sea 0, `_save()` no escribe) lo fija `load_slot(slot)`, que carga la ranura (valores por defecto si no tiene archivo; solo acepta un entero >= 1 y un booleano en `current_level` y `tutorial_done`). Cada guardado añade `saved_at` (tiempo Unix). También hay `has_save(slot)`, `delete_slot(slot)` (si era la activa la deja sin ranura y con los valores por defecto) y `get_slot_summary(slot)` (`saved_at`, `play_time`, `sector`, `achievements`, `achievements_total`; vacío sin partida; no toca la partida activa). `_ready` migra el antiguo `user://progress.cfg` a `slot_1.cfg` si no hay ninguna ranura y lo borra. Hasta que exista la pantalla de ranuras, `MainMenu._ready` llama a `load_slot(1)` si no hay ranura activa. Se guarda en `complete_level`, `complete_tutorial` y `reset_progress`. `GameState` guarda también `play_time` (segundos jugados, que suma `Level._process` en tiempo real) y los contadores `stats` `spent` (dinero gastado, desde `LevelState.spend_money`) y `built_<torreta>` (torretas construidas, desde `BuildManager`); `reset_progress` los borra. `Settings` guarda las opciones en su propio archivo.
 
 ## Escena Game
 
@@ -61,4 +61,4 @@ Tanto `MainMenu._open_level` como `Game._quit_to_menu` cambian de escena a mano 
 
 ## Enemigos vistos
 
-`Spawner._spawn_enemy` llama a `GameState.mark_enemy_seen(data)`, que guarda en `user://progress.cfg` (clave `seen_enemies`) el nombre de archivo del `EnemyData` la primera vez que sale. `reset_progress` los borra. Los usa el Navedex (ver [menu.md](menu.md)).
+`Spawner._spawn_enemy` llama a `GameState.mark_enemy_seen(data)`, que guarda en la ranura activa (clave `seen_enemies`) el nombre de archivo del `EnemyData` la primera vez que sale. `reset_progress` los borra. Los usa el Navedex (ver [menu.md](menu.md)).
