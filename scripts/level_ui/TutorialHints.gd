@@ -12,7 +12,7 @@ enum Action { SELECT_TURRET, BUILD, RELEASE_TURRET, SELECT_PLACED, TAB_TURRETS, 
 # Acciones que deja hacer cada paso; un paso sin entrada no deja ninguna. En DONE todo es libre.
 const ALLOWED_ACTIONS: Dictionary[Step, Array] = {
 	Step.PICK_TURRET: [Action.SELECT_TURRET, Action.TAB_TURRETS],
-	Step.PLACE_TURRET: [Action.BUILD, Action.RELEASE_TURRET],
+	Step.PLACE_TURRET: [Action.SELECT_TURRET, Action.BUILD, Action.RELEASE_TURRET],
 	Step.START_WAVE: [Action.TAB_WAVES, Action.NEXT_WAVE, Action.TOGGLE_SPEED],
 	Step.WAIT_WAVE_END: [Action.TOGGLE_SPEED],
 	Step.INSPECT_TURRET: [Action.TAB_TURRETS, Action.RELEASE_TURRET, Action.SELECT_PLACED],
@@ -112,12 +112,14 @@ func _advance_from(from: Step, next: Step) -> void:
 	if _active and _step == from:
 		_show_step(next)
 
-# Elegir torreta avanza; soltarla antes de colocarla vuelve a pedirla.
+# Elegir torreta avanza; soltarla antes de colocar ninguna vuelve a pedirla. Con alguna ya colocada no
+# se vuelve atrás: el botón suelta solo la torreta al quedarse sin dinero (justo al colocar la última).
 func _on_selected_turret_changed(data: TurretData) -> void:
 	if data != null:
 		_advance_from(Step.PICK_TURRET, Step.PLACE_TURRET)
 	else:
-		_advance_from(Step.PLACE_TURRET, Step.PICK_TURRET)
+		if _placed_count == 0:
+			_advance_from(Step.PLACE_TURRET, Step.PICK_TURRET)
 
 # Una sola torreta no aguanta la oleada 1: el paso espera a que haya TURRETS_TO_PLACE.
 func _on_turret_placed() -> void:
