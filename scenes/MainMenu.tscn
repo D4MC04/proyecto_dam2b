@@ -62,7 +62,7 @@ script = ExtResource("18_satellites")
 visible = false
 position = Vector2(81, 458.1)
 scale = Vector2(0.355, 0.33500007)
-frame_progress = 0.12431884
+frame_progress = 0.39863676
 sheet = ExtResource("12_asteroide1")
 fps = 10.0
 

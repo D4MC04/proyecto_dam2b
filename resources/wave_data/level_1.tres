@@ -10,24 +10,28 @@
 [sub_resource type="Resource" id="Resource_group1"]
 script = ExtResource("1_o3hiw")
 enemy_data = ExtResource("5_k34kx")
-count = 4
+count = 5
+pause_after = 2.5
 
 [sub_resource type="Resource" id="Resource_group2"]
 script = ExtResource("1_o3hiw")
 enemy_data = ExtResource("2_pcggv")
-count = 4
+count = 5
+pause_after = 2.5
 
 [sub_resource type="Resource" id="Resource_group3"]
 script = ExtResource("1_o3hiw")
 enemy_data = ExtResource("4_lpouh")
-count = 4
+count = 5
+pause_after = 2.5
 
-[sub_resource type="Resource" id="Resource_group4"]
+[sub_resource type="Resource" id="Resource_f2c8l"]
 script = ExtResource("1_o3hiw")
 enemy_data = ExtResource("5_bq55e")
-count = 4
+count = 5
 pause_after = 0.0
+metadata/_custom_type_script = "uid://dclc5suu1kxn3"
 
 [resource]
 script = ExtResource("7_2ciy8")
-groups = Array[ExtResource("1_o3hiw")]([SubResource("Resource_group1"), SubResource("Resource_group2"), SubResource("Resource_group3"), SubResource("Resource_group4")])
+groups = Array[ExtResource("1_o3hiw")]([SubResource("Resource_group1"), SubResource("Resource_group2"), SubResource("Resource_group3"), SubResource("Resource_f2c8l")])
