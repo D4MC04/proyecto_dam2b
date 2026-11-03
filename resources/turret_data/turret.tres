@@ -1,18 +1,17 @@
 [gd_resource type="Resource" script_class="TurretData" format=3 uid="uid://cnbuncwscbxtt"]
 
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="1"]
-[ext_resource type="Shape2D" path="res://resources/collision_shapes/turret.tres" id="2"]
+[ext_resource type="Shape2D" uid="uid://c6bmp8reuw8mx" path="res://resources/collision_shapes/turret.tres" id="2"]
 [ext_resource type="Resource" uid="uid://b70ny8bsxiq0j" path="res://resources/bullet_data/turret_bullet.tres" id="3"]
 [ext_resource type="Texture2D" uid="uid://caajyf16g1kmd" path="res://assets/sprites/turrets/turret/t1_full_up.png" id="4"]
 [ext_resource type="SpriteFrames" uid="uid://da4o1mb4kiwkb" path="res://resources/sprite_frames/turret.tres" id="5"]
 [ext_resource type="SpriteFrames" uid="uid://d1negqjjytnj4" path="res://resources/sprite_frames/turret_cannon.tres" id="7"]
-[ext_resource type="Resource" path="res://resources/turret_data/turret_fusion.tres" id="fusion"]
-[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Turret/DobleLaserShoot.wav" id="snd"]
 [ext_resource type="Resource" path="res://resources/amp_effects/turret.tres" id="amp"]
+[ext_resource type="Resource" uid="uid://bqb718naye2qc" path="res://resources/turret_data/turret_fusion.tres" id="fusion"]
+[ext_resource type="AudioStream" uid="uid://b754bgcqp6rml" path="res://assets/audio/effects/Turrets/Turret/DobleLaserShoot.wav" id="snd"]
 
 [resource]
 script = ExtResource("1")
-shoot_sound = ExtResource("snd")
 name = "Cañón doble"
 cost = 100
 attack_cooldown = 0.25
@@ -23,6 +22,7 @@ bullet_data = ExtResource("3")
 muzzle_offset = Vector2(-3, -12)
 cannon = ExtResource("7")
 turn_speed = 240.0
+shoot_sound = ExtResource("snd")
 fusion = ExtResource("fusion")
 amp_effect = ExtResource("amp")
 description = "Dispara ráfagas rápidas con sus dos cañones. Barata y fiable."

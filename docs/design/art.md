@@ -114,6 +114,7 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 | Archivo | Dibujo | Colores |
 |---|---|---|
 | `cost.png` | moneda | ámbar `#96641e`, `#ecb23c`, `#ffe082` |
+| `credits.png` | moneda pequeña (cabecera CRÉDITOS de la barra derecha; circular de 7x7, pegada a la izquierda del lienzo y con la altura del corazón de `station.png`, para que los dos iconos de la barra se vean igual de grandes) | ámbar `#96641e`, `#ecb23c`, `#ffe082` |
 | `range.png` | anillo con punto central | cian `#40e0f0`, `#befaff` |
 | `cooldown.png` | reloj con agujas oscuras | metal claro `#8c96aa`, `#d2dceb` |
 | `damage.png` | estallido | rojo `#961432`, `#ff3c5a`, `#ffaabe` |
@@ -128,6 +129,7 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 | `level_time.png` | tres barras de nivel crecientes | magenta `#be30a0`, `#ff5ad2`, `#ffafeb` |
 | `amp.png` | dos chevrones hacia arriba (fila de amplificación de la ficha) | ámbar `#96641e`, `#ecb23c`, `#ffe082` |
 | `health.png` | corazón | verde `#1c7440`, `#3cb860`, `#c4f5d0` |
+| `station.png` | corazón (vida de la estación, en la barra derecha) | cian `#1c7496`, `#40e0f0`, `#befaff` |
 | `reward.png` | lingote de oro | ámbar `#96641e`, `#ecb23c`, `#ffe082` |
 | `wave.png` | nave enemiga mirando hacia arriba con la llama del motor (oleada alcanzada, en el resumen de partida) | morado `#221632`, `#462c62`, `#785096`; motor `#f0323c` |
 | `kills.png` | calavera (enemigos destruidos, en el resumen de partida) | metal claro `#8c96aa`, `#d2dceb`; ojos en el contorno |

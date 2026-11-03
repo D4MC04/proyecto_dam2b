@@ -27,12 +27,19 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 2
 
-[node name="IconRect" type="TextureRect" parent="MarginContainer/VBoxContainer" unique_id=393976454]
+[node name="IconRect" type="Control" parent="MarginContainer/VBoxContainer" unique_id=393976454]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 2
 mouse_filter = 2
-stretch_mode = 3
+
+[node name="BaseSprite" type="AnimatedSprite2D" parent="MarginContainer/VBoxContainer/IconRect"]
+unique_name_in_owner = true
+position = Vector2(16, 16)
+
+[node name="CannonSprite" type="AnimatedSprite2D" parent="MarginContainer/VBoxContainer/IconRect"]
+unique_name_in_owner = true
+position = Vector2(16, 16)
 
 [node name="CostLabel" type="Label" parent="MarginContainer/VBoxContainer" unique_id=894113660]
 unique_name_in_owner = true

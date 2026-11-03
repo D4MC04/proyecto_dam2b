@@ -68,8 +68,9 @@ Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de l
 ## Datos de nivel
 
 - `LevelData` (`scripts/resources/LevelData.gd`): `map: PackedScene`, `starting_money: int` (dinero inicial, 500 por defecto), `turrets: Array[TurretData]`, `waves: Array[WaveData]`.
-- `WaveData`: `entries: Array[SpawnEntry]` y `health_multiplier: float` (1.0 por defecto; multiplica la vida máxima de todos los enemigos de la oleada, también los trozos de la Divisora; la recompensa no cambia).
-- `SpawnEntry`: `enemy_data: EnemyData`, `time: float` (segundos desde el inicio de la oleada), `path_index: int`.
+- `WaveData`: `groups: Array[SpawnGroup]` (en orden de salida) y `health_multiplier: float` (1.0 por defecto; multiplica la vida máxima de todos los enemigos de la oleada, también los trozos de la Divisora; la recompensa no cambia).
+- `SpawnGroup`: naves iguales seguidas por un camino: `enemy_data: EnemyData`, `count: int` (1), `spacing: float` (0,5 s entre naves del grupo), `pause_after: float` (3,0 s desde su última nave hasta la primera del siguiente grupo; negativo si se solapan, p. ej. en varios caminos) y `path_index: int`. El primer grupo sale en el tiempo 0, que llega `WAVE_START_DELAY` después de lanzar la oleada. Como los tiempos son relativos, quitar naves o un grupo adelanta solo lo que va detrás.
+- `WaveData.get_entries()` calcula a partir de los grupos una `SpawnEntry` por nave (`enemy_data`, `time` en segundos desde el tiempo 0, `path_index`), ordenadas por tiempo. No se guardan: las usan el Spawner y la pestaña Oleadas (`WaveBlock`).
 
 Orden de desbloqueo (`GameData.turret_order`, la torreta N sale en el nivel N): Cañón doble, Minigun, Cryo, Cañón pesado, Minero, Tesla, Orbitador, Amplificador, Disintegrator y Rail. `LevelData.turrets` de cada nivel lleva las N primeras (el Rail, la 10.ª, llegará con el nivel 10, que aún no existe, y sale bloqueado en el 9). La barra de compra enseña siempre las 10; las que no están en `LevelData.turrets` salen bloqueadas.
 
@@ -91,19 +92,46 @@ Las oleadas son `WaveData` en `resources/wave_data/level_N.tres` (la primera) y 
 
 ### Generador de oleadas
 
-Las oleadas no se escriben a mano: las genera `scripts/tools/make_waves.gd` (`godot --headless --path . -s scripts/tools/make_waves.gd`) a partir de su tabla `LEVELS`, y para retocarlas se cambia la tabla y se vuelve a lanzar. Por nivel, la tabla dice: número de oleadas (10 en todos), caminos del mapa, presupuesto de la primera oleada, cuánto crece por oleada, separación inicial entre naves, naves nuevas del nivel, naves de niveles anteriores (ordenadas de más fáciles a más duras) y si sale la Nodriza.
+Las oleadas no se escriben a mano: las genera `scripts/tools/make_waves.gd` (`godot --headless --path . -s scripts/tools/make_waves.gd`) a partir de su tabla `LEVELS`, y para retocarlas se cambia la tabla y se vuelve a lanzar. Por nivel, la tabla dice: número de oleadas (10 en todos), caminos del mapa, presupuesto de la primera oleada, cuánto crece por oleada, separación inicial entre naves, multiplicador de vida de la primera y de la última oleada (`health`), naves nuevas del nivel, naves de niveles anteriores (ordenadas de más fáciles a más duras) y si sale la Nodriza.
 
-- **Presupuesto**: cada nave cuesta su `reward` más la de sus trozos (la Divisora, 45 + 3 × 10). La oleada K gasta `presupuesto × crecimiento^(K-1)` y saca al menos una nave más que la anterior. El presupuesto inicial de cada nivel es mayor que el del anterior (150, 230, 330, 440, 560, 680, 800, 920 y 1050) y crece un 12-13 % por oleada, así que la última oleada gasta unas 3 veces la primera.
+- **Presupuesto**: cada nave cuesta su `reward` más la de sus trozos (la Divisora, 45 + 3 × 10). La oleada K gasta `presupuesto × crecimiento^(K-1)` y saca al menos una nave más que la anterior. El presupuesto inicial de cada nivel es mayor que el del anterior (150, 230, 330, 440, 560, 680, 800, 920 y 1050) y crece un 12-13 % por oleada, así que la última oleada gasta unas 3 veces la primera. El presupuesto marca cuánto dinero dan las oleadas, no lo difíciles que son: la dificultad se sube con la vida y la densidad (ver "Dificultad frente a dinero").
 - **Naves del nivel**: las nuevas del nivel salen desde la primera oleada y las de niveles anteriores se van sumando por orden de la lista (de las fáciles a las duras) hasta estar todas en la oleada 7. Un grupo nunca repite el tipo del anterior (si hay otro posible).
 - **Grupos**: las naves salen en grupos del mismo tipo. Los grupos alternan entre las naves nuevas del nivel (los pares) y las disponibles del nivel, para que las nuevas sean las protagonistas. El tamaño del grupo es su valor (100 + 15 por oleada, como mucho `presupuesto / caminos` para que haya al menos un grupo por camino) entre el coste de la nave, de 1 a 6. "dart" es un Dart de color al azar.
-- **Tiempos**: la primera nave sale a 3 s en la primera oleada y a 2 s en las demás. La separación entre naves empieza en la de la tabla (de 1 s en el nivel 1 a 0,6 s en el 9), se multiplica por 0,93 en cada oleada (mínimo 0,3 s) y por el coste de la nave entre 35 (de 0,6 a 2), así que las naves caras van más separadas. Entre grupos hay una pausa de 2,5 separaciones. En niveles con varios caminos el siguiente grupo sale cuando el anterior lleva el 100 % de su duración en la primera oleada y el 40 % en la última, así que los grupos de distintos caminos se solapan cada vez más. Los tiempos se redondean a décimas.
-- **Vida**: `health_multiplier` = 1 + 0,05 por oleada (1,0 la primera, 1,45 la décima).
+- **Tiempos**: la primera nave de cada oleada va en 0 s; la espera antes de que salga la pone el Spawner (`WAVE_START_DELAY`, 2,5 s). La separación entre naves empieza en la de la tabla (de 1 s en el nivel 1 a 0,6 s en el 9), se multiplica por 0,91 en cada oleada (mínimo 0,3 s) y por el coste de la nave entre 35 (de 0,6 a 2), así que las naves caras van más separadas. Entre grupos hay una pausa de 2,5 separaciones. En niveles con varios caminos el siguiente grupo sale cuando el anterior lleva el 100 % de su duración en la primera oleada y el 30 % en la última, así que los grupos de distintos caminos se solapan cada vez más. Cada grupo de la tabla se guarda como uno o más `SpawnGroup` (uno por tramo de naves iguales: un grupo de Darts puede mezclar colores); separaciones y pausas se redondean a centésimas.
+- **Vida**: `health_multiplier` sube del primer al segundo valor de `health` con una curva `(oleada / última)^1,4` (`HEALTH_CURVE`): sube poco al principio y mucho al final. La recompensa no cambia con él, así que la vida crece más rápido que el dinero. Valores (1.ª → 10.ª oleada): nivel 1 ×1,1 → ×2,8; nivel 2 ×1,2 → ×2,5; nivel 3 ×1,4 → ×2,8; nivel 4 ×1,4 → ×3,0; nivel 5 ×1,5 → ×3,5; nivel 6 ×2,0 → ×4,2; nivel 7 ×2,3 → ×4,9; nivel 8 ×2,4 → ×5,3; nivel 9 ×2,6 → ×5,5.
 - **Nodriza**: solo en la última oleada de los niveles 6 y 9, una, al final (después de que haya salido todo lo demás).
 - **Caminos**: cada grupo va entero por un camino, sacado de una bolsa mezclada con todos los caminos del mapa: se usan todos antes de repetir y nunca el mismo camino en dos grupos seguidos. Cada oleada usa todos los caminos del nivel.
 - Las tiradas usan una semilla fija por nivel y oleada: volver a lanzarlo da las mismas naves y tiempos (los ids de los subrecursos sí cambian).
 - Los `.tres` que ya existen se cargan y se rellenan, así conservan su uid. Como Godot guarda sin uid desde `-s`, el script los vuelve a escribir en la cabecera y en los `ext_resource` (como `map_generator.gd`). Para el nivel 5 añade a `GameData.tscn` las `ext_resource` que falten (`wave_5_K`) y reescribe su línea `waves`, sin tocar el resto de la escena.
-- El dinero inicial (`LevelData.starting_money`) no se toca: si un nivel no se puede ganar, se ajusta la tabla.
+- El dinero inicial (`LevelData.starting_money`), las recompensas de las naves y `PERFECT_WAVE_BONUS` no se tocan: si un nivel no se puede ganar, se ajusta la tabla (sobre todo `health`).
 - El presupuesto cuenta en recompensas (`reward`). Si cambian las recompensas de las naves (ver [enemigos.md](enemigos.md)), hay que retocar los presupuestos de la tabla.
+
+#### Dificultad frente a dinero
+
+Palancas usadas: la vida (`health`, curva convexa y más alta en cada nivel; es la principal porque no da dinero), la densidad (separación que se encoge más rápido y solape de caminos mayor en las últimas oleadas, para tener menos tiempo de disparo por nave) y, sin tocarlos, los presupuestos de la tabla (el dinero que dan las oleadas). No se han tocado recompensas, dinero inicial ni `PERFECT_WAVE_BONUS`, y tampoco se ha añadido velocidad por oleada (`WaveData` no la tiene).
+
+Estimación (no una simulación) por nivel y oleada:
+
+- Dinero antes de la oleada K = dinero inicial + recompensas de las K-1 anteriores + 25 por oleada perfecta.
+- DPS que se monta = dinero × 0,17 (DPS efectivo por € de las torretas, ver [torretas.md](torretas.md)) × 0,75 (colocación y sobreataque).
+- DPS que exige la oleada = vida total (con el multiplicador) / (duración de la salida + 2 × 85 px / velocidad media de la oleada).
+- Ratio = exigido / montado: por encima de 1 se pierde vida. Se mide gastando todo el dinero en cada oleada ("construyendo") y con el DPS congelado tras la oleada 5 ("sin construir").
+
+Antes del cambio el ratio construyendo era de 0,2 a 0,35 al final (hasta 0,9 en la primera oleada del nivel 1) y, sin construir desde la 5, se quedaba en 0,4-0,9: se ganaba parando de construir. Ahora (oleada 1 / 5 / 8 / 10):
+
+| Nivel | Construyendo | Sin construir desde la 5 (oleada 8 / 10) |
+|---|---|---|
+| 1 | 0,98 / 0,59 / 0,63 / 0,58 | 1,16 / 1,50 |
+| 2 | 0,78 / 0,56 / 0,61 / 0,73 | 1,14 / 1,90 |
+| 3 | 0,66 / 0,41 / 0,60 / 0,63 | 1,10 / 1,59 |
+| 4 | 0,90 / 0,54 / 0,77 / 0,76 | 1,36 / 2,00 |
+| 5 | 0,92 / 0,59 / 0,68 / 0,72 | 1,19 / 1,83 |
+| 6 | 0,71 / 0,57 / 0,60 / 0,78 | 1,16 / 2,08 |
+| 7 | 0,72 / 0,54 / 0,65 / 0,82 | 1,18 / 2,03 |
+| 8 | 0,77 / 0,57 / 0,74 / 0,78 | 1,31 / 1,90 |
+| 9 | 0,62 / 0,56 / 0,75 / 0,85 | 1,35 / 2,11 |
+
+Objetivo: construyendo bien el ratio final va de 0,6 (nivel 1) a 0,85 (nivel 9) y sin construir pasa de 1 hacia la oleada 7-8 en todos los niveles. La oleada 5 del nivel 3 y la 7 del nivel 7 salen ligeras (0,41 y 0,51) porque la mezcla de naves de esa oleada es barata; el modelo no cubre cobertura de caminos (en el nivel 9 hay 8 caminos, así que es el que más puede resultar más duro que su ratio) ni el valor de la ralentización de la Cryo.
 
 ## Spawner
 
@@ -114,7 +142,7 @@ Lleva el ciclo de oleadas del nivel: cuándo se lanzan, qué enemigos quedan viv
 ### Ciclo de oleadas
 
 - `setup(paths, waves)` solo guarda los datos. El nivel empieza en espera, sin enemigos, para dejar construir; la primera oleada se lanza con el botón de la pestaña Oleadas o con AUTO.
-- `start_next_wave() -> bool` lanza la siguiente oleada: copia sus entradas, las ordena por `time`, pone el reloj a 0 y emite `wave_started(index, total)` (índice desde 0). Devuelve `false` y no hace nada si el nivel no está limpio (la actual sigue sacando o quedan enemigos vivos) o no quedan oleadas (`can_start_next_wave()`). Así nunca conviven enemigos de dos oleadas.
+- `start_next_wave() -> bool` lanza la siguiente oleada: toma sus entradas (`get_entries()`, ya ordenadas por `time`), pone el reloj a `-WAVE_START_DELAY` (2,5 s de espera hasta el tiempo 0; los portales se abren ya al lanzarla) y emite `wave_started(index, total)` (índice desde 0). Devuelve `false` y no hace nada si el nivel no está limpio (la actual sigue sacando o quedan enemigos vivos) o no quedan oleadas (`can_start_next_wave()`). Así nunca conviven enemigos de dos oleadas.
 - En `_process` suma el tiempo y crea cada enemigo cuando su `time` se cumple. Al crear el último emite `wave_spawn_finished(index)`.
 - `_spawn(entry)` llama a `_spawn_enemy(data, path, progress)` con el `Path2D` número `entry.path_index % paths.size()` y `PORTAL_OFFSET`. `_spawn_enemy` instancia `scenes/entities/Enemy.tscn` como hijo de ese camino, lo pone en `progress` (antes de `setup`, para que su primer giro salga del camino), llama a `enemy.setup(data)`, lo apunta como vivo, conecta sus señales `died` y `reached_end` y lo devuelve. `_spawn` llama además a `enemy.spawn_in()` (escala 0→1 en 0,2 s con destello).
 

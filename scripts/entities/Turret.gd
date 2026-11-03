@@ -11,6 +11,8 @@ signal power_changed
 
 # Margen para disparar sin que el cañón esté perfectamente alineado.
 const AIM_TOLERANCE := deg_to_rad(12.0)
+# Cambia de sentido de giro solo si el otro tarda menos de esta fracción del tiempo del actual.
+const TURN_SWITCH_RATIO := 0.7
 # Color de la base y el cañón mientras un pulso EMP la tiene apagada: muy oscuro y azulado.
 const DISABLED_TINT := Color(0.22, 0.25, 0.38)
 # Destello al volver a encenderse.
@@ -58,6 +60,11 @@ var damage_dealt := 0.0
 var enemies_in_range: Array[Enemy] = []
 var _shots := 0
 var _target: Enemy = null
+# Giro con turn_speed > 0: sentido elegido (+1, -1 o 0 sin elegir) para el objetivo _turn_target y
+# velocidad angular (rad/s) de ese enemigo vista desde la torreta en el último cálculo.
+var _turn_direction := 0
+var _turn_target: Enemy = null
+var _enemy_rate := 0.0
 # Cooldown cumplido, a la espera de que el cañón termine de girar hacia el enemigo.
 var _pending_shot := false
 # Sobrecalentamiento (ver TurretData.overheat_shots): calor de 0 a 1, segundos que le quedan parada
@@ -238,9 +245,9 @@ func _process(delta: float) -> void:
 		if not data.focus_beam and not data.beam:
 			_stop_shoot_sound()
 		return
-	# Gira poco a poco por el camino más corto; sin enemigo se queda donde está.
+	# Gira poco a poco hacia el lado con el que alcanza antes al enemigo; sin enemigo se queda donde está.
 	if data.turn_speed > 0:
-		cannon.rotation = rotate_toward(cannon.rotation, _target_angle(target), deg_to_rad(data.turn_speed) * delta)
+		_turn_toward(target, delta)
 	else:
 		cannon.rotation = _target_angle(target)
 	if _pending_shot and _is_aimed(target) and _is_spun_up():
@@ -353,6 +360,58 @@ func _add_heat() -> void:
 # El sprite del cañón mira hacia arriba: ángulo hacia el enemigo más 90°.
 func _target_angle(target: Enemy) -> float:
 	return (target.global_position - global_position).angle() + PI / 2
+
+# Gira el cañón un paso hacia el objetivo. Alineado sigue al enemigo por el camino corto; si no, elige
+# el sentido con el que lo alcanza antes (ver _best_turn_direction) y lo mantiene mientras el objetivo
+# sea el mismo, salvo que el otro sea claramente mejor.
+func _turn_toward(target: Enemy, delta: float) -> void:
+	var step := deg_to_rad(data.turn_speed) * delta
+	var goal := _target_angle(target)
+	if target != _turn_target or absf(angle_difference(cannon.rotation, goal)) <= AIM_TOLERANCE:
+		_turn_target = target
+		_turn_direction = 0
+		cannon.rotation = rotate_toward(cannon.rotation, goal, step)
+		return
+	var distances := _turn_distances(goal)
+	var times := _turn_times(target, goal)
+	var current_time: float = times[_turn_direction] if _turn_direction != 0 else INF
+	var best := _best_turn_direction(times)
+	if _turn_direction == 0 or (best != _turn_direction and times[best] < current_time * TURN_SWITCH_RATIO):
+		_turn_direction = best
+	var remaining: float = distances[_turn_direction]
+	if step >= remaining:
+		cannon.rotation = goal
+	else:
+		cannon.rotation = wrapf(cannon.rotation + _turn_direction * step, -PI, PI)
+
+# Ángulo a recorrer hasta `goal` girando en sentido positivo (+1) y negativo (-1).
+func _turn_distances(goal: float) -> Dictionary:
+	var positive := fposmod(angle_difference(cannon.rotation, goal), TAU)
+	return {1: positive, -1: TAU - positive}
+
+# Tiempo hasta alcanzar al enemigo girando en cada sentido (INF si en ese sentido no lo alcanza nunca).
+# Su velocidad angular alrededor de la torreta es la componente perpendicular de su velocidad entre la distancia.
+func _turn_times(target: Enemy, goal: float) -> Dictionary:
+	var offset := target.global_position - global_position
+	var enemy_rate := 0.0
+	if offset.length_squared() > 0.0:
+		enemy_rate = offset.cross(target.get_move_velocity()) / offset.length_squared()
+	var turn_rate := deg_to_rad(data.turn_speed)
+	var distances := _turn_distances(goal)
+	var times := {1: INF, -1: INF}
+	# El enemigo se aleja o se acerca al cañón según su propia velocidad angular.
+	if turn_rate - enemy_rate > 0.0:
+		times[1] = distances[1] / (turn_rate - enemy_rate)
+	if turn_rate + enemy_rate > 0.0:
+		times[-1] = distances[-1] / (turn_rate + enemy_rate)
+	_enemy_rate = enemy_rate
+	return times
+
+# Sentido con menor tiempo; si ninguno lo alcanza, hacia donde va el enemigo.
+func _best_turn_direction(times: Dictionary) -> int:
+	if is_inf(times[1]) and is_inf(times[-1]):
+		return 1 if _enemy_rate >= 0.0 else -1
+	return 1 if times[1] <= times[-1] else -1
 
 func _is_aimed(target: Enemy) -> bool:
 	return data.cannon == null or absf(angle_difference(cannon.rotation, _target_angle(target))) <= AIM_TOLERANCE

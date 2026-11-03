@@ -9,7 +9,7 @@
 [resource]
 script = ExtResource("3_ukydi")
 hit_sound = ExtResource("snd")
-damage = 45.0
+damage = 40.0
 speed = 200.0
 sprite_frames = ExtResource("4_40h1v")
 collision_shape = ExtResource("1_m56mc")

@@ -25,8 +25,7 @@ const PAST_COLOR := Color(1, 1, 1, 0.4)
 
 ## Rellena el bloque con una celda por tipo de enemigo, en orden de primera aparición.
 func setup(wave: WaveData) -> void:
-	var entries: Array[SpawnEntry] = wave.entries.duplicate()
-	entries.sort_custom(func(a: SpawnEntry, b: SpawnEntry) -> bool: return a.time < b.time)
+	var entries := wave.get_entries()
 	# Un Dictionary conserva el orden de inserción: la primera aparición manda.
 	var counts: Dictionary = {}
 	for entry in entries:

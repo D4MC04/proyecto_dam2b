@@ -1,7 +1,10 @@
 extends Node
 
-# Autoload: progreso del jugador. Se carga al arrancar y se guarda al desbloquear un nivel o acabar el tutorial.
-const PATH := "user://progress.cfg"
+# Autoload: progreso del jugador. Hay SLOT_COUNT partidas, cada una en su archivo; se guarda al desbloquear un nivel, acabar el tutorial, etc.
+const SLOT_COUNT := 3
+const SAVE_DIR := "user://saves/"
+# Archivo del progreso de antes de las ranuras: se migra a la ranura 1.
+const LEGACY_PATH := "user://progress.cfg"
 const SECTION := "progress"
 
 signal progress_reset
@@ -37,42 +40,88 @@ var fused_turrets: Array[String] = []
 var unlocked: Array[String] = []
 # Segundos jugados en niveles, en tiempo real.
 var play_time: float = 0.0
+# Ranura de la partida en curso (1..SLOT_COUNT). 0 = ninguna: mientras tanto no se guarda nada.
+var active_slot: int = 0
 
 var _toasts: VBoxContainer
 
 func _ready() -> void:
 	_make_toast_layer()
+	_migrate_legacy_save()
+
+## Carga la ranura (partida nueva con los valores por defecto si no tiene archivo) y la deja activa.
+func load_slot(slot: int) -> void:
+	if slot < 1 or slot > SLOT_COUNT:
+		return
+	_set_defaults()
+	active_slot = slot
 	var file := ConfigFile.new()
-	if file.load(PATH) == OK:
-		# El archivo lo puede editar cualquiera: solo se acepta un entero >= 1.
-		var value: Variant = file.get_value(SECTION, "current_level", 1)
-		if typeof(value) == TYPE_INT and value >= 1:
-			current_level = value
-		var done: Variant = file.get_value(SECTION, "tutorial_done", false)
-		if typeof(done) == TYPE_BOOL:
-			tutorial_done = done
-		var seen: Variant = file.get_value(SECTION, "seen_enemies", [])
-		if typeof(seen) == TYPE_ARRAY:
-			for key: Variant in seen:
-				if typeof(key) == TYPE_STRING:
-					seen_enemies.append(key)
-		var counters: Variant = file.get_value(SECTION, "stats", {})
-		if typeof(counters) == TYPE_DICTIONARY:
-			for key: Variant in counters:
-				if typeof(key) == TYPE_STRING and typeof(counters[key]) == TYPE_INT:
-					stats[key] = counters[key]
-		# El progreso guardado antes del cambio de tower a turret usa los nombres antiguos: se pasan a los nuevos.
-		_load_list(file, "fused_turrets" if file.has_section_key(SECTION, "fused_turrets") else "fused_towers", fused_turrets)
-		_load_list(file, "unlocked", unlocked)
-		if stats.has("towers"):
-			stats["turrets"] = stats.get("turrets", 0) + stats["towers"]
-			stats.erase("towers")
-		var old_achievement := unlocked.find("towers_50")
-		if old_achievement >= 0:
-			unlocked[old_achievement] = "turrets_50"
-		var time: Variant = file.get_value(SECTION, "play_time", 0.0)
-		if typeof(time) == TYPE_FLOAT and time >= 0.0:
-			play_time = time
+	if file.load(_slot_path(slot)) != OK:
+		return
+	# El archivo lo puede editar cualquiera: solo se acepta un entero >= 1.
+	var value: Variant = file.get_value(SECTION, "current_level", 1)
+	if typeof(value) == TYPE_INT and value >= 1:
+		current_level = value
+	var done: Variant = file.get_value(SECTION, "tutorial_done", false)
+	if typeof(done) == TYPE_BOOL:
+		tutorial_done = done
+	var seen: Variant = file.get_value(SECTION, "seen_enemies", [])
+	if typeof(seen) == TYPE_ARRAY:
+		for key: Variant in seen:
+			if typeof(key) == TYPE_STRING:
+				seen_enemies.append(key)
+	var counters: Variant = file.get_value(SECTION, "stats", {})
+	if typeof(counters) == TYPE_DICTIONARY:
+		for key: Variant in counters:
+			if typeof(key) == TYPE_STRING and typeof(counters[key]) == TYPE_INT:
+				stats[key] = counters[key]
+	# El progreso guardado antes del cambio de tower a turret usa los nombres antiguos: se pasan a los nuevos.
+	_load_list(file, "fused_turrets" if file.has_section_key(SECTION, "fused_turrets") else "fused_towers", fused_turrets)
+	_load_list(file, "unlocked", unlocked)
+	if stats.has("towers"):
+		stats["turrets"] = stats.get("turrets", 0) + stats["towers"]
+		stats.erase("towers")
+	var old_achievement := unlocked.find("towers_50")
+	if old_achievement >= 0:
+		unlocked[old_achievement] = "turrets_50"
+	var time: Variant = file.get_value(SECTION, "play_time", 0.0)
+	if typeof(time) == TYPE_FLOAT and time >= 0.0:
+		play_time = time
+
+func has_save(slot: int) -> bool:
+	return slot >= 1 and slot <= SLOT_COUNT and FileAccess.file_exists(_slot_path(slot))
+
+## Borra la partida de la ranura. Si era la activa, se queda sin ranura y con los valores por defecto.
+func delete_slot(slot: int) -> void:
+	if slot < 1 or slot > SLOT_COUNT:
+		return
+	if FileAccess.file_exists(_slot_path(slot)):
+		DirAccess.remove_absolute(_slot_path(slot))
+	if slot == active_slot:
+		active_slot = 0
+		_set_defaults()
+
+## Resumen de la ranura sin cargarla en la partida activa. Vacío si no hay partida.
+func get_slot_summary(slot: int) -> Dictionary:
+	var file := ConfigFile.new()
+	if not has_save(slot) or file.load(_slot_path(slot)) != OK:
+		return {}
+	var level: Variant = file.get_value(SECTION, "current_level", 1)
+	var time: Variant = file.get_value(SECTION, "play_time", 0.0)
+	var saved_at: Variant = file.get_value(SECTION, "saved_at", 0)
+	var done: Variant = file.get_value(SECTION, "unlocked", [])
+	var count := 0
+	if typeof(done) == TYPE_ARRAY:
+		for id: Variant in done:
+			if typeof(id) == TYPE_STRING and ACHIEVEMENTS.has(id):
+				count += 1
+	return {
+		"saved_at": saved_at if typeof(saved_at) == TYPE_INT else 0,
+		"play_time": time if typeof(time) == TYPE_FLOAT and time >= 0.0 else 0.0,
+		"sector": level if typeof(level) == TYPE_INT and level >= 1 else 1,
+		"achievements": count,
+		"achievements_total": ACHIEVEMENTS.size(),
+	}
 
 # i es el índice (desde 0) del nivel en GameData.levels.
 func is_unlocked(i: int) -> bool:
@@ -204,6 +253,11 @@ func _load_list(file: ConfigFile, key: String, into: Array[String]) -> void:
 
 # Vuelve al nivel 1 (con el tutorial otra vez), guarda y avisa para que el menú de niveles se reconstruya.
 func reset_progress() -> void:
+	_set_defaults()
+	_save()
+	progress_reset.emit()
+
+func _set_defaults() -> void:
 	current_level = 1
 	tutorial_done = false
 	seen_enemies.clear()
@@ -211,10 +265,30 @@ func reset_progress() -> void:
 	fused_turrets.clear()
 	unlocked.clear()
 	play_time = 0.0
-	_save()
-	progress_reset.emit()
+
+func _slot_path(slot: int) -> String:
+	return SAVE_DIR + "slot_%d.cfg" % slot
+
+# Si existe el progress.cfg de antes de las ranuras y no hay ninguna ranura, pasa a la 1 y se borra el antiguo.
+func _migrate_legacy_save() -> void:
+	if not FileAccess.file_exists(LEGACY_PATH):
+		return
+	for slot in range(1, SLOT_COUNT + 1):
+		if has_save(slot):
+			return
+	var file := ConfigFile.new()
+	if file.load(LEGACY_PATH) != OK:
+		return
+	file.set_value(SECTION, "saved_at", int(Time.get_unix_time_from_system()))
+	DirAccess.make_dir_recursive_absolute(SAVE_DIR)
+	if file.save(_slot_path(1)) == OK:
+		DirAccess.remove_absolute(LEGACY_PATH)
+	else:
+		push_warning("GameState: no se pudo migrar " + LEGACY_PATH)
 
 func _save() -> void:
+	if active_slot == 0:
+		return
 	var file := ConfigFile.new()
 	file.set_value(SECTION, "current_level", current_level)
 	file.set_value(SECTION, "tutorial_done", tutorial_done)
@@ -223,5 +297,7 @@ func _save() -> void:
 	file.set_value(SECTION, "fused_turrets", fused_turrets)
 	file.set_value(SECTION, "unlocked", unlocked)
 	file.set_value(SECTION, "play_time", play_time)
-	if file.save(PATH) != OK:
-		push_warning("GameState: no se pudo guardar " + PATH)
+	file.set_value(SECTION, "saved_at", int(Time.get_unix_time_from_system()))
+	DirAccess.make_dir_recursive_absolute(SAVE_DIR)
+	if file.save(_slot_path(active_slot)) != OK:
+		push_warning("GameState: no se pudo guardar " + _slot_path(active_slot))

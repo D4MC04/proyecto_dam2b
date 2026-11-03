@@ -26,6 +26,8 @@ const HEAL_RADIUS := 48.0
 const HEAL_TEXT_COLOR := Color("#7ee89a")
 const HEAL_FLASH := Color(0.8, 2.5, 1.0)
 const HEAL_FLASH_TIME := 0.4
+# Medio tramo (px) del camino con el que se calcula su tangente.
+const TANGENT_STEP := 2.0
 
 # Multiplicador de velocidad mientras está ralentizado.
 var _slow := 1.0
@@ -75,12 +77,25 @@ func spawn_in() -> void:
 	tween.tween_property(sprite, "modulate", Color.WHITE, SPAWN_IN_TIME)
 
 func _process(delta):
-	progress += speed * _slow * delta
+	progress += get_move_speed() * delta
 	_update_animation()
 	if progress_ratio >= 1.0:
 		set_process(false)
 		reached_end.emit(data.base_damage)
 		queue_free()
+
+# Velocidad (px/s) a lo largo del camino, con la ralentización actual.
+func get_move_speed() -> float:
+	return speed * _slow
+
+## Velocidad global del enemigo (px/s): tangente del camino en su progreso por get_move_speed().
+func get_move_velocity() -> Vector2:
+	var path := get_parent() as Path2D
+	if path == null:
+		return Vector2.ZERO
+	var curve := path.curve
+	var tangent := curve.sample_baked(minf(progress + TANGENT_STEP, curve.get_baked_length())) - curve.sample_baked(maxf(progress - TANGENT_STEP, 0.0))
+	return path.global_transform.basis_xform(tangent).normalized() * get_move_speed()
 
 # Distancia que le falta para llegar al final de su camino.
 func get_remaining_distance() -> float:

@@ -1,6 +1,6 @@
-[gd_resource type="SpriteFrames" format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://b0t5fnystvvj8"]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/turrets/amplifier_fusion/amplifier_cannon_idle_sheet.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://b5ilrgvwvk5ca" path="res://assets/sprites/turrets/amplifier_fusion/amplifier_cannon_idle_sheet.png" id="1"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0"]
 atlas = ExtResource("1")
@@ -23,16 +23,13 @@ animations = [{
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_0")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_1")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_2")
-},
-{
+}, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_3")
 }],

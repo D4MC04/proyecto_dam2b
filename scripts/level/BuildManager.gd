@@ -60,8 +60,12 @@ func _try_place(mouse_pos: Vector2) -> void:
 	var cell := grid.cell(mouse_pos)
 	var data := state.selected_turret
 	if grid.turrets.has(cell):
-		# Clic en una torreta ya colocada: se selecciona (ficha, vender y mejorar).
+		# Clic en una torreta ya colocada: se selecciona (ficha, vender y mejorar);
+		# si ya lo estaba, se suelta todo.
 		if _tutorial_allows(TutorialHints.Action.SELECT_PLACED):
+			if grid.turrets[cell] == state.sellable_turret:
+				_deselect_all()
+				return
 			state.inspect_placed(grid.turrets[cell])
 		return
 

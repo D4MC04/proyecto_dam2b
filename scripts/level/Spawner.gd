@@ -25,6 +25,8 @@ const SPLIT_PUSH_TIME := 0.12
 const SPLIT_RETURN_TIME := 0.35
 ## Pausa entre que el nivel queda limpio y el arranque de la siguiente oleada con AUTO.
 const AUTO_WAVE_DELAY := 1.5
+## Segundos entre el arranque de una oleada y su tiempo 0 (las entradas cuentan desde ahí).
+const WAVE_START_DELAY := 2.5
 
 ## Con AUTO activo, la siguiente oleada empieza sola cuando el nivel queda limpio.
 var auto_waves: bool = false:
@@ -68,9 +70,8 @@ func start_next_wave() -> bool:
 		return false
 	_auto_countdown = -1.0
 	_wave_index += 1
-	_entries = waves[_wave_index].entries.duplicate()
-	_entries.sort_custom(func(a: SpawnEntry, b: SpawnEntry) -> bool: return a.time < b.time)
-	_elapsed = 0.0
+	_entries = waves[_wave_index].get_entries()
+	_elapsed = -WAVE_START_DELAY
 	_next_index = 0
 	_spawning = true
 	_open_portals()
@@ -79,7 +80,7 @@ func start_next_wave() -> bool:
 
 ## La oleada `index` trae la Nodriza (el jefe).
 func wave_has_boss(index: int) -> bool:
-	return waves[index].entries.any(func(entry: SpawnEntry) -> bool: return entry.enemy_data == NODRIZA)
+	return waves[index].groups.any(func(group: SpawnGroup) -> bool: return group.enemy_data == NODRIZA and group.count > 0)
 
 func can_start_next_wave() -> bool:
 	return is_clear() and has_waves_left()
