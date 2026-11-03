@@ -1,8 +1,41 @@
 # Menú principal, opciones y música
 
+## Pantalla de inicio
+
+`scenes/StartScreen.tscn` + `scripts/screens/StartScreen.gd`. Es la escena inicial del proyecto (`run/main_scene`). De fondo, el mismo espacio que el menú: los nodos `Background`, `MenuBackground`, `StarField`, `RingedPlanet`, `Comets`, `Asteroids`, `Satellites`, `Outpost`, `Skirmish` y `Vignette`, con las mismas escenas, scripts y posiciones (ver "Fondo" y "Decoración"). Encima va la interfaz, en fases (`Phase { TITLE, SLOTS, CONFIRM, ENTERING }`):
+
+- **Título:** `TitleBlock`, "ASTRO ARTILLERY" (72 px) y "TOWER DEFENSE" (24 px, `#40e0f0`) como en el menú, entra con un fundido de 0,6 s con su fila de arriba en y = 168. Debajo, en y = 352, `PressKeyLabel` "PULSA CUALQUIER TECLA" (24 px, `#befaff`) parpadea a golpes: 0,6 s encendido de cada segundo. Cualquier tecla, clic (izquierdo, derecho o central) o botón de mando lo hace parpadear rápido 6 veces (cada 0,05 s) y desaparecer, y el título sube a y = 24 en 0,45 s.
+- **Ranuras:** `SlotsPanel`, un panel holograma cian (`OverlayFrame`, márgenes 24 / 21, 18 px de separación) centrado con la fila de arriba en y = 130, con la cabecera `// SELECCIONA PARTIDA` (24 px) y `SlotList`, las 3 ranuras en vertical separadas 12 px. Debajo, en y = 494, `HintLabel` "ESC  VOLVER" (16 px, `#5a7a96`). Al entrar, el panel funde en 0,2 s y las tarjetas llegan escalonadas (0,09 s entre una y otra): se deslizan 16 px desde la derecha mientras se descubren de arriba abajo con una línea de escaneo `#befaff` (0,24 s), y después aparecen sus textos y su botón de borrar (0,15 s). Escape funde las ranuras y baja el título a su sitio, con el texto parpadeando otra vez.
+- **Confirmar borrado:** el botón de borrar de una ranura abre `ConfirmLayer`: oscurece todo (negro al 70 %) y muestra un panel holograma rojo (`#ff3c5a`, corchetes `#ffaabe`) con "¿SEGURO?" (48 px, `#ffaabe`), "Se borrará la partida de la ranura N. No se puede deshacer." (24 px) y los botones "Borrar" (`DangerButton`) y "Cancelar", de 132x36 y separados 12 px. Aparece y se va con un fundido de 0,2 s. "Cancelar", Escape o un clic fuera del panel lo cierran sin hacer nada. "Borrar" llama a `GameState.delete_slot(n)`, cierra la caja y la tarjeta vuelve a entrar, ya como "NUEVA PARTIDA".
+- **Entrar:** pulsar una tarjeta llama a `GameState.load_slot(n)`; si la ranura estaba vacía, además a `GameState.flush()`, para que quede ocupada desde ese momento. Después, el efecto de entrada: el título, la cabecera, el aviso, las otras tarjetas y los botones de borrar se funden en 0,2 s mientras la tarjeta elegida destella 3 veces en `#befaff` (0,07 s por subida y por bajada) y se queda encendida; un `ScreenWipe` tapa la pantalla desde el centro de la tarjeta (0,7 s), se espera 0,15 s en oscuro, se cambia a `MainMenu` (a mano, como en "Cambio de escena" de [flujo.md](flujo.md)) y el mismo `ScreenWipe` la destapa desde el centro de la pantalla (0,6 s). No se parece al salto al hiperespacio, que es el de entrar a un nivel.
+
+Mientras dura una animación, `InputBlocker` (un `Control` a pantalla completa) para el ratón y se ignoran las teclas. Las posiciones animadas (título y tarjetas) se redondean a píxeles enteros.
+
+Volver de un nivel (`Game._quit_to_menu`) va directo a `MainMenu`, sin pasar por aquí.
+
+### SlotCard
+
+`scripts/main_menu/SlotCard.gd` (clase `SlotCard`, `Button`). Tarjeta de 432x72 de una ranura. Los estilos del tema están vacíos: todo se pinta en `_draw`, fila a fila y en píxeles enteros, con la forma de los botones (esquinas de arriba a la izquierda y de abajo a la derecha recortadas 6 px, `ClippedBoxStyle.row_span`) y las líneas de barrido del panel holograma (una fila de cada dos un 25 % más oscura). Sin foco (el juego es de ratón).
+
+- Fondo `#081626` al 92 %, mezclado con `#40e0f0` al 18 % con el ratón encima y al 26 % pulsada. Borde de 1 px `#1c7496` (con partida), `#1c4a60` (vacía) o `#40e0f0` (ratón encima o pulsada).
+- A la izquierda, una pestaña de 56 px con el número de la ranura a 48 px (`#40e0f0` con partida, `#1c7496` vacía, `#befaff` con el ratón encima) y una línea divisoria del color del borde.
+- Con partida (`set_summary` con `GameState.get_slot_summary`): "SECTOR 07" (24 px, `#cce6ff`; el sector no pasa del número de niveles) y a la derecha la estrella de `first_win.png` y "X/12" en ámbar `#ecb23c`; debajo, a 16 px, "GUARDADO" y la fecha y hora locales del último guardado ("03/11/2026 18:42") a la izquierda y "JUGADO" y el tiempo jugado ("1h 19m") a la derecha, con los rótulos en `#5a7a96`.
+- Sin partida: "+ NUEVA PARTIDA" (24 px, `#40e0f0`) y debajo "RANURA VACÍA" (16 px, `#5a7a96`).
+- Con el ratón encima, una fila más clara recorre la tarjeta de arriba abajo cada 1,4 s.
+- `reveal` (0..1): filas descubiertas en la entrada, con una línea `#befaff` en el borde. `content_alpha`: opacidad de los textos. `flash` (0..1): destello al elegirla, que lleva fondo y borde hacia `#befaff`.
+
+El botón de borrar es un `Button` de 36x36 con la variación `DangerButton`, centrado en vertical a 9 px a la derecha de la tarjeta, solo en las ranuras con partida. Lleva una cruz de píxeles de 10x10 y 2 px de grueso en el color del texto (`#ff3c5a`, `#ffaabe` con el ratón encima). Como `DangerButton` no define el estado pulsado con el ratón encima, se le pone el de hover (igual que a "Borrar" de la confirmación).
+
+### ScreenWipe
+
+`scripts/main_menu/ScreenWipe.gd` (clase `ScreenWipe`, `CanvasLayer` en la capa 100) con el shader `resources/shaders/screen_wipe.gdshader` sobre un `ColorRect` a pantalla completa que para el ratón. Se añade a la raíz del árbol, no a la escena, para sobrevivir al cambio de escena.
+
+- `cover(origin, duration)`: tapa la pantalla en celdas de 4x4 px que avanzan desde `origin` hacia fuera. Cada celda se tapa según su distancia a `origin` (80 %) y una matriz de Bayer 4x4 (20 %), así que el frente sale tramado. Las celdas tapadas son `#060b14`; el frente, `#40e0f0` con su borde exterior en `#befaff`.
+- `uncover(origin, duration)`: lo contrario, destapando primero lo más cercano a `origin`; al acabar se libera.
+
 ## Escena y script
 
-`scenes/MainMenu.tscn` + `scripts/screens/MainMenu.gd`. Es la escena inicial del proyecto.
+`scenes/MainMenu.tscn` + `scripts/screens/MainMenu.gd`. Se llega desde la pantalla de inicio, al elegir ranura, o al salir de un nivel (ver [flujo.md](flujo.md)).
 
 Nodos, de fondo a frente:
 
@@ -93,7 +126,7 @@ Es el único audio del juego: todavía no hay efectos de sonido, así que nada s
 
 ## Opciones
 
-`scenes/OptionsMenu.tscn` + `scripts/screens/OptionsMenu.gd` (clase `OptionsMenu`). Un panel holograma cian (`OverlayFrame`) centrado, con los mismos márgenes que el menú principal (24 / 21), con el título "OPCIONES", dos columnas de secciones con cabeceras `// AUDIO`, `// PANTALLA` y `// JUEGO`, y debajo el bloque de botones "Borrar progreso" y "Volver" (ver más abajo). Etiquetas, cabeceras y botones a 24 px. Columnas separadas 36 px. La misma escena está instanciada en el menú principal y en el menú de pausa (ver [ui.md](ui.md)).
+`scenes/OptionsMenu.tscn` + `scripts/screens/OptionsMenu.gd` (clase `OptionsMenu`). Un panel holograma cian (`OverlayFrame`) centrado, con los mismos márgenes que el menú principal (24 / 21), con el título "OPCIONES", dos columnas de secciones con cabeceras `// AUDIO`, `// PANTALLA` y `// JUEGO`, y debajo el botón "Volver" (ver más abajo). Etiquetas, cabeceras y botones a 24 px. Columnas separadas 36 px. La misma escena está instanciada en el menú principal y en el menú de pausa (ver [ui.md](ui.md)).
 
 - `open_from(opener)`: funde de `opener` (el panel que la abre) a las opciones, 0,25 s de salida y 0,25 s de entrada, y recuerda `opener`.
 - "Volver" hace el fundido inverso hacia ese mismo panel.
@@ -110,7 +143,7 @@ Es el único audio del juego: todavía no hay efectos de sonido, así que nada s
 | PANTALLA | Botón "Mostrar FPS" | `show_fps` |
 | JUEGO | Botón "Rango de torretas" | `show_turret_range` |
 
-"Borrar progreso" no es un ajuste: es un botón propio (204x36, variación de tema `DangerButton`: borde y texto `#ff3c5a`, y en hover relleno `#961432` con texto `#ffaabe`). Va en `ButtonsBlock`, un bloque con "Volver" (ambos 204x36, separados 9 px) que queda debajo de las columnas con 9 px extra de margen (`ButtonsMargin`), así que se separa más de las secciones que los botones entre sí. No guarda ninguna opción: llama a `GameState.reset_progress()`. La primera pulsación cambia su texto a "¿Seguro?" y lo deja relleno de rojo (armado) durante `CONFIRM_TIME` (3 s); el ancho es fijo, así que ni el botón ni el panel cambian de tamaño. Si se pulsa de nuevo en ese tiempo (cada aviso lleva un número, así que el temporizador de un aviso anterior no cancela el nuevo), `GameState.reset_progress()` vuelve `current_level` a 1, guarda y emite `progress_reset`, y el menú principal reconstruye los botones de nivel. Pasados los 3 s sin pulsar, vuelve a "Borrar progreso". Se oculta cuando Opciones se abre desde la pausa (`open_from(opener, allow_reset = false)`).
+"Volver" (204x36) va en `ButtonsBlock`, debajo de las columnas con 9 px extra de margen (`ButtonsMargin`), así que se separa más de las secciones que los botones entre sí. Las partidas no se borran aquí: se borran desde su ranura en la pantalla de inicio (ver "Pantalla de inicio").
 
 Los deslizadores (96x12, tirador de 5x11) van de 0 a 1 en pasos de 0,05 (colores de la paleta en `menu_theme.tres`, ver [art.md](art.md)). Los botones son interruptores de 54x24 (texto a 24) con la variación de tema `ToggleButton`: en ON van rellenos de cian (como el ratón encima) y muestran "ON"; en OFF van con el estilo normal y muestran "OFF". Al abrirse, cada control toma su valor de `Settings`; cada cambio llama a `Settings.set_value`.
 

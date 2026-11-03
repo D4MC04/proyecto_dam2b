@@ -8,14 +8,15 @@ Turret defense 2D hecho en Godot 4.7 con GDScript. El jugador elige un nivel, co
 
 - Resolución base: 960x540 px (ventana 1920x1080, escala ×2, escalado `canvas_items` con `scale_mode` entero y aspecto `keep`: en pantallas mayores salen bandas negras en vez de estirar), filtro de texturas "nearest".
 - Tamaño de casilla: 16x16 px.
-- Escena inicial: `scenes/MainMenu.tscn`.
+- Escena inicial: `scenes/StartScreen.tscn`.
 - Los datos de juego (niveles, oleadas, enemigos, torretas, ataques) son `Resource` en `resources/`; los scripts de `scripts/resources/` definen sus campos.
 
 ## Flujo de pantallas
 
-1. `MainMenu`: pantalla de título y selección de nivel.
-2. `Game`: contiene un `Level` (mapa, enemigos, torretas) y un `LevelUI` en tres columnas: barra izquierda de 128 px, área de juego de 704x540 px con el mapa centrado en los dos ejes (y la pausa, la derrota y la victoria) y barra derecha de 128 px.
-3. Desde pausa o derrota se reinicia el nivel o se vuelve a la selección de nivel; la derrota llega tras una cámara lenta y un glitch, con un resumen de la partida. Al limpiar la última oleada, tras un breve respiro, entra la victoria deslizando, con un resumen que cuenta hacia arriba, "Siguiente nivel" (monta el siguiente nivel sin pasar por el menú; no sale en el último) y "Menú".
+1. `StartScreen`: título, "pulsa cualquier tecla" y elección de una de las 3 ranuras de guardado (o borrarla). Al elegir una pasa a `MainMenu` con un efecto de entrada.
+2. `MainMenu`: menú principal y selección de nivel.
+3. `Game`: contiene un `Level` (mapa, enemigos, torretas) y un `LevelUI` en tres columnas: barra izquierda de 128 px, área de juego de 704x540 px con el mapa centrado en los dos ejes (y la pausa, la derrota y la victoria) y barra derecha de 128 px.
+4. Desde pausa o derrota se reinicia el nivel o se vuelve a la selección de nivel; la derrota llega tras una cámara lenta y un glitch, con un resumen de la partida. Al limpiar la última oleada, tras un breve respiro, entra la victoria deslizando, con un resumen que cuenta hacia arriba, "Siguiente nivel" (monta el siguiente nivel sin pasar por el menú; no sale en el último) y "Menú".
 
 ## Sistemas principales
 
@@ -25,7 +26,7 @@ Turret defense 2D hecho en Godot 4.7 con GDScript. El jugador elige un nivel, co
 - [Torretas](design/torretas.md): colocación, apuntado, los 6 tipos de ataque, las 8 torretas que atacan y las de apoyo: el Amplificador y el Minero (da dinero durante las oleadas).
 - [Base](design/base.md): la estación espacial que hay en los mapas, con vida y escudo.
 - [UI de nivel](design/ui.md): columnas, ficha de la barra izquierda, barra lateral de compra, menú de pausa, pantallas de derrota y victoria y resumen de partida.
-- [Menú principal](design/menu.md): título, selección de nivel, opciones (audio, pantalla y juego, guardadas en disco), música y fondo animado.
+- [Menú principal](design/menu.md): pantalla de inicio con las ranuras de guardado, título, selección de nivel, opciones (audio, pantalla y juego, guardadas en disco), música y fondo animado.
 - [Arte](design/art.md): tamaños, paleta, contorno, luz y nombres de los sprites de `assets/`.
 
 ## Decidido

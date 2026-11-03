@@ -1,0 +1,265 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/screens/StartScreen.gd" id="1_start"]
+[ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="2_theme"]
+[ext_resource type="PackedScene" path="res://scenes/MenuBackground.tscn" id="3_background"]
+[ext_resource type="Script" uid="uid://bnok54y84qsmr" path="res://scripts/main_menu/Starfield.gd" id="4_stars"]
+[ext_resource type="Texture2D" uid="uid://7sb0q5toos63" path="res://assets/sprites/backgrounds/menu/menu_planet.png" id="5_planet"]
+[ext_resource type="Script" uid="uid://mb67t4tqyohq" path="res://scripts/main_menu/Comets.gd" id="6_comets"]
+[ext_resource type="Script" uid="uid://dd6xsyc7ng8u7" path="res://scripts/main_menu/Asteroids.gd" id="7_asteroids"]
+[ext_resource type="Script" uid="uid://pdd67yive1em" path="res://scripts/main_menu/Satellites.gd" id="8_satellites"]
+[ext_resource type="Script" uid="uid://d2ksqjroaxlx6" path="res://scripts/main_menu/Outpost.gd" id="9_outpost"]
+[ext_resource type="Script" uid="uid://da11cc2tt2ny8" path="res://scripts/main_menu/Skirmish.gd" id="10_skirmish"]
+[ext_resource type="Texture2D" uid="uid://bykflanuslq17" path="res://assets/sprites/backgrounds/menu/menu_vignette.png" id="11_vignette"]
+[ext_resource type="Script" uid="uid://cu5uq2sgohj00" path="res://scripts/level_ui/OverlayFrame.gd" id="12_frame"]
+[ext_resource type="PackedScene" path="res://scenes/level_ui/ScreenHeader.tscn" id="13_header"]
+
+[node name="StartScreen" type="Control"]
+texture_filter = 1
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_start")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="MenuBackground" parent="." instance=ExtResource("3_background")]
+
+[node name="StarField" type="Node2D" parent="."]
+script = ExtResource("4_stars")
+
+[node name="RingedPlanet" type="Sprite2D" parent="."]
+position = Vector2(820, 446)
+texture = ExtResource("5_planet")
+
+[node name="Comets" type="Node2D" parent="."]
+script = ExtResource("6_comets")
+
+[node name="Asteroids" type="Node2D" parent="."]
+script = ExtResource("7_asteroids")
+
+[node name="Satellites" type="Node2D" parent="."]
+script = ExtResource("8_satellites")
+
+[node name="Outpost" type="Node2D" parent="."]
+modulate = Color(0.62, 0.66, 0.74, 1)
+position = Vector2(120, 286)
+scale = Vector2(0.5, 0.5)
+script = ExtResource("9_outpost")
+
+[node name="Skirmish" type="Node2D" parent="." node_paths=PackedStringArray("outpost")]
+script = ExtResource("10_skirmish")
+outpost = NodePath("../Outpost")
+
+[node name="Vignette" type="Sprite2D" parent="."]
+texture = ExtResource("11_vignette")
+centered = false
+
+[node name="TitleBlock" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 168.0
+offset_bottom = 168.0
+grow_horizontal = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="TitleBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 72
+text = "ASTRO ARTILLERY"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="TitleBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 24
+text = "TOWER DEFENSE"
+horizontal_alignment = 1
+
+[node name="PressKeyLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 352.0
+offset_bottom = 352.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.74509805, 0.98039216, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 24
+text = "PULSA CUALQUIER TECLA"
+horizontal_alignment = 1
+
+[node name="SlotsScreen" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="SlotsCenter" type="CenterContainer" parent="SlotsScreen"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 130.0
+offset_bottom = 130.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="SlotsPanel" type="PanelContainer" parent="SlotsScreen/SlotsCenter"]
+unique_name_in_owner = true
+layout_mode = 2
+script = ExtResource("12_frame")
+
+[node name="Margin" type="MarginContainer" parent="SlotsScreen/SlotsCenter/SlotsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 21
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 21
+
+[node name="Content" type="VBoxContainer" parent="SlotsScreen/SlotsCenter/SlotsPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="SlotsHeader" parent="SlotsScreen/SlotsCenter/SlotsPanel/Margin/Content" instance=ExtResource("13_header")]
+unique_name_in_owner = true
+layout_mode = 2
+title = "SELECCIONA PARTIDA"
+text_size = 24
+
+[node name="SlotList" type="VBoxContainer" parent="SlotsScreen/SlotsCenter/SlotsPanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="HintLabel" type="Label" parent="SlotsScreen"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 494.0
+offset_bottom = 494.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.3529412, 0.47843137, 0.5882353, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 16
+text = "ESC  VOLVER"
+horizontal_alignment = 1
+
+[node name="ConfirmLayer" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Dim" type="ColorRect" parent="ConfirmLayer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="ConfirmCenter" type="CenterContainer" parent="ConfirmLayer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ConfirmPanel" type="PanelContainer" parent="ConfirmLayer/ConfirmCenter"]
+layout_mode = 2
+script = ExtResource("12_frame")
+accent_color = Color(1, 0.23529412, 0.3529412, 1)
+accent_light_color = Color(1, 0.6666667, 0.74509805, 1)
+
+[node name="Margin" type="MarginContainer" parent="ConfirmLayer/ConfirmCenter/ConfirmPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 21
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 21
+
+[node name="Content" type="VBoxContainer" parent="ConfirmLayer/ConfirmCenter/ConfirmPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="ConfirmTitle" type="Label" parent="ConfirmLayer/ConfirmCenter/ConfirmPanel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.6666667, 0.74509805, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 48
+text = "¿SEGURO?"
+horizontal_alignment = 1
+
+[node name="ConfirmMessage" type="Label" parent="ConfirmLayer/ConfirmCenter/ConfirmPanel/Margin/Content"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Se borrará la partida de la ranura 1.
+No se puede deshacer."
+horizontal_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="ConfirmLayer/ConfirmCenter/ConfirmPanel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="ConfirmDeleteButton" type="Button" parent="ConfirmLayer/ConfirmCenter/ConfirmPanel/Margin/Content/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(132, 36)
+layout_mode = 2
+focus_mode = 0
+theme_type_variation = &"DangerButton"
+theme_override_font_sizes/font_size = 24
+text = "Borrar"
+
+[node name="CancelButton" type="Button" parent="ConfirmLayer/ConfirmCenter/ConfirmPanel/Margin/Content/Buttons"]
+custom_minimum_size = Vector2(132, 36)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 24
+text = "Cancelar"
+
+[node name="InputBlocker" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[connection signal="pressed" from="ConfirmLayer/ConfirmCenter/ConfirmPanel/Margin/Content/Buttons/ConfirmDeleteButton" to="." method="_on_confirm_delete_pressed"]
+[connection signal="pressed" from="ConfirmLayer/ConfirmCenter/ConfirmPanel/Margin/Content/Buttons/CancelButton" to="." method="_on_confirm_cancel_pressed"]
