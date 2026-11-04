@@ -29,6 +29,7 @@ var _values: Dictionary[StringName, Variant] = {
 	&"vsync": true,
 	&"show_fps": false,
 	&"show_turret_range": false,
+	&"pause_on_focus_loss": true,
 }
 
 func _ready() -> void:

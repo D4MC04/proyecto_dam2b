@@ -19,6 +19,7 @@ var _tween: Tween
 	&"vsync": %VsyncButton,
 	&"show_fps": %FpsButton,
 	&"show_turret_range": %TurretRangeButton,
+	&"pause_on_focus_loss": %FocusPauseButton,
 }
 
 func _ready() -> void:
