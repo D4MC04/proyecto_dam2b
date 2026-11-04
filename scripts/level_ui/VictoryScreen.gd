@@ -28,18 +28,36 @@ const SPARKLES: Array[Dictionary] = [
 	{"line": -1, "side": 1, "offset": Vector2i(7, 2), "max_arm": 4, "rate": 2.5, "phase": 4.1},
 ]
 
+# Estrellas de la victoria bajo el título: pixel art de STAR_SHAPE, cada píxel de STAR_PIXEL px.
+const STAR_SHAPE: Array[String] = [
+	"....#....",
+	"...###...",
+	"#########",
+	".#######.",
+	"..#####..",
+	".###.###.",
+	".##...##.",
+]
+const STAR_PIXEL := 2
+const STAR_GAP := 8
+const STAR_EMPTY_COLOR := Color("#3c2a0c")
+
 @onready var run_summary: RunSummary = %RunSummary
+@onready var stars_row: Control = %StarsRow
 @onready var center: CenterContainer = $Center
 
 # Entrada en curso (deslizamiento y fundido); null si no hay.
 var _intro: Tween
 var _time := 0.0
+# Estrellas ganadas en esta victoria (0..GameState.MAX_STARS).
+var _stars := 0
 
 func _ready() -> void:
 	super()
 	title_label.add_theme_color_override("font_color", accent_color)
 	run_summary.accent_color = accent_color
 	title_label.draw.connect(_draw_sparkles)
+	stars_row.draw.connect(_draw_stars)
 	# El oscurecido cubre el área de juego; el marco y el resumen paran los clics que caen encima.
 	for area: Control in [background, frame, run_summary]:
 		area.gui_input.connect(_on_area_gui_input)
@@ -48,6 +66,24 @@ func _ready() -> void:
 ## Enseña el resumen de la partida. Se llama antes de mostrar la pantalla.
 func show_run_stats(stats: RunStats) -> void:
 	run_summary.show_stats(stats)
+
+## Estrellas ganadas en esta victoria. Se llama antes de mostrar la pantalla.
+func set_stars(stars: int) -> void:
+	_stars = stars
+	stars_row.queue_redraw()
+
+# Pinta las estrellas centradas: ámbar las ganadas, oscuras las que faltan.
+func _draw_stars() -> void:
+	var star_width := STAR_SHAPE[0].length() * STAR_PIXEL
+	var total_width := GameState.MAX_STARS * star_width + (GameState.MAX_STARS - 1) * STAR_GAP
+	var origin := Vector2(roundf((stars_row.size.x - total_width) / 2.0), roundf((stars_row.size.y - STAR_SHAPE.size() * STAR_PIXEL) / 2.0))
+	for index: int in GameState.MAX_STARS:
+		var color := SPARKLE_ARM_COLOR if index < _stars else STAR_EMPTY_COLOR
+		var star_origin := origin + Vector2(index * (star_width + STAR_GAP), 0)
+		for row: int in STAR_SHAPE.size():
+			for column: int in STAR_SHAPE[row].length():
+				if STAR_SHAPE[row][column] == "#":
+					stars_row.draw_rect(Rect2(star_origin + Vector2(column, row) * STAR_PIXEL, Vector2.ONE * STAR_PIXEL), color)
 
 func _on_visibility_changed() -> void:
 	# Cada vez que se abre, la entrada y el conteo empiezan de cero; al cerrarse se deja en su sitio.
