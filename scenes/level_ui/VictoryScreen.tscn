@@ -14,7 +14,13 @@ dim_opacity = 0.45
 [node name="Title" parent="Center/Frame/Margin/Box" index="0"]
 text = "VICTORY_TITLE"
 
-[node name="RunSummary" parent="Center/Frame/Margin/Box" index="1" instance=ExtResource("4_summary")]
+[node name="StarsRow" type="Control" parent="Center/Frame/Margin/Box" index="1"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="RunSummary" parent="Center/Frame/Margin/Box" index="2" instance=ExtResource("4_summary")]
 unique_name_in_owner = true
 layout_mode = 2
 

@@ -272,6 +272,10 @@ func show_run_stats(stats: RunStats) -> void:
 	game_over_screen.show_run_stats(stats)
 	victory_screen.show_run_stats(stats)
 
+## Estrellas ganadas en esta victoria, para la pantalla de victoria. Game lo llama antes de set_state(WON).
+func show_victory_stars(stars: int) -> void:
+	victory_screen.set_stars(stars)
+
 # Única función que cambia qué pantalla se ve, la pausa del árbol y Engine.time_scale.
 func set_state(new_state: UiState) -> void:
 	_ui_state = new_state
