@@ -55,10 +55,12 @@ size_flags_horizontal = 4
 theme_override_constants/separation = 36
 
 [node name="LeftColumn" type="VBoxContainer" parent="Center/Frame/Margin/Box/Sections"]
+custom_minimum_size = Vector2(204, 0)
 layout_mode = 2
 theme_override_constants/separation = 9
 
 [node name="RightColumn" type="VBoxContainer" parent="Center/Frame/Margin/Box/Sections"]
+custom_minimum_size = Vector2(256, 0)
 layout_mode = 2
 theme_override_constants/separation = 9
 
