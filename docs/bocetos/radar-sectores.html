@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radar de sectores</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #071318; --cyan: #3fd2e6; --cyan-dim: #1d5b66; --text: #cfeff5;
+    --green: #5be38a; --yellow: #ffd34d; --red: #e65a4f; --blue: #5aa9ff; --orange: #ff9a4a;
+    --panel: rgba(6,22,27,.88);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
+    font-family: 'VT323', monospace; font-size: 20px; overflow-x: hidden;
+    background-image: radial-gradient(ellipse at 30% 40%, #0f3a33 0%, transparent 55%),
+                      radial-gradient(ellipse at 75% 60%, #0c2e2a 0%, transparent 50%);
+  }
+  #stars, #warp { position: fixed; inset: 0; pointer-events: none; }
+  #warp { opacity: 0; z-index: 20; }
+  .wrap { position: relative; max-width: 1040px; margin: 0 auto; padding: 18px 16px 30px; }
+  .sim { border: 1px dashed var(--cyan-dim); padding: 6px 12px; margin-bottom: 14px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-size: 18px; opacity: .85; }
+  .sim input { flex: 1; min-width: 160px; accent-color: var(--cyan); }
+  .title { color: var(--cyan); font-size: 30px; letter-spacing: 2px; border-bottom: 2px dotted var(--cyan-dim); padding-bottom: 2px; margin-bottom: 4px; }
+  .sub { opacity: .75; margin-bottom: 12px; }
+  .lay { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; align-items: center; }
+  @media (max-width: 760px) { .lay { grid-template-columns: 1fr; } }
+
+  /* Marco HUD con esquinas */
+  .hud { position: relative; border: 1px solid var(--cyan-dim); background: var(--panel); padding: 14px 16px; }
+  .hud .c { position: absolute; width: 12px; height: 12px; border: 2px solid var(--cyan); }
+  .c1 { left: -3px; top: -3px; border-right: 0 !important; border-bottom: 0 !important; }
+  .c2 { right: -3px; top: -3px; border-left: 0 !important; border-bottom: 0 !important; }
+  .c3 { left: -3px; bottom: -3px; border-right: 0 !important; border-top: 0 !important; }
+  .c4 { right: -3px; bottom: -3px; border-left: 0 !important; border-top: 0 !important; }
+
+  /* Radar */
+  .radar-box { position: relative; margin: 0 auto; max-width: 540px; width: 100%; }
+  .radar-box canvas { display: block; }
+  .radar-box .ov { position: absolute; inset: 0; }
+  .radar-box::after { content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: 50%;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,.22) 0 1px, transparent 1px 3px); }
+
+  /* Contactos: verde completado, amarillo pendiente, rojo jefe, azul hover/seleccionado */
+  .blip { position: absolute; transform: translate(-50%,-50%); text-align: center; cursor: pointer;
+    white-space: nowrap; z-index: 2; opacity: var(--glow, 1); transition: color .15s; }
+  .blip .ic { filter: drop-shadow(0 0 calc(var(--glow, 1) * 6px) currentColor); }
+  .blip svg { display: block; margin: 0 auto; }
+  .blip span { display: block; font-size: 15px; margin-top: 2px; }
+  .blip.done { color: var(--green); }
+  .blip.current { color: var(--yellow); }
+  .blip.boss { color: var(--red); }
+  .blip.boss span { font-size: 18px; }
+  .blip.locked { display: none; }
+  .blip:hover, .blip.sel { color: var(--blue); opacity: 1; }
+  .blip:hover .ic { transform: scale(1.15); }
+  .blip .ic { transition: transform .15s; position: relative; }
+  /* Seleccionado: salto pequeño, flota y onda que se expande */
+  .blip.sel .ic { animation: pop .35s ease-out, float 1.6s ease-in-out .35s infinite; }
+  .blip.boss:hover, .blip.boss.sel { color: var(--red); }
+  /* Onda circular (aspect-ratio 1 para que no salga ovalada) */
+  .blip.sel .ic::after { content: ''; position: absolute; left: 50%; top: 50%; width: 130%; height: auto; aspect-ratio: 1;
+    border: 2px solid currentColor; border-radius: 50%; transform: translate(-50%,-50%) scale(.6);
+    animation: wave 1.4s ease-out infinite; pointer-events: none; }
+  @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.5); } 100% { transform: scale(1.2); } }
+  @keyframes float { 0%,100% { transform: scale(1.2) translateY(0); } 50% { transform: scale(1.2) translateY(-3px); } }
+  .blip.boss.sel .ic::after { animation-name: wave-boss; }
+  @keyframes wave-boss { from { transform: translate(-50%,-50%) scale(.6); opacity: .9; } to { transform: translate(-50%,-50%) scale(1.25); opacity: 0; } }
+  @keyframes wave { from { transform: translate(-50%,-50%) scale(.6); opacity: .9; } to { transform: translate(-50%,-50%) scale(2.2); opacity: 0; } }
+  /* Aparición del jefe */
+  .blip.reveal .ic { animation: reveal 1.2s ease-out; }
+  @keyframes reveal {
+    0% { transform: scale(0); filter: brightness(4) drop-shadow(0 0 20px var(--red)); }
+    40% { transform: scale(1.4); filter: brightness(2.5) drop-shadow(0 0 25px var(--red)); }
+    70% { transform: scale(.9); }
+    100% { transform: scale(1); }
+  }
+
+  /* Ficha del sector */
+  .info .hd { color: var(--cyan); font-size: 26px; line-height: 1; margin-bottom: 8px; }
+  .info .row { display: flex; justify-content: space-between; gap: 10px; white-space: nowrap; border-bottom: 1px dotted rgba(63,210,230,.2); padding: 2px 0; }
+  .info .row span:first-child { opacity: .6; }
+  .info .lbl { opacity: .6; margin-top: 8px; font-size: 17px; }
+  .info .ens { display: flex; gap: 10px; align-items: flex-end; color: var(--red); margin: 4px 0 2px; }
+  .info button { margin-top: 12px; font: inherit; font-size: 24px; width: 100%; padding: 6px; cursor: pointer; background: #0a2229; letter-spacing: 2px; }
+  .info button.go { color: var(--yellow); border: 2px solid var(--yellow); }
+  .info button.go:hover { background: rgba(255,211,77,.12); }
+  .info button.re { color: var(--green); border: 2px solid var(--green); }
+  .info button.boss { color: var(--red); border: 2px solid var(--red); }
+  .stars-c { color: var(--yellow); letter-spacing: 2px; }
+  .t-baja { color: var(--green); } .t-media { color: var(--yellow); } .t-alta { color: var(--orange); } .t-extrema { color: var(--red); }
+  .done-c { color: var(--green); } .cur-c { color: var(--yellow); }
+
+  /* Ojos de las naves: parpadean de vez en cuando */
+  .eye { animation: eyes 3.5s infinite; }
+  @keyframes eyes { 0%, 90%, 100% { opacity: 1; } 93% { opacity: .1; } 96% { opacity: 1; } 98% { opacity: .3; } }
+
+  /* ---- Jefe corrupto ---- */
+  .blip .gl { position: absolute; left: 0; top: 0; opacity: 0; pointer-events: none; }
+  .blip.glitch .gl { opacity: .75; mix-blend-mode: screen; }
+  .blip.glitch .gl.a { color: #ff2a6d; animation: gA .35s steps(2) infinite; }
+  .blip.glitch .gl.b { color: #2af5ff; animation: gB .45s steps(2) infinite; }
+  @keyframes gA {
+    0% { transform: translate(-4px, 0); clip-path: inset(0 0 62% 0); }
+    50% { transform: translate(3px, 1px); clip-path: inset(38% 0 20% 0); }
+    100% { transform: translate(-2px, 0); clip-path: inset(70% 0 0 0); }
+  }
+  @keyframes gB {
+    0% { transform: translate(4px, -1px); clip-path: inset(55% 0 5% 0); }
+    50% { transform: translate(-3px, 0); clip-path: inset(0 0 70% 0); }
+    100% { transform: translate(2px, 1px); clip-path: inset(20% 0 45% 0); }
+  }
+  .blip.glitch .ic > svg:last-of-type { animation: tear .6s steps(3) infinite; }
+  @keyframes tear {
+    0% { clip-path: inset(0 0 0 0); transform: none; }
+    33% { clip-path: inset(30% 0 40% 0); transform: translateX(6px); }
+    66% { clip-path: inset(0 0 0 0); transform: translateX(-2px); }
+  }
+  .blip.glitch span { color: var(--red); letter-spacing: 1px; }
+
+  /* Ficha corrupta */
+  .info.corrupt { border-color: rgba(230,90,79,.6); }
+  .info.corrupt .c { border-color: var(--red); }
+  .info.corrupt .hd { color: var(--red); text-shadow: 2px 0 #2af5ff, -2px 0 #ff2a6d; }
+  .info.shake { animation: shake .25s steps(4); }
+  @keyframes shake {
+    0% { transform: translate(0, 0); filter: none; }
+    25% { transform: translate(-4px, 1px); filter: hue-rotate(60deg); }
+    50% { transform: translate(3px, -1px); filter: brightness(1.6); }
+    75% { transform: translate(-2px, 0); filter: hue-rotate(-40deg); }
+    100% { transform: none; filter: none; }
+  }
+  .warn { color: var(--red); animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: .25; } }
+  .log { margin-top: 8px; border: 1px dashed rgba(230,90,79,.5); padding: 6px 8px; font-size: 17px;
+    color: #f4a49c; min-height: 86px; background: rgba(40,6,6,.35); white-space: pre-wrap; line-height: 1.15; }
+  .log .cur { animation: blink .7s steps(2) infinite; }
+  .silhouette { color: #1a0505; filter: drop-shadow(0 0 4px var(--red)); animation: blink .9s steps(2) infinite; }
+  /* Amenaza nueva */
+  .newc { margin-top: 10px; padding: 6px 10px; border-left: 3px solid var(--red); background: rgba(230,90,79,.08); }
+  .newc .ens { align-items: center; margin-top: 4px; }
+  .newc .unk { font-size: 16px; opacity: .7; color: #f4a49c; }
+  .info button.boss { position: relative; }
+  .info button.boss:hover { background: rgba(230,90,79,.15); }
+
+  /* ---- Toda la pantalla corrupta (Colmena desbloqueada y sin vencer) ---- */
+  #corruptFx { position: fixed; inset: 0; pointer-events: none; z-index: 15; opacity: 0; transition: opacity .6s;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(130,0,20,.5) 100%),
+                repeating-linear-gradient(0deg, rgba(255,0,60,.06) 0 1px, transparent 1px 3px); }
+  body.corrupt-all #corruptFx { opacity: 1; animation: vign 1.6s ease-in-out infinite; }
+  @keyframes vign { 50% { opacity: .55; } }
+  body.corrupt-all #stars { animation: starflick .3s steps(2) infinite; }
+  @keyframes starflick { 50% { opacity: .5; transform: translateX(2px); } }
+  body.corrupt-all .title { color: var(--red); text-shadow: 2px 0 #2af5ff, -2px 0 #ff2a6d; border-color: rgba(230,90,79,.5); }
+  body.corrupt-all .sub { color: #f4a49c; }
+  body.corrupt-all .blip:not(.boss) { pointer-events: none; }
+  .wrap.tear { animation: tearAll .2s steps(3); }
+  @keyframes tearAll {
+    0% { transform: translateX(-10px); filter: hue-rotate(90deg) saturate(2); clip-path: inset(15% 0 55% 0); }
+    50% { transform: translateX(7px); filter: invert(.15) brightness(1.4); clip-path: inset(40% 0 20% 0); }
+    100% { transform: none; filter: none; clip-path: none; }
+  }
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<canvas id="warp"></canvas>
+<div id="corruptFx"></div>
+<div class="wrap">
+  <!-- Solo para el boceto -->
+  <div class="sim">Simular progreso: <input type="range" id="prog" min="0" max="10" value="3"> <span id="progTxt"></span></div>
+
+  <div class="title">// SECTORES</div>
+  <div class="sub" id="sub"></div>
+
+  <div class="lay">
+    <div class="radar-box" id="radar"></div>
+    <div class="hud info" id="info"></div>
+  </div>
+</div>
+
+<script>
+// ---------- Datos de ejemplo ----------
+// d = distancia (fracción del radio), a = ángulo en grados (-90 = arriba).
+// Ningún sector normal usa la zona de arriba (reservada al jefe) ni la de la derecha (textos de km).
+// ic = nave que se ve en el radar (el enemigo más peligroso del sector)
+const SECTORS = [
+  { name: 'Órbita Baja',     d: .18, a: -125, ic: 'scout', en: ['scout'] },
+  { name: 'Campo Helado',    d: .24, a: 60,   ic: 'swarm', en: ['scout', 'swarm'] },
+  { name: 'Cinturón Kepler', d: .30, a: 150,  ic: 'tank',  en: ['scout', 'tank'] },
+  { name: 'Grieta Roja',     d: .36, a: 215,  ic: 'tank',  en: ['swarm', 'tank'] },
+  { name: 'Nebulosa Gris',   d: .42, a: 15,   ic: 'ghost', en: ['ghost', 'scout'] },
+  { name: 'Paso del Eco',    d: .48, a: 105,  ic: 'ghost', en: ['ghost', 'tank'] },
+  { name: 'Deriva Tóxica',   d: .54, a: -55,  ic: 'swarm', en: ['swarm', 'ghost', 'tank'] },
+  { name: 'Nido Exterior',   d: .60, a: 180,  ic: 'tank',  en: ['scout', 'swarm', 'ghost', 'tank'] },
+  { name: 'Frontera Muerta', d: .66, a: -28,  ic: 'scout', en: ['scout', 'swarm', 'ghost', 'tank'] },
+  { name: 'Colmena',         d: .72, a: -90,  ic: 'boss',  en: ['boss'], boss: true },
+];
+const KM = 4000; // radio del radar en km
+const THREAT = ['Baja', 'Baja', 'Baja', 'Media', 'Media', 'Media', 'Alta', 'Alta', 'Alta', 'Extrema'];
+const BOSS = SECTORS.length - 1; // la Colmena es el último sector (nivel 10)
+let current = 3, selected = 3;
+const D = Math.PI / 180;
+const code = i => 'SEC-' + String(i + 1).padStart(2, '0');
+const state = i => i < current ? 'done' : i === current ? 'current' : 'locked';
+// El alcance llega justo al sector actual (+ margen), sin enseñar el siguiente
+// El escáner está corrupto mientras la Colmena está desbloqueada y sin completar
+const corrupted = () => current === BOSS;
+const range = () => current >= BOSS ? .9 : Math.min(SECTORS[current].d + .04, (SECTORS[current + 1].d + SECTORS[current].d) / 2 + .02);
+
+// Naves pixel (X = casco, o = ojo/núcleo que brilla)
+const PATTERNS = {
+  // Incursor: alas en punta y pinzas
+  scout: ['X.........X', 'XX.......XX', '.XX.XXX.XX.', '..XXXXXXX..', '.XXXoXoXXX.',
+          'XXXXXXXXXXX', 'X.XX.X.XX.X', 'X..X...X..X', '...X...X...'],
+  // Colmillo: rápido, con mandíbulas
+  swarm: ['..X.....X..', '.XXX...XXX.', 'XX.XXXXX.XX', 'X.XXoXoXX.X', '..XXXXXXX..',
+          '.X.X.X.X.X.', 'X...X.X...X'],
+  // Triturador: blindado y ancho
+  tank:  ['.XXX...XXX.', 'XXXXXXXXXXX', 'XXoXXXXXoXX', 'XXXXXXXXXXX', '.X.XXXXX.X.',
+          'XX.......XX', 'X.X.....X.X'],
+  // Espectro: cabeza grande y tentáculos
+  ghost: ['....XXX....', '..XXXXXXX..', '.XXoXXXoXX.', 'XXXXXXXXXXX', 'X.XX.X.XX.X',
+          'X.X..X..X.X', '..X.....X..'],
+  // Reina: cuernos, garras y patas
+  boss:  ['X...X.......X...X', '.X...X.....X...X.', '..XX.XXXXXXX.XX..', '...XXXXXXXXXXX...',
+          '.XXXXoXXXXXoXXXX.', 'XXXXXXXXXXXXXXXXX', 'XX.XXX.XXX.XXX.XX', 'X..X.XXXXXXX.X..X',
+          'X.X..X.X.X.X..X.X', '..X...X...X...X..', '.X...X.....X...X.'],
+};
+function alien(type, px = 2, layers = false) {
+  const p = PATTERNS[type], w = p[0].length, h = p.length, eye = type === 'boss' ? '#fff27a' : '#ff3b3b';
+  let r = '', body = '';
+  p.forEach((row, y) => [...row].forEach((ch, x) => {
+    if (ch === 'X') { r += `<rect x="${x}" y="${y}" width="1" height="1"/>`; body += `<rect x="${x}" y="${y}" width="1" height="1"/>`; }
+    if (ch === 'o') { r += `<rect class="eye" x="${x}" y="${y}" width="1" height="1" fill="${eye}"/>`; body += `<rect x="${x}" y="${y}" width="1" height="1"/>`; }
+  }));
+  const svg = (inner, cls = '') => `<svg class="${cls}" width="${w * px}" height="${h * px}" viewBox="0 0 ${w} ${h}" shape-rendering="crispEdges" fill="currentColor">${inner}</svg>`;
+  // Con layers: dos copias de colores desplazadas para el efecto glitch
+  return layers ? svg(body, 'gl a') + svg(body, 'gl b') + svg(r) : svg(r);
+}
+
+// ---------- Corrupción de texto ----------
+const NOISE = '▒░█#?@%&$*!/\\<>';
+function corrupt(text, amount) {
+  return [...text].map(ch => ch !== ' ' && Math.random() < amount ? NOISE[Math.floor(Math.random() * NOISE.length)] : ch).join('');
+}
+const BOSS_LABELS = ['SEC-10', 'S#C-1?', '▒▒C-10', 'SEC-▒▒', '??-??', 'ERR-10', 'SEC-1█'];
+const BOSS_LOG = [
+  '> transmisión interceptada',
+  '...la colmena despierta...',
+  '...0 supervivientes en el sector...',
+  '...no enviéis a nadie más...',
+];
+
+// ---------- Ficha del sector ----------
+const bearing = s => String(Math.round(((s.a + 90) % 360 + 360) % 360)).padStart(3, '0') + '°';
+const km = s => (Math.round(s.d * KM / 10) * 10).toLocaleString('es-ES') + ' km';
+let logTimer = null;
+function renderInfo() {
+  const info = document.getElementById('info');
+  clearInterval(logTimer);
+  if (SECTORS[selected].boss && state(selected) !== 'done') return renderBossInfo(info);
+  info.classList.remove('corrupt');
+  const i = selected, s = SECTORS[i], st = state(i), t = THREAT[i];
+  const stars = st === 'done' ? '★★☆' : '☆☆☆';
+  const btn = st === 'done' ? '<button class="re" onclick="warp()">REPETIR</button>'
+            : `<button class="${s.boss ? 'boss' : 'go'}" onclick="warp()">» DESPLEGAR «</button>`;
+  document.getElementById('info').innerHTML = `<i class="c c1"></i><i class="c c2"></i><i class="c c3"></i><i class="c c4"></i>
+    <div class="hd">${code(i)} · ${s.name.toUpperCase()}</div>
+    <div class="row"><span>ESTADO</span>${st === 'done' ? '<span class="done-c">ASEGURADO</span>' : '<span class="cur-c">SEÑAL ACTIVA</span>'}</div>
+    <div class="row"><span>RUMBO</span><span>${bearing(s)}</span></div>
+    <div class="row"><span>DISTANCIA</span><span>${km(s)}</span></div>
+    <div class="row"><span>OLEADAS</span><span>${8 + i * 2}</span></div>
+    <div class="row"><span>AMENAZA</span><span class="t-${t.toLowerCase()}">${t.toUpperCase()}</span></div>
+    <div class="row"><span>MEJOR</span><span class="stars-c">${stars}</span></div>
+    ${btn}`;
+}
+
+// Ficha de la Colmena (sin vencer): datos rotos, aviso de NUEVO CONTACTO que se corrompen solos y un mensaje interceptado
+function renderBossInfo(info) {
+  info.classList.add('corrupt');
+  info.innerHTML = `<i class="c c1"></i><i class="c c2"></i><i class="c c3"></i><i class="c c4"></i>
+    <div class="hd g" data-t="SEC-10 · COLMENA" data-n=".25">SEC-10 · COLMENA</div>
+    <div class="row"><span>ESTADO</span><span class="warn">SEÑAL CORRUPTA</span></div>
+    <div class="row"><span>RUMBO</span><span class="g" data-t="000°" data-n=".5">000°</span></div>
+    <div class="row"><span>DISTANCIA</span><span class="g" data-t="?.??? km" data-n=".6">?.??? km</span></div>
+    <div class="row"><span>OLEADAS</span><span class="g" data-t="ERR" data-n=".5">ERR</span></div>
+    <div class="row"><span>AMENAZA</span><span class="t-extrema g" data-t="EXTREMA" data-n=".2">EXTREMA</span></div>
+    <div class="row"><span>MEJOR</span><span class="stars-c">☆☆☆</span></div>
+    <div class="newc">
+      <div class="g warn" data-t="⚠ NUEVO CONTACTO" data-n=".3">⚠ NUEVO CONTACTO</div>
+      <div class="ens"><span class="silhouette">${alien('boss', 3)}</span><span class="g warn" data-t="SIN IDENTIFICAR" data-n=".3">SIN IDENTIFICAR</span></div>
+    </div>
+    <div class="log" id="log"></div>
+    <button class="boss g" data-t="» DESPLEGAR «" data-n=".12" onclick="warp()">» DESPLEGAR «</button>`;
+
+  // Mensaje que se escribe letra a letra, con algunas letras rotas
+  const full = BOSS_LOG.join('\n'), log = document.getElementById('log');
+  let n = 0;
+  logTimer = setInterval(() => {
+    n = Math.min(n + 1, full.length);
+    log.innerHTML = corrupt(full.slice(0, n), .06) + '<span class="cur">█</span>';
+    if (n === full.length) { clearInterval(logTimer); log.dataset.t = full; log.classList.add('g'); log.dataset.n = '.04'; }
+  }, 45);
+}
+
+// Cada poco tiempo los textos marcados se corrompen o se arreglan, y la ficha tiembla
+setInterval(() => {
+  document.querySelectorAll('#info .g').forEach(el => {
+    const amount = Math.random() < .35 ? +el.dataset.n : 0;
+    if (el.id === 'log') el.innerHTML = corrupt(el.dataset.t, amount) + '<span class="cur">█</span>';
+    else el.textContent = corrupt(el.dataset.t, amount);
+  });
+}, 140);
+(function shakeLoop() {
+  const info = document.getElementById('info');
+  if (info.classList.contains('corrupt')) {
+    info.classList.remove('shake'); void info.offsetWidth; info.classList.add('shake');
+  }
+  setTimeout(shakeLoop, 1500 + Math.random() * 2500);
+})();
+
+function select(i) {
+  if (state(i) === 'locked' || i === selected) return;
+  selected = i; radar.place(); renderInfo();
+}
+
+// ---------- Radar ----------
+class Radar {
+  constructor(root) {
+    this.root = root;
+    this.cv = document.createElement('canvas'); this.ov = document.createElement('div'); this.ov.className = 'ov';
+    root.append(this.cv, this.ov);
+    this.hits = SECTORS.map(() => -9999);
+    this.blips = SECTORS.map((s, i) => {
+      const b = document.createElement('div');
+      b.innerHTML = `<div class="ic">${alien(s.ic, s.boss ? 4 : 2, s.boss)}</div><span>${code(i)}</span>`;
+      b.addEventListener('click', () => select(i));
+      b.addEventListener('dblclick', () => warp());
+      this.ov.append(b); return b;
+    });
+  }
+  size() {
+    const w = this.root.clientWidth, dpr = devicePixelRatio || 1;
+    this.w = this.h = w; this.cv.width = w * dpr; this.cv.height = w * dpr;
+    this.cv.style.width = w + 'px'; this.cv.style.height = w + 'px'; this.root.style.height = w + 'px';
+    this.ctx = this.cv.getContext('2d'); this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.cx = this.cy = w / 2; this.R = w / 2 - 4;
+    this.place();
+  }
+  pos(s) { const a = s.a * D; return [this.cx + Math.cos(a) * s.d * this.R, this.cy + Math.sin(a) * s.d * this.R]; }
+  place() {
+    SECTORS.forEach((s, i) => {
+      const [x, y] = this.pos(s), b = this.blips[i];
+      b.style.left = x + 'px'; b.style.top = y + 'px';
+      const keepReveal = b.classList.contains('reveal');
+      const glitch = s.boss && state(i) !== 'done' ? ' glitch' : '';
+      b.className = `blip ${state(i)}${s.boss ? ' boss' : ''}${glitch}${i === selected ? ' sel' : ''}${keepReveal ? ' reveal' : ''}`;
+    });
+  }
+  draw(t) {
+    const c = this.ctx, { cx, cy, R } = this, rg = range() * R;
+    c.clearRect(0, 0, this.w, this.h);
+    const circle = () => { c.beginPath(); c.arc(cx, cy, R, 0, Math.PI * 2); };
+
+    // Fondo
+    circle();
+    const g = c.createRadialGradient(cx, cy, 0, cx, cy, R);
+    g.addColorStop(0, '#0e343a'); g.addColorStop(1, '#03100f');
+    c.fillStyle = g; c.fill();
+
+    c.save(); circle(); c.clip();
+    // Anillos, radios y marcas del borde
+    c.strokeStyle = 'rgba(63,210,230,.16)'; c.lineWidth = 1;
+    for (let k = 1; k <= 4; k++) { c.beginPath(); c.arc(cx, cy, R * k / 4, 0, Math.PI * 2); c.stroke(); }
+    for (let a = 0; a < 360; a += 30) { c.beginPath(); c.moveTo(cx, cy); c.lineTo(cx + Math.cos(a * D) * R, cy + Math.sin(a * D) * R); c.stroke(); }
+    for (let a = 0; a < 360; a += 5) {
+      const r1 = R - (a % 30 ? 4 : 9);
+      c.beginPath(); c.moveTo(cx + Math.cos(a * D) * r1, cy + Math.sin(a * D) * r1); c.lineTo(cx + Math.cos(a * D) * R, cy + Math.sin(a * D) * R); c.stroke();
+    }
+
+    // Barrido con estela (corrupto: da tirones y saltos)
+    let sw = (t / 1000 * 1.6) % (Math.PI * 2);
+    if (corrupted()) {
+      if (!this.swJump || t > this.swJumpEnd) { this.swJump = Math.random() < .03 ? (Math.random() - .5) * 2.5 : 0; this.swJumpEnd = t + 150 + Math.random() * 300; }
+      sw += this.swJump + (Math.random() < .1 ? (Math.random() - .5) * .3 : 0);
+    }
+    for (let k = 0; k < 36; k++) {
+      c.beginPath(); c.moveTo(cx, cy); c.arc(cx, cy, R, sw - (k + 1) * 1.6 * D, sw - k * 1.6 * D);
+      c.closePath(); c.fillStyle = corrupted() ? `rgba(230,60,80,${.25 * (1 - k / 36)})` : `rgba(63,210,230,${.22 * (1 - k / 36)})`; c.fill();
+    }
+    c.strokeStyle = corrupted() ? 'rgba(255,120,130,.95)' : 'rgba(150,240,255,.9)'; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(cx, cy); c.lineTo(cx + Math.cos(sw) * R, cy + Math.sin(sw) * R); c.stroke(); c.lineWidth = 1;
+
+    // Niebla fuera del alcance + ruido
+    c.beginPath(); c.rect(0, 0, this.w, this.h); c.arc(cx, cy, rg, 0, Math.PI * 2, true);
+    c.fillStyle = 'rgba(2,8,10,.85)'; c.fill('evenodd');
+    for (let k = 0; k < 120; k++) {
+      const a = Math.random() * Math.PI * 2, r = rg + Math.random() * (R - rg);
+      c.fillStyle = `rgba(150,200,210,${Math.random() * .18})`;
+      c.fillRect(cx + Math.cos(a) * r, cy + Math.sin(a) * r, 2, 2);
+    }
+
+    // Textos de km: a la derecha, justo encima del eje (zona sin sectores)
+    c.font = '14px VT323, monospace'; c.textAlign = 'right';
+    // Con el escáner corrupto los textos de km desaparecen
+    for (let k = 1; k <= 4 && !corrupted(); k++) {
+      c.fillStyle = R * k / 4 <= rg + 2 ? 'rgba(63,210,230,.6)' : 'rgba(63,210,230,.25)';
+      // Si el radar es pequeño, sin "km" para que no se pisen
+      const n = (KM * k / 4).toLocaleString('es-ES');
+      let txt = R < 240 ? n : n + " km";
+      if (corrupted() && Math.random() < .3) { txt = corrupt(txt, .5); c.fillStyle = 'rgba(255,90,110,.7)'; }
+      c.fillText(txt, cx + R * k / 4 - 4, cy - 4);
+    }
+    c.textAlign = 'left';
+    c.restore();
+
+    // Borde del alcance
+    c.setLineDash([6, 6]); c.lineDashOffset = -t / 50; c.strokeStyle = 'rgba(63,210,230,.85)';
+    c.beginPath(); c.arc(cx, cy, rg, 0, Math.PI * 2); c.stroke();
+
+    // Ruta discontinua hacia el sector seleccionado (roja si es la Colmena)
+    const [sx, sy] = this.pos(SECTORS[selected]);
+    const len = Math.hypot(sx - cx, sy - cy), ux = (sx - cx) / len, uy = (sy - cy) / len;
+    const stop = SECTORS[selected].boss ? 30 : 14;
+    c.setLineDash([5, 5]); c.lineDashOffset = -t / 40; c.lineWidth = 2;
+    c.strokeStyle = SECTORS[selected].boss ? 'rgba(230,90,79,.9)' : 'rgba(90,169,255,.9)';
+    c.beginPath(); c.moveTo(cx + ux * 14, cy + uy * 14); c.lineTo(sx - ux * stop, sy - uy * stop); c.stroke();
+    c.setLineDash([]); c.lineWidth = 1;
+
+    // Borde exterior (corrupto: parpadea en rojo)
+    circle(); c.strokeStyle = corrupted() && Math.random() < .25 ? '#e65a4f' : '#3fd2e6'; c.lineWidth = 2; c.stroke(); c.lineWidth = 1;
+
+    // Tu estación en el centro
+    c.fillStyle = '#3fd2e6';
+    c.fillRect(cx - 5, cy - 5, 10, 10); c.fillRect(cx - 11, cy - 1, 22, 2); c.fillRect(cx - 1, cy - 11, 2, 22);
+    c.fillStyle = '#071318'; c.fillRect(cx - 2, cy - 2, 4, 4);
+
+    // Brillo: se enciende al pasar el barrido y se va apagando
+    SECTORS.forEach((s, i) => {
+      const diff = Math.abs(((sw - s.a * D) % (Math.PI * 2) + Math.PI * 3) % (Math.PI * 2) - Math.PI);
+      if (diff < .06) this.hits[i] = t;
+      if (s.boss && state(i) !== 'done') return this.drawBossGlitch(t, i);
+      const min = i === current ? .75 : .45;
+      this.blips[i].style.setProperty('--glow', Math.max(min, 1 - (t - this.hits[i]) / 2600).toFixed(2));
+      if (corrupted()) this.glitchBlip(this.blips[i], i);
+    });
+    if (corrupted()) this.corruptScreen(t);
+  }
+
+  // Con el escáner corrupto, los demás sectores desaparecen: solo destellos rotos de vez en cuando
+  glitchBlip(b, i) {
+    const label = b.querySelector('span'), flash = Math.random() < .025;
+    b.style.opacity = flash ? (.25 + Math.random() * .35).toFixed(2) : '0';
+    b.style.marginLeft = flash ? (Math.random() * 16 - 8) + 'px' : '0px';
+    label.textContent = flash ? corrupt(code(i), .6) : code(i);
+  }
+
+  // Todo el radar: franjas desplazadas, imagen doblada, ruido, viñeta roja y latido de la Colmena
+  corruptScreen(t) {
+    const c = this.ctx, dpr = devicePixelRatio || 1, W = this.w * dpr, { cx, cy, R } = this;
+    const [bx, by] = this.pos(SECTORS[BOSS]);
+    c.save(); c.beginPath(); c.arc(cx, cy, R, 0, Math.PI * 2); c.clip();
+    // Viñeta roja que late
+    const beat = .5 + .5 * Math.sin(t / 260);
+    const v = c.createRadialGradient(cx, cy, R * .35, cx, cy, R);
+    v.addColorStop(0, 'rgba(120,0,20,0)'); v.addColorStop(1, `rgba(150,0,30,${.25 + beat * .2})`);
+    c.fillStyle = v; c.fillRect(0, 0, this.w, this.h);
+    // Ondas rojas que salen de la Colmena
+    for (let k = 0; k < 2; k++) {
+      const p = ((t + k * 800) % 1600) / 1600;
+      c.strokeStyle = `rgba(255,60,80,${(1 - p) * .7})`; c.lineWidth = 2;
+      c.beginPath(); c.arc(bx, by, 20 + p * R * .9, 0, Math.PI * 2); c.stroke();
+    }
+    c.lineWidth = 1;
+    // Anillos rotos en rojo
+    if (Math.random() < .3) {
+      c.strokeStyle = 'rgba(255,60,90,.5)';
+      const r = Math.random() * R, a = Math.random() * Math.PI * 2;
+      c.beginPath(); c.arc(cx, cy, r, a, a + .4 + Math.random() * 1.5); c.stroke();
+    }
+    c.restore();
+
+    c.save(); c.setTransform(1, 0, 0, 1, 0, 0);
+    // Imagen doblada (como si la pantalla vibrara)
+    if (Math.random() < .5) {
+      c.globalAlpha = .25; c.globalCompositeOperation = 'lighter';
+      c.drawImage(this.cv, (Math.random() * 10 - 5) * dpr, (Math.random() * 4 - 2) * dpr);
+      c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+    }
+    // Franjas horizontales que se desplazan (como una imagen rota)
+    const slices = Math.random() < .6 ? 1 + Math.floor(Math.random() * 6) : 0;
+    for (let k = 0; k < slices; k++) {
+      const y = Math.random() * W, h = (3 + Math.random() * 26) * dpr, dx = (Math.random() - .5) * 50 * dpr;
+      c.drawImage(this.cv, 0, y, W, h, dx, y, W, h);
+    }
+    c.restore();
+    // Ruido y bloques
+    for (let k = 0; k < 400; k++) {
+      c.fillStyle = Math.random() < .6 ? `rgba(255,60,90,${Math.random() * .4})` : `rgba(160,230,240,${Math.random() * .25})`;
+      c.fillRect(Math.random() * this.w, Math.random() * this.h, 2, 2);
+    }
+    if (Math.random() < .2) {
+      c.fillStyle = Math.random() < .5 ? 'rgba(255,40,80,.35)' : 'rgba(40,240,255,.25)';
+      c.fillRect(Math.random() * this.w, Math.random() * this.h, 8 + Math.random() * 40, 3 + Math.random() * 10);
+    }
+    // Destello de color de vez en cuando
+    if (Math.random() < .05) {
+      c.save(); c.beginPath(); c.arc(cx, cy, R, 0, Math.PI * 2); c.clip();
+      c.fillStyle = Math.random() < .5 ? 'rgba(255,40,90,.18)' : 'rgba(40,240,255,.12)';
+      c.fillRect(0, 0, this.w, this.h); c.restore();
+    }
+  }
+
+  // La Colmena aparece y desaparece, con interferencias alrededor
+  drawBossGlitch(t, i) {
+    const b = this.blips[i], c = this.ctx, [bx, by] = this.pos(SECTORS[i]);
+    if (state(i) === 'locked') return;
+    // Ráfagas: visible un rato corto, invisible otro; al pasar el barrido se fuerza a verse
+    if (!this.bossNext || t > this.bossNext) {
+      this.bossOn = !this.bossOn;
+      this.bossNext = t + (this.bossOn ? 60 + Math.random() * 500 : 80 + Math.random() * 700);
+    }
+    const on = this.bossOn || t - this.hits[i] < 500;
+    b.style.opacity = on ? (Math.random() < .15 ? .4 : 1) : (Math.random() < .08 ? .5 : 0);
+    b.style.marginLeft = (Math.random() < .2 ? (Math.random() * 8 - 4) : 0) + 'px';
+    if (Math.random() < .12) b.querySelector('span').textContent = BOSS_LABELS[Math.floor(Math.random() * BOSS_LABELS.length)];
+
+    // Ruido rojo alrededor
+    for (let k = 0; k < 40; k++) {
+      const a = Math.random() * Math.PI * 2, r = Math.random() * 55;
+      c.fillStyle = `rgba(255,${60 + Math.random() * 60},80,${Math.random() * .5})`;
+      c.fillRect(bx + Math.cos(a) * r, by + Math.sin(a) * r, 2, 2);
+    }
+    // Rayas horizontales de "señal rota"
+    if (Math.random() < .35) {
+      for (let k = 0; k < 3; k++) {
+        const y = by - 30 + Math.random() * 50, w = 20 + Math.random() * 70;
+        c.fillStyle = Math.random() < .5 ? 'rgba(255,42,109,.5)' : 'rgba(42,245,255,.4)';
+        c.fillRect(bx - w / 2 + (Math.random() * 30 - 15), y, w, 1 + Math.random() * 2);
+      }
+    }
+  }
+}
+
+const radar = new Radar(document.getElementById('radar'));
+
+// ---------- Progreso simulado ----------
+function setProgress(v) {
+  const bossNow = v === BOSS && current !== BOSS;
+  current = v; selected = Math.min(v, BOSS);
+  document.getElementById('progTxt').textContent = v === BOSS + 1 ? 'todo completado (Colmena vencida)' : `vas por el nivel ${v + 1}`;
+  const sub = document.getElementById('sub');
+  sub.dataset.t = `Asegurados ${v}/${SECTORS.length} · Alcance del radar: ${Math.round(range() * KM).toLocaleString('es-ES')} km`;
+  sub.textContent = sub.dataset.t;
+  radar.hits = SECTORS.map(() => -9999);
+  // Quitar restos del glitch al cambiar de fase
+  radar.blips.forEach((b, i) => { b.style.opacity = ''; b.style.marginLeft = ''; b.querySelector('span').textContent = code(i); });
+  document.body.classList.toggle('corrupt-all', corrupted());
+  const boss = radar.blips[BOSS];
+  boss.classList.remove('reveal');
+  radar.place(); renderInfo();
+  if (bossNow) { void boss.offsetWidth; boss.classList.add('reveal'); setTimeout(() => boss.classList.remove('reveal'), 1300); }
+}
+document.getElementById('prog').addEventListener('input', e => setProgress(+e.target.value));
+// Con el escáner corrupto, el título y el subtítulo también se rompen
+const titleEl = document.querySelector('.title');
+titleEl.dataset.t = titleEl.textContent;
+setInterval(() => {
+  const sub = document.getElementById('sub');
+  sub.textContent = corrupted() && Math.random() < .5 ? corrupt(sub.dataset.t, .3) : sub.dataset.t;
+  titleEl.textContent = corrupted() && Math.random() < .35 ? corrupt(titleEl.dataset.t, .35) : titleEl.dataset.t;
+}, 140);
+// Tirones de toda la pantalla
+(function tearLoop() {
+  const wrap = document.querySelector('.wrap');
+  if (corrupted()) { wrap.classList.remove('tear'); void wrap.offsetWidth; wrap.classList.add('tear'); }
+  setTimeout(tearLoop, 700 + Math.random() * 2200);
+})();
+
+addEventListener('resize', () => { radar.size(); stars(); });
+setProgress(3); radar.size();
+(function loop(t) { radar.draw(t); requestAnimationFrame(loop); })(0);
+
+// ---------- Fondo de estrellas ----------
+const sc = document.getElementById('stars'), sctx = sc.getContext('2d');
+function stars() {
+  sc.width = innerWidth; sc.height = innerHeight;
+  for (let i = 0; i < 160; i++) {
+    sctx.fillStyle = `rgba(255,255,255,${Math.random() * .7 + .2})`;
+    const s = Math.random() < .1 ? 2 : 1;
+    sctx.fillRect(Math.random() * sc.width, Math.random() * sc.height, s, s);
+  }
+}
+stars();
+
+// ---------- Efecto de salto (como el del menú del juego) ----------
+function warp() {
+  const w = document.getElementById('warp'), g = w.getContext('2d');
+  w.width = innerWidth; w.height = innerHeight; w.style.opacity = 1;
+  const cx = w.width / 2, cy = w.height / 2;
+  const lines = Array.from({ length: 140 }, () => ({ a: Math.random() * Math.PI * 2, r: Math.random() * 40 }));
+  let t = 0;
+  (function frame() {
+    g.fillStyle = 'rgba(7,19,24,.35)'; g.fillRect(0, 0, w.width, w.height);
+    g.strokeStyle = '#cfeff5';
+    lines.forEach(l => {
+      const r1 = l.r * (1 + t * .15), r2 = r1 * 1.25;
+      g.beginPath(); g.moveTo(cx + Math.cos(l.a) * r1, cy + Math.sin(l.a) * r1);
+      g.lineTo(cx + Math.cos(l.a) * r2, cy + Math.sin(l.a) * r2); g.stroke();
+    });
+    if (++t < 45) requestAnimationFrame(frame);
+    else { g.fillStyle = '#fff'; g.fillRect(0, 0, w.width, w.height); setTimeout(() => { w.style.opacity = 0; }, 150); }
+  })();
+}
+</script>
+</body>
+</html>
