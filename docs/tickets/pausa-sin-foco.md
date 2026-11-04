@@ -1,7 +1,9 @@
 # Pausar al perder el foco de la ventana
 
 Creador: Renzo
+Responsable: Renzo
 Estado: propuesta
+Prioridad: alta
 Modelo recomendado: haiku
 Esfuerzo recomendado: low
 

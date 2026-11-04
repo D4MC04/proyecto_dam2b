@@ -2,6 +2,7 @@
 
 Creador: Renzo
 Estado: propuesta
+Prioridad: media
 Modelo recomendado: sonnet
 Esfuerzo recomendado: low
 
