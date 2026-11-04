@@ -1,6 +1,7 @@
 # Progreso de los logros por contador
 
 Estado: propuesta
+Prioridad: baja
 Modelo recomendado: sonnet
 Esfuerzo recomendado: low
 

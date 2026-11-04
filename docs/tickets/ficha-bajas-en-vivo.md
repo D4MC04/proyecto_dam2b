@@ -1,6 +1,7 @@
 # Bajas y daño de la ficha en vivo
 
 Estado: propuesta
+Prioridad: media
 Modelo recomendado: sonnet
 Esfuerzo recomendado: low
 

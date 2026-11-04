@@ -1,7 +1,9 @@
 # Traducción al inglés
 
 Creador: Renzo
+Responsable: Renzo
 Estado: aceptada
+Prioridad: alta
 Modelo recomendado: sonnet
 Esfuerzo recomendado: high
 

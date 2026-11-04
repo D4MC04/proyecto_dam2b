@@ -1,6 +1,7 @@
 # Bajas históricas de cada torre en la Navedex
 
 Estado: propuesta
+Prioridad: baja
 Modelo recomendado: sonnet
 Esfuerzo recomendado: low
 
