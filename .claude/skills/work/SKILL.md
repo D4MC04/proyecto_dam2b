@@ -7,7 +7,7 @@ argument-hint: "nombre-del-ticket"
 
 Implementa el ticket `docs/tickets/$ARGUMENTS.md`.
 
-1. Lee el ticket. Si no existe o no pone `Estado: aceptada`, para y díselo al usuario (si en este chat ha dicho "acepto $ARGUMENTS", cambia tú el estado a `aceptada` y sigue).
+1. Lee el ticket. Si no existe o no pone `Estado: aceptada`, para y díselo al usuario (si en este chat ha dicho "acepto $ARGUMENTS", cambia tú el estado a `aceptada` y sigue). Di en una línea quién lo creó y quién es el responsable (`Creador:` y `Responsable:`). Si lo lanzó el usuario a mano en este chat (no `/accept` ni el chat central, que ya lo preguntan), pregunta con AskUserQuestion si quiere continuar sabiéndolo.
 2. Comprueba con `git status` que no hay cambios sin guardar de otra cosa. Si los hay, para y pregunta. Crea la rama `ticket/$ARGUMENTS` desde `main` (si ya existe, cámbiate a ella).
 3. Comprueba que el ticket no contradice la sección "Decidido" de `docs/DESIGN.md`. Si contradice, para y avisa.
 4. Lee solo lo que pone "Qué leer" del ticket. Nunca un `docs/design/` entero (algunos son enormes): saca sus títulos con Grep (`^#`) y lee la sección con offset y limit. De los scripts, la función o el trozo indicado, no el archivo entero si es largo. Si el ticket no tiene "Qué leer", busca con Grep y lee solo trozos. Implementa siguiendo CLAUDE.md.
