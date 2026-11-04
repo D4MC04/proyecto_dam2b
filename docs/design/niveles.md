@@ -67,7 +67,7 @@ Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de l
 
 ## Datos de nivel
 
-- `LevelData` (`scripts/resources/LevelData.gd`): `map: PackedScene`, `starting_money: int` (dinero inicial, 500 por defecto), `turrets: Array[TurretData]`, `waves: Array[WaveData]`.
+- `LevelData` (`scripts/resources/LevelData.gd`): `map: PackedScene`, `starting_money: int` (dinero inicial, 500 por defecto), `turrets: Array[TurretData]`, `waves: Array[WaveData]`; y para el radar de la selección de nivel (grupo "Radar", ver [menu.md](menu.md) › "Radar de sectores"): `sector_name` (clave `SECTOR_<n>_NAME`), `radar_distance` (fracción del radio), `radar_bearing` (grados, 0 arriba y en sentido horario; es el rumbo de la ficha), `threat` (`Threat`: `LOW`, `MEDIUM`, `HIGH`, `EXTREME` solo para el jefe) y `radar_ship` (`RadarShip`: `RAIDER` incursor, `FANG` colmillo, `CRUSHER` triturador, `SPECTER` espectro; la nave de su enemigo más peligroso).
 - `WaveData`: `groups: Array[SpawnGroup]` (en orden de salida) y `health_multiplier: float` (1.0 por defecto; multiplica la vida máxima de todos los enemigos de la oleada, también los trozos de la Divisora; la recompensa no cambia).
 - `SpawnGroup`: naves iguales seguidas por un camino: `enemy_data: EnemyData`, `count: int` (1), `spacing: float` (0,5 s entre naves del grupo), `pause_after: float` (3,0 s desde su última nave hasta la primera del siguiente grupo; negativo si se solapan, p. ej. en varios caminos) y `path_index: int`. El primer grupo sale en el tiempo 0, que llega `WAVE_START_DELAY` después de lanzar la oleada. Como los tiempos son relativos, quitar naves o un grupo adelanta solo lo que va detrás.
 - `WaveData.get_entries()` calcula a partir de los grupos una `SpawnEntry` por nave (`enemy_data`, `time` en segundos desde el tiempo 0, `path_index`), ordenadas por tiempo. No se guardan: las usan el Spawner y la pestaña Oleadas (`WaveBlock`).
@@ -87,6 +87,20 @@ Niveles registrados en `GameData.levels`:
 | 7 | `maps/levels/Level7.tscn` | 1500 € | las anteriores + Orbitador | 10 | 19 → 40 | Espectro | 4 |
 | 8 | `maps/levels/Level8.tscn` | 1800 € | las anteriores + Amplificador | 10 | 22 → 48 | Saboteadora | 4 |
 | 9 | `maps/levels/Level9.tscn` | 2200 € | las anteriores + Disintegrator (9 de 10) | 10 | 29 → 58 (la última con la Nodriza) | Espectro, Saboteadora, Divisora y Reparadora (y todas las demás) | 8 |
+
+Datos del radar:
+
+| Nivel | Sector | Distancia | Rumbo | Amenaza | Nave |
+|---|---|---|---|---|---|
+| 1 | Órbita Baja | 0,20 (800 km) | 315° | Baja | Incursor |
+| 2 | Campo Helado | 0,24 (960 km) | 150° | Baja | Incursor |
+| 3 | Cinturón Kepler | 0,30 (1.200 km) | 240° | Baja | Colmillo |
+| 4 | Grieta Roja | 0,36 (1.440 km) | 295° | Media | Triturador |
+| 5 | Nebulosa Gris | 0,42 (1.680 km) | 105° | Media | Triturador |
+| 6 | Paso del Eco | 0,48 (1.920 km) | 195° | Media | Triturador |
+| 7 | Deriva Tóxica | 0,54 (2.160 km) | 35° | Alta | Espectro |
+| 8 | Nido Exterior | 0,60 (2.400 km) | 270° | Alta | Colmillo |
+| 9 | Frontera Muerta | 0,66 (2.640 km) | 62° | Alta | Espectro |
 
 Las oleadas son `WaveData` en `resources/wave_data/level_N.tres` (la primera) y `level_N_K.tres` (la K). Los niveles 1 a 4 y 6 a 9 están en `resources/level_data/level_N.tres`; el 5 está definido como subrecurso dentro de `scenes/GameData.tscn` (`level_5.tres` también existe y lleva las mismas oleadas).
 

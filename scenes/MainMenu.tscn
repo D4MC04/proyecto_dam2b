@@ -17,6 +17,8 @@
 [ext_resource type="Script" uid="uid://d2ksqjroaxlx6" path="res://scripts/main_menu/Outpost.gd" id="25_outpost"]
 [ext_resource type="Texture2D" uid="uid://bykflanuslq17" path="res://assets/sprites/backgrounds/menu/menu_vignette.png" id="26_vignette"]
 [ext_resource type="Texture2D" uid="uid://7sb0q5toos63" path="res://assets/sprites/backgrounds/menu/menu_planet.png" id="27_planet"]
+[ext_resource type="Script" path="res://scripts/level_ui/SectorRadar.gd" id="28_radar"]
+[ext_resource type="Script" path="res://scripts/level_ui/SectorCard.gd" id="29_card"]
 
 [node name="MainMenu" type="Control" unique_id=576679633]
 texture_filter = 1
@@ -199,13 +201,23 @@ layout_mode = 2
 title = "HEADER_SECTORS"
 text_size = 24
 
-[node name="LevelButtonsContainer" type="GridContainer" parent="LevelSelectionScreen/LevelsPanel/Margin/Content" unique_id=1866487335]
-unique_name_in_owner = true
+[node name="SectorsRow" type="HBoxContainer" parent="LevelSelectionScreen/LevelsPanel/Margin/Content"]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/h_separation = 12
-theme_override_constants/v_separation = 12
-columns = 5
+theme_override_constants/separation = 24
+
+[node name="SectorRadar" type="Control" parent="LevelSelectionScreen/LevelsPanel/Margin/Content/SectorsRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(352, 352)
+layout_mode = 2
+script = ExtResource("28_radar")
+
+[node name="SectorCard" type="MarginContainer" parent="LevelSelectionScreen/LevelsPanel/Margin/Content/SectorsRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_vertical = 4
+script = ExtResource("29_card")
 
 [node name="VolverButton" type="Button" parent="LevelSelectionScreen/LevelsPanel/Margin/Content" unique_id=555534078]
 custom_minimum_size = Vector2(204, 36)

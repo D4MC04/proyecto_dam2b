@@ -22,4 +22,7 @@ script = ExtResource("2_s45o5")
 map = ExtResource("1_wvv31")
 turrets = Array[ExtResource("3_k4sjs")]([ExtResource("4_wvv31"), ExtResource("6_k4sjs")])
 waves = Array[ExtResource("7_q5l4p")]([ExtResource("8_wvv31"), ExtResource("wave_2_2"), ExtResource("wave_2_3"), ExtResource("12_q5l4p"), ExtResource("13_iyd5v"), ExtResource("14_758qn"), ExtResource("13_758qn"), ExtResource("14_2vhsr"), ExtResource("15_g5enw"), ExtResource("16_wxgxa")])
+sector_name = "SECTOR_2_NAME"
+radar_distance = 0.24
+radar_bearing = 150.0
 metadata/_custom_type_script = "uid://du40p5btlpgd0"
