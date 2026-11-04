@@ -75,6 +75,7 @@ func _on_level_won() -> void:
 	# Si no está en la lista, find devuelve -1 y el número es 0: no desbloquea nada.
 	var number: int = GameData.levels.find(level_data) + 1
 	GameState.complete_level(number)
+	GameState.record_level_stars(number, GameState.stars_for_health(level.base.health, level.base.max_health))
 	GameState.register_win(number, level.base.health == level.base.max_health)
 	ui.show_run_stats(level.get_run_stats())
 	ui.set_state(LevelUI.UiState.WON)

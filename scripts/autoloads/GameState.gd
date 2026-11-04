@@ -6,6 +6,8 @@ const SAVE_DIR := "user://saves/"
 # Archivo del progreso de antes de las ranuras: se migra a la ranura 1.
 const LEGACY_PATH := "user://progress.cfg"
 const SECTION := "progress"
+# Estrellas máximas que da un nivel ganado.
+const MAX_STARS := 3
 
 signal progress_reset
 
@@ -38,6 +40,8 @@ var stats: Dictionary = {}
 # Torretas fusionadas alguna vez, por nombre de archivo.
 var fused_turrets: Array[String] = []
 var unlocked: Array[String] = []
+# Mejor marca de estrellas (1..MAX_STARS) de cada nivel ganado: número de nivel (desde 1) -> estrellas.
+var level_stars: Dictionary[int, int] = {}
 # Segundos jugados en niveles, en tiempo real.
 var play_time: float = 0.0
 # Ranura de la partida en curso (1..SLOT_COUNT). 0 = ninguna: mientras tanto no se guarda nada.
@@ -87,6 +91,14 @@ func load_slot(slot: int) -> void:
 	var time: Variant = file.get_value(SECTION, "play_time", 0.0)
 	if typeof(time) == TYPE_FLOAT and time >= 0.0:
 		play_time = time
+	# Las partidas de antes de las estrellas no tienen esta clave: se quedan sin estrellas.
+	var stars: Variant = file.get_value(SECTION, "level_stars", {})
+	if typeof(stars) == TYPE_DICTIONARY:
+		for key: Variant in stars:
+			var value_stars: Variant = stars[key]
+			if typeof(key) == TYPE_INT and key >= 1 and typeof(value_stars) == TYPE_INT \
+					and value_stars >= 1 and value_stars <= MAX_STARS:
+				level_stars[key] = value_stars
 
 func has_save(slot: int) -> bool:
 	return slot >= 1 and slot <= SLOT_COUNT and FileAccess.file_exists(_slot_path(slot))
@@ -134,6 +146,25 @@ func complete_level(number: int) -> void:
 	if number != current_level or number >= GameData.levels.size():
 		return
 	current_level += 1
+	_save()
+
+## Estrellas que da ganar con la estación a `health` de `max_health`: 3 sin daño, 2 con más de la mitad, 1 si no.
+func stars_for_health(health: int, max_health: int) -> int:
+	if health >= max_health:
+		return MAX_STARS
+	if health * 2 > max_health:
+		return 2
+	return 1
+
+## Mejor marca de estrellas del nivel número `number` (desde 1). 0 si no se ha ganado nunca.
+func get_level_stars(number: int) -> int:
+	return level_stars.get(number, 0)
+
+## Anota las estrellas de una victoria en el nivel `number` (desde 1). Solo guarda si mejora la marca.
+func record_level_stars(number: int, stars: int) -> void:
+	if number < 1 or stars <= get_level_stars(number):
+		return
+	level_stars[number] = clampi(stars, 1, MAX_STARS)
 	_save()
 
 ## El tutorial se ha acabado o saltado: no vuelve a salir.
@@ -264,6 +295,7 @@ func _set_defaults() -> void:
 	stats.clear()
 	fused_turrets.clear()
 	unlocked.clear()
+	level_stars.clear()
 	play_time = 0.0
 
 func _slot_path(slot: int) -> String:
@@ -297,6 +329,7 @@ func _save() -> void:
 	file.set_value(SECTION, "fused_turrets", fused_turrets)
 	file.set_value(SECTION, "unlocked", unlocked)
 	file.set_value(SECTION, "play_time", play_time)
+	file.set_value(SECTION, "level_stars", level_stars)
 	file.set_value(SECTION, "saved_at", int(Time.get_unix_time_from_system()))
 	DirAccess.make_dir_recursive_absolute(SAVE_DIR)
 	if file.save(_slot_path(active_slot)) != OK:
