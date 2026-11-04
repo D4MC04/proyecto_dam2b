@@ -319,6 +319,11 @@ func set_state(new_state: UiState) -> void:
 	tutorial_hints.visible = new_state == UiState.PLAYING
 	get_tree().paused = new_state != UiState.PLAYING
 
+## Abre la pausa solo si se está jugando; en pausa, derrota o victoria no hace nada.
+func pause_if_playing() -> void:
+	if _ui_state == UiState.PLAYING:
+		set_state(UiState.PAUSED)
+
 func _show_screen(shown: OverlayScreen) -> void:
 	for screen: OverlayScreen in _screens_by_state.values():
 		screen.visible = screen == shown

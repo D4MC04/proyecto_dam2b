@@ -20,6 +20,14 @@ func _ready() -> void:
 	if from_hyperspace:
 		_fade_in_from_white()
 
+# Al perder el foco de la ventana (Alt+Tab) se abre la pausa, salvo que la opción esté desactivada.
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_APPLICATION_FOCUS_OUT:
+		return
+	if _transitioning or not Settings.get_value(&"pause_on_focus_loss"):
+		return
+	ui.pause_if_playing()
+
 # Fundido desde blanco al llegar del salto al hiperespacio.
 func _fade_in_from_white() -> void:
 	await _fade_white(1.0, 0.0)

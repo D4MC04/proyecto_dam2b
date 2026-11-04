@@ -39,6 +39,10 @@ En `_ready`:
 
 `_on_action_requested(action)` decide con un `match` sobre `LevelUI.Action`: `RESTART` llama a `_restart_level()`, `QUIT` a `_quit_to_menu()` y `NEXT_LEVEL` a `_next_level()`. Cuando llega la señal, `LevelUI` ya ha pasado a `PLAYING`, así que no hay pantalla ni pausa.
 
+### Pérdida de foco
+
+`Game._notification` recibe `NOTIFICATION_APPLICATION_FOCUS_OUT` (Alt+Tab, clic fuera de la ventana) y llama a `ui.pause_if_playing()`, que abre la pausa normal solo si se está jugando: en pausa, derrota, victoria (también durante la cámara lenta y el respiro) no hace nada. Tampoco durante el barrido de reinicio o siguiente nivel (`_transitioning`). Se desactiva con la opción `pause_on_focus_loss` de `Settings` (activada por defecto, ver [menu.md](menu.md)). Al volver el foco el juego sigue en pausa hasta pulsar Continuar o Escape.
+
 ### Derrota
 
 Cuando la estación se destruye, `Level` deja de construir y ya no puede ganar, espera a que acabe su explosión y emite `lost` (una sola vez por partida). `_on_level_lost()` pasa el resumen a la UI con `ui.show_run_stats(level.get_run_stats())` y después llama a `ui.set_state(LevelUI.UiState.LOST)`. La UI frena el juego con una cámara lenta de algo más de 1 s, vuelve a velocidad normal, pausa el árbol y muestra la pantalla de derrota con un glitch de entrada (ver [ui.md](ui.md)). "Reintentar" usa `RESTART` y "Menú" usa `QUIT`; las dos pasan antes a `PLAYING`, que deja `Engine.time_scale` en 1.

@@ -143,6 +143,7 @@ Es el único audio del juego: todavía no hay efectos de sonido, así que nada s
 | PANTALLA | Botón "Mostrar FPS" | `show_fps` |
 | JUEGO | Botón "Idioma" (`LanguageButton`) | `language` |
 | JUEGO | Botón "Rango de torretas" | `show_turret_range` |
+| JUEGO | Botón "Pausar sin foco" | `pause_on_focus_loss` |
 
 "Volver" (204x36) va en `ButtonsBlock`, debajo de las columnas con 9 px extra de margen (`ButtonsMargin`), así que se separa más de las secciones que los botones entre sí. Las partidas no se borran aquí: se borran desde su ranura en la pantalla de inicio (ver "Pantalla de inicio").
 
@@ -154,13 +155,14 @@ El botón de idioma es del mismo tamaño y estilo pero no es interruptor: cada p
 
 `scripts/autoloads/Settings.gd`, autoload. Guarda las opciones en `user://settings.cfg` (sección `settings`) con `ConfigFile`.
 
-- Al arrancar carga el archivo y aplica todas las opciones. Si el archivo no existe, falta una clave o su valor no es del tipo esperado, vale el valor por defecto: volúmenes a 1, `vsync` activado y el resto desactivado. Las claves que no conoce (por ejemplo la antigua `ambient_volume`) se ignoran y desaparecen del archivo en el siguiente guardado. La excepción es `LEGACY_KEYS`: `show_turret_range` también se lee de su nombre antiguo (`show_tower_range`) si el archivo aún no tiene la nueva.
+- Al arrancar carga el archivo y aplica todas las opciones. Si el archivo no existe, falta una clave o su valor no es del tipo esperado, vale el valor por defecto: volúmenes a 1, `vsync` y `pause_on_focus_loss` activados y el resto desactivado. Las claves que no conoce (por ejemplo la antigua `ambient_volume`) se ignoran y desaparecen del archivo en el siguiente guardado. La excepción es `LEGACY_KEYS`: `show_turret_range` también se lee de su nombre antiguo (`show_tower_range`) si el archivo aún no tiene la nueva.
 - `get_value(key)` y `set_value(key, value)`. `set_value` aplica el cambio, guarda el archivo y emite `changed(key)`.
 - Los tres volúmenes son lineales y se aplican a los buses `Master`, `Music` y `SFX`, definidos en `default_bus_layout.tres`. El bus `SFX` es para los sonidos de torretas, explosiones y demás efectos.
 - `muted` silencia el bus `Master` sin cambiar los volúmenes, así que al quitarlo los deslizadores conservan su valor.
 - `fullscreen` y `vsync` se aplican con `DisplayServer`.
 - `language` (texto, `"es"` por defecto) se aplica con `TranslationServer.set_locale`; si el archivo trae un código que no está en `LANGUAGES` (`["es", "en"]`), se usa el español.
 - `show_fps` y `show_turret_range` no hacen nada aquí: las leen `LevelUI` (ver [ui.md](ui.md)) y `Turret` (ver [torretas.md](torretas.md)), que escuchan `changed` para actualizarse al momento.
+- `pause_on_focus_loss` tampoco hace nada aquí: la lee `Game` cuando la ventana pierde el foco (ver [flujo.md](flujo.md)).
 
 ## Idiomas
 

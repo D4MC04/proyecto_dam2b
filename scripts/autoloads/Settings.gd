@@ -34,6 +34,7 @@ var _values: Dictionary[StringName, Variant] = {
 	&"show_turret_range": false,
 	# Código del idioma de los textos (uno de LANGUAGES).
 	&"language": "es",
+	&"pause_on_focus_loss": true,
 }
 
 func _ready() -> void:
