@@ -41,7 +41,7 @@ theme_override_constants/separation = 18
 
 [node name="Header" parent="Center/Frame/Margin/Box" instance=ExtResource("4_header")]
 layout_mode = 2
-title = "ARCHIVO"
+title = "HEADER_ARCHIVE"
 text_size = 24
 
 [node name="Tabs" type="TabBar" parent="Center/Frame/Margin/Box"]
@@ -149,4 +149,4 @@ custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "Volver"
+text = "BTN_BACK"

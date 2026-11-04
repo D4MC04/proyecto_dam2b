@@ -80,11 +80,11 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(72, 16)
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
-text = "Entendido"
+text = "TUTORIAL_OK"
 
 [node name="SkipButton" type="Button" parent="Box/Margin/Row/Column/Buttons"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(56, 16)
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
-text = "Saltar"
+text = "TUTORIAL_SKIP"

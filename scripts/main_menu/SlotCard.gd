@@ -143,12 +143,12 @@ func _draw_content(hovered: bool) -> void:
 			Color(number_color, content_alpha))
 	var width := int(size.x) - TEXT_LEFT - TEXT_RIGHT
 	if not has_save():
-		_text(font, Vector2(TEXT_LEFT, LINE_1_TOP), "+ NUEVA PARTIDA", LINE_1_SIZE,
+		_text(font, Vector2(TEXT_LEFT, LINE_1_TOP), tr("SLOT_NEW"), LINE_1_SIZE,
 				ACCENT_LIGHT if hovered else ACCENT)
-		_text(font, Vector2(TEXT_LEFT, LINE_2_TOP), "RANURA VACÍA", LINE_2_SIZE, TEXT_DIM)
+		_text(font, Vector2(TEXT_LEFT, LINE_2_TOP), tr("SLOT_EMPTY"), LINE_2_SIZE, TEXT_DIM)
 		return
 	var sector: int = mini(_summary.sector, GameData.levels.size())
-	_text(font, Vector2(TEXT_LEFT, LINE_1_TOP), "SECTOR %02d" % sector, LINE_1_SIZE, TEXT)
+	_text(font, Vector2(TEXT_LEFT, LINE_1_TOP), tr("SLOT_SECTOR") % sector, LINE_1_SIZE, TEXT)
 	# Logros a la derecha de la primera línea: estrella y "X/12" en ámbar.
 	var achievements := "%d/%d" % [_summary.achievements, _summary.achievements_total]
 	var achievements_width := int(font.get_string_size(achievements, HORIZONTAL_ALIGNMENT_LEFT, -1, LINE_1_SIZE).x)
@@ -163,11 +163,12 @@ func _draw_content(hovered: bool) -> void:
 	# Segunda línea: fecha del último guardado a la izquierda y tiempo jugado a la derecha.
 	var saved := _format_date(_summary.saved_at)
 	var played := _format_time(_summary.play_time)
-	var x := _text(font, Vector2(TEXT_LEFT, LINE_2_TOP), "GUARDADO ", LINE_2_SIZE, TEXT_DIM)
+	var x := _text(font, Vector2(TEXT_LEFT, LINE_2_TOP), tr("SLOT_SAVED") + " ", LINE_2_SIZE, TEXT_DIM)
 	_text(font, Vector2(x, LINE_2_TOP), saved, LINE_2_SIZE, TEXT)
 	var played_width := int(font.get_string_size(played, HORIZONTAL_ALIGNMENT_LEFT, -1, LINE_2_SIZE).x)
-	var label_width := int(font.get_string_size("JUGADO ", HORIZONTAL_ALIGNMENT_LEFT, -1, LINE_2_SIZE).x)
-	_text(font, Vector2(right - played_width - label_width, LINE_2_TOP), "JUGADO ", LINE_2_SIZE, TEXT_DIM)
+	var played_label := tr("SLOT_PLAYED") + " "
+	var label_width := int(font.get_string_size(played_label, HORIZONTAL_ALIGNMENT_LEFT, -1, LINE_2_SIZE).x)
+	_text(font, Vector2(right - played_width - label_width, LINE_2_TOP), played_label, LINE_2_SIZE, TEXT_DIM)
 	_text(font, Vector2(right - played_width, LINE_2_TOP), played, LINE_2_SIZE, TEXT)
 
 # Pinta `text` con su fila de arriba en `top_left` y devuelve la x donde acaba.

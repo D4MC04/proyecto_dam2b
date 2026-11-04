@@ -24,8 +24,8 @@ class_name OrbitData
 ## Filas de la ficha propias de la órbita.
 func get_stats() -> Array[StatEntry]:
 	return [
-		StatEntry.new("damage", "DAÑO", UiFormat.number(damage)),
-		StatEntry.new("splash", "ÁREA", UiFormat.number(splash_radius)),
-		StatEntry.new("targets", "CARGAS", UiFormat.abbreviate(max_orbs)),
-		StatEntry.new("speed", "GIRO", UiFormat.number(orbit_speed)),
+		StatEntry.new("damage", "STAT_DAMAGE", UiFormat.number(damage)),
+		StatEntry.new("splash", "STAT_AREA", UiFormat.number(splash_radius)),
+		StatEntry.new("targets", "STAT_CHARGES", UiFormat.abbreviate(max_orbs)),
+		StatEntry.new("speed", "STAT_SPIN", UiFormat.number(orbit_speed)),
 	]

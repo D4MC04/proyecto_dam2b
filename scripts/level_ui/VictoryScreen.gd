@@ -106,7 +106,7 @@ func _draw_sparkles() -> void:
 	var font := title_label.get_theme_font("font")
 	var font_size := title_label.get_theme_font_size("font_size")
 	var line_height := font.get_height(font_size) + title_label.get_theme_constant("line_spacing")
-	var lines := title_label.text.split("\n")
+	var lines := tr(title_label.text).split("\n")
 	for sparkle: Dictionary in SPARKLES:
 		var line_index: int = posmod(sparkle["line"], lines.size())
 		var line_width := font.get_string_size(lines[line_index], HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x

@@ -138,35 +138,35 @@ custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "Jugar"
+text = "BTN_PLAY"
 
 [node name="NavedexButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons" unique_id=1727472087]
 custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "Archivo"
+text = "BTN_ARCHIVE"
 
 [node name="StatsButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons" unique_id=703218131]
 custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "Stats"
+text = "BTN_STATS"
 
 [node name="SettingsButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons" unique_id=528850060]
 custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "Opciones"
+text = "BTN_OPTIONS"
 
 [node name="QuitButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons" unique_id=1613827906]
 custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "Salir"
+text = "BTN_QUIT"
 
 [node name="LevelSelectionScreen" type="VBoxContainer" parent="." unique_id=2135136794]
 visible = false
@@ -196,7 +196,7 @@ theme_override_constants/separation = 18
 
 [node name="Header" parent="LevelSelectionScreen/LevelsPanel/Margin/Content" unique_id=1281023251 instance=ExtResource("21_header")]
 layout_mode = 2
-title = "SECTORES DISPONIBLES"
+title = "HEADER_SECTORS"
 text_size = 24
 
 [node name="LevelButtonsContainer" type="GridContainer" parent="LevelSelectionScreen/LevelsPanel/Margin/Content" unique_id=1866487335]
@@ -212,7 +212,7 @@ custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "Volver"
+text = "BTN_BACK"
 
 [node name="StatsScreen" type="VBoxContainer" parent="." unique_id=346163568]
 visible = false
@@ -242,7 +242,7 @@ theme_override_constants/separation = 18
 
 [node name="Header" parent="StatsScreen/StatsPanel/Margin/Content" unique_id=1033965195 instance=ExtResource("21_header")]
 layout_mode = 2
-title = "ESTADÍSTICAS"
+title = "HEADER_STATS"
 text_size = 24
 
 [node name="StatsLabel" type="Label" parent="StatsScreen/StatsPanel/Margin/Content" unique_id=1396226164]
@@ -255,7 +255,7 @@ custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "Volver"
+text = "BTN_BACK"
 
 [node name="Navedex" parent="." unique_id=276684204 instance=ExtResource("22_navedex")]
 visible = false

@@ -24,11 +24,11 @@ class_name BulletData
 ## Filas de la ficha propias de la bala.
 func get_stats() -> Array[StatEntry]:
 	var stats: Array[StatEntry] = [
-		StatEntry.new("damage", "DAÑO", UiFormat.number(damage)),
-		StatEntry.new("speed", "VEL. BALA", UiFormat.number(speed)),
+		StatEntry.new("damage", "STAT_DAMAGE", UiFormat.number(damage)),
+		StatEntry.new("speed", "STAT_BULLET_SPEED", UiFormat.number(speed)),
 	]
 	if pierce > 0:
-		stats.append(StatEntry.new("pierce", "PERFORA", UiFormat.number(pierce)))
+		stats.append(StatEntry.new("pierce", "STAT_PIERCE", UiFormat.number(pierce)))
 	if splash_radius > 0:
-		stats.append(StatEntry.new("splash", "ÁREA", UiFormat.number(splash_radius)))
+		stats.append(StatEntry.new("splash", "STAT_AREA", UiFormat.number(splash_radius)))
 	return stats

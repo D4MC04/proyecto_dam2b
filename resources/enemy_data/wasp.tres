@@ -6,12 +6,12 @@
 
 [resource]
 script = ExtResource("1_data")
-name = "Wasp"
+name = "ENEMY_WASP_NAME"
 hp = 50.0
 speed = 100
 reward = 10
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 rotate_sprite = true
-description = "Insecto mecánico ágil con más blindaje que un Dart."
+description = "ENEMY_WASP_DESC"
 metadata/_custom_type_script = "uid://do62ihbnaitnl"

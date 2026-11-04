@@ -35,7 +35,7 @@ func _ready() -> void:
 		label.add_theme_color_override(&"font_outline_color", Color.BLACK)
 		label.add_theme_constant_override(&"outline_size", 4)
 		box.add_child(label)
-	_title.text = "ALERTA"
+	_title.text = tr("BOSS_ALERT")
 	_title.add_theme_font_size_override(&"font_size", 48)
 	_subtitle.add_theme_font_size_override(&"font_size", 32)
 
@@ -43,7 +43,7 @@ func _ready() -> void:
 func show_alert(boss_name: String) -> void:
 	if _tween != null:
 		_tween.kill()
-	_subtitle.text = "%s ACERCÁNDOSE" % boss_name.to_upper()
+	_subtitle.text = tr("BOSS_APPROACHING") % boss_name.to_upper()
 	visible = true
 	_tween = create_tween().set_ignore_time_scale()
 	_tween.tween_method(_set_pulse, 0.0, 1.0, TOTAL_TIME)

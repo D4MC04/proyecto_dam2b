@@ -106,7 +106,7 @@ func _on_wave_cleared(_index: int) -> void:
 		return
 	if _leaks_this_wave == 0:
 		GameState.add_stat("perfect_waves")
-		_award("PERFECTA", LevelState.PERFECT_WAVE_BONUS)
+		_award(tr("AWARD_PERFECT"), LevelState.PERFECT_WAVE_BONUS)
 
 # Suma el premio y lo enseña sobre la estación.
 func _award(label: String, amount: int) -> void:

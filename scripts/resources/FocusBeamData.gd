@@ -29,9 +29,9 @@ func get_stats() -> Array[StatEntry]:
 	var stats: Array[StatEntry] = []
 	var joined := "/".join(values)
 	if joined.length() <= StatEntry.MAX_VALUE_CHARS:
-		stats.append(StatEntry.new("dps", "DPS", joined))
+		stats.append(StatEntry.new("dps", "STAT_DPS", joined))
 	else:
 		for i in values.size():
-			stats.append(StatEntry.new("dps", "DPS N%d" % (i + 1), values[i]))
-	stats.append(StatEntry.new("level_time", "T. NIVEL", UiFormat.seconds(level_time)))
+			stats.append(StatEntry.new("dps", tr("STAT_DPS_LEVEL") % (i + 1), values[i]))
+	stats.append(StatEntry.new("level_time", "STAT_LEVEL_TIME", UiFormat.seconds(level_time)))
 	return stats

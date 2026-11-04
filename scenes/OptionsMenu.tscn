@@ -46,7 +46,7 @@ theme_override_colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 48
-text = "OPCIONES"
+text = "OPT_TITLE"
 horizontal_alignment = 1
 
 [node name="Sections" type="HBoxContainer" parent="Center/Frame/Margin/Box"]
@@ -64,7 +64,7 @@ theme_override_constants/separation = 9
 
 [node name="AudioHeader" parent="Center/Frame/Margin/Box/Sections/LeftColumn" instance=ExtResource("4_header")]
 layout_mode = 2
-title = "AUDIO"
+title = "OPT_AUDIO"
 text_size = 24
 
 [node name="AudioGrid" type="GridContainer" parent="Center/Frame/Margin/Box/Sections/LeftColumn"]
@@ -77,7 +77,7 @@ columns = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 24
-text = "General"
+text = "OPT_MASTER"
 
 [node name="MasterSlider" type="HSlider" parent="Center/Frame/Margin/Box/Sections/LeftColumn/AudioGrid"]
 unique_name_in_owner = true
@@ -92,7 +92,7 @@ step = 0.05
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 24
-text = "Música"
+text = "OPT_MUSIC"
 
 [node name="MusicSlider" type="HSlider" parent="Center/Frame/Margin/Box/Sections/LeftColumn/AudioGrid"]
 unique_name_in_owner = true
@@ -107,7 +107,7 @@ step = 0.05
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 24
-text = "Efectos"
+text = "OPT_SFX"
 
 [node name="SfxSlider" type="HSlider" parent="Center/Frame/Margin/Box/Sections/LeftColumn/AudioGrid"]
 unique_name_in_owner = true
@@ -122,7 +122,7 @@ step = 0.05
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 24
-text = "Silenciar"
+text = "OPT_MUTE"
 
 [node name="MuteButton" type="Button" parent="Center/Frame/Margin/Box/Sections/LeftColumn/AudioGrid"]
 unique_name_in_owner = true
@@ -136,7 +136,7 @@ text = "OFF"
 
 [node name="DisplayHeader" parent="Center/Frame/Margin/Box/Sections/RightColumn" instance=ExtResource("4_header")]
 layout_mode = 2
-title = "PANTALLA"
+title = "OPT_DISPLAY"
 text_size = 24
 
 [node name="DisplayGrid" type="GridContainer" parent="Center/Frame/Margin/Box/Sections/RightColumn"]
@@ -149,7 +149,7 @@ columns = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 24
-text = "Pantalla completa"
+text = "OPT_FULLSCREEN"
 
 [node name="FullscreenButton" type="Button" parent="Center/Frame/Margin/Box/Sections/RightColumn/DisplayGrid"]
 unique_name_in_owner = true
@@ -181,7 +181,7 @@ text = "OFF"
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 24
-text = "Mostrar FPS"
+text = "OPT_SHOW_FPS"
 
 [node name="FpsButton" type="Button" parent="Center/Frame/Margin/Box/Sections/RightColumn/DisplayGrid"]
 unique_name_in_owner = true
@@ -195,7 +195,7 @@ text = "OFF"
 
 [node name="GameHeader" parent="Center/Frame/Margin/Box/Sections/RightColumn" instance=ExtResource("4_header")]
 layout_mode = 2
-title = "JUEGO"
+title = "OPT_GAME"
 text_size = 24
 
 [node name="GameGrid" type="GridContainer" parent="Center/Frame/Margin/Box/Sections/RightColumn"]
@@ -204,11 +204,27 @@ theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 9
 columns = 2
 
+[node name="LanguageLabel" type="Label" parent="Center/Frame/Margin/Box/Sections/RightColumn/GameGrid"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "OPT_LANGUAGE"
+
+[node name="LanguageButton" type="Button" parent="Center/Frame/Margin/Box/Sections/RightColumn/GameGrid"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(54, 24)
+layout_mode = 2
+size_flags_horizontal = 8
+auto_translate_mode = 2
+theme_type_variation = &"ToggleButton"
+theme_override_font_sizes/font_size = 24
+text = "ES"
+
 [node name="TurretRangeLabel" type="Label" parent="Center/Frame/Margin/Box/Sections/RightColumn/GameGrid"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 24
-text = "Rango de torretas"
+text = "OPT_TURRET_RANGE"
 
 [node name="TurretRangeButton" type="Button" parent="Center/Frame/Margin/Box/Sections/RightColumn/GameGrid"]
 unique_name_in_owner = true
@@ -233,6 +249,6 @@ custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "Volver"
+text = "BTN_BACK"
 
 [connection signal="pressed" from="Center/Frame/Margin/Box/ButtonsMargin/ButtonsBlock/BackButton" to="." method="_on_back_button_pressed"]

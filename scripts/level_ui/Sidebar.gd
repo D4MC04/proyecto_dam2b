@@ -50,9 +50,9 @@ const LOCKED_GRID_COLOR := Color(1, 1, 1, 0.5)
 # Duración de medio ciclo del parpadeo del botón de siguiente oleada.
 const NEXT_PULSE_TIME := 0.5
 const STATUS_TEXTS: Dictionary[WaveStatus, String] = {
-	WaveStatus.READY: "LISTA",
-	WaveStatus.IN_PROGRESS: "EN CURSO",
-	WaveStatus.COMPLETE: "COMPLETA",
+	WaveStatus.READY: "WAVE_READY",
+	WaveStatus.IN_PROGRESS: "WAVE_IN_PROGRESS",
+	WaveStatus.COMPLETE: "WAVE_COMPLETE",
 }
 const STATUS_COLORS: Dictionary[WaveStatus, Color] = {
 	WaveStatus.READY: Color("#ecb23c"),
@@ -94,6 +94,17 @@ var _next_pulse: Tween
 # Vida anterior de la estación (-1 si aún no se ha puesto) para detectar golpes.
 var _station_health := -1
 var _station_hit_tween: Tween
+# Último estado del pie (estado, oleada, total) para repintarlo al cambiar de idioma; vacío si aún no hay.
+var _footer_status: Array = []
+
+# Al cambiar de idioma se repintan los textos que pone el script (los de la escena se traducen solos).
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_TRANSLATION_CHANGED or not is_node_ready():
+		return
+	if not _wave_blocks.is_empty():
+		view_wave(_viewed_wave)
+	if not _footer_status.is_empty():
+		set_wave_status(_footer_status[0], _footer_status[1], _footer_status[2])
 
 func _ready() -> void:
 	var tab_group := ButtonGroup.new()
@@ -211,15 +222,16 @@ func view_wave(index: int) -> void:
 	elif _viewed_wave == _current_wave + 1:
 		state = WaveBlock.State.NEXT
 	_wave_blocks[_viewed_wave].set_state(state)
-	wave_title_label.text = "OLEADA %d" % (_viewed_wave + 1)
+	wave_title_label.text = tr("HUD_WAVE_N") % (_viewed_wave + 1)
 	WaveBlock.apply_title_style(wave_title_panel, wave_title_label, state)
 	prev_wave_arrow.disabled = _viewed_wave == 0
 	next_wave_arrow.disabled = _viewed_wave == _wave_blocks.size() - 1
 
 ## Pie de la barra: "OL. X/Y" y el estado de la oleada. Lo calcula LevelUI.
 func set_wave_status(status: WaveStatus, wave_number: int, total: int) -> void:
-	footer_wave_label.text = "OL. %d/%d" % [wave_number, total]
-	footer_status_label.text = STATUS_TEXTS[status]
+	_footer_status = [status, wave_number, total]
+	footer_wave_label.text = tr("HUD_WAVE_SHORT") % [wave_number, total]
+	footer_status_label.text = tr(STATUS_TEXTS[status])
 	footer_status_label.add_theme_color_override("font_color", STATUS_COLORS[status])
 
 ## Activa o atenúa el botón de siguiente oleada; con `inviting`, su borde parpadea.

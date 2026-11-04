@@ -141,11 +141,14 @@ Es el único audio del juego: todavía no hay efectos de sonido, así que nada s
 | PANTALLA | Botón "Pantalla completa" | `fullscreen` |
 | PANTALLA | Botón "VSync" | `vsync` |
 | PANTALLA | Botón "Mostrar FPS" | `show_fps` |
+| JUEGO | Botón "Idioma" (`LanguageButton`) | `language` |
 | JUEGO | Botón "Rango de torretas" | `show_turret_range` |
 
 "Volver" (204x36) va en `ButtonsBlock`, debajo de las columnas con 9 px extra de margen (`ButtonsMargin`), así que se separa más de las secciones que los botones entre sí. Las partidas no se borran aquí: se borran desde su ranura en la pantalla de inicio (ver "Pantalla de inicio").
 
 Los deslizadores (96x12, tirador de 5x11) van de 0 a 1 en pasos de 0,05 (colores de la paleta en `menu_theme.tres`, ver [art.md](art.md)). Los botones son interruptores de 54x24 (texto a 24) con la variación de tema `ToggleButton`: en ON van rellenos de cian (como el ratón encima) y muestran "ON"; en OFF van con el estilo normal y muestran "OFF". Al abrirse, cada control toma su valor de `Settings`; cada cambio llama a `Settings.set_value`.
+
+El botón de idioma es del mismo tamaño y estilo pero no es interruptor: cada pulsación pasa al siguiente idioma de `Settings.LANGUAGES` y muestra su código ("ES" / "EN", sin traducir). El cambio se ve al momento en todo lo que está abierto (ver "Idiomas").
 
 ### Settings
 
@@ -156,7 +159,21 @@ Los deslizadores (96x12, tirador de 5x11) van de 0 a 1 en pasos de 0,05 (colores
 - Los tres volúmenes son lineales y se aplican a los buses `Master`, `Music` y `SFX`, definidos en `default_bus_layout.tres`. El bus `SFX` es para los sonidos de torretas, explosiones y demás efectos.
 - `muted` silencia el bus `Master` sin cambiar los volúmenes, así que al quitarlo los deslizadores conservan su valor.
 - `fullscreen` y `vsync` se aplican con `DisplayServer`.
+- `language` (texto, `"es"` por defecto) se aplica con `TranslationServer.set_locale`; si el archivo trae un código que no está en `LANGUAGES` (`["es", "en"]`), se usa el español.
 - `show_fps` y `show_turret_range` no hacen nada aquí: las leen `LevelUI` (ver [ui.md](ui.md)) y `Turret` (ver [torretas.md](torretas.md)), que escuchan `changed` para actualizarse al momento.
+
+## Idiomas
+
+Los textos visibles están en `translations/textos.csv` (columnas `keys,es,en`), registrado en `project.godot` (`internationalization/locale/translations`, con los `.translation` que genera Godot al importar el CSV; idioma de reserva `es`). Ni escenas ni scripts llevan textos a mano: usan claves en mayúsculas con prefijo por zona (`BTN_`, `HEADER_`, `OPT_`, `HUD_`, `STAT_`, `TAG_`, `TUTORIAL_`, `ACH_`, `TURRET_`, `ENEMY_`...).
+
+- En los `.tscn` el `text` de `Label` y `Button` es la clave y Godot lo traduce solo (también al cambiar de idioma). Las cabeceras `ScreenHeader` guardan la clave en `title` y la traducen con `tr()`; se repintan con `NOTIFICATION_TRANSLATION_CHANGED`.
+- Los textos con números o nombres se montan con `tr("CLAVE") % valores` (por ejemplo `HUD_WAVE_N` = "OLEADA %d"). `Sidebar` y `LevelIndicator` guardan lo último que enseñaron y lo repintan al cambiar de idioma, para que la pausa → Opciones → idioma se vea al volver a la partida.
+- `TurretData` y `EnemyData` guardan en `name` y `description` claves (`TURRET_<archivo>_NAME` / `_DESC`, `ENEMY_<archivo>_NAME` / `_DESC`; los tres fragmentos de la Divisora comparten `ENEMY_FRAGMENTO_DIVISORA_*`). Para enseñarlos se usa `get_inspect_name()` / `get_inspect_description()`, que ya traducen; `RunStats.top_turret_name` guarda la clave y la traduce `RunSummary`.
+- `StatEntry` recibe el nombre del stat como clave (`STAT_...`) y lo traduce al crearse; las etiquetas de tipo (`TAG_...`) las traduce `get_inspect_tag()`. Ambos caben en 9 caracteres también en inglés.
+- Los logros de `GameState.ACHIEVEMENTS` son pares de claves (`ACH_<id>_NAME`, `ACH_<id>_DESC`).
+- Se quedan sin traducir el título "ASTRO ARTILLERY" / "TOWER DEFENSE", "NOVA", "VSync", "AUTO", "ON" / "OFF", los "×1" / "×2" y los números.
+
+Para añadir un idioma: una columna nueva en el CSV, su `.translation` en `project.godot` y su código en `Settings.LANGUAGES`.
 
 ## Dudas
 

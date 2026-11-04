@@ -6,12 +6,12 @@
 
 [resource]
 script = ExtResource("1_data")
-name = "Reparadora"
+name = "ENEMY_REPARADORA_NAME"
 hp = 90.0
 speed = 38
 reward = 45
 base_damage = 5
-description = "Nave de apoyo. Cada 3 s repara a las naves cercanas."
+description = "ENEMY_REPARADORA_DESC"
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 rotate_sprite = true

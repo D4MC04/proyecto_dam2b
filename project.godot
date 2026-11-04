@@ -108,6 +108,11 @@ power_orbital={
 ]
 }
 
+[internationalization]
+
+locale/translations=PackedStringArray("res://translations/textos.es.translation", "res://translations/textos.en.translation")
+locale/fallback="es"
+
 [physics]
 
 3d/physics_engine="Jolt Physics"

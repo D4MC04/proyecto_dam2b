@@ -39,22 +39,22 @@ func get_stat(level: int) -> StatEntry:
 	var value := get_value(level)
 	match kind:
 		Kind.RANGE:
-			return StatEntry.new("amp", "ALCANCE", _percent(value))
+			return StatEntry.new("amp", "STAT_RANGE", _percent(value))
 		Kind.SPLASH:
-			return StatEntry.new("amp", "ÁREA", _percent(value))
+			return StatEntry.new("amp", "STAT_AREA", _percent(value))
 		Kind.HEAT:
-			return StatEntry.new("amp", "ACELERA", _times(value))
+			return StatEntry.new("amp", "STAT_ACCEL", _times(value))
 		Kind.SLOW:
-			return StatEntry.new("amp", "FRENADO", _percent(value))
+			return StatEntry.new("amp", "STAT_SLOW", _percent(value))
 		Kind.TARGETS:
-			return StatEntry.new("amp", "OBJETIVOS", "+" + UiFormat.number(value))
+			return StatEntry.new("amp", "STAT_TARGETS", "+" + UiFormat.number(value))
 		Kind.CHARGE:
-			return StatEntry.new("amp", "CARGA", _times(value))
+			return StatEntry.new("amp", "STAT_CHARGE", _times(value))
 		Kind.LEVEL_TIME:
-			return StatEntry.new("amp", "SUBE NIV.", _times(value))
+			return StatEntry.new("amp", "STAT_LEVEL_UP", _times(value))
 		Kind.ORBIT_SPEED:
-			return StatEntry.new("amp", "GIRO", _times(value))
-	return StatEntry.new("amp", "AMPLIF.", "")
+			return StatEntry.new("amp", "STAT_SPIN", _times(value))
+	return StatEntry.new("amp", "STAT_AMP", "")
 
 func _percent(value: float) -> String:
 	return "+%d%%" % roundi(value * 100.0)

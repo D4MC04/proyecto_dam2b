@@ -228,7 +228,7 @@ func _open_confirm(slot: int) -> void:
 	if _busy or _phase != Phase.SLOTS:
 		return
 	_pending_delete = slot
-	confirm_message.text = "Se borrará la partida de la ranura %d.\nNo se puede deshacer." % slot
+	confirm_message.text = tr("START_CONFIRM_DELETE") % slot
 	_phase = Phase.CONFIRM
 	confirm_layer.modulate.a = 0.0
 	confirm_layer.show()

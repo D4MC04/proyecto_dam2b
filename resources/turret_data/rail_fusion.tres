@@ -15,7 +15,7 @@
 script = ExtResource("1")
 shoot_sound = ExtResource("snd")
 charge_sound = ExtResource("chg")
-name = "Rail Gauss"
+name = "TURRET_RAIL_FUSION_NAME"
 cost = 1000
 attack_cooldown = 4.5
 icon = ExtResource("4")
@@ -27,5 +27,5 @@ cannon = ExtResource("7")
 turn_speed = 45.0
 beam = ExtResource("3")
 amp_effect = ExtResource("amp")
-description = "Un haz ancho y larguísimo que barre toda la línea. Fusión de dos Rail."
+description = "TURRET_RAIL_FUSION_DESC"
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

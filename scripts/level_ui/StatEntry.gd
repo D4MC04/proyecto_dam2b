@@ -1,6 +1,7 @@
 extends RefCounted
 class_name StatEntry
 ## Una fila de la ficha: icono de 8x8, nombre corto del stat en mayúsculas y valor ya formateado.
+## El nombre se pasa como clave de traducción (STAT_...) y se traduce aquí.
 
 const ICON_DIR := "res://assets/ui/stat_icons/"
 ## Caracteres de 6 px que caben en el nombre ("OBJETIVOS", "VEL. BALA").
@@ -18,5 +19,5 @@ var value: String
 ## `icon_name` es el nombre del PNG en assets/ui/stat_icons/, sin extensión.
 func _init(icon_name: String, stat_label: String, stat_value: String) -> void:
 	icon = load(ICON_DIR + icon_name + ".png")
-	label = stat_label
+	label = tr(stat_label)
 	value = stat_value

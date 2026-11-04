@@ -11,7 +11,7 @@
 
 [resource]
 script = ExtResource("1")
-name = "Orbitador"
+name = "TURRET_ORBITER_NAME"
 cost = 350
 attack_cooldown = 1.6
 icon = ExtResource("2")
@@ -22,5 +22,5 @@ cannon = ExtResource("4")
 orbit = ExtResource("6")
 fusion = ExtResource("fusion")
 amp_effect = ExtResource("amp")
-description = "Genera cargas de plasma que giran a su alrededor y explotan al chocar. No llega a lo que pasa pegado a ella."
+description = "TURRET_ORBITER_DESC"
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

@@ -14,7 +14,7 @@
 script = ExtResource("1")
 shoot_sound = ExtResource("snd")
 charge_sound = ExtResource("chg")
-name = "Tormenta"
+name = "TURRET_TESLA_FUSION_NAME"
 cost = 700
 attack_cooldown = 1.3
 icon = ExtResource("4")
@@ -23,5 +23,5 @@ attack_range = ExtResource("2")
 cannon = ExtResource("7")
 chain = ExtResource("3")
 amp_effect = ExtResource("amp")
-description = "Una tormenta eléctrica que salta entre hasta seis enemigos. Fusión de dos Tesla."
+description = "TURRET_TESLA_FUSION_DESC"
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

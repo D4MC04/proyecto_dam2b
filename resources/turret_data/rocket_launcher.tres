@@ -13,7 +13,7 @@
 [resource]
 script = ExtResource("5_5io4s")
 shoot_sound = ExtResource("snd")
-name = "Cañón pesado"
+name = "TURRET_ROCKET_LAUNCHER_NAME"
 cost = 300
 attack_cooldown = 1.5
 icon = ExtResource("4_5bwje")
@@ -25,5 +25,5 @@ cannon = ExtResource("3_6k8hc")
 turn_speed = 180.0
 fusion = ExtResource("fusion")
 amp_effect = ExtResource("amp")
-description = "Balas lentas y potentes que hacen mucho daño en cada impacto."
+description = "TURRET_ROCKET_LAUNCHER_DESC"
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

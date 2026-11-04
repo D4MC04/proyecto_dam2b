@@ -13,12 +13,12 @@ const MAJOR_TICK_STEP := 16
 const TICK_LENGTH := 2
 const MAJOR_TICK_LENGTH := 3
 
-## Texto de la cabecera, sin el "// ".
+## Clave de traducción del texto de la cabecera, sin el "// ".
 @export var title := "":
 	set(value):
 		title = value
 		if is_node_ready():
-			title_label.text = TEXT_PREFIX + title
+			_update_title()
 
 ## Tamaño de la fuente (Monogram solo se ve nítida a 16, 32 o 48).
 @export var text_size := 16:
@@ -32,10 +32,17 @@ const MAJOR_TICK_LENGTH := 3
 
 func _ready() -> void:
 	title_label.add_theme_font_size_override("font_size", text_size)
-	title_label.text = TEXT_PREFIX + title
+	_update_title()
 	title_label.add_theme_color_override("font_color", TEXT_COLOR)
 	ruler.custom_minimum_size.y = 1 + MAJOR_TICK_LENGTH
 	ruler.draw.connect(_draw_ruler)
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready():
+		_update_title()
+
+func _update_title() -> void:
+	title_label.text = TEXT_PREFIX + tr(title)
 
 func _draw_ruler() -> void:
 	draw_ruler(ruler, Vector2i.ZERO, int(ruler.size.x), RULER_COLOR)
