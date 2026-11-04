@@ -82,14 +82,14 @@ func _on_stats_button_pressed() -> void:
 	var favorite: String = GameState.favorite_turret()
 	var turret_name := "-"
 	if favorite != "":
-		turret_name = (load(Navedex.TURRET_DIR + favorite + ".tres") as TurretData).name
+		turret_name = (load(Navedex.TURRET_DIR + favorite + ".tres") as TurretData).get_inspect_name()
 	stats_label.text = "
 ".join([
-		"Naves destruidas: %d" % GameState.stats.get("kills", 0),
-		"Dinero gastado: %s" % UiFormat.money(GameState.stats.get("spent", 0)),
-		"Tiempo jugado: %dh %02dm" % [seconds / 3600, seconds % 3600 / 60],
-		"Torreta favorita: %s" % turret_name,
-		"Niveles ganados: %d" % GameState.stats.get("wins", 0),
+		tr("STATS_KILLS") % GameState.stats.get("kills", 0),
+		tr("STATS_SPENT") % UiFormat.money(GameState.stats.get("spent", 0)),
+		tr("STATS_TIME") % [seconds / 3600, seconds % 3600 / 60],
+		tr("STATS_FAVORITE") % turret_name,
+		tr("STATS_WINS") % GameState.stats.get("wins", 0),
 	])
 	_transition(main_panel, stats_panel)
 

@@ -76,8 +76,8 @@ func show_sellable(turret: Turret) -> void:
 	_turret_rows.clear()
 	if turret != null:
 		var entries: Array[StatEntry] = [
-			StatEntry.new("kills", "BAJAS", UiFormat.abbreviate(turret.kills)),
-			StatEntry.new("damage", "HECHO", UiFormat.abbreviate(roundi(turret.damage_dealt))),
+			StatEntry.new("kills", "STAT_KILLS", UiFormat.abbreviate(turret.kills)),
+			StatEntry.new("damage", "STAT_DEALT", UiFormat.abbreviate(roundi(turret.damage_dealt))),
 		]
 		# Lo que gana dentro del aura de un Amplificador.
 		if turret.amp_level > 0:

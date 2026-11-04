@@ -42,13 +42,13 @@ func show_stats(stats: RunStats) -> void:
 		rows.remove_child(row)
 		row.queue_free()
 	var entries: Array[StatEntry] = [
-		StatEntry.new("wave", "OLEADA", "%d/%d" % [stats.wave_reached, stats.wave_total]),
-		StatEntry.new("kills", "BAJAS", UiFormat.abbreviate(stats.enemies_destroyed)),
-		StatEntry.new("cost", "GASTADO", UiFormat.money(stats.money_spent)),
+		StatEntry.new("wave", "STAT_WAVE", "%d/%d" % [stats.wave_reached, stats.wave_total]),
+		StatEntry.new("kills", "STAT_KILLS", UiFormat.abbreviate(stats.enemies_destroyed)),
+		StatEntry.new("cost", "STAT_SPENT", UiFormat.money(stats.money_spent)),
 	]
 	if stats.top_turret_kills > 0:
-		entries.append(StatEntry.new("targets", "TORRETA", stats.top_turret_name.to_upper()))
-		entries.append(StatEntry.new("kills", "SUS BAJAS", UiFormat.abbreviate(stats.top_turret_kills)))
+		entries.append(StatEntry.new("targets", "STAT_TOP_TURRET", tr(stats.top_turret_name).to_upper()))
+		entries.append(StatEntry.new("kills", "STAT_TOP_KILLS", UiFormat.abbreviate(stats.top_turret_kills)))
 	for i in entries.size():
 		rows.add_child(StatRow.create(entries[i], i, ROW_H_MARGIN, ROW_V_MARGIN, ROW_FONT_SIZE, ROW_ICON_BOX, ROW_ICON_TOP, ROW_SEPARATION))
 	_kills_label = StatRow.get_value_label(rows.get_child(1) as PanelContainer)

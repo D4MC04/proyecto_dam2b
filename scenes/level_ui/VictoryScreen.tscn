@@ -12,8 +12,7 @@ accent_light_color = Color(1, 0.8784314, 0.50980395, 1)
 dim_opacity = 0.45
 
 [node name="Title" parent="Center/Frame/Margin/Box" index="0"]
-text = "SECTOR
-ASEGURADO"
+text = "VICTORY_TITLE"
 
 [node name="RunSummary" parent="Center/Frame/Margin/Box" index="1" instance=ExtResource("4_summary")]
 unique_name_in_owner = true
@@ -25,7 +24,7 @@ custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "Siguiente nivel"
+text = "BTN_NEXT_LEVEL"
 script = ExtResource("2_option")
 option = 3
 
@@ -34,6 +33,6 @@ custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "Menú"
+text = "BTN_MENU"
 script = ExtResource("2_option")
 option = 2

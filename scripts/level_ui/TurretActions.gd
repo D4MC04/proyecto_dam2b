@@ -23,7 +23,7 @@ const TURRET_GAP := 22.0
 const BUTTON_H_MARGIN := 8.0
 const BUTTON_V_MARGIN := 3.0
 # Texto del botón mientras espera el segundo clic que confirma la venta.
-const CONFIRM_SELL_TEXT := "¿Seguro?"
+const CONFIRM_SELL_TEXT := "TURRET_SELL_CONFIRM"
 
 @onready var upgrade_button: Button = %UpgradeButton
 @onready var sell_button: Button = %SellButton
@@ -61,9 +61,9 @@ func set_money(amount: int) -> void:
 		_refresh_upgrade()
 
 func _refresh() -> void:
-	sell_button.text = CONFIRM_SELL_TEXT if _confirming_sell else "Vender (+%s)" % UiFormat.money(_turret.get_sell_value())
+	sell_button.text = tr(CONFIRM_SELL_TEXT) if _confirming_sell else tr("TURRET_SELL_VALUE") % UiFormat.money(_turret.get_sell_value())
 	if _turret.data.fusion != null:
-		upgrade_button.text = "Mejorar (-%s)" % UiFormat.money(_turret.data.fusion.cost)
+		upgrade_button.text = tr("TURRET_UPGRADE_COST") % UiFormat.money(_turret.data.fusion.cost)
 	_refresh_upgrade()
 	# El texto cambia el ancho: se encoge al mínimo y se recoloca.
 	reset_size()

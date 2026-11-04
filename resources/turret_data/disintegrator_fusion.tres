@@ -12,7 +12,7 @@
 [resource]
 script = ExtResource("1")
 shoot_sound = ExtResource("snd")
-name = "Aniquilador"
+name = "TURRET_DISINTEGRATOR_FUSION_NAME"
 cost = 900
 attack_cooldown = 1.0
 icon = ExtResource("4")
@@ -23,5 +23,5 @@ cannon = ExtResource("7")
 turn_speed = 140.0
 focus_beam = ExtResource("3")
 amp_effect = ExtResource("amp")
-description = "Haz continuo que alcanza su máxima potencia en la mitad de tiempo. Fusión de dos Disintegrator."
+description = "TURRET_DISINTEGRATOR_FUSION_DESC"
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

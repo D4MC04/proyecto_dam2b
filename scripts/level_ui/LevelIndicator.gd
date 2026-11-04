@@ -11,17 +11,30 @@ const DETECT_MARGIN: float = 4.0
 
 var _is_hidden: bool = false
 var _tween: Tween
+# Último nivel y oleada mostrados, para repintarlos al cambiar de idioma.
+var _level_number := 0
+var _wave := Vector2i.ZERO
 
 func _ready() -> void:
 	modulate.a = NORMAL_ALPHA
 
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_TRANSLATION_CHANGED or not is_node_ready():
+		return
+	if _level_number > 0:
+		set_level_number(_level_number)
+	if _wave.y > 0:
+		set_wave(_wave.x, _wave.y)
+
 # Si number no es válido (nivel fuera de la lista) no se muestra nada.
 func set_level_number(number: int) -> void:
 	visible = number > 0
-	level_label.text = "NIVEL %d" % number if number > 0 else ""
+	_level_number = number
+	level_label.text = tr("HUD_LEVEL_N") % number if number > 0 else ""
 
 func set_wave(number: int, total: int) -> void:
-	wave_label.text = "OLEADA %d/%d" % [number, total]
+	_wave = Vector2i(number, total)
+	wave_label.text = tr("HUD_WAVE_N_OF") % [number, total]
 
 func _process(_delta: float) -> void:
 	if not visible:

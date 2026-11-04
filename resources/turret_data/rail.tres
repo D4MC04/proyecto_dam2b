@@ -16,7 +16,7 @@
 script = ExtResource("1")
 shoot_sound = ExtResource("snd")
 charge_sound = ExtResource("chg")
-name = "Rail"
+name = "TURRET_RAIL_NAME"
 cost = 500
 attack_cooldown = 5.0
 icon = ExtResource("4")
@@ -29,5 +29,5 @@ turn_speed = 45.0
 beam = ExtResource("3")
 fusion = ExtResource("fusion")
 amp_effect = ExtResource("amp")
-description = "Tras cargar, dispara un haz que atraviesa a todos los enemigos de la línea."
+description = "TURRET_RAIL_DESC"
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

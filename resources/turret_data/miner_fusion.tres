@@ -7,12 +7,12 @@
 
 [resource]
 script = ExtResource("1")
-name = "Excavadora"
+name = "TURRET_MINER_FUSION_NAME"
 cost = 600
 attack_cooldown = 5.0
 icon = ExtResource("2")
 sprite_frames = ExtResource("3")
 cannon = ExtResource("4")
 money_amount = 20
-description = "Saca el doble de oro. Mejora del Minero."
+description = "TURRET_MINER_FUSION_DESC"
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

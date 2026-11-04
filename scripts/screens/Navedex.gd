@@ -51,9 +51,9 @@ var _version_index := 0
 
 func _ready() -> void:
 	%VolverButton.pressed.connect(back_pressed.emit)
-	tabs.add_tab("NAVES")
-	tabs.add_tab("TORRETAS")
-	tabs.add_tab("LOGROS")
+	tabs.add_tab(tr("NAVEDEX_SHIPS"))
+	tabs.add_tab(tr("HEADER_TURRETS"))
+	tabs.add_tab(tr("NAVEDEX_ACHIEVEMENTS"))
 	_style_arrow(prev_button)
 	_style_arrow(next_button)
 	prev_button.pressed.connect(_change_version.bind(-1))
@@ -131,7 +131,7 @@ func _show_achievements() -> void:
 	for id: String in GameState.ACHIEVEMENTS:
 		var info: Array = GameState.ACHIEVEMENTS[id]
 		var done: bool = id in GameState.unlocked
-		achievements_list.add_child(_make_achievement_row(id, info[0], info[1], done))
+		achievements_list.add_child(_make_achievement_row(id, tr(info[0]), tr(info[1]), done))
 
 # Fila de un logro: icono a la izquierda y nombre y descripción a la derecha; apagada si falta por conseguir.
 func _make_achievement_row(id: String, title: String, description: String, done: bool) -> HBoxContainer:
@@ -195,7 +195,7 @@ func _show_entry(data: InspectableData) -> void:
 	if turret != null:
 		turret_icon.texture = turret.icon
 		if turret.fusion != null:
-			fusion_label.text = "MEJORA: " + turret.fusion.name.to_upper()
+			fusion_label.text = tr("NAVEDEX_UPGRADE") % turret.fusion.get_inspect_name().to_upper()
 	else:
 		var enemy := data as EnemyData
 		sprite.sprite_frames = enemy.sprite_frames

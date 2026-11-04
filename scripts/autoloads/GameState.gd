@@ -11,20 +11,20 @@ signal progress_reset
 
 const MENU_THEME: Theme = preload("res://assets/ui/menu_theme.tres")
 const TOAST_TIME := 3.0
-# Logros por orden: id -> [nombre, descripción]. Cómo se cumple cada uno está en _is_done().
+# Logros por orden: id -> [clave del nombre, clave de la descripción]. Cómo se cumple cada uno está en _is_done().
 const ACHIEVEMENTS: Dictionary = {
-	"first_win": ["Primera victoria", "Gana un nivel"],
-	"flawless": ["Intacto", "Gana un nivel sin perder vida"],
-	"wins_5": ["Veterano", "Gana 5 niveles"],
-	"all_levels": ["Sector despejado", "Gana el último nivel"],
-	"kills_100": ["Cazador", "Destruye 100 naves"],
-	"kills_1000": ["Exterminador", "Destruye 1000 naves"],
-	"seen_10": ["Observador", "Descubre 10 tipos de nave"],
-	"turrets_50": ["Constructor", "Construye 50 torretas"],
-	"fuse_first": ["Primera mejora", "Mejora una torreta"],
-	"fuse_all": ["Maestro de mejoras", "Mejora todas las torretas"],
-	"power_first": ["Poder desatado", "Usa un poder"],
-	"perfect_10": ["Defensa perfecta", "Logra 10 oleadas perfectas"],
+	"first_win": ["ACH_FIRST_WIN_NAME", "ACH_FIRST_WIN_DESC"],
+	"flawless": ["ACH_FLAWLESS_NAME", "ACH_FLAWLESS_DESC"],
+	"wins_5": ["ACH_WINS_5_NAME", "ACH_WINS_5_DESC"],
+	"all_levels": ["ACH_ALL_LEVELS_NAME", "ACH_ALL_LEVELS_DESC"],
+	"kills_100": ["ACH_KILLS_100_NAME", "ACH_KILLS_100_DESC"],
+	"kills_1000": ["ACH_KILLS_1000_NAME", "ACH_KILLS_1000_DESC"],
+	"seen_10": ["ACH_SEEN_10_NAME", "ACH_SEEN_10_DESC"],
+	"turrets_50": ["ACH_TURRETS_50_NAME", "ACH_TURRETS_50_DESC"],
+	"fuse_first": ["ACH_FUSE_FIRST_NAME", "ACH_FUSE_FIRST_DESC"],
+	"fuse_all": ["ACH_FUSE_ALL_NAME", "ACH_FUSE_ALL_DESC"],
+	"power_first": ["ACH_POWER_FIRST_NAME", "ACH_POWER_FIRST_DESC"],
+	"perfect_10": ["ACH_PERFECT_10_NAME", "ACH_PERFECT_10_DESC"],
 }
 
 # Número (desde 1) del nivel más alto desbloqueado.
@@ -233,7 +233,7 @@ func _make_toast_layer() -> void:
 # Aviso pequeño arriba a la derecha que se desvanece solo.
 func _show_toast(title: String) -> void:
 	var label := Label.new()
-	label.text = "LOGRO: " + title
+	label.text = tr("ACHIEVEMENT_TOAST") % tr(title)
 	label.add_theme_font_size_override("font_size", 24)
 	label.add_theme_color_override("font_color", Color("40e0f0"))
 	label.add_theme_color_override("font_outline_color", Color.BLACK)

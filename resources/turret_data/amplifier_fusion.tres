@@ -8,12 +8,12 @@
 
 [resource]
 script = ExtResource("1")
-name = "Amplificador mayor"
+name = "TURRET_AMPLIFIER_FUSION_NAME"
 cost = 800
 icon = ExtResource("2")
 sprite_frames = ExtResource("3")
 attack_range = ExtResource("5")
 cannon = ExtResource("4")
 amplifier_level = 2
-description = "Las torretas de alrededor mejoran aún más. Mejora del Amplificador."
+description = "TURRET_AMPLIFIER_FUSION_DESC"
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

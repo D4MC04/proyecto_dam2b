@@ -20,7 +20,7 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
 theme_override_font_sizes/font_size = 32
-text = "NIVEL"
+text = "HUD_LEVEL"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -30,6 +30,6 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
 theme_override_font_sizes/font_size = 16
-text = "OLEADA"
+text = "HUD_WAVE"
 horizontal_alignment = 1
 vertical_alignment = 1

@@ -35,7 +35,7 @@ func _ready() -> void:
 
 ## Enseña el aviso de la oleada number (de 1 a total).
 func show_wave(number: int, total: int) -> void:
-	_title.text = "ÚLTIMA OLEADA" if number == total else "OLEADA %d" % number
+	_title.text = tr("HUD_WAVE_LAST") if number == total else tr("HUD_WAVE_N") % number
 	_subtitle.text = "%d / %d" % [number, total]
 	if _tween != null:
 		_tween.kill()

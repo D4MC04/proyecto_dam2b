@@ -8,7 +8,7 @@
 
 [resource]
 script = ExtResource("1")
-name = "Minero"
+name = "TURRET_MINER_NAME"
 cost = 300
 attack_cooldown = 5.0
 icon = ExtResource("2")
@@ -16,5 +16,5 @@ sprite_frames = ExtResource("3")
 cannon = ExtResource("4")
 money_amount = 10
 fusion = ExtResource("fusion")
-description = "No dispara: durante las oleadas perfora asteroides y saca oro."
+description = "TURRET_MINER_DESC"
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

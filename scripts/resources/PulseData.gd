@@ -21,7 +21,7 @@ class_name PulseData
 ## Filas de la ficha propias de la onda. La ralentización es cuánto baja la velocidad (0.55 = -45%).
 func get_stats() -> Array[StatEntry]:
 	return [
-		StatEntry.new("damage", "DAÑO", UiFormat.number(damage)),
-		StatEntry.new("slow", "FRENADO", "-%d%%" % roundi((1.0 - slow_factor) * 100.0)),
-		StatEntry.new("duration", "DURACIÓN", UiFormat.seconds(slow_time)),
+		StatEntry.new("damage", "STAT_DAMAGE", UiFormat.number(damage)),
+		StatEntry.new("slow", "STAT_SLOW", "-%d%%" % roundi((1.0 - slow_factor) * 100.0)),
+		StatEntry.new("duration", "STAT_DURATION", UiFormat.seconds(slow_time)),
 	]

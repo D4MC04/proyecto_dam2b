@@ -23,7 +23,7 @@ theme_override_constants/separation = 4
 
 [node name="TitleHeader" parent="Content" instance=ExtResource("6_header")]
 layout_mode = 2
-title = "ANÁLISIS"
+title = "HEADER_ANALYSIS"
 
 [node name="Screen" type="PanelContainer" parent="Content"]
 layout_mode = 2
@@ -49,7 +49,7 @@ script = ExtResource("5_scanner")
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9254902, 0.6980392, 0.23529412, 1)
 theme_override_font_sizes/font_size = 16
-text = "SIN OBJETIVO"
+text = "INFO_NO_TARGET"
 horizontal_alignment = 1
 autowrap_mode = 2
 
@@ -57,7 +57,7 @@ autowrap_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.49803922, 0.6509804, 0.72156864, 1)
 theme_override_font_sizes/font_size = 16
-text = "Clic derecho para analizar"
+text = "INFO_HINT"
 horizontal_alignment = 1
 autowrap_mode = 2
 
@@ -156,7 +156,7 @@ color = Color(0.2509804, 0.8784314, 0.9411765, 0.2)
 
 [node name="PowersHeader" parent="Content" instance=ExtResource("6_header")]
 layout_mode = 2
-title = "PODERES"
+title = "HEADER_POWERS"
 
 [node name="PowersRow" type="HBoxContainer" parent="Content"]
 layout_mode = 2

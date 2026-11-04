@@ -19,6 +19,9 @@ const LEGACY_KEYS: Dictionary[StringName, StringName] = {
 	&"show_turret_range": &"show_tower_range",
 }
 
+# Idiomas con traducción en translations/textos.csv, en el orden en que los recorre Opciones.
+const LANGUAGES: PackedStringArray = ["es", "en"]
+
 # Valores por defecto; los volúmenes son lineales, de 0 a 1.
 var _values: Dictionary[StringName, Variant] = {
 	&"master_volume": 1.0,
@@ -29,6 +32,8 @@ var _values: Dictionary[StringName, Variant] = {
 	&"vsync": true,
 	&"show_fps": false,
 	&"show_turret_range": false,
+	# Código del idioma de los textos (uno de LANGUAGES).
+	&"language": "es",
 	&"pause_on_focus_loss": true,
 }
 
@@ -68,6 +73,9 @@ func _apply(key: StringName) -> void:
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if value else DisplayServer.WINDOW_MODE_WINDOWED)
 		&"vsync":
 			DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED if value else DisplayServer.VSYNC_DISABLED)
+		&"language":
+			# Un idioma desconocido (archivo editado a mano) vuelve al español.
+			TranslationServer.set_locale(value if value in LANGUAGES else LANGUAGES[0])
 
 func _save() -> void:
 	var file := ConfigFile.new()

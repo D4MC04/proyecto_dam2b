@@ -21,6 +21,7 @@ var _tween: Tween
 	&"show_turret_range": %TurretRangeButton,
 	&"pause_on_focus_loss": %FocusPauseButton,
 }
+@onready var _language_button: Button = %LanguageButton
 
 func _ready() -> void:
 	for key in _sliders:
@@ -34,9 +35,21 @@ func _ready() -> void:
 		button.toggled.connect(func(on: bool) -> void:
 			Settings.set_value(key, on)
 			_update_toggle_text(button))
+	_update_language_text()
+	_language_button.pressed.connect(_on_language_button_pressed)
 
 func _update_toggle_text(button: Button) -> void:
 	button.text = "ON" if button.button_pressed else "OFF"
+
+# Pasa al siguiente idioma de Settings.LANGUAGES; los textos con clave se traducen solos.
+func _on_language_button_pressed() -> void:
+	var languages := Settings.LANGUAGES
+	var index := languages.find(Settings.get_value(&"language"))
+	Settings.set_value(&"language", languages[(index + 1) % languages.size()])
+	_update_language_text()
+
+func _update_language_text() -> void:
+	_language_button.text = String(Settings.get_value(&"language")).to_upper()
 
 func open_from(opener: Control) -> void:
 	_opener = opener
