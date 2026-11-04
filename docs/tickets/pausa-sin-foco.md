@@ -2,7 +2,7 @@
 
 Creador: Renzo
 Responsable: Renzo
-Estado: propuesta
+Estado: aceptada
 Prioridad: alta
 Modelo recomendado: haiku
 Esfuerzo recomendado: low
