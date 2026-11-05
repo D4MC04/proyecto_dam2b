@@ -34,9 +34,9 @@ func _process(delta: float) -> void:
 		wait = rng.randf_range(3.0, 7.0)
 		if asteroids.size() < MAX_ACTIVE:
 			_spawn()
-	for a in asteroids:
+	for a: Dictionary in asteroids:
 		a["node"].position += a["dir"] * SPEED * delta
-	for a in asteroids.filter(_is_outside):
+	for a: Dictionary in asteroids.filter(_is_outside):
 		a["node"].queue_free()
 	asteroids.assign(asteroids.filter(func(a: Dictionary) -> bool: return not _is_outside(a)))
 	queue_redraw()
@@ -71,7 +71,7 @@ func _spawn() -> void:
 
 func _draw() -> void:
 	# El padre se dibuja antes que sus hijos, así la estela queda detrás del asteroide
-	for a in asteroids:
+	for a: Dictionary in asteroids:
 		var head: Vector2 = a["node"].position
 		var tail: Vector2 = head - a["dir"] * TAIL_LENGTH
 		draw_polyline_colors(PackedVector2Array([tail, head]), PackedColorArray([Color(TAIL_COLOR, 0.0), Color(TAIL_COLOR, 0.5)]), TAIL_WIDTH)

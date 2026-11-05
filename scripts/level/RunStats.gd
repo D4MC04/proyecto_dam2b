@@ -8,8 +8,8 @@ var wave_total: int
 var enemies_destroyed: int
 var money_spent: int
 ## Torreta con más bajas (vacío si ninguna ha matado).
-var top_turret_name := ""
-var top_turret_kills := 0
+var top_turret_name: String = ""
+var top_turret_kills: int = 0
 
 func _init(reached: int, total: int, destroyed: int, spent: int) -> void:
 	wave_reached = reached

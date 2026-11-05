@@ -4,25 +4,25 @@ class_name AmpAura
 # anillo de ámbar en píxeles que crece hasta el radio del aura y se apaga. Al pasar por una torreta
 # amplificada la hace brillar (Turret.flash_amp). Mientras un EMP apaga la torreta no salen ondas.
 
-const WAVE_INTERVAL := 2.5
-const WAVE_TIME := 1.1
+const WAVE_INTERVAL: float = 2.5
+const WAVE_TIME: float = 1.1
 # Radio con el que nace la onda (el borde del emisor).
-const START_RADIUS := 10.0
+const START_RADIUS: float = 10.0
 # Frente de la onda y dos ecos por detrás, cada uno ECHO_GAP px más adentro y más tenue.
-const FRONT_COLOR := Color("#ffe082")
+const FRONT_COLOR: Color = Color("#ffe082")
 const ECHO_COLORS: PackedColorArray = [Color("#ecb23c"), Color("#96641e")]
-const ECHO_GAP := 2.0
+const ECHO_GAP: float = 2.0
 const ECHO_ALPHA: PackedFloat32Array = [0.6, 0.3]
 # Alcance pintado al pasar el ratón o seleccionar el Amplificador (y en la vista previa).
-const FILL_COLOR := Color(0.93, 0.7, 0.24, 0.06)
-const BORDER_COLOR := Color("#ecb23c")
+const FILL_COLOR: Color = Color(0.93, 0.7, 0.24, 0.06)
+const BORDER_COLOR: Color = Color("#ecb23c")
 # La primera onda sale poco después de colocarlo.
-const FIRST_WAVE_DELAY := 0.4
+const FIRST_WAVE_DELAY: float = 0.4
 
 var _turret: Turret
 # Segundos de la onda en curso; < 0 = no hay onda.
-var _age := -1.0
-var _wait := FIRST_WAVE_DELAY
+var _age: float = -1.0
+var _wait: float = FIRST_WAVE_DELAY
 # Torretas que ya han brillado con la onda en curso.
 var _flashed: Array[Turret] = []
 
@@ -54,17 +54,17 @@ func _process(delta: float) -> void:
 
 # Crece rápido al principio y frena al llegar al borde del aura.
 func _radius() -> float:
-	var t := _age / WAVE_TIME
+	var t: float = _age / WAVE_TIME
 	return lerpf(START_RADIUS, _aura_radius(), 1.0 - (1.0 - t) * (1.0 - t))
 
 func _aura_radius() -> float:
-	var circle := _turret.data.attack_range as CircleShape2D
+	var circle: CircleShape2D = _turret.data.attack_range as CircleShape2D
 	return circle.radius if circle else 0.0
 
 func _flash_reached() -> void:
-	var radius := _radius()
-	for node in get_tree().get_nodes_in_group(&"turrets"):
-		var turret := node as Turret
+	var radius: float = _radius()
+	for node: Node in get_tree().get_nodes_in_group(&"turrets"):
+		var turret: Turret = node as Turret
 		if turret == null or turret == _turret or turret.amp_level == 0 or turret in _flashed:
 			continue
 		if turret.global_position.distance_to(global_position) <= radius:
@@ -74,13 +74,13 @@ func _flash_reached() -> void:
 func _draw() -> void:
 	if _age < 0.0:
 		return
-	var t := _age / WAVE_TIME
+	var t: float = _age / WAVE_TIME
 	# Se apaga más deprisa al final.
-	var alpha := 1.0 - t * t
-	var radius := _radius()
+	var alpha: float = 1.0 - t * t
+	var radius: float = _radius()
 	_draw_ring(radius, Color(FRONT_COLOR, alpha))
-	for i in ECHO_COLORS.size():
-		var echo_radius := radius - ECHO_GAP * (i + 1)
+	for i: int in ECHO_COLORS.size():
+		var echo_radius: float = radius - ECHO_GAP * (i + 1)
 		if echo_radius > START_RADIUS:
 			_draw_ring(echo_radius, Color(ECHO_COLORS[i], alpha * ECHO_ALPHA[i]))
 
@@ -91,7 +91,7 @@ func _draw_ring(radius: float, color: Color) -> void:
 ## Pinta en "canvas" (dentro de su _draw) el alcance del aura en ámbar, con el estilo del alcance de
 ## las demás torretas. Lo usan el Amplificador al pasar el ratón o seleccionarlo y la vista previa.
 static func draw_circle_aura(canvas: CanvasItem, shape: Shape2D) -> void:
-	var circle := shape as CircleShape2D
+	var circle: CircleShape2D = shape as CircleShape2D
 	if circle == null:
 		return
 	canvas.draw_circle(Vector2.ZERO, circle.radius, FILL_COLOR)

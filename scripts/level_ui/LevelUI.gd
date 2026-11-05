@@ -10,19 +10,19 @@ signal action_requested(action: Action)
 
 # Cámara lenta de la derrota, en segundos de tiempo real: el juego se frena hasta
 # SLOW_MOTION_MIN_SCALE en SLOW_MOTION_RAMP_TIME, se queda ahí SLOW_MOTION_HOLD_TIME y se pausa.
-const SLOW_MOTION_MIN_SCALE := 0.2
-const SLOW_MOTION_RAMP_TIME := 1.1
-const SLOW_MOTION_HOLD_TIME := 0.2
+const SLOW_MOTION_MIN_SCALE: float = 0.2
+const SLOW_MOTION_RAMP_TIME: float = 1.1
+const SLOW_MOTION_HOLD_TIME: float = 0.2
 # Respiro de la victoria, en segundos de tiempo real: el juego sigue a velocidad normal (se ve
 # explotar al último enemigo) antes de pausarse y enseñar la pantalla.
-const VICTORY_BREATH_TIME := 0.6
+const VICTORY_BREATH_TIME: float = 0.6
 # Valor de Engine.time_scale con el botón ×2 activo.
-const FAST_SPEED := 2.0
+const FAST_SPEED: float = 2.0
 # Viñeta roja de vida baja: se enciende por debajo de esta fracción y late entre estas intensidades.
-const LOW_HEALTH_FRACTION := 0.25
-const VIGNETTE_MIN_INTENSITY := 0.25
-const VIGNETTE_MAX_INTENSITY := 0.8
-const VIGNETTE_PULSE_TIME := 0.5
+const LOW_HEALTH_FRACTION: float = 0.25
+const VIGNETTE_MIN_INTENSITY: float = 0.25
+const VIGNETTE_MAX_INTENSITY: float = 0.8
+const VIGNETTE_PULSE_TIME: float = 0.5
 # Acción del tutorial que corresponde a cada poder.
 const POWER_ACTIONS: Dictionary[Powers.Power, TutorialHints.Action] = {
 	Powers.Power.METEOR: TutorialHints.Action.POWER_METEOR,
@@ -56,7 +56,7 @@ var _powers: Powers
 # Secuencia en curso antes de enseñar la pantalla (cámara lenta de LOST o respiro de WON); null si no hay.
 var _screen_delay: Tween
 # Velocidad ×2 elegida con el botón; vuelve a false al perder, ganar, reiniciar o salir.
-var _fast_speed := false
+var _fast_speed: bool = false
 # Latido de la viñeta; null si está apagada.
 var _vignette_pulse: Tween
 
@@ -149,7 +149,7 @@ func _set_vignette(active: bool) -> void:
 		_vignette_pulse.kill()
 		_vignette_pulse = null
 		return
-	var material := low_health_vignette.material as ShaderMaterial
+	var material: ShaderMaterial = low_health_vignette.material as ShaderMaterial
 	_vignette_pulse = create_tween().set_loops().set_ignore_time_scale().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	_vignette_pulse.tween_method(func(value: float) -> void: material.set_shader_parameter(&"intensity", value),
 			VIGNETTE_MIN_INTENSITY, VIGNETTE_MAX_INTENSITY, VIGNETTE_PULSE_TIME).set_trans(Tween.TRANS_SINE)
@@ -165,10 +165,10 @@ func _use_power(power: Powers.Power) -> void:
 # los botones actúan al soltar el clic y necesitan la torreta (Mejorar la suelta después, y al vender
 # desaparece). Los clics sobre el mapa no pasan por aquí (los atiende BuildManager).
 func _input(event: InputEvent) -> void:
-	var click := event as InputEventMouseButton
+	var click: InputEventMouseButton = event as InputEventMouseButton
 	if click == null or not click.pressed or not is_instance_valid(_level_state):
 		return
-	var hovered := get_viewport().gui_get_hovered_control()
+	var hovered: Control = get_viewport().gui_get_hovered_control()
 	if hovered != null and hovered != turret_actions and not turret_actions.is_ancestor_of(hovered):
 		_level_state.set_deferred("sellable_turret", null)
 
@@ -201,7 +201,7 @@ func _on_upgrade_requested() -> void:
 # Cambia el Spawner que sigue la pestaña Oleadas, desconectando el anterior.
 func _connect_spawner(spawner: Spawner) -> void:
 	if is_instance_valid(_spawner):
-		for connection in _spawner_connections(_spawner):
+		for connection: Array in _spawner_connections(_spawner):
 			if connection[0].is_connected(connection[1]):
 				connection[0].disconnect(connection[1])
 	_spawner = spawner
@@ -209,7 +209,7 @@ func _connect_spawner(spawner: Spawner) -> void:
 	sidebar.set_current_wave(spawner.get_wave_index())
 	sidebar.show_auto_waves(spawner.auto_waves)
 	_refresh_wave_controls()
-	for connection in _spawner_connections(spawner):
+	for connection: Array in _spawner_connections(spawner):
 		connection[0].connect(connection[1])
 
 func _spawner_connections(spawner: Spawner) -> Array[Array]:
@@ -236,8 +236,8 @@ func _on_wave_cleared(index: int) -> void:
 func _refresh_wave_controls() -> void:
 	# Antes de la primera oleada el botón parpadea para invitar a empezar.
 	sidebar.set_next_wave_available(_spawner.can_start_next_wave(), _spawner.get_wave_index() < 0)
-	var index := _spawner.get_wave_index()
-	var total := _spawner.waves.size()
+	var index: int = _spawner.get_wave_index()
+	var total: int = _spawner.waves.size()
 	if not _spawner.is_clear():
 		sidebar.set_wave_status(Sidebar.WaveStatus.IN_PROGRESS, index + 1, total)
 		level_indicator.set_wave(index + 1, total)
@@ -350,7 +350,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 # Atajos de teclado: pasan por los mismos botones que el ratón. Solo se llaman jugando.
 func _handle_shortcut(event: InputEvent) -> bool:
-	for i in Sidebar.TURRET_SHORTCUT_COUNT:
+	for i: int in Sidebar.TURRET_SHORTCUT_COUNT:
 		if event.is_action_pressed("select_turret_%d" % (i + 1)):
 			sidebar.press_turret_button(i)
 			return true

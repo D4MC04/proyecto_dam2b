@@ -1,8 +1,8 @@
 extends Node
 class_name Game
 
-const ENTER_FADE_TIME := 0.2
-const MAIN_MENU_PATH := "res://scenes/MainMenu.tscn"
+const ENTER_FADE_TIME: float = 0.2
+const MAIN_MENU_PATH: String = "res://scenes/MainMenu.tscn"
 
 @export var level_data: LevelData
 var from_hyperspace: bool = false
@@ -47,7 +47,7 @@ func _fade_white(from_alpha: float, to_alpha: float, layer: CanvasLayer = null) 
 	else:
 		white = layer.get_child(0)
 	white.color = Color(1, 1, 1, from_alpha)
-	var tween := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	var tween: Tween = create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tween.tween_property(white, "color:a", to_alpha, ENTER_FADE_TIME)
 	await tween.finished
 	if to_alpha == 0.0:
@@ -104,8 +104,8 @@ func _restart_level() -> void:
 	if _transitioning:
 		return
 	_transitioning = true
-	var layer := await _fade_white(0.0, 1.0)
-	var index := level.get_index()
+	var layer: CanvasLayer = await _fade_white(0.0, 1.0)
+	var index: int = level.get_index()
 	remove_child(level)
 	level.queue_free()
 	level = _level_scene.instantiate()
@@ -118,8 +118,8 @@ func _restart_level() -> void:
 func _quit_to_menu() -> void:
 	var menu: Node = load(MAIN_MENU_PATH).instantiate()
 	menu.start_on_level_selection = true
-	var tree := get_tree()
-	var old_scene := tree.current_scene
+	var tree: SceneTree = get_tree()
+	var old_scene: Node = tree.current_scene
 	tree.root.add_child(menu)
 	tree.current_scene = menu
 	old_scene.queue_free()

@@ -24,7 +24,7 @@ enum Kind {
 }
 
 # El frenado amplificado nunca deja a un enemigo por debajo de esta parte de su velocidad.
-const MIN_SLOW_FACTOR := 0.25
+const MIN_SLOW_FACTOR: float = 0.25
 
 @export var kind: Kind
 @export var normal: float
@@ -36,7 +36,7 @@ func get_value(level: int) -> float:
 
 ## Fila de la ficha de una torreta amplificada: nombre del stat que mejora y cuánto.
 func get_stat(level: int) -> StatEntry:
-	var value := get_value(level)
+	var value: float = get_value(level)
 	match kind:
 		Kind.RANGE:
 			return StatEntry.new("amp", "STAT_RANGE", _percent(value))

@@ -41,16 +41,16 @@ const NEXT_AFTER_OK: Dictionary[Step, Step] = {
 	Step.POWERS_INFO: Step.POWERS,
 }
 # Torretas que hay que colocar para pasar del paso de colocar.
-const TURRETS_TO_PLACE := 3
+const TURRETS_TO_PLACE: int = 3
 # Segundos por carácter del texto que va apareciendo, como si hablara.
-const TYPE_TIME_PER_CHAR := 0.02
+const TYPE_TIME_PER_CHAR: float = 0.02
 # El último mensaje se cierra solo tras estos segundos.
-const DONE_HIDE_TIME := 4.0
-const HIGHLIGHT_COLOR := Color("#ecb23c")
+const DONE_HIDE_TIME: float = 4.0
+const HIGHLIGHT_COLOR: Color = Color("#ecb23c")
 # Medio ciclo del parpadeo del borde, en segundos.
-const HIGHLIGHT_BLINK_TIME := 0.4
+const HIGHLIGHT_BLINK_TIME: float = 0.4
 # Separación del borde respecto al control señalado.
-const HIGHLIGHT_GROW := 2
+const HIGHLIGHT_GROW: int = 2
 
 @onready var box: Control = %Box
 @onready var message_label: Label = %MessageLabel
@@ -60,11 +60,11 @@ const HIGHLIGHT_GROW := 2
 var sidebar: Sidebar
 var info_panel: InfoPanel
 
-var _step := Step.DONE
-var _active := false
+var _step: TutorialHints.Step = Step.DONE
+var _active: bool = false
 var _typing: Tween
-var _blink_time := 0.0
-var _placed_count := 0
+var _blink_time: float = 0.0
+var _placed_count: int = 0
 
 func _ready() -> void:
 	ok_button.pressed.connect(_on_ok_pressed)
@@ -105,7 +105,7 @@ func _show_step(step: Step) -> void:
 	box.visible = true
 	ok_button.visible = step in INFO_STEPS
 	if TEXTS.has(step):
-		var message := tr(TEXTS[step])
+		var message: String = tr(TEXTS[step])
 		message_label.text = message
 		message_label.visible_ratio = 0.0
 		if _typing:
@@ -177,8 +177,8 @@ func _highlight_target() -> Control:
 func _draw() -> void:
 	if not _active or not box.visible or fmod(_blink_time, HIGHLIGHT_BLINK_TIME * 2.0) >= HIGHLIGHT_BLINK_TIME:
 		return
-	var target := _highlight_target()
+	var target: Control = _highlight_target()
 	if target == null:
 		return
-	var rect := Rect2(target.global_position - global_position, target.size).grow(HIGHLIGHT_GROW)
+	var rect: Rect2 = Rect2(target.global_position - global_position, target.size).grow(HIGHLIGHT_GROW)
 	draw_rect(rect, HIGHLIGHT_COLOR, false, 1.0)

@@ -7,13 +7,13 @@ class_name FocusBeam
 var _turret: Turret
 var _data: FocusBeamData
 var _locked: Enemy
-var _lock_time := 0.0
-var _time := 0.0
+var _lock_time: float = 0.0
+var _time: float = 0.0
 # Nivel actual; -1 = sin disparar.
-var _level := -1
-var _line := Line2D.new()
-var _muzzle := AnimatedSprite2D.new()
-var _impact := AnimatedSprite2D.new()
+var _level: int = -1
+var _line: Line2D = Line2D.new()
+var _muzzle: AnimatedSprite2D = AnimatedSprite2D.new()
+var _impact: AnimatedSprite2D = AnimatedSprite2D.new()
 
 func _ready() -> void:
 	_turret = get_parent()
@@ -32,12 +32,12 @@ func _ready() -> void:
 	_turret.cannon.play(&"default")
 
 func _process(delta: float) -> void:
-	var target := _turret._get_target()
+	var target: Enemy = _turret._get_target()
 	if target != _locked:
 		_untint()
 		_locked = target
 		_lock_time = 0.0
-	var firing := target != null and not _turret.disabled and _turret._is_aimed(target)
+	var firing: bool = target != null and not _turret.disabled and _turret._is_aimed(target)
 	_show(firing)
 	# El sonido dura lo que el haz: se repite si termina antes y para al cortarse.
 	if firing and not _turret._shoot_player.playing:
@@ -49,11 +49,11 @@ func _process(delta: float) -> void:
 		_set_level(-1)
 		return
 	# Amplificada sube de nivel más rápido.
-	var level_time := _data.level_time / _turret.amp_value(AmpEffect.Kind.LEVEL_TIME, 1.0)
+	var level_time: float = _data.level_time / _turret.amp_value(AmpEffect.Kind.LEVEL_TIME, 1.0)
 	_set_level(mini(int(_lock_time / level_time), _data.damage_per_second.size() - 1))
 	_lock_time += delta
 	_time += delta
-	var from := _turret.data.muzzle_offset.rotated(_turret.cannon.rotation)
+	var from: Vector2 = _turret.data.muzzle_offset.rotated(_turret.cannon.rotation)
 	_muzzle.position = from
 	_line.set_point_position(0, from)
 	_line.set_point_position(1, to_local(target.global_position))

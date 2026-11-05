@@ -1,14 +1,14 @@
 extends Sprite2D
 ## Cometa decorativo del fondo: cruza el área de juego de vez en cuando.
 
-@export var speed := Vector2(150, 22)
-@export var wait_min := 6.0
-@export var wait_max := 15.0
+@export var speed: Vector2 = Vector2(150, 22)
+@export var wait_min: float = 6.0
+@export var wait_max: float = 15.0
 # Ancho del área que cruza y altura máxima a la que puede aparecer.
-@export var width := 704.0
-@export var height := 270.0
+@export var width: float = 704.0
+@export var height: float = 270.0
 
-var _flying := false
+var _flying: bool = false
 
 
 func _ready() -> void:

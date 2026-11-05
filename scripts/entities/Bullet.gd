@@ -26,7 +26,7 @@ func setup(bullet_data: BulletData, new_target: Enemy) -> void:
 		# Solo el sprite: la colisión no crece con el efecto visual.
 		sprite.scale = Vector2.ONE * data.sprite_scale
 	else:
-		var frame_width := sprite.sprite_frames.get_frame_texture(sprite.animation, 0).get_width()
+		var frame_width: int = sprite.sprite_frames.get_frame_texture(sprite.animation, 0).get_width()
 		scale = Vector2.ONE * (8.0 / frame_width)
 	sprite.rotation_degrees = data.rotation_offset
 	if data.trail_frames:
@@ -35,11 +35,11 @@ func setup(bullet_data: BulletData, new_target: Enemy) -> void:
 
 # Estela pegada a la cola de la bala; como hija del sprite hereda su giro y su escala.
 func _add_trail() -> void:
-	var trail := AnimatedSprite2D.new()
+	var trail: AnimatedSprite2D = AnimatedSprite2D.new()
 	trail.sprite_frames = data.trail_frames
 	trail.show_behind_parent = true
-	var back := Vector2.LEFT.rotated(-sprite.rotation)
-	var sizes := sprite.sprite_frames.get_frame_texture(sprite.animation, 0).get_size() \
+	var back: Vector2 = Vector2.LEFT.rotated(-sprite.rotation)
+	var sizes: Vector2 = sprite.sprite_frames.get_frame_texture(sprite.animation, 0).get_size() \
 			+ data.trail_frames.get_frame_texture(&"default", 0).get_size()
 	trail.position = back * absf(back.dot(sizes)) / 2
 	sprite.add_child(trail)
@@ -56,7 +56,7 @@ func _process(delta: float) -> void:
 
 # El sonido va en un nodo aparte porque la bala se libera al impactar.
 func _play_hit_sound() -> void:
-	var player := AudioStreamPlayer2D.new()
+	var player: AudioStreamPlayer2D = AudioStreamPlayer2D.new()
 	player.stream = data.hit_sound
 	player.bus = &"SFX"
 	player.finished.connect(player.queue_free)
@@ -65,17 +65,17 @@ func _play_hit_sound() -> void:
 	player.play()
 
 func _on_area_entered(area: Area2D) -> void:
-	var enemy := area.get_parent()
+	var enemy: Node = area.get_parent()
 	if enemy is Enemy and not _hit.has(enemy):
 		_hit.append(enemy)
 		# Con la torreta amplificada la explosión es más grande (y su impacto también).
-		var splash_scale := 1.0
+		var splash_scale: float = 1.0
 		if is_instance_valid(source):
 			splash_scale += source.amp_value(AmpEffect.Kind.SPLASH)
 		if data.splash_radius > 0:
 			# Daño en área: todos los enemigos cerca del impacto, incluido el golpeado.
-			for node in get_tree().get_nodes_in_group(&"enemies"):
-				var other := node as Enemy
+			for node: Node in get_tree().get_nodes_in_group(&"enemies"):
+				var other: Enemy = node as Enemy
 				if other != null and other.global_position.distance_to(global_position) <= data.splash_radius * splash_scale:
 					other.take_damage(data.damage, source)
 		else:

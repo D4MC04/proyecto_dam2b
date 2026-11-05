@@ -4,24 +4,24 @@ class_name ScreenHeader
 ## Cabecera de la pantalla de las barras: "// TEXTO" en cian y debajo una regla de marcas
 ## (línea de 1 px con marcas cortas cada 4 px y largas cada 16), pintada en píxeles enteros.
 
-const TEXT_PREFIX := "// "
-const TEXT_COLOR := Color("#40e0f0")
-const RULER_COLOR := Color("#1c7496")
-const TICK_STEP := 4
-const MAJOR_TICK_STEP := 16
+const TEXT_PREFIX: String = "// "
+const TEXT_COLOR: Color = Color("#40e0f0")
+const RULER_COLOR: Color = Color("#1c7496")
+const TICK_STEP: int = 4
+const MAJOR_TICK_STEP: int = 16
 # Largo de las marcas por debajo de la línea.
-const TICK_LENGTH := 2
-const MAJOR_TICK_LENGTH := 3
+const TICK_LENGTH: int = 2
+const MAJOR_TICK_LENGTH: int = 3
 
 ## Clave de traducción del texto de la cabecera, sin el "// ".
-@export var title := "":
+@export var title: String = "":
 	set(value):
 		title = value
 		if is_node_ready():
 			_update_title()
 
 ## Tamaño de la fuente (Monogram solo se ve nítida a 16, 32 o 48).
-@export var text_size := 16:
+@export var text_size: int = 16:
 	set(value):
 		text_size = value
 		if is_node_ready():
@@ -51,6 +51,6 @@ func _draw_ruler() -> void:
 ## Mide 1 + MAJOR_TICK_LENGTH px de alto. También la usa el panel holograma (OverlayFrame).
 static func draw_ruler(item: CanvasItem, origin: Vector2i, width: int, color: Color) -> void:
 	item.draw_rect(Rect2(origin.x, origin.y, width, 1), color)
-	for x in range(0, width, TICK_STEP):
-		var length := MAJOR_TICK_LENGTH if x % MAJOR_TICK_STEP == 0 else TICK_LENGTH
+	for x: int in range(0, width, TICK_STEP):
+		var length: int = MAJOR_TICK_LENGTH if x % MAJOR_TICK_STEP == 0 else TICK_LENGTH
 		item.draw_rect(Rect2(origin.x + x, origin.y + 1, 1, length), color)

@@ -12,8 +12,8 @@ const DETECT_MARGIN: float = 4.0
 var _is_hidden: bool = false
 var _tween: Tween
 # Último nivel y oleada mostrados, para repintarlos al cambiar de idioma.
-var _level_number := 0
-var _wave := Vector2i.ZERO
+var _level_number: int = 0
+var _wave: Vector2i = Vector2i.ZERO
 
 func _ready() -> void:
 	modulate.a = NORMAL_ALPHA

@@ -5,16 +5,16 @@ class_name PauseScreen
 # en la esquina para ver el mapa limpio. Plegar no cambia el estado de LevelUI (sigue en PAUSED).
 # La opción SETTINGS abre aquí mismo el menú de opciones, en lugar del marco y también sin salir de PAUSED.
 
-const CURSOR := "_"
-const CURSOR_BLINK_TIME := 0.5
+const CURSOR: String = "_"
+const CURSOR_BLINK_TIME: float = 0.5
 
 @onready var fold_button: Button = %FoldButton
 @onready var folded_tag: OverlayFrame = %FoldedTag
 @onready var options_menu: OptionsMenu = %OptionsMenu
 @onready var center: CenterContainer = $Center
 
-var _folded := false
-var _cursor_timer := 0.0
+var _folded: bool = false
+var _cursor_timer: float = 0.0
 var _cursor_label: Label
 
 func _ready() -> void:
@@ -31,8 +31,8 @@ func _ready() -> void:
 
 # El cursor es una etiqueta aparte que parpadea con la opacidad, así el panel nunca cambia de tamaño.
 func _add_cursor() -> void:
-	var box := title_label.get_parent()
-	var row := HBoxContainer.new()
+	var box: Node = title_label.get_parent()
+	var row: HBoxContainer = HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 0)
 	box.add_child(row)
@@ -69,7 +69,7 @@ func _set_folded(folded: bool) -> void:
 	folded_tag.visible = folded
 
 func _on_folded_tag_gui_input(event: InputEvent) -> void:
-	var click := event as InputEventMouseButton
+	var click: InputEventMouseButton = event as InputEventMouseButton
 	if _folded and click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT:
 		_set_folded(false)
 		accept_event()

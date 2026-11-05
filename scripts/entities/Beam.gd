@@ -4,30 +4,30 @@ class_name Beam
 # daña a todos los enemigos de la línea y se desvanece.
 
 var _data: BeamData
-var _age := 0.0
+var _age: float = 0.0
 
 static func spawn(turret: Turret) -> void:
-	var data := turret.data.beam
+	var data: BeamData = turret.data.beam
 	# El sprite del cañón mira hacia arriba.
-	var direction := Vector2.UP.rotated(turret.cannon.rotation)
-	var from := turret.global_position + turret.data.muzzle_offset.rotated(turret.cannon.rotation)
-	var beam := Beam.new()
+	var direction: Vector2 = Vector2.UP.rotated(turret.cannon.rotation)
+	var from: Vector2 = turret.global_position + turret.data.muzzle_offset.rotated(turret.cannon.rotation)
+	var beam: Beam = Beam.new()
 	beam._data = data
 	beam.points = [from, from + direction * data.length]
 	_set_texture(beam, data.beam_textures[0])
 	# Por encima de torretas y enemigos.
 	beam.z_index = 1
-	var world := turret.get_parent()
+	var world: Node = turret.get_parent()
 	world.add_child(beam)
 	if turret.data.muzzle_flash:
 		# El fogonazo nace en la boca: su centro queda medio sprite por delante.
-		var flash_height := turret.data.muzzle_flash.get_frame_texture(&"default", 0).get_height()
+		var flash_height: int = turret.data.muzzle_flash.get_frame_texture(&"default", 0).get_height()
 		Effect.spawn(turret.cannon, turret.data.muzzle_flash, from + direction * flash_height / 2.0)
 	for enemy: Enemy in turret.get_tree().get_nodes_in_group(&"enemies"):
 		if enemy.is_queued_for_deletion():
 			continue
-		var offset := enemy.global_position - from
-		var along := offset.dot(direction)
+		var offset: Vector2 = enemy.global_position - from
+		var along: float = offset.dot(direction)
 		if along < 0 or along > data.length or absf(offset.cross(direction)) > data.half_width:
 			continue
 		enemy.take_damage(data.damage, turret)
@@ -38,8 +38,8 @@ static func spawn(turret: Turret) -> void:
 
 # Mira pegada al cañón (gira con él); la torreta la enseña durante la carga.
 static func make_sight(turret: Turret) -> Line2D:
-	var sight := Line2D.new()
-	var from := turret.data.muzzle_offset
+	var sight: Line2D = Line2D.new()
+	var from: Vector2 = turret.data.muzzle_offset
 	sight.points = [from, from + Vector2.UP * turret.data.beam.length]
 	_set_texture(sight, turret.data.beam.sight_texture)
 	sight.visible = false
@@ -54,7 +54,7 @@ static func _set_texture(line: Line2D, tile: Texture2D) -> void:
 
 func _process(delta: float) -> void:
 	_age += delta
-	var index := int(_age / _data.frame_time)
+	var index: int = int(_age / _data.frame_time)
 	if index >= _data.beam_textures.size():
 		queue_free()
 		return

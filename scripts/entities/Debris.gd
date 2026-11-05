@@ -3,24 +3,24 @@ class_name Debris
 # Restos de una nave al morir: destello blanco, anillo de humo y trozos que salen volando.
 # Se libera solo y sigue el time_scale del juego.
 
-const DURATION := 0.5
-const MIN_PIECES := 5
-const MAX_PIECES := 8
-const SPEED_MIN := 50.0
-const SPEED_MAX := 130.0
+const DURATION: float = 0.5
+const MIN_PIECES: int = 5
+const MAX_PIECES: int = 8
+const SPEED_MIN: float = 50.0
+const SPEED_MAX: float = 130.0
 # Cuánto frena por segundo (0 = no frena, 1 = se para del todo).
-const DRAG := 0.9
-const SMOKE_COLOR := Color("#9aa0b4")
-const FLASH_SIZE := 16.0
-const SMOKE_RADIUS := 12.0
+const DRAG: float = 0.9
+const SMOKE_COLOR: Color = Color("#9aa0b4")
+const FLASH_SIZE: float = 16.0
+const SMOKE_RADIUS: float = 12.0
 
 var _pieces: Array[Dictionary] = []
-var _time := 0.0
-var _scale := 1.0
+var _time: float = 0.0
+var _scale: float = 1.0
 
 ## Crea los restos en `pos` con trozos de los colores dados. `size_scale` agranda todo en las naves grandes.
 static func spawn(parent: Node, pos: Vector2, colors: Array[Color], size_scale: float = 1.0) -> void:
-	var debris := Debris.new()
+	var debris: Debris = Debris.new()
 	debris._scale = maxf(size_scale, 1.0)
 	debris.z_index = 9
 	parent.add_child(debris)
@@ -30,8 +30,8 @@ static func spawn(parent: Node, pos: Vector2, colors: Array[Color], size_scale: 
 func _make_pieces(colors: Array[Color]) -> void:
 	if colors.is_empty():
 		colors = [Color.WHITE]
-	var count := int(round(randi_range(MIN_PIECES, MAX_PIECES) * _scale))
-	for i in count:
+	var count: int = int(round(randi_range(MIN_PIECES, MAX_PIECES) * _scale))
+	for i: int in count:
 		_pieces.append({
 			"pos": Vector2.ZERO,
 			"vel": Vector2.from_angle(randf() * TAU) * randf_range(SPEED_MIN, SPEED_MAX) * sqrt(_scale),
@@ -46,26 +46,26 @@ func _process(delta: float) -> void:
 	if _time >= DURATION:
 		queue_free()
 		return
-	var drag := pow(1.0 - DRAG, delta)
-	for piece in _pieces:
+	var drag: float = pow(1.0 - DRAG, delta)
+	for piece: Dictionary in _pieces:
 		piece["pos"] += piece["vel"] * delta
 		piece["vel"] *= drag
 		piece["angle"] += piece["spin"] * delta
 	queue_redraw()
 
 func _draw() -> void:
-	var t := _time / DURATION
+	var t: float = _time / DURATION
 	# Destello blanco: solo el primer frame.
 	if _time <= 0.0:
-		var half := FLASH_SIZE * _scale / 2.0
+		var half: float = FLASH_SIZE * _scale / 2.0
 		draw_rect(Rect2(-half, -half, half * 2.0, half * 2.0), Color.WHITE)
 	# Anillo de humo: crece y se desvanece.
-	var smoke := SMOKE_COLOR
+	var smoke: Color = SMOKE_COLOR
 	smoke.a = 1.0 - t
 	draw_arc(Vector2.ZERO, SMOKE_RADIUS * _scale * (0.3 + 0.7 * t), 0.0, TAU, 24, smoke, 2.0, false)
 	# Trozos: opacos la primera mitad y se desvanecen en la segunda.
-	var alpha := 1.0 if t < 0.5 else (1.0 - t) * 2.0
-	for piece in _pieces:
+	var alpha: float = 1.0 if t < 0.5 else (1.0 - t) * 2.0
+	for piece: Dictionary in _pieces:
 		var color: Color = piece["color"]
 		color.a = alpha
 		var s: float = piece["size"]

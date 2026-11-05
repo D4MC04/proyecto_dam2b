@@ -2,8 +2,8 @@ extends InspectableData
 class_name EnemyData
 
 # Rojo de motor de los enemigos (ver docs/design/art.md); acento de su ficha, distinto al de las torretas.
-const ACCENT_COLOR := Color("#f0323c")
-const INSPECT_TAG := "TAG_ENEMY"
+const ACCENT_COLOR: Color = Color("#f0323c")
+const INSPECT_TAG: String = "TAG_ENEMY"
 
 @export var name: String
 @export var hp: float

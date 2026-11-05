@@ -18,15 +18,15 @@ const NODRIZA: EnemyData = preload("res://resources/enemy_data/nodriza.tres")
 const ENEMY_SCENE: PackedScene = preload("res://scenes/entities/Enemy.tscn")
 ## Al partirse: segundos que se ve agrietada, separación en px entre trozos al salir (de lado,
 ## según su dibujo), cuánto más se alejan y en cuántos segundos vuelven al camino.
-const CRACK_TIME := 0.15
-const SPLIT_GAP := 11.0
-const SPLIT_PUSH := 6.0
-const SPLIT_PUSH_TIME := 0.12
-const SPLIT_RETURN_TIME := 0.35
+const CRACK_TIME: float = 0.15
+const SPLIT_GAP: float = 11.0
+const SPLIT_PUSH: float = 6.0
+const SPLIT_PUSH_TIME: float = 0.12
+const SPLIT_RETURN_TIME: float = 0.35
 ## Pausa entre que el nivel queda limpio y el arranque de la siguiente oleada con AUTO.
-const AUTO_WAVE_DELAY := 1.5
+const AUTO_WAVE_DELAY: float = 1.5
 ## Segundos entre el arranque de una oleada y su tiempo 0 (las entradas cuentan desde ahí).
-const WAVE_START_DELAY := 2.5
+const WAVE_START_DELAY: float = 2.5
 
 ## Con AUTO activo, la siguiente oleada empieza sola cuando el nivel queda limpio.
 var auto_waves: bool = false:
@@ -55,7 +55,7 @@ var _pending_splits: int = 0
 var _auto_countdown: float = -1.0
 # Los caminos empiezan 2 casillas fuera del mapa: el portal y la salida de las naves van
 # 40 px más adelante, media casilla dentro del borde, para que se vean.
-const PORTAL_OFFSET := 40.0
+const PORTAL_OFFSET: float = 40.0
 
 # Portales abiertos de la oleada actual, por índice de camino.
 var _portals: Dictionary[int, Portal] = {}
@@ -125,7 +125,7 @@ func _process(delta: float) -> void:
 		_check_cleared()
 
 func _spawn(entry: SpawnEntry) -> void:
-	var index := entry.path_index % paths.size()
+	var index: int = entry.path_index % paths.size()
 	_spawn_enemy(entry.enemy_data, paths[index], PORTAL_OFFSET).spawn_in()
 	if _portals.has(index):
 		_portals[index].flash_exit()
@@ -144,15 +144,15 @@ func _spawn_enemy(data: EnemyData, path: Path2D, progress: float) -> Enemy:
 
 # Abre un portal a la entrada de cada camino que use la oleada.
 func _open_portals() -> void:
-	for entry in _entries:
-		var index := entry.path_index % paths.size()
+	for entry: SpawnEntry in _entries:
+		var index: int = entry.path_index % paths.size()
 		if _portals.has(index):
 			continue
-		var portal := Portal.new()
-		var curve := paths[index].curve
+		var portal: Portal = Portal.new()
+		var curve: Curve2D = paths[index].curve
 		portal.position = curve.sample_baked(PORTAL_OFFSET)
 		# La grieta (horizontal en Portal) queda atravesada al camino; girada en múltiplos de 90° para no deformar los píxeles.
-		var direction := curve.sample_baked(PORTAL_OFFSET + 1.0) - portal.position
+		var direction: Vector2 = curve.sample_baked(PORTAL_OFFSET + 1.0) - portal.position
 		# La Nodriza sale con un temblor más fuerte.
 		if _entries.any(func(e: SpawnEntry) -> bool: return e.path_index % paths.size() == index and e.enemy_data == NODRIZA):
 			portal.shake_strength = Portal.BOSS_SHAKE
@@ -161,7 +161,7 @@ func _open_portals() -> void:
 		_portals[index] = portal
 
 func _close_portals() -> void:
-	for portal in _portals.values():
+	for portal: Portal in _portals.values():
 		portal.close()
 	_portals.clear()
 
@@ -179,14 +179,14 @@ func _on_enemy_died(reward: int, enemy: Enemy) -> void:
 # Deja en el sitio de la nave muerta su frame agrietado con un destello y luego la parte.
 # Es un sprite suelto (sin área), así que se puede crear dentro de una señal de física.
 func _crack(enemy: Enemy) -> void:
-	var path := enemy.get_parent() as Path2D
-	var crack := AnimatedSprite2D.new()
+	var path: Path2D = enemy.get_parent() as Path2D
+	var crack: AnimatedSprite2D = AnimatedSprite2D.new()
 	crack.sprite_frames = enemy.sprite.sprite_frames
 	crack.animation = &"crack" if crack.sprite_frames.has_animation(&"crack") else enemy.sprite.animation
 	crack.position = enemy.position
 	crack.rotation = enemy.sprite.rotation
 	path.add_child(crack)
-	var tween := crack.create_tween()
+	var tween: Tween = crack.create_tween()
 	tween.tween_property(crack, "modulate", Color.WHITE, CRACK_TIME).from(Enemy.SLOW_FLASH)
 	tween.tween_callback(_split.bind(enemy.data, path, enemy.progress, crack.rotation))
 	tween.tween_callback(crack.queue_free)
@@ -196,14 +196,14 @@ func _crack(enemy: Enemy) -> void:
 # no el enemigo, para que el empujón no cambie hacia dónde mira.
 func _split(data: EnemyData, path: Path2D, progress: float, sprite_rotation: float) -> void:
 	_pending_splits -= 1
-	var side := Vector2.RIGHT.rotated(sprite_rotation)
-	var count := data.split_into.size()
-	for i in count:
-		var piece := _spawn_enemy(data.split_into[i], path, progress)
-		var offset := side * (i - (count - 1) / 2.0)
+	var side: Vector2 = Vector2.RIGHT.rotated(sprite_rotation)
+	var count: int = data.split_into.size()
+	for i: int in count:
+		var piece: Enemy = _spawn_enemy(data.split_into[i], path, progress)
+		var offset: Vector2 = side * (i - (count - 1) / 2.0)
 		piece.sprite.rotation = sprite_rotation
 		piece.flash()
-		var tween := piece.create_tween()
+		var tween: Tween = piece.create_tween()
 		tween.tween_property(piece.sprite, "position", offset * (SPLIT_GAP + SPLIT_PUSH), SPLIT_PUSH_TIME).from(offset * SPLIT_GAP)
 		tween.tween_property(piece.sprite, "position", Vector2.ZERO, SPLIT_RETURN_TIME).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
 

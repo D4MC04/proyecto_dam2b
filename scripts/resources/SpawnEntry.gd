@@ -7,7 +7,7 @@ extends Resource
 @export var path_index: int = 0
 
 static func create(data: EnemyData, spawn_time: float, path: int) -> SpawnEntry:
-	var entry := SpawnEntry.new()
+	var entry: SpawnEntry = SpawnEntry.new()
 	entry.enemy_data = data
 	entry.time = spawn_time
 	entry.path_index = path

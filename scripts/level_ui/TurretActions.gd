@@ -8,22 +8,22 @@ signal sell_requested
 ## El jugador pulsa "Mejorar"; la torreta y el dinero los gestiona BuildManager.
 signal upgrade_requested
 
-const BG_COLOR := Color("#0e1626")
-const BORDER_COLOR := Color("#1c7496")
-const HOVER_BG_COLOR := Color("#16243c")
-const HOVER_BORDER_COLOR := Color("#40e0f0")
-const PRESSED_BG_COLOR := Color("#14304a")
-const DISABLED_BG_COLOR := Color("#0a0f1a")
-const DISABLED_BORDER_COLOR := Color("#1c4a60")
-const DISABLED_FONT_COLOR := Color(1, 1, 1, 0.3)
+const BG_COLOR: Color = Color("#0e1626")
+const BORDER_COLOR: Color = Color("#1c7496")
+const HOVER_BG_COLOR: Color = Color("#16243c")
+const HOVER_BORDER_COLOR: Color = Color("#40e0f0")
+const PRESSED_BG_COLOR: Color = Color("#14304a")
+const DISABLED_BG_COLOR: Color = Color("#0a0f1a")
+const DISABLED_BORDER_COLOR: Color = Color("#1c4a60")
+const DISABLED_FONT_COLOR: Color = Color(1, 1, 1, 0.3)
 # Hueco en px entre el centro de la torreta y el borde del recuadro (media casilla, más lo que
 # sobresalen los cañones y un respiro).
-const TURRET_GAP := 22.0
+const TURRET_GAP: float = 22.0
 # Margen del texto de los botones al borde, en px.
-const BUTTON_H_MARGIN := 8.0
-const BUTTON_V_MARGIN := 3.0
+const BUTTON_H_MARGIN: float = 8.0
+const BUTTON_V_MARGIN: float = 3.0
 # Texto del botón mientras espera el segundo clic que confirma la venta.
-const CONFIRM_SELL_TEXT := "TURRET_SELL_CONFIRM"
+const CONFIRM_SELL_TEXT: String = "TURRET_SELL_CONFIRM"
 
 @onready var upgrade_button: Button = %UpgradeButton
 @onready var sell_button: Button = %SellButton
@@ -32,11 +32,11 @@ const CONFIRM_SELL_TEXT := "TURRET_SELL_CONFIRM"
 var tutorial_hints: TutorialHints
 
 var _turret: Turret
-var _money := 0
-var _confirming_sell := false
+var _money: int = 0
+var _confirming_sell: bool = false
 
 func _ready() -> void:
-	for button in [upgrade_button, sell_button]:
+	for button: Button in [upgrade_button, sell_button]:
 		_style_button(button)
 	upgrade_button.pressed.connect(_on_upgrade_pressed)
 	sell_button.pressed.connect(_on_sell_pressed)
@@ -88,10 +88,10 @@ func _on_sell_pressed() -> void:
 
 # Centrado encima de la torreta, sin salirse del área de juego (el padre); si arriba no cabe, debajo.
 func _reposition() -> void:
-	var area := get_parent_control()
-	var turret_pos := area.get_global_transform_with_canvas().affine_inverse() * _turret.get_global_transform_with_canvas().origin
-	var x := clampf(turret_pos.x - size.x / 2.0, 0.0, maxf(area.size.x - size.x, 0.0))
-	var y := turret_pos.y - TURRET_GAP - size.y
+	var area: Control = get_parent_control()
+	var turret_pos: Vector2 = area.get_global_transform_with_canvas().affine_inverse() * _turret.get_global_transform_with_canvas().origin
+	var x: float = clampf(turret_pos.x - size.x / 2.0, 0.0, maxf(area.size.x - size.x, 0.0))
+	var y: float = turret_pos.y - TURRET_GAP - size.y
 	if y < 0.0:
 		y = turret_pos.y + TURRET_GAP
 	position = Vector2(roundf(x), roundf(y))
@@ -105,7 +105,7 @@ func _style_button(button: Button) -> void:
 	button.add_theme_color_override("font_disabled_color", DISABLED_FONT_COLOR)
 
 func _create_style(bg: Color, border: Color) -> ClippedBoxStyle:
-	var style := ClippedBoxStyle.create(bg, border)
+	var style: ClippedBoxStyle = ClippedBoxStyle.create(bg, border)
 	style.content_margin_left = BUTTON_H_MARGIN
 	style.content_margin_right = BUTTON_H_MARGIN
 	style.content_margin_top = BUTTON_V_MARGIN

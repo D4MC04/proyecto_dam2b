@@ -15,40 +15,40 @@ signal fast_speed_toggled(enabled: bool)
 enum WaveStatus { READY, IN_PROGRESS, COMPLETE }
 
 # Torretas con atajo de teclado (1-7), en el orden de la rejilla.
-const TURRET_SHORTCUT_COUNT := 7
+const TURRET_SHORTCUT_COUNT: int = 7
 
 const TURRET_BUTTON: PackedScene = preload("res://scenes/level_ui/TurretButton.tscn")
 
 const WAVE_BLOCK: PackedScene = preload("res://scenes/level_ui/WaveBlock.tscn")
 
-const TAB_BG_COLOR := Color("#0e1626")
-const TAB_BORDER_COLOR := Color("#1c4a60")
-const TAB_ACTIVE_BG_COLOR := Color("#14304a")
-const TAB_ACTIVE_BORDER_COLOR := Color("#40e0f0")
-const TAB_HOVER_BORDER_COLOR := Color("#1c7496")
-const TAB_ICON_INACTIVE_COLOR := Color(1, 1, 1, 0.45)
+const TAB_BG_COLOR: Color = Color("#0e1626")
+const TAB_BORDER_COLOR: Color = Color("#1c4a60")
+const TAB_ACTIVE_BG_COLOR: Color = Color("#14304a")
+const TAB_ACTIVE_BORDER_COLOR: Color = Color("#40e0f0")
+const TAB_HOVER_BORDER_COLOR: Color = Color("#1c7496")
+const TAB_ICON_INACTIVE_COLOR: Color = Color(1, 1, 1, 0.45)
 
-const STATION_BAR_COLOR := Color("#40e0f0")
-const STATION_DANGER_COLOR := Color("#ff3c5a")
+const STATION_BAR_COLOR: Color = Color("#40e0f0")
+const STATION_DANGER_COLOR: Color = Color("#ff3c5a")
 # Por debajo de esta fracción de vida la barra de la estación pasa al color de peligro.
-const STATION_DANGER_FRACTION := 0.3
+const STATION_DANGER_FRACTION: float = 0.3
 # Duración del parpadeo de la barra al perder vida.
-const STATION_HIT_TIME := 0.3
+const STATION_HIT_TIME: float = 0.3
 
-const CONTROL_HOVER_BG_COLOR := Color("#16243c")
-const CONTROL_DISABLED_BG_COLOR := Color("#0a0f1a")
-const NEXT_BORDER_COLOR := Color("#1c7496")
-const NEXT_GLOW_COLOR := Color("#befaff")
-const AUTO_HOVER_BORDER_COLOR := Color("#96641e")
-const AUTO_ON_BORDER_COLOR := Color("#ecb23c")
-const AUTO_ON_HOVER_BORDER_COLOR := Color("#ffe082")
+const CONTROL_HOVER_BG_COLOR: Color = Color("#16243c")
+const CONTROL_DISABLED_BG_COLOR: Color = Color("#0a0f1a")
+const NEXT_BORDER_COLOR: Color = Color("#1c7496")
+const NEXT_GLOW_COLOR: Color = Color("#befaff")
+const AUTO_HOVER_BORDER_COLOR: Color = Color("#96641e")
+const AUTO_ON_BORDER_COLOR: Color = Color("#ecb23c")
+const AUTO_ON_HOVER_BORDER_COLOR: Color = Color("#ffe082")
 # Fondo de pestaña mezclado al 25 % con el ámbar, como la torreta seleccionada.
-const AUTO_ON_BG_COLOR := Color("#453d2b")
-const CONTROL_ICON_DIM_COLOR := Color(1, 1, 1, 0.3)
+const AUTO_ON_BG_COLOR: Color = Color("#453d2b")
+const CONTROL_ICON_DIM_COLOR: Color = Color(1, 1, 1, 0.3)
 # Rejilla de torretas con la selección bloqueada.
-const LOCKED_GRID_COLOR := Color(1, 1, 1, 0.5)
+const LOCKED_GRID_COLOR: Color = Color(1, 1, 1, 0.5)
 # Duración de medio ciclo del parpadeo del botón de siguiente oleada.
-const NEXT_PULSE_TIME := 0.5
+const NEXT_PULSE_TIME: float = 0.5
 const STATUS_TEXTS: Dictionary[WaveStatus, String] = {
 	WaveStatus.READY: "WAVE_READY",
 	WaveStatus.IN_PROGRESS: "WAVE_IN_PROGRESS",
@@ -82,17 +82,17 @@ const STATUS_COLORS: Dictionary[WaveStatus, Color] = {
 ## Lo pone LevelUI; con el tutorial en marcha decide qué controles responden.
 var tutorial_hints: TutorialHints
 
-var _money := 0
+var _money: int = 0
 var _buttons: Array[TurretButton] = []
 var _wave_blocks: Array[WaveBlock] = []
-var _current_wave := -1
-var _viewed_wave := 0
-var _selection_locked := false
+var _current_wave: int = -1
+var _viewed_wave: int = 0
+var _selection_locked: bool = false
 # Estilo normal del botón de siguiente oleada; su borde parpadea para invitar a pulsarlo.
 var _next_normal_style: ClippedBoxStyle
 var _next_pulse: Tween
 # Vida anterior de la estación (-1 si aún no se ha puesto) para detectar golpes.
-var _station_health := -1
+var _station_health: int = -1
 var _station_hit_tween: Tween
 # Último estado del pie (estado, oleada, total) para repintarlo al cambiar de idioma; vacío si aún no hay.
 var _footer_status: Array = []
@@ -107,8 +107,8 @@ func _notification(what: int) -> void:
 		set_wave_status(_footer_status[0], _footer_status[1], _footer_status[2])
 
 func _ready() -> void:
-	var tab_group := ButtonGroup.new()
-	for tab in [turrets_tab, waves_tab]:
+	var tab_group: ButtonGroup = ButtonGroup.new()
+	for tab: Button in [turrets_tab, waves_tab]:
 		tab.button_group = tab_group
 		_style_tab(tab)
 	turrets_tab.toggled.connect(_on_tab_toggled)
@@ -122,10 +122,10 @@ func _ready() -> void:
 
 ## Crea un botón por cada torreta de `GameData.turret_order`; las que no están en `unlocked` salen bloqueadas.
 func build_buttons(unlocked: Array[TurretData]) -> void:
-	for b in _buttons:
+	for b: TurretButton in _buttons:
 		b.queue_free()
 	_buttons.clear()
-	for data in GameData.turret_order:
+	for data: TurretData in GameData.turret_order:
 		var button: TurretButton = TURRET_BUTTON.instantiate()
 		turret_buttons.add_child(button)
 		button.setup(data, _money, not unlocked.has(data))
@@ -142,7 +142,7 @@ func press_turret_button(index: int) -> void:
 func set_money(amount: int) -> void:
 	_money = amount
 	money_label.text = UiFormat.money(amount)
-	for b in _buttons:
+	for b: TurretButton in _buttons:
 		b.set_money(amount)
 
 ## Enseña la vida de la estación; con menos del 30 % la barra cambia al color de peligro.
@@ -150,10 +150,10 @@ func set_station_health(current: int, maximum: int) -> void:
 	station_bar.max_value = maximum
 	station_bar.value = current
 	station_value_label.text = str(current)
-	var danger := current < maximum * STATION_DANGER_FRACTION
-	var color := STATION_DANGER_COLOR if danger else STATION_BAR_COLOR
-	var label_color := color if danger else NEXT_GLOW_COLOR
-	var fill := _station_style(color, color)
+	var danger: bool = current < maximum * STATION_DANGER_FRACTION
+	var color: Color = STATION_DANGER_COLOR if danger else STATION_BAR_COLOR
+	var label_color: Color = color if danger else NEXT_GLOW_COLOR
+	var fill: StyleBoxFlat = _station_style(color, color)
 	station_bar.add_theme_stylebox_override("fill", fill)
 	station_value_label.add_theme_color_override("font_color", label_color)
 	if _station_hit_tween:
@@ -170,7 +170,7 @@ func set_station_health(current: int, maximum: int) -> void:
 	_station_health = current
 
 func _station_style(bg: Color, border: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
+	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.bg_color = bg
 	style.set_border_width_all(1)
 	style.border_color = border
@@ -178,23 +178,23 @@ func _station_style(bg: Color, border: Color) -> StyleBoxFlat:
 
 ## Refleja la selección de LevelState sin volver a emitir turret_selected.
 func show_selected(data: TurretData) -> void:
-	for b in _buttons:
+	for b: TurretButton in _buttons:
 		b.set_selected(data != null and b.data == data)
 
 ## Con una pantalla abierta la rejilla se atenúa y el clic izquierdo en una torreta solo enseña su ficha.
 func set_selection_locked(locked: bool) -> void:
 	_selection_locked = locked
 	turret_buttons.modulate = LOCKED_GRID_COLOR if locked else Color.WHITE
-	for b in _buttons:
+	for b: TurretButton in _buttons:
 		b.set_selection_locked(locked)
 
 ## Crea un bloque por oleada (todos ocultos salvo el que se ve) y borra los anteriores.
 func build_waves(waves: Array[WaveData]) -> void:
-	for block in _wave_blocks:
+	for block: WaveBlock in _wave_blocks:
 		wave_blocks.remove_child(block)
 		block.queue_free()
 	_wave_blocks.clear()
-	for wave in waves:
+	for wave: WaveData in waves:
 		var block: WaveBlock = WAVE_BLOCK.instantiate()
 		wave_blocks.add_child(block)
 		block.setup(wave)
@@ -212,9 +212,9 @@ func view_wave(index: int) -> void:
 	if _wave_blocks.is_empty():
 		return
 	_viewed_wave = clampi(index, 0, _wave_blocks.size() - 1)
-	for i in _wave_blocks.size():
+	for i: int in _wave_blocks.size():
 		_wave_blocks[i].visible = i == _viewed_wave
-	var state := WaveBlock.State.FUTURE
+	var state: WaveBlock.State = WaveBlock.State.FUTURE
 	if _viewed_wave < _current_wave:
 		state = WaveBlock.State.PAST
 	elif _viewed_wave == _current_wave:
@@ -237,7 +237,7 @@ func set_wave_status(status: WaveStatus, wave_number: int, total: int) -> void:
 ## Activa o atenúa el botón de siguiente oleada; con `inviting`, su borde parpadea.
 func set_next_wave_available(available: bool, inviting: bool) -> void:
 	next_wave_button.disabled = not available
-	var pulse := available and inviting
+	var pulse: bool = available and inviting
 	if pulse == (_next_pulse != null):
 		return
 	if pulse:
@@ -262,7 +262,7 @@ func _on_button_selection_changed(data: TurretData, on: bool) -> void:
 	turret_selected.emit(data if on else null)
 
 func _on_tab_toggled(turrets_active: bool) -> void:
-	var action := TutorialHints.Action.TAB_TURRETS if turrets_active else TutorialHints.Action.TAB_WAVES
+	var action: TutorialHints.Action = TutorialHints.Action.TAB_TURRETS if turrets_active else TutorialHints.Action.TAB_WAVES
 	if tutorial_hints != null and not tutorial_hints.allows(action):
 		# El tutorial no deja cambiar de pestaña: las pestañas vuelven a la que sigue abierta.
 		turrets_tab.set_pressed_no_signal(turrets_page.visible)
@@ -306,7 +306,7 @@ func _style_wave_controls() -> void:
 	next_wave_button.add_theme_stylebox_override("disabled", ClippedBoxStyle.create(CONTROL_DISABLED_BG_COLOR, TAB_BORDER_COLOR))
 	next_wave_button.add_theme_color_override("font_disabled_color", CONTROL_ICON_DIM_COLOR)
 
-	var auto_on := ClippedBoxStyle.create(AUTO_ON_BG_COLOR, AUTO_ON_BORDER_COLOR)
+	var auto_on: ClippedBoxStyle = ClippedBoxStyle.create(AUTO_ON_BG_COLOR, AUTO_ON_BORDER_COLOR)
 	# AUTO y ×2 comparten estilo: apagado gris azulado, encendido ámbar.
 	for toggle: Button in [auto_wave_button, speed_button]:
 		toggle.add_theme_stylebox_override("normal", ClippedBoxStyle.create(TAB_BG_COLOR, TAB_BORDER_COLOR))
@@ -317,7 +317,7 @@ func _style_wave_controls() -> void:
 		toggle.add_theme_color_override("font_hover_color", Color(1, 1, 1, 0.6))
 		toggle.add_theme_color_override("font_pressed_color", Color.WHITE)
 		toggle.add_theme_color_override("font_hover_pressed_color", Color.WHITE)
-	for arrow in [prev_wave_arrow, next_wave_arrow]:
+	for arrow: Button in [prev_wave_arrow, next_wave_arrow]:
 		arrow.add_theme_stylebox_override("normal", ClippedBoxStyle.create(TAB_BG_COLOR, NEXT_BORDER_COLOR))
 		arrow.add_theme_stylebox_override("hover", ClippedBoxStyle.create(CONTROL_HOVER_BG_COLOR, TAB_ACTIVE_BORDER_COLOR))
 		arrow.add_theme_stylebox_override("pressed", ClippedBoxStyle.create(TAB_ACTIVE_BG_COLOR, TAB_ACTIVE_BORDER_COLOR))
@@ -327,9 +327,9 @@ func _style_wave_controls() -> void:
 		button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 
 func _style_tab(tab: Button) -> void:
-	var normal := ClippedBoxStyle.create(TAB_BG_COLOR, TAB_BORDER_COLOR)
-	var hover := ClippedBoxStyle.create(TAB_BG_COLOR, TAB_HOVER_BORDER_COLOR)
-	var active := ClippedBoxStyle.create(TAB_ACTIVE_BG_COLOR, TAB_ACTIVE_BORDER_COLOR)
+	var normal: ClippedBoxStyle = ClippedBoxStyle.create(TAB_BG_COLOR, TAB_BORDER_COLOR)
+	var hover: ClippedBoxStyle = ClippedBoxStyle.create(TAB_BG_COLOR, TAB_HOVER_BORDER_COLOR)
+	var active: ClippedBoxStyle = ClippedBoxStyle.create(TAB_ACTIVE_BG_COLOR, TAB_ACTIVE_BORDER_COLOR)
 	tab.add_theme_stylebox_override("normal", normal)
 	tab.add_theme_stylebox_override("hover", hover)
 	tab.add_theme_stylebox_override("pressed", active)

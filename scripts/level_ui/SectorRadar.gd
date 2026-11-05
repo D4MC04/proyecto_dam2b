@@ -17,85 +17,85 @@ enum ContactState { LOCKED, PENDING, COMPLETED, UNKNOWN }
 
 ## Sectores totales de la campaña: si GameData.levels tiene menos, el último (el del jefe) sale
 ## como contacto UNKNOWN de prueba, arriba en el centro, cuando se ha ganado el último nivel.
-const TOTAL_SECTORS := 10
-const BOSS_DISTANCE := 0.72
-const BOSS_BEARING := 0.0
-const BOSS_COLOR := Color("#e65a4f")
-const BOSS_MARK_SIZE := 32
+const TOTAL_SECTORS: int = 10
+const BOSS_DISTANCE: float = 0.72
+const BOSS_BEARING: float = 0.0
+const BOSS_COLOR: Color = Color("#e65a4f")
+const BOSS_MARK_SIZE: int = 32
 
 ## Radio del radar en km (los textos de los anillos y la distancia de la ficha).
-const RADIUS_KM := 4000
-const RING_COUNT := 4
+const RADIUS_KM: int = 4000
+const RING_COUNT: int = 4
 # Hueco entre el borde del control y el borde del radar.
-const EDGE_MARGIN := 4.0
+const EDGE_MARGIN: float = 4.0
 # Alcance: margen tras el último contacto visible, y tope.
-const RANGE_MARGIN := 0.04
-const RANGE_NEXT_MARGIN := 0.02
-const RANGE_MAX := 0.9
+const RANGE_MARGIN: float = 0.04
+const RANGE_NEXT_MARGIN: float = 0.02
+const RANGE_MAX: float = 0.9
 
-const SHIP_DIR := "res://assets/sprites/enemies/radar/"
+const SHIP_DIR: String = "res://assets/sprites/enemies/radar/"
 # Nombre del sprite por LevelData.RadarShip (los genera scripts/tools/make_radar_ships.gd).
 const SHIP_FILES: Array[String] = ["raider", "fang", "crusher", "specter"]
-const SHIP_SCALE := 2
-const LABEL_SIZE := 16
+const SHIP_SCALE: int = 2
+const LABEL_SIZE: int = 16
 # Distancia de la línea base del rótulo "SEC-0N" al centro del contacto.
-const LABEL_OFFSET := 20.0
+const LABEL_OFFSET: float = 20.0
 # Radio del área de clic de cada contacto.
-const HIT_RADIUS := 16.0
+const HIT_RADIUS: float = 16.0
 
-const SWEEP_SPEED := 1.6
-const TRAIL_STEPS := 36
-const TRAIL_STEP_ANGLE := 0.0279253 # 1,6° en radianes
-const TRAIL_ALPHA := 0.22
+const SWEEP_SPEED: float = 1.6
+const TRAIL_STEPS: int = 36
+const TRAIL_STEP_ANGLE: float = 0.0279253 # 1,6° en radianes
+const TRAIL_ALPHA: float = 0.22
 # Brillo de un contacto: se apaga en GLOW_FADE s desde que pasa el barrido, hasta un mínimo.
-const GLOW_FADE := 2.6
-const GLOW_MIN := 0.45
-const GLOW_MIN_CURRENT := 0.75
+const GLOW_FADE: float = 2.6
+const GLOW_MIN: float = 0.45
+const GLOW_MIN_CURRENT: float = 0.75
 
-const NOISE_DOTS := 120
-const NOISE_ALPHA := 0.18
-const FOG_SEGMENTS := 96
+const NOISE_DOTS: int = 120
+const NOISE_ALPHA: float = 0.18
+const FOG_SEGMENTS: int = 96
 
-const DASH := 6.0
-const RANGE_DASH_SPEED := 20.0
-const ROUTE_DASH := 5.0
-const ROUTE_DASH_SPEED := 25.0
+const DASH: float = 6.0
+const RANGE_DASH_SPEED: float = 20.0
+const ROUTE_DASH: float = 5.0
+const ROUTE_DASH_SPEED: float = 25.0
 # La ruta empieza tras la estación y acaba antes del icono.
-const ROUTE_START := 9.0
-const ROUTE_END := 16.0
+const ROUTE_START: float = 9.0
+const ROUTE_END: float = 16.0
 
 # Salto al seleccionar, flotación posterior y onda circular.
-const JUMP_TIME := 0.35
-const JUMP_HEIGHT := 6.0
-const FLOAT_PERIOD := 1.6
-const FLOAT_HEIGHT := 2.0
-const RIPPLE_TIME := 1.4
-const RIPPLE_FROM := 8.0
-const RIPPLE_TO := 30.0
+const JUMP_TIME: float = 0.35
+const JUMP_HEIGHT: float = 6.0
+const FLOAT_PERIOD: float = 1.6
+const FLOAT_HEIGHT: float = 2.0
+const RIPPLE_TIME: float = 1.4
+const RIPPLE_FROM: float = 8.0
+const RIPPLE_TO: float = 30.0
 
 # Parpadeo de los ojos: ciclo en s y tramos (fracción del ciclo, alfa) como en el boceto.
-const BLINK_PERIOD := 3.5
+const BLINK_PERIOD: float = 3.5
 const BLINK_KEYS: Array[Vector2] = [
 	Vector2(0.0, 1.0), Vector2(0.90, 1.0), Vector2(0.93, 0.1), Vector2(0.96, 1.0),
 	Vector2(0.98, 0.3), Vector2(1.0, 1.0),
 ]
 # Desfase del parpadeo entre contactos, para que no parpadeen todos a la vez.
-const BLINK_PHASE_STEP := 0.37
+const BLINK_PHASE_STEP: float = 0.37
 
-const DISK_INNER_COLOR := Color("#122440")
-const DISK_OUTER_COLOR := Color("#060b14")
-const DISK_BANDS := 6
-const GRID_COLOR := Color("#1c4a60")
-const BORDER_COLOR := Color("#1c7496")
-const ACCENT_COLOR := Color("#40e0f0")
-const SWEEP_LINE_COLOR := Color("#befaff")
-const FOG_COLOR := Color(0.01, 0.03, 0.05, 0.85)
-const NOISE_COLOR := Color("#96c8d2")
-const STATION_HOLE_COLOR := Color("#060b14")
-const PENDING_COLOR := Color("#ecb23c")
-const COMPLETED_COLOR := Color("#3cb860")
-const SELECTED_COLOR := Color("#54a0e2")
-const EYE_COLOR := Color("#f0323c")
+const DISK_INNER_COLOR: Color = Color("#122440")
+const DISK_OUTER_COLOR: Color = Color("#060b14")
+const DISK_BANDS: int = 6
+const GRID_COLOR: Color = Color("#1c4a60")
+const BORDER_COLOR: Color = Color("#1c7496")
+const ACCENT_COLOR: Color = Color("#40e0f0")
+const SWEEP_LINE_COLOR: Color = Color("#befaff")
+const FOG_COLOR: Color = Color(0.01, 0.03, 0.05, 0.85)
+const NOISE_COLOR: Color = Color("#96c8d2")
+const STATION_HOLE_COLOR: Color = Color("#060b14")
+const PENDING_COLOR: Color = Color("#ecb23c")
+const COMPLETED_COLOR: Color = Color("#3cb860")
+const SELECTED_COLOR: Color = Color("#54a0e2")
+const EYE_COLOR: Color = Color("#f0323c")
 
 # Un contacto por nivel (data = null en el sector del jefe sin nivel).
 class Contact:
@@ -109,14 +109,14 @@ class Contact:
 	# Último momento (en _time) en que pasó el barrido.
 	var hit_time: float = -100.0
 
-var selected_index := -1
+var selected_index: int = -1
 var _contacts: Array[Contact] = []
-var _hover_index := -1
-var _time := 0.0
-var _sweep := 0.0
-var _range := RANGE_MAX
-var _select_time := -100.0
-var _rng := RandomNumberGenerator.new()
+var _hover_index: int = -1
+var _time: float = 0.0
+var _sweep: float = 0.0
+var _range: float = RANGE_MAX
+var _select_time: float = -100.0
+var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
 func _ready() -> void:
 	visibility_changed.connect(func() -> void: set_process(is_visible_in_tree()))
@@ -124,7 +124,7 @@ func _ready() -> void:
 	refresh()
 
 func _process(delta: float) -> void:
-	var previous_sweep := _sweep
+	var previous_sweep: float = _sweep
 	_time += delta
 	_sweep = fmod(_time * SWEEP_SPEED, TAU)
 	for contact: Contact in _contacts:
@@ -136,9 +136,9 @@ func _process(delta: float) -> void:
 ## el primer nivel sin completar (o el último visible).
 func refresh() -> void:
 	_contacts.clear()
-	var last_visible := -1
+	var last_visible: int = -1
 	for i: int in GameData.levels.size():
-		var contact := Contact.new()
+		var contact: Contact = Contact.new()
 		contact.index = i
 		contact.data = GameData.levels[i]
 		contact.distance = contact.data.radar_distance
@@ -153,7 +153,7 @@ func refresh() -> void:
 	# El jefe solo aparece al ganar el último nivel que hay; entonces el radar llega a su tope.
 	if GameData.levels.size() < TOTAL_SECTORS and last_visible >= 0 and _contacts[last_visible].index == GameData.levels.size() - 1 and _contacts[last_visible].state == ContactState.COMPLETED:
 		_range = RANGE_MAX
-		var boss := Contact.new()
+		var boss: Contact = Contact.new()
 		boss.index = TOTAL_SECTORS - 1
 		boss.distance = BOSS_DISTANCE
 		boss.bearing = BOSS_BEARING
@@ -190,18 +190,18 @@ static func get_distance_km(data: LevelData) -> int:
 
 ## Número con separador de miles según el idioma (NUMBER_THOUSANDS_SEP): 4000 -> "4.000".
 static func format_thousands(value: int) -> String:
-	var digits := str(absi(value))
-	var groups := PackedStringArray()
+	var digits: String = str(absi(value))
+	var groups: PackedStringArray = PackedStringArray()
 	while digits.length() > 3:
 		groups.insert(0, digits.right(3))
 		digits = digits.left(-3)
 	groups.insert(0, digits)
-	var separator := String(TranslationServer.translate("NUMBER_THOUSANDS_SEP"))
+	var separator: String = String(TranslationServer.translate("NUMBER_THOUSANDS_SEP"))
 	return ("-" if value < 0 else "") + separator.join(groups)
 
 ## Sectores asegurados (completados), para el subtítulo.
 func get_secured_count() -> int:
-	var count := 0
+	var count: int = 0
 	for contact: Contact in _contacts:
 		if contact.state == ContactState.COMPLETED:
 			count += 1
@@ -224,10 +224,10 @@ func _load_texture(path: String) -> Texture2D:
 func _compute_range(last_visible: int) -> float:
 	if last_visible < 0:
 		return RANGE_MARGIN
-	var distance := _contacts[last_visible].distance
+	var distance: float = _contacts[last_visible].distance
 	if last_visible + 1 >= _contacts.size():
 		return minf(distance + RANGE_MARGIN, RANGE_MAX)
-	var next_distance := _contacts[last_visible + 1].distance
+	var next_distance: float = _contacts[last_visible + 1].distance
 	return minf(distance + RANGE_MARGIN, (distance + next_distance) / 2.0 + RANGE_NEXT_MARGIN)
 
 func _default_selection(last_visible: int) -> int:
@@ -253,17 +253,17 @@ func _direction(bearing: float) -> Vector2:
 	return Vector2(sin(bearing), -cos(bearing))
 
 func _contact_position(contact: Contact) -> Vector2:
-	var offset := _direction(deg_to_rad(contact.bearing)) * contact.distance * _get_radius()
+	var offset: Vector2 = _direction(deg_to_rad(contact.bearing)) * contact.distance * _get_radius()
 	return (_get_center() + offset).round()
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		_set_hover(_contact_at((event as InputEventMouseMotion).position))
 	elif event is InputEventMouseButton:
-		var button := event as InputEventMouseButton
+		var button: InputEventMouseButton = event as InputEventMouseButton
 		if button.button_index != MOUSE_BUTTON_LEFT or not button.pressed:
 			return
-		var index := _contact_at(button.position)
+		var index: int = _contact_at(button.position)
 		if index < 0:
 			return
 		select(index)
@@ -280,21 +280,21 @@ func _set_hover(index: int) -> void:
 	mouse_default_cursor_shape = CURSOR_POINTING_HAND if index >= 0 else CURSOR_ARROW
 
 func _contact_at(point: Vector2) -> int:
-	var best := -1
-	var best_distance := HIT_RADIUS
+	var best: int = -1
+	var best_distance: float = HIT_RADIUS
 	for contact: Contact in _contacts:
 		if contact.state == ContactState.LOCKED:
 			continue
-		var distance := point.distance_to(_contact_position(contact))
+		var distance: float = point.distance_to(_contact_position(contact))
 		if distance < best_distance:
 			best = contact.index
 			best_distance = distance
 	return best
 
 func _draw() -> void:
-	var center := _get_center()
-	var radius := _get_radius()
-	var range_radius := roundf(_range * radius)
+	var center: Vector2 = _get_center()
+	var radius: float = _get_radius()
+	var range_radius: float = roundf(_range * radius)
 	_draw_background(center, radius)
 	_draw_grid(center, radius)
 	_draw_sweep(center, radius)
@@ -309,7 +309,7 @@ func _draw() -> void:
 # Disco en bandas concéntricas, más claro en el centro.
 func _draw_background(center: Vector2, radius: float) -> void:
 	for band: int in DISK_BANDS:
-		var weight := float(band) / float(DISK_BANDS - 1)
+		var weight: float = float(band) / float(DISK_BANDS - 1)
 		draw_circle(center, radius * (1.0 - float(band) / float(DISK_BANDS)), DISK_OUTER_COLOR.lerp(DISK_INNER_COLOR, weight))
 
 # Anillos, radios cada 30° y marcas del borde cada 5° (más largas cada 30°).
@@ -317,19 +317,19 @@ func _draw_grid(center: Vector2, radius: float) -> void:
 	for ring: int in range(1, RING_COUNT + 1):
 		draw_arc(center, roundf(radius * ring / RING_COUNT), 0.0, TAU, 96, GRID_COLOR, 1.0)
 	for degrees: int in range(0, 360, 5):
-		var direction := _direction(deg_to_rad(degrees))
+		var direction: Vector2 = _direction(deg_to_rad(degrees))
 		if degrees % 30 == 0:
 			draw_line(center, center + direction * radius, GRID_COLOR, 1.0)
-		var tick := 9.0 if degrees % 30 == 0 else 4.0
+		var tick: float = 9.0 if degrees % 30 == 0 else 4.0
 		draw_line(center + direction * (radius - tick), center + direction * radius, BORDER_COLOR, 1.0)
 
 # Barrido: cuñas que se desvanecen detrás de la línea.
 func _draw_sweep(center: Vector2, radius: float) -> void:
 	for step: int in TRAIL_STEPS:
-		var color := ACCENT_COLOR
+		var color: Color = ACCENT_COLOR
 		color.a = TRAIL_ALPHA * (1.0 - float(step) / TRAIL_STEPS)
-		var end_angle := _sweep - step * TRAIL_STEP_ANGLE
-		var start_angle := end_angle - TRAIL_STEP_ANGLE
+		var end_angle: float = _sweep - step * TRAIL_STEP_ANGLE
+		var start_angle: float = end_angle - TRAIL_STEP_ANGLE
 		draw_colored_polygon(PackedVector2Array([
 			center, center + _direction(start_angle) * radius, center + _direction(end_angle) * radius,
 		]), color)
@@ -340,31 +340,31 @@ func _draw_fog(center: Vector2, radius: float, range_radius: float) -> void:
 	if range_radius >= radius:
 		return
 	for segment: int in FOG_SEGMENTS:
-		var a := _direction(TAU * segment / FOG_SEGMENTS)
-		var b := _direction(TAU * (segment + 1) / FOG_SEGMENTS)
+		var a: Vector2 = _direction(TAU * segment / FOG_SEGMENTS)
+		var b: Vector2 = _direction(TAU * (segment + 1) / FOG_SEGMENTS)
 		draw_colored_polygon(PackedVector2Array([
 			center + a * range_radius, center + a * (radius + 1.0),
 			center + b * (radius + 1.0), center + b * range_radius,
 		]), FOG_COLOR)
 	for _dot: int in NOISE_DOTS:
-		var point := center + _direction(_rng.randf() * TAU) * _rng.randf_range(range_radius, radius - 2.0)
-		var color := NOISE_COLOR
+		var point: Vector2 = center + _direction(_rng.randf() * TAU) * _rng.randf_range(range_radius, radius - 2.0)
+		var color: Color = NOISE_COLOR
 		color.a = _rng.randf() * NOISE_ALPHA
 		draw_rect(Rect2(point.floor(), Vector2(2, 2)), color)
 
 # Textos de km de cada anillo: a la derecha, justo encima del eje (ningún contacto va ahí).
 @warning_ignore("integer_division")
 func _draw_ring_labels(center: Vector2, radius: float, range_radius: float) -> void:
-	var font := get_theme_default_font()
+	var font: Font = get_theme_default_font()
 	for ring: int in range(1, RING_COUNT + 1):
-		var ring_radius := roundf(radius * ring / RING_COUNT)
+		var ring_radius: float = roundf(radius * ring / RING_COUNT)
 		# Fuera del alcance no se ve nada, tampoco los km.
 		if ring_radius > range_radius + 2.0:
 			continue
-		var color := ACCENT_COLOR
+		var color: Color = ACCENT_COLOR
 		color.a = 0.6
-		var text := format_thousands(RADIUS_KM * ring / RING_COUNT)
-		var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE).x
+		var text: String = format_thousands(RADIUS_KM * ring / RING_COUNT)
+		var width: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE).x
 		draw_string(font, Vector2(center.x + ring_radius - 4.0 - width, center.y - 4.0), text,
 				HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE, color)
 
@@ -372,9 +372,9 @@ func _draw_ring_labels(center: Vector2, radius: float, range_radius: float) -> v
 func _draw_route(center: Vector2) -> void:
 	if selected_index < 0:
 		return
-	var target := _contact_position(_contacts[selected_index])
-	var direction := center.direction_to(target)
-	var color := SELECTED_COLOR
+	var target: Vector2 = _contact_position(_contacts[selected_index])
+	var direction: Vector2 = center.direction_to(target)
+	var color: Color = SELECTED_COLOR
 	color.a = 0.9
 	_draw_dashed_line(center + direction * ROUTE_START, target - direction * ROUTE_END, color, ROUTE_DASH, _time * ROUTE_DASH_SPEED)
 
@@ -386,45 +386,45 @@ func _draw_station(center: Vector2) -> void:
 	draw_rect(Rect2(center - Vector2(1, 1), Vector2(2, 2)), STATION_HOLE_COLOR)
 
 func _draw_contacts() -> void:
-	var font := get_theme_default_font()
-	var current := _default_selection(-1)
+	var font: Font = get_theme_default_font()
+	var current: int = _default_selection(-1)
 	for contact: Contact in _contacts:
 		if contact.state == ContactState.LOCKED:
 			continue
-		var contact_point := _contact_position(contact)
-		var is_selected := contact.index == selected_index
+		var contact_point: Vector2 = _contact_position(contact)
+		var is_selected: bool = contact.index == selected_index
 		if contact.state == ContactState.UNKNOWN:
 			_draw_unknown(contact, contact_point, is_selected, font)
 			continue
-		var color := COMPLETED_COLOR if contact.state == ContactState.COMPLETED else PENDING_COLOR
-		var alpha := maxf(GLOW_MIN_CURRENT if contact.index == current else GLOW_MIN, 1.0 - (_time - contact.hit_time) / GLOW_FADE)
+		var color: Color = COMPLETED_COLOR if contact.state == ContactState.COMPLETED else PENDING_COLOR
+		var alpha: float = maxf(GLOW_MIN_CURRENT if contact.index == current else GLOW_MIN, 1.0 - (_time - contact.hit_time) / GLOW_FADE)
 		if is_selected or contact.index == _hover_index:
 			color = SELECTED_COLOR
 			alpha = 1.0
 		color.a = alpha
-		var icon_point := contact_point
+		var icon_point: Vector2 = contact_point
 		if is_selected:
 			icon_point.y -= _selected_lift()
 			_draw_ripple(contact_point, color)
 		_draw_ship(contact, icon_point, color)
-		var code := get_sector_code(contact.index)
-		var width := font.get_string_size(code, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE).x
+		var code: String = get_sector_code(contact.index)
+		var width: float = font.get_string_size(code, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE).x
 		draw_string(font, Vector2(roundf(contact_point.x - width / 2.0), contact_point.y + LABEL_OFFSET), code,
 				HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE, color)
 
 # Sector del jefe sin nivel: un "?" rojo que late, con su rótulo (el modo corrupto es otro ticket).
 func _draw_unknown(contact: Contact, point: Vector2, is_selected: bool, font: Font) -> void:
-	var color := BOSS_COLOR
+	var color: Color = BOSS_COLOR
 	color.a = 0.55 + 0.45 * absf(sin(_time * 2.0))
 	if is_selected or contact.index == _hover_index:
 		color.a = 1.0
 	if is_selected:
 		_draw_ripple(point, color)
-	var mark_width := font.get_string_size("?", HORIZONTAL_ALIGNMENT_LEFT, -1, BOSS_MARK_SIZE).x
+	var mark_width: float = font.get_string_size("?", HORIZONTAL_ALIGNMENT_LEFT, -1, BOSS_MARK_SIZE).x
 	draw_string(font, Vector2(roundf(point.x - mark_width / 2.0), point.y + 8.0), "?",
 			HORIZONTAL_ALIGNMENT_LEFT, -1, BOSS_MARK_SIZE, color)
-	var code := get_sector_code(contact.index)
-	var width := font.get_string_size(code, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE).x
+	var code: String = get_sector_code(contact.index)
+	var width: float = font.get_string_size(code, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE).x
 	draw_string(font, Vector2(roundf(point.x - width / 2.0), point.y + LABEL_OFFSET), code,
 			HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE, color)
 
@@ -432,36 +432,36 @@ func _draw_ship(contact: Contact, point: Vector2, color: Color) -> void:
 	if contact.hull == null:
 		draw_rect(Rect2(point - Vector2(5, 4), Vector2(10, 8)), color)
 		return
-	var ship_size := contact.hull.get_size() * SHIP_SCALE
-	var rect := Rect2((point - ship_size / 2.0).round(), ship_size)
+	var ship_size: Vector2 = contact.hull.get_size() * SHIP_SCALE
+	var rect: Rect2 = Rect2((point - ship_size / 2.0).round(), ship_size)
 	draw_texture_rect(contact.hull, rect, false, color)
 	if contact.eyes != null:
-		var eye_color := EYE_COLOR
+		var eye_color: Color = EYE_COLOR
 		eye_color.a = color.a * _eye_alpha(_time / BLINK_PERIOD + contact.index * BLINK_PHASE_STEP)
 		draw_texture_rect(contact.eyes, rect, false, eye_color)
 
 # Altura del icono seleccionado: un salto al elegirlo y luego flota arriba y abajo.
 func _selected_lift() -> float:
-	var elapsed := _time - _select_time
+	var elapsed: float = _time - _select_time
 	if elapsed < JUMP_TIME:
 		return roundf(JUMP_HEIGHT * sin(PI * elapsed / JUMP_TIME))
-	var phase := (elapsed - JUMP_TIME) / FLOAT_PERIOD
+	var phase: float = (elapsed - JUMP_TIME) / FLOAT_PERIOD
 	return roundf(FLOAT_HEIGHT * (0.5 - 0.5 * cos(TAU * phase)))
 
 # Onda circular que sale del contacto seleccionado y se desvanece.
 func _draw_ripple(point: Vector2, color: Color) -> void:
-	var progress := fmod(maxf(_time - _select_time, 0.0), RIPPLE_TIME) / RIPPLE_TIME
-	var ripple_color := color
+	var progress: float = fmod(maxf(_time - _select_time, 0.0), RIPPLE_TIME) / RIPPLE_TIME
+	var ripple_color: Color = color
 	ripple_color.a = 0.9 * (1.0 - progress)
 	draw_arc(point, roundf(lerpf(RIPPLE_FROM, RIPPLE_TO, progress)), 0.0, TAU, 48, ripple_color, 1.0)
 
 # Alfa de los ojos en la fracción `cycle` del parpadeo (se repite cada 1.0).
 func _eye_alpha(cycle: float) -> float:
-	var phase := fposmod(cycle, 1.0)
+	var phase: float = fposmod(cycle, 1.0)
 	for key: int in range(1, BLINK_KEYS.size()):
-		var to := BLINK_KEYS[key]
+		var to: Vector2 = BLINK_KEYS[key]
 		if phase <= to.x:
-			var from := BLINK_KEYS[key - 1]
+			var from: Vector2 = BLINK_KEYS[key - 1]
 			return lerpf(from.y, to.y, inverse_lerp(from.x, to.x, phase))
 	return 1.0
 
@@ -469,25 +469,25 @@ func _eye_alpha(cycle: float) -> float:
 func _draw_dashed_circle(center: Vector2, radius: float, color: Color, offset: float) -> void:
 	if radius <= 0.0:
 		return
-	var period := DASH * 2.0
-	var count := maxi(roundi(TAU * radius / period), 1)
-	var step := TAU / count
-	var shift := fposmod(offset, period) / period * step
+	var period: float = DASH * 2.0
+	var count: int = maxi(roundi(TAU * radius / period), 1)
+	var step: float = TAU / count
+	var shift: float = fposmod(offset, period) / period * step
 	for dash: int in count:
-		var start := dash * step + shift
+		var start: float = dash * step + shift
 		draw_arc(center, radius, start, start + step / 2.0, 4, color, 1.0)
 
 # Línea discontinua; `offset` (px) hace avanzar los trazos de `from` hacia `to`.
 func _draw_dashed_line(from: Vector2, to: Vector2, color: Color, dash: float, offset: float) -> void:
-	var length := from.distance_to(to)
+	var length: float = from.distance_to(to)
 	if length <= 0.0:
 		return
-	var direction := from.direction_to(to)
-	var period := dash * 2.0
-	var start := fposmod(offset, period) - period
+	var direction: Vector2 = from.direction_to(to)
+	var period: float = dash * 2.0
+	var start: float = fposmod(offset, period) - period
 	while start < length:
-		var dash_from := maxf(start, 0.0)
-		var dash_to := minf(start + dash, length)
+		var dash_from: float = maxf(start, 0.0)
+		var dash_to: float = minf(start + dash, length)
 		if dash_to > dash_from:
 			draw_line(from + direction * dash_from, from + direction * dash_to, color, 2.0)
 		start += period

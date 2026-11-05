@@ -12,9 +12,9 @@ var start_on_level_selection: bool = false
 @onready var navedex: Navedex = $Navedex
 @onready var options_menu: OptionsMenu = $OptionsMenu
 
-const FADE_TIME := 0.25
-const WARP_TIME := 0.5
-const FLASH_TIME := 0.1
+const FADE_TIME: float = 0.25
+const WARP_TIME: float = 0.5
+const FLASH_TIME: float = 0.1
 
 var _jumping: bool = false
 
@@ -53,23 +53,23 @@ func _open_level(data: LevelData) -> void:
 		return
 	_jumping = true
 	await _hyperspace_jump()
-	var game = preload("res://scenes/Game.tscn").instantiate()
+	var game: Game = preload("res://scenes/Game.tscn").instantiate()
 	game.level_data = data
 	game.from_hyperspace = true
-	var tree = get_tree()
+	var tree: SceneTree = get_tree()
 	tree.root.add_child(game)
 	tree.current_scene.queue_free()
 	tree.current_scene = game
 
 # Estrellas en líneas y destello blanco que cubre el menú antes de cargar el nivel.
 func _hyperspace_jump() -> void:
-	var flash := ColorRect.new()
+	var flash: ColorRect = ColorRect.new()
 	flash.color = Color(1, 1, 1, 0)
 	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
 	flash.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(flash)
 	await $StarField.warp(WARP_TIME)
-	var tween := create_tween()
+	var tween: Tween = create_tween()
 	tween.tween_property(flash, "color:a", 1.0, FLASH_TIME)
 	await tween.finished
 
@@ -91,9 +91,9 @@ func _on_navedex_back_pressed() -> void:
 
 @warning_ignore("integer_division")
 func _on_stats_button_pressed() -> void:
-	var seconds := int(GameState.play_time)
+	var seconds: int = int(GameState.play_time)
 	var favorite: String = GameState.favorite_turret()
-	var turret_name := "-"
+	var turret_name: String = "-"
 	if favorite != "":
 		turret_name = (load(Navedex.TURRET_DIR + favorite + ".tres") as TurretData).get_inspect_name()
 	stats_label.text = "
@@ -113,9 +113,9 @@ func _on_quit_button_pressed() -> void:
 	get_tree().quit()
 
 func _transition(from: Control, to: Control) -> void:
-	var tween := create_tween()
+	var tween: Tween = create_tween()
 	tween.tween_property(from, "modulate:a", 0.0, FADE_TIME)
-	tween.tween_callback(func():
+	tween.tween_callback(func() -> void:
 		from.hide()
 		to.modulate.a = 0.0
 		to.show())
