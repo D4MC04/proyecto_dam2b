@@ -12,7 +12,16 @@ class_name SectorRadar
 signal sector_selected(index: int)
 signal sector_launched(index: int)
 
-enum ContactState { LOCKED, PENDING, COMPLETED }
+# UNKNOWN = el sector del jefe final (SEC-10), que aún no tiene nivel: se ve siempre, pero no se juega.
+enum ContactState { LOCKED, PENDING, COMPLETED, UNKNOWN }
+
+## Sectores totales de la campaña: si GameData.levels tiene menos, el último (el del jefe) sale
+## como contacto UNKNOWN de prueba, arriba en el centro.
+const TOTAL_SECTORS := 10
+const BOSS_DISTANCE := 0.72
+const BOSS_BEARING := 0.0
+const BOSS_COLOR := Color("#e65a4f")
+const BOSS_MARK_SIZE := 32
 
 ## Radio del radar en km (los textos de los anillos y la distancia de la ficha).
 const RADIUS_KM := 4000
@@ -88,10 +97,12 @@ const COMPLETED_COLOR := Color("#3cb860")
 const SELECTED_COLOR := Color("#54a0e2")
 const EYE_COLOR := Color("#f0323c")
 
-# Un contacto por nivel.
+# Un contacto por nivel (data = null en el sector del jefe sin nivel).
 class Contact:
 	var index: int
 	var data: LevelData
+	var distance: float
+	var bearing: float
 	var state: SectorRadar.ContactState
 	var hull: Texture2D
 	var eyes: Texture2D
@@ -117,7 +128,7 @@ func _process(delta: float) -> void:
 	_time += delta
 	_sweep = fmod(_time * SWEEP_SPEED, TAU)
 	for contact: Contact in _contacts:
-		if _sweep_crossed(previous_sweep, _sweep, deg_to_rad(contact.data.radar_bearing)):
+		if _sweep_crossed(previous_sweep, _sweep, deg_to_rad(contact.bearing)):
 			contact.hit_time = _time
 	queue_redraw()
 
@@ -130,6 +141,8 @@ func refresh() -> void:
 		var contact := Contact.new()
 		contact.index = i
 		contact.data = GameData.levels[i]
+		contact.distance = contact.data.radar_distance
+		contact.bearing = contact.data.radar_bearing
 		contact.state = get_level_state(i)
 		contact.hull = _load_texture(SHIP_DIR + "radar_%s.png" % SHIP_FILES[contact.data.radar_ship])
 		contact.eyes = _load_texture(SHIP_DIR + "radar_%s_eyes.png" % SHIP_FILES[contact.data.radar_ship])
@@ -137,9 +150,16 @@ func refresh() -> void:
 		if contact.state != ContactState.LOCKED:
 			last_visible = i
 	_range = _compute_range(last_visible)
+	if GameData.levels.size() < TOTAL_SECTORS:
+		var boss := Contact.new()
+		boss.index = TOTAL_SECTORS - 1
+		boss.distance = BOSS_DISTANCE
+		boss.bearing = BOSS_BEARING
+		boss.state = ContactState.UNKNOWN
+		_contacts.append(boss)
 	if last_visible < 0:
 		selected_index = -1
-	elif selected_index < 0 or selected_index > last_visible or _contacts[selected_index].state == ContactState.LOCKED:
+	elif selected_index < 0 or selected_index >= _contacts.size() 			or (selected_index > last_visible and _contacts[selected_index].state != ContactState.UNKNOWN):
 		select(_default_selection(last_visible))
 	queue_redraw()
 
@@ -151,9 +171,12 @@ func select(index: int) -> void:
 	selected_index = index
 	sector_selected.emit(index)
 
-## Estado del nivel `index` (desde 0) según GameState.
+## Estado del nivel `index` (desde 0) según GameState. El radar solo enseña hasta el progreso real
+## (current_level), aunque is_unlocked() deje jugar todos los niveles mientras se prueba.
 func get_level_state(index: int) -> ContactState:
-	if not GameState.is_unlocked(index):
+	if index >= GameData.levels.size():
+		return ContactState.UNKNOWN
+	if not GameState.is_unlocked(index) or index >= GameState.current_level:
 		return ContactState.LOCKED
 	if GameState.get_level_stars(index + 1) > 0 or index + 1 < GameState.current_level:
 		return ContactState.COMPLETED
@@ -174,6 +197,18 @@ static func format_thousands(value: int) -> String:
 	var separator := String(TranslationServer.translate("NUMBER_THOUSANDS_SEP"))
 	return ("-" if value < 0 else "") + separator.join(groups)
 
+## Sectores asegurados (completados), para el subtítulo.
+func get_secured_count() -> int:
+	var count := 0
+	for contact: Contact in _contacts:
+		if contact.state == ContactState.COMPLETED:
+			count += 1
+	return count
+
+## Alcance actual del radar en km, redondeado a centenas.
+func get_range_km() -> int:
+	return roundi(_range * RADIUS_KM / 100.0) * 100
+
 static func get_sector_code(index: int) -> String:
 	return String(TranslationServer.translate("RADAR_SECTOR_CODE")) % (index + 1)
 
@@ -187,10 +222,10 @@ func _load_texture(path: String) -> Texture2D:
 func _compute_range(last_visible: int) -> float:
 	if last_visible < 0:
 		return RANGE_MARGIN
-	var distance := _contacts[last_visible].data.radar_distance
+	var distance := _contacts[last_visible].distance
 	if last_visible + 1 >= _contacts.size():
 		return minf(distance + RANGE_MARGIN, RANGE_MAX)
-	var next_distance := _contacts[last_visible + 1].data.radar_distance
+	var next_distance := _contacts[last_visible + 1].distance
 	return minf(distance + RANGE_MARGIN, (distance + next_distance) / 2.0 + RANGE_NEXT_MARGIN)
 
 func _default_selection(last_visible: int) -> int:
@@ -216,7 +251,7 @@ func _direction(bearing: float) -> Vector2:
 	return Vector2(sin(bearing), -cos(bearing))
 
 func _contact_position(contact: Contact) -> Vector2:
-	var offset := _direction(deg_to_rad(contact.data.radar_bearing)) * contact.data.radar_distance * _get_radius()
+	var offset := _direction(deg_to_rad(contact.bearing)) * contact.distance * _get_radius()
 	return (_get_center() + offset).round()
 
 func _gui_input(event: InputEvent) -> void:
@@ -230,7 +265,7 @@ func _gui_input(event: InputEvent) -> void:
 		if index < 0:
 			return
 		select(index)
-		if button.double_click:
+		if button.double_click and _contacts[index].state != ContactState.UNKNOWN:
 			sector_launched.emit(index)
 		accept_event()
 
@@ -353,6 +388,9 @@ func _draw_contacts() -> void:
 			continue
 		var contact_point := _contact_position(contact)
 		var is_selected := contact.index == selected_index
+		if contact.state == ContactState.UNKNOWN:
+			_draw_unknown(contact, contact_point, is_selected, font)
+			continue
 		var color := COMPLETED_COLOR if contact.state == ContactState.COMPLETED else PENDING_COLOR
 		var alpha := maxf(GLOW_MIN_CURRENT if contact.index == current else GLOW_MIN, 1.0 - (_time - contact.hit_time) / GLOW_FADE)
 		if is_selected or contact.index == _hover_index:
@@ -368,6 +406,22 @@ func _draw_contacts() -> void:
 		var width := font.get_string_size(code, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE).x
 		draw_string(font, Vector2(roundf(contact_point.x - width / 2.0), contact_point.y + LABEL_OFFSET), code,
 				HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE, color)
+
+# Sector del jefe sin nivel: un "?" rojo que late, con su rótulo (el modo corrupto es otro ticket).
+func _draw_unknown(contact: Contact, point: Vector2, is_selected: bool, font: Font) -> void:
+	var color := BOSS_COLOR
+	color.a = 0.55 + 0.45 * absf(sin(_time * 2.0))
+	if is_selected or contact.index == _hover_index:
+		color.a = 1.0
+	if is_selected:
+		_draw_ripple(point, color)
+	var mark_width := font.get_string_size("?", HORIZONTAL_ALIGNMENT_LEFT, -1, BOSS_MARK_SIZE).x
+	draw_string(font, Vector2(roundf(point.x - mark_width / 2.0), point.y + 8.0), "?",
+			HORIZONTAL_ALIGNMENT_LEFT, -1, BOSS_MARK_SIZE, color)
+	var code := get_sector_code(contact.index)
+	var width := font.get_string_size(code, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE).x
+	draw_string(font, Vector2(roundf(point.x - width / 2.0), point.y + LABEL_OFFSET), code,
+			HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE, color)
 
 func _draw_ship(contact: Contact, point: Vector2, color: Color) -> void:
 	if contact.hull == null:

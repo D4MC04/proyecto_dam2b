@@ -34,7 +34,7 @@ const REPLAY_HOVER_COLOR := Color("#7ee89a")
 const STAR_PIXEL := 2
 const STAR_GAP := 4
 const STAR_COLOR := Color("#ecb23c")
-const STAR_EMPTY_COLOR := Color("#3c2a0c")
+const UNKNOWN_COLOR := Color("#e65a4f")
 
 # Fila "NOMBRE ........ valor" con una línea de puntos debajo.
 class CardRow extends HBoxContainer:
@@ -79,12 +79,22 @@ class StarsDisplay extends Control:
 		var shape := VictoryScreen.STAR_SHAPE
 		var star_width := shape[0].length() * SectorCard.STAR_PIXEL
 		for index: int in GameState.MAX_STARS:
-			var color := SectorCard.STAR_COLOR if index < stars else SectorCard.STAR_EMPTY_COLOR
+			var filled := index < stars
 			var origin := Vector2(index * (star_width + SectorCard.STAR_GAP), 0)
 			for row: int in shape.size():
 				for column: int in shape[row].length():
-					if shape[row][column] == "#":
-						draw_rect(Rect2(origin + Vector2(column, row) * SectorCard.STAR_PIXEL, Vector2.ONE * SectorCard.STAR_PIXEL), color)
+					# Las que faltan, solo el contorno (como ☆).
+					if shape[row][column] == "#" and (filled or _is_edge(shape, row, column)):
+						draw_rect(Rect2(origin + Vector2(column, row) * SectorCard.STAR_PIXEL, Vector2.ONE * SectorCard.STAR_PIXEL), SectorCard.STAR_COLOR)
+
+	# Un píxel de la forma es borde si alguno de sus cuatro vecinos está vacío o fuera.
+	static func _is_edge(shape: Array[String], row: int, column: int) -> bool:
+		for offset: Vector2i in [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]:
+			var r := row + offset.y
+			var c := column + offset.x
+			if r < 0 or r >= shape.size() or c < 0 or c >= shape[r].length() or shape[r][c] != "#":
+				return true
+		return false
 
 var _title_label := Label.new()
 var _status_row := CardRow.new("CARD_STATUS")
@@ -139,6 +149,9 @@ func show_level(index: int, state: SectorRadar.ContactState) -> void:
 	_refresh()
 
 func _refresh() -> void:
+	if _state == SectorRadar.ContactState.UNKNOWN:
+		_show_unknown()
+		return
 	var has_level := _index >= 0 and _index < GameData.levels.size()
 	_deploy_button.disabled = not has_level
 	if not has_level:
@@ -150,7 +163,7 @@ func _refresh() -> void:
 		return
 	var data: LevelData = GameData.levels[_index]
 	var completed := _state == SectorRadar.ContactState.COMPLETED
-	_title_label.text = "%s · %s" % [SectorRadar.get_sector_code(_index), tr(data.sector_name).to_upper()]
+	_title_label.text = "%s - %s" % [SectorRadar.get_sector_code(_index), tr(data.sector_name).to_upper()]
 	_set_value(_status_row, tr("CARD_SECURED") if completed else tr("CARD_ACTIVE"), SECURED_COLOR if completed else ACTIVE_COLOR)
 	_set_value(_bearing_row, "%03d°" % (roundi(data.radar_bearing) % 360), VALUE_COLOR)
 	_set_value(_distance_row, tr("CARD_KM") % SectorRadar.format_thousands(SectorRadar.get_distance_km(data)), VALUE_COLOR)
@@ -165,6 +178,17 @@ func _refresh() -> void:
 	_deploy_button.add_theme_color_override("font_focus_color", color)
 	_deploy_button.add_theme_color_override("font_hover_color", hover_color)
 	_deploy_button.add_theme_color_override("font_pressed_color", hover_color)
+
+# Sector del jefe que aún no tiene nivel: todo desconocido y el botón apagado.
+func _show_unknown() -> void:
+	_title_label.text = "%s - ???" % SectorRadar.get_sector_code(_index)
+	_set_value(_status_row, tr("CARD_NO_DATA"), UNKNOWN_COLOR)
+	for row: CardRow in [_bearing_row, _distance_row, _waves_row]:
+		_set_value(row, "???", VALUE_COLOR)
+	_set_value(_threat_row, "???", UNKNOWN_COLOR)
+	_stars_display.stars = 0
+	_deploy_button.disabled = true
+	_deploy_button.text = tr("BTN_UNAVAILABLE")
 
 func _set_value(row: CardRow, text: String, color: Color) -> void:
 	row.value_label.text = text

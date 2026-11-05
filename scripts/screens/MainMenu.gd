@@ -6,6 +6,7 @@ var start_on_level_selection: bool = false
 @onready var level_selection_panel: VBoxContainer = $LevelSelectionScreen
 @onready var sector_radar: SectorRadar = %SectorRadar
 @onready var sector_card: SectorCard = %SectorCard
+@onready var sectors_subtitle: Label = %SectorsSubtitle
 @onready var stats_panel: VBoxContainer = $StatsScreen
 @onready var stats_label: Label = %StatsLabel
 @onready var navedex: Navedex = $Navedex
@@ -31,11 +32,16 @@ func _ready() -> void:
 func _refresh_sectors() -> void:
 	sector_radar.refresh()
 	_on_sector_selected(sector_radar.selected_index)
+	sectors_subtitle.text = tr("RADAR_SUBTITLE") % [sector_radar.get_secured_count(), SectorRadar.TOTAL_SECTORS,
+			SectorRadar.format_thousands(sector_radar.get_range_km())]
 
 func _on_sector_selected(index: int) -> void:
 	sector_card.show_level(index, sector_radar.get_level_state(index) if index >= 0 else SectorRadar.ContactState.LOCKED)
 
 func _on_sector_launched(index: int) -> void:
+	# El sector del jefe aún no tiene nivel.
+	if index >= GameData.levels.size():
+		return
 	_open_level(GameData.levels[index])
 
 func _on_deploy_pressed() -> void:
