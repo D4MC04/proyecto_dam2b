@@ -16,7 +16,7 @@ signal sector_launched(index: int)
 enum ContactState { LOCKED, PENDING, COMPLETED, UNKNOWN }
 
 ## Sectores totales de la campaña: si GameData.levels tiene menos, el último (el del jefe) sale
-## como contacto UNKNOWN de prueba, arriba en el centro.
+## como contacto UNKNOWN de prueba, arriba en el centro, cuando se ha ganado el último nivel.
 const TOTAL_SECTORS := 10
 const BOSS_DISTANCE := 0.72
 const BOSS_BEARING := 0.0
@@ -150,7 +150,9 @@ func refresh() -> void:
 		if contact.state != ContactState.LOCKED:
 			last_visible = i
 	_range = _compute_range(last_visible)
-	if GameData.levels.size() < TOTAL_SECTORS:
+	# El jefe solo aparece al ganar el último nivel que hay; entonces el radar llega a su tope.
+	if GameData.levels.size() < TOTAL_SECTORS and last_visible >= 0 and _contacts[last_visible].index == GameData.levels.size() - 1 and _contacts[last_visible].state == ContactState.COMPLETED:
+		_range = RANGE_MAX
 		var boss := Contact.new()
 		boss.index = TOTAL_SECTORS - 1
 		boss.distance = BOSS_DISTANCE
@@ -159,7 +161,7 @@ func refresh() -> void:
 		_contacts.append(boss)
 	if last_visible < 0:
 		selected_index = -1
-	elif selected_index < 0 or selected_index >= _contacts.size() 			or (selected_index > last_visible and _contacts[selected_index].state != ContactState.UNKNOWN):
+	elif selected_index < 0 or selected_index >= _contacts.size() or (selected_index > last_visible and _contacts[selected_index].state != ContactState.UNKNOWN):
 		select(_default_selection(last_visible))
 	queue_redraw()
 
@@ -356,8 +358,11 @@ func _draw_ring_labels(center: Vector2, radius: float, range_radius: float) -> v
 	var font := get_theme_default_font()
 	for ring: int in range(1, RING_COUNT + 1):
 		var ring_radius := roundf(radius * ring / RING_COUNT)
+		# Fuera del alcance no se ve nada, tampoco los km.
+		if ring_radius > range_radius + 2.0:
+			continue
 		var color := ACCENT_COLOR
-		color.a = 0.6 if ring_radius <= range_radius + 2.0 else 0.25
+		color.a = 0.6
 		var text := format_thousands(RADIUS_KM * ring / RING_COUNT)
 		var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE).x
 		draw_string(font, Vector2(center.x + ring_radius - 4.0 - width, center.y - 4.0), text,
