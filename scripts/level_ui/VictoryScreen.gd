@@ -7,19 +7,19 @@ class_name VictoryScreen
 # Corre con el árbol en pausa (hereda process_mode ALWAYS de LevelUI), así que va en tiempo real.
 
 # Duración del fundido del oscurecido, a la vez que la entrada.
-const DIM_FADE_TIME := 0.2
+const DIM_FADE_TIME: float = 0.2
 # Duración total de la entrada: el marco baja hasta pasarse SLIDE_OVERSHOOT_PX px de su sitio
 # y en los últimos SLIDE_SETTLE_TIME s vuelve a él.
-const SLIDE_TIME := 0.35
-const SLIDE_SETTLE_TIME := 0.08
-const SLIDE_OVERSHOOT_PX := 2.0
+const SLIDE_TIME: float = 0.35
+const SLIDE_SETTLE_TIME: float = 0.08
+const SLIDE_OVERSHOOT_PX: float = 2.0
 # Duración del conteo de los números, que empieza al llegar el marco.
-const COUNT_TIME := 0.8
+const COUNT_TIME: float = 0.8
 
 # Destellos de cuatro puntas alrededor del título, en la rampa ámbar de art.md.
-const SPARKLE_ARM_COLOR := Color("#ecb23c")
-const SPARKLE_CORE_COLOR := Color("#ffe082")
-const SPARKLE_DIAGONAL_COLOR := Color("#96641e")
+const SPARKLE_ARM_COLOR: Color = Color("#ecb23c")
+const SPARKLE_CORE_COLOR: Color = Color("#ffe082")
+const SPARKLE_DIAGONAL_COLOR: Color = Color("#96641e")
 # Cada destello: línea del título a la que se arrima, lado (-1 izquierda, 1 derecha), desplazamiento
 # en px desde la esquina de esa línea, largo máximo de las puntas, ritmo y fase propios.
 const SPARKLES: Array[Dictionary] = [
@@ -38,9 +38,9 @@ const STAR_SHAPE: Array[String] = [
 	".###.###.",
 	".##...##.",
 ]
-const STAR_PIXEL := 2
-const STAR_GAP := 8
-const STAR_EMPTY_COLOR := Color("#3c2a0c")
+const STAR_PIXEL: int = 2
+const STAR_GAP: int = 8
+const STAR_EMPTY_COLOR: Color = Color("#3c2a0c")
 
 @onready var run_summary: RunSummary = %RunSummary
 @onready var stars_row: Control = %StarsRow
@@ -48,9 +48,9 @@ const STAR_EMPTY_COLOR := Color("#3c2a0c")
 
 # Entrada en curso (deslizamiento y fundido); null si no hay.
 var _intro: Tween
-var _time := 0.0
+var _time: float = 0.0
 # Estrellas ganadas en esta victoria (0..GameState.MAX_STARS).
-var _stars := 0
+var _stars: int = 0
 
 func _ready() -> void:
 	super()
@@ -75,12 +75,12 @@ func set_stars(stars: int) -> void:
 
 # Pinta las estrellas centradas: ámbar las ganadas, oscuras las que faltan.
 func _draw_stars() -> void:
-	var star_width := STAR_SHAPE[0].length() * STAR_PIXEL
+	var star_width: int = STAR_SHAPE[0].length() * STAR_PIXEL
 	var total_width: float = GameState.MAX_STARS * star_width + (GameState.MAX_STARS - 1) * STAR_GAP
-	var origin := Vector2(roundf((stars_row.size.x - total_width) / 2.0), roundf((stars_row.size.y - STAR_SHAPE.size() * STAR_PIXEL) / 2.0))
+	var origin: Vector2 = Vector2(roundf((stars_row.size.x - total_width) / 2.0), roundf((stars_row.size.y - STAR_SHAPE.size() * STAR_PIXEL) / 2.0))
 	for index: int in GameState.MAX_STARS:
-		var color := SPARKLE_ARM_COLOR if index < _stars else STAR_EMPTY_COLOR
-		var star_origin := origin + Vector2(index * (star_width + STAR_GAP), 0)
+		var color: Color = SPARKLE_ARM_COLOR if index < _stars else STAR_EMPTY_COLOR
+		var star_origin: Vector2 = origin + Vector2(index * (star_width + STAR_GAP), 0)
 		for row: int in STAR_SHAPE.size():
 			for column: int in STAR_SHAPE[row].length():
 				if STAR_SHAPE[row][column] == "#":
@@ -100,8 +100,8 @@ func _start_intro() -> void:
 		_intro.kill()
 	_time = 0.0
 	# Desde donde el marco (centrado), con sus corchetes, queda justo encima del área de juego.
-	var area_height := size.y if size.y > 0.0 else get_viewport_rect().size.y
-	var start_y := -roundf((area_height + frame.get_combined_minimum_size().y) / 2.0) - OverlayFrame.OUTSIDE_MARGIN
+	var area_height: float = size.y if size.y > 0.0 else get_viewport_rect().size.y
+	var start_y: float = -roundf((area_height + frame.get_combined_minimum_size().y) / 2.0) - OverlayFrame.OUTSIDE_MARGIN
 	_set_slide(start_y)
 	background.modulate.a = 0.0
 	_intro = create_tween().set_ignore_time_scale()
@@ -127,7 +127,7 @@ func _set_slide(offset_y: float) -> void:
 	center.position.y = roundf(offset_y)
 
 func _on_area_gui_input(event: InputEvent) -> void:
-	var click := event as InputEventMouseButton
+	var click: InputEventMouseButton = event as InputEventMouseButton
 	if click == null or not click.pressed or click.button_index != MOUSE_BUTTON_LEFT:
 		return
 	if _intro != null or run_summary.is_counting():
@@ -140,19 +140,19 @@ func _process(delta: float) -> void:
 
 # Pinta los destellos sobre el título, alrededor de la primera y la última línea del texto.
 func _draw_sparkles() -> void:
-	var font := title_label.get_theme_font("font")
-	var font_size := title_label.get_theme_font_size("font_size")
-	var line_height := font.get_height(font_size) + title_label.get_theme_constant("line_spacing")
-	var lines := tr(title_label.text).split("\n")
+	var font: Font = title_label.get_theme_font("font")
+	var font_size: int = title_label.get_theme_font_size("font_size")
+	var line_height: float = font.get_height(font_size) + title_label.get_theme_constant("line_spacing")
+	var lines: PackedStringArray = tr(title_label.text).split("\n")
 	for sparkle: Dictionary in SPARKLES:
 		var line_index: int = posmod(sparkle["line"], lines.size())
-		var line_width := font.get_string_size(lines[line_index], HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+		var line_width: float = font.get_string_size(lines[line_index], HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 		var side: int = sparkle["side"]
 		# Esquina de arriba de la línea por el lado del destello (el texto va centrado).
-		var corner := Vector2(title_label.size.x / 2.0 + side * line_width / 2.0, line_index * line_height)
-		var anchor := Vector2i(corner.round()) + (sparkle["offset"] as Vector2i) + Vector2i(0, roundi(line_height / 2.0))
+		var corner: Vector2 = Vector2(title_label.size.x / 2.0 + side * line_width / 2.0, line_index * line_height)
+		var anchor: Vector2i = Vector2i(corner.round()) + (sparkle["offset"] as Vector2i) + Vector2i(0, roundi(line_height / 2.0))
 		# Crece y mengua en pasos de 1 px, cada uno a su ritmo.
-		var wave := 0.5 + 0.5 * sin(_time * float(sparkle["rate"]) + float(sparkle["phase"]))
+		var wave: float = 0.5 + 0.5 * sin(_time * float(sparkle["rate"]) + float(sparkle["phase"]))
 		_draw_sparkle(anchor, roundi(wave * float(sparkle["max_arm"])))
 
 # Destello de cuatro puntas en píxeles enteros: cruz de 1 px con el centro claro y, al máximo
@@ -160,7 +160,7 @@ func _draw_sparkles() -> void:
 func _draw_sparkle(center_px: Vector2i, arm: int) -> void:
 	if arm <= 0:
 		return
-	var c := Vector2(center_px)
+	var c: Vector2 = Vector2(center_px)
 	title_label.draw_rect(Rect2(c.x, c.y - arm, 1, arm * 2 + 1), SPARKLE_ARM_COLOR)
 	title_label.draw_rect(Rect2(c.x - arm, c.y, arm * 2 + 1, 1), SPARKLE_ARM_COLOR)
 	if arm >= 2:

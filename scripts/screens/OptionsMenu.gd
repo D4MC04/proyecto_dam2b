@@ -1,7 +1,7 @@
 class_name OptionsMenu
 extends Control
 
-const FADE_TIME := 0.25
+const FADE_TIME: float = 0.25
 
 # Panel desde el que se abrió y al que vuelve "Volver" (título o menú de pausa).
 var _opener: Control
@@ -24,12 +24,12 @@ var _tween: Tween
 @onready var _language_button: Button = %LanguageButton
 
 func _ready() -> void:
-	for key in _sliders:
-		var slider := _sliders[key]
+	for key: StringName in _sliders:
+		var slider: Slider = _sliders[key]
 		slider.set_value_no_signal(Settings.get_value(key))
 		slider.value_changed.connect(func(value: float) -> void: Settings.set_value(key, value))
-	for key in _toggles:
-		var button := _toggles[key]
+	for key: StringName in _toggles:
+		var button: Button = _toggles[key]
 		button.set_pressed_no_signal(Settings.get_value(key))
 		_update_toggle_text(button)
 		button.toggled.connect(func(on: bool) -> void:
@@ -43,8 +43,8 @@ func _update_toggle_text(button: Button) -> void:
 
 # Pasa al siguiente idioma de Settings.LANGUAGES; los textos con clave se traducen solos.
 func _on_language_button_pressed() -> void:
-	var languages := Settings.LANGUAGES
-	var index := languages.find(Settings.get_value(&"language"))
+	var languages: PackedStringArray = Settings.LANGUAGES
+	var index: int = languages.find(Settings.get_value(&"language"))
 	Settings.set_value(&"language", languages[(index + 1) % languages.size()])
 	_update_language_text()
 

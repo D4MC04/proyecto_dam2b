@@ -2,7 +2,7 @@ extends InspectableData
 class_name TurretData
 
 # Color de la ficha de todas las torretas (marco del icono y etiqueta de tipo).
-const ACCENT_COLOR := Color("#40e0f0")
+const ACCENT_COLOR: Color = Color("#40e0f0")
 
 @export var name: String
 @export var cost: int
@@ -72,7 +72,7 @@ func get_stats() -> Array[StatEntry]:
 	var stats: Array[StatEntry] = [StatEntry.new("cost", "STAT_COST", UiFormat.money(cost))]
 	if is_amplifier():
 		# Sin ataque ni cadencia: solo el radio del aura (lo que gana cada torreta sale en su ficha).
-		var aura := attack_range as CircleShape2D
+		var aura: CircleShape2D = attack_range as CircleShape2D
 		if aura != null:
 			stats.append(StatEntry.new("range", "STAT_AURA", UiFormat.number(aura.radius)))
 		return stats
@@ -81,9 +81,9 @@ func get_stats() -> Array[StatEntry]:
 		stats.append(StatEntry.new("reward", "STAT_INCOME", UiFormat.money(money_amount)))
 		stats.append(StatEntry.new("cooldown", "STAT_INTERVAL", UiFormat.seconds(attack_cooldown)))
 		return stats
-	var circle := attack_range as CircleShape2D
+	var circle: CircleShape2D = attack_range as CircleShape2D
 	if circle != null:
-		var reach := UiFormat.number(circle.radius)
+		var reach: String = UiFormat.number(circle.radius)
 		if min_range > 0.0:
 			reach = UiFormat.number(min_range) + "-" + reach
 		stats.append(StatEntry.new("range", "STAT_RANGE", reach))
@@ -94,7 +94,7 @@ func get_stats() -> Array[StatEntry]:
 		stats.append(StatEntry.new("cooldown", "STAT_MAX_RATE", UiFormat.seconds(overheat_min_cooldown)))
 		stats.append(StatEntry.new("targets", "STAT_ENDURANCE", str(overheat_shots)))
 		stats.append(StatEntry.new("duration", "STAT_OVERHEAT", UiFormat.seconds(overheat_time)))
-	var attack := get_attack()
+	var attack: Resource = get_attack()
 	if attack != null:
 		stats.append_array(attack.get_stats())
 	return stats

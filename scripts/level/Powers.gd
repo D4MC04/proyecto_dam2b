@@ -15,31 +15,31 @@ const COOLDOWNS: Dictionary[Power, float] = {
 	Power.FREEZE: 60.0,
 	Power.ORBITAL: 75.0,
 }
-const METEOR_RADIUS := 40.0
-const METEOR_DAMAGE := 150.0
+const METEOR_RADIUS: float = 40.0
+const METEOR_DAMAGE: float = 150.0
 # Caída del meteorito: sale de este desplazamiento respecto al punto y tarda METEOR_FALL_TIME.
-const METEOR_FALL_OFFSET := Vector2(-90, -150)
-const METEOR_FALL_TIME := 0.3
+const METEOR_FALL_OFFSET: Vector2 = Vector2(-90, -150)
+const METEOR_FALL_TIME: float = 0.3
 # El impacto del lanzacohetes es de 24 px; a ×3 cubre casi todo el área (80 px).
-const METEOR_EXPLOSION_SCALE := 3.0
-const FREEZE_FACTOR := 0.3
-const FREEZE_TIME := 4.0
+const METEOR_EXPLOSION_SCALE: float = 3.0
+const FREEZE_FACTOR: float = 0.3
+const FREEZE_TIME: float = 4.0
 # Ataque orbital: un rayo vertical barre la fila elegida de izquierda a derecha durante ORBITAL_TIME.
-const ORBITAL_TIME := 2.0
-const ORBITAL_DPS := 400.0
-const ORBITAL_HALF_WIDTH := 6.0
-const ORBITAL_HALF_HEIGHT := 16.0
-const ORBITAL_FALL_TIME := 0.15
+const ORBITAL_TIME: float = 2.0
+const ORBITAL_DPS: float = 400.0
+const ORBITAL_HALF_WIDTH: float = 6.0
+const ORBITAL_HALF_HEIGHT: float = 16.0
+const ORBITAL_FALL_TIME: float = 0.15
 # Temblor del mapa mientras dura el rayo: se repite cada ORBITAL_SHAKE_INTERVAL con este "daño" (amplitud).
-const ORBITAL_SHAKE_INTERVAL := 0.15
-const ORBITAL_SHAKE_DAMAGE := 40
-const ORBITAL_BOLT_STEP := 14.0
-const ORBITAL_BOLT_JITTER := 6.0
-const ORBITAL_BEAM_COLOR := Color("#40e0f0")
-const ORBITAL_GLOW_COLOR := Color(0.25, 0.88, 0.94, 0.3)
-const ORBITAL_CORE_COLOR := Color("#ffffff")
-const AIM_FILL_COLOR := Color(1.0, 0.7, 0.24, 0.15)
-const AIM_BORDER_COLOR := Color("#ecb23c")
+const ORBITAL_SHAKE_INTERVAL: float = 0.15
+const ORBITAL_SHAKE_DAMAGE: int = 40
+const ORBITAL_BOLT_STEP: float = 14.0
+const ORBITAL_BOLT_JITTER: float = 6.0
+const ORBITAL_BEAM_COLOR: Color = Color("#40e0f0")
+const ORBITAL_GLOW_COLOR: Color = Color(0.25, 0.88, 0.94, 0.3)
+const ORBITAL_CORE_COLOR: Color = Color("#ffffff")
+const AIM_FILL_COLOR: Color = Color(1.0, 0.7, 0.24, 0.15)
+const AIM_BORDER_COLOR: Color = Color("#ecb23c")
 
 const METEOR_TEXTURE: Texture2D = preload("res://assets/sprites/backgrounds/espacio/cometa.png")
 const EXPLOSION_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/rocket_launcher_impact.tres")
@@ -50,10 +50,10 @@ const FROST_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/cryo_f
 
 var _cooldown_left: Dictionary[Power, float] = {Power.METEOR: 0.0, Power.FREEZE: 0.0, Power.ORBITAL: 0.0}
 # Poder que se está apuntando, o -1.
-var _aimed_power := -1
-var _orbital_row := 0.0
-var _orbital_elapsed := ORBITAL_TIME
-var _orbital_shake_left := 0.0
+var _aimed_power: int = -1
+var _orbital_row: float = 0.0
+var _orbital_elapsed: float = ORBITAL_TIME
+var _orbital_shake_left: float = 0.0
 
 func _ready() -> void:
 	# Duerme hasta que se usa un poder.
@@ -72,9 +72,9 @@ func _process(delta: float) -> void:
 		if _orbital_shake_left <= 0.0:
 			_orbital_shake_left = ORBITAL_SHAKE_INTERVAL
 			(get_parent() as Level).shake_map(ORBITAL_SHAKE_DAMAGE)
-		var beam := _beam_position()
+		var beam: Vector2 = _beam_position()
 		for enemy: Enemy in get_tree().get_nodes_in_group(&"enemies"):
-			var offset := (enemy.global_position - beam).abs()
+			var offset: Vector2 = (enemy.global_position - beam).abs()
 			if _orbital_elapsed >= ORBITAL_FALL_TIME and enemy.hp > 0 and offset.x <= ORBITAL_HALF_WIDTH and offset.y <= ORBITAL_HALF_HEIGHT:
 				enemy.take_damage(ORBITAL_DPS * delta)
 		queue_redraw()
@@ -130,14 +130,14 @@ func _draw() -> void:
 	if _orbital_elapsed < ORBITAL_TIME:
 		_draw_bolt()
 	if _aimed_power == Power.ORBITAL:
-		var row := to_local(Vector2(Level.GAME_AREA_RECT.position.x, get_global_mouse_position().y)).round()
-		var band := Rect2(row.x, row.y - ORBITAL_HALF_HEIGHT, Level.GAME_AREA_RECT.size.x, ORBITAL_HALF_HEIGHT * 2.0)
+		var row: Vector2 = to_local(Vector2(Level.GAME_AREA_RECT.position.x, get_global_mouse_position().y)).round()
+		var band: Rect2 = Rect2(row.x, row.y - ORBITAL_HALF_HEIGHT, Level.GAME_AREA_RECT.size.x, ORBITAL_HALF_HEIGHT * 2.0)
 		draw_rect(band, AIM_FILL_COLOR, true)
 		draw_rect(band, AIM_BORDER_COLOR, false, 1.0)
 		return
 	if _aimed_power != Power.METEOR:
 		return
-	var center := get_local_mouse_position().round()
+	var center: Vector2 = get_local_mouse_position().round()
 	draw_circle(center, METEOR_RADIUS, AIM_FILL_COLOR, true, -1.0, false)
 	draw_circle(center, METEOR_RADIUS, AIM_BORDER_COLOR, false, 1.0, false)
 
@@ -146,13 +146,13 @@ func _drop_meteor(target: Vector2) -> void:
 	_cooldown_left[Power.METEOR] = COOLDOWNS[Power.METEOR]
 	set_process(true)
 	power_used.emit(Power.METEOR)
-	var meteor := Sprite2D.new()
+	var meteor: Sprite2D = Sprite2D.new()
 	meteor.texture = METEOR_TEXTURE
 	add_child(meteor)
 	meteor.global_position = target + METEOR_FALL_OFFSET
 	# La cabeza del cometa mira a +x: se gira hacia donde cae.
 	meteor.rotation = (-METEOR_FALL_OFFSET).angle()
-	var tween := meteor.create_tween()
+	var tween: Tween = meteor.create_tween()
 	tween.tween_property(meteor, "global_position", target, METEOR_FALL_TIME)
 	tween.tween_callback(func() -> void:
 		meteor.queue_free()
@@ -160,7 +160,7 @@ func _drop_meteor(target: Vector2) -> void:
 
 func _explode(target: Vector2) -> void:
 	Effect.spawn(self, EXPLOSION_FRAMES, target, METEOR_EXPLOSION_SCALE)
-	var player := AudioStreamPlayer2D.new()
+	var player: AudioStreamPlayer2D = AudioStreamPlayer2D.new()
 	player.stream = EXPLOSION_SOUND
 	player.bus = &"SFX"
 	player.finished.connect(player.queue_free)
@@ -190,16 +190,16 @@ func _fire_orbital(row_y: float) -> void:
 
 # Posición global del rayo: recorre el ancho del área de juego en ORBITAL_TIME.
 func _beam_position() -> Vector2:
-	var rect := Level.GAME_AREA_RECT
+	var rect: Rect2 = Level.GAME_AREA_RECT
 	return Vector2(rect.position.x + rect.size.x * _orbital_elapsed / ORBITAL_TIME, _orbital_row)
 
 # Rayo en zigzag que cae desde arriba hasta la fila (en ORBITAL_FALL_TIME) y parpadea cada frame.
 func _draw_bolt() -> void:
-	var beam := to_local(_beam_position())
-	var top := to_local(Vector2(0.0, Level.GAME_AREA_RECT.position.y)).y
-	var bottom := lerpf(top, beam.y, minf(_orbital_elapsed / ORBITAL_FALL_TIME, 1.0))
-	var points := PackedVector2Array()
-	var y := top
+	var beam: Vector2 = to_local(_beam_position())
+	var top: float = to_local(Vector2(0.0, Level.GAME_AREA_RECT.position.y)).y
+	var bottom: float = lerpf(top, beam.y, minf(_orbital_elapsed / ORBITAL_FALL_TIME, 1.0))
+	var points: PackedVector2Array = PackedVector2Array()
+	var y: float = top
 	while y < bottom:
 		points.append(Vector2(beam.x + randf_range(-ORBITAL_BOLT_JITTER, ORBITAL_BOLT_JITTER), y))
 		y += ORBITAL_BOLT_STEP

@@ -7,7 +7,7 @@ class_name ScreenWipe
 # al destapar se libera sola. Bloquea el ratón mientras está.
 
 const SHADER: Shader = preload("res://resources/shaders/screen_wipe.gdshader")
-const LAYER := 100
+const LAYER: int = 100
 
 var _rect: ColorRect
 var _material: ShaderMaterial
@@ -42,7 +42,7 @@ func _setup(origin: Vector2, reverse_order: bool) -> void:
 
 func _run(from: float, to: float, duration: float) -> void:
 	_material.set_shader_parameter(&"progress", from)
-	var tween := create_tween()
+	var tween: Tween = create_tween()
 	tween.tween_method(func(value: float) -> void: _material.set_shader_parameter(&"progress", value),
 			from, to, duration).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	await tween.finished

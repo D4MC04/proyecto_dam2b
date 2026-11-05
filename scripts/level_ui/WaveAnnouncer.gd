@@ -2,11 +2,11 @@ class_name WaveAnnouncer
 extends Control
 
 # Tiempos en segundos de tiempo real: entra, se queda y se desvanece.
-const FADE_IN_TIME := 0.25
-const HOLD_TIME := 1.5
-const FADE_OUT_TIME := 0.4
-const TITLE_COLOR := Color("#40e0f0")
-const SUBTITLE_COLOR := Color("#cce6ff")
+const FADE_IN_TIME: float = 0.25
+const HOLD_TIME: float = 1.5
+const FADE_OUT_TIME: float = 0.4
+const TITLE_COLOR: Color = Color("#40e0f0")
+const SUBTITLE_COLOR: Color = Color("#cce6ff")
 
 var _title: Label = Label.new()
 var _subtitle: Label = Label.new()
@@ -15,11 +15,11 @@ var _tween: Tween
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	modulate.a = 0.0
-	var center := CenterContainer.new()
+	var center: CenterContainer = CenterContainer.new()
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(center)
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var box := VBoxContainer.new()
+	var box: VBoxContainer = VBoxContainer.new()
 	box.add_theme_constant_override(&"separation", 0)
 	center.add_child(box)
 	for label: Label in [_title, _subtitle]:

@@ -4,15 +4,15 @@ class_name RunSummary
 ## de la ficha. No sabe en qué pantalla está: lo usan la derrota y la victoria, cada una con su acento.
 ## show_stats() pinta los valores finales de golpe; count_up() los hace contar desde 0 (la victoria).
 
-const BG_COLOR := Color("#0a0f1a")
+const BG_COLOR: Color = Color("#0a0f1a")
 # Las filas son más anchas que en la ficha: algo más de aire alrededor del icono y el valor.
-const ROW_H_MARGIN := 6
-const ROW_V_MARGIN := 3
-const ROW_FONT_SIZE := 24
-const ROW_ICON_BOX := 12
-const ROW_ICON_TOP := 5
+const ROW_H_MARGIN: int = 6
+const ROW_V_MARGIN: int = 3
+const ROW_FONT_SIZE: int = 24
+const ROW_ICON_BOX: int = 12
+const ROW_ICON_TOP: int = 5
 # Hueco entre icono, nombre y valor: el de la ficha (StatRow.SEPARATION) a ×1,5.
-const ROW_SEPARATION := 6
+const ROW_SEPARATION: int = 6
 
 ## Color del rótulo y del borde.
 @export var accent_color: Color = Color("#40e0f0"):
@@ -38,7 +38,7 @@ func _ready() -> void:
 func show_stats(stats: RunStats) -> void:
 	_stop_count()
 	_stats = stats
-	for row in rows.get_children():
+	for row: Node in rows.get_children():
 		rows.remove_child(row)
 		row.queue_free()
 	var entries: Array[StatEntry] = [
@@ -49,7 +49,7 @@ func show_stats(stats: RunStats) -> void:
 	if stats.top_turret_kills > 0:
 		entries.append(StatEntry.new("targets", "STAT_TOP_TURRET", tr(stats.top_turret_name).to_upper()))
 		entries.append(StatEntry.new("kills", "STAT_TOP_KILLS", UiFormat.abbreviate(stats.top_turret_kills)))
-	for i in entries.size():
+	for i: int in entries.size():
 		rows.add_child(StatRow.create(entries[i], i, ROW_H_MARGIN, ROW_V_MARGIN, ROW_FONT_SIZE, ROW_ICON_BOX, ROW_ICON_TOP, ROW_SEPARATION))
 	_kills_label = StatRow.get_value_label(rows.get_child(1) as PanelContainer)
 	_cost_label = StatRow.get_value_label(rows.get_child(2) as PanelContainer)
@@ -88,7 +88,7 @@ func _show_counted(progress: float) -> void:
 	_cost_label.text = UiFormat.money(roundi(_stats.money_spent * progress))
 
 func _refresh_style() -> void:
-	var style := StyleBoxFlat.new()
+	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.bg_color = BG_COLOR
 	style.set_border_width_all(1)
 	style.border_color = BG_COLOR.lerp(accent_color, 0.5)

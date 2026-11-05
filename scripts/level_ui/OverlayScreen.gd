@@ -28,7 +28,7 @@ func _ready() -> void:
 	frame.accent_color = accent_color
 	frame.accent_light_color = accent_light_color
 	for child: Node in options.get_children():
-		var button := child as OverlayOptionButton
+		var button: OverlayOptionButton = child as OverlayOptionButton
 		if button:
 			button.accent_color = accent_color
 			button.accent_light_color = accent_light_color
@@ -37,7 +37,7 @@ func _ready() -> void:
 # Muestra u oculta el botón de una opción (p. ej. "Siguiente nivel" en el último nivel).
 func set_option_visible(option: Option, option_visible: bool) -> void:
 	for child: Node in options.get_children():
-		var button := child as OverlayOptionButton
+		var button: OverlayOptionButton = child as OverlayOptionButton
 		if button and button.option == option:
 			button.visible = option_visible
 

@@ -9,9 +9,9 @@ extends Resource
 ## Una entrada por nave, con su tiempo calculado a partir de los grupos, ordenadas por tiempo.
 func get_entries() -> Array[SpawnEntry]:
 	var result: Array[SpawnEntry] = []
-	var start := 0.0
-	for group in groups:
-		for n in group.count:
+	var start: float = 0.0
+	for group: SpawnGroup in groups:
+		for n: int in group.count:
 			result.append(SpawnEntry.create(group.enemy_data, start + group.spacing * n, group.path_index))
 		start += group.spacing * maxi(group.count - 1, 0) + group.pause_after
 	result.sort_custom(func(a: SpawnEntry, b: SpawnEntry) -> bool: return a.time < b.time)

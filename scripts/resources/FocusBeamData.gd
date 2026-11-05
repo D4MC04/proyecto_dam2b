@@ -23,15 +23,15 @@ class_name FocusBeamData
 ## Filas de la ficha propias del haz continuo. El daño/s va en una fila ("DPS 40/80")
 ## o, si no cabe, en una por nivel ("DPS N1 40").
 func get_stats() -> Array[StatEntry]:
-	var values := PackedStringArray()
-	for dps in damage_per_second:
+	var values: PackedStringArray = PackedStringArray()
+	for dps: float in damage_per_second:
 		values.append(UiFormat.number(dps))
 	var stats: Array[StatEntry] = []
-	var joined := "/".join(values)
+	var joined: String = "/".join(values)
 	if joined.length() <= StatEntry.MAX_VALUE_CHARS:
 		stats.append(StatEntry.new("dps", "STAT_DPS", joined))
 	else:
-		for i in values.size():
+		for i: int in values.size():
 			stats.append(StatEntry.new("dps", tr("STAT_DPS_LEVEL") % (i + 1), values[i]))
 	stats.append(StatEntry.new("level_time", "STAT_LEVEL_TIME", UiFormat.seconds(level_time)))
 	return stats

@@ -4,35 +4,35 @@ class_name HeatGlow
 # naranja que crece con el calor y chispas de metal al rojo que saltan cada vez más.
 # Sobrecalentada, el halo palpita y salen muchas más chispas.
 
-const GLOW_COLOR := Color(1.0, 0.45, 0.15)
-const GLOW_MIN_RADIUS := 4.0
-const GLOW_MAX_RADIUS := 14.0
-const GLOW_MAX_ALPHA := 0.35
-const PULSE_SPEED := 12.0
+const GLOW_COLOR: Color = Color(1.0, 0.45, 0.15)
+const GLOW_MIN_RADIUS: float = 4.0
+const GLOW_MAX_RADIUS: float = 14.0
+const GLOW_MAX_ALPHA: float = 0.35
+const PULSE_SPEED: float = 12.0
 # Chispas por segundo con el calor al máximo y extra al sobrecalentarse.
-const SPARKS_PER_SECOND := 30.0
-const OVERHEAT_SPARKS_PER_SECOND := 60.0
-const MAX_SPARKS := 60
-const SPARK_SPEED_MIN := 15.0
-const SPARK_SPEED_MAX := 40.0
-const SPARK_LIFE := 0.5
+const SPARKS_PER_SECOND: float = 30.0
+const OVERHEAT_SPARKS_PER_SECOND: float = 60.0
+const MAX_SPARKS: int = 60
+const SPARK_SPEED_MIN: float = 15.0
+const SPARK_SPEED_MAX: float = 40.0
+const SPARK_LIFE: float = 0.5
 # De recién salida a apagándose: amarillo, naranja, rojo.
 const SPARK_COLORS: Array[Color] = [Color("#fff1a0"), Color("#ffa040"), Color("#e0402a")]
 
 ## Calor de 0 a 1 y si está sobrecalentada; los pone la torreta cada frame.
-var heat := 0.0:
+var heat: float = 0.0:
 	set(value):
 		heat = value
 		if value > 0.0:
 			set_process(true)
-var overheated := false:
+var overheated: bool = false:
 	set(value):
 		overheated = value
 		if value:
 			set_process(true)
 
-var _time := 0.0
-var _spawn_debt := 0.0
+var _time: float = 0.0
+var _spawn_debt: float = 0.0
 # Cada chispa: [posición, velocidad, vida que le queda].
 var _sparks: Array[Array] = []
 
@@ -41,11 +41,11 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_time += delta
-	var rate := heat * heat * SPARKS_PER_SECOND + (OVERHEAT_SPARKS_PER_SECOND if overheated else 0.0)
+	var rate: float = heat * heat * SPARKS_PER_SECOND + (OVERHEAT_SPARKS_PER_SECOND if overheated else 0.0)
 	_spawn_debt += rate * delta
 	while _spawn_debt >= 1.0 and _sparks.size() < MAX_SPARKS:
 		_spawn_debt -= 1.0
-		var dir := Vector2.from_angle(randf() * TAU)
+		var dir: Vector2 = Vector2.from_angle(randf() * TAU)
 		_sparks.append([Vector2.ZERO, dir * randf_range(SPARK_SPEED_MIN, SPARK_SPEED_MAX), SPARK_LIFE])
 	_spawn_debt = minf(_spawn_debt, 1.0)
 	for spark: Array in _sparks:
@@ -59,11 +59,11 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 func _draw() -> void:
-	var glow := heat
+	var glow: float = heat
 	if overheated:
 		glow = 0.8 + 0.2 * sin(_time * PULSE_SPEED)
 	if glow > 0.0:
-		var radius := lerpf(GLOW_MIN_RADIUS, GLOW_MAX_RADIUS, glow)
+		var radius: float = lerpf(GLOW_MIN_RADIUS, GLOW_MAX_RADIUS, glow)
 		draw_circle(Vector2.ZERO, radius, Color(GLOW_COLOR, GLOW_MAX_ALPHA * glow * 0.5))
 		draw_circle(Vector2.ZERO, radius * 0.6, Color(GLOW_COLOR, GLOW_MAX_ALPHA * glow))
 	for spark: Array in _sparks:

@@ -4,10 +4,10 @@ class_name Pulse
 
 var _turret: Turret
 var _data: PulseData
-var _last_radius := 0.0
+var _last_radius: float = 0.0
 
 static func spawn(turret: Turret) -> void:
-	var pulse := Pulse.new()
+	var pulse: Pulse = Pulse.new()
 	pulse._turret = turret
 	pulse._data = turret.data.pulse
 	pulse.sprite_frames = pulse._data.wave_frames
@@ -22,11 +22,11 @@ static func spawn(turret: Turret) -> void:
 
 # Alcanza a los enemigos que quedan entre el borde anterior y el actual.
 func _hit_ring() -> void:
-	var radius := _data.start_radius + _data.growth * frame
-	for enemy in _turret.enemies_in_range.duplicate():
+	var radius: float = _data.start_radius + _data.growth * frame
+	for enemy: Enemy in _turret.enemies_in_range.duplicate():
 		if not is_instance_valid(enemy):
 			continue
-		var distance := global_position.distance_to(enemy.global_position)
+		var distance: float = global_position.distance_to(enemy.global_position)
 		if distance <= _last_radius or distance > radius:
 			continue
 		enemy.take_damage(_data.damage, _turret)
@@ -38,7 +38,7 @@ func _hit_ring() -> void:
 
 # Amplificada frena más, pero sin bajar de AmpEffect.MIN_SLOW_FACTOR (ni subir si ya estaba por debajo).
 func _slow_factor() -> float:
-	var extra := _turret.amp_value(AmpEffect.Kind.SLOW)
+	var extra: float = _turret.amp_value(AmpEffect.Kind.SLOW)
 	if extra <= 0.0:
 		return _data.slow_factor
 	return minf(_data.slow_factor, maxf(_data.slow_factor * (1.0 - extra), AmpEffect.MIN_SLOW_FACTOR))

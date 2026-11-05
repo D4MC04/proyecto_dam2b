@@ -4,10 +4,10 @@ class_name Base
 signal health_changed(current: int, maximum: int)
 signal destroyed
 
-const SHIELD_WEAK := preload("res://assets/sprites/base/shield_debil.png")
-const IMPACT_FRAMES := preload("res://resources/sprite_frames/rocket_launcher_impact.tres")
+const SHIELD_WEAK: CompressedTexture2D = preload("res://assets/sprites/base/shield_debil.png")
+const IMPACT_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/rocket_launcher_impact.tres")
 # Escala de la explosión según el daño de la nave: 5 -> 1,25 y 40 -> 2
-const IMPACT_SCALE_PER_DAMAGE := 0.0214
+const IMPACT_SCALE_PER_DAMAGE: float = 0.0214
 
 @export var max_health: int = 100
 

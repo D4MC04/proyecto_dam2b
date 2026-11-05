@@ -6,29 +6,29 @@ signal selection_changed(data: TurretData, on: bool)
 ## Petición de enseñar esta torreta en la ficha (clic derecho o izquierdo, se pueda pagar o no).
 signal inspect_requested(data: TurretData)
 
-const BORDER_COLOR := Color("#1c7496")
-const HOVER_BORDER_COLOR := Color("#40e0f0")
-const BG_COLOR := Color("#0e1626")
-const HOVER_BG_COLOR := Color("#16243c")
-const SELECTED_COLOR := Color("#ecb23c")
-const SELECTED_HOVER_BORDER_COLOR := Color("#ffe082")
-const UNAFFORDABLE_COST_COLOR := Color("#ff3c5a")
-const AFFORDABLE_COST_COLOR := Color("#ecb23c")
-const UNAFFORDABLE_ICON_COLOR := Color(1, 1, 1, 0.35)
+const BORDER_COLOR: Color = Color("#1c7496")
+const HOVER_BORDER_COLOR: Color = Color("#40e0f0")
+const BG_COLOR: Color = Color("#0e1626")
+const HOVER_BG_COLOR: Color = Color("#16243c")
+const SELECTED_COLOR: Color = Color("#ecb23c")
+const SELECTED_HOVER_BORDER_COLOR: Color = Color("#ffe082")
+const UNAFFORDABLE_COST_COLOR: Color = Color("#ff3c5a")
+const AFFORDABLE_COST_COLOR: Color = Color("#ecb23c")
+const UNAFFORDABLE_ICON_COLOR: Color = Color(1, 1, 1, 0.35)
 # Torreta aún sin desbloquear: plano oculto, sin icono ni coste. Caja más apagada que la normal,
 # rejilla de puntos, silueta rayada de una torreta (octógono, igual en todas) con contorno
 # punteado, centrada en el botón, y un candado en su centro.
-const LOCKED_BG_COLOR := Color("#0a1220")
-const LOCKED_BORDER_COLOR := Color("#1c4a60")
-const LOCKED_GRID_COLOR := Color("#16283c")
-const LOCKED_GRID_STEP := 4
+const LOCKED_BG_COLOR: Color = Color("#0a1220")
+const LOCKED_BORDER_COLOR: Color = Color("#1c4a60")
+const LOCKED_GRID_COLOR: Color = Color("#16283c")
+const LOCKED_GRID_STEP: int = 4
 # Misma forma que la base de las torretas (30x30, 9 px recortados en cada esquina). Tamaño par
 # como el botón, para que la silueta y el candado queden centrados al píxel.
-const LOCKED_SILHOUETTE_SIZE := Vector2i(30, 30)
-const LOCKED_SILHOUETTE_CUT := 9
+const LOCKED_SILHOUETTE_SIZE: Vector2i = Vector2i(30, 30)
+const LOCKED_SILHOUETTE_CUT: int = 9
 # Filas pares e impares de la silueta.
 const LOCKED_SILHOUETTE_COLORS: Array[Color] = [Color("#122a40"), Color("#0e2034")]
-const LOCKED_OUTLINE_COLOR := Color("#2a6a88")
+const LOCKED_OUTLINE_COLOR: Color = Color("#2a6a88")
 # Candado en píxeles: 1 = contorno, 2 = cuerpo, 3 = brillo, 4 = ojo de cerradura, 5 = sombra.
 const LOCK_PIXELS: PackedStringArray = [
 	"..111111..",
@@ -44,7 +44,7 @@ const LOCK_PIXELS: PackedStringArray = [
 	"1555555551",
 	"1111111111",
 ]
-const LOCK_COLORS := {
+const LOCK_COLORS: Dictionary = {
 	"1": HOVER_BORDER_COLOR,
 	"2": Color("#1c5d6d"),
 	"3": Color("#befaff"),
@@ -52,7 +52,7 @@ const LOCK_COLORS := {
 	"5": Color("#144252"),
 }
 # Largo de cada brazo de los corchetes que rodean la torreta seleccionada por fuera.
-const BRACKET_LENGTH := 4
+const BRACKET_LENGTH: int = 4
 
 @onready var icon_rect: Control = %IconRect
 @onready var base_sprite: AnimatedSprite2D = %BaseSprite
@@ -60,13 +60,13 @@ const BRACKET_LENGTH := 4
 @onready var cost_label: Label = %CostLabel
 
 var data: TurretData
-var _money := 0
-var _selected := false
-var _affordable := true
+var _money: int = 0
+var _selected: bool = false
+var _affordable: bool = true
 # Con una pantalla abierta el clic izquierdo solo enseña la ficha: no selecciona ni suelta.
-var _selection_locked := false
+var _selection_locked: bool = false
 # Torreta sin desbloquear en este nivel: no se compra, no se selecciona y no enseña ficha.
-var _locked := false
+var _locked: bool = false
 
 # Plano oculto ya pintado, por tamaño de botón: es el mismo en todas las bloqueadas.
 static var _locked_textures: Dictionary[Vector2i, ImageTexture] = {}
@@ -76,7 +76,7 @@ func _ready() -> void:
 	icon_rect.resized.connect(_center_sprites)
 	_center_sprites()
 
-func setup(turret_data: TurretData, money: int, locked := false) -> void:
+func setup(turret_data: TurretData, money: int, locked: bool = false) -> void:
 	data = turret_data
 	_locked = locked
 	_setup_sprites()
@@ -134,7 +134,7 @@ func _gui_input(event: InputEvent) -> void:
 	if _locked:
 		accept_event()
 		return
-	var click := event as InputEventMouseButton
+	var click: InputEventMouseButton = event as InputEventMouseButton
 	if click != null and click.pressed and click.button_index == MOUSE_BUTTON_RIGHT:
 		inspect_requested.emit(data)
 		accept_event()
@@ -155,14 +155,14 @@ func _draw() -> void:
 		return
 	if not _selected:
 		return
-	var left := -1
-	var top := -1
-	var right := int(size.x)
-	var bottom := int(size.y)
+	var left: int = -1
+	var top: int = -1
+	var right: int = int(size.x)
+	var bottom: int = int(size.y)
 	for corner: Vector2i in [Vector2i(left, top), Vector2i(right, top), Vector2i(left, bottom), Vector2i(right, bottom)]:
 		# Los brazos salen de la esquina hacia el centro del botón.
-		var x_start := corner.x if corner.x == left else corner.x - BRACKET_LENGTH + 1
-		var y_start := corner.y if corner.y == top else corner.y - BRACKET_LENGTH + 1
+		var x_start: int = corner.x if corner.x == left else corner.x - BRACKET_LENGTH + 1
+		var y_start: int = corner.y if corner.y == top else corner.y - BRACKET_LENGTH + 1
 		draw_rect(Rect2(x_start, corner.y, BRACKET_LENGTH, 1), SELECTED_COLOR)
 		draw_rect(Rect2(corner.x, y_start, 1, BRACKET_LENGTH), SELECTED_COLOR)
 
@@ -174,19 +174,19 @@ static func _get_locked_texture(box_size: Vector2i) -> ImageTexture:
 # Rejilla, silueta, contorno y candado en una imagen transparente que se pinta sobre la caja;
 # todo dentro de la caja recortada.
 static func _build_locked_image(box_size: Vector2i) -> Image:
-	var image := Image.create_empty(box_size.x, box_size.y, false, Image.FORMAT_RGBA8)
-	var bounds := Rect2i(Vector2i.ZERO, box_size)
-	var silhouette := Rect2i((box_size - LOCKED_SILHOUETTE_SIZE) / 2, LOCKED_SILHOUETTE_SIZE)
+	var image: Image = Image.create_empty(box_size.x, box_size.y, false, Image.FORMAT_RGBA8)
+	var bounds: Rect2i = Rect2i(Vector2i.ZERO, box_size)
+	var silhouette: Rect2i = Rect2i((box_size - LOCKED_SILHOUETTE_SIZE) / 2, LOCKED_SILHOUETTE_SIZE)
 	# La rejilla y el punteado se cuentan desde el borde más cercano del botón, para que el plano
 	# sea simétrico en los dos ejes y no descompense el candado. Los puntos de la rejilla más
 	# cercanos al centro quedan a 2 px de él por cada lado.
-	var center := (box_size - Vector2i.ONE) / 2
-	var grid_offset := (center + Vector2i(2, 2)) % LOCKED_GRID_STEP
-	for y in box_size.y:
-		for x in box_size.x:
+	var center: Vector2i = (box_size - Vector2i.ONE) / 2
+	var grid_offset: Vector2i = (center + Vector2i(2, 2)) % LOCKED_GRID_STEP
+	for y: int in box_size.y:
+		for x: int in box_size.x:
 			if not _inside_box(bounds, x, y):
 				continue
-			var folded := Vector2i(mini(x, box_size.x - 1 - x), mini(y, box_size.y - 1 - y))
+			var folded: Vector2i = Vector2i(mini(x, box_size.x - 1 - x), mini(y, box_size.y - 1 - y))
 			if _in_silhouette(silhouette, x, y):
 				image.set_pixel(x, y, LOCKED_SILHOUETTE_COLORS[y % 2])
 			elif _touches_silhouette(silhouette, x, y) and _is_outline_dot(silhouette, folded, x, y):
@@ -200,8 +200,8 @@ static func _build_locked_image(box_size: Vector2i) -> Image:
 static func _in_silhouette(rect: Rect2i, x: int, y: int) -> bool:
 	if not rect.has_point(Vector2i(x, y)):
 		return false
-	var from_side := mini(x - rect.position.x, rect.end.x - 1 - x)
-	var from_top := mini(y - rect.position.y, rect.end.y - 1 - y)
+	var from_side: int = mini(x - rect.position.x, rect.end.x - 1 - x)
+	var from_top: int = mini(y - rect.position.y, rect.end.y - 1 - y)
 	return from_side + from_top >= LOCKED_SILHOUETTE_CUT
 
 # Píxel fuera de la silueta pegado a ella por un lado (no en diagonal): forma el contorno.
@@ -215,8 +215,8 @@ static func _touches_silhouette(rect: Rect2i, x: int, y: int) -> bool:
 # la esquina ya se ve punteada) y los tramos rectos un píxel sí y otro no, con dos puntos seguidos
 # en el centro de cada lado que lo marcan. `folded` es la distancia al borde más cercano del botón.
 static func _is_outline_dot(rect: Rect2i, folded: Vector2i, x: int, y: int) -> bool:
-	var on_side := x < rect.position.x or x >= rect.end.x
-	var on_top_or_bottom := y < rect.position.y or y >= rect.end.y
+	var on_side: bool = x < rect.position.x or x >= rect.end.x
+	var on_top_or_bottom: bool = y < rect.position.y or y >= rect.end.y
 	if not on_side and not on_top_or_bottom:
 		return true
 	return (folded.y if on_side else folded.x) % 2 == 1
@@ -225,24 +225,24 @@ static func _is_outline_dot(rect: Rect2i, folded: Vector2i, x: int, y: int) -> b
 static func _inside_box(bounds: Rect2i, x: int, y: int) -> bool:
 	if y < 1 or y >= bounds.end.y - 1:
 		return false
-	var span := ClippedBoxStyle.row_span(bounds, ClippedBoxStyle.BUTTON_CLIP, y)
+	var span: Vector2i = ClippedBoxStyle.row_span(bounds, ClippedBoxStyle.BUTTON_CLIP, y)
 	return x > span.x and x < span.y - 1
 
 # Candado en el centro de la caja, con un halo de 1 px del color de fondo para que se lea
 # sobre la silueta.
 static func _draw_lock_pixels(image: Image, box_size: Vector2i) -> void:
-	var lock_size := Vector2i(LOCK_PIXELS[0].length(), LOCK_PIXELS.size())
-	var origin := (box_size - lock_size) / 2
-	for y in lock_size.y:
-		for x in lock_size.x:
+	var lock_size: Vector2i = Vector2i(LOCK_PIXELS[0].length(), LOCK_PIXELS.size())
+	var origin: Vector2i = (box_size - lock_size) / 2
+	for y: int in lock_size.y:
+		for x: int in lock_size.x:
 			if LOCK_PIXELS[y][x] == ".":
 				continue
-			for dy in range(-1, 2):
-				for dx in range(-1, 2):
+			for dy: int in range(-1, 2):
+				for dx: int in range(-1, 2):
 					image.set_pixelv(origin + Vector2i(x + dx, y + dy), LOCKED_BG_COLOR)
-	for y in lock_size.y:
-		for x in lock_size.x:
-			var key := LOCK_PIXELS[y][x]
+	for y: int in lock_size.y:
+		for x: int in lock_size.x:
+			var key: String = LOCK_PIXELS[y][x]
 			if key != ".":
 				image.set_pixelv(origin + Vector2i(x, y), LOCK_COLORS[key])
 
@@ -250,18 +250,18 @@ func _refresh() -> void:
 	if data == null:
 		return
 	if _locked:
-		var locked_style := ClippedBoxStyle.create(LOCKED_BG_COLOR, LOCKED_BORDER_COLOR)
-		for state in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
+		var locked_style: ClippedBoxStyle = ClippedBoxStyle.create(LOCKED_BG_COLOR, LOCKED_BORDER_COLOR)
+		for state: String in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
 			add_theme_stylebox_override(state, locked_style)
 		add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 		icon_rect.modulate = Color.TRANSPARENT   # oculto sin quitarle el hueco al layout
 		queue_redraw()
 		return
-	var normal := ClippedBoxStyle.create(BG_COLOR, BORDER_COLOR)
-	var hover := ClippedBoxStyle.create(HOVER_BG_COLOR, HOVER_BORDER_COLOR)
-	var selected := ClippedBoxStyle.create(BG_COLOR.lerp(SELECTED_COLOR, 0.25), SELECTED_COLOR)
-	var selected_hover := ClippedBoxStyle.create(BG_COLOR.lerp(SELECTED_COLOR, 0.4), SELECTED_HOVER_BORDER_COLOR)
-	var empty := StyleBoxEmpty.new()
+	var normal: ClippedBoxStyle = ClippedBoxStyle.create(BG_COLOR, BORDER_COLOR)
+	var hover: ClippedBoxStyle = ClippedBoxStyle.create(HOVER_BG_COLOR, HOVER_BORDER_COLOR)
+	var selected: ClippedBoxStyle = ClippedBoxStyle.create(BG_COLOR.lerp(SELECTED_COLOR, 0.25), SELECTED_COLOR)
+	var selected_hover: ClippedBoxStyle = ClippedBoxStyle.create(BG_COLOR.lerp(SELECTED_COLOR, 0.4), SELECTED_HOVER_BORDER_COLOR)
+	var empty: StyleBoxEmpty = StyleBoxEmpty.new()
 	if _selected:
 		normal = selected
 		hover = selected_hover
@@ -274,5 +274,5 @@ func _refresh() -> void:
 	add_theme_stylebox_override("disabled", normal)
 	add_theme_stylebox_override("focus", empty)
 	icon_rect.modulate = Color.WHITE if _affordable else UNAFFORDABLE_ICON_COLOR
-	var cost_color := AFFORDABLE_COST_COLOR if _affordable else UNAFFORDABLE_COST_COLOR
+	var cost_color: Color = AFFORDABLE_COST_COLOR if _affordable else UNAFFORDABLE_COST_COLOR
 	cost_label.add_theme_color_override("font_color", cost_color)

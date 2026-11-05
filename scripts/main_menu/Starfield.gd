@@ -25,10 +25,10 @@ var warping: bool = false
 func _ready() -> void:
 	viewport_size = get_viewport_rect().size
 	rng.randomize()
-	for layer in LAYERS:
+	for layer: Dictionary in LAYERS:
 		var sparkle: bool = layer.get("sparkle", false)
 		var colors: Array[Color] = SPARKLE_COLORS if sparkle else SMALL_COLORS
-		for i in layer["count"]:
+		for i: int in layer["count"]:
 			stars.append({
 				"pos": Vector2(rng.randf_range(0, viewport_size.x), rng.randf_range(0, viewport_size.y)),
 				"size": layer["size"],
@@ -43,7 +43,7 @@ func _ready() -> void:
 # Salto al hiperespacio: las estrellas se estiran en líneas desde el centro hacia fuera.
 func warp(duration: float) -> void:
 	warping = true
-	var tween := create_tween()
+	var tween: Tween = create_tween()
 	tween.tween_property(self, "warp_progress", 1.0, duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	await tween.finished
 
@@ -53,7 +53,7 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	var center: Vector2 = viewport_size / 2.0
-	for star in stars:
+	for star: Dictionary in stars:
 		var alpha: float = star["brightness"]
 		var size: float = star["size"]
 		var wave: float = 1.0

@@ -5,22 +5,22 @@ class_name InfoPanel
 
 # Fuente a 16 px (6 px por carácter) en los 110 px útiles de la pantalla de la barra
 # (128 px menos 6 de marco y 3 de margen a cada lado): 18 caracteres por línea (108 px).
-const NAME_MAX_CHARS := 18
-const NAME_MAX_LINES := 2
+const NAME_MAX_CHARS: int = 18
+const NAME_MAX_LINES: int = 2
 # Frames que dura el parpadeo de escáner al cambiar de contenido.
-const FLASH_FRAMES := 2
+const FLASH_FRAMES: int = 2
 
-const NAME_COLOR := Color("#befaff")
-const TAG_BG_COLOR := Color("#0e1626")
-const PAD_BG_COLOR := Color("#060b14")
-const PAD_GRID_COLOR := Color("#14304a")
+const NAME_COLOR: Color = Color("#befaff")
+const TAG_BG_COLOR: Color = Color("#0e1626")
+const PAD_BG_COLOR: Color = Color("#060b14")
+const PAD_GRID_COLOR: Color = Color("#14304a")
 # Largo de cada brazo de las esquinas del marco del icono.
-const PAD_CORNER := 4
-const PAD_GRID_STEP := 4
-const PAD_GRID_OFFSET := 2
-const HINT_COLOR := Color("#40e0f0")
+const PAD_CORNER: int = 4
+const PAD_GRID_STEP: int = 4
+const PAD_GRID_OFFSET: int = 2
+const HINT_COLOR: Color = Color("#40e0f0")
 # Tolerancia en px para dar el scroll por llegado al final.
-const HINT_END_MARGIN := 1.0
+const HINT_END_MARGIN: float = 1.0
 
 @onready var idle_view: Control = %IdleView
 @onready var detail_view: Control = %DetailView
@@ -39,8 +39,8 @@ const HINT_END_MARGIN := 1.0
 @onready var freeze_button: PowerButton = %FreezeButton
 @onready var orbital_button: PowerButton = %OrbitalButton
 
-var _accent := Color.WHITE
-var _flash_id := 0
+var _accent: Color = Color.WHITE
+var _flash_id: int = 0
 # Filas de bajas, daño y amplificación de la torreta seleccionada; se rehacen en cada selección.
 var _turret_rows: Array[Node] = []
 # Torreta colocada que enseña la ficha; si cambia su amplificación, se rehacen sus filas.
@@ -54,7 +54,7 @@ func _ready() -> void:
 	name_label.custom_minimum_size.y = name_label.get_combined_minimum_size().y
 	scroll_hint.draw.connect(_draw_scroll_hint)
 	scroll_hint.modulate.a = 0.0
-	var scroll_bar := stat_scroll.get_v_scroll_bar()
+	var scroll_bar: VScrollBar = stat_scroll.get_v_scroll_bar()
 	scroll_bar.value_changed.connect(_update_scroll_hint.unbind(1))
 	scroll_bar.changed.connect(_update_scroll_hint)
 	show_sellable(null)
@@ -67,7 +67,7 @@ func show_sellable(turret: Turret) -> void:
 	_shown_turret = turret
 	if turret != null:
 		turret.amplification_changed.connect(_on_amplification_changed)
-	for row in _turret_rows:
+	for row: Node in _turret_rows:
 		if is_instance_valid(row):
 			# Fuera ya, para que las filas nuevas cuenten bien su posición (fondos alternos).
 			if row.get_parent() == stat_rows:
@@ -82,8 +82,8 @@ func show_sellable(turret: Turret) -> void:
 		# Lo que gana dentro del aura de un Amplificador.
 		if turret.amp_level > 0:
 			entries.append(turret.data.amp_effect.get_stat(turret.amp_level))
-		for entry in entries:
-			var row := StatRow.create(entry, stat_rows.get_child_count())
+		for entry: StatEntry in entries:
+			var row: PanelContainer = StatRow.create(entry, stat_rows.get_child_count())
 			stat_rows.add_child(row)
 			_turret_rows.append(row)
 
@@ -93,7 +93,7 @@ func _on_amplification_changed() -> void:
 
 ## Enseña `data` en la ficha; con null vuelve al estado de reposo.
 func show_inspected(data: Resource) -> void:
-	var info := data as InspectableData
+	var info: InspectableData = data as InspectableData
 	if info != null:
 		_show_detail(info.get_inspect_icon(), info.get_inspect_name(), info.get_inspect_tag(),
 				info.get_inspect_accent(), info.get_stats(), info.get_inspect_description())
@@ -117,10 +117,10 @@ func _show_detail(icon: Texture2D, title: String, tag: String, accent: Color,
 	type_label.add_theme_color_override("font_color", accent)
 	type_tag.add_theme_stylebox_override("panel", _make_tag_style(accent))
 
-	for row in stat_rows.get_children():
+	for row: Node in stat_rows.get_children():
 		stat_rows.remove_child(row)
 		row.queue_free()
-	for i in stats.size():
+	for i: int in stats.size():
 		stat_rows.add_child(StatRow.create(stats[i], i))
 	description_label.text = description
 	description_label.visible = description != ""
@@ -128,7 +128,7 @@ func _show_detail(icon: Texture2D, title: String, tag: String, accent: Color,
 	stat_scroll.scroll_vertical = 0
 
 func _make_tag_style(accent: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
+	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.bg_color = TAG_BG_COLOR.lerp(accent, 0.2)
 	style.border_width_top = 1
 	style.border_width_bottom = 1
@@ -140,45 +140,45 @@ func _make_tag_style(accent: Color) -> StyleBoxFlat:
 
 # Marco del icono: fondo oscuro con rejilla de puntos y esquinas en el color de acento.
 func _draw_icon_pad() -> void:
-	var size_i := Vector2i(icon_pad.size)
+	var size_i: Vector2i = Vector2i(icon_pad.size)
 	icon_pad.draw_rect(Rect2(Vector2.ZERO, Vector2(size_i)), PAD_BG_COLOR)
-	for x in range(PAD_GRID_OFFSET, size_i.x, PAD_GRID_STEP):
-		for y in range(PAD_GRID_OFFSET, size_i.y, PAD_GRID_STEP):
+	for x: int in range(PAD_GRID_OFFSET, size_i.x, PAD_GRID_STEP):
+		for y: int in range(PAD_GRID_OFFSET, size_i.y, PAD_GRID_STEP):
 			icon_pad.draw_rect(Rect2(x, y, 1, 1), PAD_GRID_COLOR)
-	var right := size_i.x - 1
-	var bottom := size_i.y - 1
+	var right: int = size_i.x - 1
+	var bottom: int = size_i.y - 1
 	for corner: Vector2i in [Vector2i(0, 0), Vector2i(right, 0), Vector2i(0, bottom), Vector2i(right, bottom)]:
 		# Los brazos salen de la esquina hacia dentro.
-		var x_start := corner.x if corner.x == 0 else corner.x - PAD_CORNER + 1
-		var y_start := corner.y if corner.y == 0 else corner.y - PAD_CORNER + 1
+		var x_start: int = corner.x if corner.x == 0 else corner.x - PAD_CORNER + 1
+		var y_start: int = corner.y if corner.y == 0 else corner.y - PAD_CORNER + 1
 		icon_pad.draw_rect(Rect2(x_start, corner.y, PAD_CORNER, 1), _accent)
 		icon_pad.draw_rect(Rect2(corner.x, y_start, 1, PAD_CORNER), _accent)
 
 # La pista ▼ solo se ve si queda contenido por debajo del scroll.
 func _update_scroll_hint() -> void:
-	var scroll_bar := stat_scroll.get_v_scroll_bar()
+	var scroll_bar: VScrollBar = stat_scroll.get_v_scroll_bar()
 	# Se oculta con la transparencia (no con visible) para que su hueco no cambie el alto del scroll.
-	var has_more := scroll_bar.value + scroll_bar.page < scroll_bar.max_value - HINT_END_MARGIN
+	var has_more: bool = scroll_bar.value + scroll_bar.page < scroll_bar.max_value - HINT_END_MARGIN
 	scroll_hint.modulate.a = 1.0 if has_more else 0.0
 
 # Triángulo de 7x4 px centrado (no se usa el glifo ▼ porque Monogram no lo trae seguro).
 func _draw_scroll_hint() -> void:
-	var center_x := floori(scroll_hint.size.x / 2.0)
-	for row in 4:
+	var center_x: int = floori(scroll_hint.size.x / 2.0)
+	for row: int in 4:
 		scroll_hint.draw_rect(Rect2(center_x - 3 + row, row, 7 - row * 2, 1), HINT_COLOR)
 
 # Parte el nombre por palabras en líneas de NAME_MAX_CHARS. Una palabra que no cabe
 # en una línea se corta con guion. Si sobran líneas, se quedan las primeras.
 func _wrap_name(text: String) -> String:
-	var words := PackedStringArray()
-	for word in text.split(" ", false):
+	var words: PackedStringArray = PackedStringArray()
+	for word: String in text.split(" ", false):
 		while word.length() > NAME_MAX_CHARS:
 			words.append(word.left(NAME_MAX_CHARS - 1) + "-")
 			word = word.substr(NAME_MAX_CHARS - 1)
 		words.append(word)
-	var lines := PackedStringArray()
-	var line := ""
-	for word in words:
+	var lines: PackedStringArray = PackedStringArray()
+	var line: String = ""
+	for word: String in words:
 		if line == "":
 			line = word
 		elif not line.ends_with("-") and line.length() + 1 + word.length() <= NAME_MAX_CHARS:
@@ -193,9 +193,9 @@ func _wrap_name(text: String) -> String:
 # Parpadeo de escáner de unos frames sobre el contenido; el marco no se mueve.
 func _flash() -> void:
 	_flash_id += 1
-	var id := _flash_id
+	var id: int = _flash_id
 	scan_flash.show()
-	for i in FLASH_FRAMES:
+	for i: int in FLASH_FRAMES:
 		await get_tree().process_frame
 	if id == _flash_id:
 		scan_flash.hide()

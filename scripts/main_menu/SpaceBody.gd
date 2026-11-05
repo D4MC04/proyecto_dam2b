@@ -38,7 +38,7 @@ func _rebuild_frames() -> void:
 		sf.add_animation("default")
 	sf.set_animation_loop("default", true)
 	sf.set_animation_speed("default", fps)
-	for i in frame_count:
+	for i: int in frame_count:
 		var atlas: AtlasTexture = AtlasTexture.new()
 		atlas.atlas = sheet
 		atlas.region = Rect2(i * frame_size, 0, frame_size, frame_size)

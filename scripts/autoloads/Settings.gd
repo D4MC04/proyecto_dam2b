@@ -4,8 +4,8 @@ extends Node
 # Se emite después de aplicar el cambio, para lo que depende de una opción durante la partida.
 signal changed(key: StringName)
 
-const PATH := "user://settings.cfg"
-const SECTION := "settings"
+const PATH: String = "user://settings.cfg"
+const SECTION: String = "settings"
 
 # Opción de volumen -> bus de audio que controla.
 const VOLUME_BUSES: Dictionary[StringName, StringName] = {
@@ -38,16 +38,16 @@ var _values: Dictionary[StringName, Variant] = {
 }
 
 func _ready() -> void:
-	var file := ConfigFile.new()
+	var file: ConfigFile = ConfigFile.new()
 	if file.load(PATH) == OK:
-		for key in _values:
+		for key: StringName in _values:
 			# Si el archivo trae la clave con el nombre antiguo, se lee una vez para no perder el valor.
 			var fallback: Variant = file.get_value(SECTION, LEGACY_KEYS.get(key, key), _values[key])
 			# El archivo lo puede editar cualquiera: solo se aceptan valores del tipo esperado.
 			var value: Variant = file.get_value(SECTION, key, fallback)
 			if typeof(value) == typeof(_values[key]):
 				_values[key] = value
-	for key in _values:
+	for key: StringName in _values:
 		_apply(key)
 
 func get_value(key: StringName) -> Variant:
@@ -62,7 +62,7 @@ func set_value(key: StringName, value: Variant) -> void:
 func _apply(key: StringName) -> void:
 	var value: Variant = _values[key]
 	if VOLUME_BUSES.has(key):
-		var bus := AudioServer.get_bus_index(VOLUME_BUSES[key])
+		var bus: int = AudioServer.get_bus_index(VOLUME_BUSES[key])
 		AudioServer.set_bus_volume_linear(bus, clampf(value, 0.0, 1.0))
 		return
 	match key:
@@ -78,8 +78,8 @@ func _apply(key: StringName) -> void:
 			TranslationServer.set_locale(value if value in LANGUAGES else LANGUAGES[0])
 
 func _save() -> void:
-	var file := ConfigFile.new()
-	for key in _values:
+	var file: ConfigFile = ConfigFile.new()
+	for key: StringName in _values:
 		file.set_value(SECTION, key, _values[key])
 	if file.save(PATH) != OK:
 		push_warning("Settings: no se pudo guardar " + PATH)

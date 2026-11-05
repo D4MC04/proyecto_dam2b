@@ -1,7 +1,7 @@
 extends AudioStreamPlayer
 
 # Autoload: al vivir fuera de la escena actual, la música no se corta con change_scene.
-const MUSIC_PATH := "res://assets/audio/music/theme.ogg"
+const MUSIC_PATH: String = "res://assets/audio/music/theme.ogg"
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS  # sigue sonando con el juego en pausa
