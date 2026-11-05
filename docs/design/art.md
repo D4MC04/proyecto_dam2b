@@ -59,7 +59,7 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 | Cañón de asedio | rojo `#dc461e`; boca ancha, vainas laterales; impactos de 32x32 |
 | Tormenta | violeta `#5a3caa`; cuatro bobinas, rayos lilas |
 | Rail Gauss | cian; segundo capacitor; haz dorado de 32x15 |
-| Aniquilador | dorado y blanco; aletas exteriores |
+| Aniquilador | dorado y blanco (`#8c641e`, `#ecb23c`, `#ffd25a`, `#fff0b4`, `#fff5fc`); cuerpo macizo con un depósito redondo a cada lado, dos garras hacia delante con una luz en la punta y, entre ellas, dos prismas en rombo juntos; el haz sale de la chispa que hay entre sus puntas. Los prismas laten en reposo y se encienden más con cada nivel del haz (blancos en el 3). El haz es un núcleo blanco con dos hebras doradas enroscadas que avanzan (una vuelta cada 32 px, 8 px por frame), la de delante clara y la de detrás oscura |
 | Amplificador mayor | el mismo ámbar; aro discontinuo en la base, cúpula más grande y cuatro luces pequeñas más |
 | Excavadora | aro discontinuo de cobre y luces de oro en la base (la del Amplificador mayor), abrazaderas doradas en la carcasa y tolvas más llenas |
 | Cinturón | el mismo violeta con blanco `#ffffff`; aro discontinuo en la base, esfera más pequeña sin abrazaderas rodeada por dos aros de giroscopio cruzados que giran, tres brazos de remolino y núcleo, cargas e impacto con el centro blanco, para no confundirse con la Tormenta |
