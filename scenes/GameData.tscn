@@ -40,6 +40,11 @@ map = ExtResource("7_hvbbc")
 starting_money = 1100
 turrets = Array[ExtResource("8_c77oh")]([ExtResource("9_jj5sp"), ExtResource("11_1wlqr"), ExtResource("cryo"), ExtResource("10_5ltge"), ExtResource("miner")])
 waves = Array[ExtResource("12_anhds")]([ExtResource("13_6l3k6"), ExtResource("wave_5_2"), ExtResource("wave_5_3"), ExtResource("wave_5_4"), ExtResource("wave_5_5"), ExtResource("wave_5_6"), ExtResource("wave_5_7"), ExtResource("wave_5_8"), ExtResource("wave_5_9"), ExtResource("wave_5_10")])
+sector_name = "SECTOR_5_NAME"
+radar_distance = 0.42
+radar_bearing = 120.0
+threat = 1
+radar_ship = 2
 metadata/_custom_type_script = "uid://du40p5btlpgd0"
 
 [node name="GameData" type="Node" unique_id=1456673338]

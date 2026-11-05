@@ -4,7 +4,9 @@ var start_on_level_selection: bool = false
 
 @onready var main_panel: VBoxContainer = $TitleScreen
 @onready var level_selection_panel: VBoxContainer = $LevelSelectionScreen
-@onready var level_buttons_container: GridContainer = %LevelButtonsContainer
+@onready var sector_radar: SectorRadar = %SectorRadar
+@onready var sector_card: SectorCard = %SectorCard
+@onready var sectors_subtitle: Label = %SectorsSubtitle
 @onready var stats_panel: VBoxContainer = $StatsScreen
 @onready var stats_label: Label = %StatsLabel
 @onready var navedex: Navedex = $Navedex
@@ -20,21 +22,31 @@ func _ready() -> void:
 	if start_on_level_selection:
 		main_panel.hide()
 		level_selection_panel.show()
-	_build_level_buttons()
-	GameState.progress_reset.connect(_build_level_buttons)
+	sector_radar.sector_selected.connect(_on_sector_selected)
+	sector_radar.sector_launched.connect(_on_sector_launched)
+	sector_card.deploy_pressed.connect(_on_deploy_pressed)
+	GameState.progress_reset.connect(_refresh_sectors)
+	_refresh_sectors()
 
-func _build_level_buttons() -> void:
-	for child in level_buttons_container.get_children():
-		child.queue_free()
-	for i in GameData.levels.size():
-		var button := LevelButton.new()
-		button.level = GameData.levels[i]
-		button.text = str(i + 1)
-		button.custom_minimum_size = Vector2(60, 60)
-		button.add_theme_font_size_override("font_size", 24)
-		button.disabled = not GameState.is_unlocked(i)
-		button.level_selected.connect(_open_level)
-		level_buttons_container.add_child(button)
+# Vuelve a leer el progreso en el radar y la ficha (el radar ya lo lee al crearse).
+func _refresh_sectors() -> void:
+	sector_radar.refresh()
+	_on_sector_selected(sector_radar.selected_index)
+	sectors_subtitle.text = tr("RADAR_SUBTITLE") % [sector_radar.get_secured_count(), SectorRadar.TOTAL_SECTORS,
+			SectorRadar.format_thousands(sector_radar.get_range_km())]
+
+func _on_sector_selected(index: int) -> void:
+	sector_card.show_level(index, sector_radar.get_level_state(index) if index >= 0 else SectorRadar.ContactState.LOCKED)
+
+func _on_sector_launched(index: int) -> void:
+	# El sector del jefe aún no tiene nivel.
+	if index >= GameData.levels.size():
+		return
+	_open_level(GameData.levels[index])
+
+func _on_deploy_pressed() -> void:
+	if sector_radar.selected_index >= 0:
+		_on_sector_launched(sector_radar.selected_index)
 
 func _open_level(data: LevelData) -> void:
 	if _jumping:
@@ -65,6 +77,7 @@ func _on_settings_button_pressed() -> void:
 	options_menu.open_from(main_panel)
 
 func _on_play_button_pressed() -> void:
+	_refresh_sectors()
 	_transition(main_panel, level_selection_panel)
 
 func _on_volver_pressed() -> void:
