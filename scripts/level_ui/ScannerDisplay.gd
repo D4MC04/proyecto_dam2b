@@ -33,13 +33,13 @@ var _frame := 0
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(SIZE, SIZE)
+	visibility_changed.connect(func() -> void: set_process(is_visible_in_tree()))
+	set_process(is_visible_in_tree())
 	if _frames.is_empty():
 		for i in FRAME_COUNT:
 			_frames.append(ImageTexture.create_from_image(_paint_frame(360.0 * i / FRAME_COUNT)))
 
 func _process(delta: float) -> void:
-	if not is_visible_in_tree():
-		return
 	_time += delta
 	var frame := int(_time / FRAME_TIME) % FRAME_COUNT
 	if frame != _frame:

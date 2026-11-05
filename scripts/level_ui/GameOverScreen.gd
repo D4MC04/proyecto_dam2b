@@ -39,12 +39,15 @@ func _ready() -> void:
 	_glitch_material = glitch_layer.material as ShaderMaterial
 	_glitch_material.set_shader_parameter("tint_color", accent_color)
 	visibility_changed.connect(_on_visibility_changed)
+	set_process(is_visible_in_tree())
 
 ## Enseña el resumen de la partida. Se llama antes de mostrar la pantalla.
 func show_run_stats(stats: RunStats) -> void:
 	run_summary.show_stats(stats)
 
 func _on_visibility_changed() -> void:
+	# Solo hay que animar mientras se ve.
+	set_process(is_visible_in_tree())
 	# Cada vez que se abre, el glitch empieza de cero.
 	if is_visible_in_tree():
 		_time = 0.0
@@ -55,8 +58,6 @@ func _on_visibility_changed() -> void:
 		_step_glitch()
 
 func _process(delta: float) -> void:
-	if not is_visible_in_tree():
-		return
 	_time += delta
 	# Los botones no reciben clics hasta que acaba el glitch de entrada.
 	if _time >= INTRO_TIME and options.get_child(0).mouse_filter != Control.MOUSE_FILTER_STOP:
