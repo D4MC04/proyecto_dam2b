@@ -404,3 +404,5 @@ Opciones "Siguiente nivel" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción qu
 | `GameOverScreen` | llamada directa | `RunSummary.show_stats` |
 | `VictoryScreen` | llamada directa | `RunSummary.show_stats`, `count_up` y `finish_count` |
 | `Game` | llamada directa | `LevelUI.show_run_stats(level.get_run_stats())` y después `LevelUI.set_state(LOST)` en la derrota o `set_state(WON)` en la victoria |
+
+- **`_process` dormido:** las pantallas que animan (`GameOverScreen`, `PauseScreen`, `VictoryScreen`, `ScannerDisplay`, `SectorRadar`) solo procesan mientras se ven (`visibility_changed` → `set_process`). `Powers` duerme hasta que se usa un poder y vuelve a dormir al acabar recargas y rayo; `HeatGlow` duerme sin calor ni chispas y lo despierta el setter de `heat`/`overheated`.

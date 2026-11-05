@@ -25,6 +25,7 @@ func _ready() -> void:
 	fold_button.pressed.connect(_set_folded.bind(true))
 	folded_tag.gui_input.connect(_on_folded_tag_gui_input)
 	visibility_changed.connect(_on_visibility_changed)
+	set_process(is_visible_in_tree())
 	option_chosen.connect(_on_option_chosen)
 	_set_folded(false)
 
@@ -43,12 +44,12 @@ func _add_cursor() -> void:
 	row.add_child(_cursor_label)
 
 func _process(delta: float) -> void:
-	if not is_visible_in_tree():
-		return
 	_cursor_timer = fmod(_cursor_timer + delta, CURSOR_BLINK_TIME * 2.0)
 	_cursor_label.modulate.a = 1.0 if _cursor_timer < CURSOR_BLINK_TIME else 0.0
 
 func _on_visibility_changed() -> void:
+	# Solo hay que animar mientras se ve.
+	set_process(is_visible_in_tree())
 	# Al pausar, la pausa sale siempre desplegada y con el cursor encendido.
 	if is_visible_in_tree():
 		_cursor_timer = 0.0

@@ -62,6 +62,7 @@ func _ready() -> void:
 	for area: Control in [background, frame, run_summary]:
 		area.gui_input.connect(_on_area_gui_input)
 	visibility_changed.connect(_on_visibility_changed)
+	set_process(is_visible_in_tree())
 
 ## Enseña el resumen de la partida. Se llama antes de mostrar la pantalla.
 func show_run_stats(stats: RunStats) -> void:
@@ -86,6 +87,8 @@ func _draw_stars() -> void:
 					stars_row.draw_rect(Rect2(star_origin + Vector2(column, row) * STAR_PIXEL, Vector2.ONE * STAR_PIXEL), color)
 
 func _on_visibility_changed() -> void:
+	# Solo hay que animar mientras se ve.
+	set_process(is_visible_in_tree())
 	# Cada vez que se abre, la entrada y el conteo empiezan de cero; al cerrarse se deja en su sitio.
 	if is_visible_in_tree():
 		_start_intro()
@@ -132,8 +135,6 @@ func _on_area_gui_input(event: InputEvent) -> void:
 		accept_event()
 
 func _process(delta: float) -> void:
-	if not is_visible_in_tree():
-		return
 	_time += delta
 	title_label.queue_redraw()
 
