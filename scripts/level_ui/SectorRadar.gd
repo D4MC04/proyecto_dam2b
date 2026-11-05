@@ -61,7 +61,7 @@ const RANGE_DASH_SPEED := 20.0
 const ROUTE_DASH := 5.0
 const ROUTE_DASH_SPEED := 25.0
 # La ruta empieza tras la estación y acaba antes del icono.
-const ROUTE_START := 14.0
+const ROUTE_START := 9.0
 const ROUTE_END := 16.0
 
 # Salto al seleccionar, flotación posterior y onda circular.
@@ -380,10 +380,10 @@ func _draw_route(center: Vector2) -> void:
 
 # La estación: cruz y cuadro con un hueco en el centro.
 func _draw_station(center: Vector2) -> void:
-	draw_rect(Rect2(center - Vector2(5, 5), Vector2(10, 10)), ACCENT_COLOR)
-	draw_rect(Rect2(center - Vector2(11, 1), Vector2(22, 2)), ACCENT_COLOR)
-	draw_rect(Rect2(center - Vector2(1, 11), Vector2(2, 22)), ACCENT_COLOR)
-	draw_rect(Rect2(center - Vector2(2, 2), Vector2(4, 4)), STATION_HOLE_COLOR)
+	draw_rect(Rect2(center - Vector2(3, 3), Vector2(6, 6)), ACCENT_COLOR)
+	draw_rect(Rect2(center - Vector2(7, 1), Vector2(14, 2)), ACCENT_COLOR)
+	draw_rect(Rect2(center - Vector2(1, 7), Vector2(2, 14)), ACCENT_COLOR)
+	draw_rect(Rect2(center - Vector2(1, 1), Vector2(2, 2)), STATION_HOLE_COLOR)
 
 func _draw_contacts() -> void:
 	var font := get_theme_default_font()
