@@ -6,7 +6,7 @@
 [ext_resource type="Resource" uid="uid://bqvh377bcwk4w" path="res://resources/level_data/level_2.tres" id="4_d0bd5"]
 [ext_resource type="Resource" uid="uid://cdvockyn4xmod" path="res://resources/level_data/level_3.tres" id="5_fvrfv"]
 [ext_resource type="Resource" uid="uid://snokbicbogox" path="res://resources/level_data/level_4.tres" id="6_24vlh"]
-[ext_resource type="PackedScene" uid="uid://csp2bvvtlr7ym" path="res://scenes/maps/levels/Level5.tscn" id="7_hvbbc"]
+[ext_resource type="Resource" uid="uid://ck4r2sfi2w6b4" path="res://resources/level_data/level_5.tres" id="level_5"]
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="8_c77oh"]
 [ext_resource type="Resource" uid="uid://cqd4c6x6gpivw" path="res://resources/level_data/level_6.tres" id="8_huf1t"]
 [ext_resource type="Resource" uid="uid://du1m11e7dny05" path="res://resources/level_data/level_7.tres" id="level_7"]
@@ -20,34 +20,10 @@
 [ext_resource type="Resource" path="res://resources/turret_data/rail.tres" id="rail"]
 [ext_resource type="Resource" path="res://resources/turret_data/disintegrator.tres" id="disintegrator"]
 [ext_resource type="Resource" path="res://resources/turret_data/amplifier.tres" id="amplifier"]
-[ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="12_anhds"]
-[ext_resource type="Resource" uid="uid://cn4rx67l013pn" path="res://resources/wave_data/level_5.tres" id="13_6l3k6"]
-[ext_resource type="Resource" path="res://resources/wave_data/level_5_2.tres" id="wave_5_2"]
-[ext_resource type="Resource" path="res://resources/wave_data/level_5_3.tres" id="wave_5_3"]
-[ext_resource type="Resource" uid="uid://bys4hdpvtio1n" path="res://resources/wave_data/level_5_4.tres" id="wave_5_4"]
-[ext_resource type="Resource" uid="uid://ddiru6e4rylj1" path="res://resources/wave_data/level_5_5.tres" id="wave_5_5"]
-[ext_resource type="Resource" uid="uid://cafe2hkljmyra" path="res://resources/wave_data/level_5_6.tres" id="wave_5_6"]
-[ext_resource type="Resource" uid="uid://jmeikaimgm2e" path="res://resources/wave_data/level_5_7.tres" id="wave_5_7"]
-[ext_resource type="Resource" uid="uid://qyi7i1rdkwgn" path="res://resources/wave_data/level_5_8.tres" id="wave_5_8"]
-[ext_resource type="Resource" uid="uid://bkhvvmqowkbog" path="res://resources/wave_data/level_5_9.tres" id="wave_5_9"]
-[ext_resource type="Resource" uid="uid://bvyumep7adl6j" path="res://resources/wave_data/level_5_10.tres" id="wave_5_10"]
 [ext_resource type="Resource" path="res://resources/turret_data/miner.tres" id="miner"]
 [ext_resource type="Resource" path="res://resources/turret_data/orbiter.tres" id="orbiter"]
-
-[sub_resource type="Resource" id="Resource_aj4ja"]
-script = ExtResource("2_5qiqv")
-map = ExtResource("7_hvbbc")
-starting_money = 1100
-turrets = Array[ExtResource("8_c77oh")]([ExtResource("9_jj5sp"), ExtResource("11_1wlqr"), ExtResource("cryo"), ExtResource("10_5ltge"), ExtResource("miner")])
-waves = Array[ExtResource("12_anhds")]([ExtResource("13_6l3k6"), ExtResource("wave_5_2"), ExtResource("wave_5_3"), ExtResource("wave_5_4"), ExtResource("wave_5_5"), ExtResource("wave_5_6"), ExtResource("wave_5_7"), ExtResource("wave_5_8"), ExtResource("wave_5_9"), ExtResource("wave_5_10")])
-sector_name = "SECTOR_5_NAME"
-radar_distance = 0.44
-radar_bearing = 115.0
-threat = 1
-radar_ship = 2
-metadata/_custom_type_script = "uid://du40p5btlpgd0"
 
 [node name="GameData" type="Node" unique_id=1456673338]
 script = ExtResource("1_fa5ai")
 turret_order = Array[ExtResource("8_c77oh")]([ExtResource("9_jj5sp"), ExtResource("11_1wlqr"), ExtResource("cryo"), ExtResource("10_5ltge"), ExtResource("miner"), ExtResource("tesla"), ExtResource("orbiter"), ExtResource("amplifier"), ExtResource("disintegrator"), ExtResource("rail")])
-levels = Array[ExtResource("2_5qiqv")]([ExtResource("3_8md65"), ExtResource("4_d0bd5"), ExtResource("5_fvrfv"), ExtResource("6_24vlh"), SubResource("Resource_aj4ja"), ExtResource("8_huf1t"), ExtResource("level_7"), ExtResource("level_8"), ExtResource("level_9")])
+levels = Array[ExtResource("2_5qiqv")]([ExtResource("3_8md65"), ExtResource("4_d0bd5"), ExtResource("5_fvrfv"), ExtResource("6_24vlh"), ExtResource("level_5"), ExtResource("8_huf1t"), ExtResource("level_7"), ExtResource("level_8"), ExtResource("level_9")])

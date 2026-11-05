@@ -5,7 +5,7 @@ extends SceneTree
 ##
 ## Escribe resources/wave_data/level_N.tres (oleada 1) y level_N_K.tres (oleada K). Si el archivo
 ## ya existe se carga y se rellena, así conserva su uid. Después pone la lista de oleadas en
-## resources/level_data/level_N.tres y en el nivel 5 de scenes/GameData.tscn (que lo define dentro).
+## resources/level_data/level_N.tres.
 ##
 ## Cada oleada gasta un presupuesto: cada nave cuesta su recompensa (más la de sus trozos, si se
 ## parte). El presupuesto de la primera oleada sale de la tabla y crece por oleada; las naves salen
@@ -20,9 +20,6 @@ extends SceneTree
 const WAVE_DIR := "res://resources/wave_data/"
 const LEVEL_DIR := "res://resources/level_data/"
 const ENEMY_DIR := "res://resources/enemy_data/"
-const GAME_DATA_PATH := "res://scenes/GameData.tscn"
-## Nivel que está definido dentro de GameData.tscn en vez de en su level_N.tres.
-const SCENE_LEVEL := 5
 
 ## "dart" es un Dart de color al azar.
 const DART := "dart"
@@ -258,8 +255,6 @@ func _save_level(level_number: int, waves: Array[WaveData]) -> void:
 	var level: LevelData = load(path)
 	level.waves = waves
 	_save(level, path)
-	if level_number == SCENE_LEVEL:
-		_patch_game_data(level_number, waves.size())
 
 
 # Guarda el recurso conservando el uid de su cabecera (o uno nuevo si no tenía).
@@ -298,42 +293,5 @@ func _write_uids(path: String, uid: int) -> void:
 			if linked_uid != ResourceUID.INVALID_ID:
 				lines[i] = line.replace(" path=\"", " uid=\"%s\" path=\"" % ResourceUID.id_to_text(linked_uid))
 	var file := FileAccess.open(path, FileAccess.WRITE)
-	file.store_string("\n".join(lines))
-	file.close()
-
-
-# El nivel 5 vive dentro de GameData.tscn: se toca su texto para no reescribir la escena entera
-# (y no cambiar sus ids). Añade las ext_resource que falten y reescribe la línea de oleadas.
-func _patch_game_data(level_number: int, count: int) -> void:
-	var file := FileAccess.open(GAME_DATA_PATH, FileAccess.READ)
-	var lines := file.get_as_text().split("\n")
-	file.close()
-	var ids: Dictionary[String, String] = {}
-	var regex := RegEx.create_from_string('^\\[ext_resource .*path="([^"]+)" id="([^"]+)"\\]$')
-	var last_ext := 0
-	var last_wave_ext := 0
-	for i in lines.size():
-		var found := regex.search(lines[i])
-		if found == null:
-			continue
-		ids[found.get_string(1)] = found.get_string(2)
-		last_ext = i
-		if found.get_string(1).begins_with(WAVE_DIR):
-			last_wave_ext = i
-	var insert_at := (last_wave_ext if last_wave_ext > 0 else last_ext) + 1
-	var refs: Array[String] = []
-	for k in count:
-		var path := _wave_path(level_number, k)
-		if not ids.has(path):
-			ids[path] = "wave_%d_%d" % [level_number, k + 1]
-			var uid := ResourceUID.id_to_text(_read_uid(path))
-			lines.insert(insert_at, '[ext_resource type="Resource" uid="%s" path="%s" id="%s"]' % [uid, path, ids[path]])
-			insert_at += 1
-		refs.append('ExtResource("%s")' % ids[path])
-	var first_ref := 'ExtResource("%s")' % ids[_wave_path(level_number, 0)]
-	for i in lines.size():
-		if lines[i].begins_with("waves = ") and lines[i].contains(first_ref):
-			lines[i] = lines[i].substr(0, lines[i].find("([") + 2) + ", ".join(refs) + "])"
-	file = FileAccess.open(GAME_DATA_PATH, FileAccess.WRITE)
 	file.store_string("\n".join(lines))
 	file.close()
