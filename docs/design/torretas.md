@@ -287,7 +287,6 @@ Límite: `Effect` y `HealEffect` se apuntan al grupo `effects`; `Effect.has_room
 ## Dudas
 
 - Una torreta colocada solo se puede mejorar (fusión) o vender; no hay más mejoras.
-- `disintegrator.tres` tiene `attack_cooldown = 1.0`, que el código no usa para esa torreta.
 - El nombre de archivo `rocket_launcher` corresponde a la torreta que se llama "Cañón pesado", y `turret` a "Cañón doble". La carpeta es `turret_data` y la clase `TurretData`.
 
 ## Animaciones de construir, fusionar y vender
