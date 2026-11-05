@@ -152,7 +152,7 @@ func _refresh() -> void:
 	if _state == SectorRadar.ContactState.UNKNOWN:
 		_show_unknown()
 		return
-	var has_level := _index >= 0 and _index < GameData.levels.size()
+	var has_level: bool = _index >= 0 and _index < GameData.levels.size()
 	_deploy_button.disabled = not has_level
 	if not has_level:
 		_title_label.text = ""

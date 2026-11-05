@@ -76,7 +76,7 @@ func set_stars(stars: int) -> void:
 # Pinta las estrellas centradas: ámbar las ganadas, oscuras las que faltan.
 func _draw_stars() -> void:
 	var star_width := STAR_SHAPE[0].length() * STAR_PIXEL
-	var total_width := GameState.MAX_STARS * star_width + (GameState.MAX_STARS - 1) * STAR_GAP
+	var total_width: float = GameState.MAX_STARS * star_width + (GameState.MAX_STARS - 1) * STAR_GAP
 	var origin := Vector2(roundf((stars_row.size.x - total_width) / 2.0), roundf((stars_row.size.y - STAR_SHAPE.size() * STAR_PIXEL) / 2.0))
 	for index: int in GameState.MAX_STARS:
 		var color := SPARKLE_ARM_COLOR if index < _stars else STAR_EMPTY_COLOR
