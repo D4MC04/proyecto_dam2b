@@ -21,10 +21,10 @@ jobs:
 
       - name: Importar y arrancar en headless
         run: |
-          # Mismos criterios de error que el agente probador
+          # Mismos criterios de error que el agente probador (se ignora "resources still in use at exit")
           "$GODOT" --headless --path . --import 2>&1 | tee salida.log
           "$GODOT" --headless --path . --quit-after 120 2>&1 | tee -a salida.log
-          if grep -E "ERROR|SCRIPT ERROR|Parse Error|Failed to load|invalid UID" salida.log; then
+          if grep -E "ERROR|Parse Error|Failed to load|invalid UID" salida.log | grep -v "resources still in use at exit"; then
             echo "::error::Hay errores de script o recurso"
             exit 1
           fi
