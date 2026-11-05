@@ -1,0 +1,38 @@
+name: Godot
+
+on:
+  push:
+  pull_request:
+
+env:
+  GODOT_VERSION: 4.7.2
+
+jobs:
+  comprobar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Descargar Godot
+        run: |
+          curl -fsSL -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip -d "$RUNNER_TEMP"
+          echo "GODOT=$RUNNER_TEMP/Godot_v${GODOT_VERSION}-stable_linux.x86_64" >> "$GITHUB_ENV"
+
+      - name: Importar y arrancar en headless
+        run: |
+          # Mismos criterios de error que el agente probador
+          "$GODOT" --headless --path . --import 2>&1 | tee salida.log
+          "$GODOT" --headless --path . --quit-after 120 2>&1 | tee -a salida.log
+          if grep -E "ERROR|SCRIPT ERROR|Parse Error|Failed to load|invalid UID" salida.log; then
+            echo "::error::Hay errores de script o recurso"
+            exit 1
+          fi
+
+      - name: Pruebas automáticas (si existen)
+        run: |
+          if [ -f tests/run_tests.gd ]; then
+            "$GODOT" --headless --path . --script tests/run_tests.gd
+          else
+            echo "No hay pruebas automáticas"
+          fi
