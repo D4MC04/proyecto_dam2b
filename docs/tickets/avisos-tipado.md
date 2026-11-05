@@ -1,7 +1,7 @@
 # Avisos de tipado como error
 
 Creador: Renzo
-Estado: propuesta
+Estado: aceptada
 Prioridad: alta
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium

@@ -1,7 +1,7 @@
 # Comprobar el proyecto en GitHub al subir
 
 Creador: Renzo
-Estado: propuesta
+Estado: aceptada
 Prioridad: alta
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium

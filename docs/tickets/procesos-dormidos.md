@@ -1,7 +1,7 @@
 # Apagar _process cuando no hay trabajo
 
 Creador: Renzo
-Estado: propuesta
+Estado: aceptada
 Prioridad: media
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
