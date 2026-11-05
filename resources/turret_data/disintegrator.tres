@@ -15,7 +15,6 @@ script = ExtResource("1")
 shoot_sound = ExtResource("snd")
 name = "TURRET_DISINTEGRATOR_NAME"
 cost = 450
-attack_cooldown = 1.0
 icon = ExtResource("4")
 sprite_frames = ExtResource("5")
 attack_range = ExtResource("2")
