@@ -119,11 +119,11 @@ var _select_time := -100.0
 var _rng := RandomNumberGenerator.new()
 
 func _ready() -> void:
+	visibility_changed.connect(func() -> void: set_process(is_visible_in_tree()))
+	set_process(is_visible_in_tree())
 	refresh()
 
 func _process(delta: float) -> void:
-	if not is_visible_in_tree():
-		return
 	var previous_sweep := _sweep
 	_time += delta
 	_sweep = fmod(_time * SWEEP_SPEED, TAU)

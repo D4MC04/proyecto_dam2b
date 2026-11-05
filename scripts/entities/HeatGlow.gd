@@ -20,8 +20,16 @@ const SPARK_LIFE := 0.5
 const SPARK_COLORS: Array[Color] = [Color("#fff1a0"), Color("#ffa040"), Color("#e0402a")]
 
 ## Calor de 0 a 1 y si está sobrecalentada; los pone la torreta cada frame.
-var heat := 0.0
-var overheated := false
+var heat := 0.0:
+	set(value):
+		heat = value
+		if value > 0.0:
+			set_process(true)
+var overheated := false:
+	set(value):
+		overheated = value
+		if value:
+			set_process(true)
 
 var _time := 0.0
 var _spawn_debt := 0.0
@@ -45,6 +53,9 @@ func _process(delta: float) -> void:
 		spark[2] -= delta
 	_sparks = _sparks.filter(func(spark: Array) -> bool: return spark[2] > 0.0)
 	visible = heat > 0.0 or overheated or not _sparks.is_empty()
+	# Sin calor ni chispas no hay nada que mover hasta que la torreta vuelva a calentarse.
+	if not visible:
+		set_process(false)
 	queue_redraw()
 
 func _draw() -> void:

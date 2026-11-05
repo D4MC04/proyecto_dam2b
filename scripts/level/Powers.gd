@@ -56,6 +56,8 @@ var _orbital_elapsed := ORBITAL_TIME
 var _orbital_shake_left := 0.0
 
 func _ready() -> void:
+	# Duerme hasta que se usa un poder.
+	set_process(false)
 	# Elegir torreta cancela el apuntado.
 	state.selected_turret_changed.connect(func(data: TurretData) -> void:
 		if data != null:
@@ -76,6 +78,8 @@ func _process(delta: float) -> void:
 			if _orbital_elapsed >= ORBITAL_FALL_TIME and enemy.hp > 0 and offset.x <= ORBITAL_HALF_WIDTH and offset.y <= ORBITAL_HALF_HEIGHT:
 				enemy.take_damage(ORBITAL_DPS * delta)
 		queue_redraw()
+	if _orbital_elapsed >= ORBITAL_TIME and _cooldown_left.values().all(func(left: float) -> bool: return left <= 0.0):
+		set_process(false)
 
 func get_cooldown_left(power: Power) -> float:
 	return _cooldown_left[power]
@@ -140,6 +144,7 @@ func _draw() -> void:
 func _drop_meteor(target: Vector2) -> void:
 	cancel_aiming()
 	_cooldown_left[Power.METEOR] = COOLDOWNS[Power.METEOR]
+	set_process(true)
 	power_used.emit(Power.METEOR)
 	var meteor := Sprite2D.new()
 	meteor.texture = METEOR_TEXTURE
@@ -169,6 +174,7 @@ func _explode(target: Vector2) -> void:
 
 func _freeze() -> void:
 	_cooldown_left[Power.FREEZE] = COOLDOWNS[Power.FREEZE]
+	set_process(true)
 	power_used.emit(Power.FREEZE)
 	for enemy: Enemy in get_tree().get_nodes_in_group(&"enemies"):
 		if enemy.hp > 0:
@@ -177,6 +183,7 @@ func _freeze() -> void:
 func _fire_orbital(row_y: float) -> void:
 	cancel_aiming()
 	_cooldown_left[Power.ORBITAL] = COOLDOWNS[Power.ORBITAL]
+	set_process(true)
 	_orbital_row = row_y
 	_orbital_elapsed = 0.0
 	power_used.emit(Power.ORBITAL)
