@@ -60,6 +60,8 @@ const ACCENT_COLOR: Color = Color("#40e0f0")
 @export var charge_sound: AudioStream
 # Opcional: torreta en la que se convierte al fusionarla con otra igual; cost es lo que se paga por la fusión.
 @export var fusion: TurretData
+# Opcional, en la fusionada: animación (sin bucle) de la transformación al mejorar, en vez del holograma.
+@export var upgrade_frames: SpriteFrames
 # Lo que gana la torreta dentro del aura de un Amplificador (cada torreta mejora su propia mecánica).
 # Toda torreta que ataca debe tenerlo; las fusionadas usan el mismo que su base.
 @export var amp_effect: AmpEffect
