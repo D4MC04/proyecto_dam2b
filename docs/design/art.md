@@ -95,7 +95,7 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 
   Las opciones de las pantallas superpuestas son el mismo botón en el acento de su pantalla (fondos y bordes de `#060b14` mezclado con el acento, relleno al 35 % con el ratón encima y texto en el tono claro del acento). Los botones de las barras (pestañas, INICIAR, AUTO, flechas, torretas y celdas de enemigo) tienen la misma forma con sus propios colores.
 
-- **Panel holograma** (pausa, derrota, victoria, y en el menú principal los botones, la selección de nivel y Opciones): no es PNG; lo pinta `OverlayFrame` en código, en píxeles enteros, a partir del acento de cada pantalla (cian `#40e0f0`, rojo `#ff3c5a`, ámbar `#ecb23c`) y de su tono claro (`#befaff`, `#ffaabe`, `#ffe082`). Esquinas de arriba a la izquierda y de abajo a la derecha recortadas 6 px en diagonal. Ver [ui.md](ui.md).
+- **Panel holograma** (pausa, derrota, victoria, y en el menú principal los paneles que abre la oficina y "¿Salir del juego?"): no es PNG; lo pinta `OverlayFrame` en código, en píxeles enteros, a partir del acento de cada pantalla (cian `#40e0f0`, rojo `#ff3c5a`, ámbar `#ecb23c`) y de su tono claro (`#befaff`, `#ffaabe`, `#ffe082`). Esquinas de arriba a la izquierda y de abajo a la derecha recortadas 6 px en diagonal. Ver [ui.md](ui.md).
 
 | Parte | Color |
 |---|---|
@@ -152,6 +152,22 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 | Torreta seleccionada en la tienda | borde y corchetes exteriores `#ecb23c`, fondo `#0e1626` mezclado al 25 % con ese ámbar |
 
 - **Escáner de la ficha**: no es un PNG; `ScannerDisplay` lo pinta píxel a píxel en código (57x57, sin antialiasing), con los azules de la interfaz: disco `#0e1626`, anillos y cruz `#1c4a60`, anillo exterior `#1c7496`, marcas y ecos `#40e0f0`, barrido `#befaff`, estela `#1c7496` y `#14304a`. Ver [ui.md](ui.md).
+
+- **Oficina del menú**: PNG dibujados píxel a píxel por un generador (`scripts/tools/office/make_office.py`, ver [menu.md](menu.md)) en `assets/sprites/office/`, a la misma escala de píxel que el juego (1 px de arte = 1 px de la vista de 960x540; nada ampliado). En código solo se pintan las pantallas animadas y las luces.
+  - **Volumen, no líneas:** contornos de 2 px `#0c0e16` en los objetos grandes, biseles de 2 o 3 px con rampa de 3 tonos (luz arriba a la izquierda), recuadros hundidos con la luz al revés (canto de arriba en sombra), sombra proyectada de 4 px, remaches de 5x5 y pomos sombreados como semiesferas. Pocos detalles y grandes. Las líneas de las pantallas, de 2 px.
+  - **Sin** rayas de aviso amarillas y negras ni carteles con texto: nada que parezca de seguridad.
+  - Los marcos se sombrean por perfiles (distancia al borde -> color) y los detalles pequeños son plantillas de texto (un carácter por píxel), en `pixkit.py`.
+
+| Parte | Colores |
+|---|---|
+| Contorno | `#0c0e16` |
+| Metal de los objetos (marco del ventanal por fuera, radar, módulo de opciones, escuadras de la tablet, panel de acceso, pomos) | `#343a4a`, `#606a7c`, `#96a2b6`, `#d2dceb` |
+| Metal oscuro de estructura (paredes, techo, suelo, consola, puerta, monitor de stats, vitrina, peana) | `#10141c`, `#151a24`, `#1d2330`, `#242b3a`, `#2c3446`, `#3a4256`, `#4f596d` |
+| Luces, juntas y pantallas | cian `#14304a`, `#1c7496`, `#40e0f0`, `#befaff`; pantallas `#060d18` y `#08111f` |
+| Oro (vitrina, insignia, medallas, apliques) | `#523710`, `#96641e`, `#ecb23c`, `#ffe082`, `#fff8e6` |
+| Terciopelo del fondo de la vitrina | `#070c17`, `#0b1322`, `#101b30` |
+| Medallas | cinta de rayas en la rampa ámbar, roja o cian según el logro; disco dorado con el símbolo del icono del logro (sin su placa de metal), ampliado ×3 con Scale3x y con contorno de 1 px; las que faltan dejan el alfiler y una marca tenue `#131e34` |
+| Corchetes del objeto con el ratón encima (sin rótulo) | `#befaff` |
 
 ## Contorno
 

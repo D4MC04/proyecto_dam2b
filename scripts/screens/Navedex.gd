@@ -18,16 +18,10 @@ const TURRET_FILES: Array[String] = [
 	"turret", "minigun", "rocket_launcher", "cryo", "disintegrator", "rail", "tesla", "amplifier", "orbiter", "miner",
 ]
 const TAB_ENEMIES: int = 0
-const TAB_ACHIEVEMENTS: int = 2
 const CELL_SCENE: PackedScene = preload("res://scenes/level_ui/EnemyCell.tscn")
 const UNKNOWN_TEXT: String = "???"
 # Lado de las celdas cuadradas de la cuadrícula.
 const CELL_SIZE: int = 64
-const ACHIEVEMENT_ICON_DIR: String = "res://assets/ui/achievements/"
-# Icono de logro (16x16 ×3), ancho de cada fila (dos por línea) y color del logro sin conseguir.
-const ACHIEVEMENT_ICON_SIZE: int = 48
-const ACHIEVEMENT_ROW_WIDTH: int = 350
-const LOCKED_COLOR: Color = Color(0.3, 0.3, 0.35)
 # Lado de las flechas de torreta.
 const ARROW_SIZE: int = 28
 
@@ -39,8 +33,6 @@ const ARROW_SIZE: int = 28
 @onready var name_label: Label = %NameLabel
 @onready var description_label: Label = %DescriptionLabel
 @onready var stat_rows: VBoxContainer = %StatRows
-@onready var detail: VBoxContainer = %Detail
-@onready var achievements_list: GridContainer = %AchievementsList
 @onready var prev_button: Button = %PrevButton
 @onready var next_button: Button = %NextButton
 
@@ -53,7 +45,6 @@ func _ready() -> void:
 	%VolverButton.pressed.connect(back_pressed.emit)
 	tabs.add_tab(tr("NAVEDEX_SHIPS"))
 	tabs.add_tab(tr("HEADER_TURRETS"))
-	tabs.add_tab(tr("NAVEDEX_ACHIEVEMENTS"))
 	_style_arrow(prev_button)
 	_style_arrow(next_button)
 	prev_button.pressed.connect(_change_version.bind(-1))
@@ -82,13 +73,6 @@ func _style_arrow(button: Button) -> void:
 
 # Rellena la cuadrícula con las naves o las torretas según la pestaña.
 func _build_grid(tab: int) -> void:
-	var achievements: bool = tab == TAB_ACHIEVEMENTS
-	grid.visible = not achievements
-	detail.visible = not achievements
-	achievements_list.visible = achievements
-	if achievements:
-		_show_achievements()
-		return
 	for cell: EnemyCell in _cells.values():
 		grid.remove_child(cell)
 		cell.queue_free()
@@ -109,12 +93,7 @@ func _build_grid(tab: int) -> void:
 
 # Al abrirse se refresca lo visto, por si se jugó una partida desde la última vez.
 func _on_visibility_changed() -> void:
-	if not visible:
-		return
-	if tabs.current_tab == TAB_ACHIEVEMENTS:
-		_show_achievements()
-		return
-	if _cells.is_empty():
+	if not visible or _cells.is_empty():
 		return
 	for data: InspectableData in _cells:
 		_cells[data].icon_rect.modulate = Color.WHITE if _is_known(data) else Color.BLACK
@@ -124,42 +103,6 @@ func _on_visibility_changed() -> void:
 func _is_known(data: InspectableData) -> bool:
 	var enemy: EnemyData = data as EnemyData
 	return enemy == null or GameState.has_seen_enemy(enemy)
-
-func _show_achievements() -> void:
-	for child: Node in achievements_list.get_children():
-		child.free()
-	for id: String in GameState.ACHIEVEMENTS:
-		var info: Array = GameState.ACHIEVEMENTS[id]
-		var done: bool = id in GameState.unlocked
-		achievements_list.add_child(_make_achievement_row(id, tr(info[0]), tr(info[1]), done))
-
-# Fila de un logro: icono a la izquierda y nombre y descripción a la derecha; apagada si falta por conseguir.
-func _make_achievement_row(id: String, title: String, description: String, done: bool) -> HBoxContainer:
-	var row: HBoxContainer = HBoxContainer.new()
-	row.custom_minimum_size = Vector2(ACHIEVEMENT_ROW_WIDTH, 0)
-	row.add_theme_constant_override("separation", 10)
-	row.modulate = Color.WHITE if done else LOCKED_COLOR
-	var icon: TextureRect = TextureRect.new()
-	icon.texture = load(ACHIEVEMENT_ICON_DIR + id + ".png")
-	icon.custom_minimum_size = Vector2.ONE * ACHIEVEMENT_ICON_SIZE
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	row.add_child(icon)
-	var texts: VBoxContainer = VBoxContainer.new()
-	texts.add_theme_constant_override("separation", 0)
-	var name_text: Label = Label.new()
-	name_text.text = title
-	name_text.add_theme_font_size_override("font_size", 24)
-	var description_text: Label = Label.new()
-	description_text.text = description
-	description_text.add_theme_font_size_override("font_size", 18)
-	description_text.modulate = Color(1, 1, 1, 0.7)
-	texts.add_child(name_text)
-	texts.add_child(description_text)
-	row.add_child(texts)
-	return row
 
 func _show_detail(data: InspectableData) -> void:
 	_versions.clear()

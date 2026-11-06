@@ -1,8 +1,8 @@
 extends Node2D
 
 # Batalla lejana de fondo: cada pocos segundos cruza un grupo de naves enemigas en formación
-# por las franjas de arriba o abajo (lejos de los botones) y de vez en cuando les llegan
-# disparos desde fuera de la pantalla; algunas explotan.
+# por una de sus franjas (`lanes`) y de vez en cuando les llegan disparos desde fuera de la
+# pantalla; algunas explotan.
 
 # Cada nave con el giro extra (grados) que usa su EnemyData; null = no se gira, usa la animación left/right
 const SHIPS: Array[Array] = [
@@ -20,11 +20,12 @@ const SHOT_SPEED: float = 320.0
 const SHOT_LENGTH: float = 12.0
 const SHOT_COLOR: Color = Color(0.25, 0.88, 0.94)
 const KILL_CHANCE: float = 0.4
-# Franjas verticales (fracción de la altura) por las que pasan; el centro queda libre para los botones
-const LANES: Array[Vector2] = [Vector2(0.05, 0.2), Vector2(0.8, 0.95)]
 
 # Si está, los disparos salen de sus torretas; si no, de fuera de la pantalla
 @export var outpost: Outpost
+# Franjas verticales (fracción de la altura) por las que pasan; por defecto el centro queda libre
+# para los botones. El menú las pone dentro del ventanal de la oficina.
+@export var lanes: Array[Vector2] = [Vector2(0.05, 0.2), Vector2(0.8, 0.95)]
 
 var viewport_size: Vector2
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -54,7 +55,7 @@ func _process(delta: float) -> void:
 	_move_shots(delta)
 
 func _spawn_group() -> void:
-	var lane: Vector2 = LANES[rng.randi() % LANES.size()]
+	var lane: Vector2 = lanes[rng.randi() % lanes.size()]
 	var y: float = viewport_size.y * rng.randf_range(lane.x, lane.y)
 	var going_right: bool = rng.randf() < 0.5
 	var dir: Vector2 = Vector2.RIGHT if going_right else Vector2.LEFT
