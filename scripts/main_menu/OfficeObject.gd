@@ -1,20 +1,15 @@
 class_name OfficeObject
 extends Control
 
-# Objeto de la oficina del menú que se pulsa con el ratón. Al pasar por encima se marca con
-# corchetes en L (los del panel holograma) y sale encima un rótulo con lo que abre. Cada objeto
-# pinta su dibujo en _draw_object(), en píxeles enteros, y se redibuja cada frame para animarse.
+# Objeto de la oficina del menú que se pulsa con el ratón. Su dibujo fijo es un PNG de la habitación
+# (assets/sprites/office/); aquí solo se anima lo que se mueve (pantallas y luces) en _draw_object(),
+# en píxeles enteros, y se redibuja cada frame. Al pasar el ratón se marca con corchetes en L, sin
+# rótulo de texto.
 
 signal pressed
 
-## Rótulo que sale encima del objeto al pasar el ratón.
-@export var label_text := ""
-
-# Rótulo: márgenes del texto, recorte de las esquinas y hueco hasta los corchetes.
-const TAG_PADDING := Vector2i(6, 2)
-const TAG_CLIP := 2
-const TAG_GAP := 4
-const TAG_BG := Color("#13414f")
+## Corchetes en L al pasar el ratón (la puerta no los lleva: se entreabre).
+@export var show_brackets := true
 
 var hovered := false
 ## Segundos desde que se creó, para las animaciones.
@@ -39,24 +34,17 @@ func _gui_input(event: InputEvent) -> void:
 
 func _draw() -> void:
 	_draw_object()
-	if hovered:
-		var r := Rect2i(Vector2i.ZERO, Vector2i(size))
-		OfficePaint.brackets(self, r, OfficePaint.CYAN_LIGHT)
-		_draw_tag()
+	if hovered and show_brackets:
+		OfficePaint.brackets(self, hover_rect(), OfficePaint.CYAN_LIGHT)
 
-## Dibujo del objeto, en coordenadas locales dentro de `size`.
+## Dibujo animado del objeto, en coordenadas locales.
 func _draw_object() -> void:
 	pass
 
-# Rótulo centrado encima de los corchetes: caja recortada cian con el texto en claro.
-func _draw_tag() -> void:
-	if label_text.is_empty():
-		return
-	var width := OfficePaint.text_width(label_text) + TAG_PADDING.x * 2
-	var height := OfficePaint.TEXT_HEIGHT + TAG_PADDING.y * 2
-	@warning_ignore("integer_division")
-	var box := Rect2i(int(size.x) / 2 - width / 2, -4 - TAG_GAP - height, width, height)
-	var ci := get_canvas_item()
-	ClippedBoxStyle.fill_inside(ci, box, TAG_CLIP, TAG_BG)
-	ClippedBoxStyle.draw_outline(ci, box, TAG_CLIP, OfficePaint.CYAN)
-	OfficePaint.text(self, box.position + TAG_PADDING, label_text, OfficePaint.CYAN_LIGHT)
+## Lo que marcan los corchetes al pasar el ratón; por defecto, todo el objeto.
+func hover_rect() -> Rect2i:
+	return Rect2i(Vector2i.ZERO, Vector2i(size))
+
+## Punto de la vista (de OfficeLayout) en coordenadas locales.
+func to_local_point(view_point: Vector2) -> Vector2:
+	return view_point - position

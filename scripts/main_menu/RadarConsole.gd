@@ -1,102 +1,77 @@
 class_name RadarConsole
 extends OfficeObject
 
-# Monitor de radar sobre el escritorio: abre la selección de sector. Un barrido gira por la
-# pantalla y enciende los ecos rojos de las naves enemigas al pasar; a la derecha, los sectores
-# desbloqueados y unas barras de señal. Con el ratón encima el barrido va más rápido.
+# Mesa holográfica de Sectores en la consola inclinada: abre la selección de nivel. La mesa es parte
+# de center_static.png; aquí se anima la pantalla (shader office_radar en `Screen`) y se pintan
+# encima los ecos rojos (`Blips`), que destellan al pasar el barrido. Con el ratón encima el barrido
+# va más deprisa. Se pulsa en el contorno de la mesa, no en toda su caja.
 
-# Carcasa del monitor y pantalla (en coordenadas locales).
-const HOUSING := Rect2i(0, 0, 176, 122)
-const SCREEN_RECT := Rect2i(5, 5, 166, 110)
-const NECK := Rect2i(78, 122, 20, 12)
-const FOOT := Rect2i(52, 133, 72, 9)
-# Radar: centro, radio y radios de los anillos interiores.
-const RADAR_CENTER := Vector2i(62, 60)
-const RADAR_RADIUS := 48
-const INNER_RINGS: Array[int] = [32, 16]
-const RADAR_BG := Color("#0e1626")
-# Vueltas por segundo del barrido, normal y con el ratón encima.
-const SWEEP_SPEED := 0.3
-const SWEEP_SPEED_HOVER := 0.8
-# Estela del barrido: separación entre líneas (rad) y colores, de la más cercana a la más lejana.
-const TRAIL_STEP := 0.07
-const TRAIL_COLORS: Array[Color] = [Color("#1c7496"), Color("#1c7496"), Color("#14304a"), Color("#14304a")]
-# Ecos de naves: [distancia al centro, ángulo]. Brillan al pasar el barrido y se apagan después.
+# Vueltas del barrido por segundo (en radianes), sin y con el ratón encima.
+const SWEEP_SPEED := 1.1
+const SWEEP_SPEED_HOT := 2.4
+# Ecos, en coordenadas del radar (x de -1,5 a 1,5 e y de -1 a 1).
 const BLIPS: Array[Vector2] = [
-	Vector2(38, 0.6), Vector2(24, 2.1), Vector2(42, 2.9), Vector2(30, 4.4), Vector2(14, 5.5),
+	Vector2(0.46, 0.3), Vector2(-0.5, -0.22), Vector2(0.14, -0.56),
+	Vector2(-0.2, 0.44), Vector2(0.64, -0.16), Vector2(-0.68, 0.24),
 ]
-const BLIP_FLASH := 0.5
-const BLIP_FADE := 3.2
-# Lectura de la derecha.
-const READOUT_X := 120
-const BAR_COUNT := 5
+# Tiempo (en radianes de barrido) que un eco sigue encendido tras pasar el barrido.
+const BLIP_FRESH := 1.2
+
+@onready var screen: ColorRect = $Screen
+@onready var blips: Control = $Blips
 
 var _sweep := 0.0
-var _sectors_text := ""
+# Pantalla del radar (trapecio) y contorno de la mesa, en coordenadas locales.
+var _quad: Dictionary
+var _outline: PackedVector2Array
 
 func _ready() -> void:
 	super()
-	var total: int = GameData.levels.size()
-	_sectors_text = "%02d/%02d" % [mini(GameState.current_level, total), total]
+	var layout: Dictionary = OfficeLayout.CENTER
+	_quad = layout.table_in
+	for point: Array in layout.table_out:
+		_outline.append(to_local_point(Vector2(point[0], point[1])))
+	var left := mini(_quad.tl, _quad.bl)
+	var box := Rect2(to_local_point(Vector2(left, _quad.top)), Vector2(maxi(_quad.tr, _quad.br) - left, _quad.bot - _quad.top + 1))
+	screen.position = box.position
+	screen.size = box.size
+	var material := screen.material as ShaderMaterial
+	material.set_shader_parameter(&"rect_size", box.size)
+	material.set_shader_parameter(&"top_span", Vector2(_quad.tl - left, _quad.tr - left))
+	material.set_shader_parameter(&"bottom_span", Vector2(_quad.bl - left, _quad.br - left))
+	blips.draw.connect(_draw_blips)
 
 func _process(delta: float) -> void:
-	_sweep = fposmod(_sweep + delta * TAU * (SWEEP_SPEED_HOVER if hovered else SWEEP_SPEED), TAU)
 	super(delta)
+	_sweep = fmod(_sweep + delta * (SWEEP_SPEED_HOT if hovered else SWEEP_SPEED), TAU)
+	(screen.material as ShaderMaterial).set_shader_parameter(&"sweep", _sweep)
+	blips.queue_redraw()
 
-func _draw_object() -> void:
-	OfficePaint.metal_box(self, NECK)
-	OfficePaint.metal_box(self, FOOT)
-	OfficePaint.metal_box(self, HOUSING)
-	OfficePaint.screen(self, SCREEN_RECT)
-	_draw_radar()
-	_draw_readout()
-	# Luces de la carcasa, abajo a la derecha.
-	var lights: Array[Color] = [OfficePaint.CYAN, OfficePaint.AMBER, OfficePaint.GREEN]
-	for i in lights.size():
-		var on := hovered or i != 1 or fmod(time, 1.2) < 0.6
-		OfficePaint.rect(self, Rect2i(146 + i * 8, 117, 3, 2), lights[i] if on else OfficePaint.METAL_DARK)
-	# Rejilla de altavoz abajo a la izquierda.
-	for i in 8:
-		OfficePaint.rect(self, Rect2i(10 + i * 3, 117, 1, 2), OfficePaint.METAL_DARK)
+func _has_point(point: Vector2) -> bool:
+	return Geometry2D.is_point_in_polygon(point, _outline)
 
-func _draw_radar() -> void:
-	OfficePaint.disc(self, RADAR_CENTER, RADAR_RADIUS, RADAR_BG)
-	for radius in INNER_RINGS:
-		OfficePaint.ring(self, RADAR_CENTER, radius, OfficePaint.SCREEN_LINE)
-	OfficePaint.rect(self, Rect2i(RADAR_CENTER.x - RADAR_RADIUS, RADAR_CENTER.y, RADAR_RADIUS * 2 + 1, 1), OfficePaint.SCREEN_LINE)
-	OfficePaint.rect(self, Rect2i(RADAR_CENTER.x, RADAR_CENTER.y - RADAR_RADIUS, 1, RADAR_RADIUS * 2 + 1), OfficePaint.SCREEN_LINE)
-	for i in range(TRAIL_COLORS.size() - 1, -1, -1):
-		_draw_spoke(_sweep - TRAIL_STEP * (i + 1), TRAIL_COLORS[i])
+# Ecos: cruz roja; los recién barridos, más claros y con una columna de luz encima.
+func _draw_blips() -> void:
 	for blip in BLIPS:
-		_draw_blip(blip)
-	_draw_spoke(_sweep, OfficePaint.CYAN_LIGHT)
-	OfficePaint.ring(self, RADAR_CENTER, RADAR_RADIUS, OfficePaint.CYAN_DARK)
-	OfficePaint.rect(self, Rect2i(RADAR_CENTER - Vector2i.ONE, Vector2i(2, 2)), OfficePaint.CYAN)
+		var since := fposmod(_sweep - atan2(blip.y, blip.x), TAU)
+		var at := _radar_to_local(blip)
+		var fresh := since < BLIP_FRESH
+		OfficePaint.rect(blips, Rect2i(at.x - 2, at.y - 1, 5, 3), OfficePaint.OUTLINE)
+		OfficePaint.rect(blips, Rect2i(at.x - 1, at.y - 2, 3, 5), OfficePaint.OUTLINE)
+		OfficePaint.rect(blips, Rect2i(at.x - 1, at.y - 1, 3, 3), OfficePaint.RED if fresh else OfficePaint.RED_DARK)
+		if since < 0.4:
+			OfficePaint.rect(blips, Rect2i(at.x, at.y - 1, 1, 1), OfficePaint.RED_LIGHT)
+		if fresh:
+			var height := 9 + roundi(sin(time * 3.0 + blip.x * 5.0))
+			OfficePaint.rect(blips, Rect2i(at.x, at.y - height, 1, height - 2), Color(OfficePaint.RED, 0.45))
+			OfficePaint.rect(blips, Rect2i(at.x - 2, at.y - height - 3, 5, 1), OfficePaint.RED)
+			OfficePaint.rect(blips, Rect2i(at.x - 1, at.y - height - 2, 3, 1), OfficePaint.RED)
+			OfficePaint.rect(blips, Rect2i(at.x, at.y - height - 1, 1, 1), OfficePaint.RED_LIGHT)
 
-func _draw_spoke(angle: float, color: Color) -> void:
-	var tip := RADAR_CENTER + Vector2i((Vector2.from_angle(angle) * (RADAR_RADIUS - 1)).round())
-	OfficePaint.line(self, RADAR_CENTER, tip, color)
-
-# Eco de nave: destello al pasar el barrido, rojo después y oscuro al final.
-func _draw_blip(blip: Vector2) -> void:
-	var since := fposmod(_sweep - blip.y, TAU) / (TAU * (SWEEP_SPEED_HOVER if hovered else SWEEP_SPEED))
-	var at := RADAR_CENTER + Vector2i((Vector2.from_angle(blip.y) * blip.x).round())
-	if since < BLIP_FLASH:
-		OfficePaint.rect(self, Rect2i(at - Vector2i.ONE, Vector2i(3, 3)), OfficePaint.RED)
-		OfficePaint.rect(self, Rect2i(at, Vector2i.ONE), OfficePaint.RED_LIGHT)
-	elif since < BLIP_FADE:
-		OfficePaint.rect(self, Rect2i(at, Vector2i(2, 2)), OfficePaint.RED)
-	else:
-		OfficePaint.rect(self, Rect2i(at, Vector2i(2, 2)), OfficePaint.RED_DARK)
-
-# Sectores desbloqueados y barras de señal.
-func _draw_readout() -> void:
-	OfficePaint.text(self, Vector2i(READOUT_X, 10), "SECT", OfficePaint.CYAN_DARK)
-	OfficePaint.text(self, Vector2i(READOUT_X, 23), _sectors_text, OfficePaint.CYAN)
-	OfficePaint.rect(self, Rect2i(READOUT_X, 40, 44, 1), OfficePaint.SCREEN_LINE)
-	OfficePaint.text(self, Vector2i(READOUT_X, 46), "SEÑAL", OfficePaint.CYAN_DARK)
-	for i in BAR_COUNT:
-		var height := 6 + int((sin(time * (5.0 if hovered else 2.0) + i * 1.7) * 0.5 + 0.5) * 24.0)
-		var bar := Rect2i(READOUT_X + 2 + i * 9, 104 - height, 6, height)
-		OfficePaint.rect(self, bar, OfficePaint.CYAN_DARK)
-		OfficePaint.rect(self, Rect2i(bar.position, Vector2i(6, 1)), OfficePaint.CYAN)
+# Punto del radar en coordenadas locales, siguiendo el trapecio de la pantalla.
+func _radar_to_local(point: Vector2) -> Vector2i:
+	var v := point.y / 2.0 + 0.5
+	var u := point.x / 3.0 + 0.5
+	var span := OfficePaint.quad_span(_quad, roundi(v * (_quad.bot - _quad.top)))
+	var view_point := Vector2(lerpf(span.x, span.y, u), lerpf(_quad.top, _quad.bot, v))
+	return Vector2i(to_local_point(view_point).round())

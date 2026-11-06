@@ -1,18 +1,13 @@
 class_name ArchiveTablet
 extends OfficeObject
 
-# Tablet en su base sobre el escritorio: abre la Navedex (Archivo). Marco oscuro con las esquinas
-# recortadas como los botones y, en la pantalla, el holograma cian de una nave con sus líneas de
-# datos al lado. Con el ratón encima pasa de una nave a otra y una línea de escaneo baja por la
-# pantalla.
+# Tablet del Archivo en su bandeja de la consola inclinada: abre la Navedex. La bandeja es parte de
+# center_static.png y la tablet es tablet.png (marco grueso con escuadras y el canto abajo). Aquí se
+# pinta la pantalla (pestañas, el holograma cian de una nave, líneas de datos y fichas), llevada al
+# trapecio de la tablet. Con el ratón encima la tablet sube un poco, como para sacarla, con su
+# sombra, se enciende la luz del fondo de la bandeja, la nave gira y baja una línea de escaneo.
 
-const BODY := Rect2i(4, 0, 84, 58)
-const BODY_CLIP := 4
-const BEZEL := Color("#262c3c")
-const SCREEN_RECT := Rect2i(9, 5, 74, 46)
-# Base: pie y labio delantero que sujeta la tablet.
-const BASE := Rect2i(10, 59, 72, 8)
-const LIP := Rect2i(18, 52, 56, 9)
+const TABLET: Texture2D = preload("res://assets/sprites/office/tablet.png")
 # Naves que enseña la pantalla, en su animación hacia arriba.
 const SHIPS: Array[SpriteFrames] = [
 	preload("res://resources/sprite_frames/nave_normal.tres"),
@@ -20,19 +15,32 @@ const SHIPS: Array[SpriteFrames] = [
 	preload("res://resources/sprite_frames/acorazado.tres"),
 	preload("res://resources/sprite_frames/nave_agresiva.tres"),
 ]
-const SHIP_CENTER := Vector2i(30, 28)
-const SHIP_TIME := 0.8
+const SHIP_TIME := 1.6
 # Rampa del holograma, de oscuro a claro: cada píxel de la nave toma el tono de su brillo.
 const HOLOGRAM_RAMP: Array[Color] = [Color("#14304a"), Color("#1c7496"), Color("#40e0f0"), Color("#befaff")]
-# Largo de las líneas de datos, de arriba abajo.
-const DATA_LINES: Array[int] = [24, 18, 22, 12, 20, 16]
+const SELECTED_FILL := Color("#13414f")
+# Cuánto sube la tablet con el ratón encima y lo deprisa que llega.
+const LIFT := 8
+const LIFT_SPEED := 12.0
+const SHADOW := Color(0, 0, 0, 0.45)
 
 var _holograms: Array[Texture2D] = []
+var _lift := 0.0
+var _tablet: Dictionary
+var _screen: Dictionary
+var _source: Vector2i
 
 func _ready() -> void:
 	super()
+	_tablet = OfficeLayout.CENTER.tablet
+	_screen = _tablet.screen
+	_source = OfficePaint.quad_source_size(_screen)
 	for frames in SHIPS:
 		_holograms.append(_make_hologram(frames.get_frame_texture(&"up", 0)))
+
+func _process(delta: float) -> void:
+	_lift = lerpf(_lift, 1.0 if hovered else 0.0, minf(1.0, delta * LIFT_SPEED))
+	super(delta)
 
 # Copia de la nave en la rampa cian: el contorno y las sombras en los tonos oscuros, las luces en los claros.
 func _make_hologram(texture: Texture2D) -> Texture2D:
@@ -51,44 +59,55 @@ func _make_hologram(texture: Texture2D) -> Texture2D:
 	return ImageTexture.create_from_image(image)
 
 func _draw_object() -> void:
-	OfficePaint.metal_box(self, BASE)
-	var ci := get_canvas_item()
-	ClippedBoxStyle.fill_inside(ci, BODY, BODY_CLIP, BEZEL)
-	ClippedBoxStyle.draw_outline(ci, BODY, BODY_CLIP, OfficePaint.OUTLINE)
-	ClippedBoxStyle.draw_outline(ci, BODY.grow(-1), BODY_CLIP - 1, OfficePaint.METAL_DARK)
-	OfficePaint.screen(self, SCREEN_RECT)
-	# Cámara arriba al centro.
-	OfficePaint.rect(self, Rect2i(45, 2, 2, 1), OfficePaint.OUTLINE)
-	OfficePaint.metal_box(self, LIP)
-	OfficePaint.rect(self, Rect2i(40, 56, 12, 1), OfficePaint.CYAN if hovered else OfficePaint.CYAN_DARK)
-	_draw_ship()
-	_draw_data()
-	_draw_corners()
+	var lift := roundi(_lift * LIFT)
+	var light: Array = OfficeLayout.CENTER.tray_light
+	var light_at := Vector2i(to_local_point(Vector2(light[0], light[1])))
+	OfficePaint.rect(self, Rect2i(light_at, Vector2i(light[2], 1)), OfficePaint.CYAN if hovered else OfficePaint.SCREEN_LINE)
+	if lift > 0:
+		var s: Dictionary = _tablet.shadow
+		var shadow := PackedVector2Array([Vector2(s.tl + 2, s.top + 4), Vector2(s.tr + 2, s.top + 4),
+				Vector2(s.br + 2, s.bot + 2), Vector2(s.bl + 2, s.bot + 2)])
+		for i in shadow.size():
+			shadow[i] = to_local_point(shadow[i])
+		draw_colored_polygon(shadow, SHADOW)
+	var origin := Vector2i(to_local_point(Vector2(_tablet.x, _tablet.y - lift)))
+	draw_texture(TABLET, origin)
+	_draw_screen(origin)
+
+# Pantalla pintada de frente (tamaño _source) y llevada al trapecio de la tablet.
+func _draw_screen(origin: Vector2i) -> void:
+	var w := _source.x
+	var h := _source.y
+	for y in range(1, h, 2):
+		_quad_rect(Rect2i(0, y, w, 1), OfficePaint.SCREEN_DARK, origin)
+	for i in 3:
+		_quad_rect(Rect2i(6 + i * 16, 6, 12, 3), OfficePaint.CYAN if i == 0 else OfficePaint.SCREEN_LINE, origin)
+	_quad_rect(Rect2i(6, 12, w - 12, 2), OfficePaint.CYAN_DARK, origin)
+	for k in 3:
+		_quad_rect(Rect2i(8, 54 + k * 6, [40, 28, 34][k], 2), OfficePaint.SCREEN_LINE if k > 0 else OfficePaint.CYAN_DARK, origin)
+	@warning_ignore("integer_division")
+	var cells_x := (w - (4 * 16 + 3 * 3)) / 2
+	var selected := int(time / SHIP_TIME) % 4
+	for i in 4:
+		var cell := Rect2i(cells_x + i * 19, h - 22, 16, 16)
+		var on := i == selected
+		_quad_rect(cell, OfficePaint.CYAN if on else OfficePaint.SCREEN_LINE, origin)
+		_quad_rect(cell.grow(-2), SELECTED_FILL if on else OfficePaint.SCREEN_DARK, origin)
+		_quad_rect(cell.grow(-5), OfficePaint.CYAN_DARK if on else OfficePaint.SCREEN_LINE, origin)
 	if hovered:
-		var scan_y := SCREEN_RECT.position.y + 1 + int(fmod(time * 30.0, SCREEN_RECT.size.y - 2))
-		OfficePaint.rect(self, Rect2i(SCREEN_RECT.position.x + 1, scan_y, SCREEN_RECT.size.x - 2, 1),
-				Color(OfficePaint.CYAN, 0.35))
+		_quad_rect(Rect2i(0, int(time * 50.0) % h, w, 2), Color(OfficePaint.CYAN_LIGHT, 0.3), origin)
+	# La nave, de frente en el centro de la pantalla (es pequeña: no hace falta deformarla).
+	var ship := _holograms[int(time / SHIP_TIME) % _holograms.size()]
+	var turn := cos(time * 3.0) if hovered else 1.0
+	var width := maxi(2, roundi(absf(turn) * ship.get_width()))
+	var row := 34
+	var span := OfficePaint.quad_span(_screen, row)
+	var center := origin + Vector2i(roundi((span.x + span.y) / 2.0), _screen.top + row)
+	@warning_ignore("integer_division")
+	var box := Rect2(center.x - width / 2, center.y - ship.get_height() / 2, width, ship.get_height())
+	if turn < 0.0:
+		box = Rect2(box.position.x + box.size.x, box.position.y, -box.size.x, box.size.y)
+	draw_texture_rect(ship, box, false)
 
-func _draw_ship() -> void:
-	var index := int(time / SHIP_TIME) % _holograms.size() if hovered else 0
-	var texture := _holograms[index]
-	var half := Vector2i(texture.get_size() / 2.0)
-	# Parpadeo leve de holograma; fijo con el ratón encima.
-	var alpha := 1.0 if hovered or fmod(time, 2.3) > 0.08 else 0.5
-	draw_texture(texture, Vector2(SHIP_CENTER - half), Color(1, 1, 1, alpha))
-
-func _draw_data() -> void:
-	var x := 54
-	for i in DATA_LINES.size():
-		var color := OfficePaint.CYAN if i == 0 else OfficePaint.CYAN_DARK
-		OfficePaint.rect(self, Rect2i(x, 11 + i * 6 + (2 if i > 0 else 0), DATA_LINES[i], 2 if i == 0 else 1), color)
-
-# Corchetes en L de 3 px en las esquinas de la pantalla, como las barras de los niveles.
-func _draw_corners() -> void:
-	var r := SCREEN_RECT.grow(-2)
-	for corner: Vector2i in [r.position, Vector2i(r.end.x - 1, r.position.y),
-			Vector2i(r.position.x, r.end.y - 1), r.end - Vector2i.ONE]:
-		var x_dir := 1 if corner.x == r.position.x else -1
-		var y_dir := 1 if corner.y == r.position.y else -1
-		OfficePaint.rect(self, Rect2i(corner.x if x_dir > 0 else corner.x - 2, corner.y, 3, 1), OfficePaint.CYAN_DARK)
-		OfficePaint.rect(self, Rect2i(corner.x, corner.y if y_dir > 0 else corner.y - 2, 1, 3), OfficePaint.CYAN_DARK)
+func _quad_rect(r: Rect2i, color: Color, origin: Vector2i) -> void:
+	OfficePaint.quad_rect(self, _screen, _source, r, color, origin)

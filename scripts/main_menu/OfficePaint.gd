@@ -1,8 +1,9 @@
 class_name OfficePaint
 extends RefCounted
 
-# Pinceles de la oficina del menú: rectángulos, cajas con bisel, pantallas, líneas, círculos, rayas
-# de aviso y texto, todo en píxeles enteros y sin antialiasing. Los colores son los de art.md.
+# Pinceles de la oficina del menú: rectángulos, cajas con bisel, pantallas, líneas, círculos, texto y
+# pantallas en trapecio (las de las piezas apoyadas en la consola inclinada), todo en píxeles enteros
+# y sin antialiasing. Los colores son los de art.md.
 
 const FONT: Font = preload("res://assets/fonts/Monogram.ttf")
 const TEXT_SIZE := 16
@@ -114,18 +115,6 @@ static func ring(item: CanvasItem, center: Vector2i, radius: int, color: Color) 
 		rect(item, Rect2i(center.x - half, center.y + dy, width, 1), color)
 		rect(item, Rect2i(center.x + half - width + 1, center.y + dy, width, 1), color)
 
-## Rayas de aviso en diagonal (ámbar y negro), de `stripe` px de ancho.
-static func hazard(item: CanvasItem, r: Rect2i, stripe: int = 4) -> void:
-	# Fila a fila, en tramos del mismo color.
-	for y in range(r.position.y, r.end.y):
-		var x := r.position.x
-		while x < r.end.x:
-			var phase := posmod(x + y, stripe * 2)
-			var band := phase < stripe
-			var run := mini((stripe if band else stripe * 2) - phase, r.end.x - x)
-			item.draw_rect(Rect2(x, y, run, 1), AMBER if band else OUTLINE)
-			x += run
-
 ## Texto en Monogram con la esquina de arriba a la izquierda en `at`.
 static func text(item: CanvasItem, at: Vector2i, value: String, color: Color, size: int = TEXT_SIZE) -> void:
 	var baseline := at.y + int(FONT.get_ascent(size))
@@ -154,3 +143,27 @@ static func brackets(item: CanvasItem, r: Rect2i, color: Color, length: int = 6,
 		var v_start := corner.y if y_dir > 0 else corner.y - length + 1
 		rect(item, Rect2i(h_start, corner.y, length, 1), color)
 		rect(item, Rect2i(corner.x, v_start, 1, length), color)
+
+## Extremos [izquierda, derecha) de la fila `row` (desde arriba) del trapecio `quad`
+## (claves top, bot, tl, tr, bl, br de OfficeLayout).
+static func quad_span(quad: Dictionary, row: int) -> Vector2:
+	var height: int = quad.bot - quad.top
+	var v := float(row) / maxf(height, 1.0)
+	return Vector2(lerpf(quad.tl, quad.bl, v), lerpf(quad.tr, quad.br, v))
+
+## Rectángulo `r` de una pantalla pintada de frente, de `source_size`, llevado al trapecio `quad`
+## fila a fila (cada fila se estira a lo ancho del trapecio). `origin` desplaza el trapecio.
+static func quad_rect(item: CanvasItem, quad: Dictionary, source_size: Vector2i, r: Rect2i, color: Color,
+		origin: Vector2i = Vector2i.ZERO) -> void:
+	var rows: int = quad.bot - quad.top + 1
+	for y in range(maxi(r.position.y, 0), mini(r.end.y, source_size.y)):
+		var row := int(float(y) * rows / source_size.y)
+		var span := quad_span(quad, row)
+		var scale := (span.y - span.x) / source_size.x
+		var x0 := roundi(span.x + r.position.x * scale)
+		var x1 := roundi(span.x + r.end.x * scale)
+		rect(item, Rect2i(origin.x + x0, origin.y + quad.top + row, x1 - x0, 1), color)
+
+## Tamaño de la pantalla de frente que se pinta en un trapecio: su ancho mayor y su alto.
+static func quad_source_size(quad: Dictionary) -> Vector2i:
+	return Vector2i(maxi(quad.tr - quad.tl, quad.br - quad.bl), quad.bot - quad.top + 1)

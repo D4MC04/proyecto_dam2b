@@ -150,10 +150,10 @@ func _on_radar_console_pressed() -> void:
 func _on_archive_tablet_pressed() -> void:
 	_open_panel(navedex)
 
-func _on_medal_wall_pressed() -> void:
+func _on_medal_case_pressed() -> void:
 	_open_panel(achievements_screen)
 
-func _on_maintenance_panel_pressed() -> void:
+func _on_options_console_pressed() -> void:
 	_open_panel(options_menu)
 
 @warning_ignore("integer_division")
@@ -177,7 +177,7 @@ func _on_combat_scoreboard_pressed() -> void:
 func _close_quit_confirm() -> void:
 	quit_confirm.hide()
 
-# La puerta se abre del todo y después se cierra el juego.
+# La puerta se entreabre y después se cierra el juego.
 func _on_exit_door_pressed() -> void:
 	if _leaving or _panel:
 		return

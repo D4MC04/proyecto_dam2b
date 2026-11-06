@@ -1,107 +1,101 @@
 class_name OfficeDoor
 extends OfficeObject
 
-# Puerta automática de la oficina: sale del juego. Dos hojas de metal que encajan por un borde
-# dentado y se abren deslizando hacia los lados, con un cartel de SALIDA encima y rayas de aviso
-# en el marco. Con el ratón encima se entreabre (el sensor la detecta); al pulsarla se abre del
-# todo y emite `opened`.
+# Puerta de la oficina: sale del juego. El marco, empotrado en la pared, es parte de left_static.png;
+# las hojas, la luz del pasillo y las luces encendidas son PNG de assets/sprites/office/ en los hijos
+# (todos del tamaño de la vista, colocados en su origen). `Plane` recorta las hojas y el pasillo con
+# la forma del hueco (clip_children), así que al apartarse no pisan el marco.
+#
+# Con el ratón encima solo se entreabre (cada hoja se aparta `slide` px): por la rendija en zigzag se
+# ve la luz del pasillo y una luz tenue cae en el suelo, tan ancha como la rendija; se encienden la
+# luz del marco y la pantallita del panel de acceso. Cerrada, la junta brilla y por las franjas de
+# luz de las hojas sube y baja un pulso. Al pulsarla se entreabre igual y emite `opened`.
 
 signal opened
 
-const SIGN := Rect2i(52, 0, 96, 19)
-const FRAME := Rect2i(0, 24, 200, 306)
-const HAZARD_WIDTH := 8
-# Hueco de la puerta, dentro del marco y las rayas.
-const OPENING := Rect2i(18, 42, 164, 288)
-const LEAF_WIDTH := 82
-# Dientes del borde: alto de cada diente y lo que entra en la otra hoja.
-const TOOTH_HEIGHT := 12
-const TOOTH_DEPTH := 4
-const GROOVE_STEP := 36
-# Apertura (0 cerrada, 1 abierta): al pasar el ratón y velocidad (por segundo).
-const PEEK_OPEN := 0.1
-const OPEN_SPEED := 2.4
-const CORRIDOR_FAR := Color("#1c5d6d")
-const CORRIDOR := Color("#0e2230")
-const CORRIDOR_FLOOR := Color("#14304a")
+# Segundos que tarda en entreabrirse o cerrarse.
+const OPEN_TIME := 0.35
+const SPILL_LEVEL := 6.0
+const BAYER: Array[int] = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]
+const PULSE_HEIGHT := 24
+
+@onready var plane: TextureRect = $Plane
+@onready var leaf_left: TextureRect = $Plane/LeafLeft
+@onready var leaf_right: TextureRect = $Plane/LeafRight
+@onready var seam: TextureRect = $Seam
+@onready var frame_glow: TextureRect = $FrameGlow
+@onready var access_light: TextureRect = $AccessLight
+@onready var lights: Control = $Lights
 
 var _open := 0.0
 var _leaving := false
+var _opened := false
+var _door: Dictionary
+
+func _ready() -> void:
+	super()
+	_door = OfficeLayout.LEFT.door
+	for child: Control in [plane, seam, frame_glow, access_light, lights]:
+		child.position = -position
+	lights.draw.connect(_draw_lights)
 
 func _process(delta: float) -> void:
-	var target := 1.0 if _leaving else (PEEK_OPEN if hovered else 0.0)
-	_open = move_toward(_open, target, delta * OPEN_SPEED)
-	if _leaving and _open >= 1.0:
-		_leaving = false
-		opened.emit()
 	super(delta)
+	var target := 1.0 if (_leaving or hovered) else 0.0
+	_open = move_toward(_open, target, delta / OPEN_TIME)
+	var slide := roundi(_open * float(_door.slide))
+	leaf_left.position.x = -slide
+	leaf_right.position.x = slide
+	seam.visible = slide == 0
+	var lit := hovered or _open > 0.0
+	frame_glow.visible = lit
+	access_light.visible = lit
+	lights.queue_redraw()
+	# Al salir se queda entreabierta: `opened` se emite una sola vez.
+	if _leaving and not _opened and _open >= 1.0:
+		_opened = true
+		opened.emit()
 
-## Abre la puerta del todo; al acabar emite `opened`.
+## Entreabre la puerta; al acabar emite `opened`.
 func open_fully() -> void:
 	_leaving = true
 
-func _draw_object() -> void:
-	OfficePaint.wall_box(self, FRAME)
-	var hazard := OPENING.grow_individual(HAZARD_WIDTH, HAZARD_WIDTH, HAZARD_WIDTH, 0)
-	OfficePaint.rect(self, hazard.grow_individual(1, 1, 1, 0), OfficePaint.OUTLINE)
-	OfficePaint.hazard(self, hazard)
-	_draw_corridor()
-	var slide := int(round(_open * LEAF_WIDTH))
-	_draw_leaf(OPENING.position.x - slide, true)
-	_draw_leaf(OPENING.position.x + LEAF_WIDTH + slide, false)
-	OfficePaint.rect(self, Rect2i(OPENING.position.x - 1, OPENING.position.y - 1, OPENING.size.x + 2, 1), OfficePaint.OUTLINE)
-	# Umbral.
-	OfficePaint.metal_box(self, Rect2i(OPENING.position.x - 6, OPENING.end.y - 3, OPENING.size.x + 12, 4))
-	_draw_sign()
+# Encima de todo, en coordenadas de la vista: luz del suelo, pulso de las franjas y barra de estado.
+func _draw_lights() -> void:
+	var slide := roundi(_open * float(_door.slide))
+	if slide > 0:
+		_draw_spill(slide)
+	else:
+		var k := 0.5 + sin(time * 2.0) * 0.5
+		for strip: Array in _door.strips:
+			var r := Rect2i(strip[0], strip[1], strip[2], strip[3])
+			OfficePaint.rect(lights, r, OfficePaint.CYAN_DARK)
+			var y := r.position.y + roundi(k * (r.size.y - PULSE_HEIGHT))
+			OfficePaint.rect(lights, Rect2i(r.position.x, y, r.size.x, PULSE_HEIGHT), OfficePaint.CYAN)
+			OfficePaint.rect(lights, Rect2i(r.position.x + 1, y + 8, r.size.x - 2, 8), OfficePaint.CYAN_LIGHT)
+	# Barra de estado de encima de la puerta: un tramo de luz la recorre (verde con la puerta activa).
+	var bar: Array = _door.bar
+	var lit := hovered or _open > 0.0
+	OfficePaint.rect(lights, Rect2i(bar[0], bar[1], bar[2], bar[3]), OfficePaint.GREEN_DARK if lit else OfficePaint.SCREEN_LINE)
+	var run := int(fmod(time * (120.0 if lit else 40.0), bar[2] + 24.0)) - 24
+	var a := maxi(0, run)
+	var b := mini(bar[2], run + 24)
+	if b > a:
+		OfficePaint.rect(lights, Rect2i(bar[0] + a, bar[1], b - a, bar[3]), OfficePaint.GREEN if lit else OfficePaint.CYAN_DARK)
 
-# Pasillo iluminado que se ve al abrir.
-func _draw_corridor() -> void:
-	OfficePaint.rect(self, OPENING, CORRIDOR)
-	OfficePaint.rect(self, Rect2i(OPENING.position.x, 250, OPENING.size.x, OPENING.end.y - 250), CORRIDOR_FLOOR)
-	OfficePaint.rect(self, Rect2i(62, 96, 76, 154), CORRIDOR_FAR)
-	OfficePaint.rect(self, Rect2i(62, 96, 76, 2), OfficePaint.CYAN_LIGHT)
-	for i in 4:
-		OfficePaint.line(self, Vector2i(62 - i * 12, 250 + i * 18), Vector2i(138 + i * 12, 250 + i * 18), OfficePaint.CYAN_DARK)
-
-# Una hoja: `origin_x` es su borde izquierdo con la puerta cerrada en su sitio. Solo se pinta lo
-# que queda dentro del hueco.
-func _draw_leaf(origin_x: int, left: bool) -> void:
-	var top := OPENING.position.y
-	var bottom := OPENING.end.y - 3
-	# Cuerpo, con los dientes del borde hacia el centro.
-	for y in range(top, bottom, TOOTH_HEIGHT):
-		var height := mini(TOOTH_HEIGHT, bottom - y)
-		var tooth_out := (int(float(y - top) / TOOTH_HEIGHT) % 2 == 0) == left
-		var width := LEAF_WIDTH + (TOOTH_DEPTH if tooth_out else -TOOTH_DEPTH)
-		var x := origin_x if left else origin_x + LEAF_WIDTH - width
-		_clip_rect(Rect2i(x, y, width, height), OfficePaint.METAL_DARK)
-		# Luz arriba de cada diente y contorno del borde.
-		_clip_rect(Rect2i(x, y, width, 1), OfficePaint.METAL)
-		_clip_rect(Rect2i(x + width - 1 if left else x, y, 1, height), OfficePaint.OUTLINE)
-	# Ranuras horizontales.
-	for y in range(top + GROOVE_STEP, bottom - 10, GROOVE_STEP):
-		_clip_rect(Rect2i(origin_x + 6, y, LEAF_WIDTH - 12, 1), OfficePaint.OUTLINE)
-		_clip_rect(Rect2i(origin_x + 6, y + 1, LEAF_WIDTH - 12, 1), OfficePaint.METAL)
-	# Ventanuco y franja de luz junto al borde.
-	var window := Rect2i(origin_x + 22, top + 46, 38, 8)
-	_clip_rect(window, OfficePaint.OUTLINE)
-	_clip_rect(window.grow(-1), OfficePaint.SCREEN)
-	_clip_rect(Rect2i(window.position.x + 2, window.position.y + 2, 10, 1), OfficePaint.CYAN_DARK)
-	var strip_x := origin_x + LEAF_WIDTH - 12 if left else origin_x + 10
-	var strip_color := OfficePaint.CYAN if hovered or _open > 0.0 else OfficePaint.CYAN_DARK
-	_clip_rect(Rect2i(strip_x, top + 70, 2, 150), strip_color)
-	# Borde exterior de la hoja.
-	_clip_rect(Rect2i(origin_x if left else origin_x + LEAF_WIDTH - 1, top, 1, bottom - top), OfficePaint.OUTLINE)
-
-func _clip_rect(r: Rect2i, color: Color) -> void:
-	OfficePaint.rect(self, r.intersection(OPENING), color)
-
-# Cartel luminoso de salida, en verde.
-func _draw_sign() -> void:
-	OfficePaint.bevel_box(self, SIGN, Color("#0b1f14"), OfficePaint.GREEN_DARK, OfficePaint.OUTLINE)
-	var color := OfficePaint.GREEN_LIGHT if hovered or _open > 0.0 else OfficePaint.GREEN
-	@warning_ignore("integer_division")
-	var center_x := SIGN.position.x + SIGN.size.x / 2
-	OfficePaint.text_centered(self, center_x, 3, "SALIDA", color)
-	# Soporte hasta el marco.
-	OfficePaint.rect(self, Rect2i(center_x - 2, SIGN.end.y, 4, FRAME.position.y - SIGN.end.y), OfficePaint.METAL_DARK)
+# Luz tenue en el suelo: sale de la rendija hacia el jugador y se apaga al alejarse, en tramado.
+func _draw_spill(slide: int) -> void:
+	var floor_y: int = _door.floor
+	var seam_x: int = _door.seam_x
+	var vanish := Vector2(480, 300)
+	var k := (540.0 - vanish.y) / (floor_y - vanish.y)
+	var near_left := vanish.x + (seam_x - slide - vanish.x) * k
+	var near_right := vanish.x + (seam_x + 1 + slide - vanish.x) * k
+	for y in range(floor_y, 540):
+		var t := float(y - floor_y) / (540 - floor_y)
+		var x0 := roundi(lerpf(seam_x - slide, near_left, t))
+		var x1 := roundi(lerpf(seam_x + 1 + slide, near_right, t))
+		var level := (1.0 - t) * SPILL_LEVEL * _open
+		for x in range(x0, x1):
+			if BAYER[(y & 3) * 4 + (x & 3)] < level:
+				OfficePaint.rect(lights, Rect2i(x, y, 1, 1), OfficePaint.SCREEN_LINE)

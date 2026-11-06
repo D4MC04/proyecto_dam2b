@@ -151,20 +151,21 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 
 - **Escáner de la ficha**: no es un PNG; `ScannerDisplay` lo pinta píxel a píxel en código (57x57, sin antialiasing), con los azules de la interfaz: disco `#0e1626`, anillos y cruz `#1c4a60`, anillo exterior `#1c7496`, marcas y ecos `#40e0f0`, barrido `#befaff`, estela `#1c7496` y `#14304a`. Ver [ui.md](ui.md).
 
-- **Oficina del menú**: no es PNG; la pintan en código `OfficeRoom` y los objetos de la oficina (`OfficeObject`) con los pinceles de `OfficePaint`, en píxeles enteros, sin antialiasing ni degradados, con contorno `#0c0e16` y bisel de 1 px (luz arriba a la izquierda, sombra abajo a la derecha). Lo único semitransparente son los reflejos del cristal (blanco azulado al 5 %) y la línea de escaneo de la tablet. Ver [menu.md](menu.md).
+- **Oficina del menú**: PNG dibujados píxel a píxel por un generador (`scripts/tools/office/make_office.py`, ver [menu.md](menu.md)) en `assets/sprites/office/`, a la misma escala de píxel que el juego (1 px de arte = 1 px de la vista de 960x540; nada ampliado). En código solo se pintan las pantallas animadas y las luces.
+  - **Volumen, no líneas:** contornos de 2 px `#0c0e16` en los objetos grandes, biseles de 2 o 3 px con rampa de 3 tonos (luz arriba a la izquierda), recuadros hundidos con la luz al revés (canto de arriba en sombra), sombra proyectada de 4 px, remaches de 5x5 y pomos sombreados como semiesferas. Pocos detalles y grandes. Las líneas de las pantallas, de 2 px.
+  - **Sin** rayas de aviso amarillas y negras ni carteles con texto: nada que parezca de seguridad.
+  - Los marcos se sombrean por perfiles (distancia al borde -> color) y los detalles pequeños son plantillas de texto (un carácter por píxel), en `pixkit.py`.
 
 | Parte | Colores |
 |---|---|
-| Paredes, techo, marco del ventanal y muebles | metal oscuro, más apagado que el de los objetos: `#0e1118` (sombra), `#151923`, `#1d2230` (cuerpo), `#2a3142` (luz) |
-| Objetos (monitor, base de la tablet, marcador, cuadro, hojas de la puerta) | la rampa del metal gris azulado `#343a4a`, `#606a7c`, `#96a2b6`, con `#d2dceb` en los interruptores; marco de la tablet `#262c3c` |
-| Pantallas | líneas de barrido `#08111f` y `#060d18`; marcador en `#0d0b0a` y `#090807` |
-| Luces y radar | cian `#1c7496`, `#40e0f0`, `#befaff`; anillos y estela del radar `#14304a`; ecos rojos `#961432`, `#ff3c5a`, `#ffaabe` |
-| Placas de texto ("CMDTE.", "CONDECORACIONES", contador de medallas) | fondo `#221e19`, bisel `#96641e` y `#120f0c`, texto `#ecb23c` o `#ffe082` |
-| Dígitos del marcador | encendidos `#ecb23c` (`#ffe082` con el ratón encima), apagados `#2a2014` |
-| Rayas de aviso (puerta y cuadro) | `#ecb23c` y `#0c0e16` en diagonal, de 4 px |
-| Cartel de salida | fondo `#0b1f14`, bisel `#1c7440`, texto `#3cb860` (`#7ee89a` con el ratón encima) |
-| Medallas | cinta de rayas en la rampa ámbar, roja o cian del símbolo de su icono; huecos vacíos `#08101c` con aro `#2a3142` |
-| Rótulo y corchetes del objeto con el ratón encima | caja `#13414f` con borde `#40e0f0`, texto y corchetes `#befaff` |
+| Contorno | `#0c0e16` |
+| Metal de los objetos (marco del ventanal por fuera, radar, módulo de opciones, escuadras de la tablet, panel de acceso, pomos) | `#343a4a`, `#606a7c`, `#96a2b6`, `#d2dceb` |
+| Metal oscuro de estructura (paredes, techo, suelo, consola, puerta, monitor de stats, vitrina, peana) | `#10141c`, `#151a24`, `#1d2330`, `#242b3a`, `#2c3446`, `#3a4256`, `#4f596d` |
+| Luces, juntas y pantallas | cian `#14304a`, `#1c7496`, `#40e0f0`, `#befaff`; pantallas `#060d18` y `#08111f` |
+| Oro (vitrina, insignia, medallas, apliques) | `#523710`, `#96641e`, `#ecb23c`, `#ffe082`, `#fff8e6` |
+| Terciopelo del fondo de la vitrina | `#070c17`, `#0b1322`, `#101b30` |
+| Medallas | cinta de rayas en la rampa ámbar, roja o cian según el logro; disco dorado con el símbolo del icono del logro (sin su placa de metal), ampliado ×3 con Scale3x y con contorno de 1 px; las que faltan dejan el alfiler y una marca tenue `#131e34` |
+| Corchetes del objeto con el ratón encima (sin rótulo) | `#befaff` |
 
 ## Contorno
 

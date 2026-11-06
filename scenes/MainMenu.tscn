@@ -17,15 +17,29 @@
 [ext_resource type="Script" uid="uid://d2ksqjroaxlx6" path="res://scripts/main_menu/Outpost.gd" id="25_outpost"]
 [ext_resource type="Texture2D" uid="uid://bykflanuslq17" path="res://assets/sprites/backgrounds/menu/menu_vignette.png" id="26_vignette"]
 [ext_resource type="Texture2D" uid="uid://7sb0q5toos63" path="res://assets/sprites/backgrounds/menu/menu_planet.png" id="27_planet"]
-[ext_resource type="Script" path="res://scripts/main_menu/OfficeRoom.gd" id="28_room"]
 [ext_resource type="Script" path="res://scripts/main_menu/RadarConsole.gd" id="29_radar"]
 [ext_resource type="Script" path="res://scripts/main_menu/ArchiveTablet.gd" id="30_tablet"]
-[ext_resource type="Script" path="res://scripts/main_menu/MedalWall.gd" id="31_medals"]
+[ext_resource type="Script" path="res://scripts/main_menu/MedalCase.gd" id="31_medals"]
 [ext_resource type="Script" path="res://scripts/main_menu/OfficeDoor.gd" id="32_door"]
 [ext_resource type="Script" path="res://scripts/main_menu/CombatScoreboard.gd" id="33_scoreboard"]
-[ext_resource type="Script" path="res://scripts/main_menu/MaintenancePanel.gd" id="34_maintenance"]
+[ext_resource type="Script" path="res://scripts/main_menu/OptionsConsole.gd" id="34_maintenance"]
 [ext_resource type="Script" path="res://scripts/main_menu/TurnArrow.gd" id="35_arrow"]
 [ext_resource type="PackedScene" path="res://scenes/AchievementsScreen.tscn" id="36_achievements"]
+[ext_resource type="Script" path="res://scripts/main_menu/OfficeLights.gd" id="37_lights"]
+[ext_resource type="Texture2D" path="res://assets/sprites/office/left_static.png" id="38_left_room"]
+[ext_resource type="Texture2D" path="res://assets/sprites/office/center_static.png" id="39_center_room"]
+[ext_resource type="Texture2D" path="res://assets/sprites/office/right_static.png" id="40_right_room"]
+[ext_resource type="Shader" path="res://resources/shaders/office_radar.gdshader" id="41_radar_shader"]
+[ext_resource type="Texture2D" path="res://assets/sprites/office/door_plane.png" id="42_door_plane"]
+[ext_resource type="Texture2D" path="res://assets/sprites/office/corridor.png" id="43_corridor"]
+[ext_resource type="Texture2D" path="res://assets/sprites/office/door_leaf_l.png" id="44_leaf_left"]
+[ext_resource type="Texture2D" path="res://assets/sprites/office/door_leaf_r.png" id="45_leaf_right"]
+[ext_resource type="Texture2D" path="res://assets/sprites/office/door_seam.png" id="46_seam"]
+[ext_resource type="Texture2D" path="res://assets/sprites/office/door_glow.png" id="47_frame_glow"]
+[ext_resource type="Texture2D" path="res://assets/sprites/office/access_lit.png" id="48_access_light"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_radar"]
+shader = ExtResource("41_radar_shader")
 
 [node name="MainMenu" type="Control" unique_id=576679633]
 texture_filter = 1
@@ -55,7 +69,7 @@ color = Color(0, 0, 0, 1)
 script = ExtResource("2_stars")
 
 [node name="RingedPlanet" type="Sprite2D" parent="Space" unique_id=1013456220]
-position = Vector2(790, 196)
+position = Vector2(820, 138)
 texture = ExtResource("27_planet")
 
 [node name="Comets" type="Node2D" parent="Space" unique_id=273898892]
@@ -79,14 +93,14 @@ fps = 10.0
 
 [node name="Outpost" type="Node2D" parent="Space" unique_id=753478624]
 modulate = Color(0.62, 0.66, 0.74, 1)
-position = Vector2(150, 250)
+position = Vector2(110, 172)
 scale = Vector2(0.5, 0.5)
 script = ExtResource("25_outpost")
 
 [node name="Skirmish" type="Node2D" parent="Space" unique_id=1817480808 node_paths=PackedStringArray("outpost")]
 script = ExtResource("23_skirmish")
 outpost = NodePath("../Outpost")
-lanes = Array[Vector2]([Vector2(0.06, 0.2), Vector2(0.42, 0.56)])
+lanes = Array[Vector2]([Vector2(0.06, 0.2), Vector2(0.28, 0.42)])
 
 [node name="Vignette" type="Sprite2D" parent="Space" unique_id=1700312252]
 texture = ExtResource("26_vignette")
@@ -117,34 +131,109 @@ offset_left = -960.0
 offset_bottom = 540.0
 mouse_filter = 2
 
-[node name="Room" type="Control" parent="Office/Views/LeftView"]
+[node name="Room" type="TextureRect" parent="Office/Views/LeftView"]
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+texture = ExtResource("38_left_room")
+
+[node name="Lights" type="Control" parent="Office/Views/LeftView"]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 960.0
 offset_bottom = 540.0
 mouse_filter = 2
-script = ExtResource("28_room")
+script = ExtResource("37_lights")
 view = 0
 
 [node name="ExitDoor" type="Control" parent="Office/Views/LeftView"]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 90.0
-offset_top = 122.0
-offset_right = 290.0
-offset_bottom = 452.0
+offset_left = 93.0
+offset_top = 135.0
+offset_right = 438.0
+offset_bottom = 466.0
 script = ExtResource("32_door")
-label_text = "SALIR"
+show_brackets = false
 
-[node name="MedalWall" type="Control" parent="Office/Views/LeftView"]
+[node name="Plane" type="TextureRect" parent="Office/Views/LeftView/ExitDoor"]
+clip_children = 1
+layout_mode = 0
+offset_left = -93.0
+offset_top = -135.0
+offset_right = 867.0
+offset_bottom = 405.0
+mouse_filter = 2
+texture = ExtResource("42_door_plane")
+
+[node name="Corridor" type="TextureRect" parent="Office/Views/LeftView/ExitDoor/Plane"]
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+texture = ExtResource("43_corridor")
+
+[node name="LeafLeft" type="TextureRect" parent="Office/Views/LeftView/ExitDoor/Plane"]
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+texture = ExtResource("44_leaf_left")
+
+[node name="LeafRight" type="TextureRect" parent="Office/Views/LeftView/ExitDoor/Plane"]
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+texture = ExtResource("45_leaf_right")
+
+[node name="Seam" type="TextureRect" parent="Office/Views/LeftView/ExitDoor"]
+layout_mode = 0
+offset_left = -93.0
+offset_top = -135.0
+offset_right = 867.0
+offset_bottom = 405.0
+mouse_filter = 2
+texture = ExtResource("46_seam")
+
+[node name="FrameGlow" type="TextureRect" parent="Office/Views/LeftView/ExitDoor"]
+visible = false
+layout_mode = 0
+offset_left = -93.0
+offset_top = -135.0
+offset_right = 867.0
+offset_bottom = 405.0
+mouse_filter = 2
+texture = ExtResource("47_frame_glow")
+
+[node name="AccessLight" type="TextureRect" parent="Office/Views/LeftView/ExitDoor"]
+visible = false
+layout_mode = 0
+offset_left = -93.0
+offset_top = -135.0
+offset_right = 867.0
+offset_bottom = 405.0
+mouse_filter = 2
+texture = ExtResource("48_access_light")
+
+[node name="Lights" type="Control" parent="Office/Views/LeftView/ExitDoor"]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 380.0
-offset_top = 84.0
-offset_right = 900.0
-offset_bottom = 384.0
-script = ExtResource("31_medals")
-label_text = "LOGROS"
+offset_left = -93.0
+offset_top = -135.0
+offset_right = 867.0
+offset_bottom = 405.0
+mouse_filter = 2
+
+[node name="CombatScoreboard" type="Control" parent="Office/Views/LeftView"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 524.0
+offset_top = 87.0
+offset_right = 924.0
+offset_bottom = 417.0
+script = ExtResource("33_scoreboard")
 
 [node name="CenterView" type="Control" parent="Office/Views"]
 layout_mode = 3
@@ -153,33 +242,57 @@ offset_right = 960.0
 offset_bottom = 540.0
 mouse_filter = 2
 
-[node name="Room" type="Control" parent="Office/Views/CenterView"]
+[node name="Room" type="TextureRect" parent="Office/Views/CenterView"]
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+texture = ExtResource("39_center_room")
+
+[node name="Lights" type="Control" parent="Office/Views/CenterView"]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 960.0
 offset_bottom = 540.0
 mouse_filter = 2
-script = ExtResource("28_room")
+script = ExtResource("37_lights")
 
 [node name="RadarConsole" type="Control" parent="Office/Views/CenterView"]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 392.0
-offset_top = 286.0
-offset_right = 568.0
-offset_bottom = 428.0
+offset_left = 33.0
+offset_top = 314.0
+offset_right = 508.0
+offset_bottom = 502.0
 script = ExtResource("29_radar")
-label_text = "SECTORES"
+
+[node name="Screen" type="ColorRect" parent="Office/Views/CenterView/RadarConsole"]
+material = SubResource("ShaderMaterial_radar")
+layout_mode = 0
+mouse_filter = 2
+
+[node name="Blips" type="Control" parent="Office/Views/CenterView/RadarConsole"]
+layout_mode = 3
+anchors_preset = 0
+mouse_filter = 2
 
 [node name="ArchiveTablet" type="Control" parent="Office/Views/CenterView"]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 640.0
-offset_top = 361.0
-offset_right = 732.0
-offset_bottom = 428.0
+offset_left = 552.0
+offset_top = 314.0
+offset_right = 701.0
+offset_bottom = 456.0
 script = ExtResource("30_tablet")
-label_text = "ARCHIVO"
+
+[node name="OptionsConsole" type="Control" parent="Office/Views/CenterView"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 702.0
+offset_top = 316.0
+offset_right = 938.0
+offset_bottom = 494.0
+script = ExtResource("34_maintenance")
 
 [node name="RightView" type="Control" parent="Office/Views"]
 layout_mode = 3
@@ -189,51 +302,38 @@ offset_right = 1920.0
 offset_bottom = 540.0
 mouse_filter = 2
 
-[node name="Room" type="Control" parent="Office/Views/RightView"]
-layout_mode = 3
-anchors_preset = 0
+[node name="Room" type="TextureRect" parent="Office/Views/RightView"]
+layout_mode = 0
 offset_right = 960.0
 offset_bottom = 540.0
 mouse_filter = 2
-script = ExtResource("28_room")
-view = 2
+texture = ExtResource("40_right_room")
 
-[node name="CombatScoreboard" type="Control" parent="Office/Views/RightView"]
+[node name="MedalCase" type="Control" parent="Office/Views/RightView"]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 90.0
-offset_top = 110.0
-offset_right = 470.0
-offset_bottom = 346.0
-script = ExtResource("33_scoreboard")
-label_text = "ESTADÍSTICAS"
-
-[node name="MaintenancePanel" type="Control" parent="Office/Views/RightView"]
-layout_mode = 3
-anchors_preset = 0
-offset_left = 620.0
-offset_top = 120.0
-offset_right = 870.0
-offset_bottom = 420.0
-script = ExtResource("34_maintenance")
-label_text = "OPCIONES"
+offset_left = 225.0
+offset_top = 74.0
+offset_right = 735.0
+offset_bottom = 506.0
+script = ExtResource("31_medals")
 
 [node name="TurnLeftArrow" type="Control" parent="Office"]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 2.0
-offset_top = 236.0
-offset_right = 24.0
-offset_bottom = 280.0
+offset_left = 16.0
+offset_top = 248.0
+offset_right = 38.0
+offset_bottom = 292.0
 script = ExtResource("35_arrow")
 
 [node name="TurnRightArrow" type="Control" parent="Office"]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 936.0
-offset_top = 236.0
-offset_right = 958.0
-offset_bottom = 280.0
+offset_left = 922.0
+offset_top = 248.0
+offset_right = 944.0
+offset_bottom = 292.0
 script = ExtResource("35_arrow")
 direction = 1
 
@@ -424,11 +524,11 @@ text = "Cancelar"
 
 
 [connection signal="pressed" from="Office/Views/LeftView/ExitDoor" to="." method="_on_exit_door_pressed"]
-[connection signal="pressed" from="Office/Views/LeftView/MedalWall" to="." method="_on_medal_wall_pressed"]
+[connection signal="pressed" from="Office/Views/RightView/MedalCase" to="." method="_on_medal_case_pressed"]
 [connection signal="pressed" from="Office/Views/CenterView/RadarConsole" to="." method="_on_radar_console_pressed"]
 [connection signal="pressed" from="Office/Views/CenterView/ArchiveTablet" to="." method="_on_archive_tablet_pressed"]
-[connection signal="pressed" from="Office/Views/RightView/CombatScoreboard" to="." method="_on_combat_scoreboard_pressed"]
-[connection signal="pressed" from="Office/Views/RightView/MaintenancePanel" to="." method="_on_maintenance_panel_pressed"]
+[connection signal="pressed" from="Office/Views/LeftView/CombatScoreboard" to="." method="_on_combat_scoreboard_pressed"]
+[connection signal="pressed" from="Office/Views/CenterView/OptionsConsole" to="." method="_on_options_console_pressed"]
 [connection signal="pressed" from="Office/TurnLeftArrow" to="." method="_turn" binds= [-1]]
 [connection signal="pressed" from="Office/TurnRightArrow" to="." method="_turn" binds= [1]]
 [connection signal="pressed" from="LevelSelectionScreen/LevelsPanel/Margin/Content/VolverButton" to="." method="_close_panel"]
