@@ -8,6 +8,7 @@
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/rocket_launcher_fusion_cannon.tres" id="7"]
 [ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Rocket/RocketShoot.wav" id="snd"]
 [ext_resource type="Resource" path="res://resources/amp_effects/rocket_launcher.tres" id="amp"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/rocket_launcher_fusion_transform.tres" id="transform"]
 
 [resource]
 script = ExtResource("1")
@@ -25,5 +26,6 @@ salvo_delay = 0.15
 cannon = ExtResource("7")
 turn_speed = 180.0
 amp_effect = ExtResource("amp")
+upgrade_frames = ExtResource("transform")
 description = "TURRET_ROCKET_LAUNCHER_FUSION_DESC"
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

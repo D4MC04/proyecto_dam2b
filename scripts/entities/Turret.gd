@@ -87,6 +87,8 @@ var _shoot_fade: Tween
 var _charge_player: AudioStreamPlayer2D
 # Apagada por un pulso EMP (ver disable): no apunta ni dispara.
 var disabled: bool = false
+# Mientras se ve la transformación de la mejora no apunta ni dispara.
+var _transforming: bool = false
 var _disable_tween: Tween
 ## Nivel del mejor Amplificador encendido cuya aura la alcanza (0 = ninguno); lo pone Grid.
 var amp_level: int = 0
@@ -235,7 +237,7 @@ func _physics_process(_delta: float) -> void:
 		queue_redraw()
 
 func _process(delta: float) -> void:
-	if disabled:
+	if disabled or _transforming:
 		return
 	if _salvo_left > 0:
 		_update_salvo(delta)
@@ -432,6 +434,8 @@ func _on_area_exited(area: Area2D) -> void:
 		enemies_in_range.erase(enemy)
 
 func _on_attack_timeout() -> void:
+	if _transforming:
+		return
 	if data.orbit:
 		# No apunta: genera un proyectil en cada cooldown mientras quepa en la órbita.
 		if not _orbit.is_full():
@@ -720,6 +724,25 @@ func play_build() -> void:
 	tween.tween_callback(func() -> void:
 		sprite.material = null
 		cannon.material = null)
+
+## Al mejorar: si la fusionada tiene `upgrade_frames`, en vez del holograma se ve la transformación de
+## las piezas (la base y el cañón se ocultan y no dispara hasta que acaba).
+func play_upgrade() -> void:
+	if data.upgrade_frames == null:
+		play_build()
+		return
+	_transforming = true
+	sprite.visible = false
+	cannon.visible = false
+	var transform_sprite: AnimatedSprite2D = AnimatedSprite2D.new()
+	transform_sprite.sprite_frames = data.upgrade_frames
+	add_child(transform_sprite)
+	transform_sprite.animation_finished.connect(func() -> void:
+		transform_sprite.queue_free()
+		sprite.visible = true
+		cannon.visible = true
+		_transforming = false)
+	transform_sprite.play()
 
 # Mitad de la altura del sprite (los frames son de 32x32, con la torreta centrada).
 func _half_height() -> float:

@@ -124,7 +124,7 @@ func upgrade_selected() -> void:
 	old.queue_free()
 	add_child(turret)
 	turret.global_position = grid.center(cell)
-	turret.play_build()
+	turret.play_upgrade()
 	GameState.register_fusion(fused)
 	grid.register_turret(cell, turret)
 	state.inspect_placed(turret)
