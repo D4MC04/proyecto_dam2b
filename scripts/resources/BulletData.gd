@@ -20,6 +20,12 @@ class_name BulletData
 @export var splash_radius: float = 0.0
 # Opcional: sonido (en el bus SFX) al impactar.
 @export var hit_sound: AudioStream
+# Opcional: frena a los enemigos que daña (velocidad × slow_factor durante slow_duration s); 0 s = no frena.
+# En una salva (TurretData.salvo_count) solo frena la primera bala.
+@export var slow_factor: float = 1.0
+@export var slow_duration: float = 0.0
+# Opcional: bocanadas de humo (sin loop) que la bala va dejando en su camino.
+@export var smoke_frames: SpriteFrames
 
 ## Filas de la ficha propias de la bala.
 func get_stats() -> Array[StatEntry]:
@@ -31,4 +37,7 @@ func get_stats() -> Array[StatEntry]:
 		stats.append(StatEntry.new("pierce", "STAT_PIERCE", UiFormat.number(pierce)))
 	if splash_radius > 0:
 		stats.append(StatEntry.new("splash", "STAT_AREA", UiFormat.number(splash_radius)))
+	if slow_duration > 0:
+		stats.append(StatEntry.new("slow", "STAT_SLOW", "-%d%%" % roundi((1.0 - slow_factor) * 100.0)))
+		stats.append(StatEntry.new("duration", "STAT_DURATION", UiFormat.seconds(slow_duration)))
 	return stats

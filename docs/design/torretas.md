@@ -27,7 +27,7 @@ La fusionada es otro `TurretData` (`resources/turret_data/<x>_fusion.tres`) con 
 | Cañón cuádruple | Cañón doble | 200 | 8 | 72 | 0,15 | Cuatro cañones, ráfaga rápida |
 | Minigun pesada | Minigun | 400 | 14 | 96 | 0,3 → 0,04 | Sobrecalentamiento mejor: 90 disparos, parada de 2 s |
 | Cryo ventisca | Cryo | 500 | 12 | 96 | 2,0 | Onda mayor (`wave_scale` 1,5), frena al 35 % durante 4,5 s |
-| Cañón de asedio | Cañón pesado | 600 | 100 | 96 | 1,6 | Explota en área de 40 px (`splash_radius`) |
+| Cañón de asedio | Cañón pesado | 600 | 55 × 2 | 96 | 2,1 | Dos cañones: salva de 2 balas (`salvo_count`) separadas 0,15 s, una por cañón, que explotan en área de 32 px. La primera frena al 10 % durante 0,3 s (`slow_factor`, `slow_duration`) y la segunda cae encima. Bala de 160 px/s con estela y humo |
 | Tormenta | Tesla | 700 | 50 | 120 | 1,3 | Cadena de 6 objetivos, saltos de 80 px |
 | Cinturón | Orbitador | 700 | 85 | anillo 40-64 | 1,0 | Hasta 5 cargas, área de 26 px, giran a 110°/s |
 | Rail Gauss | Rail | 1000 | 800 | 176 | 4,5 | Haz de 900 px y `half_width` 16 |
@@ -114,18 +114,18 @@ Las torretas de onda y de cadena no giran el cañón ni usan `_process`.
 
 ## Datos
 
-`TurretData` (`scripts/resources/TurretData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`, `orbit`. `min_range`: radio mínimo opcional; con más de 0 el alcance es un anillo entre él y `attack_range` (ver Objetivo). `overheat_shots`, `overheat_min_cooldown`, `overheat_time`, `overheat_cool_time`: sobrecalentamiento opcional (ver Disparo). `spin_up_time`: tubos rotativos opcionales (ver Tubos rotativos). `shoot_sound`: sonido del disparo. `amp_effect`: lo que gana dentro del aura de un Amplificador; `amplifier_level`: mayor que 0 en los Amplificadores (ver "Amplificador"). `money_amount`: mayor que 0 en los Mineros, el dinero que dan cada `attack_cooldown` s (ver "Minero"). `fusion`: el `TurretData` en el que se convierte al fusionarla con otra igual (null en las fusionadas). Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 8 torretas que atacan la tienen. La ficha pinta todas las torretas en cian `#40e0f0` (`TurretData.ACCENT_COLOR`, ver [ui.md](ui.md)).
+`TurretData` (`scripts/resources/TurretData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`, `orbit`. `min_range`: radio mínimo opcional; con más de 0 el alcance es un anillo entre él y `attack_range` (ver Objetivo). `overheat_shots`, `overheat_min_cooldown`, `overheat_time`, `overheat_cool_time`: sobrecalentamiento opcional (ver Disparo). `spin_up_time`: tubos rotativos opcionales (ver Tubos rotativos). `salvo_count`, `salvo_delay`: salva opcional (ver Tipos de ataque › Bala). `shoot_sound`: sonido del disparo. `amp_effect`: lo que gana dentro del aura de un Amplificador; `amplifier_level`: mayor que 0 en los Amplificadores (ver "Amplificador"). `money_amount`: mayor que 0 en los Mineros, el dinero que dan cada `attack_cooldown` s (ver "Minero"). `fusion`: el `TurretData` en el que se convierte al fusionarla con otra igual (null en las fusionadas). Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 8 torretas que atacan la tienen. La ficha pinta todas las torretas en cian `#40e0f0` (`TurretData.ACCENT_COLOR`, ver [ui.md](ui.md)).
 
 Funciones para la ficha:
 
-- `get_stats() -> Array[StatEntry]`: en el Amplificador solo COSTE y AURA (radio de `attack_range`). En el Minero, COSTE, GANANCIA (`money_amount`, icono `reward`) e INTERVALO (`attack_cooldown`). En las demás, filas comunes (COSTE con `€`, ALCANCE = radio del `CircleShape2D` de `attack_range` (con `min_range`, "mínimo-máximo", p. ej. `40-64`), CADENCIA = `attack_cooldown` en segundos salvo en el haz continuo; con sobrecalentamiento, además CAD. MÁX, AGUANTE (disparos) y PARADA) seguidas de las del ataque. Los nombres de fila son cortos y en mayúsculas (9 caracteres como mucho, ver `StatEntry` en [ui.md](ui.md)).
+- `get_stats() -> Array[StatEntry]`: en el Amplificador solo COSTE y AURA (radio de `attack_range`). En el Minero, COSTE, GANANCIA (`money_amount`, icono `reward`) e INTERVALO (`attack_cooldown`). En las demás, filas comunes (COSTE con `€`, ALCANCE = radio del `CircleShape2D` de `attack_range` (con `min_range`, "mínimo-máximo", p. ej. `40-64`), CADENCIA = `attack_cooldown` en segundos salvo en el haz continuo; con salva, SALVA (`salvo_count`); con sobrecalentamiento, además CAD. MÁX, AGUANTE (disparos) y PARADA) seguidas de las del ataque. Los nombres de fila son cortos y en mayúsculas (9 caracteres como mucho, ver `StatEntry` en [ui.md](ui.md)).
 - `get_attack() -> Resource`: el `*Data` de ataque que tenga (o null).
 - `get_attack_label()`: "BALA", "ONDA", "CADENA", "HAZ", "HAZ CONT.", "ÓRBITA" o "APOYO" (Amplificador, `is_amplifier()`, y Minero, `is_miner()`).
 - Cada `*Data` de ataque tiene su `get_stats()`:
 
 | Clase | Filas |
 |---|---|
-| `BulletData` | DAÑO, VEL. BALA, y PERFORA (`pierce`) y ÁREA (`splash_radius`) solo si son > 0 |
+| `BulletData` | DAÑO, VEL. BALA, y PERFORA (`pierce`) y ÁREA (`splash_radius`) solo si son > 0; con `slow_duration` > 0, FRENADO (`-90%` con `slow_factor` 0,1) y DURACIÓN |
 | `PulseData` | DAÑO, FRENADO (`-45%` con `slow_factor` 0,55), DURACIÓN (de la ralentización) |
 | `ChainData` | DAÑO, OBJETIVOS (`max_targets`), SALTO (`jump_range`) |
 | `BeamData` | DAÑO, PERFORA ("TODOS") |
@@ -173,7 +173,7 @@ DPS efectivo = DPS a un objetivo × objetivos que se estiman golpeados por dispa
 | Cryo | 250 (250) | 6 | 3 (2) | 18 (15) + frena 45 % | 0,012 (0,010) | 0,07 (0,06) |
 | Cryo ventisca | 750 (750) | 9 | 6 (4) | 54 (36) + frena 65 % | 0,008 (0,005) | 0,07 (0,05) |
 | Cañón pesado | 300 (300) | 2,2 | 27 (30) | 59 (66) | 0,09 (0,10) | 0,20 (0,22) |
-| Cañón de asedio | 900 (900) | 2,8 | 62 (62) | 175 (175) | 0,07 (0,07) | 0,19 (0,19) |
+| Cañón de asedio | 900 (900) | 2,8 | 52 (62) + frena | 147 (175) + frena | 0,06 (0,07) | 0,16 (0,19) |
 | Tesla | 350 (400) | 2,6 | 23 (23) | 60 (60) | 0,07 (0,06) | 0,17 (0,15) |
 | Tormenta | 1050 (1200) | 4,5 | 38 (35) | 173 (156) | 0,04 (0,03) | 0,16 (0,13) |
 | Orbitador | 350 (450) | 1,7 | 31 (25) | 53 (42) | 0,09 (0,06) | 0,15 (0,09) |
@@ -225,6 +225,8 @@ Torreta de apoyo que da dinero (`miner.tres`, mejora `miner_fusion.tres` "Excava
 - Persigue al objetivo: corrige la dirección cada frame mientras el objetivo exista; si desaparece sigue recta.
 - Daña al primer `Enemy` cuya área toque, sea o no el objetivo, deja la animación `impact_frames` y se libera.
 - Se libera sola a los 5 s.
+- Opcionales de `BulletData`: `trail_frames` (estela pegada a la cola, hija del sprite), `smoke_frames` (deja una bocanada `Effect` cada 6 px, 14 px por detrás, que se queda en el camino) y `slow_factor`/`slow_duration` (frena con `Enemy.slow()` a cada enemigo que daña, antes del daño; como cualquier `slow()`, sustituye a la ralentización que tuviera).
+- Salva (`TurretData.salvo_count` > 1, Cañón de asedio): cada disparo saca la primera bala y, cada `salvo_delay` s, las demás por el otro lado (`_update_salvo` en `_process`), sin frenar (`Bullet.slows` = false). Si el objetivo se pierde a media salva, las que faltan no salen, pero cuentan para que la siguiente salva empiece por el mismo cañón. Con un EMP la salva y la animación de recarga se congelan con el temporizador en vez de volver a `default`.
 - El cañón reproduce `fire_0`, `fire_1`... alternando en cada disparo (solo cuenta las animaciones `fire_N`; los tubos rotativos no tienen y siguen con su `spin`).
 
 ### Onda

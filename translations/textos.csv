@@ -88,7 +88,7 @@ TURRET_RAIL_FUSION_DESC,Un haz ancho y larguísimo que barre toda la línea. Fus
 TURRET_ROCKET_LAUNCHER_NAME,Cañón pesado,Heavy Cannon
 TURRET_ROCKET_LAUNCHER_DESC,Balas lentas y potentes que hacen mucho daño en cada impacto.,"Slow, powerful shells that deal heavy damage on each hit."
 TURRET_ROCKET_LAUNCHER_FUSION_NAME,Cañón de asedio,Siege Cannon
-TURRET_ROCKET_LAUNCHER_FUSION_DESC,Proyectiles que explotan en área y dañan a varios enemigos. Fusión de dos Cañones pesados.,Shells that explode in an area and hit several enemies. Fusion of two Heavy Cannons.
+TURRET_ROCKET_LAUNCHER_FUSION_DESC,Dispara salvas de dos proyectiles explosivos: el primero frena en seco a los enemigos del área y el segundo cae encima. Fusión de dos Cañones pesados.,Fires two-shell salvos: the first stops enemies in the area dead and the second lands on top. Fusion of two Heavy Cannons.
 TURRET_TESLA_NAME,Tesla,Tesla
 TURRET_TESLA_DESC,Un rayo salta de enemigo en enemigo y alcanza a varios a la vez.,A bolt jumps from enemy to enemy and hits several at once.
 TURRET_TESLA_FUSION_NAME,Tormenta,Storm
@@ -221,6 +221,7 @@ STAT_ENDURANCE,AGUANTE,ENDURANCE
 STAT_OVERHEAT,PARADA,OVERHEAT
 STAT_BULLET_SPEED,VEL. BALA,SHOT SPD.
 STAT_PIERCE,PERFORA,PIERCE
+STAT_SALVO,SALVA,SALVO
 STAT_DURATION,DURACIÓN,DURATION
 STAT_DPS,DPS,DPS
 STAT_DPS_LEVEL,DPS N%d,DPS L%d

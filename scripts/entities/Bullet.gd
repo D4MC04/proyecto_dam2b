@@ -1,6 +1,10 @@
 extends Area2D
 class_name Bullet
 
+# Distancia (px) entre bocanadas de humo (BulletData.smoke_frames) y lo que quedan por detrás de la bala.
+const SMOKE_STEP: float = 6.0
+const SMOKE_BACK: float = 14.0
+
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 
@@ -11,6 +15,9 @@ var target: Enemy
 var direction: Vector2
 # Enemigos ya golpeados (con perforación no se daña dos veces al mismo).
 var _hit: Array[Enemy] = []
+# Si aplica el frenado de BulletData (en una salva solo la primera bala).
+var slows: bool = true
+var _smoke_distance: float = 0.0
 
 func _ready() -> void:
 	area_entered.connect(_on_area_entered)
@@ -53,6 +60,17 @@ func _process(delta: float) -> void:
 	if is_instance_valid(target):
 		_aim()
 	global_position += direction * data.speed * delta
+	if data.smoke_frames:
+		_smoke_distance += data.speed * delta
+		if _smoke_distance >= SMOKE_STEP:
+			_smoke_distance -= SMOKE_STEP
+			Effect.spawn(get_parent(), data.smoke_frames, global_position - direction * SMOKE_BACK)
+
+# Frena antes de dañar: si el golpe lo mata, ya no importa.
+func _hit_enemy(enemy: Enemy) -> void:
+	if slows and data.slow_duration > 0:
+		enemy.slow(data.slow_factor, data.slow_duration)
+	enemy.take_damage(data.damage, source)
 
 # El sonido va en un nodo aparte porque la bala se libera al impactar.
 func _play_hit_sound() -> void:
@@ -77,9 +95,9 @@ func _on_area_entered(area: Area2D) -> void:
 			for node: Node in get_tree().get_nodes_in_group(&"enemies"):
 				var other: Enemy = node as Enemy
 				if other != null and other.global_position.distance_to(global_position) <= data.splash_radius * splash_scale:
-					other.take_damage(data.damage, source)
+					_hit_enemy(other)
 		else:
-			enemy.take_damage(data.damage, source)
+			_hit_enemy(enemy as Enemy)
 		if data.hit_sound:
 			_play_hit_sound()
 		if data.impact_frames:
