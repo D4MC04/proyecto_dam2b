@@ -50,6 +50,10 @@ func _process(delta: float) -> void:
 func _has_point(point: Vector2) -> bool:
 	return Geometry2D.is_point_in_polygon(point, _outline)
 
+# Los corchetes siguen el contorno inclinado de la mesa.
+func hover_quad() -> PackedVector2Array:
+	return _outline
+
 # Ecos: cruz roja; los recién barridos, más claros y con una columna de luz encima.
 func _draw_blips() -> void:
 	for blip: Vector2 in BLIPS:

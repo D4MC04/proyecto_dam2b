@@ -2,8 +2,9 @@ class_name OfficeLights
 extends Control
 
 # Pilotos de una vista de la oficina: los huecos están pintados en el PNG de la habitación y aquí se
-# encienden, algunos parpadeando. En la vista central, además, un destello recorre la línea de luz
-# entre el ventanal y la consola. Ocupa la vista entera y no recibe el ratón.
+# encienden, algunos parpadeando. En la vista central, además, un destello recorre el tubo de la
+# barra de luz entre el ventanal y la consola, con una estela, y pasa por debajo de las abrazaderas.
+# Ocupa la vista entera y no recibe el ratón.
 
 enum View { LEFT, CENTER, RIGHT }
 
@@ -15,18 +16,21 @@ const RANDOM_BLINK_PERIOD: Vector2 = Vector2(0.6, 3.0)
 const ON_FRACTION: float = 0.55
 const OFF_DARKEN: float = 0.72
 const GLINT_SPEED: float = 140.0
-const GLINT_LENGTH: int = 40
+const GLINT_LENGTH: int = 36
+const GLINT_TAIL: int = 30
+const GLINT_CORE: int = 12
 
 # Cada piloto: rectángulo, color, periodo (0 = fijo) y fase.
 var _leds: Array[Dictionary] = []
-var _glint_y: int = -1
+# Tubo de la barra de luz (y, h y los tramos [x, ancho] de las abrazaderas); vacío fuera del centro.
+var _strip: Dictionary = {}
 var _time: float = 0.0
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var layout: Dictionary = [OfficeLayout.LEFT, OfficeLayout.CENTER, OfficeLayout.RIGHT][view]
 	if view == View.CENTER:
-		_glint_y = layout.strip
+		_strip = layout.strip
 	# Semilla fija: los mismos pilotos parpadean cada vez que se abre el menú.
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = 7 + view
@@ -52,10 +56,33 @@ func _draw() -> void:
 		var on: bool = period == 0.0 or fmod(_time + led.phase, period) < period * ON_FRACTION
 		var color: Color = led.color
 		OfficePaint.rect(self, led.rect, color if on else color.darkened(OFF_DARKEN))
-	if _glint_y >= 0:
-		var x: int = roundi(fmod(_time * GLINT_SPEED, size.x + 60.0)) - 60
-		OfficePaint.rect(self, Rect2i(x, _glint_y - 1, GLINT_LENGTH, 2), OfficePaint.CYAN_LIGHT)
-		OfficePaint.rect(self, Rect2i(x + 14, _glint_y - 1, 12, 2), Color.WHITE)
+	if not _strip.is_empty():
+		_draw_glint()
+
+# Destello del tubo: estela tenue, cuerpo claro en todo el tubo y núcleo blanco delante.
+func _draw_glint() -> void:
+	var head: int = roundi(fmod(_time * GLINT_SPEED, size.x + GLINT_LENGTH + GLINT_TAIL)) - 1
+	var body: int = head - GLINT_LENGTH
+	var y: int = _strip.y
+	var height: int = _strip.h
+	_on_tube(body - GLINT_TAIL, body, y + 1, height - 2, Color(OfficePaint.CYAN_LIGHT, 0.4))
+	_on_tube(body, head, y, height, OfficePaint.CYAN)
+	_on_tube(body, head, y + 1, height - 2, OfficePaint.CYAN_LIGHT)
+	_on_tube(head - GLINT_CORE - 4, head - 4, y + 2, 1, Color.WHITE)
+
+# Franja [from, to) de `rows` filas del tubo, sin pintar encima de las abrazaderas.
+func _on_tube(from: int, to: int, y: int, rows: int, color: Color) -> void:
+	var x: int = from
+	for clamp_span: Array in _strip.clamps:
+		var clamp_start: int = clamp_span[0]
+		var clamp_end: int = clamp_start + int(clamp_span[1])
+		if clamp_end <= x:
+			continue
+		if clamp_start >= to:
+			break
+		OfficePaint.rect(self, Rect2i(x, y, clamp_start - x, rows), color)
+		x = clamp_end
+	OfficePaint.rect(self, Rect2i(x, y, to - x, rows), color)
 
 # Nombre de color de los generadores (C2, G2, A2, R2...) en la paleta.
 static func _palette(name: String) -> Color:
