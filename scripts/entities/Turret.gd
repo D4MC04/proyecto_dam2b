@@ -67,6 +67,9 @@ var _turn_target: Enemy = null
 var _enemy_rate: float = 0.0
 # Cooldown cumplido, a la espera de que el cañón termine de girar hacia el enemigo.
 var _pending_shot: bool = false
+# Salva (ver TurretData.salvo_count): balas que faltan por salir y segundos hasta la siguiente.
+var _salvo_left: int = 0
+var _salvo_wait: float = 0.0
 # Sobrecalentamiento (ver TurretData.overheat_shots): calor de 0 a 1, segundos que le quedan parada
 # y si base y cañón llevan tinte de calor (para devolverles el blanco una sola vez al enfriarse).
 var _heat: float = 0.0
@@ -234,6 +237,8 @@ func _physics_process(_delta: float) -> void:
 func _process(delta: float) -> void:
 	if disabled:
 		return
+	if _salvo_left > 0:
+		_update_salvo(delta)
 	var target: Enemy = _get_target()
 	var overheated: bool = data.overheat_shots > 0 and _update_overheat(delta, target != null)
 	if _has_spin():
@@ -518,6 +523,21 @@ func _shoot(target: Enemy) -> void:
 		cannon.play(&"fire_0")
 		cannon.speed_scale = amp_value(AmpEffect.Kind.CHARGE, 1.0)
 		return
+	_fire_bullet(target, true)
+	_salvo_left = data.salvo_count - 1
+	_salvo_wait = data.salvo_delay
+	# Las animaciones de disparo son las fire_N (los tubos rotativos no tienen: su "spin" no se corta).
+	var fire_anims: int = 0
+	if data.cannon:
+		for animation: String in data.cannon.get_animation_names():
+			if animation.begins_with("fire_"):
+				fire_anims += 1
+	if fire_anims > 0:
+		cannon.play("fire_%d" % ((_shots - 1) % fire_anims))
+	if data.overheat_shots > 0:
+		_add_heat()
+
+func _fire_bullet(target: Enemy, slows: bool) -> void:
 	_play_shoot()
 	var bullet: Bullet = bullet_scene.instantiate()
 	get_parent().add_child(bullet)
@@ -526,20 +546,26 @@ func _shoot(target: Enemy) -> void:
 	var muzzle: Vector2 = data.muzzle_offset * Vector2(-1 if _shots % 2 else 1, 1)
 	bullet.global_position = global_position + muzzle.rotated(cannon.rotation)
 	bullet.source = self
+	bullet.slows = slows
 	bullet.setup(data.bullet_data, target)
 	if data.muzzle_flash:
 		Effect.spawn(cannon, data.muzzle_flash, bullet.global_position, data.bullet_data.sprite_scale)
-	# Las animaciones de disparo son las fire_N (los tubos rotativos no tienen: su "spin" no se corta).
-	var fire_anims: int = 0
-	if data.cannon:
-		for animation: String in data.cannon.get_animation_names():
-			if animation.begins_with("fire_"):
-				fire_anims += 1
-	if fire_anims > 0:
-		cannon.play("fire_%d" % (_shots % fire_anims))
 	_shots += 1
-	if data.overheat_shots > 0:
-		_add_heat()
+
+# Resto de la salva: cada salvo_delay s sale otra bala, por el otro cañón, y ya no frena.
+func _update_salvo(delta: float) -> void:
+	_salvo_wait -= delta
+	if _salvo_wait > 0.0:
+		return
+	var target: Enemy = _get_target()
+	if target == null:
+		# Sin objetivo se pierde lo que quedaba, pero la siguiente salva empieza por el mismo cañón.
+		_shots += _salvo_left
+		_salvo_left = 0
+		return
+	_fire_bullet(target, false)
+	_salvo_left -= 1
+	_salvo_wait = data.salvo_delay
 
 # Mantiene el objetivo mientras siga vivo y dentro del rango.
 func _get_target() -> Enemy:
@@ -577,7 +603,8 @@ func disable(seconds: float) -> void:
 	_spin = 0.0
 	# El Minero pierde lo que fuera a sacar.
 	_mine_pending = false
-	if cannon.sprite_frames and cannon.animation != &"default" and not _has_spin():
+	# La recarga a la vista de las salvas no se corta: se congela con el temporizador y sigue a la par.
+	if cannon.sprite_frames and cannon.animation != &"default" and not _has_spin() and data.salvo_count <= 1:
 		cannon.play(&"default")
 	if _charge_player:
 		_charge_player.stop()

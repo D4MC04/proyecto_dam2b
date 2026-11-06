@@ -49,6 +49,11 @@ const ACCENT_COLOR: Color = Color("#40e0f0")
 # Sin objetivo, sobrecalentada o apagada por un EMP frena y tiene que volver a arrancar.
 # Con spin_up_time = 0 (por defecto) no hay giro.
 @export var spin_up_time: float = 0.0
+# Opcional (torretas de bala): cada disparo es una salva de salvo_count balas separadas salvo_delay s,
+# que alternan de lado como las de dos cañones (muzzle_offset). Solo la primera frena (BulletData.slow_factor).
+# Con salvo_count = 1 (por defecto) sale una bala por disparo.
+@export var salvo_count: int = 1
+@export var salvo_delay: float = 0.0
 # Opcional: sonido del disparo (en el bus SFX). En el haz continuo suena mientras el haz está activo.
 @export var shoot_sound: AudioStream
 # Opcional: sonido de carga de las torretas con animación fire_0; suena hasta el fire_frame.
@@ -90,6 +95,8 @@ func get_stats() -> Array[StatEntry]:
 	# El haz continuo no usa el cooldown.
 	if focus_beam == null:
 		stats.append(StatEntry.new("cooldown", "STAT_FIRE_RATE", UiFormat.seconds(attack_cooldown)))
+	if salvo_count > 1:
+		stats.append(StatEntry.new("targets", "STAT_SALVO", str(salvo_count)))
 	if overheat_shots > 0:
 		stats.append(StatEntry.new("cooldown", "STAT_MAX_RATE", UiFormat.seconds(overheat_min_cooldown)))
 		stats.append(StatEntry.new("targets", "STAT_ENDURANCE", str(overheat_shots)))

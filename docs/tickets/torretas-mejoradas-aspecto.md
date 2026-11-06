@@ -11,7 +11,7 @@ Esfuerzo recomendado: medium
 Algunas torretas mejoradas se parecen demasiado a su versión normal, y el jugador no nota que la torreta ha mejorado de verdad.
 
 ## Qué hay que hacer
-- Al empezar, preguntar al usuario qué torretas mejoradas necesitan otro aspecto y qué cambio quiere en cada una. Las 10 son: Cañón cuádruple, Minigun pesada, Cryo ventisca, Cañón de asedio, Tormenta, Cinturón, Rail Gauss, Aniquilador, Amplificador mayor y Excavadora.
+- Al empezar, preguntar al usuario qué torretas mejoradas necesitan otro aspecto y qué cambio quiere en cada una. Las 9 son: Cañón cuádruple, Minigun pesada, Cryo ventisca, Tormenta, Cinturón, Rail Gauss, Aniquilador, Amplificador mayor y Excavadora (el Cañón de asedio ya tiene aspecto nuevo, del ticket `asedio-martillo`).
 - Volver a dibujar solo las que elija. En `assets/sprites/turrets/<x>_fusion/` se cambian la base, la tira del cañón y el icono `*_full_up.png`, siguiendo art.md y el estilo de su versión normal, de modo que se vea claramente que es la mejorada.
 - Mantener el tamaño, el número de frames y los nombres de archivo, para que los `sprite_frames` de `resources/sprite_frames/<x>_fusion*.tres` y los `.import` sigan sirviendo sin cambiar ningún `uid`.
 - No tocar las torretas no elegidas ni las versiones normales.
