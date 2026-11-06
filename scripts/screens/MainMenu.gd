@@ -7,12 +7,12 @@ extends Control
 
 enum View { LEFT, CENTER, RIGHT }
 
-const FADE_TIME := 0.25
-const WARP_TIME := 0.5
-const FLASH_TIME := 0.1
+const FADE_TIME: float = 0.25
+const WARP_TIME: float = 0.5
+const FLASH_TIME: float = 0.1
 # Giro de la silla: duración del paso a la vista de al lado y ancho de cada vista.
-const TURN_TIME := 0.45
-const VIEW_WIDTH := 960.0
+const TURN_TIME: float = 0.45
+const VIEW_WIDTH: float = 960.0
 
 var start_on_level_selection: bool = false
 
@@ -23,7 +23,9 @@ var start_on_level_selection: bool = false
 @onready var exit_door: OfficeDoor = $Office/Views/LeftView/ExitDoor
 @onready var panel_dim: ColorRect = $PanelDim
 @onready var level_selection_panel: VBoxContainer = $LevelSelectionScreen
-@onready var level_buttons_container: GridContainer = %LevelButtonsContainer
+@onready var sector_radar: SectorRadar = %SectorRadar
+@onready var sector_card: SectorCard = %SectorCard
+@onready var sectors_subtitle: Label = %SectorsSubtitle
 @onready var stats_panel: VBoxContainer = $StatsScreen
 @onready var stats_label: Label = %StatsLabel
 @onready var navedex: Navedex = $Navedex
@@ -31,7 +33,7 @@ var start_on_level_selection: bool = false
 @onready var options_menu: OptionsMenu = $OptionsMenu
 @onready var quit_confirm: Control = $QuitConfirm
 
-var _view := View.CENTER
+var _view: View = View.CENTER
 var _turn_tween: Tween
 # Panel abierto encima de la oficina; null si se ve la oficina.
 var _panel: Control
@@ -49,8 +51,11 @@ func _ready() -> void:
 		_panel = level_selection_panel
 		panel_dim.show()
 		level_selection_panel.show()
-	_build_level_buttons()
-	GameState.progress_reset.connect(_build_level_buttons)
+	sector_radar.sector_selected.connect(_on_sector_selected)
+	sector_radar.sector_launched.connect(_on_sector_launched)
+	sector_card.deploy_pressed.connect(_on_deploy_pressed)
+	GameState.progress_reset.connect(_refresh_sectors)
+	_refresh_sectors()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _jumping or _leaving:
@@ -66,7 +71,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if _panel or quit_confirm.visible:
 		return
-	var key := event as InputEventKey
+	var key: InputEventKey = event as InputEventKey
 	if key == null or not key.pressed or key.echo:
 		return
 	if key.physical_keycode in [KEY_LEFT, KEY_A]:
@@ -76,24 +81,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		_turn(1)
 
-func _build_level_buttons() -> void:
-	for child in level_buttons_container.get_children():
-		child.queue_free()
-	for i in GameData.levels.size():
-		var button := LevelButton.new()
-		button.level = GameData.levels[i]
-		button.text = str(i + 1)
-		button.custom_minimum_size = Vector2(60, 60)
-		button.add_theme_font_size_override("font_size", 24)
-		button.disabled = not GameState.is_unlocked(i)
-		button.level_selected.connect(_open_level)
-		level_buttons_container.add_child(button)
-
 # --- Giro de la silla ----------------------------------------------------------------------
 
 # Gira a la vista de al lado (-1 izquierda, 1 derecha), si la hay.
 func _turn(step: int) -> void:
-	var target := clampi(_view + step, View.LEFT, View.RIGHT) as View
+	var target: View = clampi(_view + step, View.LEFT, View.RIGHT) as View
 	if target == _view:
 		return
 	_view = target
@@ -124,14 +116,14 @@ func _open_panel(panel: Control) -> void:
 func _close_panel() -> void:
 	if _panel == null:
 		return
-	var panel := _panel
+	var panel: Control = _panel
 	_panel = null
 	_fade_panel(panel, false)
 
 func _fade_panel(panel: Control, show_it: bool) -> void:
 	if _panel_tween:
 		_panel_tween.kill()
-	var target := 1.0 if show_it else 0.0
+	var target: float = 1.0 if show_it else 0.0
 	if show_it:
 		for item: Control in [panel_dim, panel]:
 			item.modulate.a = 0.0
@@ -145,6 +137,7 @@ func _fade_panel(panel: Control, show_it: bool) -> void:
 			panel.hide())
 
 func _on_radar_console_pressed() -> void:
+	_refresh_sectors()
 	_open_panel(level_selection_panel)
 
 func _on_archive_tablet_pressed() -> void:
@@ -158,19 +151,41 @@ func _on_options_console_pressed() -> void:
 
 @warning_ignore("integer_division")
 func _on_combat_scoreboard_pressed() -> void:
-	var seconds := int(GameState.play_time)
+	var seconds: int = int(GameState.play_time)
 	var favorite: String = GameState.favorite_turret()
-	var turret_name := "-"
+	var turret_name: String = "-"
 	if favorite != "":
-		turret_name = (load(Navedex.TURRET_DIR + favorite + ".tres") as TurretData).name
+		turret_name = (load(Navedex.TURRET_DIR + favorite + ".tres") as TurretData).get_inspect_name()
 	stats_label.text = "\n".join([
-		"Naves destruidas: %d" % GameState.stats.get("kills", 0),
-		"Dinero gastado: %s" % UiFormat.money(GameState.stats.get("spent", 0)),
-		"Tiempo jugado: %dh %02dm" % [seconds / 3600, seconds % 3600 / 60],
-		"Torreta favorita: %s" % turret_name,
-		"Niveles ganados: %d" % GameState.stats.get("wins", 0),
+		tr("STATS_KILLS") % GameState.stats.get("kills", 0),
+		tr("STATS_SPENT") % UiFormat.money(GameState.stats.get("spent", 0)),
+		tr("STATS_TIME") % [seconds / 3600, seconds % 3600 / 60],
+		tr("STATS_FAVORITE") % turret_name,
+		tr("STATS_WINS") % GameState.stats.get("wins", 0),
 	])
 	_open_panel(stats_panel)
+
+# --- Selección de sector (radar) -----------------------------------------------------------
+
+# Vuelve a leer el progreso en el radar y la ficha (el radar ya lo lee al crearse).
+func _refresh_sectors() -> void:
+	sector_radar.refresh()
+	_on_sector_selected(sector_radar.selected_index)
+	sectors_subtitle.text = tr("RADAR_SUBTITLE") % [sector_radar.get_secured_count(), SectorRadar.TOTAL_SECTORS,
+			SectorRadar.format_thousands(sector_radar.get_range_km())]
+
+func _on_sector_selected(index: int) -> void:
+	sector_card.show_level(index, sector_radar.get_level_state(index) if index >= 0 else SectorRadar.ContactState.LOCKED)
+
+func _on_sector_launched(index: int) -> void:
+	# El sector del jefe aún no tiene nivel.
+	if index >= GameData.levels.size():
+		return
+	_open_level(GameData.levels[index])
+
+func _on_deploy_pressed() -> void:
+	if sector_radar.selected_index >= 0:
+		_on_sector_launched(sector_radar.selected_index)
 
 # --- Salir ---------------------------------------------------------------------------------
 
@@ -196,22 +211,22 @@ func _open_level(data: LevelData) -> void:
 		return
 	_jumping = true
 	await _hyperspace_jump()
-	var game = preload("res://scenes/Game.tscn").instantiate()
+	var game: Game = preload("res://scenes/Game.tscn").instantiate()
 	game.level_data = data
 	game.from_hyperspace = true
-	var tree = get_tree()
+	var tree: SceneTree = get_tree()
 	tree.root.add_child(game)
 	tree.current_scene.queue_free()
 	tree.current_scene = game
 
 # Estrellas en líneas y destello blanco que cubre el menú antes de cargar el nivel.
 func _hyperspace_jump() -> void:
-	var flash := ColorRect.new()
+	var flash: ColorRect = ColorRect.new()
 	flash.color = Color(1, 1, 1, 0)
 	flash.set_anchors_preset(Control.PRESET_FULL_RECT)
 	flash.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(flash)
 	await $Space/StarField.warp(WARP_TIME)
-	var tween := create_tween()
+	var tween: Tween = create_tween()
 	tween.tween_property(flash, "color:a", 1.0, FLASH_TIME)
 	await tween.finished

@@ -6,8 +6,8 @@ class_name BuildManager
 # Mientras se apunta el meteorito no se coloca ni se selecciona nada.
 @export var powers: Powers
 
-const RANGE_BORDER_COLOR := Color("40e0f0")
-const RANGE_FILL_COLOR := Color(0.25, 0.88, 0.94, 0.08)
+const RANGE_BORDER_COLOR: Color = Color("40e0f0")
+const RANGE_FILL_COLOR: Color = Color(0.25, 0.88, 0.94, 0.08)
 
 var state: LevelState
 ## Lo pone Game; con el tutorial en marcha decide si se puede construir o seleccionar.
@@ -19,7 +19,7 @@ var _sprite: Sprite2D
 var _last_cell: Vector2i = Vector2i(-9999, -9999)
 var _last_data: TurretData
 # A false cuando el nivel ha acabado: no se coloca nada ni se enseña la vista previa.
-var _building := true
+var _building: bool = true
 
 ## Deja de colocar torretas y oculta la vista previa para el resto de la partida.
 func stop_building() -> void:
@@ -57,8 +57,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _try_place(mouse_pos: Vector2) -> void:
 
-	var cell := grid.cell(mouse_pos)
-	var data := state.selected_turret
+	var cell: Vector2i = grid.cell(mouse_pos)
+	var data: TurretData = state.selected_turret
 	if grid.turrets.has(cell):
 		# Clic en una torreta ya colocada: se selecciona (ficha, vender y mejorar);
 		# si ya lo estaba, se suelta todo.
@@ -82,7 +82,7 @@ func _try_place(mouse_pos: Vector2) -> void:
 	if not state.spend_money(data.cost):
 		return
 
-	var turret := turret_scene.instantiate()
+	var turret: Node = turret_scene.instantiate()
 	turret.data = data
 	add_child(turret)
 	turret.global_position = grid.center(cell)
@@ -107,13 +107,13 @@ func _deselect_all() -> void:
 ## Mejora la torreta colocada seleccionada: la sustituye por su versión mejorada en la misma casilla.
 ## Sin torreta seleccionada, sin mejora o sin dinero no hace nada.
 func upgrade_selected() -> void:
-	var old := state.sellable_turret
+	var old: Turret = state.sellable_turret
 	if not _building or not is_instance_valid(old) or old.data.fusion == null:
 		return
-	var fused := old.data.fusion
+	var fused: TurretData = old.data.fusion
 	if not state.spend_money(fused.cost):
 		return
-	var cell := grid.cell(old.global_position)
+	var cell: Vector2i = grid.cell(old.global_position)
 	var turret: Turret = turret_scene.instantiate()
 	turret.data = fused
 	turret.invested = old.invested + fused.cost
@@ -124,7 +124,7 @@ func upgrade_selected() -> void:
 	old.queue_free()
 	add_child(turret)
 	turret.global_position = grid.center(cell)
-	turret.play_build()
+	turret.play_upgrade()
 	GameState.register_fusion(fused)
 	grid.register_turret(cell, turret)
 	state.inspect_placed(turret)
@@ -132,11 +132,11 @@ func upgrade_selected() -> void:
 
 func _update_preview(mouse_pos: Vector2) -> void:
 
-	var data := state.selected_turret
+	var data: TurretData = state.selected_turret
 	if data == null:
 		_hide_preview()
 		return
-	var cell := grid.cell(mouse_pos)
+	var cell: Vector2i = grid.cell(mouse_pos)
 	# La vista previa solo se enseña en casillas libres.
 	if not grid.can_build(cell):
 		_hide_preview()
@@ -168,11 +168,11 @@ func _draw_range() -> void:
 # Pinta el alcance en "canvas" (solo dentro de su _draw): relleno tenue y borde cian pixelado de 1 px.
 # Con min_range > 0 es un anillo: relleno solo entre los dos radios y borde también por dentro.
 static func draw_range_circle(canvas: CanvasItem, shape: Shape2D, min_range: float = 0.0) -> void:
-	var circle := shape as CircleShape2D
+	var circle: CircleShape2D = shape as CircleShape2D
 	if circle == null:
 		return
 	if min_range > 0.0:
-		var width := circle.radius - min_range
+		var width: float = circle.radius - min_range
 		canvas.draw_arc(Vector2.ZERO, min_range + width / 2.0, 0.0, TAU, 96, RANGE_FILL_COLOR, width, false)
 		canvas.draw_arc(Vector2.ZERO, min_range, 0.0, TAU, 96, RANGE_BORDER_COLOR, 1.0, false)
 	else:

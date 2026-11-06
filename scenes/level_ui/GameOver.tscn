@@ -28,8 +28,7 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="Title" parent="Center/Frame/Margin/Box" index="0"]
-text = "SEÑAL
-PERDIDA"
+text = "DEFEAT_TITLE"
 
 [node name="RunSummary" parent="Center/Frame/Margin/Box" index="1" instance=ExtResource("5_summary")]
 unique_name_in_owner = true
@@ -40,7 +39,7 @@ custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "Reintentar"
+text = "BTN_RETRY"
 script = ExtResource("2_option")
 option = 1
 
@@ -49,6 +48,6 @@ custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "Menú"
+text = "BTN_MENU"
 script = ExtResource("2_option")
 option = 2

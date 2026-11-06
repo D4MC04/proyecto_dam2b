@@ -9,11 +9,11 @@ extends Control
 signal pressed
 
 ## Corchetes en L al pasar el ratón (la puerta no los lleva: se entreabre).
-@export var show_brackets := true
+@export var show_brackets: bool = true
 
-var hovered := false
+var hovered: bool = false
 ## Segundos desde que se creó, para las animaciones.
-var time := 0.0
+var time: float = 0.0
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -27,7 +27,7 @@ func _process(delta: float) -> void:
 		queue_redraw()
 
 func _gui_input(event: InputEvent) -> void:
-	var click := event as InputEventMouseButton
+	var click: InputEventMouseButton = event as InputEventMouseButton
 	if click and click.pressed and click.button_index == MOUSE_BUTTON_LEFT:
 		accept_event()
 		pressed.emit()

@@ -6,39 +6,39 @@ extends RefCounted
 # y sin antialiasing. Los colores son los de art.md.
 
 const FONT: Font = preload("res://assets/fonts/Monogram.ttf")
-const TEXT_SIZE := 16
+const TEXT_SIZE: int = 16
 # Alto de una línea de Monogram a 16 px.
-const TEXT_HEIGHT := 13
+const TEXT_HEIGHT: int = 13
 
-const OUTLINE := Color("#0c0e16")
+const OUTLINE: Color = Color("#0c0e16")
 # Rampa del metal gris azulado de torretas y tablets.
-const METAL_DARK := Color("#343a4a")
-const METAL := Color("#606a7c")
-const METAL_LIGHT := Color("#96a2b6")
-const METAL_SHINE := Color("#d2dceb")
+const METAL_DARK: Color = Color("#343a4a")
+const METAL: Color = Color("#606a7c")
+const METAL_LIGHT: Color = Color("#96a2b6")
+const METAL_SHINE: Color = Color("#d2dceb")
 # Metal oscuro de paredes y muebles, más apagado que el de los objetos para que estos destaquen.
-const WALL_DARK := Color("#0e1118")
-const WALL := Color("#151923")
-const WALL_LIGHT := Color("#1d2230")
-const WALL_EDGE := Color("#2a3142")
-const SCREEN := Color("#08111f")
-const SCREEN_DARK := Color("#060d18")
-const SCREEN_LINE := Color("#14304a")
-const CYAN_DARK := Color("#1c7496")
-const CYAN := Color("#40e0f0")
-const CYAN_LIGHT := Color("#befaff")
-const AMBER_DARK := Color("#96641e")
-const AMBER := Color("#ecb23c")
-const AMBER_LIGHT := Color("#ffe082")
-const RED_DARK := Color("#961432")
-const RED := Color("#ff3c5a")
-const RED_LIGHT := Color("#ffaabe")
-const GREEN_DARK := Color("#1c7440")
-const GREEN := Color("#3cb860")
-const GREEN_LIGHT := Color("#7ee89a")
+const WALL_DARK: Color = Color("#0e1118")
+const WALL: Color = Color("#151923")
+const WALL_LIGHT: Color = Color("#1d2230")
+const WALL_EDGE: Color = Color("#2a3142")
+const SCREEN: Color = Color("#08111f")
+const SCREEN_DARK: Color = Color("#060d18")
+const SCREEN_LINE: Color = Color("#14304a")
+const CYAN_DARK: Color = Color("#1c7496")
+const CYAN: Color = Color("#40e0f0")
+const CYAN_LIGHT: Color = Color("#befaff")
+const AMBER_DARK: Color = Color("#96641e")
+const AMBER: Color = Color("#ecb23c")
+const AMBER_LIGHT: Color = Color("#ffe082")
+const RED_DARK: Color = Color("#961432")
+const RED: Color = Color("#ff3c5a")
+const RED_LIGHT: Color = Color("#ffaabe")
+const GREEN_DARK: Color = Color("#1c7440")
+const GREEN: Color = Color("#3cb860")
+const GREEN_LIGHT: Color = Color("#7ee89a")
 # Placa de las letras de ámbar (como la cabecera de créditos de la barra derecha).
-const PLATE := Color("#221e19")
-const PLATE_DARK := Color("#120f0c")
+const PLATE: Color = Color("#221e19")
+const PLATE_DARK: Color = Color("#120f0c")
 
 static func rect(item: CanvasItem, r: Rect2i, color: Color) -> void:
 	if r.size.x > 0 and r.size.y > 0:
@@ -48,7 +48,7 @@ static func rect(item: CanvasItem, r: Rect2i, color: Color) -> void:
 static func bevel_box(item: CanvasItem, r: Rect2i, body: Color, light: Color, shadow: Color,
 		outline: Color = OUTLINE) -> void:
 	rect(item, r, outline)
-	var inner := r.grow(-1)
+	var inner: Rect2i = r.grow(-1)
 	rect(item, inner, body)
 	rect(item, Rect2i(inner.position, Vector2i(inner.size.x, 1)), light)
 	rect(item, Rect2i(inner.position, Vector2i(1, inner.size.y)), light)
@@ -66,9 +66,9 @@ static func wall_box(item: CanvasItem, r: Rect2i) -> void:
 ## Pantalla con contorno y líneas de barrido alternas, como la de las tablets de las barras.
 static func screen(item: CanvasItem, r: Rect2i, light: Color = SCREEN, dark: Color = SCREEN_DARK) -> void:
 	rect(item, r, OUTLINE)
-	var inner := r.grow(-1)
+	var inner: Rect2i = r.grow(-1)
 	rect(item, inner, light)
-	for y in range(inner.position.y + 1, inner.end.y, 2):
+	for y: int in range(inner.position.y + 1, inner.end.y, 2):
 		rect(item, Rect2i(inner.position.x, y, inner.size.x, 1), dark)
 
 ## Tornillo de 3x3: cruz con luz arriba a la izquierda.
@@ -79,15 +79,15 @@ static func screw(item: CanvasItem, at: Vector2i) -> void:
 
 ## Línea de 1 px (Bresenham).
 static func line(item: CanvasItem, from: Vector2i, to: Vector2i, color: Color) -> void:
-	var d := (to - from).abs()
-	var step := Vector2i(signi(to.x - from.x), signi(to.y - from.y))
-	var err := d.x - d.y
-	var p := from
+	var d: Vector2i = (to - from).abs()
+	var step: Vector2i = Vector2i(signi(to.x - from.x), signi(to.y - from.y))
+	var err: int = d.x - d.y
+	var p: Vector2i = from
 	while true:
 		item.draw_rect(Rect2(p, Vector2.ONE), color)
 		if p == to:
 			break
-		var e2 := err * 2
+		var e2: int = err * 2
 		if e2 > -d.y:
 			err -= d.y
 			p.x += step.x
@@ -101,23 +101,23 @@ static func _half_width(radius: int, dy: int) -> int:
 
 ## Círculo relleno.
 static func disc(item: CanvasItem, center: Vector2i, radius: int, color: Color) -> void:
-	for dy in range(-radius, radius + 1):
-		var half := _half_width(radius, dy)
+	for dy: int in range(-radius, radius + 1):
+		var half: int = _half_width(radius, dy)
 		rect(item, Rect2i(center.x - half, center.y + dy, half * 2 + 1, 1), color)
 
 ## Anillo de 1 px: el borde del círculo relleno del mismo radio.
 static func ring(item: CanvasItem, center: Vector2i, radius: int, color: Color) -> void:
-	for dy in range(-radius, radius + 1):
-		var half := _half_width(radius, dy)
-		var inner := _half_width(radius - 1, dy) if absi(dy) < radius else -1
+	for dy: int in range(-radius, radius + 1):
+		var half: int = _half_width(radius, dy)
+		var inner: int = _half_width(radius - 1, dy) if absi(dy) < radius else -1
 		# Lo que sobresale esta fila del círculo de radio menor, a cada lado.
-		var width := maxi(half - inner, 1)
+		var width: int = maxi(half - inner, 1)
 		rect(item, Rect2i(center.x - half, center.y + dy, width, 1), color)
 		rect(item, Rect2i(center.x + half - width + 1, center.y + dy, width, 1), color)
 
 ## Texto en Monogram con la esquina de arriba a la izquierda en `at`.
 static func text(item: CanvasItem, at: Vector2i, value: String, color: Color, size: int = TEXT_SIZE) -> void:
-	var baseline := at.y + int(FONT.get_ascent(size))
+	var baseline: int = at.y + int(FONT.get_ascent(size))
 	item.draw_string(FONT, Vector2(at.x, baseline), value, HORIZONTAL_ALIGNMENT_LEFT, -1, size, color)
 
 ## Texto centrado en horizontal sobre `center_x`.
@@ -131,16 +131,16 @@ static func text_width(value: String, size: int = TEXT_SIZE) -> int:
 
 ## Corchetes en L por fuera de las cuatro esquinas de `r`, como los del panel holograma.
 static func brackets(item: CanvasItem, r: Rect2i, color: Color, length: int = 6, gap: int = 3) -> void:
-	var outer := r.grow(gap + 1)
-	var left := outer.position.x
-	var top := outer.position.y
-	var right := outer.end.x - 1
-	var bottom := outer.end.y - 1
+	var outer: Rect2i = r.grow(gap + 1)
+	var left: int = outer.position.x
+	var top: int = outer.position.y
+	var right: int = outer.end.x - 1
+	var bottom: int = outer.end.y - 1
 	for corner: Vector2i in [Vector2i(left, top), Vector2i(right, top), Vector2i(left, bottom), Vector2i(right, bottom)]:
-		var x_dir := 1 if corner.x == left else -1
-		var y_dir := 1 if corner.y == top else -1
-		var h_start := corner.x if x_dir > 0 else corner.x - length + 1
-		var v_start := corner.y if y_dir > 0 else corner.y - length + 1
+		var x_dir: int = 1 if corner.x == left else -1
+		var y_dir: int = 1 if corner.y == top else -1
+		var h_start: int = corner.x if x_dir > 0 else corner.x - length + 1
+		var v_start: int = corner.y if y_dir > 0 else corner.y - length + 1
 		rect(item, Rect2i(h_start, corner.y, length, 1), color)
 		rect(item, Rect2i(corner.x, v_start, 1, length), color)
 
@@ -148,7 +148,7 @@ static func brackets(item: CanvasItem, r: Rect2i, color: Color, length: int = 6,
 ## (claves top, bot, tl, tr, bl, br de OfficeLayout).
 static func quad_span(quad: Dictionary, row: int) -> Vector2:
 	var height: int = quad.bot - quad.top
-	var v := float(row) / maxf(height, 1.0)
+	var v: float = float(row) / maxf(height, 1.0)
 	return Vector2(lerpf(quad.tl, quad.bl, v), lerpf(quad.tr, quad.br, v))
 
 ## Rectángulo `r` de una pantalla pintada de frente, de `source_size`, llevado al trapecio `quad`
@@ -156,12 +156,12 @@ static func quad_span(quad: Dictionary, row: int) -> Vector2:
 static func quad_rect(item: CanvasItem, quad: Dictionary, source_size: Vector2i, r: Rect2i, color: Color,
 		origin: Vector2i = Vector2i.ZERO) -> void:
 	var rows: int = quad.bot - quad.top + 1
-	for y in range(maxi(r.position.y, 0), mini(r.end.y, source_size.y)):
-		var row := int(float(y) * rows / source_size.y)
-		var span := quad_span(quad, row)
-		var scale := (span.y - span.x) / source_size.x
-		var x0 := roundi(span.x + r.position.x * scale)
-		var x1 := roundi(span.x + r.end.x * scale)
+	for y: int in range(maxi(r.position.y, 0), mini(r.end.y, source_size.y)):
+		var row: int = int(float(y) * rows / source_size.y)
+		var span: Vector2 = quad_span(quad, row)
+		var scale: float = (span.y - span.x) / source_size.x
+		var x0: int = roundi(span.x + r.position.x * scale)
+		var x1: int = roundi(span.x + r.end.x * scale)
 		rect(item, Rect2i(origin.x + x0, origin.y + quad.top + row, x1 - x0, 1), color)
 
 ## Tamaño de la pantalla de frente que se pinta en un trapecio: su ancho mayor y su alto.

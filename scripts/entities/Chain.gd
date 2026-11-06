@@ -3,22 +3,22 @@ class_name Chain
 # Rayo de un solo uso: daña al objetivo y salta a los enemigos cercanos; la línea los sigue mientras dura.
 
 # Cada cuánto cambia de variante el rayo.
-const FLICKER_TIME := 0.05
+const FLICKER_TIME: float = 0.05
 
 var _data: ChainData
 var _targets: Array[Enemy] = []
-var _age := 0.0
-var _variant := randi()
+var _age: float = 0.0
+var _variant: int = randi()
 
 static func spawn(turret: Turret, first: Enemy) -> void:
-	var data := turret.data.chain
-	var chain := Chain.new()
+	var data: ChainData = turret.data.chain
+	var chain: Chain = Chain.new()
 	chain._data = data
 	# Amplificada salta a más enemigos.
-	var max_targets := data.max_targets + roundi(turret.amp_value(AmpEffect.Kind.TARGETS))
+	var max_targets: int = data.max_targets + roundi(turret.amp_value(AmpEffect.Kind.TARGETS))
 	chain._targets = _pick_targets(first, data, max_targets, turret.get_tree().get_nodes_in_group(&"enemies"))
 	chain.add_point(turret.global_position)
-	for enemy in chain._targets:
+	for enemy: Enemy in chain._targets:
 		chain.add_point(enemy.global_position)
 	chain.texture = data.bolt_textures[chain._variant % data.bolt_textures.size()]
 	chain.width = chain.texture.get_height()
@@ -26,9 +26,9 @@ static func spawn(turret: Turret, first: Enemy) -> void:
 	chain.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	# Por encima de torretas y enemigos.
 	chain.z_index = 1
-	var world := turret.get_parent()
+	var world: Node = turret.get_parent()
 	world.add_child(chain)
-	for enemy in chain._targets:
+	for enemy: Enemy in chain._targets:
 		enemy.take_damage(data.damage, turret)
 		if enemy.hp > 0:
 			enemy.flash()
@@ -42,11 +42,11 @@ static func _pick_targets(first: Enemy, data: ChainData, max_targets: int, enemi
 	while targets.size() < max_targets:
 		var last: Enemy = targets[-1]
 		var next: Enemy = null
-		var best := data.jump_range
+		var best: float = data.jump_range
 		for enemy: Enemy in enemies:
 			if enemy in targets or enemy.is_queued_for_deletion():
 				continue
-			var distance := last.global_position.distance_to(enemy.global_position)
+			var distance: float = last.global_position.distance_to(enemy.global_position)
 			if distance <= best:
 				best = distance
 				next = enemy
@@ -61,6 +61,6 @@ func _process(delta: float) -> void:
 		queue_free()
 		return
 	texture = _data.bolt_textures[(_variant + int(_age / FLICKER_TIME)) % _data.bolt_textures.size()]
-	for i in _targets.size():
+	for i: int in _targets.size():
 		if is_instance_valid(_targets[i]):
 			set_point_position(i + 1, _targets[i].global_position)

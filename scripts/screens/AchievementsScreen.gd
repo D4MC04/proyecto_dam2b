@@ -7,11 +7,11 @@ extends Control
 
 signal back_pressed
 
-const ICON_DIR := "res://assets/ui/achievements/"
+const ICON_DIR: String = "res://assets/ui/achievements/"
 # Icono de logro (16x16 ×3), ancho de cada fila (dos por línea) y color del logro sin conseguir.
-const ICON_SIZE := 48
-const ROW_WIDTH := 350
-const LOCKED_COLOR := Color(0.3, 0.3, 0.35)
+const ICON_SIZE: int = 48
+const ROW_WIDTH: int = 350
+const LOCKED_COLOR: Color = Color(0.3, 0.3, 0.35)
 
 @onready var list: GridContainer = %AchievementsList
 
@@ -23,19 +23,19 @@ func _ready() -> void:
 func _on_visibility_changed() -> void:
 	if not visible:
 		return
-	for child in list.get_children():
+	for child: Node in list.get_children():
 		child.free()
 	for id: String in GameState.ACHIEVEMENTS:
 		var info: Array = GameState.ACHIEVEMENTS[id]
-		list.add_child(_make_row(id, info[0], info[1], id in GameState.unlocked))
+		list.add_child(_make_row(id, tr(info[0]), tr(info[1]), id in GameState.unlocked))
 
 # Fila de un logro: icono a la izquierda y nombre y descripción a la derecha; apagada si falta por conseguir.
 func _make_row(id: String, title: String, description: String, done: bool) -> HBoxContainer:
-	var row := HBoxContainer.new()
+	var row: HBoxContainer = HBoxContainer.new()
 	row.custom_minimum_size = Vector2(ROW_WIDTH, 0)
 	row.add_theme_constant_override("separation", 10)
 	row.modulate = Color.WHITE if done else LOCKED_COLOR
-	var icon := TextureRect.new()
+	var icon: TextureRect = TextureRect.new()
 	icon.texture = load(ICON_DIR + id + ".png")
 	icon.custom_minimum_size = Vector2.ONE * ICON_SIZE
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -43,12 +43,12 @@ func _make_row(id: String, title: String, description: String, done: bool) -> HB
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(icon)
-	var texts := VBoxContainer.new()
+	var texts: VBoxContainer = VBoxContainer.new()
 	texts.add_theme_constant_override("separation", 0)
-	var name_text := Label.new()
+	var name_text: Label = Label.new()
 	name_text.text = title
 	name_text.add_theme_font_size_override("font_size", 24)
-	var description_text := Label.new()
+	var description_text: Label = Label.new()
 	description_text.text = description
 	description_text.add_theme_font_size_override("font_size", 18)
 	description_text.modulate = Color(1, 1, 1, 0.7)

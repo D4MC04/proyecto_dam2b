@@ -1,6 +1,7 @@
 # Tiempo de partida en el resumen
 
 Estado: propuesta
+Prioridad: media
 Modelo recomendado: haiku
 Esfuerzo recomendado: low
 

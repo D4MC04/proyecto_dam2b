@@ -63,7 +63,7 @@ func _spawn_group() -> void:
 	var frames: SpriteFrames = kind[0]
 	var count: int = rng.randi_range(2, 4)
 	var start_x: float = -MARGIN if going_right else viewport_size.x + MARGIN
-	for i in count:
+	for i: int in count:
 		var ship: AnimatedSprite2D = AnimatedSprite2D.new()
 		ship.sprite_frames = frames
 		ship.scale = Vector2(SHIP_SCALE, SHIP_SCALE)
@@ -81,7 +81,7 @@ func _spawn_group() -> void:
 		ships.append(ship)
 
 func _move_ships(delta: float) -> void:
-	for i in range(ships.size() - 1, -1, -1):
+	for i: int in range(ships.size() - 1, -1, -1):
 		var ship: AnimatedSprite2D = ships[i]
 		var dir: Vector2 = ship.get_meta("dir")
 		ship.position += dir * SHIP_SPEED * delta
@@ -91,7 +91,7 @@ func _move_ships(delta: float) -> void:
 func _remove_ship(ship: AnimatedSprite2D) -> void:
 	ships.erase(ship)
 	# Los disparos en vuelo contra ella se quedan sin objetivo
-	for i in shot_targets.size():
+	for i: int in shot_targets.size():
 		if shot_targets[i] == ship:
 			shot_targets[i] = null
 	ship.queue_free()
@@ -110,7 +110,7 @@ func _fire() -> void:
 	if outpost != null:
 		origin = to_local(outpost.global_position)
 	var aim: Vector2 = target.position
-	for _i in 2:
+	for _i: int in 2:
 		aim = target.position + (target.get_meta("dir") as Vector2) * SHIP_SPEED * (origin.distance_to(aim) / SHOT_SPEED)
 	if outpost != null:
 		origin = to_local(outpost.fire_at(to_global(aim)))
@@ -126,7 +126,7 @@ func _fire() -> void:
 	shot_targets.append(target)
 
 func _move_shots(delta: float) -> void:
-	for i in range(shots.size() - 1, -1, -1):
+	for i: int in range(shots.size() - 1, -1, -1):
 		var shot: Line2D = shots[i]
 		var aim: Vector2 = shot.get_meta("aim")
 		var step: float = SHOT_SPEED * delta

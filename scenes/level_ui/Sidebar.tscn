@@ -101,7 +101,7 @@ stretch_mode = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
 theme_override_font_sizes/font_size = 16
-text = "ESTACIÓN"
+text = "HUD_STATION"
 
 [node name="StationValueLabel" type="Label" parent="Content/StationHeader/StationBox/StationRow"]
 unique_name_in_owner = true
@@ -148,7 +148,7 @@ stretch_mode = 3
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9254902, 0.69803923, 0.23529412, 1)
 theme_override_font_sizes/font_size = 16
-text = "CRÉDITOS"
+text = "HUD_CREDITS"
 
 [node name="MoneyLabel" type="Label" parent="Content/CreditsHeader/CreditsRow" unique_id=651253998]
 unique_name_in_owner = true
@@ -167,7 +167,7 @@ theme_override_constants/separation = 4
 
 [node name="TurretsHeader" parent="Content/TurretsPage" instance=ExtResource("7_header")]
 layout_mode = 2
-title = "TORRETAS"
+title = "HEADER_TURRETS"
 
 [node name="TurretScroll" type="ScrollContainer" parent="Content/TurretsPage" unique_id=1816200006]
 layout_mode = 2
@@ -201,7 +201,7 @@ theme_override_constants/separation = 4
 
 [node name="WavesHeader" parent="Content/WavesPage" instance=ExtResource("7_header")]
 layout_mode = 2
-title = "OLEADAS"
+title = "HEADER_WAVES"
 
 [node name="WaveNav" type="HBoxContainer" parent="Content/WavesPage"]
 layout_mode = 2
@@ -257,7 +257,7 @@ layout_mode = 2
 size_flags_horizontal = 4
 focus_mode = 0
 theme_override_font_sizes/font_size = 16
-text = "INICIAR"
+text = "HUD_START_WAVE"
 
 [node name="AutoWaveButton" type="Button" parent="Content/WaveControls"]
 unique_name_in_owner = true

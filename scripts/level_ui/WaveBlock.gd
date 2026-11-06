@@ -9,26 +9,26 @@ enum State { PAST, CURRENT, NEXT, FUTURE }
 const ENEMY_CELL: PackedScene = preload("res://scenes/level_ui/EnemyCell.tscn")
 
 ## Alto de la celda en la barra: el mismo que el de TurretButton (el Navedex mantiene el mínimo de la escena).
-const CELL_HEIGHT := 56.0
+const CELL_HEIGHT: float = 56.0
 
-const TITLE_BG_COLOR := Color("#0e1626")
-const TITLE_BORDER_COLOR := Color("#1c4a60")
-const TITLE_TEXT_COLOR := Color("#7fa6b8")
-const CURRENT_BG_COLOR := Color("#14304a")
-const CURRENT_BORDER_COLOR := Color("#40e0f0")
-const CURRENT_TEXT_COLOR := Color("#40e0f0")
-const NEXT_BORDER_COLOR := Color("#96641e")
-const NEXT_TEXT_COLOR := Color("#ecb23c")
-const PAST_COLOR := Color(1, 1, 1, 0.4)
+const TITLE_BG_COLOR: Color = Color("#0e1626")
+const TITLE_BORDER_COLOR: Color = Color("#1c4a60")
+const TITLE_TEXT_COLOR: Color = Color("#7fa6b8")
+const CURRENT_BG_COLOR: Color = Color("#14304a")
+const CURRENT_BORDER_COLOR: Color = Color("#40e0f0")
+const CURRENT_TEXT_COLOR: Color = Color("#40e0f0")
+const NEXT_BORDER_COLOR: Color = Color("#96641e")
+const NEXT_TEXT_COLOR: Color = Color("#ecb23c")
+const PAST_COLOR: Color = Color(1, 1, 1, 0.4)
 
 @onready var cells: GridContainer = %Cells
 
 ## Rellena el bloque con una celda por tipo de enemigo, en orden de primera aparición.
 func setup(wave: WaveData) -> void:
-	var entries := wave.get_entries()
+	var entries: Array[SpawnEntry] = wave.get_entries()
 	# Un Dictionary conserva el orden de inserción: la primera aparición manda.
 	var counts: Dictionary = {}
-	for entry in entries:
+	for entry: SpawnEntry in entries:
 		if entry.enemy_data == null:
 			continue
 		counts[entry.enemy_data] = int(counts.get(entry.enemy_data, 0)) + 1
@@ -45,9 +45,9 @@ func set_state(state: State) -> void:
 
 ## Pinta el título de la oleada (panel y texto) con los colores del estado.
 static func apply_title_style(panel: PanelContainer, label: Label, state: State) -> void:
-	var bg := TITLE_BG_COLOR
-	var border := TITLE_BORDER_COLOR
-	var text_color := TITLE_TEXT_COLOR
+	var bg: Color = TITLE_BG_COLOR
+	var border: Color = TITLE_BORDER_COLOR
+	var text_color: Color = TITLE_TEXT_COLOR
 	match state:
 		State.CURRENT:
 			bg = CURRENT_BG_COLOR
@@ -56,7 +56,7 @@ static func apply_title_style(panel: PanelContainer, label: Label, state: State)
 		State.NEXT:
 			border = NEXT_BORDER_COLOR
 			text_color = NEXT_TEXT_COLOR
-	var style := StyleBoxFlat.new()
+	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.bg_color = bg
 	style.set_border_width_all(1)
 	style.border_color = border

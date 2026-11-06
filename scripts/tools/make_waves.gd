@@ -5,7 +5,7 @@ extends SceneTree
 ##
 ## Escribe resources/wave_data/level_N.tres (oleada 1) y level_N_K.tres (oleada K). Si el archivo
 ## ya existe se carga y se rellena, así conserva su uid. Después pone la lista de oleadas en
-## resources/level_data/level_N.tres y en el nivel 5 de scenes/GameData.tscn (que lo define dentro).
+## resources/level_data/level_N.tres.
 ##
 ## Cada oleada gasta un presupuesto: cada nave cuesta su recompensa (más la de sus trozos, si se
 ## parte). El presupuesto de la primera oleada sale de la tabla y crece por oleada; las naves salen
@@ -17,36 +17,33 @@ extends SceneTree
 ## grupos se solapan cada vez más.
 ## Las tiradas usan una semilla fija por nivel y oleada: volver a lanzarlo da las mismas oleadas.
 
-const WAVE_DIR := "res://resources/wave_data/"
-const LEVEL_DIR := "res://resources/level_data/"
-const ENEMY_DIR := "res://resources/enemy_data/"
-const GAME_DATA_PATH := "res://scenes/GameData.tscn"
-## Nivel que está definido dentro de GameData.tscn en vez de en su level_N.tres.
-const SCENE_LEVEL := 5
+const WAVE_DIR: String = "res://resources/wave_data/"
+const LEVEL_DIR: String = "res://resources/level_data/"
+const ENEMY_DIR: String = "res://resources/enemy_data/"
 
 ## "dart" es un Dart de color al azar.
-const DART := "dart"
+const DART: String = "dart"
 const DART_COLORS: Array[String] = ["dart_rojo", "dart_verde", "dart_morado", "dart_hielo"]
 ## El jefe: solo sale, uno, al final de la última oleada de los niveles que lo tienen en `boss`.
-const BOSS := "nodriza"
+const BOSS: String = "nodriza"
 
 ## Cada oleada multiplica la separación entre naves por esto, sin bajar de MIN_GAP.
-const GAP_SHRINK := 0.91
-const MIN_GAP := 0.3
+const GAP_SHRINK: float = 0.91
+const MIN_GAP: float = 0.3
 ## Pausa entre grupos, en separaciones de nave.
-const GROUP_PAUSE := 2.5
+const GROUP_PAUSE: float = 2.5
 ## Con varios caminos, el siguiente grupo sale cuando el anterior lleva esta fracción de su duración:
 ## 1 en la primera oleada (uno detrás de otro) y MIN_OVERLAP_WAIT en la última.
-const MIN_OVERLAP_WAIT := 0.3
+const MIN_OVERLAP_WAIT: float = 0.3
 ## En cuántas oleadas se han sumado todas las naves de niveles anteriores.
-const OLD_RAMP_WAVES := 7
+const OLD_RAMP_WAVES: int = 7
 ## Valor (en presupuesto) de un grupo en la primera oleada y cuánto crece por oleada.
-const GROUP_VALUE := 100.0
-const GROUP_VALUE_STEP := 15.0
-const MAX_GROUP := 6
+const GROUP_VALUE: float = 100.0
+const GROUP_VALUE_STEP: float = 15.0
+const MAX_GROUP: int = 6
 ## Forma de la curva de vida: la vida pasa del primer valor de `health` al segundo con la oleada
 ## elevada a esto (más de 1: sube poco al principio y mucho al final).
-const HEALTH_CURVE := 1.4
+const HEALTH_CURVE: float = 1.4
 
 ## Por nivel: oleadas, caminos del mapa, presupuesto de la primera oleada, crecimiento por oleada,
 ## separación inicial entre naves (s), multiplicador de vida de la primera y de la última oleada
@@ -78,9 +75,9 @@ var _enemies: Dictionary[String, EnemyData] = {}
 
 
 func _initialize() -> void:
-	for i in LEVELS.size():
-		var level_number := i + 1
-		var waves := _make_level(level_number, LEVELS[i])
+	for i: int in LEVELS.size():
+		var level_number: int = i + 1
+		var waves: Array[WaveData] = _make_level(level_number, LEVELS[i])
 		_save_level(level_number, waves)
 	quit()
 
@@ -88,15 +85,15 @@ func _initialize() -> void:
 func _make_level(level_number: int, table: Dictionary) -> Array[WaveData]:
 	var waves: Array[WaveData] = []
 	var count: int = table["waves"]
-	var min_ships := 0
-	for k in count:
-		var path := _wave_path(level_number, k)
+	var min_ships: int = 0
+	for k: int in count:
+		var path: String = _wave_path(level_number, k)
 		var wave: WaveData = load(path) if ResourceLoader.exists(path) else WaveData.new()
-		var rng := RandomNumberGenerator.new()
+		var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 		rng.seed = level_number * 1000 + k
-		var is_last := k == count - 1
+		var is_last: bool = k == count - 1
 		wave.groups = _make_groups(table, k, min_ships, is_last and table["boss"], rng)
-		var entries := wave.get_entries()
+		var entries: Array[SpawnEntry] = wave.get_entries()
 		min_ships = entries.size() + 1
 		# Redondeado a centésimas, para que el .tres no guarde 1.1500000000000001.
 		wave.health_multiplier = roundf(_health(table, k) * 100.0) / 100.0
@@ -118,49 +115,49 @@ func _health(table: Dictionary, k: int) -> float:
 func _make_groups(table: Dictionary, k: int, min_ships: int, with_boss: bool, rng: RandomNumberGenerator) -> Array[SpawnGroup]:
 	var budget: float = table["budget"] * pow(table["growth"], k)
 	var paths: int = table["paths"]
-	var gap := maxf(table["gap"] * pow(GAP_SHRINK, k), MIN_GAP)
+	var gap: float = maxf(table["gap"] * pow(GAP_SHRINK, k), MIN_GAP)
 	# Con varios caminos los grupos se achican para que haya al menos uno por camino.
-	var group_value := minf(GROUP_VALUE + GROUP_VALUE_STEP * k, budget / paths)
+	var group_value: float = minf(GROUP_VALUE + GROUP_VALUE_STEP * k, budget / paths)
 	var new_ships: Array = table["new"]
 	var all_ships: Array = new_ships + _unlocked_old(table["old"], k)
 	var groups: Array[Array] = []
-	var spent := 0.0
-	var count := 0
-	var last_key := ""
+	var spent: float = 0.0
+	var count: int = 0
+	var last_key: String = ""
 	while spent < budget or count < min_ships:
 		# Los grupos pares son de naves nuevas, para que sean las protagonistas del nivel.
 		var pool: Array = new_ships if groups.size() % 2 == 0 else all_ships
-		var key := _pick(pool, last_key, rng)
+		var key: String = _pick(pool, last_key, rng)
 		last_key = key
-		var cost := _cost(_enemy(key))
-		var size := clampi(roundi(group_value / cost), 1, MAX_GROUP)
+		var cost: float = _cost(_enemy(key))
+		var size: int = clampi(roundi(group_value / cost), 1, MAX_GROUP)
 		size = clampi(maxi(ceili((budget - spent) / cost), min_ships - count), 1, size)
 		var group: Array[EnemyData] = []
-		for n in size:
+		for n: int in size:
 			group.append(_enemy(key, rng))
 			spent += cost
 			count += 1
 		groups.append(group)
 	var result: Array[SpawnGroup] = []
 	var path_bag: Array[int] = []
-	var last_path := -1
+	var last_path: int = -1
 	# La primera nave sale en 0: la espera inicial la pone el Spawner (WAVE_START_DELAY).
-	var start := 0.0
+	var start: float = 0.0
 	# Segundo de la última nave del grupo anterior y de la última de todas (con solapes no coinciden).
-	var end := 0.0
-	var last_time := 0.0
-	var wait := lerpf(1.0, MIN_OVERLAP_WAIT, float(k) / (table["waves"] - 1)) if paths > 1 else 1.0
-	for group in groups:
-		var path := _next_path(path_bag, paths, last_path, rng)
+	var end: float = 0.0
+	var last_time: float = 0.0
+	var wait: float = lerpf(1.0, MIN_OVERLAP_WAIT, float(k) / (table["waves"] - 1)) if paths > 1 else 1.0
+	for group: Array in groups:
+		var path: int = _next_path(path_bag, paths, last_path, rng)
 		last_path = path
-		var time := start
-		var n := 0
+		var time: float = start
+		var n: int = 0
 		# Un SpawnGroup por tramo de naves iguales: los Darts de un grupo pueden ser de varios colores.
 		while n < group.size():
-			var run := 1
+			var run: int = 1
 			while n + run < group.size() and group[n + run] == group[n]:
 				run += 1
-			var spacing := gap * _spacing(group[n])
+			var spacing: float = gap * _spacing(group[n])
 			if n > 0:
 				time += spacing
 			end = _add_group(result, group[n], run, spacing, path, time, end)
@@ -177,12 +174,12 @@ func _make_groups(table: Dictionary, k: int, min_ships: int, with_boss: bool, rn
 # Añade un grupo que empieza en `time`, ajustando la pausa del anterior (que acabó en `end`).
 # Devuelve el segundo de su última nave, calculado con los valores ya redondeados.
 func _add_group(result: Array[SpawnGroup], data: EnemyData, count: int, spacing: float, path: int, time: float, end: float) -> float:
-	var group := SpawnGroup.new()
+	var group: SpawnGroup = SpawnGroup.new()
 	group.enemy_data = data
 	group.count = count
 	group.spacing = _round(spacing)
 	group.path_index = path
-	var start := 0.0
+	var start: float = 0.0
 	if not result.is_empty():
 		result[-1].pause_after = _round(time - end)
 		start = end + result[-1].pause_after
@@ -212,15 +209,15 @@ func _pick(pool: Array, last_key: String, rng: RandomNumberGenerator) -> String:
 # más de uno, nunca el mismo camino dos grupos seguidos.
 func _next_path(bag: Array[int], paths: int, last_path: int, rng: RandomNumberGenerator) -> int:
 	if bag.is_empty():
-		for index in paths:
+		for index: int in paths:
 			bag.append(index)
-		for i in range(paths - 1, 0, -1):
-			var j := rng.randi() % (i + 1)
-			var swap := bag[i]
+		for i: int in range(paths - 1, 0, -1):
+			var j: int = rng.randi() % (i + 1)
+			var swap: int = bag[i]
 			bag[i] = bag[j]
 			bag[j] = swap
 		if paths > 1 and bag[0] == last_path:
-			var other := 1 + rng.randi() % (paths - 1)
+			var other: int = 1 + rng.randi() % (paths - 1)
 			bag[0] = bag[other]
 			bag[other] = last_path
 	return bag.pop_front()
@@ -228,8 +225,8 @@ func _next_path(bag: Array[int], paths: int, last_path: int, rng: RandomNumberGe
 
 # Lo que cuesta una nave del presupuesto: su recompensa y la de sus trozos.
 func _cost(data: EnemyData) -> float:
-	var cost := float(data.reward)
-	for piece in data.split_into:
+	var cost: float = float(data.reward)
+	for piece: EnemyData in data.split_into:
 		cost += _cost(piece)
 	return cost
 
@@ -254,18 +251,16 @@ func _wave_path(level_number: int, k: int) -> String:
 
 
 func _save_level(level_number: int, waves: Array[WaveData]) -> void:
-	var path := LEVEL_DIR + "level_%d.tres" % level_number
+	var path: String = LEVEL_DIR + "level_%d.tres" % level_number
 	var level: LevelData = load(path)
 	level.waves = waves
 	_save(level, path)
-	if level_number == SCENE_LEVEL:
-		_patch_game_data(level_number, waves.size())
 
 
 # Guarda el recurso conservando el uid de su cabecera (o uno nuevo si no tenía).
 func _save(resource: Resource, path: String) -> void:
-	var old_uid := _read_uid(path)
-	var error := ResourceSaver.save(resource, path)
+	var old_uid: int = _read_uid(path)
+	var error: Error = ResourceSaver.save(resource, path)
 	if error != OK:
 		push_error("No se pudo guardar %s (%s)" % [path, error_string(error)])
 		return
@@ -276,7 +271,7 @@ func _save(resource: Resource, path: String) -> void:
 func _read_uid(path: String) -> int:
 	if not FileAccess.file_exists(path):
 		return ResourceUID.INVALID_ID
-	var header := FileAccess.get_file_as_string(path).get_slice("\n", 0)
+	var header: String = FileAccess.get_file_as_string(path).get_slice("\n", 0)
 	if not header.contains(" uid=\""):
 		return ResourceUID.INVALID_ID
 	return ResourceUID.text_to_id(header.get_slice(" uid=\"", 1).get_slice("\"", 0))
@@ -285,55 +280,18 @@ func _read_uid(path: String) -> int:
 # Desde un script (-s) Godot guarda sin uid propio ni en los ext_resource (como en
 # map_generator.gd): se añaden a mano, el del recurso y el de cada archivo enlazado.
 func _write_uids(path: String, uid: int) -> void:
-	var lines := FileAccess.get_file_as_string(path).split("\n")
-	for i in lines.size():
-		var line := lines[i]
+	var lines: PackedStringArray = FileAccess.get_file_as_string(path).split("\n")
+	for i: int in lines.size():
+		var line: String = lines[i]
 		if line.begins_with("[gd_resource") and not line.contains(" uid="):
 			lines[i] = line.trim_suffix("]") + " uid=\"%s\"]" % ResourceUID.id_to_text(uid)
 		elif line.begins_with("[ext_resource") and not line.contains(" uid="):
-			var linked := line.get_slice("path=\"", 1).get_slice("\"", 0)
-			var linked_uid := _read_uid(linked) if linked.ends_with(".tres") else ResourceLoader.get_resource_uid(linked)
+			var linked: String = line.get_slice("path=\"", 1).get_slice("\"", 0)
+			var linked_uid: int = _read_uid(linked) if linked.ends_with(".tres") else ResourceLoader.get_resource_uid(linked)
 			if linked_uid == ResourceUID.INVALID_ID:
 				linked_uid = ResourceLoader.get_resource_uid(linked)
 			if linked_uid != ResourceUID.INVALID_ID:
 				lines[i] = line.replace(" path=\"", " uid=\"%s\" path=\"" % ResourceUID.id_to_text(linked_uid))
-	var file := FileAccess.open(path, FileAccess.WRITE)
-	file.store_string("\n".join(lines))
-	file.close()
-
-
-# El nivel 5 vive dentro de GameData.tscn: se toca su texto para no reescribir la escena entera
-# (y no cambiar sus ids). Añade las ext_resource que falten y reescribe la línea de oleadas.
-func _patch_game_data(level_number: int, count: int) -> void:
-	var file := FileAccess.open(GAME_DATA_PATH, FileAccess.READ)
-	var lines := file.get_as_text().split("\n")
-	file.close()
-	var ids: Dictionary[String, String] = {}
-	var regex := RegEx.create_from_string('^\\[ext_resource .*path="([^"]+)" id="([^"]+)"\\]$')
-	var last_ext := 0
-	var last_wave_ext := 0
-	for i in lines.size():
-		var found := regex.search(lines[i])
-		if found == null:
-			continue
-		ids[found.get_string(1)] = found.get_string(2)
-		last_ext = i
-		if found.get_string(1).begins_with(WAVE_DIR):
-			last_wave_ext = i
-	var insert_at := (last_wave_ext if last_wave_ext > 0 else last_ext) + 1
-	var refs: Array[String] = []
-	for k in count:
-		var path := _wave_path(level_number, k)
-		if not ids.has(path):
-			ids[path] = "wave_%d_%d" % [level_number, k + 1]
-			var uid := ResourceUID.id_to_text(_read_uid(path))
-			lines.insert(insert_at, '[ext_resource type="Resource" uid="%s" path="%s" id="%s"]' % [uid, path, ids[path]])
-			insert_at += 1
-		refs.append('ExtResource("%s")' % ids[path])
-	var first_ref := 'ExtResource("%s")' % ids[_wave_path(level_number, 0)]
-	for i in lines.size():
-		if lines[i].begins_with("waves = ") and lines[i].contains(first_ref):
-			lines[i] = lines[i].substr(0, lines[i].find("([") + 2) + ", ".join(refs) + "])"
-	file = FileAccess.open(GAME_DATA_PATH, FileAccess.WRITE)
+	var file: FileAccess = FileAccess.open(path, FileAccess.WRITE)
 	file.store_string("\n".join(lines))
 	file.close()

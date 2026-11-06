@@ -10,7 +10,7 @@
 
 [resource]
 script = ExtResource("1")
-name = "Cinturón"
+name = "TURRET_ORBITER_FUSION_NAME"
 cost = 700
 attack_cooldown = 1.0
 icon = ExtResource("2")
@@ -20,5 +20,5 @@ min_range = 40.0
 cannon = ExtResource("4")
 orbit = ExtResource("6")
 amp_effect = ExtResource("amp")
-description = "Rodea la torreta de un cinturón de plasma: genera más cargas, más rápido y más fuertes."
+description = "TURRET_ORBITER_FUSION_DESC"
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

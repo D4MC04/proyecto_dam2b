@@ -67,7 +67,7 @@ Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de l
 
 ## Datos de nivel
 
-- `LevelData` (`scripts/resources/LevelData.gd`): `map: PackedScene`, `starting_money: int` (dinero inicial, 500 por defecto), `turrets: Array[TurretData]`, `waves: Array[WaveData]`.
+- `LevelData` (`scripts/resources/LevelData.gd`): `map: PackedScene`, `starting_money: int` (dinero inicial, 500 por defecto), `turrets: Array[TurretData]`, `waves: Array[WaveData]`; y para el radar de la selección de nivel (grupo "Radar", ver [menu.md](menu.md) › "Radar de sectores"): `sector_name` (clave `SECTOR_<n>_NAME`), `radar_distance` (fracción del radio), `radar_bearing` (grados, 0 arriba y en sentido horario; es el rumbo de la ficha), `threat` (`Threat`: `LOW`, `MEDIUM`, `HIGH`, `EXTREME` solo para el jefe) y `radar_ship` (`RadarShip`: `RAIDER` incursor, `FANG` colmillo, `CRUSHER` triturador, `SPECTER` espectro; la nave de su enemigo más peligroso).
 - `WaveData`: `groups: Array[SpawnGroup]` (en orden de salida) y `health_multiplier: float` (1.0 por defecto; multiplica la vida máxima de todos los enemigos de la oleada, también los trozos de la Divisora; la recompensa no cambia).
 - `SpawnGroup`: naves iguales seguidas por un camino: `enemy_data: EnemyData`, `count: int` (1), `spacing: float` (0,5 s entre naves del grupo), `pause_after: float` (3,0 s desde su última nave hasta la primera del siguiente grupo; negativo si se solapan, p. ej. en varios caminos) y `path_index: int`. El primer grupo sale en el tiempo 0, que llega `WAVE_START_DELAY` después de lanzar la oleada. Como los tiempos son relativos, quitar naves o un grupo adelanta solo lo que va detrás.
 - `WaveData.get_entries()` calcula a partir de los grupos una `SpawnEntry` por nave (`enemy_data`, `time` en segundos desde el tiempo 0, `path_index`), ordenadas por tiempo. No se guardan: las usan el Spawner y la pestaña Oleadas (`WaveBlock`).
@@ -88,7 +88,21 @@ Niveles registrados en `GameData.levels`:
 | 8 | `maps/levels/Level8.tscn` | 1800 € | las anteriores + Amplificador | 10 | 22 → 48 | Saboteadora | 4 |
 | 9 | `maps/levels/Level9.tscn` | 2200 € | las anteriores + Disintegrator (9 de 10) | 10 | 29 → 58 (la última con la Nodriza) | Espectro, Saboteadora, Divisora y Reparadora (y todas las demás) | 8 |
 
-Las oleadas son `WaveData` en `resources/wave_data/level_N.tres` (la primera) y `level_N_K.tres` (la K). Los niveles 1 a 4 y 6 a 9 están en `resources/level_data/level_N.tres`; el 5 está definido como subrecurso dentro de `scenes/GameData.tscn` (`level_5.tres` también existe y lleva las mismas oleadas).
+Datos del radar:
+
+| Nivel | Sector | Distancia | Rumbo | Amenaza | Nave |
+|---|---|---|---|---|---|
+| 1 | Órbita Baja | 0,20 (800 km) | 315° | Baja | Incursor |
+| 2 | Campo Helado | 0,24 (960 km) | 150° | Baja | Incursor |
+| 3 | Cinturón Kepler | 0,30 (1.200 km) | 240° | Baja | Colmillo |
+| 4 | Grieta Roja | 0,36 (1.440 km) | 295° | Media | Triturador |
+| 5 | Nebulosa Gris | 0,42 (1.680 km) | 105° | Media | Triturador |
+| 6 | Paso del Eco | 0,48 (1.920 km) | 195° | Media | Triturador |
+| 7 | Deriva Tóxica | 0,54 (2.160 km) | 35° | Alta | Espectro |
+| 8 | Nido Exterior | 0,60 (2.400 km) | 270° | Alta | Colmillo |
+| 9 | Frontera Muerta | 0,66 (2.640 km) | 62° | Alta | Espectro |
+
+Las oleadas son `WaveData` en `resources/wave_data/level_N.tres` (la primera) y `level_N_K.tres` (la K). Todos los niveles (1 a 9) están en `resources/level_data/level_N.tres`, y `scenes/GameData.tscn` los enlaza.
 
 ### Generador de oleadas
 
@@ -102,8 +116,7 @@ Las oleadas no se escriben a mano: las genera `scripts/tools/make_waves.gd` (`go
 - **Nodriza**: solo en la última oleada de los niveles 6 y 9, una, al final (después de que haya salido todo lo demás).
 - **Caminos**: cada grupo va entero por un camino, sacado de una bolsa mezclada con todos los caminos del mapa: se usan todos antes de repetir y nunca el mismo camino en dos grupos seguidos. Cada oleada usa todos los caminos del nivel.
 - Las tiradas usan una semilla fija por nivel y oleada: volver a lanzarlo da las mismas naves y tiempos (los ids de los subrecursos sí cambian).
-- Los `.tres` que ya existen se cargan y se rellenan, así conservan su uid. Como Godot guarda sin uid desde `-s`, el script los vuelve a escribir en la cabecera y en los `ext_resource` (como `map_generator.gd`). Para el nivel 5 añade a `GameData.tscn` las `ext_resource` que falten (`wave_5_K`) y reescribe su línea `waves`, sin tocar el resto de la escena.
-- El dinero inicial (`LevelData.starting_money`), las recompensas de las naves y `PERFECT_WAVE_BONUS` no se tocan: si un nivel no se puede ganar, se ajusta la tabla (sobre todo `health`).
+- Los `.tres` que ya existen se cargan y se rellenan, así conservan su uid. Como Godot guarda sin uid desde `-s`, el script los vuelve a escribir en la cabecera y en los `ext_resource` (como `map_generator.gd`).- El dinero inicial (`LevelData.starting_money`), las recompensas de las naves y `PERFECT_WAVE_BONUS` no se tocan: si un nivel no se puede ganar, se ajusta la tabla (sobre todo `health`).
 - El presupuesto cuenta en recompensas (`reward`). Si cambian las recompensas de las naves (ver [enemigos.md](enemigos.md)), hay que retocar los presupuestos de la tabla.
 
 #### Dificultad frente a dinero
@@ -301,7 +314,6 @@ Funciones:
 - `tileset.tres` declara una capa de datos `buildable` (bool) que ningún script lee.
 - En `scenes/maps/archive/`, los mapas de hierba 7 a 10 usan un `Sprite2D` como estación en vez de `Base.tscn`, y `Level6.tscn` tiene las dos cosas.
 - `archive/redesign/Level6.tscn` tenía el mismo uid que `archive/Level6.tscn` y Godot avisaba `UID duplicate`. Se le dio un uid nuevo.
-- `resources/level_data/level_5.tres` existe y tiene el mismo contenido que el subrecurso de `GameData.tscn`, pero `GameData` no lo usa.
 - Las oleadas de los niveles 7 a 9 son copias de las del nivel 6, solo con los `path_index` repartidos: falta equilibrarlas. Tampoco se ha revisado el equilibrio de los niveles 1 a 6 con los mapas nuevos, que tienen caminos mucho más largos.
 - Al regenerar un mapa cambian los `id` de sus `ext_resource` y los `unique_id` de sus nodos, aunque el contenido sea el mismo.
 - En los mapas con caminos que se cruzan (5 y 6) los pasillos se funden en los cruces: el espacio libre enseña por dónde pasan enemigos, no qué camino sigue cada uno.

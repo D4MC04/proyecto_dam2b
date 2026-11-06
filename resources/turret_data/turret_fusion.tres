@@ -11,7 +11,7 @@
 
 [resource]
 script = ExtResource("1")
-name = "Cañón cuádruple"
+name = "TURRET_TURRET_FUSION_NAME"
 cost = 200
 attack_cooldown = 0.15
 icon = ExtResource("4")
@@ -23,5 +23,5 @@ cannon = ExtResource("7")
 turn_speed = 240.0
 shoot_sound = ExtResource("snd")
 amp_effect = ExtResource("amp")
-description = "Cuatro cañones y una ráfaga muy rápida. Fusión de dos Cañones dobles."
+description = "TURRET_TURRET_FUSION_DESC"
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

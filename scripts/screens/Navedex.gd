@@ -5,25 +5,25 @@ extends Control
 
 signal back_pressed
 
-const ENEMY_DIR := "res://resources/enemy_data/"
+const ENEMY_DIR: String = "res://resources/enemy_data/"
 const ENEMY_FILES: Array[String] = [
 	"dart_verde", "dart_rojo", "dart_morado", "dart_hielo", "wasp", "nave_normal",
 	"nave_agresiva", "ariete", "acorazado", "nodriza", "reparadora",
 	"espectro", "divisora", "fragmento_divisora_central",
 	"saboteadora",
 ]
-const TURRET_DIR := "res://resources/turret_data/"
+const TURRET_DIR: String = "res://resources/turret_data/"
 # Solo las torretas base; sus mejoras se ven con las flechas del detalle.
 const TURRET_FILES: Array[String] = [
 	"turret", "minigun", "rocket_launcher", "cryo", "disintegrator", "rail", "tesla", "amplifier", "orbiter", "miner",
 ]
-const TAB_ENEMIES := 0
+const TAB_ENEMIES: int = 0
 const CELL_SCENE: PackedScene = preload("res://scenes/level_ui/EnemyCell.tscn")
-const UNKNOWN_TEXT := "???"
+const UNKNOWN_TEXT: String = "???"
 # Lado de las celdas cuadradas de la cuadrícula.
-const CELL_SIZE := 64
+const CELL_SIZE: int = 64
 # Lado de las flechas de torreta.
-const ARROW_SIZE := 28
+const ARROW_SIZE: int = 28
 
 @onready var grid: GridContainer = %Grid
 @onready var tabs: TabBar = %Tabs
@@ -39,12 +39,12 @@ const ARROW_SIZE := 28
 var _cells: Dictionary[InspectableData, EnemyCell] = {}
 # Cadena de versiones de la torreta mostrada (base, mejora...) y cuál se ve.
 var _versions: Array[TurretData] = []
-var _version_index := 0
+var _version_index: int = 0
 
 func _ready() -> void:
 	%VolverButton.pressed.connect(back_pressed.emit)
-	tabs.add_tab("NAVES")
-	tabs.add_tab("TORRETAS")
+	tabs.add_tab(tr("NAVEDEX_SHIPS"))
+	tabs.add_tab(tr("HEADER_TURRETS"))
 	_style_arrow(prev_button)
 	_style_arrow(next_button)
 	prev_button.pressed.connect(_change_version.bind(-1))
@@ -57,9 +57,9 @@ func _ready() -> void:
 # Flecha pequeña con el mismo borde cian fino y relleno tenue que las celdas.
 func _style_arrow(button: Button) -> void:
 	button.custom_minimum_size = Vector2(ARROW_SIZE, ARROW_SIZE)
-	var normal := ClippedBoxStyle.create(TurretButton.BG_COLOR, TurretButton.BORDER_COLOR)
-	var hover := ClippedBoxStyle.create(TurretButton.HOVER_BG_COLOR, TurretButton.HOVER_BORDER_COLOR)
-	var disabled := ClippedBoxStyle.create(TurretButton.BG_COLOR, TurretButton.BORDER_COLOR.darkened(0.6))
+	var normal: ClippedBoxStyle = ClippedBoxStyle.create(TurretButton.BG_COLOR, TurretButton.BORDER_COLOR)
+	var hover: ClippedBoxStyle = ClippedBoxStyle.create(TurretButton.HOVER_BG_COLOR, TurretButton.HOVER_BORDER_COLOR)
+	var disabled: ClippedBoxStyle = ClippedBoxStyle.create(TurretButton.BG_COLOR, TurretButton.BORDER_COLOR.darkened(0.6))
 	for style: ClippedBoxStyle in [normal, hover, disabled]:
 		style.content_margin_left = 0
 		style.content_margin_right = 0
@@ -73,13 +73,13 @@ func _style_arrow(button: Button) -> void:
 
 # Rellena la cuadrícula con las naves o las torretas según la pestaña.
 func _build_grid(tab: int) -> void:
-	for cell in _cells.values():
+	for cell: EnemyCell in _cells.values():
 		grid.remove_child(cell)
 		cell.queue_free()
 	_cells.clear()
-	var enemies := tab == TAB_ENEMIES
-	for file in (ENEMY_FILES if enemies else TURRET_FILES):
-		var data := load((ENEMY_DIR if enemies else TURRET_DIR) + file + ".tres") as InspectableData
+	var enemies: bool = tab == TAB_ENEMIES
+	for file: String in (ENEMY_FILES if enemies else TURRET_FILES):
+		var data: InspectableData = load((ENEMY_DIR if enemies else TURRET_DIR) + file + ".tres") as InspectableData
 		var cell: EnemyCell = CELL_SCENE.instantiate()
 		cell.custom_minimum_size = Vector2(CELL_SIZE, CELL_SIZE)
 		cell.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
@@ -95,19 +95,19 @@ func _build_grid(tab: int) -> void:
 func _on_visibility_changed() -> void:
 	if not visible or _cells.is_empty():
 		return
-	for data in _cells:
+	for data: InspectableData in _cells:
 		_cells[data].icon_rect.modulate = Color.WHITE if _is_known(data) else Color.BLACK
 	_show_detail(_cells.keys()[0])
 
 # Las torretas siempre se conocen; las naves, solo si ya han salido en una partida.
 func _is_known(data: InspectableData) -> bool:
-	var enemy := data as EnemyData
+	var enemy: EnemyData = data as EnemyData
 	return enemy == null or GameState.has_seen_enemy(enemy)
 
 func _show_detail(data: InspectableData) -> void:
 	_versions.clear()
 	_version_index = 0
-	var base := data as TurretData
+	var base: TurretData = data as TurretData
 	if base != null:
 		# Base y mejoras encadenadas.
 		var turret: TurretData = base
@@ -122,8 +122,8 @@ func _change_version(step: int) -> void:
 	_show_entry(_versions[_version_index])
 
 func _show_entry(data: InspectableData) -> void:
-	var seen := _is_known(data)
-	var turret := data as TurretData
+	var seen: bool = _is_known(data)
+	var turret: TurretData = data as TurretData
 	sprite.visible = turret == null
 	turret_icon.visible = turret != null
 	prev_button.disabled = _version_index <= 0
@@ -138,18 +138,18 @@ func _show_entry(data: InspectableData) -> void:
 	if turret != null:
 		turret_icon.texture = turret.icon
 		if turret.fusion != null:
-			fusion_label.text = "MEJORA: " + turret.fusion.name.to_upper()
+			fusion_label.text = tr("NAVEDEX_UPGRADE") % turret.fusion.get_inspect_name().to_upper()
 	else:
-		var enemy := data as EnemyData
+		var enemy: EnemyData = data as EnemyData
 		sprite.sprite_frames = enemy.sprite_frames
 		sprite.modulate = Color.WHITE if seen else Color.BLACK
 		sprite.play(&"up")
 	name_label.text = data.get_inspect_name().to_upper() if seen else UNKNOWN_TEXT
 	description_label.text = data.get_inspect_description() if seen else UNKNOWN_TEXT
-	for row in stat_rows.get_children():
+	for row: Node in stat_rows.get_children():
 		stat_rows.remove_child(row)
 		row.queue_free()
 	if seen:
-		var stats := data.get_stats()
-		for i in stats.size():
+		var stats: Array[StatEntry] = data.get_stats()
+		for i: int in stats.size():
 			stat_rows.add_child(StatRow.create(stats[i], i, 3, 1, 24, 8, 3, 6))

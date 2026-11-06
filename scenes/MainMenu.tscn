@@ -37,6 +37,9 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/office/door_seam.png" id="46_seam"]
 [ext_resource type="Texture2D" path="res://assets/sprites/office/door_glow.png" id="47_frame_glow"]
 [ext_resource type="Texture2D" path="res://assets/sprites/office/access_lit.png" id="48_access_light"]
+[ext_resource type="Script" path="res://scripts/level_ui/SectorRadar.gd" id="28_radar"]
+[ext_resource type="Script" path="res://scripts/level_ui/SectorCard.gd" id="29_card"]
+
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_radar"]
 shader = ExtResource("41_radar_shader")
@@ -357,41 +360,57 @@ grow_horizontal = 2
 grow_vertical = 2
 alignment = 1
 
-[node name="LevelsPanel" type="PanelContainer" parent="LevelSelectionScreen" unique_id=1187171775]
+[node name="LevelsPanel" type="MarginContainer" parent="LevelSelectionScreen" unique_id=1187171775]
 layout_mode = 2
 size_flags_horizontal = 4
-script = ExtResource("20_frame")
 
 [node name="Margin" type="MarginContainer" parent="LevelSelectionScreen/LevelsPanel" unique_id=1728181830]
 layout_mode = 2
 theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 21
+theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 21
+theme_override_constants/margin_bottom = 6
 
 [node name="Content" type="VBoxContainer" parent="LevelSelectionScreen/LevelsPanel/Margin" unique_id=944862105]
 layout_mode = 2
-theme_override_constants/separation = 18
+theme_override_constants/separation = 10
 
 [node name="Header" parent="LevelSelectionScreen/LevelsPanel/Margin/Content" unique_id=1281023251 instance=ExtResource("21_header")]
 layout_mode = 2
-title = "SECTORES DISPONIBLES"
+title = "HEADER_SECTORS"
 text_size = 24
 
-[node name="LevelButtonsContainer" type="GridContainer" parent="LevelSelectionScreen/LevelsPanel/Margin/Content" unique_id=1866487335]
+[node name="SectorsSubtitle" type="Label" parent="LevelSelectionScreen/LevelsPanel/Margin/Content"]
 unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.72, 0.78, 1)
+theme_override_font_sizes/font_size = 16
+
+[node name="SectorsRow" type="HBoxContainer" parent="LevelSelectionScreen/LevelsPanel/Margin/Content"]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/h_separation = 12
-theme_override_constants/v_separation = 12
-columns = 5
+theme_override_constants/separation = 24
+
+[node name="SectorRadar" type="Control" parent="LevelSelectionScreen/LevelsPanel/Margin/Content/SectorsRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(384, 384)
+layout_mode = 2
+script = ExtResource("28_radar")
+
+[node name="SectorCard" type="MarginContainer" parent="LevelSelectionScreen/LevelsPanel/Margin/Content/SectorsRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_vertical = 4
+script = ExtResource("29_card")
 
 [node name="VolverButton" type="Button" parent="LevelSelectionScreen/LevelsPanel/Margin/Content" unique_id=555534078]
 custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "Volver"
+text = "BTN_BACK"
 
 [node name="StatsScreen" type="VBoxContainer" parent="." unique_id=346163568]
 visible = false
@@ -421,7 +440,7 @@ theme_override_constants/separation = 18
 
 [node name="Header" parent="StatsScreen/StatsPanel/Margin/Content" unique_id=1033965195 instance=ExtResource("21_header")]
 layout_mode = 2
-title = "ESTADÍSTICAS"
+title = "HEADER_STATS"
 text_size = 24
 
 [node name="StatsLabel" type="Label" parent="StatsScreen/StatsPanel/Margin/Content" unique_id=1396226164]
@@ -434,7 +453,7 @@ custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "Volver"
+text = "BTN_BACK"
 
 [node name="Navedex" parent="." unique_id=276684204 instance=ExtResource("22_navedex")]
 visible = false
@@ -498,7 +517,7 @@ theme_override_colors/font_color = Color(1, 0.6666667, 0.74509805, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 48
-text = "¿SALIR DEL JUEGO?"
+text = "QUIT_CONFIRM_TITLE"
 horizontal_alignment = 1
 
 [node name="Buttons" type="HBoxContainer" parent="QuitConfirm/Center/Panel/Margin/Content"]
@@ -513,14 +532,14 @@ layout_mode = 2
 focus_mode = 0
 theme_type_variation = &"DangerButton"
 theme_override_font_sizes/font_size = 24
-text = "Salir"
+text = "BTN_QUIT"
 
 [node name="CancelButton" type="Button" parent="QuitConfirm/Center/Panel/Margin/Content/Buttons"]
 custom_minimum_size = Vector2(132, 36)
 layout_mode = 2
 focus_mode = 0
 theme_override_font_sizes/font_size = 24
-text = "Cancelar"
+text = "BTN_CANCEL"
 
 
 [connection signal="pressed" from="Office/Views/LeftView/ExitDoor" to="." method="_on_exit_door_pressed"]

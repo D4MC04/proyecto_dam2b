@@ -48,8 +48,8 @@ Nodos, de fondo a frente:
   - `Vignette`: `Sprite2D` con `menu_vignette.png`, que oscurece los bordes en tramado.
 - `Office` (ver "Oficina"): `Views`, con las tres vistas una al lado de otra (`LeftView` en x = -960, `CenterView` en 0 y `RightView` en 960), y las flechas de giro `TurnLeftArrow` y `TurnRightArrow`.
 - `PanelDim` (oculto al empezar): `ColorRect` negro al 60 % que oscurece la oficina y para el ratón mientras hay un panel abierto.
-- `LevelSelectionScreen` (oculto al empezar): `LevelsPanel`, un panel holograma cian con la cabecera `// SECTORES DISPONIBLES` (`ScreenHeader`), `LevelButtonsContainer` (`GridContainer` de 5 columnas, 12 px de separación) y el botón "Volver" (204x36). Cabecera y botones a 24 px. Márgenes del panel de 24 a los lados y 21 arriba y abajo, 18 de separación en `Content`.
-- `StatsScreen` (oculto al empezar): panel holograma con la cabecera `// ESTADÍSTICAS`, `StatsLabel` (24 px) y "Volver". Al abrirse (`_on_combat_scoreboard_pressed`) rellena cinco líneas con los totales de `GameState`: naves destruidas (`stats.kills`), dinero gastado (`stats.spent`, con `UiFormat.money`), tiempo jugado (`play_time`, en h y min), torreta favorita (la de mayor `stats.built_<torreta>`, "-" si no hay) y niveles ganados (`stats.wins`).
+- `LevelSelectionScreen` (oculto al empezar; la abre la mesa de Sectores): `LevelsPanel`, sin panel ni marco (como el boceto, flota sobre el fondo; márgenes 24 / 6, 10 px de separación), con la cabecera `// SECTORES` (`ScreenHeader`), debajo `SectorsSubtitle` "Asegurados N/10 - Alcance del radar: X km" (16 px, `RADAR_SUBTITLE`), `SectorsRow` (`HBoxContainer`, 24 px de separación) con el radar `SectorRadar` (384x384) y a su derecha la ficha `SectorCard` (300 px de ancho fijo), y el botón "Volver" (204x36). Cabecera y botones a 24 px. Ver "Radar de sectores".
+- `StatsScreen` (oculto al empezar): panel holograma con la cabecera `// ESTADÍSTICAS` (`HEADER_STATS`), `StatsLabel` (24 px) y "Volver". Al abrirse (`_on_combat_scoreboard_pressed`) rellena cinco líneas con los totales de `GameState`: naves destruidas (`stats.kills`), dinero gastado (`stats.spent`, con `UiFormat.money`), tiempo jugado (`play_time`, en h y min), torreta favorita (la de mayor `stats.built_<torreta>`, "-" si no hay) y niveles ganados (`stats.wins`). Las cinco líneas son textos traducidos (`STATS_KILLS`, `STATS_SPENT`, `STATS_TIME`, `STATS_FAVORITE`, `STATS_WINS`).
 - `Navedex` (oculto al empezar): instancia de `scenes/Navedex.tscn` (ver "Navedex").
 - `AchievementsScreen` (oculto al empezar): instancia de `scenes/AchievementsScreen.tscn` (ver "Logros").
 - `OptionsMenu` (oculto al empezar): instancia de `scenes/OptionsMenu.tscn` (ver "Opciones").
@@ -87,8 +87,8 @@ Tres vistas de 960x540: izquierda (puerta y stats), centro (ventanal y centro de
 - **Escape** (`ui_cancel`): con "¿Salir del juego?" abierto lo cierra; con un panel abierto, lo cierra; en la oficina abre "¿Salir del juego?". "Salir" cierra el juego y "Cancelar" lo cierra.
 - La puerta se entreabre y después se cierra el juego.
 - Si `start_on_level_selection` es `true` (lo pone `Game` al volver de un nivel), el menú abre con la selección de nivel ya abierta sobre la vista central.
-- `_build_level_buttons()` crea un `LevelButton` de 60x60 (número a 24) por cada entrada de `GameData.levels`, numerado desde 1 y desactivado si `GameState.is_unlocked(i)` es `false`.
-- `LevelButton` (`scripts/level_ui/LevelButton.gd`) emite `level_selected(data)` al pulsarse.
+- `_refresh_sectors()` (al abrir el menú, al pulsar la mesa de Sectores y con `GameState.progress_reset`) vuelve a leer el progreso en el radar y la ficha.
+- Clic en un contacto del radar = seleccionarlo (`sector_selected` → la ficha lo enseña). Para jugar: el botón DESPLEGAR / REPETIR de la ficha (`deploy_pressed`) o doble clic en el contacto (`sector_launched`); los dos llaman a `_open_level`.
 - `_open_level(data)` instancia `scenes/Game.tscn`, le asigna `level_data` y la pone como escena actual.
 
 ## Fondo
@@ -117,9 +117,31 @@ Todos son `Node2D` que dibujan o crean sprites por código, con posiciones y tie
 
 `scripts/main_menu/SpaceBody.gd` (clase `SpaceBody`) es un `AnimatedSprite2D` con `@tool` que construye su `SpriteFrames` a partir de `sheet`, una tira horizontal de frames cuadrados (lado = alto de la imagen), a la velocidad `fps`. Lo usan los planetas del menú y los asteroides.
 
+## Radar de sectores
+
+`SectorRadar` (`scripts/level_ui/SectorRadar.gd`) pinta todo en `_draw`, cada parte en su función (`_draw_background`, `_draw_grid`, `_draw_sweep`, `_draw_fog`, `_draw_ring_labels`, `_draw_route`, `_draw_station`, `_draw_contacts`), para que el modo corrupto del jefe pueda cambiar o añadir partes. Colores de la interfaz: disco en bandas de `#122440` (centro) a `#060b14`, anillos y radios `#1c4a60`, marcas del borde `#1c7496`, borde, estación y alcance `#40e0f0`, barrido `#befaff` con estela `#40e0f0`.
+
+- Estación en el centro (cruz y cuadro con hueco). 4 anillos y radios cada 30°; marcas del borde cada 5° (más largas cada 30°).
+- Barrido: gira a 1,6 rad/s con una estela de 36 cuñas. Al pasar por un contacto lo enciende (alfa 1) y se apaga en 2,6 s hasta 0,45 (0,75 el primer nivel pendiente).
+- Un contacto por nivel de `GameData.levels`, en `LevelData.radar_distance` (fracción del radio) y `radar_bearing` (0° arriba, sentido horario). Cada uno más lejos que el anterior (0,20 a 0,70), repartidos por todo el disco para que no se amontonen; ningún nivel usa la zona de arriba (reservada al jefe) ni la de la derecha justo encima del eje (textos de km).
+- Estados (`get_level_state`): oculto si `GameState.is_unlocked(i)` es `false`; completado (verde `#3cb860`) si tiene estrellas o es anterior a `current_level`; si no, pendiente (amarillo `#ecb23c`). Con el ratón encima o seleccionado, azul `#54a0e2`. El seleccionado da un salto de 6 px, luego flota 2 px arriba y abajo y suelta una onda circular cada 1,4 s; del centro sale hasta él una ruta discontinua azul animada.
+- Alcance: llega justo al último contacto visible (su distancia + 0,04, sin pasar de la mitad hasta el siguiente + 0,02; tope 0,9). Fuera, niebla oscura con 120 puntos de ruido nuevos en cada frame; el borde del alcance es un círculo discontinuo que gira. El radar solo enseña los niveles hasta el progreso real (`índice < GameState.current_level`), aunque `is_unlocked()` devuelva siempre `true` para probar.
+- Textos de km de los anillos (radio total `RADIUS_KM` = 4.000 km, separador de miles `NUMBER_THOUSANDS_SEP`) a 16 px, a la derecha justo encima del eje; solo los anillos dentro del alcance (fuera no se ve ninguno). Van sin "km" porque a este tamaño no caben.
+- Sector del jefe: mientras `GameData.levels` tenga menos de `TOTAL_SECTORS` (10), el último sale como contacto `UNKNOWN` de prueba arriba en el centro (distancia 0,72, rumbo 0°), solo cuando se ha ganado el último nivel que hay (entonces el alcance llega a su tope, 0,9): un "?" rojo `#e65a4f` que late, con su rótulo `SEC-10`. Se puede seleccionar (la ficha dice SIN DATOS, todo "???" y el botón NO DISPONIBLE apagado), pero no se juega. El modo corrupto es el ticket `radar-corrupto-jefe`.
+- Iconos: las naves de `LevelData.radar_ship` (incursor, colmillo, triturador y espectro), 16x16 dibujadas a ×2 y teñidas con el color del estado; los ojos se pintan encima en `#f0323c` y parpadean (ciclo de 3,5 s, desfasado por contacto). Debajo, el rótulo `SEC-0N` a 16 px. Los sprites (`assets/sprites/enemies/radar/radar_<nave>.png` y `radar_<nave>_eyes.png`) no se dibujan a mano: los genera `scripts/tools/make_radar_ships.gd` (`godot --headless --path . -s scripts/tools/make_radar_ships.gd`) a partir de plantillas de texto (casco en grises con luz arriba, sombra abajo y contorno `#0a0810`; los ojos son un hueco oscuro en el casco y un PNG aparte en blanco). Si aún no existen, el contacto se pinta como un cuadro.
+
+### Ficha
+
+`SectorCard` (`scripts/level_ui/SectorCard.gd`, `MarginContainer` que crea sus filas en código): fondo `#0a0f1a` al 88 %, borde `#1c4a60` y esquinas en L de `#40e0f0` que salen 3 px. Todo a 24 px. Ancho fijo de 300 px; título, nombres de fila y botón se recortan en vez de ensanchar la ficha, para que no se mueva con textos más largos ni al cambiar de idioma.
+
+- Título `SEC-0N - NOMBRE` en `#40e0f0` (con guion: Monogram pinta el punto medio arriba) (nombre de `LevelData.sector_name`, clave `SECTOR_<n>_NAME`).
+- Filas con línea de puntos debajo (nombre `#5a7a96`, valor `#cce6ff`): ESTADO (ASEGURADO en verde o SEÑAL ACTIVA en amarillo), RUMBO (`radar_bearing`, `000°`), DISTANCIA (`radar_distance` × 4.000 km, redondeada a decenas), OLEADAS (`waves.size()`), AMENAZA (`LevelData.threat`: BAJA verde, MEDIA amarilla, ALTA naranja `#ff8c32`, EXTREMA roja `#ff3c5a`, solo para el jefe) y MEJOR: las estrellas de `GameState.get_level_stars()` en pixel art (`VictoryScreen.STAR_SHAPE` a 2 px, llenas `#ecb23c`, las que faltan solo con el contorno en el mismo color, como ☆), todas vacías si no está completado.
+- Botón `» DESPLEGAR «` en amarillo, o `REPETIR` en verde si está completado. Emite `deploy_pressed`.
+- Se repinta con `NOTIFICATION_TRANSLATION_CHANGED`.
+
 ## Salto al hiperespacio
 
-`MainMenu._open_level` (una sola vez, ignora más pulsaciones) llama a `_hyperspace_jump()`: `Space/StarField.warp(0.5)` (las estrellas se estiran por el ventanal) y un `ColorRect` blanco que cubre el menú en 0,1 s; después carga el nivel. Solo desde el menú ("Siguiente nivel" no hace el salto).
+`MainMenu._open_level` (una sola vez, ignora más pulsaciones; desde DESPLEGAR / REPETIR o doble clic en el radar) llama a `_hyperspace_jump()`: `Space/StarField.warp(0.5)` (las estrellas se estiran por el ventanal) y un `ColorRect` blanco que cubre el menú en 0,1 s; después carga el nivel. Solo desde el menú ("Siguiente nivel" no hace el salto).
 
 ## Navedex
 
@@ -169,22 +191,41 @@ Es el único audio del juego: todavía no hay efectos de sonido, así que nada s
 | PANTALLA | Botón "Pantalla completa" | `fullscreen` |
 | PANTALLA | Botón "VSync" | `vsync` |
 | PANTALLA | Botón "Mostrar FPS" | `show_fps` |
+| JUEGO | Botón "Idioma" (`LanguageButton`) | `language` |
 | JUEGO | Botón "Rango de torretas" | `show_turret_range` |
+| JUEGO | Botón "Pausar sin foco" | `pause_on_focus_loss` |
 
 "Volver" (204x36) va en `ButtonsBlock`, debajo de las columnas con 9 px extra de margen (`ButtonsMargin`), así que se separa más de las secciones que los botones entre sí. Las partidas no se borran aquí: se borran desde su ranura en la pantalla de inicio (ver "Pantalla de inicio").
 
 Los deslizadores (96x12, tirador de 5x11) van de 0 a 1 en pasos de 0,05 (colores de la paleta en `menu_theme.tres`, ver [art.md](art.md)). Los botones son interruptores de 54x24 (texto a 24) con la variación de tema `ToggleButton`: en ON van rellenos de cian (como el ratón encima) y muestran "ON"; en OFF van con el estilo normal y muestran "OFF". Al abrirse, cada control toma su valor de `Settings`; cada cambio llama a `Settings.set_value`.
 
+El botón de idioma es del mismo tamaño y estilo pero no es interruptor: cada pulsación pasa al siguiente idioma de `Settings.LANGUAGES` y muestra su código ("ES" / "EN", sin traducir). El cambio se ve al momento en todo lo que está abierto (ver "Idiomas").
+
 ### Settings
 
 `scripts/autoloads/Settings.gd`, autoload. Guarda las opciones en `user://settings.cfg` (sección `settings`) con `ConfigFile`.
 
-- Al arrancar carga el archivo y aplica todas las opciones. Si el archivo no existe, falta una clave o su valor no es del tipo esperado, vale el valor por defecto: volúmenes a 1, `vsync` activado y el resto desactivado. Las claves que no conoce (por ejemplo la antigua `ambient_volume`) se ignoran y desaparecen del archivo en el siguiente guardado. La excepción es `LEGACY_KEYS`: `show_turret_range` también se lee de su nombre antiguo (`show_tower_range`) si el archivo aún no tiene la nueva.
+- Al arrancar carga el archivo y aplica todas las opciones. Si el archivo no existe, falta una clave o su valor no es del tipo esperado, vale el valor por defecto: volúmenes a 1, `vsync` y `pause_on_focus_loss` activados y el resto desactivado. Las claves que no conoce (por ejemplo la antigua `ambient_volume`) se ignoran y desaparecen del archivo en el siguiente guardado. La excepción es `LEGACY_KEYS`: `show_turret_range` también se lee de su nombre antiguo (`show_tower_range`) si el archivo aún no tiene la nueva.
 - `get_value(key)` y `set_value(key, value)`. `set_value` aplica el cambio, guarda el archivo y emite `changed(key)`.
 - Los tres volúmenes son lineales y se aplican a los buses `Master`, `Music` y `SFX`, definidos en `default_bus_layout.tres`. El bus `SFX` es para los sonidos de torretas, explosiones y demás efectos.
 - `muted` silencia el bus `Master` sin cambiar los volúmenes, así que al quitarlo los deslizadores conservan su valor.
 - `fullscreen` y `vsync` se aplican con `DisplayServer`.
+- `language` (texto, `"es"` por defecto) se aplica con `TranslationServer.set_locale`; si el archivo trae un código que no está en `LANGUAGES` (`["es", "en"]`), se usa el español.
 - `show_fps` y `show_turret_range` no hacen nada aquí: las leen `LevelUI` (ver [ui.md](ui.md)) y `Turret` (ver [torretas.md](torretas.md)), que escuchan `changed` para actualizarse al momento.
+- `pause_on_focus_loss` tampoco hace nada aquí: la lee `Game` cuando la ventana pierde el foco (ver [flujo.md](flujo.md)).
+
+## Idiomas
+
+Los textos visibles están en `translations/textos.csv` (columnas `keys,es,en`), registrado en `project.godot` (`internationalization/locale/translations`, con los `.translation` que genera Godot al importar el CSV; idioma de reserva `es`). Ni escenas ni scripts llevan textos a mano: usan claves en mayúsculas con prefijo por zona (`BTN_`, `HEADER_`, `OPT_`, `HUD_`, `STAT_`, `TAG_`, `TUTORIAL_`, `ACH_`, `TURRET_`, `ENEMY_`...).
+
+- En los `.tscn` el `text` de `Label` y `Button` es la clave y Godot lo traduce solo (también al cambiar de idioma). Las cabeceras `ScreenHeader` guardan la clave en `title` y la traducen con `tr()`; se repintan con `NOTIFICATION_TRANSLATION_CHANGED`.
+- Los textos con números o nombres se montan con `tr("CLAVE") % valores` (por ejemplo `HUD_WAVE_N` = "OLEADA %d"). `Sidebar` y `LevelIndicator` guardan lo último que enseñaron y lo repintan al cambiar de idioma, para que la pausa → Opciones → idioma se vea al volver a la partida.
+- `TurretData` y `EnemyData` guardan en `name` y `description` claves (`TURRET_<archivo>_NAME` / `_DESC`, `ENEMY_<archivo>_NAME` / `_DESC`; los tres fragmentos de la Divisora comparten `ENEMY_FRAGMENTO_DIVISORA_*`). Para enseñarlos se usa `get_inspect_name()` / `get_inspect_description()`, que ya traducen; `RunStats.top_turret_name` guarda la clave y la traduce `RunSummary`.
+- `StatEntry` recibe el nombre del stat como clave (`STAT_...`) y lo traduce al crearse; las etiquetas de tipo (`TAG_...`) las traduce `get_inspect_tag()`. Ambos caben en 9 caracteres también en inglés.
+- Los logros de `GameState.ACHIEVEMENTS` son pares de claves (`ACH_<id>_NAME`, `ACH_<id>_DESC`).
+- Se quedan sin traducir el título "ASTRO ARTILLERY" / "TOWER DEFENSE", "NOVA", "VSync", "AUTO", "ON" / "OFF", los "×1" / "×2" y los números.
+
+Para añadir un idioma: una columna nueva en el CSV, su `.translation` en `project.godot` y su código en `Settings.LANGUAGES`.
 
 ## Dudas
 

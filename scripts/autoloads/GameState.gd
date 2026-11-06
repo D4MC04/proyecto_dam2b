@@ -1,36 +1,38 @@
 extends Node
 
 # Autoload: progreso del jugador. Hay SLOT_COUNT partidas, cada una en su archivo; se guarda al desbloquear un nivel, acabar el tutorial, etc.
-const SLOT_COUNT := 3
-const SAVE_DIR := "user://saves/"
+const SLOT_COUNT: int = 3
+const SAVE_DIR: String = "user://saves/"
 # Archivo del progreso de antes de las ranuras: se migra a la ranura 1.
-const LEGACY_PATH := "user://progress.cfg"
-const SECTION := "progress"
+const LEGACY_PATH: String = "user://progress.cfg"
+const SECTION: String = "progress"
+# Estrellas máximas que da un nivel ganado.
+const MAX_STARS: int = 3
 
 signal progress_reset
 
 const MENU_THEME: Theme = preload("res://assets/ui/menu_theme.tres")
-const TOAST_TIME := 3.0
-# Logros por orden: id -> [nombre, descripción]. Cómo se cumple cada uno está en _is_done().
+const TOAST_TIME: float = 3.0
+# Logros por orden: id -> [clave del nombre, clave de la descripción]. Cómo se cumple cada uno está en _is_done().
 const ACHIEVEMENTS: Dictionary = {
-	"first_win": ["Primera victoria", "Gana un nivel"],
-	"flawless": ["Intacto", "Gana un nivel sin perder vida"],
-	"wins_5": ["Veterano", "Gana 5 niveles"],
-	"all_levels": ["Sector despejado", "Gana el último nivel"],
-	"kills_100": ["Cazador", "Destruye 100 naves"],
-	"kills_1000": ["Exterminador", "Destruye 1000 naves"],
-	"seen_10": ["Observador", "Descubre 10 tipos de nave"],
-	"turrets_50": ["Constructor", "Construye 50 torretas"],
-	"fuse_first": ["Primera mejora", "Mejora una torreta"],
-	"fuse_all": ["Maestro de mejoras", "Mejora todas las torretas"],
-	"power_first": ["Poder desatado", "Usa un poder"],
-	"perfect_10": ["Defensa perfecta", "Logra 10 oleadas perfectas"],
+	"first_win": ["ACH_FIRST_WIN_NAME", "ACH_FIRST_WIN_DESC"],
+	"flawless": ["ACH_FLAWLESS_NAME", "ACH_FLAWLESS_DESC"],
+	"wins_5": ["ACH_WINS_5_NAME", "ACH_WINS_5_DESC"],
+	"all_levels": ["ACH_ALL_LEVELS_NAME", "ACH_ALL_LEVELS_DESC"],
+	"kills_100": ["ACH_KILLS_100_NAME", "ACH_KILLS_100_DESC"],
+	"kills_1000": ["ACH_KILLS_1000_NAME", "ACH_KILLS_1000_DESC"],
+	"seen_10": ["ACH_SEEN_10_NAME", "ACH_SEEN_10_DESC"],
+	"turrets_50": ["ACH_TURRETS_50_NAME", "ACH_TURRETS_50_DESC"],
+	"fuse_first": ["ACH_FUSE_FIRST_NAME", "ACH_FUSE_FIRST_DESC"],
+	"fuse_all": ["ACH_FUSE_ALL_NAME", "ACH_FUSE_ALL_DESC"],
+	"power_first": ["ACH_POWER_FIRST_NAME", "ACH_POWER_FIRST_DESC"],
+	"perfect_10": ["ACH_PERFECT_10_NAME", "ACH_PERFECT_10_DESC"],
 }
 
 # Número (desde 1) del nivel más alto desbloqueado.
 var current_level: int = 1
 # El tutorial del nivel 1 ya se ha hecho o saltado.
-var tutorial_done := false
+var tutorial_done: bool = false
 # Enemigos que ya han salido en una partida, por nombre de archivo del EnemyData.
 var seen_enemies: Array[String] = []
 # Contadores acumulados entre partidas: wins, kills, turrets, powers, perfect_waves, spent y built_<torreta>.
@@ -38,6 +40,8 @@ var stats: Dictionary = {}
 # Torretas fusionadas alguna vez, por nombre de archivo.
 var fused_turrets: Array[String] = []
 var unlocked: Array[String] = []
+# Mejor marca de estrellas (1..MAX_STARS) de cada nivel ganado: número de nivel (desde 1) -> estrellas.
+var level_stars: Dictionary[int, int] = {}
 # Segundos jugados en niveles, en tiempo real.
 var play_time: float = 0.0
 # Ranura de la partida en curso (1..SLOT_COUNT). 0 = ninguna: mientras tanto no se guarda nada.
@@ -55,7 +59,7 @@ func load_slot(slot: int) -> void:
 		return
 	_set_defaults()
 	active_slot = slot
-	var file := ConfigFile.new()
+	var file: ConfigFile = ConfigFile.new()
 	if file.load(_slot_path(slot)) != OK:
 		return
 	# El archivo lo puede editar cualquiera: solo se acepta un entero >= 1.
@@ -81,12 +85,20 @@ func load_slot(slot: int) -> void:
 	if stats.has("towers"):
 		stats["turrets"] = stats.get("turrets", 0) + stats["towers"]
 		stats.erase("towers")
-	var old_achievement := unlocked.find("towers_50")
+	var old_achievement: int = unlocked.find("towers_50")
 	if old_achievement >= 0:
 		unlocked[old_achievement] = "turrets_50"
 	var time: Variant = file.get_value(SECTION, "play_time", 0.0)
 	if typeof(time) == TYPE_FLOAT and time >= 0.0:
 		play_time = time
+	# Las partidas de antes de las estrellas no tienen esta clave: se quedan sin estrellas.
+	var stars: Variant = file.get_value(SECTION, "level_stars", {})
+	if typeof(stars) == TYPE_DICTIONARY:
+		for key: Variant in stars:
+			var value_stars: Variant = stars[key]
+			if typeof(key) == TYPE_INT and key >= 1 and typeof(value_stars) == TYPE_INT \
+					and value_stars >= 1 and value_stars <= MAX_STARS:
+				level_stars[key] = value_stars
 
 func has_save(slot: int) -> bool:
 	return slot >= 1 and slot <= SLOT_COUNT and FileAccess.file_exists(_slot_path(slot))
@@ -103,14 +115,14 @@ func delete_slot(slot: int) -> void:
 
 ## Resumen de la ranura sin cargarla en la partida activa. Vacío si no hay partida.
 func get_slot_summary(slot: int) -> Dictionary:
-	var file := ConfigFile.new()
+	var file: ConfigFile = ConfigFile.new()
 	if not has_save(slot) or file.load(_slot_path(slot)) != OK:
 		return {}
 	var level: Variant = file.get_value(SECTION, "current_level", 1)
 	var time: Variant = file.get_value(SECTION, "play_time", 0.0)
 	var saved_at: Variant = file.get_value(SECTION, "saved_at", 0)
 	var done: Variant = file.get_value(SECTION, "unlocked", [])
-	var count := 0
+	var count: int = 0
 	if typeof(done) == TYPE_ARRAY:
 		for id: Variant in done:
 			if typeof(id) == TYPE_STRING and ACHIEVEMENTS.has(id):
@@ -134,6 +146,25 @@ func complete_level(number: int) -> void:
 	if number != current_level or number >= GameData.levels.size():
 		return
 	current_level += 1
+	_save()
+
+## Estrellas que da ganar con la estación a `health` de `max_health`: 3 sin daño, 2 con más de la mitad, 1 si no.
+func stars_for_health(health: int, max_health: int) -> int:
+	if health >= max_health:
+		return MAX_STARS
+	if health * 2 > max_health:
+		return 2
+	return 1
+
+## Mejor marca de estrellas del nivel número `number` (desde 1). 0 si no se ha ganado nunca.
+func get_level_stars(number: int) -> int:
+	return level_stars.get(number, 0)
+
+## Anota las estrellas de una victoria en el nivel `number` (desde 1). Solo guarda si mejora la marca.
+func record_level_stars(number: int, stars: int) -> void:
+	if number < 1 or stars <= get_level_stars(number):
+		return
+	level_stars[number] = clampi(stars, 1, MAX_STARS)
 	_save()
 
 ## El tutorial se ha acabado o saltado: no vuelve a salir.
@@ -163,8 +194,8 @@ func add_play_time(seconds: float) -> void:
 
 ## Torreta más construida: su nombre de archivo sin extensión, o "" si no se ha construido ninguna.
 func favorite_turret() -> String:
-	var best := ""
-	var best_count := 0
+	var best: String = ""
+	var best_count: int = 0
 	for key: String in stats:
 		if key.begins_with("built_") and stats[key] > best_count:
 			best = key.trim_prefix("built_")
@@ -173,7 +204,7 @@ func favorite_turret() -> String:
 
 ## Anota que esta torreta se ha fusionado alguna vez.
 func register_fusion(fused: TurretData) -> void:
-	var file := fused.resource_path.get_file()
+	var file: String = fused.resource_path.get_file()
 	if file not in fused_turrets:
 		fused_turrets.append(file)
 	_check_achievements()
@@ -206,7 +237,7 @@ func _is_done(id: String) -> bool:
 	return false
 
 func _check_achievements() -> void:
-	for id in ACHIEVEMENTS:
+	for id: String in ACHIEVEMENTS:
 		if id not in unlocked and _is_done(id):
 			_unlock(id)
 
@@ -219,7 +250,7 @@ func _unlock(id: String) -> void:
 
 func _make_toast_layer() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	var layer := CanvasLayer.new()
+	var layer: CanvasLayer = CanvasLayer.new()
 	layer.layer = 200
 	add_child(layer)
 	_toasts = VBoxContainer.new()
@@ -232,14 +263,14 @@ func _make_toast_layer() -> void:
 
 # Aviso pequeño arriba a la derecha que se desvanece solo.
 func _show_toast(title: String) -> void:
-	var label := Label.new()
-	label.text = "LOGRO: " + title
+	var label: Label = Label.new()
+	label.text = tr("ACHIEVEMENT_TOAST") % tr(title)
 	label.add_theme_font_size_override("font_size", 24)
 	label.add_theme_color_override("font_color", Color("40e0f0"))
 	label.add_theme_color_override("font_outline_color", Color.BLACK)
 	label.add_theme_constant_override("outline_size", 4)
 	_toasts.add_child(label)
-	var tween := create_tween()
+	var tween: Tween = create_tween()
 	tween.tween_interval(TOAST_TIME)
 	tween.tween_property(label, "modulate:a", 0.0, 0.5)
 	tween.tween_callback(label.queue_free)
@@ -264,6 +295,7 @@ func _set_defaults() -> void:
 	stats.clear()
 	fused_turrets.clear()
 	unlocked.clear()
+	level_stars.clear()
 	play_time = 0.0
 
 func _slot_path(slot: int) -> String:
@@ -273,10 +305,10 @@ func _slot_path(slot: int) -> String:
 func _migrate_legacy_save() -> void:
 	if not FileAccess.file_exists(LEGACY_PATH):
 		return
-	for slot in range(1, SLOT_COUNT + 1):
+	for slot: int in range(1, SLOT_COUNT + 1):
 		if has_save(slot):
 			return
-	var file := ConfigFile.new()
+	var file: ConfigFile = ConfigFile.new()
 	if file.load(LEGACY_PATH) != OK:
 		return
 	file.set_value(SECTION, "saved_at", int(Time.get_unix_time_from_system()))
@@ -289,7 +321,7 @@ func _migrate_legacy_save() -> void:
 func _save() -> void:
 	if active_slot == 0:
 		return
-	var file := ConfigFile.new()
+	var file: ConfigFile = ConfigFile.new()
 	file.set_value(SECTION, "current_level", current_level)
 	file.set_value(SECTION, "tutorial_done", tutorial_done)
 	file.set_value(SECTION, "seen_enemies", seen_enemies)
@@ -297,6 +329,7 @@ func _save() -> void:
 	file.set_value(SECTION, "fused_turrets", fused_turrets)
 	file.set_value(SECTION, "unlocked", unlocked)
 	file.set_value(SECTION, "play_time", play_time)
+	file.set_value(SECTION, "level_stars", level_stars)
 	file.set_value(SECTION, "saved_at", int(Time.get_unix_time_from_system()))
 	DirAccess.make_dir_recursive_absolute(SAVE_DIR)
 	if file.save(_slot_path(active_slot)) != OK:

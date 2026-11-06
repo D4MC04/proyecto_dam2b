@@ -6,7 +6,7 @@
 
 [resource]
 script = ExtResource("1_data")
-name = "Nave normal"
+name = "ENEMY_NAVE_NORMAL_NAME"
 hp = 100.0
 speed = 75
 reward = 15
@@ -15,5 +15,5 @@ sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 rotate_sprite = true
 rotation_offset = 180.0
-description = "Nave de transporte lenta y resistente."
+description = "ENEMY_NAVE_NORMAL_DESC"
 metadata/_custom_type_script = "uid://do62ihbnaitnl"

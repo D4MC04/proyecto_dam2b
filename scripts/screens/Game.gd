@@ -1,8 +1,8 @@
 extends Node
 class_name Game
 
-const ENTER_FADE_TIME := 0.2
-const MAIN_MENU_PATH := "res://scenes/MainMenu.tscn"
+const ENTER_FADE_TIME: float = 0.2
+const MAIN_MENU_PATH: String = "res://scenes/MainMenu.tscn"
 
 @export var level_data: LevelData
 var from_hyperspace: bool = false
@@ -19,6 +19,14 @@ func _ready() -> void:
 	_setup_level()
 	if from_hyperspace:
 		_fade_in_from_white()
+
+# Al perder el foco de la ventana (Alt+Tab) se abre la pausa, salvo que la opción esté desactivada.
+func _notification(what: int) -> void:
+	if what != NOTIFICATION_APPLICATION_FOCUS_OUT:
+		return
+	if _transitioning or not Settings.get_value(&"pause_on_focus_loss"):
+		return
+	ui.pause_if_playing()
 
 # Fundido desde blanco al llegar del salto al hiperespacio.
 func _fade_in_from_white() -> void:
@@ -39,7 +47,7 @@ func _fade_white(from_alpha: float, to_alpha: float, layer: CanvasLayer = null) 
 	else:
 		white = layer.get_child(0)
 	white.color = Color(1, 1, 1, from_alpha)
-	var tween := create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	var tween: Tween = create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 	tween.tween_property(white, "color:a", to_alpha, ENTER_FADE_TIME)
 	await tween.finished
 	if to_alpha == 0.0:
@@ -67,6 +75,9 @@ func _on_level_won() -> void:
 	# Si no está en la lista, find devuelve -1 y el número es 0: no desbloquea nada.
 	var number: int = GameData.levels.find(level_data) + 1
 	GameState.complete_level(number)
+	var stars: int = GameState.stars_for_health(level.base.health, level.base.max_health)
+	GameState.record_level_stars(number, stars)
+	ui.show_victory_stars(stars)
 	GameState.register_win(number, level.base.health == level.base.max_health)
 	ui.show_run_stats(level.get_run_stats())
 	ui.set_state(LevelUI.UiState.WON)
@@ -93,8 +104,8 @@ func _restart_level() -> void:
 	if _transitioning:
 		return
 	_transitioning = true
-	var layer := await _fade_white(0.0, 1.0)
-	var index := level.get_index()
+	var layer: CanvasLayer = await _fade_white(0.0, 1.0)
+	var index: int = level.get_index()
 	remove_child(level)
 	level.queue_free()
 	level = _level_scene.instantiate()
@@ -107,8 +118,8 @@ func _restart_level() -> void:
 func _quit_to_menu() -> void:
 	var menu: Node = load(MAIN_MENU_PATH).instantiate()
 	menu.start_on_level_selection = true
-	var tree := get_tree()
-	var old_scene := tree.current_scene
+	var tree: SceneTree = get_tree()
+	var old_scene: Node = tree.current_scene
 	tree.root.add_child(menu)
 	tree.current_scene = menu
 	old_scene.queue_free()

@@ -8,31 +8,31 @@ enum Phase { TITLE, SLOTS, CONFIRM, ENTERING }
 
 const MAIN_MENU: PackedScene = preload("res://scenes/MainMenu.tscn")
 # Fila de arriba del bloque del título; al salir las ranuras sube TITLE_RISE px mientras se desvanece.
-const TITLE_Y := 168.0
-const TITLE_RISE := 16.0
-const TITLE_FADE_TIME := 0.35
-const INTRO_FADE_TIME := 0.6
+const TITLE_Y: float = 168.0
+const TITLE_RISE: float = 16.0
+const TITLE_FADE_TIME: float = 0.35
+const INTRO_FADE_TIME: float = 0.6
 # Parpadeo de "PULSA CUALQUIER TECLA" (ciclo y parte encendida) y parpadeo rápido al pulsar.
-const BLINK_PERIOD := 1.0
-const BLINK_ON := 0.6
-const ACK_BLINKS := 6
-const ACK_BLINK_TIME := 0.05
-const FADE_TIME := 0.2
+const BLINK_PERIOD: float = 1.0
+const BLINK_ON: float = 0.6
+const ACK_BLINKS: int = 6
+const ACK_BLINK_TIME: float = 0.05
+const FADE_TIME: float = 0.2
 # Entrada de las tarjetas: cada una se descubre de arriba abajo mientras llega desde la derecha.
-const CARD_STAGGER := 0.09
-const CARD_REVEAL_TIME := 0.24
-const CARD_SLIDE := 16.0
-const CONTENT_FADE_TIME := 0.15
+const CARD_STAGGER: float = 0.09
+const CARD_REVEAL_TIME: float = 0.24
+const CARD_SLIDE: float = 16.0
+const CONTENT_FADE_TIME: float = 0.15
 # Botón de borrar, a la derecha de la tarjeta, y su cruz de píxeles.
-const DELETE_GAP := 9
-const DELETE_SIZE := Vector2(36, 36)
-const CROSS_SIZE := 10
+const DELETE_GAP: int = 9
+const DELETE_SIZE: Vector2 = Vector2(36, 36)
+const CROSS_SIZE: int = 10
 # Entrar: destellos de la tarjeta, tapado desde ella, pausa en negro y destapado del menú.
-const ENTER_FLASHES := 3
-const ENTER_FLASH_TIME := 0.07
-const COVER_TIME := 0.7
-const HOLD_TIME := 0.15
-const UNCOVER_TIME := 0.6
+const ENTER_FLASHES: int = 3
+const ENTER_FLASH_TIME: float = 0.07
+const COVER_TIME: float = 0.7
+const HOLD_TIME: float = 0.15
+const UNCOVER_TIME: float = 0.6
 
 @onready var title_block: VBoxContainer = $TitleBlock
 @onready var press_key_label: Label = $PressKeyLabel
@@ -44,16 +44,16 @@ const UNCOVER_TIME := 0.6
 @onready var confirm_message: Label = %ConfirmMessage
 @onready var input_blocker: Control = $InputBlocker
 
-var _phase := Phase.TITLE
+var _phase: Phase = Phase.TITLE
 # Hay una animación en marcha: se ignoran teclas y el bloqueador para el ratón.
-var _busy := false
-var _blinking := true
-var _blink_time := 0.0
+var _busy: bool = false
+var _blinking: bool = true
+var _blink_time: float = 0.0
 var _cards: Array[SlotCard] = []
 var _delete_buttons: Array[Button] = []
 # Hijo de cada hueco de la lista: se mueve libre del contenedor para la entrada deslizada.
 var _rows: Array[Control] = []
-var _pending_delete := 0
+var _pending_delete: int = 0
 
 func _ready() -> void:
 	_build_slots()
@@ -65,7 +65,7 @@ func _ready() -> void:
 	_set_title_y(TITLE_Y)
 	title_block.modulate.a = 0.0
 	press_key_label.modulate.a = 0.0
-	var tween := create_tween()
+	var tween: Tween = create_tween()
 	tween.tween_property(title_block, "modulate:a", 1.0, INTRO_FADE_TIME)
 	tween.tween_property(press_key_label, "modulate:a", 1.0, FADE_TIME)
 
@@ -102,22 +102,22 @@ func _is_any_press(event: InputEvent) -> bool:
 	return false
 
 func _build_slots() -> void:
-	for slot in range(1, GameState.SLOT_COUNT + 1):
-		var holder := Control.new()
+	for slot: int in range(1, GameState.SLOT_COUNT + 1):
+		var holder: Control = Control.new()
 		holder.name = "Slot%d" % slot
 		holder.custom_minimum_size = Vector2(SlotCard.CARD_SIZE.x + DELETE_GAP + DELETE_SIZE.x, SlotCard.CARD_SIZE.y)
 		holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		slot_list.add_child(holder)
-		var row := Control.new()
+		var row: Control = Control.new()
 		row.name = "Row"
 		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		holder.add_child(row)
-		var card := SlotCard.new()
+		var card: SlotCard = SlotCard.new()
 		card.name = "Card"
 		card.slot = slot
 		card.pressed.connect(_enter_slot.bind(card))
 		row.add_child(card)
-		var delete := Button.new()
+		var delete: Button = Button.new()
 		delete.name = "DeleteButton"
 		delete.theme_type_variation = &"DangerButton"
 		delete.focus_mode = Control.FOCUS_NONE
@@ -139,14 +139,14 @@ func _fix_danger_pressed(button: Button) -> void:
 
 # Cruz de píxeles de 2 px de grueso, en el color del texto del botón.
 func _draw_cross(button: Button) -> void:
-	var color := button.get_theme_color(&"font_hover_color" if button.is_hovered() else &"font_color")
-	var origin := Vector2i((button.size - Vector2(CROSS_SIZE, CROSS_SIZE)) / 2.0)
-	for i in CROSS_SIZE - 1:
+	var color: Color = button.get_theme_color(&"font_hover_color" if button.is_hovered() else &"font_color")
+	var origin: Vector2i = Vector2i((button.size - Vector2(CROSS_SIZE, CROSS_SIZE)) / 2.0)
+	for i: int in CROSS_SIZE - 1:
 		button.draw_rect(Rect2(origin.x + i, origin.y + i, 2, 2), color)
 		button.draw_rect(Rect2(origin.x + CROSS_SIZE - 2 - i, origin.y + i, 2, 2), color)
 
 func _refresh_slots() -> void:
-	for i in _cards.size():
+	for i: int in _cards.size():
 		_cards[i].set_summary(GameState.get_slot_summary(i + 1))
 		_delete_buttons[i].visible = _cards[i].has_save()
 
@@ -154,8 +154,8 @@ func _show_slots() -> void:
 	_phase = Phase.SLOTS
 	_set_busy(true)
 	_blinking = false
-	var ack := create_tween()
-	for i in ACK_BLINKS:
+	var ack: Tween = create_tween()
+	for i: int in ACK_BLINKS:
 		ack.tween_callback(func() -> void: press_key_label.visible = not press_key_label.visible)
 		ack.tween_interval(ACK_BLINK_TIME)
 	ack.tween_callback(press_key_label.hide)
@@ -164,7 +164,7 @@ func _show_slots() -> void:
 	slots_screen.modulate.a = 1.0
 	slots_panel.modulate.a = 0.0
 	hint_label.modulate.a = 0.0
-	for i in _cards.size():
+	for i: int in _cards.size():
 		_hide_card(i)
 	slots_screen.show()
 	create_tween().tween_property(slots_panel, "modulate:a", 1.0, FADE_TIME)
@@ -175,7 +175,7 @@ func _show_slots() -> void:
 func _show_title() -> void:
 	_phase = Phase.TITLE
 	_set_busy(true)
-	var fade := create_tween()
+	var fade: Tween = create_tween()
 	fade.tween_property(slots_screen, "modulate:a", 0.0, FADE_TIME)
 	await fade.finished
 	slots_screen.hide()
@@ -186,7 +186,7 @@ func _show_title() -> void:
 
 # El título se desvanece subiendo (o aparece bajando a su sitio).
 func _fade_title(appear: bool) -> void:
-	var tween := create_tween().set_parallel(true)
+	var tween: Tween = create_tween().set_parallel(true)
 	tween.tween_method(_set_title_y, title_block.position.y, TITLE_Y if appear else TITLE_Y - TITLE_RISE,
 			TITLE_FADE_TIME).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT if appear else Tween.EASE_IN)
 	tween.tween_property(title_block, "modulate:a", 1.0 if appear else 0.0, TITLE_FADE_TIME)
@@ -201,10 +201,10 @@ func _hide_card(i: int) -> void:
 # Entrada escalonada de las tarjetas `indices`: llegan deslizándose, se descubren con una línea de
 # escaneo y después aparecen sus textos y su botón de borrar.
 func _reveal_cards(indices: Array, start_delay: float) -> void:
-	var tween := create_tween().set_parallel(true)
-	for n in indices.size():
+	var tween: Tween = create_tween().set_parallel(true)
+	for n: int in indices.size():
 		var i: int = indices[n]
-		var delay := start_delay + n * CARD_STAGGER
+		var delay: float = start_delay + n * CARD_STAGGER
 		_hide_card(i)
 		tween.tween_method(_set_row_x.bind(_rows[i]), CARD_SLIDE, 0.0, CARD_REVEAL_TIME) \
 				.set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
@@ -228,7 +228,7 @@ func _open_confirm(slot: int) -> void:
 	if _busy or _phase != Phase.SLOTS:
 		return
 	_pending_delete = slot
-	confirm_message.text = "Se borrará la partida de la ranura %d.\nNo se puede deshacer." % slot
+	confirm_message.text = tr("START_CONFIRM_DELETE") % slot
 	_phase = Phase.CONFIRM
 	confirm_layer.modulate.a = 0.0
 	confirm_layer.show()
@@ -236,7 +236,7 @@ func _open_confirm(slot: int) -> void:
 
 func _close_confirm() -> void:
 	_phase = Phase.SLOTS
-	var tween := create_tween()
+	var tween: Tween = create_tween()
 	tween.tween_property(confirm_layer, "modulate:a", 0.0, FADE_TIME)
 	tween.tween_callback(confirm_layer.hide)
 
@@ -270,30 +270,30 @@ func _enter_slot(card: SlotCard) -> void:
 		# La ranura queda ocupada desde que se entra, aunque aún no se haya jugado.
 		GameState.flush()
 	# Todo menos la tarjeta elegida se apaga mientras ella destella.
-	var fade := create_tween().set_parallel(true)
+	var fade: Tween = create_tween().set_parallel(true)
 	fade.tween_property(hint_label, "modulate:a", 0.0, FADE_TIME)
 	fade.tween_property(%SlotsHeader, "modulate:a", 0.0, FADE_TIME)
-	for i in _cards.size():
+	for i: int in _cards.size():
 		fade.tween_property(_delete_buttons[i], "modulate:a", 0.0, FADE_TIME)
 		if _cards[i] != card:
 			fade.tween_property(_rows[i], "modulate:a", 0.0, FADE_TIME)
-	var flash := create_tween()
-	for i in ENTER_FLASHES:
+	var flash: Tween = create_tween()
+	for i: int in ENTER_FLASHES:
 		flash.tween_property(card, "flash", 1.0, ENTER_FLASH_TIME)
 		flash.tween_property(card, "flash", 0.0, ENTER_FLASH_TIME)
 	flash.tween_property(card, "flash", 1.0, ENTER_FLASH_TIME)
 	await flash.finished
-	var wipe := ScreenWipe.new()
+	var wipe: ScreenWipe = ScreenWipe.new()
 	get_tree().root.add_child(wipe)
 	await wipe.cover(card.get_global_rect().get_center(), COVER_TIME)
 	await get_tree().create_timer(HOLD_TIME).timeout
-	var center := get_viewport_rect().size / 2.0
+	var center: Vector2 = get_viewport_rect().size / 2.0
 	_open_main_menu()
 	wipe.uncover(center, UNCOVER_TIME)
 
 func _open_main_menu() -> void:
-	var menu := MAIN_MENU.instantiate()
-	var tree := get_tree()
+	var menu: Node = MAIN_MENU.instantiate()
+	var tree: SceneTree = get_tree()
 	tree.root.add_child(menu)
 	tree.current_scene = menu
 	queue_free()

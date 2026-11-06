@@ -2,7 +2,7 @@ extends InspectableData
 class_name TurretData
 
 # Color de la ficha de todas las torretas (marco del icono y etiqueta de tipo).
-const ACCENT_COLOR := Color("#40e0f0")
+const ACCENT_COLOR: Color = Color("#40e0f0")
 
 @export var name: String
 @export var cost: int
@@ -49,12 +49,19 @@ const ACCENT_COLOR := Color("#40e0f0")
 # Sin objetivo, sobrecalentada o apagada por un EMP frena y tiene que volver a arrancar.
 # Con spin_up_time = 0 (por defecto) no hay giro.
 @export var spin_up_time: float = 0.0
+# Opcional (torretas de bala): cada disparo es una salva de salvo_count balas separadas salvo_delay s,
+# que alternan de lado como las de dos cañones (muzzle_offset). Solo la primera frena (BulletData.slow_factor).
+# Con salvo_count = 1 (por defecto) sale una bala por disparo.
+@export var salvo_count: int = 1
+@export var salvo_delay: float = 0.0
 # Opcional: sonido del disparo (en el bus SFX). En el haz continuo suena mientras el haz está activo.
 @export var shoot_sound: AudioStream
 # Opcional: sonido de carga de las torretas con animación fire_0; suena hasta el fire_frame.
 @export var charge_sound: AudioStream
 # Opcional: torreta en la que se convierte al fusionarla con otra igual; cost es lo que se paga por la fusión.
 @export var fusion: TurretData
+# Opcional, en la fusionada: animación (sin bucle) de la transformación al mejorar, en vez del holograma.
+@export var upgrade_frames: SpriteFrames
 # Lo que gana la torreta dentro del aura de un Amplificador (cada torreta mejora su propia mecánica).
 # Toda torreta que ataca debe tenerlo; las fusionadas usan el mismo que su base.
 @export var amp_effect: AmpEffect
@@ -69,32 +76,34 @@ const ACCENT_COLOR := Color("#40e0f0")
 
 ## Filas de la ficha: las comunes a todas las torretas y las de su tipo de ataque.
 func get_stats() -> Array[StatEntry]:
-	var stats: Array[StatEntry] = [StatEntry.new("cost", "COSTE", UiFormat.money(cost))]
+	var stats: Array[StatEntry] = [StatEntry.new("cost", "STAT_COST", UiFormat.money(cost))]
 	if is_amplifier():
 		# Sin ataque ni cadencia: solo el radio del aura (lo que gana cada torreta sale en su ficha).
-		var aura := attack_range as CircleShape2D
+		var aura: CircleShape2D = attack_range as CircleShape2D
 		if aura != null:
-			stats.append(StatEntry.new("range", "AURA", UiFormat.number(aura.radius)))
+			stats.append(StatEntry.new("range", "STAT_AURA", UiFormat.number(aura.radius)))
 		return stats
 	if is_miner():
 		# Sin ataque ni alcance: lo que saca y cada cuánto.
-		stats.append(StatEntry.new("reward", "GANANCIA", UiFormat.money(money_amount)))
-		stats.append(StatEntry.new("cooldown", "INTERVALO", UiFormat.seconds(attack_cooldown)))
+		stats.append(StatEntry.new("reward", "STAT_INCOME", UiFormat.money(money_amount)))
+		stats.append(StatEntry.new("cooldown", "STAT_INTERVAL", UiFormat.seconds(attack_cooldown)))
 		return stats
-	var circle := attack_range as CircleShape2D
+	var circle: CircleShape2D = attack_range as CircleShape2D
 	if circle != null:
-		var reach := UiFormat.number(circle.radius)
+		var reach: String = UiFormat.number(circle.radius)
 		if min_range > 0.0:
 			reach = UiFormat.number(min_range) + "-" + reach
-		stats.append(StatEntry.new("range", "ALCANCE", reach))
+		stats.append(StatEntry.new("range", "STAT_RANGE", reach))
 	# El haz continuo no usa el cooldown.
 	if focus_beam == null:
-		stats.append(StatEntry.new("cooldown", "CADENCIA", UiFormat.seconds(attack_cooldown)))
+		stats.append(StatEntry.new("cooldown", "STAT_FIRE_RATE", UiFormat.seconds(attack_cooldown)))
+	if salvo_count > 1:
+		stats.append(StatEntry.new("targets", "STAT_SALVO", str(salvo_count)))
 	if overheat_shots > 0:
-		stats.append(StatEntry.new("cooldown", "CAD. MÁX", UiFormat.seconds(overheat_min_cooldown)))
-		stats.append(StatEntry.new("targets", "AGUANTE", str(overheat_shots)))
-		stats.append(StatEntry.new("duration", "PARADA", UiFormat.seconds(overheat_time)))
-	var attack := get_attack()
+		stats.append(StatEntry.new("cooldown", "STAT_MAX_RATE", UiFormat.seconds(overheat_min_cooldown)))
+		stats.append(StatEntry.new("targets", "STAT_ENDURANCE", str(overheat_shots)))
+		stats.append(StatEntry.new("duration", "STAT_OVERHEAT", UiFormat.seconds(overheat_time)))
+	var attack: Resource = get_attack()
 	if attack != null:
 		stats.append_array(attack.get_stats())
 	return stats
@@ -122,35 +131,35 @@ func is_amplifier() -> bool:
 func is_miner() -> bool:
 	return money_amount > 0
 
-## Etiqueta corta del tipo de ataque para la ficha (9 caracteres como máximo).
+## Clave de traducción de la etiqueta corta del tipo de ataque (9 caracteres como máximo).
 func get_attack_label() -> String:
 	if is_amplifier() or is_miner():
-		return "APOYO"
+		return "TAG_SUPPORT"
 	if orbit != null:
-		return "ÓRBITA"
+		return "TAG_ORBIT"
 	if focus_beam != null:
-		return "HAZ CONT."
+		return "TAG_FOCUS_BEAM"
 	if beam != null:
-		return "HAZ"
+		return "TAG_BEAM"
 	if chain != null:
-		return "CADENA"
+		return "TAG_CHAIN"
 	if pulse != null:
-		return "ONDA"
+		return "TAG_PULSE"
 	if bullet_data != null:
-		return "BALA"
+		return "TAG_BULLET"
 	return ""
 
 func get_inspect_icon() -> Texture2D:
 	return icon
 
 func get_inspect_name() -> String:
-	return name
+	return tr(name)
 
 func get_inspect_tag() -> String:
-	return get_attack_label()
+	return tr(get_attack_label())
 
 func get_inspect_accent() -> Color:
 	return ACCENT_COLOR
 
 func get_inspect_description() -> String:
-	return description
+	return tr(description)

@@ -14,7 +14,7 @@
 [resource]
 script = ExtResource("1")
 shoot_sound = ExtResource("snd")
-name = "Minigun"
+name = "TURRET_MINIGUN_NAME"
 cost = 200
 attack_cooldown = 0.4
 icon = ExtResource("4")
@@ -32,5 +32,5 @@ overheat_cool_time = 3.0
 spin_up_time = 0.35
 fusion = ExtResource("fusion")
 amp_effect = ExtResource("amp")
-description = "Empieza lenta y acelera hasta una lluvia de balas, pero se sobrecalienta y para un momento."
+description = "TURRET_MINIGUN_DESC"
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

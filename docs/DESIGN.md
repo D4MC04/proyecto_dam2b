@@ -26,7 +26,7 @@ Turret defense 2D hecho en Godot 4.7 con GDScript. El jugador elige un nivel, co
 - [Torretas](design/torretas.md): colocación, apuntado, los 6 tipos de ataque, las 8 torretas que atacan y las de apoyo: el Amplificador y el Minero (da dinero durante las oleadas).
 - [Base](design/base.md): la estación espacial que hay en los mapas, con vida y escudo.
 - [UI de nivel](design/ui.md): columnas, ficha de la barra izquierda, barra lateral de compra, menú de pausa, pantallas de derrota y victoria y resumen de partida.
-- [Menú principal](design/menu.md): pantalla de inicio con las ranuras de guardado, oficina del comandante, selección de nivel, logros, opciones (audio, pantalla y juego, guardadas en disco), música y fondo animado.
+- [Menú principal](design/menu.md): pantalla de inicio con las ranuras de guardado, oficina del comandante, selección de nivel (radar de sectores), logros, opciones (audio, pantalla, juego e idioma, guardadas en disco), textos en español e inglés (`translations/textos.csv`), música y fondo animado.
 - [Arte](design/art.md): tamaños, paleta, contorno, luz y nombres de los sprites de `assets/`.
 
 ## Decidido
