@@ -211,25 +211,6 @@ func get_secured_count() -> int:
 func get_range_km() -> int:
 	return roundi(_range * RADIUS_KM / 100.0) * 100
 
-## Alcance actual (fracción del radio).
-func get_range() -> float:
-	return _range
-
-## Contactos que se ven (sin los bloqueados), para la mesa de Sectores de la oficina.
-func get_visible_contacts() -> Array[Contact]:
-	var shown: Array[Contact] = []
-	for contact: Contact in _contacts:
-		if contact.state != ContactState.LOCKED:
-			shown.append(contact)
-	return shown
-
-## Centro y radio del disco, en coordenadas locales.
-func get_disk_center() -> Vector2:
-	return _get_center()
-
-func get_disk_radius() -> float:
-	return _get_radius()
-
 static func get_sector_code(index: int) -> String:
 	return String(TranslationServer.translate("RADAR_SECTOR_CODE")) % (index + 1)
 

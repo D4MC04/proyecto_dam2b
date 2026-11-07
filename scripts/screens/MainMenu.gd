@@ -3,8 +3,9 @@ extends Control
 # Menú principal: la oficina del comandante. Tres vistas (izquierda, centro y derecha) que se
 # cambian girando la silla con las flechas de los bordes o las teclas; cada objeto de la oficina
 # abre su panel holograma encima, con la oficina oscurecida detrás. Escape cierra el panel abierto
-# o, en la oficina, pregunta si salir del juego. La mesa del radar no abre Sectores con un fundido:
-# la vista se acerca a su pantalla, que se endereza hasta ser el radar de la selección de nivel.
+# o, en la oficina, pregunta si salir del juego. La pantalla de la mesa del radar enseña la pantalla
+# de Sectores (que, mientras está cerrada, se pinta en RadarViewport); al pulsarla, la vista se
+# acerca hasta que esa pantalla llena la vista.
 
 enum View { LEFT, CENTER, RIGHT }
 
@@ -14,6 +15,7 @@ const FLASH_TIME: float = 0.1
 # Giro de la silla: duración del paso a la vista de al lado y ancho de cada vista.
 const TURN_TIME: float = 0.45
 const VIEW_WIDTH: float = 960.0
+const VIEW_SIZE: Vector2 = Vector2(960.0, 540.0)
 # Acercamiento a la mesa del radar al abrir Sectores (y alejamiento al cerrar).
 const ZOOM_TIME: float = 0.7
 
@@ -32,8 +34,6 @@ var start_on_level_selection: bool = false
 @onready var sector_radar: SectorRadar = %SectorRadar
 @onready var sector_card: SectorCard = %SectorCard
 @onready var sectors_subtitle: Label = %SectorsSubtitle
-@onready var sectors_header: Control = $LevelSelectionScreen/LevelsPanel/Margin/Content/Header
-@onready var sectors_back_button: Button = $LevelSelectionScreen/LevelsPanel/Margin/Content/VolverButton
 @onready var stats_panel: VBoxContainer = $StatsScreen
 @onready var stats_label: Label = %StatsLabel
 @onready var navedex: Navedex = $Navedex
@@ -51,13 +51,8 @@ var _leaving: bool = false
 # Zoom a la mesa del radar: mientras dura no se gira ni se pulsa nada.
 var _zooming: bool = false
 var _zoom_tween: Tween
-# Padre del radar en la pantalla de Sectores (durante el zoom el radar se pinta en RadarViewport).
-var _radar_slot: Control
-# Escala final de la oficina, centro del radar en pantalla y pantalla de la mesa ya enderezada (en
-# coordenadas de la vista central).
-var _zoom_scale: float = 1.0
-var _zoom_center: Vector2
-var _zoom_flat: Rect2
+# Sitio de la pantalla de Sectores entre los hijos del menú (para volver a ponerla en su capa).
+var _sectors_index: int
 
 func _ready() -> void:
 	_set_pan(0.0)
@@ -65,12 +60,19 @@ func _ready() -> void:
 	var quit_button: Button = %QuitButton
 	quit_button.add_theme_stylebox_override(&"hover_pressed", quit_button.get_theme_stylebox(&"hover"))
 	quit_button.add_theme_color_override(&"font_hover_pressed_color", quit_button.get_theme_color(&"font_hover_color"))
-	_radar_slot = sector_radar.get_parent()
+	_sectors_index = level_selection_panel.get_index()
+	radar_console.set_screen_texture(radar_viewport.get_texture())
+	_fit_radar_viewport()
+	get_viewport().size_changed.connect(_fit_radar_viewport)
+	level_selection_panel.show()
 	if start_on_level_selection:
+		# Sin animación: la oficina queda ya acercada detrás.
 		_panel = level_selection_panel
+		panel_dim.modulate.a = 0.0
 		panel_dim.show()
-		level_selection_panel.show()
-		_start_zoomed()
+		_set_radar_zoom(1.0)
+	else:
+		_move_sectors(true)
 	sector_radar.sector_selected.connect(_on_sector_selected)
 	sector_radar.sector_launched.connect(_on_sector_launched)
 	sector_card.deploy_pressed.connect(_on_deploy_pressed)
@@ -189,103 +191,58 @@ func _on_combat_scoreboard_pressed() -> void:
 
 # --- Zoom a la mesa del radar ---------------------------------------------------------------
 
-# La vista se acerca a la mesa, su pantalla se endereza hasta el radar real y después aparece el
-# resto de la pantalla de Sectores.
+# La vista se acerca a la mesa y su pantalla se endereza hasta llenar la vista; entonces la pantalla
+# de Sectores sale de RadarViewport y queda encima, igual.
 func _open_sectors() -> void:
 	if _panel or _jumping or _leaving:
 		return
 	_panel = level_selection_panel
 	_zooming = true
 	_refresh_sectors()
-	# PanelDim, aún transparente, tapa la oficina para que no se pulse nada durante el zoom.
+	# PanelDim, transparente, solo tapa la oficina para que no se pulse nada.
+	panel_dim.modulate.a = 0.0
 	panel_dim.show()
-	for item: CanvasItem in _sectors_rest():
-		item.modulate.a = 0.0
-	# Un frame con la pantalla enseñada (transparente) para que los contenedores coloquen el radar.
-	level_selection_panel.modulate.a = 0.0
-	level_selection_panel.show()
-	await get_tree().process_frame
-	_measure_radar()
-	_move_radar(true)
-	level_selection_panel.hide()
-	level_selection_panel.modulate.a = 1.0
 	await _tween_zoom(1.0)
-	_move_radar(false)
-	level_selection_panel.show()
-	await _fade_sectors(true)
+	_move_sectors(false)
 	_zooming = false
 
-# Lo inverso: se va el resto de la pantalla y el radar se aleja hasta quedar en la mesa.
+# Lo inverso: la pantalla vuelve a la mesa y la vista se aleja.
 func _close_sectors() -> void:
 	_zooming = true
-	await _fade_sectors(false)
-	_move_radar(true)
-	level_selection_panel.hide()
+	_move_sectors(true)
 	await _tween_zoom(0.0)
-	_move_radar(false)
 	panel_dim.hide()
 	_panel = null
 	_zooming = false
-
-# Al abrir el menú con Sectores ya abierto, la oficina queda ya acercada a la mesa (detrás).
-func _start_zoomed() -> void:
-	await get_tree().process_frame
-	_measure_radar()
-	_set_radar_zoom(1.0)
-
-# Lo que aparece con un fundido después del zoom: todo menos el radar (PanelDim incluido).
-func _sectors_rest() -> Array[CanvasItem]:
-	return [panel_dim, sectors_header, sectors_subtitle, sector_card, sectors_back_button]
-
-func _fade_sectors(show_it: bool) -> void:
-	_panel_tween = create_tween().set_parallel()
-	for item: CanvasItem in _sectors_rest():
-		_panel_tween.tween_property(item, "modulate:a", 1.0 if show_it else 0.0, FADE_TIME)
-	await _panel_tween.finished
 
 func _tween_zoom(target: float) -> void:
 	_zoom_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	_zoom_tween.tween_method(_set_radar_zoom, 1.0 - target, target, ZOOM_TIME)
 	await _zoom_tween.finished
 
-# Dónde acaba el zoom: la pantalla de la mesa, ya enderezada, tiene su disco justo encima del radar
-# real. Prepara también RadarViewport a la resolución de la pantalla, para que su textura se vea
-# igual que el radar.
-func _measure_radar() -> void:
-	var radar_size: Vector2 = sector_radar.size
-	var radius: float = sector_radar.get_disk_radius()
-	var flat_size: Vector2 = Vector2(3.0, 2.0) * radius / RadarConsole.DISK
-	_zoom_center = sector_radar.global_position + sector_radar.get_disk_center()
-	_zoom_scale = flat_size.x / radar_console.get_disk_width()
-	_zoom_flat = Rect2(radar_console.get_disk_center() - flat_size / _zoom_scale / 2.0, flat_size / _zoom_scale)
-	var stretch: float = maxf(get_viewport().get_final_transform().x.x, 1.0)
-	radar_viewport.size = Vector2i((radar_size * stretch).ceil())
-	radar_viewport.size_2d_override = Vector2i(radar_size)
-	radar_console.set_radar_texture(radar_viewport.get_texture(), sector_radar.get_disk_center() / radar_size,
-			Vector2.ONE * radius / RadarConsole.DISK / radar_size)
-
-# Zoom de 0 (la oficina normal) a 1 (la pantalla de la mesa encima del radar real).
+# Zoom de 0 (la oficina normal) a 1 (la pantalla de la mesa llena la vista, centrada).
 func _set_radar_zoom(amount: float) -> void:
-	var zoom: float = lerpf(1.0, _zoom_scale, amount)
-	var offset: Vector2 = (_zoom_center - radar_console.get_disk_center() * _zoom_scale) * amount
+	var center: Vector2 = radar_console.get_screen_center()
+	var final_scale: float = VIEW_SIZE.x / radar_console.get_screen_width()
+	var zoom: float = lerpf(1.0, final_scale, amount)
+	var offset: Vector2 = (VIEW_SIZE / 2.0 - center * final_scale) * amount
 	office.scale = Vector2(zoom, zoom)
 	office.position = offset
 	space.scale = Vector2(zoom, zoom)
 	space.position = offset
-	radar_console.set_zoom(amount, _zoom_flat)
+	radar_console.set_zoom(amount, Rect2(center - VIEW_SIZE / final_scale / 2.0, VIEW_SIZE / final_scale))
 
-# Durante el zoom el radar real se pinta en RadarViewport, cuya textura enseña la mesa; después
-# vuelve a su sitio en la pantalla de Sectores, con su barrido y su selección tal cual.
-func _move_radar(into_viewport: bool) -> void:
-	var radar_size: Vector2 = sector_radar.size
-	sector_radar.reparent(radar_viewport if into_viewport else _radar_slot, false)
-	if into_viewport:
-		sector_radar.position = Vector2.ZERO
-		sector_radar.size = radar_size
-	else:
-		_radar_slot.move_child(sector_radar, 0)
-	radar_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS if into_viewport else SubViewport.UPDATE_DISABLED
-	sector_radar.set_process(sector_radar.is_visible_in_tree())
+# La pantalla de Sectores se pinta en RadarViewport (la enseña la mesa) o encima de la oficina.
+func _move_sectors(into_viewport: bool) -> void:
+	level_selection_panel.reparent(radar_viewport if into_viewport else self, false)
+	if not into_viewport:
+		move_child(level_selection_panel, _sectors_index)
+
+# RadarViewport a la resolución real de la pantalla, para que su textura se vea igual que el menú.
+func _fit_radar_viewport() -> void:
+	var stretch: float = maxf(get_viewport().get_final_transform().x.x, 1.0)
+	radar_viewport.size = Vector2i((VIEW_SIZE * stretch).ceil())
+	radar_viewport.size_2d_override = Vector2i(VIEW_SIZE)
 
 # --- Selección de sector (radar) -----------------------------------------------------------
 
