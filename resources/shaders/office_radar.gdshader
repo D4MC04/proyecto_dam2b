@@ -3,7 +3,10 @@ shader_type canvas_item;
 // Pantalla del radar de la mesa de Sectores, en la consola inclinada del menú: un trapecio (más
 // estrecho arriba) con cuadrícula, tres anillos, cruz y un barrido con estela tramada. Va en un
 // ColorRect del tamaño de la caja del trapecio y pinta en píxeles enteros; fuera del trapecio,
-// transparente. Lo anima RadarConsole (sweep) y lo coloca con los datos de OfficeLayout.
+// transparente. Lo anima RadarConsole (sweep) y lo coloca con los datos de OfficeLayout. Fuera del
+// alcance (range_radius) hay niebla con ruido y el borde del alcance va en trazos que giran.
+// Al acercarse la vista (zoom de Sectores), `reveal` funde la pantalla con la textura del radar real
+// (radar_texture), colocada para que su disco coincida con el de la mesa.
 
 uniform vec2 rect_size;
 // Extremos del trapecio, en píxeles del ColorRect: arriba (izquierda, derecha) y abajo.
@@ -12,6 +15,13 @@ uniform vec2 bottom_span;
 // Ángulo del barrido, en radianes.
 uniform float sweep = 0.0;
 uniform float radius = 0.78;
+// Alcance, en las mismas unidades que radius.
+uniform float range_radius = 0.78;
+uniform sampler2D radar_texture : filter_nearest, repeat_disable, hint_default_transparent;
+// Centro del disco del radar real en su textura (UV) y UV por unidad de radar.
+uniform vec2 radar_center_uv = vec2(0.5);
+uniform vec2 radar_uv_scale = vec2(0.5);
+uniform float reveal = 0.0;
 
 const vec3 SCREEN_DARK = vec3(6.0, 13.0, 24.0) / 255.0;
 const vec3 SCREEN = vec3(8.0, 17.0, 31.0) / 255.0;
@@ -19,6 +29,8 @@ const vec3 GRID = vec3(13.0, 30.0, 46.0) / 255.0;
 const vec3 CYAN_DEEP = vec3(20.0, 48.0, 74.0) / 255.0;
 const vec3 CYAN_DARK = vec3(28.0, 116.0, 150.0) / 255.0;
 const vec3 CYAN_LIGHT = vec3(190.0, 250.0, 255.0) / 255.0;
+const vec3 FOG = vec3(3.0, 7.0, 12.0) / 255.0;
+const vec3 NOISE = vec3(40.0, 64.0, 74.0) / 255.0;
 const int BAYER[16] = int[](0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5);
 
 void fragment() {
@@ -62,10 +74,32 @@ void fragment() {
 					}
 				}
 			}
+			// Niebla fuera del alcance, con ruido nuevo cada pocos frames.
+			if (r > range_radius) {
+				c = FOG;
+				float n = fract(sin(dot(p + floor(TIME * 15.0) * vec2(13.0, 7.0), vec2(12.9898, 78.233))) * 43758.5453);
+				if (n > 0.94) {
+					c = NOISE;
+				}
+			}
+			if (abs(r - range_radius) < 0.022 && mod(a * 12.0 + TIME * 2.0, 2.0) < 1.0) {
+				c = CYAN_DARK;
+			}
 		}
 		float edge = min(min(p.x - xl, xr - 1.0 - p.x), min(p.y, rect_size.y - 1.0 - p.y));
 		if (edge < 2.0) {
 			c = CYAN_DEEP;
+		}
+		// Radar real, con coordenadas continuas para muestrear su textura píxel a píxel.
+		vec2 pc = UV * rect_size;
+		float vc = pc.y / rect_size.y;
+		float xlc = mix(top_span.x, bottom_span.x, vc);
+		float xrc = mix(top_span.y, bottom_span.y, vc);
+		vec2 qc = vec2(((pc.x - xlc) / (xrc - xlc) - 0.5) * 3.0, (vc - 0.5) * 2.0);
+		vec2 tuv = radar_center_uv + qc * radar_uv_scale;
+		if (reveal > 0.0 && all(greaterThanEqual(tuv, vec2(0.0))) && all(lessThan(tuv, vec2(1.0)))) {
+			vec4 t = texture(radar_texture, tuv);
+			c = mix(c, t.rgb, t.a * reveal);
 		}
 		COLOR = vec4(c, 1.0);
 	}

@@ -260,7 +260,7 @@ offset_bottom = 540.0
 mouse_filter = 2
 script = ExtResource("37_lights")
 
-[node name="RadarConsole" type="Control" parent="Office/Views/CenterView"]
+[node name="RadarConsole" type="Control" parent="Office/Views/CenterView" node_paths=PackedStringArray("sector_radar")]
 layout_mode = 3
 anchors_preset = 0
 offset_left = 33.0
@@ -268,6 +268,7 @@ offset_top = 314.0
 offset_right = 508.0
 offset_bottom = 502.0
 script = ExtResource("29_radar")
+sector_radar = NodePath("../../../../LevelSelectionScreen/LevelsPanel/Margin/Content/SectorsRow/SectorRadar")
 
 [node name="Screen" type="ColorRect" parent="Office/Views/CenterView/RadarConsole"]
 material = SubResource("ShaderMaterial_radar")
@@ -396,6 +397,7 @@ theme_override_constants/separation = 24
 unique_name_in_owner = true
 custom_minimum_size = Vector2(384, 384)
 layout_mode = 2
+theme = ExtResource("13_theme")
 script = ExtResource("28_radar")
 
 [node name="SectorCard" type="MarginContainer" parent="LevelSelectionScreen/LevelsPanel/Margin/Content/SectorsRow"]
@@ -541,6 +543,12 @@ focus_mode = 0
 theme_override_font_sizes/font_size = 24
 text = "BTN_CANCEL"
 
+
+[node name="RadarViewport" type="SubViewport" parent="."]
+transparent_bg = true
+canvas_item_default_texture_filter = 0
+size = Vector2i(384, 384)
+render_target_update_mode = 0
 
 [connection signal="pressed" from="Office/Views/LeftView/ExitDoor" to="." method="_on_exit_door_pressed"]
 [connection signal="pressed" from="Office/Views/RightView/MedalCase" to="." method="_on_medal_case_pressed"]
