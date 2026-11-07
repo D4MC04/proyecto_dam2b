@@ -16,8 +16,9 @@ const FLASH_TIME: float = 0.1
 const TURN_TIME: float = 0.45
 const VIEW_WIDTH: float = 960.0
 const VIEW_SIZE: Vector2 = Vector2(960.0, 540.0)
-# Margen alrededor del contenido de Sectores en la pantalla de la mesa (lo que se ve del borde).
-const SCREEN_MARGIN: float = 20.0
+# Margen alrededor del contenido de Sectores en la pantalla de la mesa (ahí va su marco, y a los
+# lados se ve la oficina al final del zoom).
+const SCREEN_MARGIN: Vector2 = Vector2(40.0, 32.0)
 # Acercamiento a la mesa del radar al abrir Sectores (y alejamiento al cerrar).
 const ZOOM_TIME: float = 0.7
 
@@ -68,7 +69,8 @@ func _ready() -> void:
 	quit_button.add_theme_color_override(&"font_hover_pressed_color", quit_button.get_theme_color(&"font_hover_color"))
 	_sectors_index = level_selection_panel.get_index()
 	_fit_radar_viewport()
-	levels_panel.resized.connect(_update_screen_rect)
+	# item_rect_changed y no resized: el contenedor también lo mueve al centrarlo.
+	levels_panel.item_rect_changed.connect(_update_screen_rect)
 	_update_screen_rect()
 	get_viewport().size_changed.connect(_fit_radar_viewport)
 	level_selection_panel.show()
@@ -241,8 +243,9 @@ func _set_radar_zoom(amount: float) -> void:
 
 # La mesa enseña solo el contenido de Sectores (con un margen), para que se lea mejor.
 func _update_screen_rect() -> void:
-	_screen_rect = levels_panel.get_rect().grow(SCREEN_MARGIN)
-	radar_console.set_screen_texture(radar_viewport.get_texture(), Rect2(_screen_rect.position / VIEW_SIZE, _screen_rect.size / VIEW_SIZE))
+	_screen_rect = levels_panel.get_rect().grow_individual(SCREEN_MARGIN.x, SCREEN_MARGIN.y, SCREEN_MARGIN.x, SCREEN_MARGIN.y) 			.intersection(Rect2(Vector2.ZERO, VIEW_SIZE))
+	radar_console.set_screen_texture(radar_viewport.get_texture(),
+			Rect2(_screen_rect.position / VIEW_SIZE, _screen_rect.size / VIEW_SIZE), _screen_rect.size)
 	if _panel == level_selection_panel and not _zooming:
 		_set_radar_zoom(1.0)
 
