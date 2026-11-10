@@ -195,6 +195,7 @@ Es el único audio del juego: todavía no hay efectos de sonido, así que nada s
 | JUEGO | Botón "Idioma" (`LanguageButton`) | `language` |
 | JUEGO | Botón "Rango de torretas" | `show_turret_range` |
 | JUEGO | Botón "Números de daño" | `show_damage_numbers` |
+| JUEGO | Botón "Temblor de pantalla" | `screen_shake` (encendido por defecto) |
 | JUEGO | Botón "Pausar sin foco" | `pause_on_focus_loss` |
 
 "Volver" (204x36) va en `ButtonsBlock`, debajo de las columnas con 9 px extra de margen (`ButtonsMargin`), así que se separa más de las secciones que los botones entre sí. Las partidas no se borran aquí: se borran desde su ranura en la pantalla de inicio (ver "Pantalla de inicio").
@@ -213,6 +214,7 @@ El botón de idioma es del mismo tamaño y estilo pero no es interruptor: cada p
 - `muted` silencia el bus `Master` sin cambiar los volúmenes, así que al quitarlo los deslizadores conservan su valor.
 - `fullscreen` y `vsync` se aplican con `DisplayServer`.
 - `language` (texto, `"es"` por defecto) se aplica con `TranslationServer.set_locale`; si el archivo trae un código que no está en `LANGUAGES` (`["es", "en"]`), se usa el español.
+- `screen_shake` tampoco hace nada aquí: la lee `Level.shake_map()` en cada temblor (ver [base.md](base.md)).
 - `show_fps`, `show_turret_range` y `show_damage_numbers` no hacen nada aquí: las leen `LevelUI` (ver [ui.md](ui.md)), `Turret` (ver [torretas.md](torretas.md)) y `Enemy` (ver [enemigos.md](enemigos.md)), que escuchan `changed` para actualizarse al momento.
 - `pause_on_focus_loss` tampoco hace nada aquí: la lee `Game` cuando la ventana pierde el foco (ver [flujo.md](flujo.md)).
 
