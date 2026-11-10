@@ -274,11 +274,6 @@ material = SubResource("ShaderMaterial_radar")
 layout_mode = 0
 mouse_filter = 2
 
-[node name="Blips" type="Control" parent="Office/Views/CenterView/RadarConsole"]
-layout_mode = 3
-anchors_preset = 0
-mouse_filter = 2
-
 [node name="ArchiveTablet" type="Control" parent="Office/Views/CenterView"]
 layout_mode = 3
 anchors_preset = 0
@@ -358,6 +353,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("13_theme")
 alignment = 1
 
 [node name="LevelsPanel" type="MarginContainer" parent="LevelSelectionScreen" unique_id=1187171775]
@@ -374,11 +370,6 @@ theme_override_constants/margin_bottom = 6
 [node name="Content" type="VBoxContainer" parent="LevelSelectionScreen/LevelsPanel/Margin" unique_id=944862105]
 layout_mode = 2
 theme_override_constants/separation = 10
-
-[node name="Header" parent="LevelSelectionScreen/LevelsPanel/Margin/Content" unique_id=1281023251 instance=ExtResource("21_header")]
-layout_mode = 2
-title = "HEADER_SECTORS"
-text_size = 24
 
 [node name="SectorsSubtitle" type="Label" parent="LevelSelectionScreen/LevelsPanel/Margin/Content"]
 unique_name_in_owner = true
@@ -409,6 +400,7 @@ script = ExtResource("29_card")
 custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_type_variation = &"ScreenButton"
 theme_override_font_sizes/font_size = 24
 text = "BTN_BACK"
 
@@ -541,6 +533,14 @@ focus_mode = 0
 theme_override_font_sizes/font_size = 24
 text = "BTN_CANCEL"
 
+
+[node name="RadarViewport" type="SubViewport" parent="."]
+transparent_bg = true
+canvas_item_default_texture_filter = 0
+size = Vector2i(960, 540)
+size_2d_override = Vector2i(960, 540)
+size_2d_override_stretch = true
+render_target_update_mode = 4
 
 [connection signal="pressed" from="Office/Views/LeftView/ExitDoor" to="." method="_on_exit_door_pressed"]
 [connection signal="pressed" from="Office/Views/RightView/MedalCase" to="." method="_on_medal_case_pressed"]

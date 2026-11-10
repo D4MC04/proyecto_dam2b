@@ -26,7 +26,7 @@ La fusionada es otro `TurretData` (`resources/turret_data/<x>_fusion.tres`) con 
 |---|---|---|---|---|---|---|
 | Cañón cuádruple | Cañón doble | 200 | 8 | 72 | 0,15 | Cuatro cañones, ráfaga rápida |
 | Minigun pesada | Minigun | 400 | 14 | 96 | 0,3 → 0,04 | Sobrecalentamiento mejor: 90 disparos, parada de 2 s |
-| Cryo ventisca | Cryo | 500 | 12 | 96 | 2,0 | Onda mayor (`wave_scale` 1,5), frena al 35 % durante 4,5 s |
+| Cryo ventisca | Cryo | 500 | 12 | 96 | 2,0 | Onda mayor (`wave_scale` 1,5), frena al 35 % durante 4,5 s. Aspecto de vórtice: el aro del cañón acelera durante la recarga (ver [art.md](art.md)) |
 | Cañón de asedio | Cañón pesado | 600 | 55 × 2 | 96 | 2,1 | Dos cañones: salva de 2 balas (`salvo_count`) separadas 0,15 s, una por cañón, que explotan en área de 32 px. La segunda cae encima de la primera; no frena. Bala de 160 px/s con estela y humo |
 | Tormenta | Tesla | 700 | 50 | 120 | 1,3 | Cadena de 6 objetivos, saltos de 80 px |
 | Cinturón | Orbitador | 700 | 85 | anillo 40-64 | 1,0 | Hasta 5 cargas, área de 26 px, giran a 110°/s |

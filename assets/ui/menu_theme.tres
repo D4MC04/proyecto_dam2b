@@ -14,6 +14,50 @@ script = ExtResource("2_clipped")
 bg_color = Color(0.023529412, 0.043137256, 0.078431375, 1)
 border_color = Color(0.10980392, 0.2901961, 0.3764706, 1)
 
+[sub_resource type="StyleBox" id="ClippedBox_screen"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 4.0
+content_margin_top = 1.0
+content_margin_right = 4.0
+content_margin_bottom = 1.0
+script = ExtResource("2_clipped")
+bg_color = Color(0.2509804, 0.8784314, 0.9411765, 0)
+border_color = Color(0.10980392, 0.45490196, 0.5882353, 1)
+
+[sub_resource type="StyleBox" id="ClippedBox_screen_hover"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 4.0
+content_margin_top = 1.0
+content_margin_right = 4.0
+content_margin_bottom = 1.0
+script = ExtResource("2_clipped")
+bg_color = Color(0.2509804, 0.8784314, 0.9411765, 0.15)
+border_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
+
+[sub_resource type="StyleBox" id="ClippedBox_screen_pressed"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 4.0
+content_margin_top = 1.0
+content_margin_right = 4.0
+content_margin_bottom = 1.0
+script = ExtResource("2_clipped")
+bg_color = Color(0.2509804, 0.8784314, 0.9411765, 0.3)
+border_color = Color(0.74509805, 0.98039216, 1, 1)
+
+[sub_resource type="StyleBox" id="ClippedBox_screen_disabled"]
+resource_local_to_scene = false
+resource_name = ""
+content_margin_left = 4.0
+content_margin_top = 1.0
+content_margin_right = 4.0
+content_margin_bottom = 1.0
+script = ExtResource("2_clipped")
+bg_color = Color(0.2509804, 0.8784314, 0.9411765, 0)
+border_color = Color(0.10980392, 0.2901961, 0.3764706, 1)
+
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_focus"]
 
 [sub_resource type="StyleBox" id="ClippedBox_hover"]
@@ -145,6 +189,14 @@ HSlider/icons/grabber_highlight = SubResource("GradientTexture2D_grabber_hover")
 HSlider/styles/grabber_area = SubResource("StyleBoxFlat_slider_fill")
 HSlider/styles/grabber_area_highlight = SubResource("StyleBoxFlat_slider_fill")
 HSlider/styles/slider = SubResource("StyleBoxFlat_slider_track")
+ScreenButton/base_type = &"Button"
+ScreenButton/colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
+ScreenButton/colors/font_focus_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
+ScreenButton/styles/disabled = SubResource("ClippedBox_screen_disabled")
+ScreenButton/styles/hover = SubResource("ClippedBox_screen_hover")
+ScreenButton/styles/hover_pressed = SubResource("ClippedBox_screen_hover")
+ScreenButton/styles/normal = SubResource("ClippedBox_screen")
+ScreenButton/styles/pressed = SubResource("ClippedBox_screen_pressed")
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_panel")
 ToggleButton/base_type = &"Button"
 ToggleButton/styles/hover_pressed = SubResource("ClippedBox_hover")

@@ -22,6 +22,7 @@ var _tween: Tween
 	&"vsync": %VsyncButton,
 	&"show_fps": %FpsButton,
 	&"show_turret_range": %TurretRangeButton,
+	&"show_damage_numbers": %DamageNumbersButton,
 	&"pause_on_focus_loss": %FocusPauseButton,
 }
 @onready var _language_button: Button = %LanguageButton
