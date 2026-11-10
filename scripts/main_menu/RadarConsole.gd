@@ -2,76 +2,69 @@ class_name RadarConsole
 extends OfficeObject
 
 # Mesa holográfica de Sectores en la consola inclinada: abre la selección de nivel. La mesa es parte
-# de center_static.png; aquí se anima la pantalla (shader office_radar en `Screen`) y se pintan
-# encima los ecos rojos (`Blips`), que destellan al pasar el barrido. Con el ratón encima el barrido
-# va más deprisa. Se pulsa en el contorno de la mesa, no en toda su caja.
-
-# Vueltas del barrido por segundo (en radianes), sin y con el ratón encima.
-const SWEEP_SPEED: float = 1.1
-const SWEEP_SPEED_HOT: float = 2.4
-# Ecos, en coordenadas del radar (x de -1,5 a 1,5 e y de -1 a 1).
-const BLIPS: Array[Vector2] = [
-	Vector2(0.46, 0.3), Vector2(-0.5, -0.22), Vector2(0.14, -0.56),
-	Vector2(-0.2, 0.44), Vector2(0.64, -0.16), Vector2(-0.68, 0.24),
-]
-# Tiempo (en radianes de barrido) que un eco sigue encendido tras pasar el barrido.
-const BLIP_FRESH: float = 1.2
+# de center_static.png; su pantalla (shader office_radar en `Screen`) enseña la pantalla de Sectores
+# de verdad (la textura de RadarViewport, que le pasa MainMenu), chafada en el trapecio. Se pulsa en
+# el contorno de la mesa, no en toda su caja.
+#
+# Al abrir Sectores, MainMenu acerca la oficina y llama a set_zoom(): el trapecio se endereza hasta
+# quedar encima de la pantalla de Sectores.
 
 @onready var screen: ColorRect = $Screen
-@onready var blips: Control = $Blips
 
-var _sweep: float = 0.0
-# Pantalla del radar (trapecio) y contorno de la mesa, en coordenadas locales.
+# Pantalla de la mesa (trapecio) en coordenadas de la vista, y la que se pinta ahora (con el zoom).
+var _table: Dictionary
 var _quad: Dictionary
 var _outline: PackedVector2Array
 
 func _ready() -> void:
 	super()
 	var layout: Dictionary = OfficeLayout.CENTER
-	_quad = layout.table_in
+	_table = layout.table_in
+	_quad = _table.duplicate()
 	for point: Array in layout.table_out:
 		_outline.append(to_local_point(Vector2(point[0], point[1])))
-	var left: int = mini(_quad.tl, _quad.bl)
-	var box: Rect2 = Rect2(to_local_point(Vector2(left, _quad.top)), Vector2(maxi(_quad.tr, _quad.br) - left, _quad.bot - _quad.top + 1))
+	_apply_quad()
+
+func _has_point(point: Vector2) -> bool:
+	return Geometry2D.is_point_in_polygon(point, _outline)
+
+## Centro de la pantalla de la mesa (fila del medio), en coordenadas de la vista.
+func get_screen_center() -> Vector2:
+	var span: Vector2 = Vector2(lerpf(_table.tl, _table.bl, 0.5), lerpf(_table.tr, _table.br, 0.5))
+	return Vector2((span.x + span.y) / 2.0, (_table.top + _table.bot) / 2.0)
+
+## Ancho de la pantalla de la mesa en la fila del medio.
+func get_screen_width() -> float:
+	return lerpf(_table.tr, _table.br, 0.5) - lerpf(_table.tl, _table.bl, 0.5)
+
+## Lo que enseña la pantalla (la pantalla de Sectores): qué parte (en UV) y su tamaño en píxeles.
+func set_screen_texture(texture: Texture2D, crop: Rect2, pixels: Vector2) -> void:
+	var material: ShaderMaterial = screen.material as ShaderMaterial
+	material.set_shader_parameter(&"screen_texture", texture)
+	material.set_shader_parameter(&"crop", Vector4(crop.position.x, crop.position.y, crop.size.x, crop.size.y))
+	material.set_shader_parameter(&"screen_px", pixels)
+
+## Zoom de 0 (la mesa) a 1 (pantalla enderezada en `flat`, en coordenadas de la vista).
+func set_zoom(amount: float, flat: Rect2) -> void:
+	_quad = {
+		"top": lerpf(_table.top, flat.position.y, amount),
+		"bot": lerpf(_table.bot, flat.end.y - 1.0, amount),
+		"tl": lerpf(_table.tl, flat.position.x, amount),
+		"tr": lerpf(_table.tr, flat.end.x, amount),
+		"bl": lerpf(_table.bl, flat.position.x, amount),
+		"br": lerpf(_table.br, flat.end.x, amount),
+	}
+	_apply_quad()
+	# El marco de la pantalla aparece al acercarse: al final se ve la pantalla entera, con su marco.
+	(screen.material as ShaderMaterial).set_shader_parameter(&"frame_alpha", smoothstep(0.3, 1.0, amount))
+
+# Coloca `Screen` en la caja del trapecio actual y le pasa al shader los extremos.
+func _apply_quad() -> void:
+	var left: float = minf(_quad.tl, _quad.bl)
+	var box: Rect2 = Rect2(to_local_point(Vector2(left, _quad.top)), Vector2(maxf(_quad.tr, _quad.br) - left, _quad.bot - _quad.top + 1.0))
 	screen.position = box.position
 	screen.size = box.size
 	var material: ShaderMaterial = screen.material as ShaderMaterial
 	material.set_shader_parameter(&"rect_size", box.size)
 	material.set_shader_parameter(&"top_span", Vector2(_quad.tl - left, _quad.tr - left))
 	material.set_shader_parameter(&"bottom_span", Vector2(_quad.bl - left, _quad.br - left))
-	blips.draw.connect(_draw_blips)
-
-func _process(delta: float) -> void:
-	super(delta)
-	_sweep = fmod(_sweep + delta * (SWEEP_SPEED_HOT if hovered else SWEEP_SPEED), TAU)
-	(screen.material as ShaderMaterial).set_shader_parameter(&"sweep", _sweep)
-	blips.queue_redraw()
-
-func _has_point(point: Vector2) -> bool:
-	return Geometry2D.is_point_in_polygon(point, _outline)
-
-# Ecos: cruz roja; los recién barridos, más claros y con una columna de luz encima.
-func _draw_blips() -> void:
-	for blip: Vector2 in BLIPS:
-		var since: float = fposmod(_sweep - atan2(blip.y, blip.x), TAU)
-		var at: Vector2i = _radar_to_local(blip)
-		var fresh: bool = since < BLIP_FRESH
-		OfficePaint.rect(blips, Rect2i(at.x - 2, at.y - 1, 5, 3), OfficePaint.OUTLINE)
-		OfficePaint.rect(blips, Rect2i(at.x - 1, at.y - 2, 3, 5), OfficePaint.OUTLINE)
-		OfficePaint.rect(blips, Rect2i(at.x - 1, at.y - 1, 3, 3), OfficePaint.RED if fresh else OfficePaint.RED_DARK)
-		if since < 0.4:
-			OfficePaint.rect(blips, Rect2i(at.x, at.y - 1, 1, 1), OfficePaint.RED_LIGHT)
-		if fresh:
-			var height: int = 9 + roundi(sin(time * 3.0 + blip.x * 5.0))
-			OfficePaint.rect(blips, Rect2i(at.x, at.y - height, 1, height - 2), Color(OfficePaint.RED, 0.45))
-			OfficePaint.rect(blips, Rect2i(at.x - 2, at.y - height - 3, 5, 1), OfficePaint.RED)
-			OfficePaint.rect(blips, Rect2i(at.x - 1, at.y - height - 2, 3, 1), OfficePaint.RED)
-			OfficePaint.rect(blips, Rect2i(at.x, at.y - height - 1, 1, 1), OfficePaint.RED_LIGHT)
-
-# Punto del radar en coordenadas locales, siguiendo el trapecio de la pantalla.
-func _radar_to_local(point: Vector2) -> Vector2i:
-	var v: float = point.y / 2.0 + 0.5
-	var u: float = point.x / 3.0 + 0.5
-	var span: Vector2 = OfficePaint.quad_span(_quad, roundi(v * (_quad.bot - _quad.top)))
-	var view_point: Vector2 = Vector2(lerpf(span.x, span.y, u), lerpf(_quad.top, _quad.bot, v))
-	return Vector2i(to_local_point(view_point).round())
