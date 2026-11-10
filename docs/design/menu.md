@@ -74,20 +74,21 @@ Tres vistas de 960x540: izquierda (puerta y stats), centro (ventanal y centro de
 
 | Vista | Nodo | Script | Abre | Qué se anima |
 |---|---|---|---|---|
-| Centro | `RadarConsole` | `RadarConsole.gd` | `LevelSelectionScreen` | Mesa holográfica rectangular apoyada en la consola, así que se ve en trapecio. La pantalla es el shader `resources/shaders/office_radar.gdshader` en `Screen` (`ColorRect`): cuadrícula, tres anillos y cruz chafados por la inclinación, y un barrido `#befaff` con estela tramada (más deprisa con el ratón encima). Encima, en `Blips`, 6 ecos rojos que destellan con una columna de luz al pasar el barrido. Se pulsa en el contorno de la mesa (`_has_point`) |
+| Centro | `RadarConsole` | `RadarConsole.gd` | `LevelSelectionScreen` | Mesa holográfica rectangular apoyada en la consola, así que se ve en trapecio. La pantalla es el shader `resources/shaders/office_radar.gdshader` en `Screen` (`ColorRect`), que enseña la pantalla de Sectores de verdad (radar, subtítulo, ficha y "Volver", en vivo): mientras está cerrada, `LevelSelectionScreen` se pinta en `RadarViewport` (`SubViewport` a la resolución real) y el shader estira a todo el trapecio, sobre su fondo de cuadrícula, solo el contenido (`LevelsPanel` más `SCREEN_MARGIN`, 40 px a los lados y 32 arriba y abajo), para que se vea más grande. Se pulsa en el contorno de la mesa (`_has_point`) |
 | Centro | `ArchiveTablet` | `ArchiveTablet.gd` | `Navedex` | Tablet robusta (`tablet.png`: marco grueso, escuadras atornilladas, canto abajo) en una bandeja hundida. En la pantalla, pestañas, el holograma cian de una nave (su frame `up` pasado a la rampa cian por brillo), líneas de datos y 4 fichas. Con el ratón encima la tablet sube 8 px con su sombra, se enciende la luz del fondo de la bandeja, la nave gira y baja una línea de escaneo |
 | Centro | `OptionsConsole` | `OptionsConsole.gd` | `OptionsMenu` | Módulo de metal: la pantalla solo enseña el volumen (tres vúmetros con su fader, centrados; más deprisa con el ratón encima). Abajo, tres pomos brillantes y cuatro interruptores (el tercero bajado), centrados |
 | Izquierda | `ExitDoor` | `OfficeDoor.gd` | Vuelve a la pantalla de inicio | Dos hojas lisas de metal oscuro con la junta en zigzag y franjas de luz. Con el ratón encima solo se entreabren (`slide`, 26 px cada una, en 0,35 s): por la rendija se ve la luz del pasillo (`corridor.png`, sin detalle) y una luz tenue cae en el suelo, tan ancha como la rendija; se encienden la luz del marco (`door_glow.png`) y la pantallita del panel de acceso (`access_lit.png`). Cerrada, la junta brilla (`door_seam.png`) y un pulso sube y baja por las franjas. La barra de estado de encima la recorre un tramo de luz (verde con la puerta activa). `Plane` (`door_plane.png`, `clip_children`) recorta las hojas y el pasillo con la forma del hueco. Sin corchetes. Al pulsarla (`open_fully`) se entreabre y emite `opened` |
 | Izquierda | `CombatScoreboard` | `CombatScoreboard.gd` | `StatsScreen` | Pantalla sin datos: "// REGISTRO DE COMBATE", 8 barras que suben y bajan, una línea de 2 px que avanza, un anillo de cuatro colores que gira con su leyenda y 5 fichas con el icono (a escala 1) de lo que se cuenta: naves destruidas, victorias, torretas, oleadas perfectas y naves vistas. Abajo, "SISTEMA EN ESPERA" con un cursor |
-| Derecha | `MedalCase` | `MedalCase.gd` | `AchievementsScreen` | Una medalla por logro de `GameState.ACHIEVEMENTS` (`medal_<id>.png`, o `medal_empty.png` si falta), en filas de 5, 4 y 3 centradas y escalonadas medio paso, sin solaparse; los reflejos del cristal (`case_glass.png`) encima y un destello de vez en cuando en las conseguidas. Con el ratón encima de una medalla, los corchetes la marcan a ella |
+| Derecha | `MedalCase` | `MedalCase.gd` | `AchievementsScreen` | Una medalla por logro de `GameState.ACHIEVEMENTS` (`medal_<id>.png`, o `medal_empty.png` si falta), en filas de 3, 4 y 3 centradas y escalonadas medio paso, sin solaparse, pintada en el metal de su fase (`AchievementTint`: disco, anilla, pasador y símbolo; la cinta guarda su color); los reflejos del cristal (`case_glass.png`) encima y un destello de vez en cuando en las conseguidas. Con el ratón encima de una medalla, los corchetes la marcan a ella |
 
 ## Comportamiento
 
 - **Giro de la silla:** se empieza en la vista central. `TurnArrow` (`scripts/main_menu/TurnArrow.gd`) es una placa de 22x44 a 16 px del borde con un doble chevrón cian que se ilumina y se adelanta al pasar el ratón. Pulsarla, o las teclas ← → o A D, llama a `_turn(-1 / 1)`: un tween de 0,45 s (seno, entrada y salida) desplaza `Views` y `Space` 960 px, redondeando a píxeles enteros. En una vista lateral solo se ve la flecha que vuelve al centro.
+- **Mesa del radar:** no abre Sectores con fundido. `_open_sectors()` acerca la oficina (`Office` y `Space`, escala y posición) hacia la pantalla de la mesa en `ZOOM_TIME` (0,7 s, seno, entrada y salida) mientras `RadarConsole.set_zoom()` endereza el trapecio hasta quedar justo encima de ese contenido (`_screen_rect`), centrado. Con el zoom aparece en el margen un marco de metal de 24 px (`frame_px`: bisel, línea cian, pilotos arriba y luces ámbar en las esquinas) y a los lados se ve la oficina: al final se ve la pantalla, no solo lo de dentro. Entonces `LevelSelectionScreen` sale de `RadarViewport` y queda encima, igual (sin salto); `PanelDim` va transparente, solo para tapar la oficina al ratón. Al cerrar (`_close_sectors()`, con "Volver" o Escape) vuelve a `RadarViewport` y se hace lo inverso. Mientras dura (`_zooming`) no se gira ni se pulsa nada. La pantalla de Sectores no tiene cabecera "// SECTORES". Sus botones ("Volver" y DESPLEGAR / REPETIR de la ficha) usan la variación `ScreenButton` de `menu_theme.tres`: solo el contorno, como dibujados en la pantalla, con un relleno cian tenue al pasar el ratón.
 - Cada objeto abre su panel con `_open_panel(panel)`: `PanelDim` y el panel aparecen con un fundido de 0,25 s, con la oficina quieta detrás. "Volver" de cualquier panel (o `back_pressed` de `Navedex`, `AchievementsScreen` y `OptionsMenu`) llama a `_close_panel()`, el fundido inverso. Con un panel abierto no se gira.
 - **Escape** (`ui_cancel`): con "¿Volver al inicio?" abierto lo cierra; con un panel abierto, lo cierra; en la oficina abre "¿Volver al inicio?". "Salir" vuelve a la pantalla de inicio (sin esperar a la puerta) y "Cancelar" lo cierra.
 - La puerta se entreabre y después se vuelve a la pantalla de inicio. Ambas salidas usan un `ScreenWipe` que tapa (0,7 s) y destapa (0,6 s) desde el centro de la pantalla, cambiando a `StartScreen` a mano; `MainMenu` carga `StartScreen` con `load` porque un `preload` sería circular.
-- Si `start_on_level_selection` es `true` (lo pone `Game` al volver de un nivel), el menú abre con la selección de nivel ya abierta sobre la vista central.
+- Si `start_on_level_selection` es `true` (lo pone `Game` al volver de un nivel), el menú abre con la selección de nivel ya abierta sobre la vista central, sin animación (la oficina ya acercada detrás).
 - `_refresh_sectors()` (al abrir el menú, al pulsar la mesa de Sectores y con `GameState.progress_reset`) vuelve a leer el progreso en el radar y la ficha.
 - Clic en un contacto del radar = seleccionarlo (`sector_selected` → la ficha lo enseña). Para jugar: el botón DESPLEGAR / REPETIR de la ficha (`deploy_pressed`) o doble clic en el contacto (`sector_launched`); los dos llaman a `_open_level`.
 - `_open_level(data)` instancia `scenes/Game.tscn`, le asigna `level_data` y la pone como escena actual.
@@ -157,11 +158,30 @@ Todos son `Node2D` que dibujan o crean sprites por código, con posiciones y tie
 
 ### Logros
 
-`scenes/AchievementsScreen.tscn` + `scripts/screens/AchievementsScreen.gd` (clase `AchievementsScreen`), que abre la vitrina de condecoraciones de la oficina (la Navedex ya no tiene pestaña de logros). Panel holograma cian con la cabecera `// LOGROS`, `AchievementsList` (cuadrícula de 2 columnas de 718x340) con una fila por logro (`_make_row`): icono a ×3 (`assets/ui/achievements/<id>.png`), nombre y descripción; y "Volver", que emite `back_pressed`. La lista se rehace cada vez que se muestra. Los que faltan por conseguir se ven apagados (`LOCKED_COLOR`). Los 12 logros están en `GameState.ACHIEVEMENTS` (id -> nombre y descripción) y cómo se cumple cada uno en `GameState._is_done()`. Se guardan en la ranura activa, `user://saves/slot_N.cfg` (`unlocked`, más los contadores `stats` y `fused_turrets`) y se borran al borrar la ranura. `GameState.load_slot` migra los nombres antiguos de la ranura (`fused_towers`, contador `towers` y logro `towers_50`) a `fused_turrets`, `turrets` y `turrets_50`.
+`scenes/AchievementsScreen.tscn` + `scripts/screens/AchievementsScreen.gd` (clase `AchievementsScreen`), que abre la vitrina de condecoraciones de la oficina (la Navedex ya no tiene pestaña de logros). Panel holograma cian con la cabecera `// LOGROS`, `AchievementsList` (cuadrícula de 2 columnas de 718x340) con una fila por logro (`_make_row`): icono a ×3 (`assets/ui/achievements/<id>.png`) en el metal de su fase, nombre con la fase conseguida (en su color) y descripción con la meta de la siguiente fase (`GameState.achievement_description`); y "Volver", que emite `back_pressed`. La lista se rehace cada vez que se muestra. Los que no tienen ninguna fase se ven apagados (`LOCKED_COLOR`, icono en bronce).
+
+**Fases.** Cada logro tiene 3 fases (bronce, plata y oro, `GameState.PHASE_BRONZE`..`PHASE_GOLD`) con metas crecientes, o 1 sola, que se consigue directamente en oro; no hay de 2. Los 10 logros están en `GameState.ACHIEVEMENTS` (id -> nombre, descripción con `%d` y metas; `GOAL_ALL` = todos) y lo que cuenta cada uno en `GameState.get_progress()`:
+
+| Id | Nombre | Cuenta | Bronce | Plata | Oro |
+|---|---|---|---|---|---|
+| `first_win` | Primera victoria | niveles ganados | | | 1 |
+| `flawless` | Intacto | ganar sin perder vida (`register_win`) | | | sí |
+| `all_levels` | Sector despejado | ganar el último nivel (`register_win`) | | | sí |
+| `wins` | Veterano | niveles ganados | 5 | 15 | 30 |
+| `kills` | Cazador | naves destruidas | 100 | 1000 | 3000 |
+| `seen` | Observador | tipos de nave de la Navedex vistos | 5 | 10 | todos |
+| `turrets` | Constructor | torretas construidas | 50 | 200 | 500 |
+| `fusions` | Maestro de mejoras | tipos de torreta mejorados | 1 | 5 | todos |
+| `powers` | Poder desatado | poderes usados | 1 | 25 | 100 |
+| `perfect_waves` | Defensa perfecta | oleadas perfectas | 10 | 30 | 90 |
+
+`get_phase(id)`, `phase_count(id)`, `get_goals(id)`, `next_goal(id)`, `phase_name(fase)` y `PHASE_COLORS` sirven a la vitrina y la lista. Las medallas y los iconos tienen un solo PNG; `AchievementTint.tint(textura, fase, filas que no se tocan)` (`scripts/main_menu/AchievementTint.gd`) cambia los colores ámbar, rojo y cian de la paleta de la oficina por el tono del mismo brillo del bronce, la plata o el oro (el oro es el ámbar tal cual) y guarda la textura. Si un contador salta varias metas de golpe, solo avisa la fase más alta.
+
+**Guardado.** La fase de cada logro se guarda en la ranura activa, `user://saves/slot_N.cfg` (`achievements`: id -> fase, más los contadores `stats` y `fused_turrets`) y se borra al borrar la ranura. Las ranuras viejas tienen la lista `unlocked` con los ids de antes: `GameState.LEGACY_ACHIEVEMENTS` dice para qué fase cuenta cada uno como mínimo (`kills_1000` es plata de `kills`, `fuse_all` plata de `fusions`...), y al cargarla (`load_slot`) las fases se recalculan con los contadores, sin avisos, y se guarda. `load_slot` también migra los nombres antiguos (`fused_towers`, contador `towers`) a `fused_turrets` y `turrets`. El contador de logros de las ranuras (`get_slot_summary`) es fases conseguidas sobre el total de fases (24).
 
 - Contadores (`GameState.add_stat`): bajas (`Level`, por `enemy_died`), torretas construidas, poderes usados, oleadas perfectas y niveles ganados. `register_fusion` lo llama `BuildManager.upgrade_selected`; `register_win(número, intacto)` lo llama `Game` al ganar (intacto = la estación con toda la vida).
-- Los contadores se guardan con `flush()` al limpiar una oleada y al ganar o perder, no a cada baja; al desbloquear un logro se guarda al momento.
-- Al conseguir uno sale `LOGRO: nombre` arriba a la derecha 3 s y se desvanece (capa propia de `GameState`, también en pausa y victoria).
+- Los contadores se guardan con `flush()` al limpiar una oleada y al ganar o perder, no a cada baja; al conseguir una fase se guarda al momento.
+- Al conseguir una fase sale `LOGRO: nombre (fase)`, en el color de la fase, arriba a la derecha 3 s y se desvanece (capa propia de `GameState`, también en pausa y victoria).
 
 ## Música
 
@@ -194,6 +214,8 @@ Es el único audio del juego: todavía no hay efectos de sonido, así que nada s
 | PANTALLA | Botón "Mostrar FPS" | `show_fps` |
 | JUEGO | Botón "Idioma" (`LanguageButton`) | `language` |
 | JUEGO | Botón "Rango de torretas" | `show_turret_range` |
+| JUEGO | Botón "Números de daño" | `show_damage_numbers` |
+| JUEGO | Botón "Temblor de pantalla" | `screen_shake` (encendido por defecto) |
 | JUEGO | Botón "Pausar sin foco" | `pause_on_focus_loss` |
 
 "Volver" (204x36) va en `ButtonsBlock`, debajo de las columnas con 9 px extra de margen (`ButtonsMargin`), así que se separa más de las secciones que los botones entre sí. Las partidas no se borran aquí: se borran desde su ranura en la pantalla de inicio (ver "Pantalla de inicio").
@@ -212,7 +234,8 @@ El botón de idioma es del mismo tamaño y estilo pero no es interruptor: cada p
 - `muted` silencia el bus `Master` sin cambiar los volúmenes, así que al quitarlo los deslizadores conservan su valor.
 - `fullscreen` y `vsync` se aplican con `DisplayServer`.
 - `language` (texto, `"es"` por defecto) se aplica con `TranslationServer.set_locale`; si el archivo trae un código que no está en `LANGUAGES` (`["es", "en"]`), se usa el español.
-- `show_fps` y `show_turret_range` no hacen nada aquí: las leen `LevelUI` (ver [ui.md](ui.md)) y `Turret` (ver [torretas.md](torretas.md)), que escuchan `changed` para actualizarse al momento.
+- `screen_shake` tampoco hace nada aquí: la lee `Level.shake_map()` en cada temblor (ver [base.md](base.md)).
+- `show_fps`, `show_turret_range` y `show_damage_numbers` no hacen nada aquí: las leen `LevelUI` (ver [ui.md](ui.md)), `Turret` (ver [torretas.md](torretas.md)) y `Enemy` (ver [enemigos.md](enemigos.md)), que escuchan `changed` para actualizarse al momento.
 - `pause_on_focus_loss` tampoco hace nada aquí: la lee `Game` cuando la ventana pierde el foco (ver [flujo.md](flujo.md)).
 
 ## Idiomas
@@ -223,7 +246,7 @@ Los textos visibles están en `translations/textos.csv` (columnas `keys,es,en`),
 - Los textos con números o nombres se montan con `tr("CLAVE") % valores` (por ejemplo `HUD_WAVE_N` = "OLEADA %d"). `Sidebar` y `LevelIndicator` guardan lo último que enseñaron y lo repintan al cambiar de idioma, para que la pausa → Opciones → idioma se vea al volver a la partida.
 - `TurretData` y `EnemyData` guardan en `name` y `description` claves (`TURRET_<archivo>_NAME` / `_DESC`, `ENEMY_<archivo>_NAME` / `_DESC`; los tres fragmentos de la Divisora comparten `ENEMY_FRAGMENTO_DIVISORA_*`). Para enseñarlos se usa `get_inspect_name()` / `get_inspect_description()`, que ya traducen; `RunStats.top_turret_name` guarda la clave y la traduce `RunSummary`.
 - `StatEntry` recibe el nombre del stat como clave (`STAT_...`) y lo traduce al crearse; las etiquetas de tipo (`TAG_...`) las traduce `get_inspect_tag()`. Ambos caben en 9 caracteres también en inglés.
-- Los logros de `GameState.ACHIEVEMENTS` son pares de claves (`ACH_<id>_NAME`, `ACH_<id>_DESC`).
+- Los logros de `GameState.ACHIEVEMENTS` son pares de claves (`ACH_<ID>_NAME`, `ACH_<ID>_DESC`, esta con `%d` para la meta y, si la meta puede ser 1, `ACH_<ID>_DESC_ONE`); las fases, `ACH_PHASE_BRONZE`, `ACH_PHASE_SILVER` y `ACH_PHASE_GOLD`.
 - Se quedan sin traducir el título "ASTRO ARTILLERY" / "TOWER DEFENSE", "NOVA", "VSync", "AUTO", "ON" / "OFF", los "×1" / "×2" y los números.
 
 Para añadir un idioma: una columna nueva en el CSV, su `.translation` en `project.godot` y su código en `Settings.LANGUAGES`.

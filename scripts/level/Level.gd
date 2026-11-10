@@ -14,6 +14,8 @@ const AWARD_TEXT_DURATION: float = 4.0
 const SHAKE_AMPLITUDE: float = 2.0
 const SHAKE_TIME: float = 0.15
 const SHAKE_REFERENCE_DAMAGE: float = 40.0
+# Al morir un jefe tiembla como un golpe de 80 de daño (6 px).
+const BOSS_SHAKE_DAMAGE: int = 80
 const GAME_AREA_RECT: Rect2 = Rect2(128.0, 0.0, 704.0, 540.0)
 
 var map: Map
@@ -63,6 +65,7 @@ func setup(data: LevelData) -> void:
 	base = map.get_node("SpaceStation")
 	spawner.enemy_reached_end.connect(base.take_damage)
 	spawner.enemy_reached_end.connect(shake_map)
+	spawner.boss_died.connect(shake_map.bind(BOSS_SHAKE_DAMAGE))
 	_map_origin = map.position
 	base.destroyed.connect(_lose)
 
@@ -88,7 +91,7 @@ func _center_map() -> void:
 # Sacude el mapa (no la UI) con un temblor que decae, en píxeles enteros.
 # Los tweens siguen Engine.time_scale, así que respeta la velocidad del juego.
 func shake_map(damage: int) -> void:
-	if _finished:
+	if _finished or not Settings.get_value(&"screen_shake"):
 		return
 	if _shake_tween:
 		_shake_tween.kill()

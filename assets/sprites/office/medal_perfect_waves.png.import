@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c7roqy07xbber"
-path="res://.godot/imported/medal_wins_5.png-14e61d70d2eb14af0c86cc4c0766b701.ctex"
+uid="uid://y0qm2v37j6yw"
+path="res://.godot/imported/medal_perfect_waves.png-b0a23e497337cfab291295c58c10af55.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/office/medal_wins_5.png"
-dest_files=["res://.godot/imported/medal_wins_5.png-14e61d70d2eb14af0c86cc4c0766b701.ctex"]
+source_file="res://assets/sprites/office/medal_perfect_waves.png"
+dest_files=["res://.godot/imported/medal_perfect_waves.png-b0a23e497337cfab291295c58c10af55.ctex"]
 
 [params]
 
