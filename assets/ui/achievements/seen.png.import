@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://xyb1x32pnkae"
-path="res://.godot/imported/turrets_50.png-4d063bfac2037c41de45287935092ba0.ctex"
+uid="uid://vw600laaetsk"
+path="res://.godot/imported/seen.png-63658d054ede46ecdeb2d98945c34c82.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/achievements/turrets_50.png"
-dest_files=["res://.godot/imported/turrets_50.png-4d063bfac2037c41de45287935092ba0.ctex"]
+source_file="res://assets/ui/achievements/seen.png"
+dest_files=["res://.godot/imported/seen.png-63658d054ede46ecdeb2d98945c34c82.ctex"]
 
 [params]
 

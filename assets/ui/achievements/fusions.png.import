@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://3jod86emlcjm"
-path="res://.godot/imported/kills_1000.png-d1a983eca36f50def6828f01d1de6dc5.ctex"
+uid="uid://csh5anr34kokq"
+path="res://.godot/imported/fusions.png-f8198f10172742a537e71a452d0a6c35.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/achievements/kills_1000.png"
-dest_files=["res://.godot/imported/kills_1000.png-d1a983eca36f50def6828f01d1de6dc5.ctex"]
+source_file="res://assets/ui/achievements/fusions.png"
+dest_files=["res://.godot/imported/fusions.png-f8198f10172742a537e71a452d0a6c35.ctex"]
 
 [params]
 

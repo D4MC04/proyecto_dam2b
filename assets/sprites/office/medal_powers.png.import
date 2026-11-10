@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b08xoxamh0w3g"
-path="res://.godot/imported/medal_power_first.png-a0bf225ddb670995d3a496611ee1e2c8.ctex"
+uid="uid://oshfehil4m2k"
+path="res://.godot/imported/medal_powers.png-36b4535d72a92e99962faf1b944a8e2b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/office/medal_power_first.png"
-dest_files=["res://.godot/imported/medal_power_first.png-a0bf225ddb670995d3a496611ee1e2c8.ctex"]
+source_file="res://assets/sprites/office/medal_powers.png"
+dest_files=["res://.godot/imported/medal_powers.png-36b4535d72a92e99962faf1b944a8e2b.ctex"]
 
 [params]
 

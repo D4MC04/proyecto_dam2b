@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://csh5anr34kokq"
-path="res://.godot/imported/fuse_all.png-b4a52fd201ce9e4394ba7a4463e7787e.ctex"
+uid="uid://3jod86emlcjm"
+path="res://.godot/imported/kills.png-c2d2220b8c8c8175687720efdc5d4951.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/achievements/fuse_all.png"
-dest_files=["res://.godot/imported/fuse_all.png-b4a52fd201ce9e4394ba7a4463e7787e.ctex"]
+source_file="res://assets/ui/achievements/kills.png"
+dest_files=["res://.godot/imported/kills.png-c2d2220b8c8c8175687720efdc5d4951.ctex"]
 
 [params]
 
