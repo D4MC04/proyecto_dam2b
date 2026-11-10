@@ -282,10 +282,10 @@ mouse_filter = 2
 [node name="ArchiveTablet" type="Control" parent="Office/Views/CenterView"]
 layout_mode = 3
 anchors_preset = 0
-offset_left = 552.0
-offset_top = 314.0
-offset_right = 701.0
-offset_bottom = 456.0
+offset_left = 548.0
+offset_top = 334.0
+offset_right = 698.0
+offset_bottom = 476.0
 script = ExtResource("30_tablet")
 
 [node name="OptionsConsole" type="Control" parent="Office/Views/CenterView"]

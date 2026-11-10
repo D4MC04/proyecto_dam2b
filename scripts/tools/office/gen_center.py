@@ -353,12 +353,19 @@ def lean_knob(cv, KX, cy, r):
 
 
 # ---------------------------------------------------------------- tablet y su bandeja
-TRAY = (548, 314, 668, 456)     # bandeja hundida (mundo)
+# Bandeja hundida (mundo), centrada en su hueco de la consola: entre las juntas X = 525 y 679 (la
+# línea de la junta ocupa 3 px: el hueco empieza en 527) y entre la franja de los pilotos (SEAM + 3) y
+# el borde delantero (LIP).
+SEAM_XS = (525, 679)
+TRAY_W, TRAY_H = 120, 142
+TRAY_X0 = (SEAM_XS[0] + 2 + SEAM_XS[1] - TRAY_W) // 2
+TRAY_Y0 = (SEAM + 3 + LIP - 1 - TRAY_H + 1) // 2
+TRAY = (TRAY_X0, TRAY_Y0, TRAY_X0 + TRAY_W, TRAY_Y0 + TRAY_H)
 # Cara de la tablet (mundo): centrada a la vista en el hueco oscuro de la bandeja. El borde hundido de
 # la bandeja es oscuro arriba y a la izquierda (parece hueco) y claro abajo y a la derecha (parece
 # marco), y el canto oscuro de la tablet también parece hueco: por eso no está en el centro geométrico.
 # La ranura de luz queda bajo el canto.
-TAB = (555, 324, 659, 442)
+TAB = (TRAY[0] + 7, TRAY[1] + 10, TRAY[0] + 111, TRAY[1] + 128)
 TAB_EDGE = [D5, D5, D4, D3, D2, D2]
 
 
@@ -410,7 +417,7 @@ def build_tablet(ys, xs):
 
 def main():
     cv, ys, xs, clamps = build_center()
-    for X in (525, 679):
+    for X in SEAM_XS:
         plane_seam(cv, X, SEAM + 3, LIP)
     table_in, table_out = build_table(cv, ys, xs)
     tray, tray_quad, tray_light = build_tray(cv, ys, xs)
