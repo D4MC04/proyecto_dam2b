@@ -95,7 +95,7 @@ func _try_place(mouse_pos: Vector2) -> void:
 
 	_hide_preview()
 
-# Sin tutorial en marcha (o fuera del nivel 1) todo está permitido.
+# Sin tutorial en marcha (o fuera del simulacro) todo está permitido.
 func _tutorial_allows(action: TutorialHints.Action) -> bool:
 	return tutorial_hints == null or tutorial_hints.allows(action)
 

@@ -1,0 +1,9 @@
+# Simulacro (nivel de prueba del tutorial): un camino en eses con tres curvas cerradas y una casilla de
+# torreta dentro de cada una, para que cada torreta alcance las dos pasadas y la curva.
+# Datos de scripts/tools/map_generator.gd (formato en su cabecera).
+
+seed = 77
+rocks = grey brown
+station = 5 16
+path = 44,10 30,10 30,26 26,26 26,6 22,6 22,26 18,26 18,16 5,16
+slots = 28,23 24,9 20,23

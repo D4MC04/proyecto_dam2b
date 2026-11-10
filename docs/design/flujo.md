@@ -7,7 +7,7 @@ Definidos en `project.godot`, en este orden:
 | Nombre | Origen | Qué guarda |
 |---|---|---|
 | `GameData` | `scenes/GameData.tscn` + `scripts/autoloads/GameData.gd` | `levels: Array[LevelData]`, la lista de niveles del juego |
-| `GameState` | `scripts/autoloads/GameState.gd` | `current_level: int` (número, desde 1, del nivel más alto desbloqueado; empieza en 1), `is_unlocked(i)` (`i < current_level`), `tutorial_done: bool` (el tutorial del nivel 1 ya se acabó o saltó), `complete_level(number)`, `complete_tutorial()` y `reset_progress()` (vuelve a 1, reactiva el tutorial, guarda y emite la señal `progress_reset`); `i` es el índice desde 0 en `GameData.levels` |
+| `GameState` | `scripts/autoloads/GameState.gd` | `current_level: int` (número, desde 1, del nivel más alto desbloqueado; empieza en 1), `is_unlocked(i)` (`i < current_level`), `tutorial_done: bool` (ya se pasó por el simulacro: ganado, saltado o abandonado), `complete_level(number)`, `complete_tutorial()` y `reset_progress()` (vuelve a 1, reactiva el simulacro, guarda y emite la señal `progress_reset`); `i` es el índice desde 0 en `GameData.levels` |
 | `Settings` | `scripts/autoloads/Settings.gd` | Las opciones del jugador, guardadas en `user://settings.cfg`; ver [menu.md](menu.md) |
 | `MusicManager` | `scripts/autoloads/MusicManager.gd` | La música; ver [menu.md](menu.md) |
 

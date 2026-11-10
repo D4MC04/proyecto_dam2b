@@ -1,0 +1,55 @@
+[gd_resource type="Resource" script_class="WaveData" format=3 uid="uid://budhuujegrlte"]
+
+[ext_resource type="Script" uid="uid://dclc5suu1kxn3" path="res://scripts/resources/SpawnGroup.gd" id="1_53ows"]
+[ext_resource type="Resource" uid="uid://bakq6nmr73sl0" path="res://resources/enemy_data/dart_rojo.tres" id="2_sldy7"]
+[ext_resource type="Resource" uid="uid://bfiipacu4434d" path="res://resources/enemy_data/wasp.tres" id="3_jhdrm"]
+[ext_resource type="Resource" uid="uid://d2xfg8qmcw3va" path="res://resources/enemy_data/nave_normal.tres" id="4_1ydu4"]
+[ext_resource type="Resource" uid="uid://bcvbohxs6cxsf" path="res://resources/enemy_data/dart_verde.tres" id="5_xlkx5"]
+[ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="6_unp5x"]
+
+[sub_resource type="Resource" id="Resource_p1grm"]
+script = ExtResource("1_53ows")
+enemy_data = ExtResource("2_sldy7")
+count = 8
+spacing = 0.6
+pause_after = 2.5
+
+[sub_resource type="Resource" id="Resource_18hp0"]
+script = ExtResource("1_53ows")
+enemy_data = ExtResource("3_jhdrm")
+count = 10
+spacing = 0.8
+pause_after = 2.5
+
+[sub_resource type="Resource" id="Resource_qxb7m"]
+script = ExtResource("1_53ows")
+enemy_data = ExtResource("4_1ydu4")
+count = 6
+spacing = 1.1
+pause_after = 2.5
+
+[sub_resource type="Resource" id="Resource_dwhft"]
+script = ExtResource("1_53ows")
+enemy_data = ExtResource("5_xlkx5")
+count = 8
+spacing = 0.6
+pause_after = 2.5
+
+[sub_resource type="Resource" id="Resource_jse4y"]
+script = ExtResource("1_53ows")
+enemy_data = ExtResource("3_jhdrm")
+count = 10
+spacing = 0.8
+pause_after = 2.5
+
+[sub_resource type="Resource" id="Resource_dx1id"]
+script = ExtResource("1_53ows")
+enemy_data = ExtResource("4_1ydu4")
+count = 6
+spacing = 1.1
+pause_after = 2.5
+
+[resource]
+script = ExtResource("6_unp5x")
+health_multiplier = 0.9
+groups = Array[ExtResource("1_53ows")]([SubResource("Resource_p1grm"), SubResource("Resource_18hp0"), SubResource("Resource_qxb7m"), SubResource("Resource_dwhft"), SubResource("Resource_jse4y"), SubResource("Resource_dx1id")])

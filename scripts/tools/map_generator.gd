@@ -1,8 +1,9 @@
 extends SceneTree
-## Genera los mapas de los niveles a partir de resources/map_data/level_N.txt.
+## Genera los mapas de los niveles a partir de resources/map_data/level_N.txt (y el del simulacro,
+## resources/map_data/simulation.txt).
 ##
-## Uso: godot --headless --path . -s scripts/tools/map_generator.gd -- [N ...]
-## Sin números genera los 9 niveles.
+## Uso: godot --headless --path . -s scripts/tools/map_generator.gd -- [N ... | simulation]
+## Sin argumentos genera los 9 niveles y el simulacro.
 ##
 ## Los caminos no se dibujan: son pasillos de espacio libre que atraviesan un campo de asteroides
 ## que llena el resto del mapa. La orilla del pasillo va casi llena y dentro del campo no quedan
@@ -24,8 +25,10 @@ extends SceneTree
 const MAP_SIZE: Vector2i = Vector2i(43, 33)
 const TILE_SIZE: int = 16
 const LEVEL_COUNT: int = 9
-const DATA_PATH: String = "res://resources/map_data/level_%d.txt"
-const SCENE_PATH: String = "res://scenes/maps/levels/Level%d.tscn"
+const DATA_PATH: String = "res://resources/map_data/%s.txt"
+const SCENE_PATH: String = "res://scenes/maps/levels/%s.tscn"
+# Argumento y nombre de archivo del mapa del simulacro (el nivel de prueba del tutorial)
+const SIMULATION: String = "simulation"
 const MAP_SCRIPT: String = "res://scripts/level/Map.gd"
 const BACKGROUND_SCENE: String = "res://scenes/maps/SpaceBackground.tscn"
 const BASE_SCENE: String = "res://scenes/entities/Base.tscn"
@@ -179,14 +182,18 @@ var _main_family: String = ""
 
 func _initialize() -> void:
 	_build_catalog()
-	var levels: Array[int] = []
+	var maps: Array[String] = []
 	for arg: String in OS.get_cmdline_user_args():
-		levels.append(arg.to_int())
-	if levels.is_empty():
+		maps.append(arg)
+	if maps.is_empty():
 		for n: int in range(1, LEVEL_COUNT + 1):
-			levels.append(n)
-	for n: int in levels:
-		_generate(n)
+			maps.append(str(n))
+		maps.append(SIMULATION)
+	for map_name: String in maps:
+		if map_name == SIMULATION:
+			_generate(SIMULATION, "Simulation")
+		else:
+			_generate("level_%d" % map_name.to_int(), "Level%d" % map_name.to_int())
 	quit()
 
 
@@ -234,12 +241,14 @@ func _family(small: Array[Vector2i], medium: Array[Vector2i], large: Array[Vecto
 	return family
 
 
-func _generate(n: int) -> void:
-	var layout: LevelLayout = _parse(FileAccess.get_file_as_string(DATA_PATH % n))
+# Genera scenes/maps/levels/<scene_name>.tscn a partir de resources/map_data/<data_name>.txt.
+func _generate(data_name: String, scene_name: String) -> void:
+	var data_path: String = DATA_PATH % data_name
+	var layout: LevelLayout = _parse(FileAccess.get_file_as_string(data_path))
 	if layout == null:
-		push_error("No se puede leer %s" % (DATA_PATH % n))
+		push_error("No se puede leer %s" % data_path)
 		return
-	var scene_path: String = SCENE_PATH % n
+	var scene_path: String = SCENE_PATH % scene_name
 	var old_uid: int = _read_scene_uid(scene_path)
 	var map: Node2D = _build_map(layout)
 	var packed: PackedScene = PackedScene.new()
@@ -251,7 +260,7 @@ func _generate(n: int) -> void:
 		push_error("No se puede guardar %s (%s)" % [scene_path, error_string(error)])
 		return
 	_write_uids(scene_path, old_uid if old_uid != ResourceUID.INVALID_ID else ResourceUID.create_id())
-	print("%s -> %s (%d caminos, %d casillas de torreta)" % [DATA_PATH % n, scene_path, layout.paths.size(), layout.slots.size()])
+	print("%s -> %s (%d caminos, %d casillas de torreta)" % [data_path, scene_path, layout.paths.size(), layout.slots.size()])
 
 
 ## Uid escrito en la cabecera del .tscn, o INVALID_ID si el archivo no existe o no lo tiene.

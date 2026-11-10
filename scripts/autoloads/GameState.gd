@@ -31,7 +31,7 @@ const ACHIEVEMENTS: Dictionary = {
 
 # Número (desde 1) del nivel más alto desbloqueado.
 var current_level: int = 1
-# El tutorial del nivel 1 ya se ha hecho o saltado.
+# El simulacro (el nivel de prueba con el tutorial) ya se ha hecho, saltado o abandonado.
 var tutorial_done: bool = false
 # Enemigos que ya han salido en una partida, por nombre de archivo del EnemyData.
 var seen_enemies: Array[String] = []
@@ -167,7 +167,7 @@ func record_level_stars(number: int, stars: int) -> void:
 	level_stars[number] = clampi(stars, 1, MAX_STARS)
 	_save()
 
-## El tutorial se ha acabado o saltado: no vuelve a salir.
+## El simulacro se ha acabado, saltado o abandonado: no vuelve a salir.
 func complete_tutorial() -> void:
 	tutorial_done = true
 	_save()
@@ -282,7 +282,7 @@ func _load_list(file: ConfigFile, key: String, into: Array[String]) -> void:
 			if typeof(item) == TYPE_STRING:
 				into.append(item)
 
-# Vuelve al nivel 1 (con el tutorial otra vez), guarda y avisa para que el menú de niveles se reconstruya.
+# Vuelve al nivel 1 (con el simulacro otra vez), guarda y avisa para que el menú de niveles se reconstruya.
 func reset_progress() -> void:
 	_set_defaults()
 	_save()

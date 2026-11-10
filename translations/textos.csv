@@ -155,16 +155,20 @@ SLOT_EMPTY,RANURA VACÍA,EMPTY SLOT
 SLOT_SECTOR,SECTOR %02d,SECTOR %02d
 SLOT_SAVED,GUARDADO,SAVED
 SLOT_PLAYED,JUGADO,PLAYED
-TUTORIAL_PICK_TURRET,"¡Hola, recluta! Los enemigos vienen a por la estación. Elige una torreta en la barra de la derecha.","Hi, recruit! The enemies are coming for the station. Pick a turret from the bar on the right."
-TUTORIAL_PLACE_TURRET,Bien. Ahora haz clic en los asteroides con plataforma libre para colocar 3 torretas.,Good. Now click on asteroids with a free platform to place 3 turrets.
-TUTORIAL_START_WAVE,Lista la defensa. Abre la pestaña Oleadas y pulsa Siguiente oleada (o Espacio).,Defense ready. Open the Waves tab and press Next wave (or Space).
-TUTORIAL_WAIT_WAVE_END,"Ahí vienen. Si la oleada se hace larga, el botón ×1 de abajo acelera el tiempo.","Here they come. If the wave drags on, the ×1 button below speeds up time."
-TUTORIAL_INSPECT_TURRET,¡Oleada superada! Vuelve a la pestaña Torretas y haz clic en una de las tuyas del mapa para ver su ficha.,Wave cleared! Go back to the Turrets tab and click one of your turrets on the map to see its card.
-TUTORIAL_FUSE_INFO,"Desde la ficha puedes venderla o, si tiene mejora, pulsar Mejorar para convertirla en una más fuerte.","From the card you can sell it or, if it has an upgrade, press Upgrade to turn it into a stronger one."
-TUTORIAL_DESELECT_INFO,"Para soltar la torreta de la tienda o cerrar la ficha, haz clic derecho o en un hueco vacío del mapa.","To drop the shop turret or close the card, right-click or click an empty spot on the map."
-TUTORIAL_POWERS_INFO,"Tienes tres poderes en la ficha: meteorito (Q), congelar (E) y rayo orbital (R), que barre una fila.","You have three powers on the card: meteor (Q), freeze (E) and orbital beam (R), which sweeps a row."
-TUTORIAL_POWERS,Prueba uno: el meteorito (Q) o congelar (E). El rayo orbital es para luego.,Try one: the meteor (Q) or freeze (E). Save the orbital beam for later.
-TUTORIAL_DONE,¡Eso es! El resto es cosa tuya. Suerte ahí fuera.,That's it! The rest is up to you. Good luck out there.
+TUTORIAL_STATION,"Bienvenido al simulacro, comandante. Esta es tu estación: si las naves llegan a ella, pierde vida. Su vida está en la barra de la derecha.","Welcome to the simulation, commander. This is your station: if ships reach it, it loses health. Its health is on the right-hand bar."
+TUTORIAL_PLACE_TURRETS,Para defenderla necesitas torretas. Elige el Cañón doble y colócalo en los asteroides con plataforma. Llena los 3.,To defend it you need turrets. Pick the Twin Cannon and place it on the asteroids with a platform. Fill all 3.
+TUTORIAL_OPEN_WAVES,"Bien. Antes de empezar, mira lo que viene: abre la pestaña Oleadas.","Good. Before you start, check what is coming: open the Waves tab."
+TUTORIAL_INSPECT_ENEMY,Estas son las naves de la próxima oleada. Haz clic en una para ver sus datos.,These are the ships of the next wave. Click one to see its data.
+TUTORIAL_ENEMY_INFO,"Sus datos salen aquí, en el panel de la izquierda. Así sabrás a qué te enfrentas.","Its data shows up here, in the left panel. That way you know what you are up against."
+TUTORIAL_START_WAVE,"Cuando estés listo, pulsa INICIAR y que vengan.","When you are ready, press START and let them come."
+TUTORIAL_UPGRADE_PICK,¡Oleada superada! Con lo que has ganado puedes mejorar una torreta. Haz clic en una de las tuyas.,Wave cleared! With what you earned you can upgrade a turret. Click one of yours.
+TUTORIAL_UPGRADE_GIFT,"No te llega para mejorar... Toma lo que falta, pero que no se repita. Haz clic en una de tus torretas.","Not enough to upgrade... Here is what you are missing, but don't make a habit of it. Click one of your turrets."
+TUTORIAL_UPGRADE_PRESS,Ahora pulsa Mejorar.,Now press Upgrade.
+TUTORIAL_SELL_INFO,"¡Más potencia! Por cierto, este otro botón vende la torreta y te devuelve la mitad de lo invertido.","More firepower! By the way, this other button sells the turret and gives back half of what you put in."
+TUTORIAL_DONE,Eso es todo. Quedan dos oleadas: aguántalas y el simulacro es tuyo.,That is all. Two waves left: hold them off and the simulation is yours.
+TUTORIAL_COMPLETE,¡Simulacro superado! Ya estás listo para los sectores de verdad. Te llevo a la oficina.,Simulation complete! You are ready for the real sectors. Taking you to the office.
+TUTORIAL_SKIP_CONFIRM,¿Seguro?,Sure?
+HUD_SIMULATION,SIMULACRO,SIMULATION
 ACH_FIRST_WIN_NAME,Primera victoria,First victory
 ACH_FIRST_WIN_DESC,Gana un nivel,Win a level
 ACH_FLAWLESS_NAME,Intacto,Flawless

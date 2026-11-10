@@ -42,7 +42,7 @@ Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de l
 
 ## Poderes
 
-`Powers` (`scripts/level/Powers.gd`, `Node2D` con `z_index = 1`, último hijo de `Level`): los poderes del jugador. Su `state` (`LevelState`) se asigna en `Level.tscn`. Como el nivel se crea de nuevo al empezar y al reiniciar, los tres poderes empiezan listos. Las recargas bajan en `_process`, así que siguen `Engine.time_scale` (×2 las acelera) y se paran con la pausa. Los botones están en la ficha (ver [ui.md](ui.md)). Emite `power_used(power)` al lanzar un poder (el meteorito, al caer; el ataque orbital, al empezar el rayo), que escucha el tutorial.
+`Powers` (`scripts/level/Powers.gd`, `Node2D` con `z_index = 1`, último hijo de `Level`): los poderes del jugador. Su `state` (`LevelState`) se asigna en `Level.tscn`. Como el nivel se crea de nuevo al empezar y al reiniciar, los tres poderes empiezan listos. Las recargas bajan en `_process`, así que siguen `Engine.time_scale` (×2 las acelera) y se paran con la pausa. Los botones están en la ficha (ver [ui.md](ui.md)). Emite `power_used(power)` al lanzar un poder (el meteorito, al caer; el ataque orbital, al empezar el rayo).
 
 | Poder (`Powers.Power`) | Tecla | Efecto | Recarga |
 |---|---|---|---|
@@ -102,11 +102,21 @@ Datos del radar:
 | 8 | Nido Exterior | 0,60 (2.400 km) | 270° | Alta | Colmillo |
 | 9 | Frontera Muerta | 0,66 (2.640 km) | 62° | Alta | Espectro |
 
+### Simulacro
+
+El nivel de prueba del tutorial, fuera de los sectores: `resources/level_data/simulation.tres`, enlazado en `GameData.simulation_level` (no en `GameData.levels`, así que no sale en el radar, no tiene número y no desbloquea nada). Mapa `scenes/maps/levels/Simulation.tscn`, 300 € y solo el Cañón doble, sin poderes. Lo lanza `MainMenu.open_simulation()` (ver [menu.md](menu.md)) y lleva el tutorial de NOVA (ver [ui.md](ui.md) › "Tutorial del simulacro").
+
+- **Mapa:** un camino en eses con tres curvas cerradas y una casilla de torreta dentro de cada una (solo 3), para que cada torreta alcance las dos pasadas y la curva. Con 300 € y el Cañón doble a 100 se llenan las 3 y no sobra nada.
+- **Oleadas (3):** la 1 da 200 € (lo justo para mejorar un Cañón doble a Cañón cuádruple; con la oleada perfecta, 225), la 2 da 400 € (las otras dos mejoras) y la 3 aprieta, pero se pasa con dos Cañones dobles y uno mejorado. Vida ×0,7, ×0,8 y ×0,9. No salen del presupuesto: se escriben grupo a grupo en la tabla `SIMULATION` de `make_waves.gd` (ver "Generador de oleadas").
+- **Al ganar** no sale la pantalla de victoria (no da estrellas ni victorias): NOVA se despide y se vuelve a la oficina. Perder deja reintentar.
+- **No se repite:** salir del simulacro de cualquier forma (ganarlo, "Saltar", salir desde la pausa o desde la derrota) llama a `GameState.complete_tutorial()` en `Game._quit_to_menu` y vuelve a la oficina, no a la selección de nivel.
+- El nivel 1 ya no lleva tutorial.
+
 Las oleadas son `WaveData` en `resources/wave_data/level_N.tres` (la primera) y `level_N_K.tres` (la K). Todos los niveles (1 a 9) están en `resources/level_data/level_N.tres`, y `scenes/GameData.tscn` los enlaza.
 
 ### Generador de oleadas
 
-Las oleadas no se escriben a mano: las genera `scripts/tools/make_waves.gd` (`godot --headless --path . -s scripts/tools/make_waves.gd`) a partir de su tabla `LEVELS`, y para retocarlas se cambia la tabla y se vuelve a lanzar. Por nivel, la tabla dice: número de oleadas (10 en todos), caminos del mapa, presupuesto de la primera oleada, cuánto crece por oleada, separación inicial entre naves, multiplicador de vida de la primera y de la última oleada (`health`), naves nuevas del nivel, naves de niveles anteriores (ordenadas de más fáciles a más duras) y si sale la Nodriza.
+Las oleadas no se escriben a mano: las genera `scripts/tools/make_waves.gd` (`godot --headless --path . -s scripts/tools/make_waves.gd`) a partir de su tabla `LEVELS`, y para retocarlas se cambia la tabla y se vuelve a lanzar. Las del simulacro salen de su tabla `SIMULATION` (grupos escritos a mano: nave, cuántas y separación, con 2,5 s entre grupos) en `resources/wave_data/simulation_K.tres`; con `-- simulation` solo se genera el simulacro (y crea `simulation.tres` si no existe). Por nivel, la tabla dice: número de oleadas (10 en todos), caminos del mapa, presupuesto de la primera oleada, cuánto crece por oleada, separación inicial entre naves, multiplicador de vida de la primera y de la última oleada (`health`), naves nuevas del nivel, naves de niveles anteriores (ordenadas de más fáciles a más duras) y si sale la Nodriza.
 
 - **Presupuesto**: cada nave cuesta su `reward` más la de sus trozos (la Divisora, 45 + 3 × 10). La oleada K gasta `presupuesto × crecimiento^(K-1)` y saca al menos una nave más que la anterior. El presupuesto inicial de cada nivel es mayor que el del anterior (150, 230, 330, 440, 560, 680, 800, 920 y 1050) y crece un 12-13 % por oleada, así que la última oleada gasta unas 3 veces la primera. El presupuesto marca cuánto dinero dan las oleadas, no lo difíciles que son: la dificultad se sube con la vida y la densidad (ver "Dificultad frente a dinero").
 - **Naves del nivel**: las nuevas del nivel salen desde la primera oleada y las de niveles anteriores se van sumando por orden de la lista (de las fáciles a las duras) hasta estar todas en la oleada 7. Un grupo nunca repite el tipo del anterior (si hay otro posible).
@@ -259,7 +269,7 @@ Los 9 mapas los genera `scripts/tools/map_generator.gd` a partir de `resources/m
 godot --headless --path . -s scripts/tools/map_generator.gd -- [N ...]
 ```
 
-Sin números genera los 9. **La fuente de verdad es el `.txt`**: el script reescribe el `.tscn` entero (conserva su uid), así que los retoques hechos en el editor se pierden al regenerar. Cada `.txt` da la semilla de la decoración, las familias de roca del nivel (`rocks`; la primera es la principal), la casilla de la estación, los caminos (puntos en casillas, con tramos horizontales o verticales) y las casillas de torreta (`slots`).
+Sin números genera los 9 y el simulacro (`resources/map_data/simulation.txt` → `Simulation.tscn`); `-- simulation` genera solo este. **La fuente de verdad es el `.txt`**: el script reescribe el `.tscn` entero (conserva su uid), así que los retoques hechos en el editor se pierden al regenerar. Cada `.txt` da la semilla de la decoración, las familias de roca del nivel (`rocks`; la primera es la principal), la casilla de la estación, los caminos (puntos en casillas, con tramos horizontales o verticales) y las casillas de torreta (`slots`).
 
 Con eso, el script:
 

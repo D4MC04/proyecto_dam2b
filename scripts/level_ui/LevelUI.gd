@@ -59,6 +59,8 @@ var _screen_delay: Tween
 var _fast_speed: bool = false
 # Latido de la viñeta; null si está apagada.
 var _vignette_pulse: Tween
+# En el simulacro no hay poderes: ni se ven ni responden las teclas.
+var _powers_enabled: bool = true
 
 func _ready() -> void:
 	_update_fps_label()
@@ -77,6 +79,9 @@ func _ready() -> void:
 	info_panel.orbital_button.pressed.connect(_use_power.bind(Powers.Power.ORBITAL))
 	tutorial_hints.sidebar = sidebar
 	tutorial_hints.info_panel = info_panel
+	tutorial_hints.turret_actions = turret_actions
+	tutorial_hints.skip_requested.connect(_request_action.bind(Action.QUIT))
+	tutorial_hints.finished.connect(_request_action.bind(Action.QUIT))
 	sidebar.tutorial_hints = tutorial_hints
 	turret_actions.tutorial_hints = tutorial_hints
 	set_state(UiState.PLAYING)
@@ -124,11 +129,24 @@ func setup(state: LevelState, turrets: Array[TurretData], level_number: int, spa
 	info_panel.show_inspected(state.inspected)
 	info_panel.show_sellable(state.sellable_turret)
 	turret_actions.show_for(state.sellable_turret, state.money)
-	# El tutorial sale en el nivel 1 hasta que se acaba o se salta; necesita setup_powers antes.
-	if level_number == 1 and not GameState.tutorial_done:
-		tutorial_hints.start(state, spawner, _powers)
-	else:
-		tutorial_hints.stop()
+	# El tutorial solo sale en el simulacro, que lo arranca después con start_simulation.
+	tutorial_hints.stop()
+	_set_powers_enabled(true)
+
+## Monta el simulacro (el nivel de prueba) sobre lo que dejó setup: rótulo "SIMULACRO", sin poderes
+## y con el tutorial de NOVA. Game lo llama justo después de setup.
+func start_simulation(level: Level) -> void:
+	level_indicator.set_title(tr("HUD_SIMULATION"))
+	_set_powers_enabled(false)
+	tutorial_hints.start(level)
+
+## El simulacro se ha ganado: en vez de la pantalla de victoria, NOVA se despide y después se sale.
+func show_simulation_complete() -> void:
+	tutorial_hints.show_complete()
+
+func _set_powers_enabled(enabled: bool) -> void:
+	_powers_enabled = enabled
+	info_panel.meteor_button.get_parent().visible = enabled
 
 ## Powers es nuevo en cada nivel o reinicio: los botones pasan a leer el nuevo. Va antes que setup.
 func setup_powers(powers: Powers) -> void:
@@ -156,9 +174,9 @@ func _set_vignette(active: bool) -> void:
 	_vignette_pulse.tween_method(func(value: float) -> void: material.set_shader_parameter(&"intensity", value),
 			VIGNETTE_MAX_INTENSITY, VIGNETTE_MIN_INTENSITY, VIGNETTE_PULSE_TIME).set_trans(Tween.TRANS_SINE)
 
-# Los poderes solo se usan jugando.
+# Los poderes solo se usan jugando (y no en el simulacro).
 func _use_power(power: Powers.Power) -> void:
-	if is_instance_valid(_powers) and _ui_state == UiState.PLAYING and tutorial_hints.allows(POWER_ACTIONS[power]):
+	if _powers_enabled and is_instance_valid(_powers) and _ui_state == UiState.PLAYING and tutorial_hints.allows(POWER_ACTIONS[power]):
 		_powers.use(power)
 
 # Cualquier clic sobre la interfaz suelta la torreta colocada, menos en el recuadro de Mejorar y Vender:

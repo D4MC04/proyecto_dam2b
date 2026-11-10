@@ -12,6 +12,8 @@ var from_hyperspace: bool = false
 
 var _level_scene: PackedScene
 var _transitioning: bool = false
+# El nivel es el simulacro (el nivel de prueba del tutorial), no un sector.
+var _is_simulation: bool = false
 
 func _ready() -> void:
 	_level_scene = load(level.scene_file_path)
@@ -64,6 +66,9 @@ func _setup_level() -> void:
 	level.build_manager.tutorial_hints = ui.tutorial_hints
 	ui.setup_powers(level.get_node(^"Powers"))
 	ui.setup(level.game_state, level.turrets, level_number, level.spawner, has_next_level, level.base)
+	_is_simulation = level_data == GameData.simulation_level
+	if _is_simulation:
+		ui.start_simulation(level)
 
 func _on_level_lost() -> void:
 	GameState.flush()
@@ -72,6 +77,11 @@ func _on_level_lost() -> void:
 	ui.set_state(LevelUI.UiState.LOST)
 
 func _on_level_won() -> void:
+	# El simulacro no es un sector: no desbloquea, no da estrellas ni victorias. NOVA se despide y
+	# al cerrar el mensaje se vuelve a la oficina (_quit_to_menu).
+	if _is_simulation:
+		ui.show_simulation_complete()
+		return
 	# Si no está en la lista, find devuelve -1 y el número es 0: no desbloquea nada.
 	var number: int = GameData.levels.find(level_data) + 1
 	GameState.complete_level(number)
@@ -115,9 +125,13 @@ func _restart_level() -> void:
 	_transitioning = false
 	await _fade_white(1.0, 0.0, layer)
 
+# Salir del simulacro (ganado, perdido, desde la pausa o con "Saltar") lo da por hecho: no se repite.
+# Del simulacro se vuelve a la oficina; de un sector, a la selección de nivel.
 func _quit_to_menu() -> void:
+	if _is_simulation:
+		GameState.complete_tutorial()
 	var menu: Node = load(MAIN_MENU_PATH).instantiate()
-	menu.start_on_level_selection = true
+	menu.start_on_level_selection = not _is_simulation
 	var tree: SceneTree = get_tree()
 	var old_scene: Node = tree.current_scene
 	tree.root.add_child(menu)

@@ -90,6 +90,7 @@ Tres vistas de 960x540: izquierda (puerta y stats), centro (ventanal y centro de
 - `_refresh_sectors()` (al abrir el menú, al pulsar la mesa de Sectores y con `GameState.progress_reset`) vuelve a leer el progreso en el radar y la ficha.
 - Clic en un contacto del radar = seleccionarlo (`sector_selected` → la ficha lo enseña). Para jugar: el botón DESPLEGAR / REPETIR de la ficha (`deploy_pressed`) o doble clic en el contacto (`sector_launched`); los dos llaman a `_open_level`.
 - `_open_level(data)` instancia `scenes/Game.tscn`, le asigna `level_data` y la pone como escena actual.
+- **Simulacro:** `open_simulation()` lanza el nivel de prueba del tutorial (`GameData.simulation_level`) con `_open_level`, salto al hiperespacio incluido. Una partida que aún no lo ha pasado (`GameState.tutorial_done` false) lo lanza sola al abrir el menú, 0,8 s después (`SIMULATION_DELAY`, mientras la pantalla de inicio destapa la oficina), salvo al volver de un nivel. Del simulacro se vuelve a la oficina, no a la selección de nivel.
 
 ## Fondo
 

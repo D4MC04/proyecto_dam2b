@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="LevelData" format=3 uid="uid://bvqn41skgbvxt"]
+
+[ext_resource type="PackedScene" uid="uid://c7w8b0diuinwk" path="res://scenes/maps/levels/Simulation.tscn" id="1_ngscs"]
+[ext_resource type="Script" uid="uid://du40p5btlpgd0" path="res://scripts/resources/LevelData.gd" id="2_pgau4"]
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="3_iuorx"]
+[ext_resource type="Resource" uid="uid://cnbuncwscbxtt" path="res://resources/turret_data/turret.tres" id="4_xgrmk"]
+[ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="5_orfnq"]
+[ext_resource type="Resource" uid="uid://bbxl176bbxqgp" path="res://resources/wave_data/simulation_1.tres" id="6_th6pa"]
+[ext_resource type="Resource" uid="uid://dt4rrgikbcvy5" path="res://resources/wave_data/simulation_2.tres" id="7_0qxiv"]
+[ext_resource type="Resource" uid="uid://budhuujegrlte" path="res://resources/wave_data/simulation_3.tres" id="8_gkbsi"]
+
+[resource]
+script = ExtResource("2_pgau4")
+map = ExtResource("1_ngscs")
+starting_money = 300
+turrets = Array[ExtResource("3_iuorx")]([ExtResource("4_xgrmk")])
+waves = Array[ExtResource("5_orfnq")]([ExtResource("6_th6pa"), ExtResource("7_0qxiv"), ExtResource("8_gkbsi")])

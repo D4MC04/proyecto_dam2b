@@ -14,7 +14,7 @@ Estructura: `UI/HBoxContainer` (sin separación) con tres columnas, de izquierda
 
 `GameArea` contiene además `LevelIndicator`, declarado antes que las pantallas para que estos lo tapen.
 
-Encima de las tres columnas, como último hijo de `UI`, va `TutorialHints` (ver "Tutorial del nivel 1").
+Encima de las tres columnas, como último hijo de `UI`, va `TutorialHints` (ver "Tutorial del simulacro").
 
 ### Barras: tablet física
 
@@ -123,28 +123,31 @@ Tres `PowerButton` (`scripts/level_ui/PowerButton.gd`) en `InfoPanel/Content/Pow
 - Icono de 16x16 centrado y la letra de la tecla (`key_label`) a 5 px del borde izquierdo en `#5a7a96`.
 - Estilos con `ClippedBoxStyle.create`: normal fondo `#0e1626` y borde `#1c7496`; hover borde `#40e0f0`; mientras se apunta el meteorito, el normal pasa al ámbar de AUTO (fondo `#453d2b`, borde `#ecb23c`).
 - En recarga el botón está `disabled` (fondo `#0a0f1a`, borde `#1c4a60`, icono al 50 %) y lleva encima un oscurecido negro al 45 % recortado a la forma del botón, anclado arriba y con alto proporcional a lo que falta, y los segundos que faltan (redondeados hacia arriba) centrados en `#cce6ff`.
-- Cada botón lee `Powers` en `_process` (`get_cooldown_left`, `is_aiming`) y solo se redibuja si algo cambia. `LevelUI.setup_powers(powers)`, que `Game` llama antes de `setup` con el `Powers` del nivel (el tutorial lo necesita en `setup`), se lo pasa a los dos.
-- Al pulsarlos (o con Q y E) `LevelUI._use_power(power)` llama a `Powers.use` solo en `PLAYING`. Cualquier `set_state` que no sea `PLAYING` cancela el apuntado.
+- Cada botón lee `Powers` en `_process` (`get_cooldown_left`, `is_aiming`) y solo se redibuja si algo cambia. `LevelUI.setup_powers(powers)`, que `Game` llama antes de `setup` con el `Powers` del nivel, se lo pasa a los dos.
+- Al pulsarlos (o con Q y E) `LevelUI._use_power(power)` llama a `Powers.use` solo en `PLAYING`. En el simulacro la fila de poderes no se ve y `_use_power` no hace nada (`_set_powers_enabled`). Cualquier `set_state` que no sea `PLAYING` cancela el apuntado.
 
-## Tutorial del nivel 1
+## Tutorial del simulacro
 
-`scenes/level_ui/TutorialHints.tscn` + `scripts/level_ui/TutorialHints.gd` (clase `TutorialHints`): un `Control` a pantalla completa que ignora el ratón, con un recuadro (`Box`, un `OverlayFrame` cian sin decoración, 380x72 px, centrado abajo del área de juego a 12 px del borde) donde habla un astronauta guía.
+`scenes/level_ui/TutorialHints.tscn` + `scripts/level_ui/TutorialHints.gd` (clase `TutorialHints`): un `Control` a pantalla completa que ignora el ratón, con un recuadro (`Box`, un `OverlayFrame` cian sin decoración, 380x72 px, centrado abajo del área de juego a 12 px del borde) donde habla un astronauta guía. Solo sale en el simulacro (ver [niveles.md](niveles.md) › "Simulacro"): `LevelUI.setup` llama siempre a `stop()` y `Game` llama después a `LevelUI.start_simulation(level)`, que pone el rótulo "SIMULACRO" en `LevelIndicator` (`set_title`), esconde la fila de poderes (y `_use_power` no hace nada: el simulacro no enseña poderes) y llama a `start(level)`. Al reiniciar vuelve a empezar desde el primer paso (las señales del nivel anterior se liberan con él).
 
 - Dentro: el retrato `assets/ui/guide_portrait.png` (32x32 a ×2), el nombre "NOVA" en ámbar `#ecb23c`, el mensaje en `#cce6ff` (aparece letra a letra, 0,02 s por carácter, como si hablara) y los botones "Entendido" (solo en los pasos informativos) y "Saltar".
-- Solo sale en el nivel 1 mientras `GameState.tutorial_done` es false. `LevelUI.setup` llama a `start(state, spawner, powers)` en el nivel 1 y a `stop()` en los demás; al reiniciar vuelve a empezar desde el primer paso (las señales del nivel anterior se liberan con él).
-- Pasos; cada uno espera a que el jugador lo haga:
-  1. Elegir torreta (`LevelState.selected_turret_changed` no nulo). Si se suelta la torreta en el paso 2 sin haber colocado ninguna, vuelve a este (con alguna colocada se queda en el 2 y se puede volver a elegir: el botón suelta solo la torreta al quedarse sin dinero).
-  2. Colocar 3 torretas (`TURRETS_TO_PLACE`, el dinero justo del nivel 1) en asteroides con plataforma (`LevelState.turret_placed`, que emite `BuildManager` al construir, no al mejorar): una sola no aguanta la oleada 1.
-  3. Lanzar la oleada (`Spawner.wave_started`; lanzarla antes con Espacio también vale). Mientras dura la oleada 1 el recuadro sigue visible y avisa de que el botón ×1 acelera el tiempo (se señala con el borde); es el único control que responde.
-  4. Al acabar (`Spawner.wave_cleared`): volver a la pestaña Torretas y hacer clic en una torreta del mapa (`LevelState.sellable_turret_changed` no nulo).
-  5. Venta y mejora: informativo, sigue con "Entendido".
-  6. Soltar torreta (clic derecho o en el vacío) y cerrar la ficha: informativo (no se pide hacerlo, la torreta de la tienda puede estar ya suelta).
-  7. Poderes: informativo, presenta meteorito, congelar y orbital.
-  8. Usar Q o E (`Powers.power_used`, que el meteorito emite al caer); el orbital no.
-  9. Despedida: se cierra con "Entendido" o sola a los 4 s.
-- Un borde ámbar `#ecb23c` de 1 px parpadea (0,4 s encendido, 0,4 s apagado) a 2 px alrededor de lo que hay que pulsar: la rejilla de torretas (o la pestaña Torretas si no está abierta), `NextWaveButton` (o la pestaña Oleadas) y la fila de poderes.
-- **Bloqueo de acciones:** `TutorialHints.allows(action)` (enum `Action`, tabla `ALLOWED_ACTIONS` por paso) dice si el paso actual deja hacer algo; sin tutorial en marcha o en la despedida todo está permitido. Cada sitio donde entra una acción pregunta antes y, si no se permite, no hace nada (los botones y pestañas vuelven a su estado sin emitir): `LevelUI` (elegir torreta de la tienda, poderes: ratón y teclado), `BuildManager` (construir, clic derecho y clic en el vacío para soltar, seleccionar torreta del mapa), `Sidebar` (pestañas, Siguiente oleada, AUTO, velocidad, flechas de oleada) y `TurretActions` (Mejorar y Vender). Referencia `tutorial_hints` puesta por `LevelUI` (`Sidebar`, `TurretActions`) y `Game` (`BuildManager`). Por paso: 1 elegir torreta y pestaña Torretas; 2 elegir, construir y soltar; 3 pestaña Oleadas, Siguiente oleada y la velocidad (el texto la menciona) (el botón del pie solo responde con la pestaña Oleadas abierta; el atajo `next_wave` vale desde cualquiera); oleada 1 solo la velocidad; 4 pestaña Torretas (se señala con el borde, porque la vista quedó en Oleadas), soltar y seleccionar torreta del mapa; pasos informativos (venta y mejora, soltar, poderes) nada (solo "Entendido"); poderes: meteorito y congelar (no el orbital, aunque el texto del guía lo menciona); despedida todo. "Saltar", "Entendido" y la pausa (Escape) nunca se bloquean.
-- Al acabar o con "Saltar" llama a `GameState.complete_tutorial()` y se esconde.
+- **Foco:** en los pasos en que NOVA pide algo (`FOCUS_STEPS`) todo se oscurece (negro al 60 %, `DIM_ALPHA`, con un fundido de 0,2 s) menos unos huecos sobre lo que hay que mirar o tocar (`_focus_rects()`) y el recuadro de NOVA, que es hijo y se pinta encima. El oscurecido se pinta en `_draw` por franjas horizontales que saltan los huecos. Alrededor de cada hueco, a 2 px, un borde ámbar `#ecb23c` de 1 px parpadea (0,4 s encendido, 0,4 s apagado). Los huecos del mapa (estación de 96x96 y asteroides de torreta de 32x32) se pasan a pantalla con la transformación del canvas. El recuadro no se va hasta que se hace lo pedido.
+- **Entre peticiones se juega libre:** en los pasos sin foco no hay oscurecido ni bloqueo, y en `FIRST_WAVE` y `FREE` ni siquiera se ve el recuadro.
+- Pasos (`Step`):
+  1. `STATION`: la estación del mapa y su vida (`Sidebar.station_header`). "Entendido".
+  2. `PLACE_TURRETS`: el botón del Cañón doble (o la pestaña Torretas si no está abierta) y las casillas de torreta libres. Acaba cuando no queda ninguna libre (`LevelState.turret_placed`; el dinero da justo para las 3).
+  3. `OPEN_WAVES`: la pestaña Oleadas (se mira en `_process`, porque cambiar de pestaña no emite nada).
+  4. `INSPECT_ENEMY`: el bloque de la oleada que se ve (`Sidebar.get_viewed_wave_block()`); acaba al inspeccionar una nave (`LevelState.inspected_changed` con un `EnemyData`).
+  5. `ENEMY_INFO`: la ficha de la izquierda (`InfoPanel`). "Entendido".
+  6. `START_WAVE`: el botón INICIAR (`Spawner.wave_started`).
+  7. `FIRST_WAVE`: sin recuadro, se juega la oleada 1.
+  8. `UPGRADE_PICK` (al acabar la oleada 1, `Spawner.wave_cleared`): tus torretas del mapa; acaba al seleccionar una (`LevelState.sellable_turret_changed`). Si no llega el dinero para la mejora, NOVA pone lo que falta (`add_money`) y lo dice con otro texto (`TUTORIAL_UPGRADE_GIFT`). Apaga AUTO, para que la oleada 2 no llegue en plena explicación.
+  9. `UPGRADE_PRESS`: la torreta y el botón Mejorar de `TurretActions`; soltar la torreta vuelve al paso anterior. Acaba con `LevelState.upgrade_requested` (`BuildManager` ya ha mejorado, porque se conectó antes) si hay una torreta mejorada.
+  10. `SELL_INFO`: vuelve a seleccionar la torreta mejorada (en diferido, porque `LevelUI` la suelta tras mejorar) y señala Vender: sirve para vender, pero no obliga. "Entendido". Si al acabar la oleada 1 ya había alguna torreta mejorada, se salta de `FIRST_WAVE` aquí.
+  11. `DONE`: despedida sin foco; se cierra con "Entendido" o sola a los 5 s (`AUTO_CLOSE_TIME`) y pasa a `FREE` (oleadas 2 y 3 libres).
+  12. `COMPLETE`: al ganar, `Game` llama a `LevelUI.show_simulation_complete()` en vez de enseñar la victoria. NOVA dice que el simulacro está superado; con "Entendido" o a los 5 s emite `finished` y se vuelve a la oficina. Aquí no hay "Saltar".
+- **Bloqueo de acciones:** `TutorialHints.allows(action)` (enum `Action`, tabla `ALLOWED_ACTIONS` por paso) dice si el paso actual deja hacer algo; sin tutorial en marcha o en un paso sin foco todo está permitido. Cada sitio donde entra una acción pregunta antes y, si no se permite, no hace nada (los botones y pestañas vuelven a su estado sin emitir): `LevelUI` (elegir torreta de la tienda, poderes: ratón y teclado), `BuildManager` (construir, clic derecho y clic en el vacío para soltar, seleccionar torreta del mapa), `Sidebar` (pestañas, Siguiente oleada, AUTO, velocidad, flechas de oleada) y `TurretActions` (Mejorar y Vender). Referencia `tutorial_hints` puesta por `LevelUI` (`Sidebar`, `TurretActions`) y `Game` (`BuildManager`). Por paso: colocar, elegir, construir, soltar y la pestaña Torretas; pestaña Oleadas; INICIAR (el botón del pie solo responde con la pestaña Oleadas abierta); mejorar: seleccionar y soltar torreta del mapa (y Mejorar en el segundo); vender: Vender; los informativos con foco, nada (solo "Entendido"). Inspeccionar naves de la pestaña Oleadas nunca se bloquea. "Saltar", "Entendido" y la pausa (Escape) tampoco.
+- **"Saltar"** pide confirmar con un segundo clic ("¿Seguro?", como vender) y emite `skip_requested`: `LevelUI` lo pasa como `Action.QUIT` y `Game` sale del simulacro (ver niveles.md › "Simulacro").
 - `LevelUI.set_state` lo esconde fuera de `PLAYING` (no tapa la pausa ni señala por encima de ella).
 
 ## BossAlert
@@ -166,7 +169,7 @@ El `Portal` de un camino que saca la Nodriza tiembla con más fuerza (`Portal.BO
 
 `scenes/level_ui/LevelIndicator.tscn` + `scripts/level_ui/LevelIndicator.gd` (clase `LevelIndicator`). `MarginContainer` (sin marco ni fondo) anclado arriba en el centro de `GameArea` (3 px de margen superior) con el `Label` "NIVEL N" a 32 px (el doble del texto normal), en `#cce6ff` sin contorno, y debajo "OLEADA X/Y" a 16 px (`set_wave`, que llama `LevelUI._refresh_wave_controls` con el mismo número que el pie de la barra: antes de empezar, 1/Y). `mouse_filter = IGNORE` en el contenedor y en el `Label`; el área de desvanecido se ajusta sola a su tamaño.
 
-- Número: `Game` lo calcula como la posición de `level_data` en `GameData.levels` más 1 y lo pasa por `LevelUI.setup`. Si el nivel no está en la lista (0), el indicador se oculta.
+- Número: `Game` lo calcula como la posición de `level_data` en `GameData.levels` más 1 y lo pasa por `LevelUI.setup`. Si el nivel no está en la lista (0), el indicador se oculta. El simulacro pone en su lugar el rótulo "SIMULACRO" con `set_title(text)`.
 - Se ve con opacidad 0,7. Si el cursor o algún nodo del grupo `enemies` está dentro de su rectángulo (con 4 px de margen), baja a 0,15 con un tween de 0,15 s; al salir, vuelve a 0,7. Se comprueba en `_process`, que sigue activo con el juego en pausa.
 
 ## Sidebar
@@ -393,7 +396,7 @@ Opciones "Siguiente nivel" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción qu
 | `Sidebar` | `inspect_requested` | `LevelUI._on_inspect_requested` (escribe `LevelState.inspected`) |
 | `Sidebar` | `next_wave_requested` | `LevelUI._on_next_wave_requested` (`Spawner.start_next_wave`) |
 | `Sidebar` | `auto_waves_toggled` | `LevelUI._on_auto_waves_toggled` (escribe `Spawner.auto_waves`) |
-| `LevelState`, `Spawner`, `Powers` | `selected_turret_changed`, `turret_placed`, `sellable_turret_changed`, `wave_started`, `wave_cleared`, `power_used` | `TutorialHints` (solo en el tutorial del nivel 1) |
+| `LevelState`, `Spawner` | `turret_placed`, `inspected_changed`, `sellable_turret_changed`, `upgrade_requested`, `wave_started`, `wave_cleared` | `TutorialHints` (solo en el simulacro) |
 | `MeteorButton`, `FreezeButton` | `pressed` | `LevelUI._use_power` (`Powers.use`, solo en `PLAYING`) |
 | `Sidebar` | `fast_speed_toggled` | `LevelUI._on_fast_speed_toggled` (cambia `_fast_speed` y reaplica `time_scale`) |
 | `PauseMenu`, `GameOverScreen`, `VictoryScreen` | `option_chosen` | `LevelUI._on_option_chosen` (`RESUME` lo resuelve ella) |
