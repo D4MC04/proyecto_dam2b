@@ -56,6 +56,7 @@ OPT_FULLSCREEN,Pantalla completa,Fullscreen
 OPT_SHOW_FPS,Mostrar FPS,Show FPS
 OPT_GAME,JUEGO,GAME
 OPT_TURRET_RANGE,Rango de torretas,Turret range
+OPT_DAMAGE_NUMBERS,Números de daño,Damage numbers
 OPT_PAUSE_ON_FOCUS_LOSS,Pausar sin foco,Pause on focus loss
 TURRET_AMPLIFIER_NAME,Amplificador,Amplifier
 TURRET_AMPLIFIER_DESC,"No dispara: mejora a las torretas que tiene cerca, cada una a su manera.","Doesn't shoot: boosts nearby turrets, each in its own way."

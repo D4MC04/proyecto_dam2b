@@ -26,6 +26,10 @@ const HEAL_RADIUS: float = 48.0
 const HEAL_TEXT_COLOR: Color = Color("#7ee89a")
 const HEAL_FLASH: Color = Color(0.8, 2.5, 1.0)
 const HEAL_FLASH_TIME: float = 0.4
+# Números de daño (opción show_damage_numbers): los golpes dentro de esta ventana (s) se suman en un solo número.
+const DAMAGE_TEXT_COLOR: Color = Color("#ffffff")
+const DAMAGE_TEXT_WINDOW: float = 0.25
+var _pending_damage: float = 0.0
 # Medio tramo (px) del camino con el que se calcula su tangente.
 const TANGENT_STEP: float = 2.0
 
@@ -125,8 +129,25 @@ func take_damage(amount: float, source: Variant = null) -> void:
 	if is_instance_valid(source):
 		(source as Turret).register_damage(dealt, was_alive and hp <= 0)
 	_health_bar.update(hp, max_hp)
+	if Settings.get_value(&"show_damage_numbers"):
+		_queue_damage_text(dealt)
 	if hp <= 0:
+		_flush_damage_text()
 		die()
+
+# Acumula el daño; el número sale al acabar la ventana (o al morir) para no tapar la nave con una ráfaga.
+func _queue_damage_text(dealt: float) -> void:
+	if dealt <= 0.0:
+		return
+	if _pending_damage <= 0.0:
+		get_tree().create_timer(DAMAGE_TEXT_WINDOW).timeout.connect(_flush_damage_text)
+	_pending_damage += dealt
+
+func _flush_damage_text() -> void:
+	if _pending_damage <= 0.0:
+		return
+	FloatingText.spawn(get_parent(), global_position, UiFormat.number(_pending_damage), FloatingText.DURATION, DAMAGE_TEXT_COLOR)
+	_pending_damage = 0.0
 
 ## Cura sin pasar de la vida máxima, con el número en verde, un destello y chispas. Con la vida llena no hace nada.
 func heal(amount: float) -> void:
