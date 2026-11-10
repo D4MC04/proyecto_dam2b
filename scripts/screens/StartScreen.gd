@@ -2,7 +2,7 @@ extends Control
 
 # Pantalla de inicio (escena inicial): título con "PULSA CUALQUIER TECLA" y, al pulsar, las tres
 # ranuras de guardado. Elegir una la carga en GameState, tapa la pantalla con ScreenWipe y pasa al
-# menú principal. Escape vuelve de las ranuras al título.
+# menú principal. Escape vuelve de las ranuras al título y, en el título, cierra el juego.
 
 enum Phase { TITLE, SLOTS, CONFIRM, ENTERING }
 
@@ -39,7 +39,6 @@ const UNCOVER_TIME: float = 0.6
 @onready var slots_screen: Control = $SlotsScreen
 @onready var slots_panel: OverlayFrame = %SlotsPanel
 @onready var slot_list: VBoxContainer = %SlotList
-@onready var hint_label: Label = %HintLabel
 @onready var confirm_layer: Control = $ConfirmLayer
 @onready var confirm_message: Label = %ConfirmMessage
 @onready var input_blocker: Control = $InputBlocker
@@ -79,7 +78,10 @@ func _input(event: InputEvent) -> void:
 		return
 	match _phase:
 		Phase.TITLE:
-			if _is_any_press(event):
+			if event.is_action_pressed(&"ui_cancel"):
+				get_viewport().set_input_as_handled()
+				get_tree().quit()
+			elif _is_any_press(event):
 				get_viewport().set_input_as_handled()
 				_show_slots()
 		Phase.SLOTS:
@@ -163,13 +165,11 @@ func _show_slots() -> void:
 	_refresh_slots()
 	slots_screen.modulate.a = 1.0
 	slots_panel.modulate.a = 0.0
-	hint_label.modulate.a = 0.0
 	for i: int in _cards.size():
 		_hide_card(i)
 	slots_screen.show()
 	create_tween().tween_property(slots_panel, "modulate:a", 1.0, FADE_TIME)
 	await _reveal_cards(range(_cards.size()), FADE_TIME * 0.5)
-	create_tween().tween_property(hint_label, "modulate:a", 1.0, FADE_TIME)
 	_set_busy(false)
 
 func _show_title() -> void:
@@ -271,7 +271,6 @@ func _enter_slot(card: SlotCard) -> void:
 		GameState.flush()
 	# Todo menos la tarjeta elegida se apaga mientras ella destella.
 	var fade: Tween = create_tween().set_parallel(true)
-	fade.tween_property(hint_label, "modulate:a", 0.0, FADE_TIME)
 	fade.tween_property(%SlotsHeader, "modulate:a", 0.0, FADE_TIME)
 	for i: int in _cards.size():
 		fade.tween_property(_delete_buttons[i], "modulate:a", 0.0, FADE_TIME)
@@ -285,9 +284,10 @@ func _enter_slot(card: SlotCard) -> void:
 	await flash.finished
 	var wipe: ScreenWipe = ScreenWipe.new()
 	get_tree().root.add_child(wipe)
-	await wipe.cover(card.get_global_rect().get_center(), COVER_TIME)
-	await get_tree().create_timer(HOLD_TIME).timeout
+	# Tapa y destapa desde el centro de la pantalla.
 	var center: Vector2 = get_viewport_rect().size / 2.0
+	await wipe.cover(center, COVER_TIME)
+	await get_tree().create_timer(HOLD_TIME).timeout
 	_open_main_menu()
 	wipe.uncover(center, UNCOVER_TIME)
 

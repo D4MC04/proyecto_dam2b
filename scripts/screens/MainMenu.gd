@@ -3,11 +3,16 @@ extends Control
 # Menú principal: la oficina del comandante. Tres vistas (izquierda, centro y derecha) que se
 # cambian girando la silla con las flechas de los bordes o las teclas; cada objeto de la oficina
 # abre su panel holograma encima, con la oficina oscurecida detrás. Escape cierra el panel abierto
-# o, en la oficina, pregunta si salir del juego.
+# o, en la oficina, pregunta si volver a la pantalla de inicio.
 
 enum View { LEFT, CENTER, RIGHT }
 
+# Ruta y no preload: StartScreen ya precarga MainMenu y sería una referencia circular.
+const START_SCREEN_PATH: String = "res://scenes/StartScreen.tscn"
 const FADE_TIME: float = 0.25
+# Volver a la pantalla de inicio: tapado y destapado desde el centro, como al entrar.
+const START_COVER_TIME: float = 0.7
+const START_UNCOVER_TIME: float = 0.6
 const WARP_TIME: float = 0.5
 const FLASH_TIME: float = 0.1
 # Giro de la silla: duración del paso a la vista de al lado y ancho de cada vista.
@@ -192,17 +197,34 @@ func _on_deploy_pressed() -> void:
 func _close_quit_confirm() -> void:
 	quit_confirm.hide()
 
-# La puerta se entreabre y después se cierra el juego.
+# La puerta se entreabre y después se vuelve a la pantalla de inicio.
 func _on_exit_door_pressed() -> void:
 	if _leaving or _panel:
 		return
 	_leaving = true
 	exit_door.open_fully()
 	await exit_door.opened
-	_quit()
+	_go_to_start_screen()
 
-func _quit() -> void:
-	get_tree().quit()
+# "Salir" de la confirmación: vuelve a la pantalla de inicio sin esperar a la puerta.
+func _on_quit_button_pressed() -> void:
+	if _leaving:
+		return
+	_leaving = true
+	_go_to_start_screen()
+
+# Tapa la pantalla desde el centro, cambia a StartScreen (a mano, como en "Cambio de escena") y la destapa.
+func _go_to_start_screen() -> void:
+	var wipe: ScreenWipe = ScreenWipe.new()
+	get_tree().root.add_child(wipe)
+	var center: Vector2 = get_viewport_rect().size / 2.0
+	await wipe.cover(center, START_COVER_TIME)
+	var tree: SceneTree = get_tree()
+	var start: Node = load(START_SCREEN_PATH).instantiate()
+	tree.root.add_child(start)
+	tree.current_scene = start
+	queue_free()
+	wipe.uncover(center, START_UNCOVER_TIME)
 
 # --- Salto al hiperespacio -----------------------------------------------------------------
 

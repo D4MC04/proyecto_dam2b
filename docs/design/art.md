@@ -95,7 +95,7 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 
   Las opciones de las pantallas superpuestas son el mismo botón en el acento de su pantalla (fondos y bordes de `#060b14` mezclado con el acento, relleno al 35 % con el ratón encima y texto en el tono claro del acento). Los botones de las barras (pestañas, INICIAR, AUTO, flechas, torretas y celdas de enemigo) tienen la misma forma con sus propios colores.
 
-- **Panel holograma** (pausa, derrota, victoria, y en el menú principal los paneles que abre la oficina y "¿Salir del juego?"): no es PNG; lo pinta `OverlayFrame` en código, en píxeles enteros, a partir del acento de cada pantalla (cian `#40e0f0`, rojo `#ff3c5a`, ámbar `#ecb23c`) y de su tono claro (`#befaff`, `#ffaabe`, `#ffe082`). Esquinas de arriba a la izquierda y de abajo a la derecha recortadas 6 px en diagonal. Ver [ui.md](ui.md).
+- **Panel holograma** (pausa, derrota, victoria, y en el menú principal los paneles que abre la oficina y "¿Volver al inicio?"): no es PNG; lo pinta `OverlayFrame` en código, en píxeles enteros, a partir del acento de cada pantalla (cian `#40e0f0`, rojo `#ff3c5a`, ámbar `#ecb23c`) y de su tono claro (`#befaff`, `#ffaabe`, `#ffe082`). Esquinas de arriba a la izquierda y de abajo a la derecha recortadas 6 px en diagonal. Ver [ui.md](ui.md).
 
 | Parte | Color |
 |---|---|
