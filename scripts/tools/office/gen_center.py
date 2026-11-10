@@ -77,7 +77,8 @@ TUBE_Y, TUBE_H = SILL + 4, 5
 BIG_CLAMPS = (263, 697)                       # centros, bajo los montantes
 SMALL_CLAMPS = (70, 131, 192, 372, 480, 588, 768, 829, 890)
 SURF_TOP = SILL + len(BAR_ROWS)   # empieza la franja de los pilotos, justo bajo la barra
-SEAM = 300            # junta entre la franja de los pilotos y la superficie de trabajo
+BAND_H = 14
+SEAM = SURF_TOP + BAND_H   # junta entre la franja (fina) de los pilotos y la superficie de trabajo
 LIP = 520             # borde delantero
 LIP_ROWS = [OUT, D6, D6, D5, D5, D4, D4, D4, OUT, C0, C1, C0, OUT, D3, D3, D2, D2, D1, OUT, OUT]
 
@@ -125,14 +126,16 @@ def build_light_bar(cv, ys, xs):
         cv.rect(x + 1, TUBE_Y, 1, TUBE_H, M0)
         cv.put(x - 2, TUBE_Y, M3)
         clamps.append([x - 3, 6])
-    # Abrazaderas grandes: placa con bisel que sobresale de la barra, con un remache.
+    # Abrazaderas grandes: placa de 17x15 con bisel que sobresale de la barra, con el remache en su
+    # centro exacto y una ranura encima y otra debajo.
     for x in BIG_CLAMPS:
-        m = rect_mask(x - 8, SILL - 2, x + 8, SILL + len(BAR_ROWS) + 1)
+        cy = TUBE_Y + 1
+        m = rect_mask(x - 8, cy - 7, x + 9, cy + 8)
         bevel(cv, m, [OUT, (M3, M2, M0), (M2, M1, M0)], body=M1)
-        cv.rect(x - 5, TUBE_Y + 1, 10, 1, M0)
-        cv.rect(x - 5, TUBE_Y + 3, 10, 1, M0)
-        rivet(cv, x, TUBE_Y + 2, light=True)
-        clamps.append([x - 8, 16])
+        cv.rect(x - 5, cy - 4, 11, 1, M0)
+        cv.rect(x - 5, cy + 4, 11, 1, M0)
+        rivet(cv, x, cy, light=True)
+        clamps.append([x - 8, 17])
     return sorted(clamps)
 
 
@@ -140,12 +143,12 @@ def build_console(cv, ys, xs):
     clamps = build_light_bar(cv, ys, xs)
     # Franja de arriba, junto al cristal: le llega la luz de fuera y lleva los pilotos.
     cv.rect(0, SURF_TOP, W, SEAM - SURF_TOP, D4)
-    band = (ys >= SURF_TOP) & (ys < SURF_TOP + 16)
-    cv.px[band & bayer_mask(np.clip((SURF_TOP + 16 - ys) / 16 * 9, 0, 16))] = D5
-    cv.px[band & bayer_mask(np.clip((SURF_TOP + 6 - ys) / 6 * 5, 0, 16))] = C0
+    band = (ys >= SURF_TOP) & (ys < SEAM)
+    cv.px[band & bayer_mask(np.clip((SEAM - ys) / BAND_H * 9, 0, 16))] = D5
+    cv.px[band & bayer_mask(np.clip((SURF_TOP + 4 - ys) / 4 * 5, 0, 16))] = C0
     pal = ["C2", "C2", "A2", "C2", "G2", "C2"]
     for n, x in enumerate(range(30, W - 30, 50)):
-        led_housing(cv, x, SURF_TOP + 15, pal[n % 6], 1.6 if n % 7 == 3 else 0, 14, 3)
+        led_housing(cv, x, SURF_TOP + (BAND_H - 3) // 2, pal[n % 6], 1.6 if n % 7 == 3 else 0, 14, 3)
     for i, col in enumerate([OUT, OUT, D5]):
         cv.rect(0, SEAM + i, W, 1, col)
     # Superficie de trabajo: más clara lejos (junto a la luz) y más oscura cerca del jugador.
@@ -345,7 +348,9 @@ def lean_knob(cv, KX, cy, r):
 
 # ---------------------------------------------------------------- tablet y su bandeja
 TRAY = (548, 314, 668, 456)     # bandeja hundida (mundo)
-TAB = (556, 320, 660, 438)      # cara de la tablet (mundo): llena la bandeja salvo la ranura de luz
+# Cara de la tablet (mundo): centrada en el hueco de la bandeja (318-452 dentro del borde de 4 px),
+# contando su canto de 6 filas: 5 px de hueco a cada lado. La ranura de luz queda en el hueco de abajo.
+TAB = (556, 323, 660, 441)
 TAB_EDGE = [D5, D5, D4, D3, D2, D2]
 
 
@@ -354,7 +359,7 @@ def build_tray(cv, ys, xs):
     m = plane_rect(ys, xs, X0, y0, X1, y1, tl=6, br=6)
     bevel(cv, m, [OUT, OUT, (D4, D3, OUT), (D3, D2, D1)], body=D1, sunk=True)
     # Ranura de luz al fondo de la bandeja (la enciende ArchiveTablet al sacar la tablet).
-    yl = y1 - 8
+    yl = y1 - 7
     xa, xb = int(round(to_screen(X0 + 14, yl))), int(round(to_screen(X1 - 14, yl)))
     cv.rect(xa - 1, yl - 1, xb - xa + 2, 3, OUT)
     return bbox_of(m), plane_corners(X0, y0, X1, y1), [xa, yl, xb - xa, 1]
