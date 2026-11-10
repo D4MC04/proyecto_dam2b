@@ -74,7 +74,12 @@ def build_center():
 # montantes del ventanal y anillas pequeñas que parten el tubo en tramos.
 BAR_ROWS = [OUT, D6, D5, OUT, C1, C2, C3, C2, C1, OUT, D2]
 TUBE_Y, TUBE_H = SILL + 4, 5
-BIG_CLAMPS = (263, 697)                       # centros, bajo los montantes
+# Borde izquierdo de las abrazaderas grandes: justo bajo el metal de cada montante (de x1 + 4 de una
+# hoja a x0 - 5 de la siguiente, 18 px), así quedan centradas con él.
+BIG_CLAMPS = (PANES[0][2] + 4, PANES[1][2] + 4)
+BIG_CLAMP_W, BIG_CLAMP_H = 18, 16
+# Remache de 6x6 (par, para quedar en el centro exacto de la abrazadera).
+RIVET6 = [".oooo.", "ohhlmo", "ohlmso", "olmsso", "omssso", ".oooo."]
 SMALL_CLAMPS = (70, 131, 192, 372, 480, 588, 768, 829, 890)
 SURF_TOP = SILL + len(BAR_ROWS)   # empieza la franja de los pilotos, justo bajo la barra
 BAND_H = 14
@@ -126,16 +131,17 @@ def build_light_bar(cv, ys, xs):
         cv.rect(x + 1, TUBE_Y, 1, TUBE_H, M0)
         cv.put(x - 2, TUBE_Y, M3)
         clamps.append([x - 3, 6])
-    # Abrazaderas grandes: placa de 17x15 con bisel que sobresale de la barra, con el remache en su
-    # centro exacto y una ranura encima y otra debajo.
+    # Abrazaderas grandes: placa con bisel que sobresale de la barra, con el remache en su centro
+    # exacto y una ranura encima y otra debajo, a la misma distancia.
     for x in BIG_CLAMPS:
-        cy = TUBE_Y + 1
-        m = rect_mask(x - 8, cy - 7, x + 9, cy + 8)
+        y = SILL - 2
+        m = rect_mask(x, y, x + BIG_CLAMP_W, y + BIG_CLAMP_H)
         bevel(cv, m, [OUT, (M3, M2, M0), (M2, M1, M0)], body=M1)
-        cv.rect(x - 5, cy - 4, 11, 1, M0)
-        cv.rect(x - 5, cy + 4, 11, 1, M0)
-        rivet(cv, x, cy, light=True)
-        clamps.append([x - 8, 17])
+        cv.rect(x + 3, y + 3, BIG_CLAMP_W - 6, 1, M0)
+        cv.rect(x + 3, y + BIG_CLAMP_H - 4, BIG_CLAMP_W - 6, 1, M0)
+        pal = {"o": OUT, "h": M3, "l": M2, "m": M1, "s": M0}
+        cv.template(RIVET6, pal, x + (BIG_CLAMP_W - 6) // 2, y + (BIG_CLAMP_H - 6) // 2)
+        clamps.append([x, BIG_CLAMP_W])
     return sorted(clamps)
 
 
@@ -348,9 +354,11 @@ def lean_knob(cv, KX, cy, r):
 
 # ---------------------------------------------------------------- tablet y su bandeja
 TRAY = (548, 314, 668, 456)     # bandeja hundida (mundo)
-# Cara de la tablet (mundo): centrada en el hueco de la bandeja (318-452 dentro del borde de 4 px),
-# contando su canto de 6 filas: 5 px de hueco a cada lado. La ranura de luz queda en el hueco de abajo.
-TAB = (556, 323, 660, 441)
+# Cara de la tablet (mundo): centrada a la vista en el hueco oscuro de la bandeja. El borde hundido de
+# la bandeja es oscuro arriba y a la izquierda (parece hueco) y claro abajo y a la derecha (parece
+# marco), y el canto oscuro de la tablet también parece hueco: por eso no está en el centro geométrico.
+# La ranura de luz queda bajo el canto.
+TAB = (555, 324, 659, 442)
 TAB_EDGE = [D5, D5, D4, D3, D2, D2]
 
 
