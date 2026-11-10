@@ -11,6 +11,7 @@ Esfuerzo recomendado: high
 En la vista central hay piezas que se ven mal: la tablet no aprovecha su hueco, la nave del holograma da un salto raro, la consola de opciones tiene cosas pegadas o rectas sobre un plano inclinado, y la barra entre consola y ventanal está pobre.
 
 ## Qué hay que hacer
+- **Va después de `consola-opciones-interactiva` y `navedex-en-tablet`:** adaptar estos retoques a cómo quedan la consola de opciones (5 interruptores, controles que muestran su valor) y la tablet tras esos tickets.
 - **Tablet (`ArchiveTablet`):** que la pantalla y su contenido ocupen más del hueco de la tablet y queden centrados en vertical y en horizontal.
 - **Holograma de la tablet:** quitar el movimiento hacia la derecha de la nave con el ratón encima (el giro con `cos(time * 3.0)` que estrecha la nave y la desplaza al redondear `box`). La nave no debe moverse de lado.
 - **Opciones (`OptionsConsole`), arriba:** separar más los faders de los vúmetros, que ahora están muy pegados.
