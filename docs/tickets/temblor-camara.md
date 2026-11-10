@@ -1,7 +1,7 @@
 # Temblor de pantalla en golpes fuertes
 
 Creador: Renzo
-Estado: propuesta
+Estado: aceptada
 Prioridad: baja
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
