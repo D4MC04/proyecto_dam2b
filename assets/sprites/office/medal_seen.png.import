@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://csugo5up6jyqu"
-path="res://.godot/imported/medal_turrets_50.png-954d9f2c4122f5770f9019aa2bb877d3.ctex"
+uid="uid://bus4l7vysv1mj"
+path="res://.godot/imported/medal_seen.png-0ca5a16659af9ec78419855bde6905f8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/office/medal_turrets_50.png"
-dest_files=["res://.godot/imported/medal_turrets_50.png-954d9f2c4122f5770f9019aa2bb877d3.ctex"]
+source_file="res://assets/sprites/office/medal_seen.png"
+dest_files=["res://.godot/imported/medal_seen.png-0ca5a16659af9ec78419855bde6905f8.ctex"]
 
 [params]
 

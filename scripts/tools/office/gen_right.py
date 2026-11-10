@@ -204,8 +204,8 @@ FAMILIES = {"A": (A1, A2, A3), "R": (R1, R2, R3), "C": (C1, C2, C3)}
 
 
 # Logros del juego (GameState.ACHIEVEMENTS) y color de su cinta.
-ACH = [("first_win", "A"), ("flawless", "A"), ("wins_5", "A"), ("all_levels", "A"), ("kills_100", "R"), ("kills_1000", "R"),
-       ("seen_10", "C"), ("turrets_50", "C"), ("fuse_first", "A"), ("fuse_all", "A"), ("power_first", "C"), ("perfect_10", "C")]
+ACH = [("first_win", "A"), ("flawless", "A"), ("all_levels", "A"), ("wins", "A"), ("kills", "R"),
+       ("seen", "C"), ("turrets", "C"), ("fusions", "A"), ("powers", "C"), ("perfect_waves", "C")]
 ICON_DIR = os.path.join(ROOT, "assets", "ui", "achievements")
 PLATE = {OUT[:3], M1[:3], M0[:3]}  # colores de la placa de metal del icono, que se quita
 
@@ -320,13 +320,13 @@ def build_empty():
 
 
 def medal_positions():
-    """Filas de 5, 4 y 3, centradas y escalonadas medio paso, sin solaparse y con margen en el fondo."""
+    """Filas de 3, 4 y 3, centradas y escalonadas medio paso, sin solaparse y con margen en el fondo."""
     ox0, oy0, ox1, oy1 = OPEN
     by0, by1 = to_vp(ox0, oy0, DEPTH)[1], to_vp(ox1, oy1, DEPTH)[1]
     pitch, gap = 66, 11
     top0 = int(round((by0 + by1) / 2 - (3 * MH + 2 * gap) / 2))
     pos = []
-    for row, n in enumerate((5, 4, 3)):
+    for row, n in enumerate((3, 4, 3)):
         for i in range(n):
             pos.append([480 + int(round((i - (n - 1) / 2) * pitch)), top0 + row * (MH + gap)])
     return pos
