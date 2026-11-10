@@ -11,7 +11,10 @@ extends SceneTree
 ## 16x16).
 ##
 ## Base y cañón se dibujan con plantillas de texto, un carácter por píxel, con las mismas medidas
-## que el Cañón doble: base octogonal de 32 px con hueco central y cañón de la fila 3 a la 25.
+## que el Cañón doble: base octogonal de 32 px con hueco central y cañón hasta la fila 25.
+## La Minigun (nivel 1) es casera: cinco tubos finos, chapas remachadas, asa atrás y una lata de
+## munición soldada a la derecha. La pesada (nivel 2) lleva seis tubos gruesos, carcasa con rotor y
+## dos cajas laterales de munición, en rojo y con el aro de la base.
 ## Caracteres: "." vacío, "O" contorno, "1" a "4" metal de sombra a luz, "a" a "c" acento de
 ## oscuro a claro y "w" núcleo casi blanco. Los efectos no llevan contorno.
 
@@ -63,7 +66,7 @@ const BASE: Array[String] = [
 	"................................",
 ]
 
-# Carcasa del cañón (filas 14 a 24, sin el contorno de los lados): rotor redondo con núcleo de acento en el centro,
+# Carcasa del cañón (filas 14 a 24, sin el contorno de los lados), la misma en los dos niveles: rotor redondo con núcleo de acento en el centro,
 # junta oscura, franja de acento y rejilla de ventilación atrás.
 const HOUSING: Array[String] = [
 	"33333333333221",
@@ -78,22 +81,8 @@ const HOUSING: Array[String] = [
 	"32O2O2O2O2O211",
 	"32222222222211",
 ]
-# Carcasa de la Minigun pesada: más ancha, rotor igual y franjas de aviso atrás.
-const HEAVY_HOUSING: Array[String] = [
-	"3333333333333221",
-	"322222OOOO222211",
-	"32222O3322O22211",
-	"3222O32cb21O2211",
-	"3222O22ba11O2211",
-	"32222O2211O22211",
-	"322222OOOO222211",
-	"3111111111111111",
-	"3bbOObbOObbOObb1",
-	"3bOObbOObbOObbO1",
-	"32O2O2O2O2O2O211",
-]
 const HOUSING_TOP: int = 14
-# Haz de tubos (x 9 a 22, el ancho de la carcasa): los bordes son contorno fijo y dentro se dibuja un
+# Haz de tubos de la pesada (x 9 a 22, el ancho de la carcasa): los bordes son contorno fijo y dentro se dibuja un
 # cilindro de TUBE_COUNT tubos visto de lado; cada frame de giro lo rota un cuarto de tubo, así los
 # tubos se desplazan de lado y se estrechan al llegar al borde, como al girar de verdad.
 const TUBE_LEFT: int = 9
@@ -102,8 +91,23 @@ const TUBE_COUNT: int = 6
 # Parte de cada tubo que es hueco oscuro entre tubos
 const TUBE_GAP: float = 0.3
 # Filas bajo las bocas: "T" tubos, "C"/"c" abrazadera con acento, "R"/"r" abrazadera de acento, "M" de metal
-const TUBE_ROWS: Array[String] = ["T", "T", "C", "c", "T", "T", "T", "T"]
-const HEAVY_TUBE_ROWS: Array[String] = ["T", "T", "R", "r", "T", "T", "M", "T", "T"]
+const HEAVY_TUBE_ROWS: Array[String] = ["T", "T", "C", "c", "T", "T", "T", "T"]
+# Haz de la Minigun casera: cinco tubos finos de x 11 a 20, más largos (bocas en la fila 1)
+const THIN_TUBE_LEFT: int = 11
+const THIN_TUBE_RIGHT: int = 20
+const THIN_TUBE_COUNT: int = 5
+const THIN_TUBE_GAP: float = 0.4
+const THIN_TUBE_TOP: int = 1
+const THIN_TUBE_ROWS: Array[String] = ["T", "T", "T", "T", "R", "r", "T", "T", "T", "M", "T"]
+# Óxido de las chapas de la casera (el marrón de las rocas, ver docs/design/art.md)
+const RUST: Color = Color("#7c5842")
+# Lata de munición soldada a la derecha de la casera
+const CAN_LEFT: int = 25
+const CAN_RIGHT: int = 30
+const CAN_TOP: int = 12
+const CAN_BOTTOM: int = 23
+# Fila central del asa de la casera
+const HANDLE_Y: int = 20
 # Ventana de la cinta de munición en las cajas laterales (filas 16 a 22)
 const BELT_TOP: int = 16
 const BELT_BOTTOM: int = 22
@@ -204,70 +208,155 @@ func _draw_heavy_base() -> void:
 func _make_cannon(frame: int) -> Image:
 	_image = Image.create(SIZE, SIZE, false, Image.FORMAT_RGBA8)
 	var spin: float = frame / float(CANNON_FRAMES)
-	var belt: int = frame % 2
-	var housing: Array[String] = HEAVY_HOUSING if _heavy else HOUSING
-	var half_width: int = housing[0].length() / 2
-	var housing_left: int = 16 - half_width
-	var housing_right: int = 15 + half_width
-	# Cajas de munición a los lados, con la cinta asomando por una ventana
-	for side: int in [-1, 1]:
-		var pod_x: int = housing_left - 3 if side < 0 else housing_right + 2
-		for y: int in range(HOUSING_TOP + 1, HOUSING_TOP + housing.size() - 1):
-			if y < BELT_TOP or y > BELT_BOTTOM:
-				_paint_row(pod_x, y, "32" if side < 0 else "21")
-			elif (y + belt) % 2 == 0:
-				_paint_row(pod_x, y, "cb" if side < 0 else "bc")
-			else:
-				_paint_row(pod_x, y, "aO" if side < 0 else "Oa")
-		if _heavy:
-			# Remaches en las cajas
-			_paint_row(pod_x, HOUSING_TOP + 2, "4O" if side < 0 else "O3")
-			_paint_row(pod_x, HOUSING_TOP + housing.size() - 3, "4O" if side < 0 else "O3")
-	# Carcasa con contorno propio
-	_paint_row(housing_left - 1, HOUSING_TOP - 1, "O".repeat(housing[0].length() + 2))
-	for i: int in housing.size():
-		_paint_row(housing_left - 1, HOUSING_TOP + i, "O" + housing[i] + "O")
-	_paint_row(housing_left - 1, HOUSING_TOP + housing.size(), "O".repeat(housing[0].length() + 2))
-	# Tubos: filas de cañón, abrazaderas y bocas
-	var top: int = 3 if _heavy else 4
-	var rows: Array[String] = HEAVY_TUBE_ROWS if _heavy else TUBE_ROWS
-	_draw_tube_row(top, spin, true)
-	for i: int in rows.size():
-		var y: int = top + 1 + i
-		match rows[i]:
-			"T":
-				_draw_tube_row(y, spin, false)
-			"C":
-				_paint_row(9, y, "333333bb222211")
-			"c":
-				_paint_row(9, y, "222222aa111111")
-			"R":
-				_paint_row(9, y, "3cbbbbbbbbbba1")
-			"r":
-				_paint_row(9, y, "2aaaaaaaaaaaa1")
-			"M":
-				_paint_row(9, y, "33333333222211")
+	if _heavy:
+		_draw_pod(-1, frame)
+		_draw_pod(1, frame)
+		_draw_housing()
+		_draw_heavy_tubes(spin)
+	else:
+		# La casera solo lleva la caja de la izquierda: a la derecha va la lata soldada
+		_draw_pod(-1, frame)
+		_draw_housing()
+		_draw_thin_tubes(spin)
+		_draw_plates()
+		_draw_can(frame)
+		_draw_handle()
 	_close_outline()
 	return _image
 
 
-## Una fila del haz de tubos girado `spin` tubos (0 a 1). Cada columna mira qué parte del cilindro
-## se ve en ella: hueco entre tubos (contorno) o tubo, con luz arriba a la izquierda y el brillo
-## donde el tubo se curva hacia la luz. En la fila de las bocas (`bores`) el centro del tubo es hueco.
-func _draw_tube_row(y: int, spin: float, bores: bool) -> void:
-	_put(TUBE_LEFT, y, OUTLINE)
-	_put(TUBE_RIGHT, y, OUTLINE)
-	var center: float = (TUBE_LEFT + TUBE_RIGHT + 1) / 2.0
-	var radius: float = (TUBE_RIGHT - TUBE_LEFT - 1) / 2.0
-	for x: int in range(TUBE_LEFT + 1, TUBE_RIGHT):
+## Caja de munición a un lado de la carcasa (`side` -1 izquierda, 1 derecha), con la cinta asomando
+## por una ventana; avanza un paso por frame.
+func _draw_pod(side: int, frame: int) -> void:
+	var belt: int = frame % 2
+	var half_width: int = HOUSING[0].length() / 2
+	var pod_x: int = 16 - half_width - 3 if side < 0 else 15 + half_width + 2
+	for y: int in range(HOUSING_TOP + 1, HOUSING_TOP + HOUSING.size() - 1):
+		if y < BELT_TOP or y > BELT_BOTTOM:
+			_paint_row(pod_x, y, "32" if side < 0 else "21")
+		elif (y + belt) % 2 == 0:
+			_paint_row(pod_x, y, "cb" if side < 0 else "bc")
+		else:
+			_paint_row(pod_x, y, "aO" if side < 0 else "Oa")
+
+
+## Carcasa con contorno propio.
+func _draw_housing() -> void:
+	var width: int = HOUSING[0].length()
+	var housing_left: int = 16 - width / 2
+	_paint_row(housing_left - 1, HOUSING_TOP - 1, "O".repeat(width + 2))
+	for i: int in HOUSING.size():
+		_paint_row(housing_left - 1, HOUSING_TOP + i, "O" + HOUSING[i] + "O")
+	_paint_row(housing_left - 1, HOUSING_TOP + HOUSING.size(), "O".repeat(width + 2))
+
+
+## Haz de seis tubos gruesos de la pesada: bocas en la fila 4, abrazadera de acento y tubos hasta la carcasa.
+func _draw_heavy_tubes(spin: float) -> void:
+	var top: int = 4
+	_draw_tube_row(top, spin, true, TUBE_LEFT, TUBE_RIGHT, TUBE_COUNT, TUBE_GAP)
+	for i: int in HEAVY_TUBE_ROWS.size():
+		var y: int = top + 1 + i
+		match HEAVY_TUBE_ROWS[i]:
+			"T":
+				_draw_tube_row(y, spin, false, TUBE_LEFT, TUBE_RIGHT, TUBE_COUNT, TUBE_GAP)
+			"C":
+				_paint_row(TUBE_LEFT, y, "333333bb222211")
+			"c":
+				_paint_row(TUBE_LEFT, y, "222222aa111111")
+
+
+## Haz de cinco tubos finos de la casera: bocas en la fila 1, abrazadera de acento y una de metal.
+func _draw_thin_tubes(spin: float) -> void:
+	var width: int = THIN_TUBE_RIGHT - THIN_TUBE_LEFT
+	_draw_tube_row(THIN_TUBE_TOP, spin, true, THIN_TUBE_LEFT, THIN_TUBE_RIGHT, THIN_TUBE_COUNT, THIN_TUBE_GAP)
+	for i: int in THIN_TUBE_ROWS.size():
+		var y: int = THIN_TUBE_TOP + 1 + i
+		match THIN_TUBE_ROWS[i]:
+			"T":
+				_draw_tube_row(y, spin, false, THIN_TUBE_LEFT, THIN_TUBE_RIGHT, THIN_TUBE_COUNT, THIN_TUBE_GAP)
+			"R":
+				_paint_row(THIN_TUBE_LEFT, y, "3" + "b".repeat(width - 1) + "a")
+			"r":
+				_paint_row(THIN_TUBE_LEFT, y, "a".repeat(width + 1))
+			"M":
+				_paint_row(THIN_TUBE_LEFT, y, "3".repeat(width / 2) + "2".repeat(width - width / 2) + "1")
+
+
+## Chapas remachadas sobre la carcasa de la casera: juntas oscuras, remaches claros con sombra abajo
+## a la derecha y dos manchas de óxido.
+func _draw_plates() -> void:
+	for y: int in range(HOUSING_TOP, HOUSING_TOP + HOUSING.size()):
+		for x: int in range(8, 24):
+			if _image.get_pixel(x, y).a == 0.0:
+				continue
+			var seam: bool = (x == 12 and y < 18) or (x == 19 and y > 18) or y == 18
+			if seam:
+				_put(x, y, OUTLINE)
+			elif x in [9, 15, 21] and y in [15, 21]:
+				_put(x, y, METAL[3])
+				_put(x + 1, y + 1, METAL[0])
+			elif (x == 10 and y == 22) or (x == 20 and y == 16):
+				_put(x, y, RUST)
+
+
+## Lata de munición soldada a la derecha de la casera: tapa, cierre y franja de acento pintada, con
+## la cinta de balas de latón entrando en la carcasa (avanza una fila por frame).
+func _draw_can(frame: int) -> void:
+	# Soldadura oscura entre la carcasa y la lata
+	for y: int in range(HOUSING_TOP - 1, HOUSING_TOP + HOUSING.size() + 1):
+		_put(CAN_LEFT - 1, y, OUTLINE)
+	for y: int in range(CAN_TOP, CAN_BOTTOM + 1):
+		for x: int in range(CAN_LEFT, CAN_RIGHT + 1):
+			if x in [CAN_LEFT, CAN_RIGHT] or y in [CAN_TOP, CAN_BOTTOM]:
+				_put(x, y, OUTLINE)
+			elif y == CAN_TOP + 1:
+				_put(x, y, METAL[3])
+			else:
+				_put(x, y, METAL[2] if x < CAN_LEFT + 3 else METAL[1])
+	_paint_row(CAN_LEFT + 1, CAN_TOP + 2, "OOOO")
+	_paint_row(CAN_LEFT + 1, 18, "bbbb")
+	_paint_row(CAN_LEFT + 1, 19, "aaaa")
+	for k: int in 3:
+		_put(CAN_LEFT - 1, 15 + k * 2 + frame % 2, ORANGE[2])
+		_put(CAN_LEFT - 1, 16 + k * 2 + frame % 2, ORANGE[1])
+
+
+## Asa corta sobre la parte de atrás de la carcasa de la casera: barra con luz arriba, dos postes
+## atornillados y tres tiras de cinta en la empuñadura.
+func _draw_handle() -> void:
+	var y: int = HANDLE_Y
+	_paint_row(10, y - 1, "OOOOOOOOOOOO")
+	_paint_row(10, y, "O4444444443O")
+	_paint_row(10, y + 1, "O2222222221O")
+	_paint_row(10, y + 2, "OOOOOOOOOOOO")
+	for x: int in [9, 21]:
+		_paint_row(x, y - 2, "OOO")
+		_paint_row(x, y - 1, "O3O" if x < 16 else "O2O")
+		_paint_row(x, y + 2, "O1O")
+		_paint_row(x, y + 3, "OOO")
+	for x: int in range(13, 19, 2):
+		_put(x, y, METAL[2])
+		_put(x, y + 1, METAL[0])
+
+
+## Una fila de un haz de `count` tubos entre `left` y `right` (bordes de contorno), girado `spin`
+## tubos (0 a 1). Cada columna mira qué parte del cilindro se ve en ella: hueco entre tubos (la parte
+## `gap` de cada tubo, contorno) o tubo, con luz arriba a la izquierda y el brillo donde el tubo se
+## curva hacia la luz. En la fila de las bocas (`bores`) el centro del tubo es hueco.
+func _draw_tube_row(y: int, spin: float, bores: bool, left: int, right: int, count: int, gap: float) -> void:
+	_put(left, y, OUTLINE)
+	_put(right, y, OUTLINE)
+	var center: float = (left + right + 1) / 2.0
+	var radius: float = (right - left - 1) / 2.0
+	for x: int in range(left + 1, right):
 		# Posición en el cilindro: u de -1 (izquierda) a 1 (derecha) y su ángulo
 		var u: float = (x + 0.5 - center) / radius
 		var angle: float = asin(clampf(u, -1.0, 1.0))
-		var local: float = fposmod(angle / TAU * TUBE_COUNT + spin, 1.0)
-		if local < TUBE_GAP:
+		var local: float = fposmod(angle / TAU * count + spin, 1.0)
+		if local < gap:
 			_put(x, y, OUTLINE)
 			continue
-		var t: float = (local - TUBE_GAP) / (1.0 - TUBE_GAP)
+		var t: float = (local - gap) / (1.0 - gap)
 		if bores:
 			_put(x, y, OUTLINE if absf(t - 0.5) < 0.3 else METAL[0])
 			continue
