@@ -1,7 +1,7 @@
 class_name OfficeDoor
 extends OfficeObject
 
-# Puerta de la oficina: sale del juego. El marco, empotrado en la pared, es parte de left_static.png;
+# Puerta de la oficina: vuelve a la pantalla de inicio. El marco, empotrado en la pared, es parte de left_static.png;
 # las hojas, la luz del pasillo y las luces encendidas son PNG de assets/sprites/office/ en los hijos
 # (todos del tamaño de la vista, colocados en su origen). `Plane` recorta las hojas y el pasillo con
 # la forma del hueco (clip_children), así que al apartarse no pisan el marco.

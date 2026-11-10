@@ -3,6 +3,8 @@ class_name AmpAura
 # Ondas del aura de un Amplificador (va como hijo suyo): cada WAVE_INTERVAL s sale de la torreta un
 # anillo de ámbar en píxeles que crece hasta el radio del aura y se apaga. Al pasar por una torreta
 # amplificada la hace brillar (Turret.flash_amp). Mientras un EMP apaga la torreta no salen ondas.
+# La del Amplificador mayor (el altavoz) es más fuerte: frente casi blanco de 2 px, marcas alrededor
+# que giran y un segundo golpe que sale MAJOR_ECHO_DELAY s después, como un latido de altavoz.
 
 const WAVE_INTERVAL: float = 2.5
 const WAVE_TIME: float = 1.1
@@ -16,6 +18,12 @@ const ECHO_ALPHA: PackedFloat32Array = [0.6, 0.3]
 # Alcance pintado al pasar el ratón o seleccionar el Amplificador (y en la vista previa).
 const FILL_COLOR: Color = Color(0.93, 0.7, 0.24, 0.06)
 const BORDER_COLOR: Color = Color("#ecb23c")
+# Onda del mayor: frente casi blanco, marcas por fuera y segundo golpe más tenue.
+const MAJOR_FRONT_COLOR: Color = Color("#fff8e6")
+const MAJOR_TICKS: int = 16
+const MAJOR_TICK_GAP: float = 3.0
+const MAJOR_ECHO_DELAY: float = 0.22
+const MAJOR_ECHO_ALPHA: float = 0.55
 # La primera onda sale poco después de colocarlo.
 const FIRST_WAVE_DELAY: float = 0.4
 
@@ -46,15 +54,18 @@ func _process(delta: float) -> void:
 	if _age < 0.0:
 		return
 	_age += delta
-	if _age >= WAVE_TIME:
+	if _age >= WAVE_TIME + (MAJOR_ECHO_DELAY if _is_major() else 0.0):
 		_age = -1.0
 	else:
 		_flash_reached()
 	queue_redraw()
 
+func _is_major() -> bool:
+	return _turret.data.amplifier_level >= 2
+
 # Crece rápido al principio y frena al llegar al borde del aura.
-func _radius() -> float:
-	var t: float = _age / WAVE_TIME
+func _radius(age: float) -> float:
+	var t: float = minf(age / WAVE_TIME, 1.0)
 	return lerpf(START_RADIUS, _aura_radius(), 1.0 - (1.0 - t) * (1.0 - t))
 
 func _aura_radius() -> float:
@@ -62,7 +73,9 @@ func _aura_radius() -> float:
 	return circle.radius if circle else 0.0
 
 func _flash_reached() -> void:
-	var radius: float = _radius()
+	if _age >= WAVE_TIME:
+		return
+	var radius: float = _radius(_age)
 	for node: Node in get_tree().get_nodes_in_group(&"turrets"):
 		var turret: Turret = node as Turret
 		if turret == null or turret == _turret or turret.amp_level == 0 or turret in _flashed:
@@ -74,15 +87,35 @@ func _flash_reached() -> void:
 func _draw() -> void:
 	if _age < 0.0:
 		return
-	var t: float = _age / WAVE_TIME
+	if not _is_major():
+		_draw_wave(_age, 1.0, false)
+		return
+	_draw_wave(_age, 1.0, true)
+	_draw_wave(_age - MAJOR_ECHO_DELAY, MAJOR_ECHO_ALPHA, true)
+
+# Una onda de "age" segundos: frente y dos ecos (en el mayor, frente de 2 px y marcas que giran).
+func _draw_wave(age: float, strength: float, major: bool) -> void:
+	if age < 0.0 or age >= WAVE_TIME:
+		return
+	var t: float = age / WAVE_TIME
 	# Se apaga más deprisa al final.
-	var alpha: float = 1.0 - t * t
-	var radius: float = _radius()
+	var alpha: float = (1.0 - t * t) * strength
+	var radius: float = _radius(age)
+	if major:
+		_draw_ring(radius + 1.0, Color(MAJOR_FRONT_COLOR, alpha))
+		_draw_ticks(radius + MAJOR_TICK_GAP, t, Color(FRONT_COLOR, alpha * 0.8))
 	_draw_ring(radius, Color(FRONT_COLOR, alpha))
 	for i: int in ECHO_COLORS.size():
 		var echo_radius: float = radius - ECHO_GAP * (i + 1)
 		if echo_radius > START_RADIUS:
 			_draw_ring(echo_radius, Color(ECHO_COLORS[i], alpha * ECHO_ALPHA[i]))
+
+# Marcas cortas repartidas alrededor de la onda del mayor, que giran mientras crece.
+func _draw_ticks(radius: float, t: float, color: Color) -> void:
+	var length: float = 4.0 / maxf(radius, 1.0)
+	for i: int in MAJOR_TICKS:
+		var angle: float = i * TAU / MAJOR_TICKS + t * PI / 4.0
+		draw_arc(Vector2.ZERO, radius, angle, angle + length, 3, color, 1.0, false)
 
 # Anillo de 1 px sin antialias, con más puntos cuanto más grande.
 func _draw_ring(radius: float, color: Color) -> void:

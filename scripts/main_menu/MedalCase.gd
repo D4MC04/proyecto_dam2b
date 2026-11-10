@@ -3,13 +3,17 @@ extends OfficeObject
 
 # Vitrina de condecoraciones de la pared derecha: abre la lista de logros. La vitrina y su peana son
 # parte de right_static.png. Aquí se ponen las medallas (una por logro de GameState.ACHIEVEMENTS, en
-# filas de 5, 4 y 3 centradas y escalonadas medio paso), los reflejos del cristal encima y un
-# destello de vez en cuando en las conseguidas. Las que faltan dejan el alfiler y una marca tenue. Con
+# filas de 3, 4 y 3 centradas y escalonadas medio paso), los reflejos del cristal encima y un
+# destello de vez en cuando en las conseguidas. Cada medalla conseguida sale en el metal de su fase
+# (AchievementTint): el disco, la anilla, el pasador y el símbolo; la cinta guarda su color. Las que faltan dejan el alfiler y una marca tenue. Con
 # el ratón encima de una medalla, los corchetes la marcan a ella; si no, a toda la vitrina.
 
 const MEDAL_DIR: String = "res://assets/sprites/office/medal_"
 const GLASS: Texture2D = preload("res://assets/sprites/office/case_glass.png")
 const EMPTY: Texture2D = preload("res://assets/sprites/office/medal_empty.png")
+# Filas de la medalla (de la primera a la anterior a la segunda) con la cinta, que no cambia de color
+# con la fase. Salen de build_medal() en gen_right.py.
+const RIBBON_ROWS: Vector2i = Vector2i(7, 25)
 # Cada cuánto (en segundos) destella una medalla y cuánto dura el destello.
 const SPARKLE_PERIOD: float = 3.0
 const SPARKLE_TIME: float = 0.36
@@ -30,11 +34,14 @@ func _draw_object() -> void:
 	var ids: Array = GameState.ACHIEVEMENTS.keys()
 	var positions: Array = OfficeLayout.RIGHT.medals
 	for i: int in ids.size():
-		var texture: Texture2D = _medals[i] if ids[i] in GameState.unlocked else EMPTY
+		var phase: int = GameState.get_phase(ids[i])
+		var texture: Texture2D = EMPTY
+		if phase != GameState.PHASE_NONE:
+			texture = AchievementTint.tint(_medals[i], phase, RIBBON_ROWS)
 		draw_texture(texture, _medal_rect(positions[i]).position)
 	draw_texture(GLASS, Vector2i(-position))
 	for i: int in ids.size():
-		if not ids[i] in GameState.unlocked:
+		if GameState.get_phase(ids[i]) == GameState.PHASE_NONE:
 			continue
 		var phase: float = fmod(time * 0.7 + i * 0.37, SPARKLE_PERIOD)
 		if phase < SPARKLE_TIME:

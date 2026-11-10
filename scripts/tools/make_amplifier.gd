@@ -12,8 +12,8 @@ extends SceneTree
 ## La base es la misma plantilla que la del Cañón doble y la Minigun (octógono de 32 px con hueco
 ## central), con las luces en ámbar. El emisor no gira: aro de metal con abrazaderas y luces, disco
 ## resonador de ámbar por segmentos y cristal facetado en el centro (como la placa de la Tesla). El
-## mayor añade un aro discontinuo de ámbar a la base, un emisor más grande con más segmentos y luces
-## en las abrazaderas.
+## mayor añade un aro discontinuo de ámbar a la base y su emisor es un altavoz con el cono vibrando
+## (ver _draw_speaker).
 ## Caracteres de las plantillas: "." vacío, "O" contorno, "1" a "4" metal de sombra a luz y "a" a
 ## "c" ámbar de oscuro a claro, "w" casi blanco.
 
@@ -78,6 +78,8 @@ const AMP_ICON: Array[String] = [
 const CENTER: Vector2 = Vector2(15.5, 15.5)
 # Brillo del cristal en cada frame (índice en AMBER del tono de fuera): sube, llega arriba y baja.
 const CORE_LEVELS: Array[int] = [0, 1, 2, 1]
+# Cuánto se desplazan hacia fuera los pliegues del altavoz del mayor en cada frame (vibración)
+const SPEAKER_PUSH: Array[float] = [0.0, 0.7, 1.4, 0.7]
 
 var _image: Image
 var _major: bool = false
@@ -157,9 +159,13 @@ func _draw_major_ring() -> void:
 ## por turnos (giran como un faro) y el cristal late con CORE_LEVELS.
 func _make_emitter(frame: int) -> Image:
 	_image = Image.create(SIZE, SIZE, false, Image.FORMAT_RGBA8)
-	var ring_radius: float = 9.9 if _major else 9.4
-	var core_radius: float = 5.0 if _major else 4.4
-	var segments: int = 12 if _major else 8
+	if _major:
+		_draw_speaker(frame)
+		_close_outline()
+		return _image
+	var ring_radius: float = 9.4
+	var core_radius: float = 4.4
+	var segments: int = 8
 	for y: int in SIZE:
 		for x: int in SIZE:
 			var offset: Vector2 = Vector2(x, y) - CENTER
@@ -180,6 +186,35 @@ func _make_emitter(frame: int) -> Image:
 	_draw_ring_lights(ring_radius, frame)
 	_close_outline()
 	return _image
+
+
+## Emisor del mayor: altavoz visto desde arriba. Marco de metal con cuatro tornillos de ámbar en
+## diagonal (se encienden en frames alternos), cono con pliegues concéntricos que vibran (se desplazan
+## hacia fuera con SPEAKER_PUSH y vuelven; más claro abajo a la derecha, porque es cóncavo) y cúpula
+## central de ámbar que crece un poco y late.
+func _draw_speaker(frame: int) -> void:
+	var push: float = SPEAKER_PUSH[frame]
+	for y: int in SIZE:
+		for x: int in SIZE:
+			var offset: Vector2 = Vector2(x, y) - CENTER
+			var distance: float = offset.length()
+			if distance >= 13.6:
+				continue
+			var light: float = -(offset.x + offset.y) / maxf(distance, 0.001) / sqrt(2.0)
+			if distance >= 11.4:
+				_put(x, y, _metal_lit(light, distance >= 12.6))
+			elif distance >= 10.6:
+				_put(x, y, OUTLINE)
+			else:
+				var ridge: float = fposmod(distance - push, 2.5)
+				var level: int = (2 if ridge < 1.0 else 0) + (1 if -light > 0.4 else 0) - (1 if light > 0.6 else 0)
+				_put(x, y, METAL[clampi(level, 0, 2)])
+	var dome: float = 3.4 + push * 0.4
+	_fill_circle(CENTER, dome + 1.0, OUTLINE)
+	_fill_circle(CENTER, dome, AMBER[1 + (1 if frame == 2 else 0)])
+	_fill_circle(CENTER + Vector2(-1, -1), dome * 0.5, AMBER[2 + (1 if frame >= 1 else 0)])
+	for diagonal: Vector2 in [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)]:
+		_fill_circle(CENTER + diagonal.normalized() * 12.0, 0.8, AMBER[2] if frame % 2 == 0 else AMBER[1])
 
 
 ## Metal del aro: banda de fuera más clara que la de dentro, las dos con luz arriba a la izquierda.
@@ -231,7 +266,7 @@ func _draw_crystal(frame: int, radius: float) -> void:
 
 
 ## Cuatro abrazaderas de metal (arriba, abajo y a los lados) que sujetan el aro a la base, con una
-## ranura oscura en medio. En el mayor llevan una luz de ámbar en la punta.
+## ranura oscura en medio.
 func _draw_clamps(ring_radius: float) -> void:
 	for direction: Vector2 in [Vector2.UP, Vector2.RIGHT, Vector2.DOWN, Vector2.LEFT]:
 		for y: int in SIZE:
@@ -242,7 +277,7 @@ func _draw_clamps(ring_radius: float) -> void:
 				if along < ring_radius - 2.0 or along > ring_radius + 2.5 or absf(across) > 1.6:
 					continue
 				if absf(across) < 0.6 and along > ring_radius + 1.5:
-					_put(x, y, AMBER[2] if _major else METAL[2])
+					_put(x, y, METAL[2])
 				elif absf(across) < 0.6 and along > ring_radius - 1.0:
 					# Ranura de la abrazadera
 					_put(x, y, OUTLINE)

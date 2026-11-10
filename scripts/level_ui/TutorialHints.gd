@@ -90,6 +90,10 @@ func start(state: LevelState, spawner: Spawner, powers: Powers) -> void:
 func stop() -> void:
 	_set_active(false)
 
+## True mientras el tutorial está en marcha (no acabado ni saltado).
+func is_running() -> bool:
+	return _active and _step != Step.DONE
+
 ## Si el paso actual deja hacer `action`. Sin tutorial en marcha todo está permitido.
 func allows(action: Action) -> bool:
 	return not _active or _step == Step.DONE or action in ALLOWED_ACTIONS.get(_step, [])
