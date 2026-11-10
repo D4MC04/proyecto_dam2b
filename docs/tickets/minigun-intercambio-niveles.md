@@ -2,7 +2,7 @@
 
 Creador: Ezequiel
 Responsable: Ezequiel
-Estado: propuesta
+Estado: aceptada
 Prioridad: media
 Modelo recomendado: opus
 Esfuerzo recomendado: medium
