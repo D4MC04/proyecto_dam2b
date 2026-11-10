@@ -33,6 +33,7 @@ var _values: Dictionary[StringName, Variant] = {
 	&"show_fps": false,
 	&"show_turret_range": false,
 	&"show_damage_numbers": false,
+	&"screen_shake": true,
 	# Código del idioma de los textos (uno de LANGUAGES).
 	&"language": "es",
 	&"pause_on_focus_loss": true,

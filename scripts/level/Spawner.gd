@@ -3,6 +3,8 @@ extends Node
 
 signal enemy_died(reward: int)
 signal enemy_reached_end(damage: int)
+## Se emite al morir la Nodriza (el jefe).
+signal boss_died
 ## Se emite al empezar cada oleada, con su índice (desde 0) y el total de oleadas.
 signal wave_started(index: int, total: int)
 ## Se emite cuando la oleada `index` ha sacado su último enemigo; puede haber enemigos vivos.
@@ -174,6 +176,8 @@ func _on_enemy_died(reward: int, enemy: Enemy) -> void:
 		_pending_splits += 1
 		_crack(enemy)
 	enemy_died.emit(reward)
+	if enemy.data == NODRIZA:
+		boss_died.emit()
 	_check_cleared()
 
 # Deja en el sitio de la nave muerta su frame agrietado con un destello y luego la parte.
