@@ -5,13 +5,13 @@ var logic_map: TileMapLayer
 var slot_cells: Dictionary = {}
 var turrets: Dictionary = {}
 # Ya hay un recálculo de auras pedido para el final del frame.
-var _amp_pending := false
+var _amp_pending: bool = false
 
 func setup(lm: TileMapLayer) -> void:
 	logic_map = lm
 	slot_cells.clear()
-	for c in logic_map.get_used_cells():
-		var data = logic_map.get_cell_tile_data(c)
+	for c: Vector2i in logic_map.get_used_cells():
+		var data: TileData = logic_map.get_cell_tile_data(c)
 		match data.get_custom_data("kind"):
 			"slot":
 				slot_cells[c] = true
@@ -21,7 +21,7 @@ func can_build(c: Vector2i) -> bool:
 
 func register_turret(c: Vector2i, t: Turret) -> void:
 	turrets[c] = t
-	t.tree_exiting.connect(func():
+	t.tree_exiting.connect(func() -> void:
 		turrets.erase(c)
 		_queue_amplification())
 	if t.data.is_amplifier():
@@ -52,9 +52,9 @@ func _update_amplification() -> void:
 			amplifiers.append(turret)
 	for c: Vector2i in turrets:
 		var turret: Turret = turrets[c]
-		var best := 0
-		for amplifier in amplifiers:
-			var aura := amplifier.data.attack_range as CircleShape2D
+		var best: int = 0
+		for amplifier: Turret in amplifiers:
+			var aura: CircleShape2D = amplifier.data.attack_range as CircleShape2D
 			if amplifier != turret and aura != null \
 					and amplifier.global_position.distance_to(turret.global_position) <= aura.radius:
 				best = maxi(best, amplifier.data.amplifier_level)

@@ -26,8 +26,8 @@ La fusionada es otro `TurretData` (`resources/turret_data/<x>_fusion.tres`) con 
 |---|---|---|---|---|---|---|
 | Cañón cuádruple | Cañón doble | 200 | 8 | 72 | 0,15 | Cuatro cañones, ráfaga rápida |
 | Minigun pesada | Minigun | 400 | 14 | 96 | 0,3 → 0,04 | Sobrecalentamiento mejor: 90 disparos, parada de 2 s |
-| Cryo ventisca | Cryo | 500 | 12 | 96 | 2,0 | Onda mayor (`wave_scale` 1,5), frena al 35 % durante 4,5 s |
-| Cañón de asedio | Cañón pesado | 600 | 100 | 96 | 1,6 | Explota en área de 40 px (`splash_radius`) |
+| Cryo ventisca | Cryo | 500 | 12 | 96 | 2,0 | Onda mayor (`wave_scale` 1,5), frena al 35 % durante 4,5 s. Aspecto de vórtice: el aro del cañón acelera durante la recarga (ver [art.md](art.md)) |
+| Cañón de asedio | Cañón pesado | 600 | 55 × 2 | 96 | 2,1 | Dos cañones: salva de 2 balas (`salvo_count`) separadas 0,15 s, una por cañón, que explotan en área de 32 px. La segunda cae encima de la primera; no frena. Bala de 160 px/s con estela y humo |
 | Tormenta | Tesla | 700 | 50 | 120 | 1,3 | Cadena de 6 objetivos, saltos de 80 px |
 | Cinturón | Orbitador | 700 | 85 | anillo 40-64 | 1,0 | Hasta 5 cargas, área de 26 px, giran a 110°/s |
 | Rail Gauss | Rail | 1000 | 800 | 176 | 4,5 | Haz de 900 px y `half_width` 16 |
@@ -114,18 +114,18 @@ Las torretas de onda y de cadena no giran el cañón ni usan `_process`.
 
 ## Datos
 
-`TurretData` (`scripts/resources/TurretData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`, `orbit`. `min_range`: radio mínimo opcional; con más de 0 el alcance es un anillo entre él y `attack_range` (ver Objetivo). `overheat_shots`, `overheat_min_cooldown`, `overheat_time`, `overheat_cool_time`: sobrecalentamiento opcional (ver Disparo). `spin_up_time`: tubos rotativos opcionales (ver Tubos rotativos). `shoot_sound`: sonido del disparo. `amp_effect`: lo que gana dentro del aura de un Amplificador; `amplifier_level`: mayor que 0 en los Amplificadores (ver "Amplificador"). `money_amount`: mayor que 0 en los Mineros, el dinero que dan cada `attack_cooldown` s (ver "Minero"). `fusion`: el `TurretData` en el que se convierte al fusionarla con otra igual (null en las fusionadas). Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 8 torretas que atacan la tienen. La ficha pinta todas las torretas en cian `#40e0f0` (`TurretData.ACCENT_COLOR`, ver [ui.md](ui.md)).
+`TurretData` (`scripts/resources/TurretData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`, `orbit`. `min_range`: radio mínimo opcional; con más de 0 el alcance es un anillo entre él y `attack_range` (ver Objetivo). `overheat_shots`, `overheat_min_cooldown`, `overheat_time`, `overheat_cool_time`: sobrecalentamiento opcional (ver Disparo). `spin_up_time`: tubos rotativos opcionales (ver Tubos rotativos). `salvo_count`, `salvo_delay`: salva opcional (ver Tipos de ataque › Bala). `shoot_sound`: sonido del disparo. `amp_effect`: lo que gana dentro del aura de un Amplificador; `amplifier_level`: mayor que 0 en los Amplificadores (ver "Amplificador"). `money_amount`: mayor que 0 en los Mineros, el dinero que dan cada `attack_cooldown` s (ver "Minero"). `fusion`: el `TurretData` en el que se convierte al fusionarla con otra igual (null en las fusionadas). Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 8 torretas que atacan la tienen. La ficha pinta todas las torretas en cian `#40e0f0` (`TurretData.ACCENT_COLOR`, ver [ui.md](ui.md)).
 
 Funciones para la ficha:
 
-- `get_stats() -> Array[StatEntry]`: en el Amplificador solo COSTE y AURA (radio de `attack_range`). En el Minero, COSTE, GANANCIA (`money_amount`, icono `reward`) e INTERVALO (`attack_cooldown`). En las demás, filas comunes (COSTE con `€`, ALCANCE = radio del `CircleShape2D` de `attack_range` (con `min_range`, "mínimo-máximo", p. ej. `40-64`), CADENCIA = `attack_cooldown` en segundos salvo en el haz continuo; con sobrecalentamiento, además CAD. MÁX, AGUANTE (disparos) y PARADA) seguidas de las del ataque. Los nombres de fila son cortos y en mayúsculas (9 caracteres como mucho, ver `StatEntry` en [ui.md](ui.md)).
+- `get_stats() -> Array[StatEntry]`: en el Amplificador solo COSTE y AURA (radio de `attack_range`). En el Minero, COSTE, GANANCIA (`money_amount`, icono `reward`) e INTERVALO (`attack_cooldown`). En las demás, filas comunes (COSTE con `€`, ALCANCE = radio del `CircleShape2D` de `attack_range` (con `min_range`, "mínimo-máximo", p. ej. `40-64`), CADENCIA = `attack_cooldown` en segundos salvo en el haz continuo; con salva, SALVA (`salvo_count`); con sobrecalentamiento, además CAD. MÁX, AGUANTE (disparos) y PARADA) seguidas de las del ataque. Los nombres de fila son cortos y en mayúsculas (9 caracteres como mucho, ver `StatEntry` en [ui.md](ui.md)).
 - `get_attack() -> Resource`: el `*Data` de ataque que tenga (o null).
 - `get_attack_label()`: "BALA", "ONDA", "CADENA", "HAZ", "HAZ CONT.", "ÓRBITA" o "APOYO" (Amplificador, `is_amplifier()`, y Minero, `is_miner()`).
 - Cada `*Data` de ataque tiene su `get_stats()`:
 
 | Clase | Filas |
 |---|---|
-| `BulletData` | DAÑO, VEL. BALA, y PERFORA (`pierce`) y ÁREA (`splash_radius`) solo si son > 0 |
+| `BulletData` | DAÑO, VEL. BALA, y PERFORA (`pierce`) y ÁREA (`splash_radius`) solo si son > 0; con `slow_duration` > 0, FRENADO (`-90%` con `slow_factor` 0,1) y DURACIÓN |
 | `PulseData` | DAÑO, FRENADO (`-45%` con `slow_factor` 0,55), DURACIÓN (de la ralentización) |
 | `ChainData` | DAÑO, OBJETIVOS (`max_targets`), SALTO (`jump_range`) |
 | `BeamData` | DAÑO, PERFORA ("TODOS") |
@@ -173,7 +173,7 @@ DPS efectivo = DPS a un objetivo × objetivos que se estiman golpeados por dispa
 | Cryo | 250 (250) | 6 | 3 (2) | 18 (15) + frena 45 % | 0,012 (0,010) | 0,07 (0,06) |
 | Cryo ventisca | 750 (750) | 9 | 6 (4) | 54 (36) + frena 65 % | 0,008 (0,005) | 0,07 (0,05) |
 | Cañón pesado | 300 (300) | 2,2 | 27 (30) | 59 (66) | 0,09 (0,10) | 0,20 (0,22) |
-| Cañón de asedio | 900 (900) | 2,8 | 62 (62) | 175 (175) | 0,07 (0,07) | 0,19 (0,19) |
+| Cañón de asedio | 900 (900) | 2,8 | 52 (62) + frena | 147 (175) + frena | 0,06 (0,07) | 0,16 (0,19) |
 | Tesla | 350 (400) | 2,6 | 23 (23) | 60 (60) | 0,07 (0,06) | 0,17 (0,15) |
 | Tormenta | 1050 (1200) | 4,5 | 38 (35) | 173 (156) | 0,04 (0,03) | 0,16 (0,13) |
 | Orbitador | 350 (450) | 1,7 | 31 (25) | 53 (42) | 0,09 (0,06) | 0,15 (0,09) |
@@ -225,6 +225,8 @@ Torreta de apoyo que da dinero (`miner.tres`, mejora `miner_fusion.tres` "Excava
 - Persigue al objetivo: corrige la dirección cada frame mientras el objetivo exista; si desaparece sigue recta.
 - Daña al primer `Enemy` cuya área toque, sea o no el objetivo, deja la animación `impact_frames` y se libera.
 - Se libera sola a los 5 s.
+- Opcionales de `BulletData`: `trail_frames` (estela pegada a la cola, hija del sprite), `smoke_frames` (deja una bocanada `Effect` cada 6 px, 14 px por detrás, que se queda en el camino) y `slow_factor`/`slow_duration` (frena con `Enemy.slow()` a cada enemigo que daña, antes del daño; como cualquier `slow()`, sustituye a la ralentización que tuviera).
+- Salva (`TurretData.salvo_count` > 1, Cañón de asedio): cada disparo saca la primera bala y, cada `salvo_delay` s, las demás por el otro lado (`_update_salvo` en `_process`), sin frenar (`Bullet.slows` = false). Si el objetivo se pierde a media salva, las que faltan no salen, pero cuentan para que la siguiente salva empiece por el mismo cañón. Con un EMP la salva y la animación de recarga se congelan con el temporizador en vez de volver a `default`.
 - El cañón reproduce `fire_0`, `fire_1`... alternando en cada disparo (solo cuenta las animaciones `fire_N`; los tubos rotativos no tienen y siguen con su `spin`).
 
 ### Onda
@@ -287,12 +289,15 @@ Límite: `Effect` y `HealEffect` se apuntan al grupo `effects`; `Effect.has_room
 ## Dudas
 
 - Una torreta colocada solo se puede mejorar (fusión) o vender; no hay más mejoras.
-- `disintegrator.tres` tiene `attack_cooldown = 1.0`, que el código no usa para esa torreta.
 - El nombre de archivo `rocket_launcher` corresponde a la torreta que se llama "Cañón pesado", y `turret` a "Cañón doble". La carpeta es `turret_data` y la clase `TurretData`.
 
 ## Animaciones de construir, fusionar y vender
 
-`Turret.play_build()` (se llama tras añadirla al árbol, al colocar y al mejorar por igual): aplica a `sprite` y `cannon` un `ShaderMaterial` (`resources/shaders/hologram_build.gdshader`) y anima `progress` de 0 a 1 en 0,8 s (`BUILD_TIME`). Una línea de escaneo sube de abajo arriba por filas de píxeles del mundo (así base y cañón, que gira, comparten línea y no hay antialiasing); recorre la altura real del sprite (mitad del frame, 16 px) más `BUILD_TRAIL` filas de estela. La línea es un núcleo blanco, una fila cian `#40e0f0` y una estela punteada en 3 pasos sobre la torreta ya sólida. Por encima es un holograma: el relieve del sprite pasa a una rampa de 4 tonos de cian (se lee igual sobre torretas de cualquier color), borde brillante, scanlines que se desplazan, filas que se apagan y parpadeo general. Respeta los tintes de EMP y calor (`modulate`): la parte sólida los conserva y el holograma se oscurece con ellos. Al acabar se quita el material. `Turret.play_sell()` (la llama `LevelState.sell_selected_turret` antes del `queue_free`) deja una copia visual de la torreta que se encoge en 0,25 s con chispas (`CPUParticles2D`, sin gravedad, en todas direcciones y con frenado `damping` de 40) y se libera sola; la casilla queda libre al instante.
+`Turret.play_build()` (se llama tras añadirla al árbol, al colocar y al mejorar por igual): aplica a `sprite` y `cannon` un `ShaderMaterial` (`resources/shaders/hologram_build.gdshader`) y anima `progress` de 0 a 1 en 0,8 s (`BUILD_TIME`). Una línea de escaneo sube de abajo arriba por filas de píxeles del mundo (así base y cañón, que gira, comparten línea y no hay antialiasing); recorre la altura real del sprite (mitad del frame, 16 px) más `BUILD_TRAIL` filas de estela. La línea es un núcleo blanco, una fila cian `#40e0f0` y una estela punteada en 3 pasos sobre la torreta ya sólida. Por encima es un holograma: el relieve del sprite pasa a una rampa de 4 tonos de cian (se lee igual sobre torretas de cualquier color), borde brillante, scanlines que se desplazan, filas que se apagan y parpadeo general. Respeta los tintes de EMP y calor (`modulate`): la parte sólida los conserva y el holograma se oscurece con ellos. Al acabar se quita el material.
+
+Al mejorar, `BuildManager.upgrade_selected()` llama a `Turret.play_upgrade()`: si la fusionada tiene `TurretData.upgrade_frames`, en vez del holograma oculta base y cañón y reproduce esa animación (sin bucle) en un `AnimatedSprite2D` hijo; mientras dura no apunta ni dispara (`_transforming`). Sin `upgrade_frames` hace `play_build()`. Solo la tiene el Cañón de asedio (`rocket_launcher_fusion_transform.tres`, 59 frames de 64x64 a 25 fps, unos 2,3 s, hoja `t2_transform_sheet.png` generada con `scripts/tools/make_siege_transform.gd`, que reutiliza las piezas de `make_siege_cannon.gd`; si cambian los sprites de nivel 1 o 2, volver a lanzarlo). Las piezas del Cañón pesado se convierten en las del de asedio: se apaga la lente cian y hace "clac" (baja 1 px con chispas); el cañón se parte a lo largo y cada mitad se aparta 2 px; el tubo viejo se mete en la cúpula y por ahí salen los dos tubos nuevos, pasándose y volviendo; la cúpula pasa a recámara doble de arriba abajo con una línea naranja; los postes bajan, se separan y se ensanchan hasta ser los cilindros y los brazos suben a los cañones; las luces de la base pasan de ámbar a rojo una a una en círculo y bajan las placas de franjas; se abren las tapas de las ventanas, entran las balas, los cerrojos se cierran con otro "clac" y sale vapor por los lados. El último frame es igual que la torreta de nivel 2 en reposo (cañón hacia arriba).
+
+`Turret.play_sell()` (la llama `LevelState.sell_selected_turret` antes del `queue_free`) deja una copia visual de la torreta que se encoge en 0,25 s con chispas (`CPUParticles2D`, sin gravedad, en todas direcciones y con frenado `damping` de 40) y se libera sola; la casilla queda libre al instante.
 
 ## Bajas y daño por torreta
 

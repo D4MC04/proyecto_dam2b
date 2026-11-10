@@ -6,7 +6,7 @@
 
 [resource]
 script = ExtResource("1_data")
-name = "Nave agresiva"
+name = "ENEMY_NAVE_AGRESIVA_NAME"
 hp = 110.0
 speed = 48
 reward = 50
@@ -14,5 +14,5 @@ sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 rotate_sprite = true
 rotation_offset = 180.0
-description = "Nave de combate más blindada y rápida que la normal."
+description = "ENEMY_NAVE_AGRESIVA_DESC"
 metadata/_custom_type_script = "uid://do62ihbnaitnl"

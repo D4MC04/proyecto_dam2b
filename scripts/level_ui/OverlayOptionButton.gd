@@ -5,16 +5,16 @@ class_name OverlayOptionButton
 # botón recortado del tema en el acento de su pantalla: saca la forma y los márgenes de los
 # estilos del tema y solo cambia los colores.
 
-const IDLE_COLOR := Color("#cce6ff")
+const IDLE_COLOR: Color = Color("#cce6ff")
 # Base oscura de la que salen los fondos y bordes, mezclada con el acento.
-const DARK_COLOR := Color("#060b14")
-const NORMAL_BG_MIX := 0.07
-const NORMAL_BORDER_MIX := 0.45
+const DARK_COLOR: Color = Color("#060b14")
+const NORMAL_BG_MIX: float = 0.07
+const NORMAL_BORDER_MIX: float = 0.45
 # Con el ratón encima el botón se rellena con el acento; pulsado, algo más oscuro.
-const HOVER_BG_MIX := 0.35
-const PRESSED_BG_MIX := 0.22
-const DISABLED_BORDER_MIX := 0.25
-const DISABLED_TEXT_COLOR := Color("#5a7a96")
+const HOVER_BG_MIX: float = 0.35
+const PRESSED_BG_MIX: float = 0.22
+const DISABLED_BORDER_MIX: float = 0.25
+const DISABLED_TEXT_COLOR: Color = Color("#5a7a96")
 
 @export var option: OverlayScreen.Option = OverlayScreen.Option.RESUME
 @export var accent_color: Color = Color("#40e0f0"):
@@ -36,8 +36,8 @@ func _refresh_look() -> void:
 	# Sin árbol no hay tema del que sacar la forma; _ready lo vuelve a llamar.
 	if not is_inside_tree():
 		return
-	var normal_bg := DARK_COLOR.lerp(accent_color, NORMAL_BG_MIX)
-	var hover := _recolor("hover", normal_bg.lerp(accent_color, HOVER_BG_MIX), accent_color)
+	var normal_bg: Color = DARK_COLOR.lerp(accent_color, NORMAL_BG_MIX)
+	var hover: ClippedBoxStyle = _recolor("hover", normal_bg.lerp(accent_color, HOVER_BG_MIX), accent_color)
 	add_theme_stylebox_override("normal", _recolor("normal", normal_bg, DARK_COLOR.lerp(accent_color, NORMAL_BORDER_MIX)))
 	add_theme_stylebox_override("hover", hover)
 	add_theme_stylebox_override("pressed", _recolor("pressed", normal_bg.lerp(accent_color, PRESSED_BG_MIX), accent_color))
@@ -51,7 +51,7 @@ func _refresh_look() -> void:
 # El estilo `style_name` del tema (sin el override de este botón) con otros colores.
 func _recolor(style_name: StringName, bg: Color, border: Color) -> ClippedBoxStyle:
 	remove_theme_stylebox_override(style_name)
-	var base := get_theme_stylebox(style_name) as ClippedBoxStyle
+	var base: ClippedBoxStyle = get_theme_stylebox(style_name) as ClippedBoxStyle
 	if base == null:
 		return ClippedBoxStyle.create(bg, border)
 	return base.recolored(bg, border)

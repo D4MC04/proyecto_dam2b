@@ -1,7 +1,7 @@
 # La Minigun estrena aspecto casero y la pesada hereda el de ahora
 
-Creador: Jotaro
-Responsable:
+Creador: Ezequiel
+Responsable: Ezequiel
 Estado: propuesta
 Prioridad: media
 Modelo recomendado: opus

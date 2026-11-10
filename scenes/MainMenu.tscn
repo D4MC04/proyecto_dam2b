@@ -17,6 +17,32 @@
 [ext_resource type="Script" uid="uid://d2ksqjroaxlx6" path="res://scripts/main_menu/Outpost.gd" id="25_outpost"]
 [ext_resource type="Texture2D" uid="uid://bykflanuslq17" path="res://assets/sprites/backgrounds/menu/menu_vignette.png" id="26_vignette"]
 [ext_resource type="Texture2D" uid="uid://7sb0q5toos63" path="res://assets/sprites/backgrounds/menu/menu_planet.png" id="27_planet"]
+[ext_resource type="Script" path="res://scripts/main_menu/RadarConsole.gd" id="29_radar"]
+[ext_resource type="Script" path="res://scripts/main_menu/ArchiveTablet.gd" id="30_tablet"]
+[ext_resource type="Script" path="res://scripts/main_menu/MedalCase.gd" id="31_medals"]
+[ext_resource type="Script" path="res://scripts/main_menu/OfficeDoor.gd" id="32_door"]
+[ext_resource type="Script" path="res://scripts/main_menu/CombatScoreboard.gd" id="33_scoreboard"]
+[ext_resource type="Script" path="res://scripts/main_menu/OptionsConsole.gd" id="34_maintenance"]
+[ext_resource type="Script" path="res://scripts/main_menu/TurnArrow.gd" id="35_arrow"]
+[ext_resource type="PackedScene" path="res://scenes/AchievementsScreen.tscn" id="36_achievements"]
+[ext_resource type="Script" path="res://scripts/main_menu/OfficeLights.gd" id="37_lights"]
+[ext_resource type="Texture2D" path="res://assets/sprites/office/left_static.png" id="38_left_room"]
+[ext_resource type="Texture2D" path="res://assets/sprites/office/center_static.png" id="39_center_room"]
+[ext_resource type="Texture2D" path="res://assets/sprites/office/right_static.png" id="40_right_room"]
+[ext_resource type="Shader" path="res://resources/shaders/office_radar.gdshader" id="41_radar_shader"]
+[ext_resource type="Texture2D" path="res://assets/sprites/office/door_plane.png" id="42_door_plane"]
+[ext_resource type="Texture2D" path="res://assets/sprites/office/corridor.png" id="43_corridor"]
+[ext_resource type="Texture2D" path="res://assets/sprites/office/door_leaf_l.png" id="44_leaf_left"]
+[ext_resource type="Texture2D" path="res://assets/sprites/office/door_leaf_r.png" id="45_leaf_right"]
+[ext_resource type="Texture2D" path="res://assets/sprites/office/door_seam.png" id="46_seam"]
+[ext_resource type="Texture2D" path="res://assets/sprites/office/door_glow.png" id="47_frame_glow"]
+[ext_resource type="Texture2D" path="res://assets/sprites/office/access_lit.png" id="48_access_light"]
+[ext_resource type="Script" path="res://scripts/level_ui/SectorRadar.gd" id="28_radar"]
+[ext_resource type="Script" path="res://scripts/level_ui/SectorCard.gd" id="29_card"]
+
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_radar"]
+shader = ExtResource("41_radar_shader")
 
 [node name="MainMenu" type="Control" unique_id=576679633]
 texture_filter = 1
@@ -38,27 +64,29 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
 
-[node name="MenuBackground" parent="." unique_id=1933183231 instance=ExtResource("24_background")]
+[node name="Space" type="Node2D" parent="."]
 
-[node name="StarField" type="Node2D" parent="." unique_id=933333249]
+[node name="MenuBackground" parent="Space" unique_id=1933183231 instance=ExtResource("24_background")]
+
+[node name="StarField" type="Node2D" parent="Space" unique_id=933333249]
 script = ExtResource("2_stars")
 
-[node name="RingedPlanet" type="Sprite2D" parent="." unique_id=1013456220]
-position = Vector2(820, 446)
+[node name="RingedPlanet" type="Sprite2D" parent="Space" unique_id=1013456220]
+position = Vector2(820, 138)
 texture = ExtResource("27_planet")
 
-[node name="Comets" type="Node2D" parent="." unique_id=273898892]
+[node name="Comets" type="Node2D" parent="Space" unique_id=273898892]
 script = ExtResource("14_comets")
 
-[node name="Asteroids" type="Node2D" parent="." unique_id=413824944]
+[node name="Asteroids" type="Node2D" parent="Space" unique_id=413824944]
 script = ExtResource("17_asteroids")
 
-[node name="Satellites" type="Node2D" parent="." unique_id=840616863]
+[node name="Satellites" type="Node2D" parent="Space" unique_id=840616863]
 script = ExtResource("18_satellites")
 
-[node name="Planets" type="Node2D" parent="." unique_id=1569682466]
+[node name="Planets" type="Node2D" parent="Space" unique_id=1569682466]
 
-[node name="Asteroide1" parent="Planets" unique_id=359384108 instance=ExtResource("9_body")]
+[node name="Asteroide1" parent="Space/Planets" unique_id=359384108 instance=ExtResource("9_body")]
 visible = false
 position = Vector2(81, 458.1)
 scale = Vector2(0.355, 0.33500007)
@@ -66,107 +94,256 @@ frame_progress = 0.39863676
 sheet = ExtResource("12_asteroide1")
 fps = 10.0
 
-[node name="Outpost" type="Node2D" parent="." unique_id=753478624]
+[node name="Outpost" type="Node2D" parent="Space" unique_id=753478624]
 modulate = Color(0.62, 0.66, 0.74, 1)
-position = Vector2(120, 286)
+position = Vector2(110, 172)
 scale = Vector2(0.5, 0.5)
 script = ExtResource("25_outpost")
 
-[node name="Skirmish" type="Node2D" parent="." unique_id=1817480808 node_paths=PackedStringArray("outpost")]
+[node name="Skirmish" type="Node2D" parent="Space" unique_id=1817480808 node_paths=PackedStringArray("outpost")]
 script = ExtResource("23_skirmish")
 outpost = NodePath("../Outpost")
+lanes = Array[Vector2]([Vector2(0.06, 0.2), Vector2(0.28, 0.42)])
 
-[node name="Vignette" type="Sprite2D" parent="." unique_id=1700312252]
+[node name="Vignette" type="Sprite2D" parent="Space" unique_id=1700312252]
 texture = ExtResource("26_vignette")
 centered = false
 
-[node name="TitleScreen" type="VBoxContainer" parent="." unique_id=1853329339]
+[node name="Office" type="Control" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 6
-alignment = 1
+mouse_filter = 2
 
-[node name="Title" type="Label" parent="TitleScreen" unique_id=337636773]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.8, 0.9, 1, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 72
-text = "ASTRO ARTILLERY"
-horizontal_alignment = 1
+[node name="Views" type="Control" parent="Office"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
 
-[node name="Subtitle" type="Label" parent="TitleScreen" unique_id=188734549]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 2
-theme_override_font_sizes/font_size = 24
-text = "TOWER DEFENSE"
-horizontal_alignment = 1
+[node name="LeftView" type="Control" parent="Office/Views"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = -960.0
+offset_bottom = 540.0
+mouse_filter = 2
 
-[node name="Spacer" type="Control" parent="TitleScreen" unique_id=151698889]
-custom_minimum_size = Vector2(0, 36)
-layout_mode = 2
+[node name="Room" type="TextureRect" parent="Office/Views/LeftView"]
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+texture = ExtResource("38_left_room")
 
-[node name="ButtonsPanel" type="PanelContainer" parent="TitleScreen" unique_id=1254156262]
-layout_mode = 2
-size_flags_horizontal = 4
-script = ExtResource("20_frame")
+[node name="Lights" type="Control" parent="Office/Views/LeftView"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+script = ExtResource("37_lights")
+view = 0
 
-[node name="Margin" type="MarginContainer" parent="TitleScreen/ButtonsPanel" unique_id=80995372]
-layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 21
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 21
+[node name="ExitDoor" type="Control" parent="Office/Views/LeftView"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 93.0
+offset_top = 135.0
+offset_right = 438.0
+offset_bottom = 466.0
+script = ExtResource("32_door")
+show_brackets = false
 
-[node name="Content" type="VBoxContainer" parent="TitleScreen/ButtonsPanel/Margin" unique_id=453307729]
-layout_mode = 2
-theme_override_constants/separation = 18
+[node name="Plane" type="TextureRect" parent="Office/Views/LeftView/ExitDoor"]
+clip_children = 1
+layout_mode = 0
+offset_left = -93.0
+offset_top = -135.0
+offset_right = 867.0
+offset_bottom = 405.0
+mouse_filter = 2
+texture = ExtResource("42_door_plane")
 
-[node name="Buttons" type="VBoxContainer" parent="TitleScreen/ButtonsPanel/Margin/Content" unique_id=203701852]
-layout_mode = 2
-theme_override_constants/separation = 9
-alignment = 1
+[node name="Corridor" type="TextureRect" parent="Office/Views/LeftView/ExitDoor/Plane"]
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+texture = ExtResource("43_corridor")
 
-[node name="PlayButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons" unique_id=1180300128]
-custom_minimum_size = Vector2(204, 36)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
-text = "Jugar"
+[node name="LeafLeft" type="TextureRect" parent="Office/Views/LeftView/ExitDoor/Plane"]
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+texture = ExtResource("44_leaf_left")
 
-[node name="NavedexButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons" unique_id=1727472087]
-custom_minimum_size = Vector2(204, 36)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
-text = "Archivo"
+[node name="LeafRight" type="TextureRect" parent="Office/Views/LeftView/ExitDoor/Plane"]
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+texture = ExtResource("45_leaf_right")
 
-[node name="StatsButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons" unique_id=703218131]
-custom_minimum_size = Vector2(204, 36)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
-text = "Stats"
+[node name="Seam" type="TextureRect" parent="Office/Views/LeftView/ExitDoor"]
+layout_mode = 0
+offset_left = -93.0
+offset_top = -135.0
+offset_right = 867.0
+offset_bottom = 405.0
+mouse_filter = 2
+texture = ExtResource("46_seam")
 
-[node name="SettingsButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons" unique_id=528850060]
-custom_minimum_size = Vector2(204, 36)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
-text = "Opciones"
+[node name="FrameGlow" type="TextureRect" parent="Office/Views/LeftView/ExitDoor"]
+visible = false
+layout_mode = 0
+offset_left = -93.0
+offset_top = -135.0
+offset_right = 867.0
+offset_bottom = 405.0
+mouse_filter = 2
+texture = ExtResource("47_frame_glow")
 
-[node name="QuitButton" type="Button" parent="TitleScreen/ButtonsPanel/Margin/Content/Buttons" unique_id=1613827906]
-custom_minimum_size = Vector2(204, 36)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
-text = "Salir"
+[node name="AccessLight" type="TextureRect" parent="Office/Views/LeftView/ExitDoor"]
+visible = false
+layout_mode = 0
+offset_left = -93.0
+offset_top = -135.0
+offset_right = 867.0
+offset_bottom = 405.0
+mouse_filter = 2
+texture = ExtResource("48_access_light")
+
+[node name="Lights" type="Control" parent="Office/Views/LeftView/ExitDoor"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = -93.0
+offset_top = -135.0
+offset_right = 867.0
+offset_bottom = 405.0
+mouse_filter = 2
+
+[node name="CombatScoreboard" type="Control" parent="Office/Views/LeftView"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 524.0
+offset_top = 87.0
+offset_right = 924.0
+offset_bottom = 417.0
+script = ExtResource("33_scoreboard")
+
+[node name="CenterView" type="Control" parent="Office/Views"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+
+[node name="Room" type="TextureRect" parent="Office/Views/CenterView"]
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+texture = ExtResource("39_center_room")
+
+[node name="Lights" type="Control" parent="Office/Views/CenterView"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+script = ExtResource("37_lights")
+
+[node name="RadarConsole" type="Control" parent="Office/Views/CenterView"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 33.0
+offset_top = 314.0
+offset_right = 508.0
+offset_bottom = 502.0
+script = ExtResource("29_radar")
+
+[node name="Screen" type="ColorRect" parent="Office/Views/CenterView/RadarConsole"]
+material = SubResource("ShaderMaterial_radar")
+layout_mode = 0
+mouse_filter = 2
+
+[node name="ArchiveTablet" type="Control" parent="Office/Views/CenterView"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 552.0
+offset_top = 314.0
+offset_right = 701.0
+offset_bottom = 456.0
+script = ExtResource("30_tablet")
+
+[node name="OptionsConsole" type="Control" parent="Office/Views/CenterView"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 702.0
+offset_top = 316.0
+offset_right = 938.0
+offset_bottom = 494.0
+script = ExtResource("34_maintenance")
+
+[node name="RightView" type="Control" parent="Office/Views"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 960.0
+offset_right = 1920.0
+offset_bottom = 540.0
+mouse_filter = 2
+
+[node name="Room" type="TextureRect" parent="Office/Views/RightView"]
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+texture = ExtResource("40_right_room")
+
+[node name="MedalCase" type="Control" parent="Office/Views/RightView"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 225.0
+offset_top = 74.0
+offset_right = 735.0
+offset_bottom = 506.0
+script = ExtResource("31_medals")
+
+[node name="TurnLeftArrow" type="Control" parent="Office"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 16.0
+offset_top = 248.0
+offset_right = 38.0
+offset_bottom = 292.0
+script = ExtResource("35_arrow")
+
+[node name="TurnRightArrow" type="Control" parent="Office"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 922.0
+offset_top = 248.0
+offset_right = 944.0
+offset_bottom = 292.0
+script = ExtResource("35_arrow")
+direction = 1
+
+[node name="PanelDim" type="ColorRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
 
 [node name="LevelSelectionScreen" type="VBoxContainer" parent="." unique_id=2135136794]
 visible = false
@@ -176,43 +353,56 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("13_theme")
 alignment = 1
 
-[node name="LevelsPanel" type="PanelContainer" parent="LevelSelectionScreen" unique_id=1187171775]
+[node name="LevelsPanel" type="MarginContainer" parent="LevelSelectionScreen" unique_id=1187171775]
 layout_mode = 2
 size_flags_horizontal = 4
-script = ExtResource("20_frame")
 
 [node name="Margin" type="MarginContainer" parent="LevelSelectionScreen/LevelsPanel" unique_id=1728181830]
 layout_mode = 2
 theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 21
+theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 21
+theme_override_constants/margin_bottom = 6
 
 [node name="Content" type="VBoxContainer" parent="LevelSelectionScreen/LevelsPanel/Margin" unique_id=944862105]
 layout_mode = 2
-theme_override_constants/separation = 18
+theme_override_constants/separation = 10
 
-[node name="Header" parent="LevelSelectionScreen/LevelsPanel/Margin/Content" unique_id=1281023251 instance=ExtResource("21_header")]
-layout_mode = 2
-title = "SECTORES DISPONIBLES"
-text_size = 24
-
-[node name="LevelButtonsContainer" type="GridContainer" parent="LevelSelectionScreen/LevelsPanel/Margin/Content" unique_id=1866487335]
+[node name="SectorsSubtitle" type="Label" parent="LevelSelectionScreen/LevelsPanel/Margin/Content"]
 unique_name_in_owner = true
+auto_translate_mode = 2
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.72, 0.78, 1)
+theme_override_font_sizes/font_size = 16
+
+[node name="SectorsRow" type="HBoxContainer" parent="LevelSelectionScreen/LevelsPanel/Margin/Content"]
 layout_mode = 2
 size_flags_horizontal = 4
-theme_override_constants/h_separation = 12
-theme_override_constants/v_separation = 12
-columns = 5
+theme_override_constants/separation = 24
+
+[node name="SectorRadar" type="Control" parent="LevelSelectionScreen/LevelsPanel/Margin/Content/SectorsRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(384, 384)
+layout_mode = 2
+script = ExtResource("28_radar")
+
+[node name="SectorCard" type="MarginContainer" parent="LevelSelectionScreen/LevelsPanel/Margin/Content/SectorsRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+size_flags_vertical = 4
+script = ExtResource("29_card")
 
 [node name="VolverButton" type="Button" parent="LevelSelectionScreen/LevelsPanel/Margin/Content" unique_id=555534078]
 custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_type_variation = &"ScreenButton"
 theme_override_font_sizes/font_size = 24
-text = "Volver"
+text = "BTN_BACK"
 
 [node name="StatsScreen" type="VBoxContainer" parent="." unique_id=346163568]
 visible = false
@@ -242,7 +432,7 @@ theme_override_constants/separation = 18
 
 [node name="Header" parent="StatsScreen/StatsPanel/Margin/Content" unique_id=1033965195 instance=ExtResource("21_header")]
 layout_mode = 2
-title = "ESTADÍSTICAS"
+title = "HEADER_STATS"
 text_size = 24
 
 [node name="StatsLabel" type="Label" parent="StatsScreen/StatsPanel/Margin/Content" unique_id=1396226164]
@@ -255,9 +445,13 @@ custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "Volver"
+text = "BTN_BACK"
 
 [node name="Navedex" parent="." unique_id=276684204 instance=ExtResource("22_navedex")]
+visible = false
+layout_mode = 1
+
+[node name="AchievementsScreen" parent="." instance=ExtResource("36_achievements")]
 visible = false
 layout_mode = 1
 
@@ -265,11 +459,101 @@ layout_mode = 1
 visible = false
 layout_mode = 1
 
-[connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/PlayButton" to="." method="_on_play_button_pressed"]
-[connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/NavedexButton" to="." method="_on_navedex_button_pressed"]
-[connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/StatsButton" to="." method="_on_stats_button_pressed"]
-[connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/SettingsButton" to="." method="_on_settings_button_pressed"]
-[connection signal="pressed" from="TitleScreen/ButtonsPanel/Margin/Content/Buttons/QuitButton" to="." method="_on_quit_button_pressed"]
-[connection signal="pressed" from="LevelSelectionScreen/LevelsPanel/Margin/Content/VolverButton" to="." method="_on_volver_pressed"]
-[connection signal="pressed" from="StatsScreen/StatsPanel/Margin/Content/BackButton" to="." method="_on_stats_back_pressed"]
-[connection signal="back_pressed" from="Navedex" to="." method="_on_navedex_back_pressed"]
+[node name="QuitConfirm" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="QuitConfirm"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="Center" type="CenterContainer" parent="QuitConfirm"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Panel" type="PanelContainer" parent="QuitConfirm/Center"]
+layout_mode = 2
+script = ExtResource("20_frame")
+accent_color = Color(1, 0.23529412, 0.3529412, 1)
+accent_light_color = Color(1, 0.6666667, 0.74509805, 1)
+
+[node name="Margin" type="MarginContainer" parent="QuitConfirm/Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 21
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 21
+
+[node name="Content" type="VBoxContainer" parent="QuitConfirm/Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Title" type="Label" parent="QuitConfirm/Center/Panel/Margin/Content"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.6666667, 0.74509805, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 48
+text = "QUIT_CONFIRM_TITLE"
+horizontal_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="QuitConfirm/Center/Panel/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="QuitButton" type="Button" parent="QuitConfirm/Center/Panel/Margin/Content/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(132, 36)
+layout_mode = 2
+focus_mode = 0
+theme_type_variation = &"DangerButton"
+theme_override_font_sizes/font_size = 24
+text = "BTN_QUIT"
+
+[node name="CancelButton" type="Button" parent="QuitConfirm/Center/Panel/Margin/Content/Buttons"]
+custom_minimum_size = Vector2(132, 36)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 24
+text = "BTN_CANCEL"
+
+
+[node name="RadarViewport" type="SubViewport" parent="."]
+transparent_bg = true
+canvas_item_default_texture_filter = 0
+size = Vector2i(960, 540)
+size_2d_override = Vector2i(960, 540)
+size_2d_override_stretch = true
+render_target_update_mode = 4
+
+[connection signal="pressed" from="Office/Views/LeftView/ExitDoor" to="." method="_on_exit_door_pressed"]
+[connection signal="pressed" from="Office/Views/RightView/MedalCase" to="." method="_on_medal_case_pressed"]
+[connection signal="pressed" from="Office/Views/CenterView/RadarConsole" to="." method="_on_radar_console_pressed"]
+[connection signal="pressed" from="Office/Views/CenterView/ArchiveTablet" to="." method="_on_archive_tablet_pressed"]
+[connection signal="pressed" from="Office/Views/LeftView/CombatScoreboard" to="." method="_on_combat_scoreboard_pressed"]
+[connection signal="pressed" from="Office/Views/CenterView/OptionsConsole" to="." method="_on_options_console_pressed"]
+[connection signal="pressed" from="Office/TurnLeftArrow" to="." method="_turn" binds= [-1]]
+[connection signal="pressed" from="Office/TurnRightArrow" to="." method="_turn" binds= [1]]
+[connection signal="pressed" from="LevelSelectionScreen/LevelsPanel/Margin/Content/VolverButton" to="." method="_close_panel"]
+[connection signal="pressed" from="StatsScreen/StatsPanel/Margin/Content/BackButton" to="." method="_close_panel"]
+[connection signal="back_pressed" from="Navedex" to="." method="_close_panel"]
+[connection signal="back_pressed" from="AchievementsScreen" to="." method="_close_panel"]
+[connection signal="back_pressed" from="OptionsMenu" to="." method="_close_panel"]
+[connection signal="pressed" from="QuitConfirm/Center/Panel/Margin/Content/Buttons/QuitButton" to="." method="_quit"]
+[connection signal="pressed" from="QuitConfirm/Center/Panel/Margin/Content/Buttons/CancelButton" to="." method="_close_quit_confirm"]

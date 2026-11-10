@@ -2,6 +2,7 @@
 
 Creador: Renzo
 Estado: aceptada
+Prioridad: alta
 Modelo recomendado: opus
 Esfuerzo recomendado: high
 

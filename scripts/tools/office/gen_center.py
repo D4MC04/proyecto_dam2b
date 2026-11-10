@@ -1,0 +1,319 @@
+# Genera los PNG de la vista central de la oficina, píxel a píxel: marco del ventanal, alféizar,
+# consola inclinada pegada al ventanal, mesa del radar, módulo de opciones, bandeja y tablet.
+# Los marcos se sombrean por perfiles (distancia al borde -> color, con luz arriba a la izquierda),
+# los detalles pequeños son plantillas de texto (un carácter por píxel).
+import json, os
+import numpy as np
+from pixkit import *
+
+
+# ================================================================ VISTA CENTRAL
+PANES = [(12, 20, 250, 262), (276, 20, 684, 262), (710, 20, 948, 262)]
+PANE_CH = 18
+SILL = 262
+TOP = 298
+
+
+def build_center():
+    cv = Canvas(W, H)
+    ys, xs = np.mgrid[0:H, 0:W]
+    # --- Estructura del ventanal: distancia hacia fuera desde la hoja más cercana.
+    dist = np.full((H, W), 10 ** 6)
+    cls = np.zeros((H, W), int)
+    for (x0, y0, x1, y1) in PANES:
+        d, k = chamfer_terms(xs, ys, x0, y0, x1, y1, tl=PANE_CH, tr=PANE_CH)
+        better = d < dist
+        dist[better] = d[better]
+        cls[better] = k[better]
+    region = ys < SILL + 2
+    # Junta con luz, bisel hacia el cristal (sombreado según hacia dónde mira) y cara del marco con una ranura.
+    slope = (D6, D5, D2)
+    profile = [None, OUT, C1, C0, OUT, slope, slope, (c("5c667a"), D5, D2), D5, D4, D4, D4, OUT, D5, D4, D4, D3, D2, OUT]
+    light_cls, mid_cls = [2, 3], [5]
+    inside = dist <= 0
+    cv.px[region & (dist >= len(profile))] = D1
+    prof = [p if p is not None else CLEAR for p in profile]
+    shade_by_profile(cv, region & ~inside, dist, cls, prof, light_cls, mid_cls)
+    # Remaches sobre la cara del marco.
+    for (x0, y0, x1, y1) in PANES:
+        for x in range(x0 + 26, x1 - 20, 34):
+            rivet(cv, x, y0 - 10)
+        for y in range(y0 + 30, SILL - 10, 34):
+            if x0 < 20:
+                rivet(cv, x0 - 7, y)
+            if x1 > 940:
+                rivet(cv, x1 + 6, y)
+    for px in (263, 697):
+        for y in range(48, SILL - 10, 34):
+            rivet(cv, px, y)
+    # Reflejos del cristal y brillo de las pantallas abajo.
+    for i, (x0, y0, x1, y1) in enumerate(PANES):
+        for y in range(y0, y1):
+            for off, wd in ((150, 18), (180, 6)):
+                xs0 = x0 + off - (y - y0) + (60 if i == 1 else 0)
+                for x in range(max(xs0, x0), min(xs0 + wd, x1)):
+                    if not inside[y, x]:
+                        continue
+                    cv.blend(x, y, (190, 250, 255, 16))
+        for y in range(y1 - 40, y1):
+            k = (y - (y1 - 40)) / 40
+            for x in range(x0, x1):
+                if inside[y, x] and ((x + y * 2) % 4 == 0 if k < 0.5 else (x + y) % 2 == 0) and k > 0.15:
+                    cv.blend(x, y, (64, 224, 240, 22))
+    # Los píxeles del cristal quedan transparentes salvo reflejos.
+    build_console(cv, ys, xs)
+    return cv, ys, xs
+
+
+# ---------------------------------------------------------------- consola inclinada
+# Vista en tercera persona: la consola sube desde el jugador hasta el ventanal y se pega a él. Las
+# piezas son rectángulos apoyados en la superficie inclinada: se ve su canto de delante (abajo) y su
+# sombra cae hacia el jugador.
+SURF_TOP = SILL + 4   # empieza la superficie, justo bajo la línea de luz
+SEAM = 300            # junta entre la franja de los pilotos y la superficie de trabajo
+LIP = 520             # borde delantero
+LIP_ROWS = [OUT, D6, D6, D5, D5, D4, D4, D4, OUT, C0, C1, C0, OUT, D3, D3, D2, D2, D1, OUT, OUT]
+
+
+def thickness(cv, face, rows):
+    """Canto de delante de una pieza apoyada en la superficie: la cara desplazada hacia abajo,
+    una fila de color por píxel de grosor, con contorno a los lados y abajo."""
+    edge = np.zeros_like(face)
+    prev = face.copy()
+    for d, col in enumerate(rows, 1):
+        sh = np.zeros_like(face)
+        sh[d:] = face[:-d]
+        m = sh & ~prev
+        cv.px[m] = col
+        edge |= m
+        prev |= sh
+    solid = face | edge
+    side = edge & ~(np.roll(solid, 1, 1) & np.roll(solid, -1, 1))
+    cv.px[side] = OUT
+    bottom = edge & ~np.roll(solid, -1, 0)
+    cv.px[bottom] = OUT
+    return solid
+
+
+def shadow_on_surface(cv, solid, dx=3, dy=7):
+    """Sombra que cae hacia el jugador (la luz viene del ventanal)."""
+    sh = np.zeros_like(solid)
+    sh[dy:, dx:] = solid[:-dy, :-dx]
+    sel = sh & ~solid
+    cv.px[sel, :3] = (cv.px[sel, :3] * 0.55).astype(np.uint8)
+
+
+def build_console(cv, ys, xs):
+    # Línea de luz entre el ventanal y la consola, de lado a lado.
+    for i, col in enumerate([OUT, C1, C2, OUT]):
+        cv.rect(0, SILL + i, W, 1, col)
+    # Franja de arriba, junto al cristal: le llega la luz de fuera y lleva los pilotos.
+    cv.rect(0, SURF_TOP, W, SEAM - SURF_TOP, D4)
+    band = (ys >= SURF_TOP) & (ys < SURF_TOP + 16)
+    cv.px[band & bayer_mask(np.clip((SURF_TOP + 16 - ys) / 16 * 9, 0, 16))] = D5
+    cv.px[band & bayer_mask(np.clip((SURF_TOP + 6 - ys) / 6 * 5, 0, 16))] = C0
+    pal = ["C2", "C2", "A2", "C2", "G2", "C2"]
+    for n, x in enumerate(range(30, W - 30, 50)):
+        led_housing(cv, x, SURF_TOP + 15, pal[n % 6], 1.6 if n % 7 == 3 else 0, 14, 3)
+    for i, col in enumerate([OUT, OUT, D5]):
+        cv.rect(0, SEAM + i, W, 1, col)
+    # Superficie de trabajo: más clara lejos (junto a la luz) y más oscura cerca del jugador.
+    cv.rect(0, SEAM + 3, W, LIP - SEAM - 3, D3)
+    near = (ys >= 440) & (ys < LIP)
+    cv.px[near & bayer_mask(np.clip((ys - 440) / 80 * 9, 0, 16))] = D2
+    far = (ys >= SEAM + 3) & (ys < SEAM + 20)
+    cv.px[far & bayer_mask(np.clip((SEAM + 20 - ys) / 17 * 6, 0, 16))] = D4
+    # Borde delantero redondeado, con una tira de luz.
+    for i, col in enumerate(LIP_ROWS):
+        cv.rect(0, LIP + i, W, 1, col)
+    for x in range(20, W - 10, 40):
+        cv.rect(x, LIP + 10, 22, 1, C2)
+
+
+# ---------------------------------------------------------------- plano inclinado
+# Todas las piezas se apoyan en el mismo plano: una x "de mundo" X se ve en la fila y en
+# 480 + (X - 480) * kk(y), que crece hacia el jugador (las piezas se ensanchan hacia abajo).
+PLANE_Y0, PLANE_Y1, ALPHA = SURF_TOP, LIP, 0.25
+
+
+def kk(y):
+    return 1 + (y - PLANE_Y0) / (PLANE_Y1 - PLANE_Y0) * ALPHA
+
+
+def to_screen(X, y):
+    return 480 + (X - 480) * kk(y)
+
+
+def plane_rect(ys, xs, X0, y0, X1, y1, tl=0, br=0):
+    """Máscara de un rectángulo de mundo apoyado en el plano."""
+    wx = 480 + (xs + 0.5 - 480) / kk(ys)
+    d, _ = chamfer_terms(wx, ys, X0, y0, X1, y1, tl=tl, br=br)
+    return d <= 0
+
+
+def quad_of(m, ox=0, oy=0):
+    """Trapecio de una máscara: filas de arriba y abajo y sus extremos (para OfficeLayout)."""
+    rows = np.where(m.any(1))[0]
+    top, bot = int(rows.min()), int(rows.max())
+    rt, rb = np.where(m[top])[0], np.where(m[bot])[0]
+    return {"top": top + oy, "bot": bot + oy, "tl": int(rt.min()) + ox, "tr": int(rt.max()) + 1 + ox,
+            "bl": int(rb.min()) + ox, "br": int(rb.max()) + 1 + ox}
+
+
+def bbox_of(m, extra_h=0):
+    """Caja [x, y, ancho, alto] de una máscara (más `extra_h` filas de canto abajo)."""
+    rows, cols = np.where(m.any(1))[0], np.where(m.any(0))[0]
+    return [int(cols.min()), int(rows.min()), int(cols.max() - cols.min() + 1), int(rows.max() - rows.min() + 1 + extra_h)]
+
+
+def plane_seam(cv, X, y0, y1):
+    for y in range(y0, y1):
+        x = int(round(to_screen(X, y)))
+        cv.put(x, y, OUT)
+        cv.put(x + 1, y, OUT)
+        cv.put(x + 2, y, D5)
+
+
+# ---------------------------------------------------------------- mesa del radar
+TABLE = (115, 314, 503, 494)    # rectángulo de mundo: X0, y0, X1, y1
+TABLE_EDGE = [M0, M0, D6, D6, D5, D5, D4, D4]
+TABLE_INSET = 14
+
+
+def build_table(cv, ys, xs):
+    X0, y0, X1, y1 = TABLE
+    face = plane_rect(ys, xs, X0, y0, X1, y1)
+    solid = face.copy()
+    for dd in range(1, len(TABLE_EDGE) + 1):
+        solid |= np.roll(face, dd, 0)
+    shadow_on_surface(cv, solid)
+    thickness(cv, face, TABLE_EDGE)
+    prof = [OUT, OUT, (M3, M2, M1), (M2, M1, M0), M1, M1, (M2, M1, M1), M1, M1, M0, M0, D2, OUT, OUT]
+    dist = bevel(cv, face, prof, body=S1)
+    # Proyectores en las cuatro esquinas.
+    EMIT = ["oooooooooooo", "ommmmmmmmmmo", "omhaaaaaahso", "omaccccccaso", "omacbbbbcaso", "omaccccccaso", "omssssssssso", "oooooooooooo"]
+    pal = {"o": OUT, "m": M2, "h": M3, "a": A1, "c": A2, "b": A3, "s": M0}
+    q = quad_of(face)
+    for (x, y) in [(q["tl"] + 1, y0 + 1), (q["tr"] - 13, y0 + 1), (q["bl"] + 1, y1 - 9), (q["br"] - 13, y1 - 9)]:
+        cv.template(EMIT, pal, x, y)
+    for X in range(X0 + 60, X1 - 60, 22):
+        led_housing(cv, int(to_screen(X, y0 + 4)), y0 + 4, "C2", 0, 8, 2)
+    inner = face & (dist >= len(prof))
+    return quad_of(inner), [[q["tl"], q["top"]], [q["tr"], q["top"]], [q["br"], q["bot"] + len(TABLE_EDGE)], [q["bl"], q["bot"] + len(TABLE_EDGE)]]
+
+
+# ---------------------------------------------------------------- módulo de opciones
+OPT = (690, 316, 860, 486)      # rectángulo de mundo
+OPT_EDGE = [M0, M0, D6, D6, D5, D5, D4, D4]
+
+
+def build_options(cv, ys, xs):
+    X0, y0, X1, y1 = OPT
+    face = plane_rect(ys, xs, X0, y0, X1, y1, tl=8, br=8)
+    solid = face.copy()
+    for dd in range(1, len(OPT_EDGE) + 1):
+        solid |= np.roll(face, dd, 0)
+    shadow_on_surface(cv, solid)
+    thickness(cv, face, OPT_EDGE)
+    bevel(cv, face, [OUT, OUT, (M3, M2, M0), (M2, M1, M0), (M2, M1, M0)], body=M1)
+    # Recuadros hundidos: pantalla arriba y mandos abajo (luz invertida: el canto de arriba en sombra).
+    scr = plane_rect(ys, xs, X0 + 10, y0 + 11, X1 - 10, y0 + 89, tl=4, br=4)
+    deck = plane_rect(ys, xs, X0 + 10, y0 + 98, X1 - 10, y1 - 10, tl=4, br=4)
+    ds = bevel(cv, scr, [(M2, M1, OUT), (M3, M2, D2), OUT], body=S1, sunk=True)
+    dd_ = bevel(cv, deck, [(M2, M1, OUT), (M3, M2, D2), OUT], body=M0, sunk=True)
+    for (X, y) in [(X0 + 5, y0 + 5), (X1 - 6, y0 + 5), (X0 + 5, y1 - 6), (X1 - 6, y1 - 6)]:
+        rivet(cv, int(round(to_screen(X, y))), y, light=True)
+    # Mandos centrados en el recuadro de abajo: tres pomos brillantes y cuatro interruptores.
+    dq = quad_of(deck & (dd_ >= 3))
+    cy = (dq["top"] + dq["bot"]) // 2
+    wl, wr = int(round(to_screen(X0 + 13, cy))), int(round(to_screen(X1 - 13, cy)))
+    r, kstep, gap, sstep = 12, 32, 14, 13
+    span = (2 * kstep + 2 * r + 2) + gap + (3 * sstep + 10)
+    left = wl + ((wr - wl) - span) // 2
+    knobs = []
+    for i in range(3):
+        kx = left + r + 1 + i * kstep
+        knob(cv, kx, cy, r)
+        knobs.append([kx, cy])
+    switches = []
+    sx0 = left + 2 * kstep + 2 * r + 2 + gap
+    sy = cy - 15
+    for i in range(4):
+        sx = sx0 + i * sstep
+        cv.rect(sx - 1, sy - 1, 10, 32, OUT)
+        cv.rect(sx, sy, 8, 30, D1)
+        cv.rect(sx, sy, 8, 2, OUT)
+        switches.append([sx, sy])
+    return {"rect": bbox_of(face, len(OPT_EDGE)),
+            "screen": quad_of(scr & (ds >= 3)), "knobs": knobs, "switches": switches}
+
+
+# ---------------------------------------------------------------- tablet y su bandeja
+TRAY = (548, 314, 668, 456)     # bandeja hundida (mundo)
+TAB = (562, 324, 654, 438)      # cara de la tablet (mundo)
+TAB_EDGE = [D5, D5, D4, D3, D2, D2]
+
+
+def build_tray(cv, ys, xs):
+    X0, y0, X1, y1 = TRAY
+    m = plane_rect(ys, xs, X0, y0, X1, y1, tl=6, br=6)
+    bevel(cv, m, [OUT, OUT, (D4, D3, OUT), (D3, D2, D1)], body=D1, sunk=True)
+    # Ranura de luz al fondo de la bandeja (la enciende ArchiveTablet al sacar la tablet).
+    yl = y1 - 8
+    xa, xb = int(round(to_screen(X0 + 14, yl))), int(round(to_screen(X1 - 14, yl)))
+    cv.rect(xa - 1, yl - 1, xb - xa + 2, 3, OUT)
+    return bbox_of(m), [xa, yl, xb - xa, 1]
+
+
+def build_tablet(ys, xs):
+    """Tablet robusta apoyada en el plano: marco grueso, escuadras atornilladas y el canto abajo."""
+    X0, y0, X1, y1 = TAB
+    full = Canvas(W, H)
+    face = plane_rect(ys, xs, X0, y0, X1, y1, tl=6, br=6)
+    thickness(full, face, TAB_EDGE)
+    bevel(full, face, [OUT, OUT, (D6, D5, D2), (D5, D4, D2), D4], body=D4)
+    scr = plane_rect(ys, xs, X0 + 11, y0 + 11, X1 - 11, y1 - 11)
+    ring = plane_rect(ys, xs, X0 + 9, y0 + 9, X1 - 9, y1 - 9) & ~scr
+    full.px[ring] = OUT
+    full.px[scr] = S1
+    # Escuadras de las esquinas: L de metal claro con tornillo.
+    L, Tk = 24, 8
+    for (fx, fy) in [(1, 1), (-1, 1), (1, -1), (-1, -1)]:
+        cx0 = X0 if fx > 0 else X1 - L
+        cy0 = y0 if fy > 0 else y1 - L
+        hy = cy0 if fy > 0 else cy0 + L - Tk
+        vx = cx0 if fx > 0 else cx0 + L - Tk
+        arm = plane_rect(ys, xs, cx0, hy, cx0 + L, hy + Tk) | plane_rect(ys, xs, vx, cy0, vx + Tk, cy0 + L)
+        bevel(full, arm, [OUT, (M3, M2, M0), (M2, M1, M0)], body=M1)
+        rivet(full, int(round(to_screen(vx + 4, hy + 4))), hy + 4, light=True)
+    solid = face.copy()
+    for dd in range(1, len(TAB_EDGE) + 1):
+        solid |= np.roll(face, dd, 0)
+    q = quad_of(solid)
+    # Recorte: caja de todo lo pintado (el recorte de las esquinas no debe cortar las escuadras).
+    cols = np.where(full.px[..., 3].any(0))[0]
+    rows = np.where(full.px[..., 3].any(1))[0]
+    x0, x1, y0_, y1_ = int(cols.min()), int(cols.max()) + 1, int(rows.min()), int(rows.max()) + 1
+    from PIL import Image
+    Image.fromarray(full.px[y0_:y1_, x0:x1], "RGBA").save(os.path.join(OUT_DIR, "tablet.png"))
+    return {"x": int(x0), "y": int(y0_), "w": int(x1 - x0), "h": int(y1_ - y0_),
+            "screen": quad_of(scr[y0_:y1_, x0:x1]), "shadow": quad_of(solid, 0, 0)}
+
+
+def main():
+    cv, ys, xs = build_center()
+    for X in (525, 679):
+        plane_seam(cv, X, SEAM + 3, LIP)
+    table_in, table_out = build_table(cv, ys, xs)
+    tray, tray_light = build_tray(cv, ys, xs)
+    opt = build_options(cv, ys, xs)
+    cv.save("center_static.png")
+    tablet = build_tablet(ys, xs)
+    meta = {"table_in": table_in, "table_out": table_out, "opt": opt, "tablet": tablet, "tray": tray,
+            "tray_light": tray_light, "leds": LEDS, "sill": SILL, "top": SEAM, "strip": SILL + 2}
+    print("ok", json.dumps(table_in), json.dumps(tablet), len(LEDS), "pilotos")
+    return meta
+
+
+if __name__ == "__main__":
+    main()

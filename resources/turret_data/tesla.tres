@@ -15,7 +15,7 @@
 script = ExtResource("1")
 shoot_sound = ExtResource("snd")
 charge_sound = ExtResource("chg")
-name = "Tesla"
+name = "TURRET_TESLA_NAME"
 cost = 350
 attack_cooldown = 1.3
 icon = ExtResource("4")
@@ -25,5 +25,5 @@ cannon = ExtResource("7")
 chain = ExtResource("3")
 fusion = ExtResource("fusion")
 amp_effect = ExtResource("amp")
-description = "Un rayo salta de enemigo en enemigo y alcanza a varios a la vez."
+description = "TURRET_TESLA_DESC"
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

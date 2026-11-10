@@ -6,7 +6,7 @@
 
 [resource]
 script = ExtResource("1_data")
-name = "Ariete"
+name = "ENEMY_ARIETE_NAME"
 hp = 240.0
 speed = 40
 reward = 95
@@ -14,5 +14,5 @@ base_damage = 20
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 rotate_sprite = true
-description = "Nave de embestida con casco reforzado."
+description = "ENEMY_ARIETE_DESC"
 metadata/_custom_type_script = "uid://do62ihbnaitnl"

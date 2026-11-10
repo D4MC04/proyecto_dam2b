@@ -12,7 +12,7 @@
 [resource]
 script = ExtResource("1")
 shoot_sound = ExtResource("snd")
-name = "Cryo ventisca"
+name = "TURRET_CRYO_FUSION_NAME"
 cost = 500
 attack_cooldown = 2.0
 icon = ExtResource("4")
@@ -21,5 +21,5 @@ attack_range = ExtResource("2")
 cannon = ExtResource("7")
 pulse = ExtResource("3")
 amp_effect = ExtResource("amp")
-description = "Una ventisca que casi congela todo lo que alcanza. Fusión de dos Cryo."
+description = "TURRET_CRYO_FUSION_DESC"
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

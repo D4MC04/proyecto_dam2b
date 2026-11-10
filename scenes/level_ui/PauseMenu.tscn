@@ -14,14 +14,14 @@ script = ExtResource("3_pause")
 dim_opacity = 0.35
 
 [node name="Title" parent="Center/Frame/Margin/Box" index="0"]
-text = "PAUSA"
+text = "PAUSE_TITLE"
 
 [node name="ResumeButton" type="Button" parent="Center/Frame/Margin/Box/Options" unique_id=438037907]
 custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "Continuar"
+text = "BTN_RESUME"
 script = ExtResource("2_option")
 option = 0
 
@@ -30,7 +30,7 @@ custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "Opciones"
+text = "BTN_OPTIONS"
 script = ExtResource("2_option")
 option = 4
 
@@ -39,7 +39,7 @@ custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "Reiniciar"
+text = "BTN_RESTART"
 script = ExtResource("2_option")
 option = 1
 
@@ -48,7 +48,7 @@ custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
-text = "Salir"
+text = "BTN_QUIT"
 script = ExtResource("2_option")
 option = 2
 
@@ -107,7 +107,7 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.2509804, 0.8784314, 0.9411765, 1)
 theme_override_font_sizes/font_size = 24
-text = "PAUSA"
+text = "PAUSE_TITLE"
 
 [node name="OptionsMenu" parent="." instance=ExtResource("6_options")]
 unique_name_in_owner = true

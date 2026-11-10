@@ -12,7 +12,7 @@
 
 [resource]
 script = ExtResource("1")
-name = "Cañón doble"
+name = "TURRET_TURRET_NAME"
 cost = 100
 attack_cooldown = 0.25
 icon = ExtResource("4")
@@ -25,5 +25,5 @@ turn_speed = 240.0
 shoot_sound = ExtResource("snd")
 fusion = ExtResource("fusion")
 amp_effect = ExtResource("amp")
-description = "Dispara ráfagas rápidas con sus dos cañones. Barata y fiable."
+description = "TURRET_TURRET_DESC"
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

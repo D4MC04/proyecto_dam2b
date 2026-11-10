@@ -18,7 +18,7 @@ class_name ChainData
 ## Filas de la ficha propias de la cadena.
 func get_stats() -> Array[StatEntry]:
 	return [
-		StatEntry.new("damage", "DAÑO", UiFormat.number(damage)),
-		StatEntry.new("targets", "OBJETIVOS", UiFormat.abbreviate(max_targets)),
-		StatEntry.new("jump", "SALTO", UiFormat.number(jump_range)),
+		StatEntry.new("damage", "STAT_DAMAGE", UiFormat.number(damage)),
+		StatEntry.new("targets", "STAT_TARGETS", UiFormat.abbreviate(max_targets)),
+		StatEntry.new("jump", "STAT_JUMP", UiFormat.number(jump_range)),
 	]

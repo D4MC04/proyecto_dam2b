@@ -13,38 +13,42 @@ var max_hp: float
 var _last_position: Vector2
 
 # Los efectos que se pintan encima del enemigo son de 32 px; se escalan a su tamaño.
-const EFFECT_SIZE := 32.0
-const SLOW_FLASH := Color(3, 3, 3)
-const SLOW_FLASH_TIME := 0.1
-const SLOW_TINT := Color(0.65, 0.85, 1.0)
-const HIT_FLASH_TIME := 0.15
-const SPAWN_IN_TIME := 0.2
+const EFFECT_SIZE: float = 32.0
+const SLOW_FLASH: Color = Color(3, 3, 3)
+const SLOW_FLASH_TIME: float = 0.1
+const SLOW_TINT: Color = Color(0.65, 0.85, 1.0)
+const HIT_FLASH_TIME: float = 0.15
+const SPAWN_IN_TIME: float = 0.2
 # Reparadora: cada HEAL_INTERVAL s cura HEAL_RATIO de su vida máxima a los enemigos a HEAL_RADIUS px o menos.
-const HEAL_INTERVAL := 3.0
-const HEAL_RATIO := 0.1
-const HEAL_RADIUS := 48.0
-const HEAL_TEXT_COLOR := Color("#7ee89a")
-const HEAL_FLASH := Color(0.8, 2.5, 1.0)
-const HEAL_FLASH_TIME := 0.4
+const HEAL_INTERVAL: float = 3.0
+const HEAL_RATIO: float = 0.1
+const HEAL_RADIUS: float = 48.0
+const HEAL_TEXT_COLOR: Color = Color("#7ee89a")
+const HEAL_FLASH: Color = Color(0.8, 2.5, 1.0)
+const HEAL_FLASH_TIME: float = 0.4
+# Números de daño (opción show_damage_numbers): los golpes dentro de esta ventana (s) se suman en un solo número.
+const DAMAGE_TEXT_COLOR: Color = Color("#ffffff")
+const DAMAGE_TEXT_WINDOW: float = 0.25
+var _pending_damage: float = 0.0
 # Medio tramo (px) del camino con el que se calcula su tangente.
-const TANGENT_STEP := 2.0
+const TANGENT_STEP: float = 2.0
 
 # Multiplicador de velocidad mientras está ralentizado.
-var _slow := 1.0
+var _slow: float = 1.0
 var _slow_tween: Tween
 var _frost: AnimatedSprite2D
 var _health_bar: HealthBar
 
 # Camuflado: las torretas no lo eligen como objetivo, pero los ataques de área le dan.
-var cloaked := false
-const CLOAK_ALPHA := 0.2
+var cloaked: bool = false
+const CLOAK_ALPHA: float = 0.2
 # Disolución por píxeles con borde morado al camuflarse y al reaparecer.
 const CLOAK_SHADER: Shader = preload("res://resources/shaders/cloak_dissolve.gdshader")
-const CLOAK_DISSOLVE_TIME := 0.3
+const CLOAK_DISSOLVE_TIME: float = 0.3
 
 signal reached_end(damage: int)
 
-func setup(enemy_data: EnemyData, health_multiplier: float = 1.0):
+func setup(enemy_data: EnemyData, health_multiplier: float = 1.0) -> void:
 	data = enemy_data
 	speed = data.speed
 	max_hp = data.hp * health_multiplier
@@ -54,13 +58,13 @@ func setup(enemy_data: EnemyData, health_multiplier: float = 1.0):
 	_last_position = position
 	_health_bar = HealthBar.new()
 	add_child(_health_bar)
-	var size := effect_scale() * EFFECT_SIZE
+	var size: float = effect_scale() * EFFECT_SIZE
 	_health_bar.setup(size, -size / 2.0)
 	add_to_group(&"enemies")
 	if data.cloak_interval > 0.0:
 		_start_cloak_cycle()
 	if data.heal_aura:
-		var timer := Timer.new()
+		var timer: Timer = Timer.new()
 		timer.wait_time = HEAL_INTERVAL
 		timer.autostart = true
 		timer.timeout.connect(_heal_nearby)
@@ -72,11 +76,11 @@ func setup(enemy_data: EnemyData, health_multiplier: float = 1.0):
 func spawn_in() -> void:
 	scale = Vector2.ZERO
 	sprite.modulate = SLOW_FLASH
-	var tween := create_tween().set_parallel()
+	var tween: Tween = create_tween().set_parallel()
 	tween.tween_property(self, "scale", Vector2.ONE, SPAWN_IN_TIME)
 	tween.tween_property(sprite, "modulate", Color.WHITE, SPAWN_IN_TIME)
 
-func _process(delta):
+func _process(delta: float) -> void:
 	progress += get_move_speed() * delta
 	_update_animation()
 	if progress_ratio >= 1.0:
@@ -90,20 +94,20 @@ func get_move_speed() -> float:
 
 ## Velocidad global del enemigo (px/s): tangente del camino en su progreso por get_move_speed().
 func get_move_velocity() -> Vector2:
-	var path := get_parent() as Path2D
+	var path: Path2D = get_parent() as Path2D
 	if path == null:
 		return Vector2.ZERO
-	var curve := path.curve
-	var tangent := curve.sample_baked(minf(progress + TANGENT_STEP, curve.get_baked_length())) - curve.sample_baked(maxf(progress - TANGENT_STEP, 0.0))
+	var curve: Curve2D = path.curve
+	var tangent: Vector2 = curve.sample_baked(minf(progress + TANGENT_STEP, curve.get_baked_length())) - curve.sample_baked(maxf(progress - TANGENT_STEP, 0.0))
 	return path.global_transform.basis_xform(tangent).normalized() * get_move_speed()
 
 # Distancia que le falta para llegar al final de su camino.
 func get_remaining_distance() -> float:
 	return (get_parent() as Path2D).curve.get_baked_length() - progress
 
-func _update_animation():
+func _update_animation() -> void:
 	# Posición local en el camino: el temblor del mapa mueve la global y no debe girar la nave.
-	var direction := position - _last_position
+	var direction: Vector2 = position - _last_position
 	_last_position = position
 	if direction.length() < 0.01:
 		return
@@ -118,34 +122,51 @@ func _update_animation():
 ## `source`: la torreta que hiere (null si es un poder u otra cosa); se apunta el daño y la baja.
 # `source` va sin tipo Turret a propósito: una bala sigue volando aunque su torreta se venda o se mejore,
 # y pasar una torreta ya borrada a un parámetro tipado da error antes de poder comprobarla.
-func take_damage(amount: float, source: Variant = null):
-	var was_alive := hp > 0
-	var dealt := clampf(amount, 0.0, maxf(hp, 0.0))
+func take_damage(amount: float, source: Variant = null) -> void:
+	var was_alive: bool = hp > 0
+	var dealt: float = clampf(amount, 0.0, maxf(hp, 0.0))
 	hp -= amount
 	if is_instance_valid(source):
 		(source as Turret).register_damage(dealt, was_alive and hp <= 0)
 	_health_bar.update(hp, max_hp)
+	if Settings.get_value(&"show_damage_numbers"):
+		_queue_damage_text(dealt)
 	if hp <= 0:
+		_flush_damage_text()
 		die()
+
+# Acumula el daño; el número sale al acabar la ventana (o al morir) para no tapar la nave con una ráfaga.
+func _queue_damage_text(dealt: float) -> void:
+	if dealt <= 0.0:
+		return
+	if _pending_damage <= 0.0:
+		get_tree().create_timer(DAMAGE_TEXT_WINDOW).timeout.connect(_flush_damage_text)
+	_pending_damage += dealt
+
+func _flush_damage_text() -> void:
+	if _pending_damage <= 0.0:
+		return
+	FloatingText.spawn(get_parent(), global_position, UiFormat.number(_pending_damage), FloatingText.DURATION, DAMAGE_TEXT_COLOR)
+	_pending_damage = 0.0
 
 ## Cura sin pasar de la vida máxima, con el número en verde, un destello y chispas. Con la vida llena no hace nada.
 func heal(amount: float) -> void:
-	var healed := minf(amount, max_hp - hp)
+	var healed: float = minf(amount, max_hp - hp)
 	if healed <= 0.0 or hp <= 0.0:
 		return
 	hp += healed
 	_health_bar.update(hp, max_hp)
 	FloatingText.spawn(get_parent(), global_position, "+" + UiFormat.number(healed), FloatingText.DURATION, HEAL_TEXT_COLOR)
 	HealEffect.spawn_sparks(self, effect_scale() * EFFECT_SIZE)
-	var tween := create_tween()
+	var tween: Tween = create_tween()
 	tween.tween_property(sprite, "modulate", _rest_color(), HEAL_FLASH_TIME).from(HEAL_FLASH)
-	tween.tween_callback(func(): sprite.modulate = _rest_color())
+	tween.tween_callback(func() -> void: sprite.modulate = _rest_color())
 
 # Reparadora: suelta el anillo y cura a los demás enemigos a HEAL_RADIUS px o menos (a sí misma no).
 func _heal_nearby() -> void:
 	HealEffect.spawn_ring(get_parent(), global_position, HEAL_RADIUS)
 	for node: Node in get_tree().get_nodes_in_group(&"enemies"):
-		var enemy := node as Enemy
+		var enemy: Enemy = node as Enemy
 		if enemy != self and enemy.global_position.distance_to(global_position) <= HEAL_RADIUS:
 			enemy.heal(max_hp * HEAL_RATIO)
 
@@ -175,29 +196,29 @@ func _end_slow() -> void:
 
 # Destello de golpe; al acabar vuelve al color normal, o al tinte si está ralentizado.
 func flash() -> void:
-	var tween := create_tween()
+	var tween: Tween = create_tween()
 	tween.tween_property(sprite, "modulate", _rest_color(), HIT_FLASH_TIME).from(SLOW_FLASH)
-	tween.tween_callback(func(): sprite.modulate = _rest_color())
+	tween.tween_callback(func() -> void: sprite.modulate = _rest_color())
 
 func _rest_color() -> Color:
 	return SLOW_TINT if _slow < 1.0 else Color.WHITE
 
 func effect_scale() -> float:
-	var texture := sprite.sprite_frames.get_frame_texture(sprite.animation, 0)
+	var texture: Texture2D = sprite.sprite_frames.get_frame_texture(sprite.animation, 0)
 	if texture == null:
 		return 1.0
-	var frame_size := texture.get_size() * sprite.scale
+	var frame_size: Vector2 = texture.get_size() * sprite.scale
 	return maxf(frame_size.x, frame_size.y) / EFFECT_SIZE
 
 # Bucle de camuflaje: visible `cloak_interval` s y camuflado `cloak_time` s.
 # El sprite se disuelve con CLOAK_SHADER; la barra de vida se atenúa a la vez.
 func _start_cloak_cycle() -> void:
-	var material := ShaderMaterial.new()
+	var material: ShaderMaterial = ShaderMaterial.new()
 	material.shader = CLOAK_SHADER
 	material.set_shader_parameter(&"progress", 0.0)
 	material.set_shader_parameter(&"cloaked_alpha", CLOAK_ALPHA)
 	sprite.material = material
-	var tween := create_tween().set_loops()
+	var tween: Tween = create_tween().set_loops()
 	tween.tween_interval(data.cloak_interval)
 	tween.tween_callback(_set_cloaked.bind(true))
 	_tween_dissolve(tween, material, 1.0, CLOAK_ALPHA)
@@ -212,7 +233,7 @@ func _tween_dissolve(tween: Tween, material: ShaderMaterial, progress: float, ba
 func _set_cloaked(value: bool) -> void:
 	cloaked = value
 
-func die():
+func die() -> void:
 	died.emit(data.reward)
 	_play_death_sound()
 	FloatingText.spawn(get_parent(), global_position, "+" + UiFormat.money(data.reward))
@@ -225,19 +246,19 @@ static var _debris_colors: Dictionary[Texture2D, Array] = {}
 # Colores opacos del frame actual del sprite (cada 2 px), para los restos.
 func _sprite_colors() -> Array[Color]:
 	var colors: Array[Color] = []
-	var texture := sprite.sprite_frames.get_frame_texture(sprite.animation, sprite.frame)
+	var texture: Texture2D = sprite.sprite_frames.get_frame_texture(sprite.animation, sprite.frame)
 	if texture == null:
 		return colors
 	if _debris_colors.has(texture):
 		colors.assign(_debris_colors[texture])
 		return colors
-	var image := texture.get_image()
+	var image: Image = texture.get_image()
 	_debris_colors[texture] = colors
 	if image == null or image.is_compressed():
 		return colors
-	for y in range(0, image.get_height(), 2):
-		for x in range(0, image.get_width(), 2):
-			var color := image.get_pixel(x, y)
+	for y: int in range(0, image.get_height(), 2):
+		for x: int in range(0, image.get_width(), 2):
+			var color: Color = image.get_pixel(x, y)
 			if color.a > 0.9:
 				colors.append(color)
 	return colors
@@ -246,7 +267,7 @@ func _sprite_colors() -> Array[Color]:
 func _play_death_sound() -> void:
 	if data.death_sound == null:
 		return
-	var player := AudioStreamPlayer.new()
+	var player: AudioStreamPlayer = AudioStreamPlayer.new()
 	player.stream = data.death_sound
 	player.bus = &"SFX"
 	player.finished.connect(player.queue_free)

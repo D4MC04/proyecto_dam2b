@@ -20,6 +20,6 @@ class_name BeamData
 ## Filas de la ficha propias del haz.
 func get_stats() -> Array[StatEntry]:
 	return [
-		StatEntry.new("damage", "DAÑO", UiFormat.number(damage)),
-		StatEntry.new("pierce", "PERFORA", "TODOS"),
+		StatEntry.new("damage", "STAT_DAMAGE", UiFormat.number(damage)),
+		StatEntry.new("pierce", "STAT_PIERCE", tr("STAT_ALL")),
 	]

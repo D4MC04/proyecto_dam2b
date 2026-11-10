@@ -22,4 +22,7 @@ map = ExtResource("1_jcob0")
 starting_money = 300
 turrets = Array[ExtResource("3_ismlj")]([ExtResource("4_jcob0")])
 waves = Array[ExtResource("2_ujpww")]([ExtResource("8_ismlj"), ExtResource("wave_1_2"), ExtResource("wave_1_3"), ExtResource("11_rhpp2"), ExtResource("12_itr4j"), ExtResource("11_ibpya"), ExtResource("12_c0s30"), ExtResource("13_4r1fs"), ExtResource("14_1uuav"), ExtResource("15_3flve")])
+sector_name = "SECTOR_1_NAME"
+radar_distance = 0.2
+radar_bearing = 320.0
 metadata/_custom_type_script = "uid://du40p5btlpgd0"

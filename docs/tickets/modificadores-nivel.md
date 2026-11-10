@@ -2,6 +2,7 @@
 
 Creador: Renzo
 Estado: propuesta
+Prioridad: baja
 Modelo recomendado: opus
 Esfuerzo recomendado: medium
 

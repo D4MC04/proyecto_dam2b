@@ -25,7 +25,7 @@ func _process(delta: float) -> void:
 	if wait <= 0.0:
 		_spawn()
 		wait = rng.randf_range(wait_min, wait_max)
-	for comet in comets:
+	for comet: Dictionary in comets:
 		comet["pos"] += comet["dir"] * SPEED * delta
 	comets.assign(comets.filter(func(c: Dictionary) -> bool: return c["pos"].x >= -TAIL_LENGTH and c["pos"].x <= viewport_size.x + TAIL_LENGTH))
 	queue_redraw()
@@ -41,7 +41,7 @@ func _spawn() -> void:
 	comets.append({"pos": start, "dir": (end - start).normalized()})
 
 func _draw() -> void:
-	for comet in comets:
+	for comet: Dictionary in comets:
 		var pos: Vector2 = comet["pos"]
 		var tail: Vector2 = pos - comet["dir"] * TAIL_LENGTH
 		draw_polyline_colors(PackedVector2Array([tail, pos]), PackedColorArray([Color(COLOR, 0.0), Color(COLOR, 0.8)]), 1.0)

@@ -13,15 +13,15 @@ signal upgrade_requested
 signal wave_in_progress_changed(active: bool)
 
 # Premio al limpiar una oleada (menos la última) sin que llegue ningún enemigo a la estación.
-const PERFECT_WAVE_BONUS := 25
+const PERFECT_WAVE_BONUS: int = 25
 
 # Lo fija Level.setup con LevelData.starting_money.
-var money := 0
+var money: int = 0
 # Recuento de la partida para el resumen. Al reiniciar se crea un LevelState nuevo, así que vuelven a 0.
-var enemies_destroyed := 0
-var money_spent := 0
+var enemies_destroyed: int = 0
+var money_spent: int = 0
 ## Hay una oleada lanzada que aún no se ha limpiado. La pone Level con las señales del Spawner.
-var wave_in_progress := false:
+var wave_in_progress: bool = false:
 	set(value):
 		if wave_in_progress == value:
 			return
@@ -65,7 +65,7 @@ func inspect_placed(turret: Turret) -> void:
 func sell_selected_turret() -> void:
 	if not is_instance_valid(sellable_turret):
 		return
-	var value := sellable_turret.get_sell_value()
+	var value: int = sellable_turret.get_sell_value()
 	add_money(value)
 	FloatingText.spawn(sellable_turret.get_parent(), sellable_turret.global_position, "+" + UiFormat.money(value))
 	_note_retired(sellable_turret)
@@ -87,8 +87,8 @@ func spend_money(amount: int) -> bool:
 	return true
 
 ## Mejor torreta vendida (se guarda al venderla para que cuente en el resumen).
-var retired_top_name := ""
-var retired_top_kills := 0
+var retired_top_name: String = ""
+var retired_top_kills: int = 0
 
 func _note_retired(turret: Turret) -> void:
 	if turret.kills > retired_top_kills:

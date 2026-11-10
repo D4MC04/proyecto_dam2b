@@ -2,8 +2,8 @@ extends InspectableData
 class_name EnemyData
 
 # Rojo de motor de los enemigos (ver docs/design/art.md); acento de su ficha, distinto al de las torretas.
-const ACCENT_COLOR := Color("#f0323c")
-const INSPECT_TAG := "ENEMIGO"
+const ACCENT_COLOR: Color = Color("#f0323c")
+const INSPECT_TAG: String = "TAG_ENEMY"
 
 @export var name: String
 @export var hp: float
@@ -40,22 +40,22 @@ func get_inspect_icon() -> Texture2D:
 	return null
 
 func get_inspect_name() -> String:
-	return name
+	return tr(name)
 
 func get_inspect_tag() -> String:
-	return INSPECT_TAG
+	return tr(INSPECT_TAG)
 
 func get_inspect_accent() -> Color:
 	return ACCENT_COLOR
 
 func get_inspect_description() -> String:
-	return description
+	return tr(description)
 
 ## Filas de la ficha: vida, velocidad (px/s), recompensa y daño a la estación.
 func get_stats() -> Array[StatEntry]:
 	return [
-		StatEntry.new("health", "VIDA", UiFormat.number(hp)),
-		StatEntry.new("speed", "VELOCIDAD", UiFormat.number(speed)),
-		StatEntry.new("reward", "BOTÍN", UiFormat.money(reward)),
-		StatEntry.new("damage", "DAÑO", UiFormat.number(base_damage)),
+		StatEntry.new("health", "STAT_HEALTH", UiFormat.number(hp)),
+		StatEntry.new("speed", "STAT_SPEED", UiFormat.number(speed)),
+		StatEntry.new("reward", "STAT_LOOT", UiFormat.money(reward)),
+		StatEntry.new("damage", "STAT_DAMAGE", UiFormat.number(base_damage)),
 	]

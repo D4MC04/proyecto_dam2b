@@ -6,15 +6,17 @@ signal won
 
 # Centro del área de juego: en horizontal, barra izquierda de 128 px más la mitad de 704;
 # en vertical, la mitad de los 540 px de alto.
-const GAME_AREA_CENTER := Vector2(480.0, 270.0)
+const GAME_AREA_CENTER: Vector2 = Vector2(480.0, 270.0)
 # Área de juego completa: entre las dos barras de 128 px.
 # El premio de oleada se queda en pantalla más que el +X€ de un enemigo.
-const AWARD_TEXT_DURATION := 4.0
+const AWARD_TEXT_DURATION: float = 4.0
 # Temblor al llegar una nave: 2 px (más con más daño) durante 0,15 s.
-const SHAKE_AMPLITUDE := 2.0
-const SHAKE_TIME := 0.15
-const SHAKE_REFERENCE_DAMAGE := 40.0
-const GAME_AREA_RECT := Rect2(128.0, 0.0, 704.0, 540.0)
+const SHAKE_AMPLITUDE: float = 2.0
+const SHAKE_TIME: float = 0.15
+const SHAKE_REFERENCE_DAMAGE: float = 40.0
+# Al morir un jefe tiembla como un golpe de 80 de daño (6 px).
+const BOSS_SHAKE_DAMAGE: int = 80
+const GAME_AREA_RECT: Rect2 = Rect2(128.0, 0.0, 704.0, 540.0)
 
 var map: Map
 var turrets: Array[TurretData]
@@ -24,7 +26,7 @@ var _map_origin: Vector2
 # Un nivel acaba una sola vez: tras emitir lost o won no se emite ninguna de las dos.
 var _finished: bool = false
 # Enemigos que han llegado a la estación en la oleada actual (para el bonus de oleada perfecta).
-var _leaks_this_wave := 0
+var _leaks_this_wave: int = 0
 
 @onready var grid: Grid = $Grid
 @onready var spawner: Spawner = $Spawner
@@ -63,17 +65,18 @@ func setup(data: LevelData) -> void:
 	base = map.get_node("SpaceStation")
 	spawner.enemy_reached_end.connect(base.take_damage)
 	spawner.enemy_reached_end.connect(shake_map)
+	spawner.boss_died.connect(shake_map.bind(BOSS_SHAKE_DAMAGE))
 	_map_origin = map.position
 	base.destroyed.connect(_lose)
 
 ## Resumen de la partida hasta ahora: oleada alcanzada, total, enemigos destruidos y dinero gastado.
 func get_run_stats() -> RunStats:
-	var stats := RunStats.new(spawner.get_wave_index() + 1, spawner.waves.size(),
+	var stats: RunStats = RunStats.new(spawner.get_wave_index() + 1, spawner.waves.size(),
 			game_state.enemies_destroyed, game_state.money_spent)
 	stats.top_turret_name = game_state.retired_top_name
 	stats.top_turret_kills = game_state.retired_top_kills
 	for node: Node in get_tree().get_nodes_in_group(&"turrets"):
-		var turret := node as Turret
+		var turret: Turret = node as Turret
 		if turret != null and not turret.is_queued_for_deletion() and turret.kills > stats.top_turret_kills:
 			stats.top_turret_kills = turret.kills
 			stats.top_turret_name = turret.data.name
@@ -81,21 +84,21 @@ func get_run_stats() -> RunStats:
 
 # Desplaza el mapa para que su rectángulo útil quede centrado en el área de juego en los dos ejes.
 func _center_map() -> void:
-	var used_center := map.position + map.get_used_rect().get_center()
+	var used_center: Vector2 = map.position + map.get_used_rect().get_center()
 	map.position += (GAME_AREA_CENTER - used_center).round()
 	map.place_background(GAME_AREA_RECT)
 
 # Sacude el mapa (no la UI) con un temblor que decae, en píxeles enteros.
 # Los tweens siguen Engine.time_scale, así que respeta la velocidad del juego.
 func shake_map(damage: int) -> void:
-	if _finished:
+	if _finished or not Settings.get_value(&"screen_shake"):
 		return
 	if _shake_tween:
 		_shake_tween.kill()
-	var amplitude := SHAKE_AMPLITUDE * (1.0 + damage / SHAKE_REFERENCE_DAMAGE)
+	var amplitude: float = SHAKE_AMPLITUDE * (1.0 + damage / SHAKE_REFERENCE_DAMAGE)
 	_shake_tween = create_tween()
 	_shake_tween.tween_method(func(t: float) -> void:
-		var wave := sin(t * TAU * 3.0) * (1.0 - t) * amplitude
+		var wave: float = sin(t * TAU * 3.0) * (1.0 - t) * amplitude
 		map.position = _map_origin + Vector2(wave, wave * 0.5).round(), 0.0, 1.0, SHAKE_TIME)
 	_shake_tween.finished.connect(func() -> void: map.position = _map_origin)
 
@@ -106,12 +109,12 @@ func _on_wave_cleared(_index: int) -> void:
 		return
 	if _leaks_this_wave == 0:
 		GameState.add_stat("perfect_waves")
-		_award("PERFECTA", LevelState.PERFECT_WAVE_BONUS)
+		_award(tr("AWARD_PERFECT"), LevelState.PERFECT_WAVE_BONUS)
 
 # Suma el premio y lo enseña sobre la estación.
 func _award(label: String, amount: int) -> void:
 	game_state.add_money(amount)
-	var pos := base.global_position + Vector2(0.0, -20.0)
+	var pos: Vector2 = base.global_position + Vector2(0.0, -20.0)
 	FloatingText.spawn(base.get_parent(), pos, "%s +%s" % [label, UiFormat.money(amount)], AWARD_TEXT_DURATION)
 
 func _lose() -> void:

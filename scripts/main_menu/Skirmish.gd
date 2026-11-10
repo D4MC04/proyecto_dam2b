@@ -1,8 +1,8 @@
 extends Node2D
 
 # Batalla lejana de fondo: cada pocos segundos cruza un grupo de naves enemigas en formación
-# por las franjas de arriba o abajo (lejos de los botones) y de vez en cuando les llegan
-# disparos desde fuera de la pantalla; algunas explotan.
+# por una de sus franjas (`lanes`) y de vez en cuando les llegan disparos desde fuera de la
+# pantalla; algunas explotan.
 
 # Cada nave con el giro extra (grados) que usa su EnemyData; null = no se gira, usa la animación left/right
 const SHIPS: Array[Array] = [
@@ -20,11 +20,12 @@ const SHOT_SPEED: float = 320.0
 const SHOT_LENGTH: float = 12.0
 const SHOT_COLOR: Color = Color(0.25, 0.88, 0.94)
 const KILL_CHANCE: float = 0.4
-# Franjas verticales (fracción de la altura) por las que pasan; el centro queda libre para los botones
-const LANES: Array[Vector2] = [Vector2(0.05, 0.2), Vector2(0.8, 0.95)]
 
 # Si está, los disparos salen de sus torretas; si no, de fuera de la pantalla
 @export var outpost: Outpost
+# Franjas verticales (fracción de la altura) por las que pasan; por defecto el centro queda libre
+# para los botones. El menú las pone dentro del ventanal de la oficina.
+@export var lanes: Array[Vector2] = [Vector2(0.05, 0.2), Vector2(0.8, 0.95)]
 
 var viewport_size: Vector2
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -54,7 +55,7 @@ func _process(delta: float) -> void:
 	_move_shots(delta)
 
 func _spawn_group() -> void:
-	var lane: Vector2 = LANES[rng.randi() % LANES.size()]
+	var lane: Vector2 = lanes[rng.randi() % lanes.size()]
 	var y: float = viewport_size.y * rng.randf_range(lane.x, lane.y)
 	var going_right: bool = rng.randf() < 0.5
 	var dir: Vector2 = Vector2.RIGHT if going_right else Vector2.LEFT
@@ -62,7 +63,7 @@ func _spawn_group() -> void:
 	var frames: SpriteFrames = kind[0]
 	var count: int = rng.randi_range(2, 4)
 	var start_x: float = -MARGIN if going_right else viewport_size.x + MARGIN
-	for i in count:
+	for i: int in count:
 		var ship: AnimatedSprite2D = AnimatedSprite2D.new()
 		ship.sprite_frames = frames
 		ship.scale = Vector2(SHIP_SCALE, SHIP_SCALE)
@@ -80,7 +81,7 @@ func _spawn_group() -> void:
 		ships.append(ship)
 
 func _move_ships(delta: float) -> void:
-	for i in range(ships.size() - 1, -1, -1):
+	for i: int in range(ships.size() - 1, -1, -1):
 		var ship: AnimatedSprite2D = ships[i]
 		var dir: Vector2 = ship.get_meta("dir")
 		ship.position += dir * SHIP_SPEED * delta
@@ -90,7 +91,7 @@ func _move_ships(delta: float) -> void:
 func _remove_ship(ship: AnimatedSprite2D) -> void:
 	ships.erase(ship)
 	# Los disparos en vuelo contra ella se quedan sin objetivo
-	for i in shot_targets.size():
+	for i: int in shot_targets.size():
 		if shot_targets[i] == ship:
 			shot_targets[i] = null
 	ship.queue_free()
@@ -109,7 +110,7 @@ func _fire() -> void:
 	if outpost != null:
 		origin = to_local(outpost.global_position)
 	var aim: Vector2 = target.position
-	for _i in 2:
+	for _i: int in 2:
 		aim = target.position + (target.get_meta("dir") as Vector2) * SHIP_SPEED * (origin.distance_to(aim) / SHOT_SPEED)
 	if outpost != null:
 		origin = to_local(outpost.fire_at(to_global(aim)))
@@ -125,7 +126,7 @@ func _fire() -> void:
 	shot_targets.append(target)
 
 func _move_shots(delta: float) -> void:
-	for i in range(shots.size() - 1, -1, -1):
+	for i: int in range(shots.size() - 1, -1, -1):
 		var shot: Line2D = shots[i]
 		var aim: Vector2 = shot.get_meta("aim")
 		var step: float = SHOT_SPEED * delta

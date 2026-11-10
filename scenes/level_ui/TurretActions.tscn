@@ -14,11 +14,11 @@ unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 0
 theme_override_font_sizes/font_size = 16
-text = "Mejorar"
+text = "TURRET_UPGRADE"
 
 [node name="SellButton" type="Button" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 0
 theme_override_font_sizes/font_size = 16
-text = "Vender"
+text = "TURRET_SELL"
