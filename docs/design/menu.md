@@ -78,7 +78,7 @@ Tres vistas de 960x540: izquierda (puerta y stats), centro (ventanal y centro de
 | Centro | `OptionsConsole` | `OptionsConsole.gd` | `OptionsMenu` | Módulo de metal: la pantalla solo enseña el volumen (tres vúmetros con su fader, centrados; más deprisa con el ratón encima). Abajo, tres pomos brillantes y cuatro interruptores (el tercero bajado), centrados |
 | Izquierda | `ExitDoor` | `OfficeDoor.gd` | Sale del juego | Dos hojas lisas de metal oscuro con la junta en zigzag y franjas de luz. Con el ratón encima solo se entreabren (`slide`, 26 px cada una, en 0,35 s): por la rendija se ve la luz del pasillo (`corridor.png`, sin detalle) y una luz tenue cae en el suelo, tan ancha como la rendija; se encienden la luz del marco (`door_glow.png`) y la pantallita del panel de acceso (`access_lit.png`). Cerrada, la junta brilla (`door_seam.png`) y un pulso sube y baja por las franjas. La barra de estado de encima la recorre un tramo de luz (verde con la puerta activa). `Plane` (`door_plane.png`, `clip_children`) recorta las hojas y el pasillo con la forma del hueco. Sin corchetes. Al pulsarla (`open_fully`) se entreabre y emite `opened` |
 | Izquierda | `CombatScoreboard` | `CombatScoreboard.gd` | `StatsScreen` | Pantalla sin datos: "// REGISTRO DE COMBATE", 8 barras que suben y bajan, una línea de 2 px que avanza, un anillo de cuatro colores que gira con su leyenda y 5 fichas con el icono (a escala 1) de lo que se cuenta: naves destruidas, victorias, torretas, oleadas perfectas y naves vistas. Abajo, "SISTEMA EN ESPERA" con un cursor |
-| Derecha | `MedalCase` | `MedalCase.gd` | `AchievementsScreen` | Una medalla por logro de `GameState.ACHIEVEMENTS` (`medal_<id>.png`, o `medal_empty.png` si falta), en filas de 5, 4 y 3 centradas y escalonadas medio paso, sin solaparse; los reflejos del cristal (`case_glass.png`) encima y un destello de vez en cuando en las conseguidas. Con el ratón encima de una medalla, los corchetes la marcan a ella |
+| Derecha | `MedalCase` | `MedalCase.gd` | `AchievementsScreen` | Una medalla por logro de `GameState.ACHIEVEMENTS` (`medal_<id>.png`, o `medal_empty.png` si falta), en filas de 3, 4 y 3 centradas y escalonadas medio paso, sin solaparse, pintada en el metal de su fase (`AchievementTint`: disco, anilla, pasador y símbolo; la cinta guarda su color); los reflejos del cristal (`case_glass.png`) encima y un destello de vez en cuando en las conseguidas. Con el ratón encima de una medalla, los corchetes la marcan a ella |
 
 ## Comportamiento
 
@@ -156,11 +156,30 @@ Todos son `Node2D` que dibujan o crean sprites por código, con posiciones y tie
 
 ### Logros
 
-`scenes/AchievementsScreen.tscn` + `scripts/screens/AchievementsScreen.gd` (clase `AchievementsScreen`), que abre la vitrina de condecoraciones de la oficina (la Navedex ya no tiene pestaña de logros). Panel holograma cian con la cabecera `// LOGROS`, `AchievementsList` (cuadrícula de 2 columnas de 718x340) con una fila por logro (`_make_row`): icono a ×3 (`assets/ui/achievements/<id>.png`), nombre y descripción; y "Volver", que emite `back_pressed`. La lista se rehace cada vez que se muestra. Los que faltan por conseguir se ven apagados (`LOCKED_COLOR`). Los 12 logros están en `GameState.ACHIEVEMENTS` (id -> nombre y descripción) y cómo se cumple cada uno en `GameState._is_done()`. Se guardan en la ranura activa, `user://saves/slot_N.cfg` (`unlocked`, más los contadores `stats` y `fused_turrets`) y se borran al borrar la ranura. `GameState.load_slot` migra los nombres antiguos de la ranura (`fused_towers`, contador `towers` y logro `towers_50`) a `fused_turrets`, `turrets` y `turrets_50`.
+`scenes/AchievementsScreen.tscn` + `scripts/screens/AchievementsScreen.gd` (clase `AchievementsScreen`), que abre la vitrina de condecoraciones de la oficina (la Navedex ya no tiene pestaña de logros). Panel holograma cian con la cabecera `// LOGROS`, `AchievementsList` (cuadrícula de 2 columnas de 718x340) con una fila por logro (`_make_row`): icono a ×3 (`assets/ui/achievements/<id>.png`) en el metal de su fase, nombre con la fase conseguida (en su color) y descripción con la meta de la siguiente fase (`GameState.achievement_description`); y "Volver", que emite `back_pressed`. La lista se rehace cada vez que se muestra. Los que no tienen ninguna fase se ven apagados (`LOCKED_COLOR`, icono en bronce).
+
+**Fases.** Cada logro tiene 3 fases (bronce, plata y oro, `GameState.PHASE_BRONZE`..`PHASE_GOLD`) con metas crecientes, o 1 sola, que se consigue directamente en oro; no hay de 2. Los 10 logros están en `GameState.ACHIEVEMENTS` (id -> nombre, descripción con `%d` y metas; `GOAL_ALL` = todos) y lo que cuenta cada uno en `GameState.get_progress()`:
+
+| Id | Nombre | Cuenta | Bronce | Plata | Oro |
+|---|---|---|---|---|---|
+| `first_win` | Primera victoria | niveles ganados | | | 1 |
+| `flawless` | Intacto | ganar sin perder vida (`register_win`) | | | sí |
+| `all_levels` | Sector despejado | ganar el último nivel (`register_win`) | | | sí |
+| `wins` | Veterano | niveles ganados | 5 | 15 | 30 |
+| `kills` | Cazador | naves destruidas | 100 | 1000 | 3000 |
+| `seen` | Observador | tipos de nave de la Navedex vistos | 5 | 10 | todos |
+| `turrets` | Constructor | torretas construidas | 50 | 200 | 500 |
+| `fusions` | Maestro de mejoras | tipos de torreta mejorados | 1 | 5 | todos |
+| `powers` | Poder desatado | poderes usados | 1 | 25 | 100 |
+| `perfect_waves` | Defensa perfecta | oleadas perfectas | 10 | 30 | 90 |
+
+`get_phase(id)`, `phase_count(id)`, `get_goals(id)`, `next_goal(id)`, `phase_name(fase)` y `PHASE_COLORS` sirven a la vitrina y la lista. Las medallas y los iconos tienen un solo PNG; `AchievementTint.tint(textura, fase, filas que no se tocan)` (`scripts/main_menu/AchievementTint.gd`) cambia los colores ámbar, rojo y cian de la paleta de la oficina por el tono del mismo brillo del bronce, la plata o el oro (el oro es el ámbar tal cual) y guarda la textura. Si un contador salta varias metas de golpe, solo avisa la fase más alta.
+
+**Guardado.** La fase de cada logro se guarda en la ranura activa, `user://saves/slot_N.cfg` (`achievements`: id -> fase, más los contadores `stats` y `fused_turrets`) y se borra al borrar la ranura. Las ranuras viejas tienen la lista `unlocked` con los ids de antes: `GameState.LEGACY_ACHIEVEMENTS` dice para qué fase cuenta cada uno como mínimo (`kills_1000` es plata de `kills`, `fuse_all` plata de `fusions`...), y al cargarla (`load_slot`) las fases se recalculan con los contadores, sin avisos, y se guarda. `load_slot` también migra los nombres antiguos (`fused_towers`, contador `towers`) a `fused_turrets` y `turrets`. El contador de logros de las ranuras (`get_slot_summary`) es fases conseguidas sobre el total de fases (24).
 
 - Contadores (`GameState.add_stat`): bajas (`Level`, por `enemy_died`), torretas construidas, poderes usados, oleadas perfectas y niveles ganados. `register_fusion` lo llama `BuildManager.upgrade_selected`; `register_win(número, intacto)` lo llama `Game` al ganar (intacto = la estación con toda la vida).
-- Los contadores se guardan con `flush()` al limpiar una oleada y al ganar o perder, no a cada baja; al desbloquear un logro se guarda al momento.
-- Al conseguir uno sale `LOGRO: nombre` arriba a la derecha 3 s y se desvanece (capa propia de `GameState`, también en pausa y victoria).
+- Los contadores se guardan con `flush()` al limpiar una oleada y al ganar o perder, no a cada baja; al conseguir una fase se guarda al momento.
+- Al conseguir una fase sale `LOGRO: nombre (fase)`, en el color de la fase, arriba a la derecha 3 s y se desvanece (capa propia de `GameState`, también en pausa y victoria).
 
 ## Música
 
@@ -222,7 +241,7 @@ Los textos visibles están en `translations/textos.csv` (columnas `keys,es,en`),
 - Los textos con números o nombres se montan con `tr("CLAVE") % valores` (por ejemplo `HUD_WAVE_N` = "OLEADA %d"). `Sidebar` y `LevelIndicator` guardan lo último que enseñaron y lo repintan al cambiar de idioma, para que la pausa → Opciones → idioma se vea al volver a la partida.
 - `TurretData` y `EnemyData` guardan en `name` y `description` claves (`TURRET_<archivo>_NAME` / `_DESC`, `ENEMY_<archivo>_NAME` / `_DESC`; los tres fragmentos de la Divisora comparten `ENEMY_FRAGMENTO_DIVISORA_*`). Para enseñarlos se usa `get_inspect_name()` / `get_inspect_description()`, que ya traducen; `RunStats.top_turret_name` guarda la clave y la traduce `RunSummary`.
 - `StatEntry` recibe el nombre del stat como clave (`STAT_...`) y lo traduce al crearse; las etiquetas de tipo (`TAG_...`) las traduce `get_inspect_tag()`. Ambos caben en 9 caracteres también en inglés.
-- Los logros de `GameState.ACHIEVEMENTS` son pares de claves (`ACH_<id>_NAME`, `ACH_<id>_DESC`).
+- Los logros de `GameState.ACHIEVEMENTS` son pares de claves (`ACH_<ID>_NAME`, `ACH_<ID>_DESC`, esta con `%d` para la meta y, si la meta puede ser 1, `ACH_<ID>_DESC_ONE`); las fases, `ACH_PHASE_BRONZE`, `ACH_PHASE_SILVER` y `ACH_PHASE_GOLD`.
 - Se quedan sin traducir el título "ASTRO ARTILLERY" / "TOWER DEFENSE", "NOVA", "VSync", "AUTO", "ON" / "OFF", los "×1" / "×2" y los números.
 
 Para añadir un idioma: una columna nueva en el CSV, su `.translation` en `project.godot` y su código en `Settings.LANGUAGES`.

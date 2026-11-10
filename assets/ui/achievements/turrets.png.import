@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ct4gem2dfjgcj"
-path="res://.godot/imported/medal_fuse_all.png-8b5286ca0afc28b09e9c7215dc11fa90.ctex"
+uid="uid://xyb1x32pnkae"
+path="res://.godot/imported/turrets.png-12f3a2e056e27eb7c813fb4dbd1b08a1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/office/medal_fuse_all.png"
-dest_files=["res://.godot/imported/medal_fuse_all.png-8b5286ca0afc28b09e9c7215dc11fa90.ctex"]
+source_file="res://assets/ui/achievements/turrets.png"
+dest_files=["res://.godot/imported/turrets.png-12f3a2e056e27eb7c813fb4dbd1b08a1.ctex"]
 
 [params]
 

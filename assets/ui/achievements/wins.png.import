@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bnavq6yblohnw"
-path="res://.godot/imported/medal_seen_10.png-38e50f5ed2438723de70a95c8c297e81.ctex"
+uid="uid://bnt224e0jbnn2"
+path="res://.godot/imported/wins.png-488f2fe270e71d3faedc72b99cb7bd78.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/office/medal_seen_10.png"
-dest_files=["res://.godot/imported/medal_seen_10.png-38e50f5ed2438723de70a95c8c297e81.ctex"]
+source_file="res://assets/ui/achievements/wins.png"
+dest_files=["res://.godot/imported/wins.png-488f2fe270e71d3faedc72b99cb7bd78.ctex"]
 
 [params]
 

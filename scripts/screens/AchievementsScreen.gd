@@ -2,8 +2,8 @@ class_name AchievementsScreen
 extends Control
 
 # Logros del menú principal, que abre el mural de condecoraciones de la oficina: panel holograma
-# con una cuadrícula de 2 columnas, una fila por logro (icono, nombre y descripción); los que
-# faltan por conseguir se ven apagados.
+# con una cuadrícula de 2 columnas, una fila por logro (icono en el metal de su fase, nombre, fase y
+# descripción con la siguiente meta); los que no tienen ninguna fase se ven apagados.
 
 signal back_pressed
 
@@ -26,17 +26,18 @@ func _on_visibility_changed() -> void:
 	for child: Node in list.get_children():
 		child.free()
 	for id: String in GameState.ACHIEVEMENTS:
-		var info: Array = GameState.ACHIEVEMENTS[id]
-		list.add_child(_make_row(id, tr(info[0]), tr(info[1]), id in GameState.unlocked))
+		list.add_child(_make_row(id))
 
-# Fila de un logro: icono a la izquierda y nombre y descripción a la derecha; apagada si falta por conseguir.
-func _make_row(id: String, title: String, description: String, done: bool) -> HBoxContainer:
+# Fila de un logro: icono en el metal de su fase a la izquierda; a la derecha, nombre con la fase
+# conseguida y descripción con la meta de la siguiente fase. Apagada si no tiene ninguna fase.
+func _make_row(id: String) -> HBoxContainer:
+	var phase: int = GameState.get_phase(id)
 	var row: HBoxContainer = HBoxContainer.new()
 	row.custom_minimum_size = Vector2(ROW_WIDTH, 0)
 	row.add_theme_constant_override("separation", 10)
-	row.modulate = Color.WHITE if done else LOCKED_COLOR
+	row.modulate = Color.WHITE if phase != GameState.PHASE_NONE else LOCKED_COLOR
 	var icon: TextureRect = TextureRect.new()
-	icon.texture = load(ICON_DIR + id + ".png")
+	icon.texture = AchievementTint.tint(load(ICON_DIR + id + ".png"), maxi(phase, GameState.PHASE_BRONZE))
 	icon.custom_minimum_size = Vector2.ONE * ICON_SIZE
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -45,14 +46,24 @@ func _make_row(id: String, title: String, description: String, done: bool) -> HB
 	row.add_child(icon)
 	var texts: VBoxContainer = VBoxContainer.new()
 	texts.add_theme_constant_override("separation", 0)
+	var title: HBoxContainer = HBoxContainer.new()
+	title.add_theme_constant_override("separation", 8)
 	var name_text: Label = Label.new()
-	name_text.text = title
+	name_text.text = tr(GameState.ACHIEVEMENTS[id][0])
 	name_text.add_theme_font_size_override("font_size", 24)
+	title.add_child(name_text)
+	if phase != GameState.PHASE_NONE:
+		var phase_text: Label = Label.new()
+		phase_text.text = GameState.phase_name(phase).to_upper()
+		phase_text.add_theme_font_size_override("font_size", 18)
+		phase_text.add_theme_color_override("font_color", GameState.PHASE_COLORS[phase])
+		phase_text.size_flags_vertical = Control.SIZE_SHRINK_END
+		title.add_child(phase_text)
 	var description_text: Label = Label.new()
-	description_text.text = description
+	description_text.text = GameState.achievement_description(id)
 	description_text.add_theme_font_size_override("font_size", 18)
 	description_text.modulate = Color(1, 1, 1, 0.7)
-	texts.add_child(name_text)
+	texts.add_child(title)
 	texts.add_child(description_text)
 	row.add_child(texts)
 	return row
