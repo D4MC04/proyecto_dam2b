@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ci8v8rkc4xatq"
-path="res://.godot/imported/perfect_10.png-a0c145a331e014f65c24121e33eed73a.ctex"
+uid="uid://ck8i2dt08sh6c"
+path="res://.godot/imported/medal_fusions.png-67c2a853791b99ec9d1488d790bd96fa.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/achievements/perfect_10.png"
-dest_files=["res://.godot/imported/perfect_10.png-a0c145a331e014f65c24121e33eed73a.ctex"]
+source_file="res://assets/sprites/office/medal_fusions.png"
+dest_files=["res://.godot/imported/medal_fusions.png-67c2a853791b99ec9d1488d790bd96fa.ctex"]
 
 [params]
 

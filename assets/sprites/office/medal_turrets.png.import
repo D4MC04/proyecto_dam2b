@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bt72tdhc17c5k"
-path="res://.godot/imported/kills_100.png-42d788b4da6163e82c2540ddc04d93c5.ctex"
+uid="uid://d01t75byjtlo2"
+path="res://.godot/imported/medal_turrets.png-994cf435665b8010a75e2e85f4018d7c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/ui/achievements/kills_100.png"
-dest_files=["res://.godot/imported/kills_100.png-42d788b4da6163e82c2540ddc04d93c5.ctex"]
+source_file="res://assets/sprites/office/medal_turrets.png"
+dest_files=["res://.godot/imported/medal_turrets.png-994cf435665b8010a75e2e85f4018d7c.ctex"]
 
 [params]
 

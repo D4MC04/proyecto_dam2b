@@ -8,7 +8,7 @@ extends OfficeObject
 # Líneas de 2 px. Con el ratón encima las barras van más deprisa y el título se enciende.
 
 const ICON_DIR: String = "res://assets/ui/achievements/"
-const ICONS: Array[String] = ["kills_100", "first_win", "turrets_50", "perfect_10", "seen_10"]
+const ICONS: Array[String] = ["kills", "first_win", "turrets", "perfect_waves", "seen"]
 const CHART_BG: Color = Color("#0a1828")
 const TILE_BG: Color = Color("#0b2132")
 const IDLE_TEXT: Color = Color("#1c4a60")
