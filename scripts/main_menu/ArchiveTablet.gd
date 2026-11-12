@@ -2,11 +2,11 @@ class_name ArchiveTablet
 extends OfficeObject
 
 # Tablet del Archivo en su bandeja de la consola inclinada: abre la Navedex. La bandeja es parte de
-# center_static.png y la tablet es tablet.png (datapad tipo Pokédex: carcasa roja, lente cian, pilotos
-# y tres botones físicos abajo). Aquí se pinta la pantalla (cabecera, el holograma cian de una nave,
-# líneas de datos y fichas), llevada al trapecio de la tablet, y el brillo de la lente. Con el ratón
-# encima la tablet sube un poco, como para sacarla, con su sombra, se enciende la luz del fondo de la
-# bandeja, la lente brilla más deprisa, la nave gira y baja una línea de escaneo.
+# center_static.png y la tablet es tablet.png (terminal de mano militar: carcasa de metal con asas,
+# antena y tres botones físicos abajo). Aquí se pinta la pantalla (cabecera, el holograma cian de una
+# nave, líneas de datos y fichas), llevada al trapecio de la tablet, y la luz de la punta de la antena.
+# Con el ratón encima la tablet sube un poco, como para sacarla, con su sombra, se enciende la luz del
+# fondo de la bandeja, la antena parpadea más deprisa, la nave gira y baja una línea de escaneo.
 
 const TABLET: Texture2D = preload("res://assets/sprites/office/tablet.png")
 # Naves que enseña la pantalla, en su animación hacia arriba.
@@ -24,11 +24,9 @@ const SELECTED_FILL: Color = Color("#13414f")
 const LIFT: int = 8
 const LIFT_SPEED: float = 12.0
 const SHADOW: Color = Color(0, 0, 0, 0.45)
-# Brillo de la lente: alfa medio, cuánto late y a qué velocidad (rad/s), quieta y con el ratón encima.
-const LENS_GLOW: float = 0.2
-const LENS_PULSE: float = 0.15
-const LENS_SPEED: float = 2.0
-const LENS_HOVER_SPEED: float = 8.0
+# Luz de la antena: segundos por parpadeo, quieta y con el ratón encima.
+const BEACON_PERIOD: float = 1.4
+const BEACON_HOVER_PERIOD: float = 0.4
 # Maqueta de la pantalla (en píxeles de la pantalla de frente): margen a los cuatro lados, alto
 # reservado para la nave (la más grande mide 32), líneas de datos (fracción del ancho) y fichas.
 const MARGIN: int = 6
@@ -92,10 +90,11 @@ func _draw_object() -> void:
 		draw_colored_polygon(shadow, SHADOW)
 	var origin: Vector2i = Vector2i(to_local_point(Vector2(_tablet.x, _tablet.y - lift)))
 	draw_texture(TABLET, origin)
-	var lens: Array = _tablet.lens
-	var pulse: float = sin(time * (LENS_HOVER_SPEED if hovered else LENS_SPEED))
-	OfficePaint.disc(self, origin + Vector2i(lens[0], lens[1]), lens[2],
-			Color(OfficePaint.CYAN_LIGHT, LENS_GLOW + LENS_PULSE * pulse + (0.2 if hovered else 0.0)))
+	# La punta de la antena se enciende la primera mitad de cada parpadeo.
+	var period: float = BEACON_HOVER_PERIOD if hovered else BEACON_PERIOD
+	if fmod(time, period) < period / 2.0:
+		var beacon: Array = _tablet.beacon
+		OfficePaint.rect(self, Rect2i(origin.x + beacon[0], origin.y + beacon[1], beacon[2], beacon[3]), OfficePaint.CYAN_LIGHT)
 	_draw_screen(origin)
 
 # Pantalla pintada de frente (tamaño _source) y llevada al trapecio de la tablet. Todo va centrado y

@@ -26,16 +26,22 @@ const UNKNOWN_TEXT: String = "???"
 const CELL_SIZE: int = 40
 # Lado de las flechas de torreta.
 const ARROW_SIZE: int = 28
-# Aumento del datapad dibujado y sus piezas en píxeles del datapad (las de tablet.png, de frente).
+# Aumento del terminal dibujado y sus piezas en píxeles del terminal (como tablet.png, de frente).
 # MainMenu acerca la oficina hasta ese aumento, así que queda encima de la tablet de la oficina.
 const SCALE: int = 3
-const FRAME_SIZE: Vector2i = Vector2i(133, 166)
-const SCREEN_RECT: Rect2i = Rect2i(8, 24, 117, 116)
-const SHELL_SHADOW: Color = Color("#3a0a16")
-const LENS_CENTER: Vector2i = Vector2i(15, 12)
-const LED_COLORS: Array[Color] = [OfficePaint.RED, OfficePaint.AMBER, OfficePaint.GREEN]
-const LED_X: Array[int] = [30, 37, 44]
-const GRILLE: Rect2i = Rect2i(107, 6, 17, 3)
+const FRAME_SIZE: Vector2i = Vector2i(147, 170)
+# Carcasa (con las esquinas de arriba a la izquierda y abajo a la derecha cortadas), asas, antena y pantalla.
+const BODY_RECT: Rect2i = Rect2i(8, 7, 131, 163)
+const BODY_CUT: int = 8
+const BODY_COLOR: Color = Color("#3a4256")
+const HANDLES: Array[Rect2i] = [Rect2i(0, 46, 11, 64), Rect2i(136, 46, 11, 64)]
+# En la misma columna que la antena de tablet.png al final del zoom, para taparla.
+const ANTENNA: Rect2i = Rect2i(91, 0, 5, 9)
+const BEACON_PERIOD: float = 1.4
+const SCREEN_RECT: Rect2i = Rect2i(15, 24, 117, 116)
+# Pilotos encima de los botones físicos (centro en x) y fila de la tira de luz bajo la pantalla.
+const BUTTON_LEDS: Array[int] = [32, 74, 115]
+const LIGHT_STRIP_Y: int = 144
 # Holograma: vueltas por segundo y velocidad de la línea de escaneo (px/s).
 const SPIN_SPEED: float = 0.75
 const SCAN_SPEED: float = 40.0
@@ -89,31 +95,42 @@ func _process(delta: float) -> void:
 	if is_visible_in_tree():
 		_time += delta
 		holo.queue_redraw()
+		# El marco también: la punta de la antena parpadea y los pilotos siguen a la pestaña.
+		queue_redraw()
 
-# El datapad de frente, como tablet.png: carcasa roja, banda de arriba con lente, pilotos y rejilla,
-# y la pantalla con su aro. Los botones de abajo son ShipsButton, TurretsButton y VolverButton.
+# El terminal de frente, como tablet.png: asas, antena (su punta parpadea), carcasa de metal con las
+# esquinas cortadas y tornillos, pantalla con su aro, tira de luz y el piloto de cada botón (encendido
+# el de la pestaña elegida). Los botones son ShipsButton, TurretsButton y VolverButton.
 func _draw() -> void:
 	draw_set_transform(tablet.position, 0.0, Vector2(SCALE, SCALE))
-	OfficePaint.bevel_box(self, Rect2i(Vector2i.ZERO, FRAME_SIZE), OfficePaint.RED_DARK, OfficePaint.RED, SHELL_SHADOW)
-	OfficePaint.rect(self, Rect2i(2, SCREEN_RECT.position.y - 4, FRAME_SIZE.x - 4, 1), SHELL_SHADOW)
-	OfficePaint.rect(self, Rect2i(2, SCREEN_RECT.position.y - 3, FRAME_SIZE.x - 4, 1), OfficePaint.RED)
-	OfficePaint.rect(self, SCREEN_RECT.grow(2), SHELL_SHADOW)
+	for handle: Rect2i in HANDLES:
+		OfficePaint.metal_box(self, handle)
+		OfficePaint.rect(self, Rect2i(handle.position.x + (3 if handle.position.x == 0 else 5), handle.position.y + 4, 3, handle.size.y - 8), OfficePaint.OUTLINE)
+	OfficePaint.rect(self, ANTENNA, OfficePaint.OUTLINE)
+	OfficePaint.rect(self, Rect2i(ANTENNA.position.x + 1, 2, 1, ANTENNA.size.y - 2), OfficePaint.METAL_LIGHT)
+	OfficePaint.rect(self, Rect2i(ANTENNA.position.x + 2, 2, 2, ANTENNA.size.y - 2), OfficePaint.METAL_DARK)
+	var beacon_on: bool = fmod(_time, BEACON_PERIOD) < BEACON_PERIOD / 2.0
+	OfficePaint.rect(self, Rect2i(ANTENNA.position.x + 1, 0, 3, 2), OfficePaint.CYAN_LIGHT if beacon_on else OfficePaint.CYAN_DARK)
+	_cut_box(BODY_RECT, BODY_CUT, OfficePaint.OUTLINE)
+	_cut_box(BODY_RECT.grow(-1), BODY_CUT - 1, OfficePaint.METAL)
+	_cut_box(Rect2i(BODY_RECT.position + Vector2i(2, 2), BODY_RECT.size - Vector2i(3, 3)), BODY_CUT - 1, BODY_COLOR)
+	for x: int in [BODY_RECT.position.x + 7, BODY_RECT.end.x - 10]:
+		OfficePaint.screw(self, Vector2i(x, BODY_RECT.position.y + 5))
+	OfficePaint.rect(self, SCREEN_RECT.grow(2), OfficePaint.WALL_LIGHT)
 	OfficePaint.screen(self, SCREEN_RECT.grow(1))
-	OfficePaint.disc(self, LENS_CENTER, 9, OfficePaint.OUTLINE)
-	OfficePaint.disc(self, LENS_CENTER, 8, OfficePaint.METAL_LIGHT)
-	OfficePaint.disc(self, LENS_CENTER + Vector2i(1, 1), 7, OfficePaint.METAL_DARK)
-	OfficePaint.disc(self, LENS_CENTER, 6, OfficePaint.OUTLINE)
-	OfficePaint.disc(self, LENS_CENTER, 5, OfficePaint.CYAN_DARK)
-	OfficePaint.disc(self, LENS_CENTER - Vector2i(1, 1), 3, OfficePaint.CYAN)
-	OfficePaint.rect(self, Rect2i(LENS_CENTER - Vector2i(4, 4), Vector2i(2, 2)), OfficePaint.CYAN_LIGHT)
-	for i: int in LED_X.size():
-		OfficePaint.rect(self, Rect2i(LED_X[i] - 2, 5, 5, 5), OfficePaint.OUTLINE)
-		OfficePaint.rect(self, Rect2i(LED_X[i] - 1, 6, 3, 3), LED_COLORS[i])
-	for k: int in 3:
-		var slot: Rect2i = GRILLE
-		slot.position.y += k * 4
-		OfficePaint.rect(self, Rect2i(slot.position, Vector2i(slot.size.x, 2)), OfficePaint.OUTLINE)
-		OfficePaint.rect(self, Rect2i(slot.position.x, slot.position.y + 2, slot.size.x, 1), OfficePaint.RED)
+	OfficePaint.rect(self, Rect2i(SCREEN_RECT.position.x + 2, LIGHT_STRIP_Y - 1, SCREEN_RECT.size.x - 4, 3), OfficePaint.OUTLINE)
+	OfficePaint.rect(self, Rect2i(SCREEN_RECT.position.x + 3, LIGHT_STRIP_Y, SCREEN_RECT.size.x - 6, 1), OfficePaint.CYAN)
+	for i: int in BUTTON_LEDS.size():
+		var lit: bool = (ships_button.button_pressed if i == 0 else turrets_button.button_pressed if i == 1 else false)
+		OfficePaint.rect(self, Rect2i(BUTTON_LEDS[i] - 4, LIGHT_STRIP_Y + 4, 8, 3), OfficePaint.OUTLINE)
+		OfficePaint.rect(self, Rect2i(BUTTON_LEDS[i] - 3, LIGHT_STRIP_Y + 5, 6, 1), OfficePaint.CYAN if lit else OfficePaint.WALL_LIGHT)
+
+# Caja con las esquinas de arriba a la izquierda y abajo a la derecha cortadas `cut` px en escalera, fila a fila.
+func _cut_box(r: Rect2i, cut: int, color: Color) -> void:
+	for y: int in r.size.y:
+		var left: int = maxi(0, cut - y)
+		var right: int = maxi(0, cut - (r.size.y - 1 - y))
+		OfficePaint.rect(self, Rect2i(r.position.x + left, r.position.y + y, r.size.x - left - right, 1), color)
 
 # Botón físico de la carcasa: metal con contorno grueso; el de la pestaña elegida, cian encendido.
 func _style_physical(button: Button) -> void:
