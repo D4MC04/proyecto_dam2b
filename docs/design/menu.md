@@ -142,7 +142,7 @@ Todos son `Node2D` que dibujan o crean sprites por código, con posiciones y tie
 
 ## Salto al hiperespacio
 
-`MainMenu._open_level` (una sola vez, ignora más pulsaciones; desde DESPLEGAR / REPETIR o doble clic en el radar) llama a `_hyperspace_jump()`: `Space/StarField.warp(0.5)` (las estrellas se estiran por el ventanal) y un `ColorRect` blanco que cubre el menú en 0,1 s; después carga el nivel. Solo desde el menú ("Siguiente nivel" no hace el salto).
+`MainMenu._open_level` (una sola vez, ignora más pulsaciones; desde DESPLEGAR / REPETIR o doble clic en el radar) llama a `_hyperspace_jump()`: `Space/StarField.warp(0.5)` (las estrellas se estiran por el ventanal) y un `ColorRect` blanco que cubre el menú en 0,1 s; después carga el nivel. Solo desde el menú ("Siguiente sector" no hace el salto).
 
 ## Navedex
 

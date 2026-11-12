@@ -132,7 +132,7 @@ func setup(state: LevelState, turrets: Array[TurretData], level_number: int, spa
 	tutorial_hints.stop()
 	_set_powers_enabled(true)
 
-## Monta el nivel de emergencia (el nivel de prueba) sobre lo que dejó setup: rótulo "EMERGENCIA", sin poderes
+## Monta el nivel de emergencia (el nivel de prueba) sobre lo que dejó setup: rótulo "SECTOR 0", sin poderes
 ## y con el tutorial de NOVA. Game lo llama justo después de setup.
 func start_emergency(level: Level) -> void:
 	level_indicator.set_title(tr("HUD_EMERGENCY"))

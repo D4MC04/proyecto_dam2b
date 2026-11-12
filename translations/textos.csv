@@ -10,7 +10,7 @@ No se puede deshacer.","The save in slot %d will be deleted.
 This cannot be undone."
 BTN_DELETE,Borrar,Delete
 BTN_CANCEL,Cancelar,Cancel
-HUD_LEVEL,NIVEL,LEVEL
+HUD_LEVEL,SECTOR,SECTOR
 HUD_WAVE,OLEADA,WAVE
 TUTORIAL_SKIP,Saltar,Skip
 DEFEAT_TITLE,"SEÑAL
@@ -38,7 +38,7 @@ TURRET_SELL,Vender,Sell
 VICTORY_TITLE,"SECTOR
 ASEGURADO","SECTOR
 SECURED"
-BTN_NEXT_LEVEL,Siguiente nivel,Next level
+BTN_NEXT_LEVEL,Siguiente sector,Next sector
 BTN_PLAY,Jugar,Play
 BTN_ARCHIVE,Archivo,Archive
 BTN_STATS,Stats,Stats
@@ -127,7 +127,7 @@ ENEMY_SABOTEADORA_DESC,Nave de guerra electrónica. Sus pulsos EMP apagan las to
 ENEMY_WASP_NAME,Wasp,Wasp
 ENEMY_WASP_DESC,Insecto mecánico ágil con más blindaje que un Dart.,Agile mechanical insect with more armor than a Dart.
 AWARD_PERFECT,PERFECTA,PERFECT
-HUD_LEVEL_N,NIVEL %d,LEVEL %d
+HUD_LEVEL_N,SECTOR %d,SECTOR %d
 HUD_WAVE_N_OF,OLEADA %d/%d,WAVE %d/%d
 HUD_WAVE_N,OLEADA %d,WAVE %d
 HUD_WAVE_LAST,ÚLTIMA OLEADA,FINAL WAVE
@@ -145,7 +145,7 @@ STATS_KILLS,Naves destruidas: %d,Ships destroyed: %d
 STATS_SPENT,Dinero gastado: %s,Money spent: %s
 STATS_TIME,Tiempo jugado: %dh %02dm,Time played: %dh %02dm
 STATS_FAVORITE,Torreta favorita: %s,Favorite turret: %s
-STATS_WINS,Niveles ganados: %d,Levels won: %d
+STATS_WINS,Sectores ganados: %d,Sectors won: %d
 NAVEDEX_SHIPS,NAVES,SHIPS
 NAVEDEX_ACHIEVEMENTS,LOGROS,ACHIEVEMENTS
 NAVEDEX_UPGRADE,MEJORA: %s,UPGRADE: %s
@@ -165,15 +165,15 @@ TUTORIAL_UPGRADE_GIFT,"Andamos cortos de créditos... Desvío fondos de reserva 
 TUTORIAL_UPGRADE_PRESS,"Pulsa ""Mejorar"" para convertirlo en un Cañón Cuádruple.",Press Upgrade and we'll turn it into a Quad Cannon.
 TUTORIAL_DONE,"¡Así se hace! Vienen dos oleadas más. Aguanta, comandante, seguro que resistiremos.","That's it! Two more waves incoming. Hold on, commander, and we'll make it."
 TUTORIAL_SKIP_CONFIRM,¿Seguro?,Sure?
-HUD_EMERGENCY,EMERGENCIA,EMERGENCY
+HUD_EMERGENCY,SECTOR 0,SECTOR 0
 ACH_FIRST_WIN_NAME,Primera victoria,First victory
-ACH_FIRST_WIN_DESC,Gana un nivel,Win a level
+ACH_FIRST_WIN_DESC,Gana un sector,Win a sector
 ACH_FLAWLESS_NAME,Intacto,Flawless
-ACH_FLAWLESS_DESC,Gana un nivel sin perder vida,Win a level without losing health
+ACH_FLAWLESS_DESC,Gana un sector sin perder vida,Win a sector without losing health
 ACH_WINS_5_NAME,Veterano,Veteran
-ACH_WINS_5_DESC,Gana 5 niveles,Win 5 levels
+ACH_WINS_5_DESC,Gana 5 sectores,Win 5 sectors
 ACH_ALL_LEVELS_NAME,Sector despejado,Sector cleared
-ACH_ALL_LEVELS_DESC,Gana el último nivel,Win the last level
+ACH_ALL_LEVELS_DESC,Gana el último sector,Win the last sector
 ACH_KILLS_100_NAME,Cazador,Hunter
 ACH_KILLS_100_DESC,Destruye 100 naves,Destroy 100 ships
 ACH_KILLS_1000_NAME,Exterminador,Exterminator
