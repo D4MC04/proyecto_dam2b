@@ -31,8 +31,7 @@ const FREEZE_TIME: float = 4.0
 const FREEZE_WAVE_TIME: float = 0.7
 const FREEZE_GROW_TIME: float = 0.9
 const FREEZE_MELT_TIME: float = 0.8
-const FREEZE_TINT: Color = Color(0.45, 0.75, 1.0, 0.28)
-const FREEZE_EDGE_SCALE: float = 1.0
+const FREEZE_TINT: Color = Color(0.45, 0.75, 1.0, 0.15)
 # Copos: uno cada FREEZE_FLAKE_INTERVAL durante FREEZE_TIME; caen FREEZE_FLAKE_FALL px.
 const FREEZE_FLAKE_INTERVAL: float = 0.04
 const FREEZE_FLAKE_FALL: float = 140.0
@@ -62,7 +61,6 @@ const EXPLOSION_SOUND: AudioStream = preload("res://assets/audio/effects/Turrets
 const FREEZE_BLOCK_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/freeze_block.tres")
 const FREEZE_SHATTER_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/freeze_shatter.tres")
 const FREEZE_CORNER_TEXTURE: Texture2D = preload("res://assets/sprites/effects/freeze/freeze_corner.png")
-const FREEZE_EDGE_TEXTURE: Texture2D = preload("res://assets/sprites/effects/freeze/freeze_edge.png")
 const FREEZE_FRONT_TEXTURE: Texture2D = preload("res://assets/sprites/effects/freeze/freeze_front.png")
 const FREEZE_FLAKE_TEXTURES: Array[Texture2D] = [
 	preload("res://assets/sprites/effects/freeze/freeze_flake_0.png"),
@@ -232,7 +230,7 @@ func _freeze() -> void:
 			enemy.slow(FREEZE_FACTOR, FREEZE_TIME, FREEZE_BLOCK_FRAMES, FREEZE_SHATTER_FRAMES)
 	_freeze_effects()
 
-# Ola de frío: tinte azul que se desvanece, frente que cruza el área, escarcha en esquinas y bordes
+# Ola de frío: tinte azul que se desvanece, frente que cruza el área, escarcha en las esquinas
 # (crece, aguanta FREEZE_TIME y se derrite) y copos que caen mientras dura.
 func _freeze_effects() -> void:
 	var rect: Rect2 = Level.GAME_AREA_RECT
@@ -272,27 +270,6 @@ func _freeze_effects() -> void:
 		sprite.scale = Vector2.ZERO
 		frost.add_child(sprite)
 		grow.tween_property(sprite, "scale", corner[1], FREEZE_GROW_TIME).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	# Bordes: franjas repetidas a lo largo de cada lado, que crecen hacia dentro.
-	var edge_w: float = FREEZE_EDGE_TEXTURE.get_width()
-	var edge_h: float = FREEZE_EDGE_TEXTURE.get_height()
-	var sides: Array[Array] = [
-		[rect.position, 0.0, rect.size.x],
-		[Vector2(rect.end.x, rect.position.y), PI / 2.0, rect.size.y],
-		[rect.end, PI, rect.size.x],
-		[Vector2(rect.position.x, rect.end.y), -PI / 2.0, rect.size.y],
-	]
-	for side: Array in sides:
-		var strip: Sprite2D = Sprite2D.new()
-		strip.texture = FREEZE_EDGE_TEXTURE
-		strip.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
-		strip.centered = false
-		strip.region_enabled = true
-		strip.region_rect = Rect2(0.0, 0.0, side[2], edge_h)
-		strip.position = side[0]
-		strip.rotation = side[1]
-		strip.scale = Vector2(1.0, 0.0)
-		frost.add_child(strip)
-		grow.tween_property(strip, "scale:y", FREEZE_EDGE_SCALE, FREEZE_GROW_TIME).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	# Secuencia general: ola, aguante y derretido. Los copos salen en paralelo.
 	var life: Tween = root.create_tween().set_parallel()
 	life.tween_property(front, "position:x", rect.end.x, FREEZE_WAVE_TIME)

@@ -1,6 +1,6 @@
 extends SceneTree
-## Genera los sprites del poder de congelar: bloque de hielo de la nave (frames que brillan), trozos al romperse,
-## copos que caen, escarcha de esquina y de borde, frente de frío e icono del botón. Escribe en
+## Genera los sprites del poder de congelar: cristales de hielo sobre la nave (frames que brillan), trozos al romperse,
+## copos que caen, copos de escarcha de esquina, frente de frío e icono del botón. Escribe en
 ## assets/sprites/effects/freeze/ (frames sueltos), assets/ui/power_freeze.png y los SpriteFrames
 ## freeze_block.tres y freeze_shatter.tres en resources/sprite_frames/.
 ##
@@ -15,9 +15,7 @@ const BLOCK_FRAMES: int = 3
 const SHATTER_FRAMES: int = 6
 const FLAKE_VARIANTS: int = 3
 const SIZE: int = 32
-const CORNER_SIZE: int = 176
-const EDGE_LENGTH: int = 64
-const EDGE_DEPTH: int = 28
+const CORNER_SIZE: int = 80
 const FRONT_SIZE: Vector2i = Vector2i(40, 64)
 
 # Paleta Cryo (art.md) más un azul muy oscuro para el contorno y el fondo del cristal.
@@ -38,7 +36,6 @@ func _initialize() -> void:
 	for i: int in FLAKE_VARIANTS:
 		_save(_flake(i), "freeze_flake_%d.png" % i)
 	_save(_corner(), "freeze_corner.png")
-	_save(_edge(), "freeze_edge.png")
 	_save(_front(), "freeze_front.png")
 	_icon().save_png(ICON_PATH)
 	_save_frames("freeze_block", "freeze_block", BLOCK_FRAMES, true, 4.0)
@@ -61,36 +58,41 @@ func _save(img: Image, file: String) -> void:
 	img.save_png(DIR + file)
 
 
-# Costra de hielo alrededor de la nave: contorno facetado y semitransparente (deja ver la nave), con
-# brillos que cambian de un frame a otro.
+# Hielo sobre la nave sin taparla: aro finísimo y roto, cristales de 6 brazos en las esquinas y unos
+# destellos que cambian por frame. El centro queda vacío para que se vea la nave.
 func _block(index: int) -> Image:
 	var img: Image = _new(SIZE, SIZE)
 	var c: Vector2 = Vector2(SIZE / 2.0, SIZE / 2.0)
 	for y: int in SIZE:
 		for x: int in SIZE:
 			var p: Vector2 = Vector2(x + 0.5, y + 0.5) - c
-			# Octógono: |x|, |y| y |x|+|y| acotados.
 			var oct: float = maxf(maxf(absf(p.x), absf(p.y)), (absf(p.x) + absf(p.y)) * 0.72)
-			if oct > 14.5:
-				continue
-			if oct > 13.0:
-				_put(img, x, y, ICE[2] if (p.x + p.y) < 0.0 else ICE[1])
-			elif oct > 11.8:
-				_put(img, x, y, Color(ICE[0], 0.9))
-			else:
-				var shade: Color = Color(ICE[1], 0.16)
-				if (x + y * 2) % 11 == 0:
-					shade = Color(ICE[3], 0.3)
-				_put(img, x, y, shade)
-	# Grietas y destellos: cambian por frame para que el hielo brille.
-	for k: int in 4:
-		var spot: Vector2i = Vector2i(7 + ((k * 7 + index * 5) % 18), 6 + ((k * 11 + index * 3) % 19))
-		_put(img, spot.x, spot.y, ICE[3])
-		_put(img, spot.x + 1, spot.y, ICE[2])
-		_put(img, spot.x, spot.y + 1, ICE[2])
-	for i: int in 6:
-		_put(img, 9 + i, 10 + i, Color(ICE[3], 0.7))
+			if oct > 13.0 and oct <= 14.5 and (x + y) % 3 != 0:
+				_put(img, x, y, Color(ICE[2], 0.55))
+	_snowflake(img, Vector2(6, 6), 5.0, 0.9)
+	_snowflake(img, Vector2(26, 25), 4.0, 0.9)
+	_snowflake(img, Vector2(25, 8), 2.5, 0.8)
+	for k: int in 3:
+		var spot: Vector2i = Vector2i(8 + ((k * 9 + index * 7) % 17), 8 + ((k * 13 + index * 5) % 17))
+		_put(img, spot.x, spot.y, Color(ICE[3], 0.9))
 	return img
+
+
+# Copo de 6 brazos centrado en `center`, con ramitas en V a 60 % del brazo. Alfa `alpha`.
+func _snowflake(img: Image, center: Vector2, radius: float, alpha: float) -> void:
+	for i: int in 6:
+		var dir: Vector2 = Vector2.from_angle(TAU * i / 6.0 + PI / 2.0)
+		for r: int in range(0, int(radius) + 1):
+			var tone: int = 3 if r < radius * 0.5 else 2
+			var q: Vector2 = center + dir * r
+			_put(img, int(round(q.x)), int(round(q.y)), Color(ICE[tone], alpha))
+		if radius >= 4.0:
+			var fork: Vector2 = center + dir * (radius * 0.6)
+			for side: float in [-1.0, 1.0]:
+				var branch: Vector2 = dir.rotated(side * PI / 3.0)
+				for r2: int in range(1, int(radius * 0.4) + 1):
+					var q2: Vector2 = fork + branch * r2
+					_put(img, int(round(q2.x)), int(round(q2.y)), Color(ICE[1], alpha))
 
 
 # Rotura: el bloque se parte en trozos que se abren y se desvanecen.
@@ -132,52 +134,20 @@ func _flake(index: int) -> Image:
 	return img
 
 
-# Escarcha de la esquina de arriba a la izquierda: cristales que salen de la esquina; el código la voltea
-# para las otras tres. Más densa y clara cerca de la esquina; cristal en ramas por los lados.
+# Escarcha de la esquina de arriba a la izquierda: un copo grande, uno pequeño y algo de polvo de escarcha
+# pegado a los lados; sutil. El código la voltea para las otras tres.
 func _corner() -> Image:
 	var img: Image = _new(CORNER_SIZE, CORNER_SIZE)
+	# Polvo fino pegado a los dos bordes de la esquina.
 	for y: int in CORNER_SIZE:
 		for x: int in CORNER_SIZE:
 			var d: float = Vector2(x, y).length()
-			var angle: float = atan2(float(y), float(x))
-			# Borde irregular con ramas: picos cada cierto ángulo.
-			var reach: float = 120.0 + 38.0 * absf(sin(angle * 5.0)) + _hash(x / 3, y / 3) * 14.0
-			if d > reach:
-				continue
-			var t: float = d / reach
-			var density: float = 1.0 - t
-			var h: float = _hash(x / 4, y / 4)
-			if h > density * 1.1 + 0.15 and t > 0.25:
-				continue
-			var tone: int = clampi(int((1.0 - t) * 3.4 + h * 0.8), 0, 3)
-			var alpha: float = lerpf(0.9, 0.3, t)
-			_put(img, x, y, Color(ICE[tone], alpha))
-	# Rayas de cristal desde la esquina.
-	for i: int in 5:
-		var angle2: float = lerpf(0.1, PI / 2.0 - 0.1, i / 4.0)
-		for r: int in range(6, 120):
-			var p: Vector2 = Vector2.from_angle(angle2) * r
-			if _hash(r, i) > 0.12:
-				_put(img, int(p.x), int(p.y), ICE[3] if r % 9 < 4 else ICE[2])
-	return img
-
-
-# Escarcha del borde (arriba): franja que se repite a lo largo; el código la gira para los demás lados.
-func _edge() -> Image:
-	var img: Image = _new(EDGE_LENGTH, EDGE_DEPTH)
-	for x: int in EDGE_LENGTH:
-		var reach: float = 9.0 + 14.0 * absf(sin(x * TAU / EDGE_LENGTH * 2.0)) + _hash(x, 3) * 5.0
-		for y: int in EDGE_DEPTH:
-			if y > reach:
-				continue
-			var t: float = y / reach
-			if _hash(x, y) > 1.15 - t * 0.2 - 0.3 * (1.0 - t) and t > 0.4:
-				continue
-			_put(img, x, y, Color(ICE[clampi(int((1.0 - t) * 3.5 + _hash(y, x) * 0.7), 0, 3)], lerpf(0.85, 0.3, t)))
-		# Aguja de hielo ocasional.
-		if x % 11 == 5:
-			for y2: int in range(int(reach), int(reach) + 4):
-				_put(img, x, y2, ICE[2])
+			if d < 46.0 and _hash(x, y) > 0.78 + d / 46.0 * 0.2:
+				_put(img, x, y, Color(ICE[1 + int(_hash(y, x) * 2.0)], 0.5 * (1.0 - d / 46.0)))
+	_snowflake(img, Vector2(20, 20), 14.0, 0.85)
+	_snowflake(img, Vector2(44, 12), 6.0, 0.7)
+	_snowflake(img, Vector2(11, 46), 6.0, 0.7)
+	_snowflake(img, Vector2(37, 37), 4.0, 0.6)
 	return img
 
 
