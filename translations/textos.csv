@@ -12,8 +12,7 @@ BTN_DELETE,Borrar,Delete
 BTN_CANCEL,Cancelar,Cancel
 HUD_LEVEL,NIVEL,LEVEL
 HUD_WAVE,OLEADA,WAVE
-TUTORIAL_OK,Entendido,Got it
-TUTORIAL_SKIP,Saltar,Skip
+TUTORIAL_SKIP,Saltar simulacro,Skip simulation
 DEFEAT_TITLE,"SEÑAL
 PERDIDA","SIGNAL
 LOST"
@@ -164,10 +163,8 @@ TUTORIAL_START_WAVE,"Cuando estés listo, pulsa INICIAR y que vengan.","When you
 TUTORIAL_UPGRADE_PICK,¡Oleada superada! Con lo que has ganado puedes mejorar una torreta. Haz clic en una de las tuyas.,Wave cleared! With what you earned you can upgrade a turret. Click one of yours.
 TUTORIAL_UPGRADE_GIFT,"No te llega para mejorar... Toma lo que falta, pero que no se repita. Haz clic en una de tus torretas.","Not enough to upgrade... Here is what you are missing, but don't make a habit of it. Click one of your turrets."
 TUTORIAL_UPGRADE_PRESS,Ahora pulsa Mejorar.,Now press Upgrade.
-TUTORIAL_SELL_INFO,"¡Más potencia! Por cierto, este otro botón vende la torreta y te devuelve la mitad de lo invertido.","More firepower! By the way, this other button sells the turret and gives back half of what you put in."
 TUTORIAL_DONE,Eso es todo. Quedan dos oleadas: aguántalas y el simulacro es tuyo.,That is all. Two waves left: hold them off and the simulation is yours.
-TUTORIAL_COMPLETE,¡Simulacro superado! Ya estás listo para los sectores de verdad. Te llevo a la oficina.,Simulation complete! You are ready for the real sectors. Taking you to the office.
-TUTORIAL_SKIP_CONFIRM,¿Seguro?,Sure?
+TUTORIAL_SKIP_CONFIRM,¿Seguro? Pulsa otra vez,Sure? Press again
 HUD_SIMULATION,SIMULACRO,SIMULATION
 ACH_FIRST_WIN_NAME,Primera victoria,First victory
 ACH_FIRST_WIN_DESC,Gana un nivel,Win a level

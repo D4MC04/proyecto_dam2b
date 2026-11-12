@@ -108,7 +108,7 @@ El nivel de prueba del tutorial, fuera de los sectores: `resources/level_data/si
 
 - **Mapa:** un camino en eses con tres curvas cerradas y una casilla de torreta dentro de cada una (solo 3), para que cada torreta alcance las dos pasadas y la curva. Con 300 € y el Cañón doble a 100 se llenan las 3 y no sobra nada.
 - **Oleadas (3):** la 1 da 200 € (lo justo para mejorar un Cañón doble a Cañón cuádruple; con la oleada perfecta, 225), la 2 da 400 € (las otras dos mejoras) y la 3 aprieta, pero se pasa con dos Cañones dobles y uno mejorado. Vida ×0,7, ×0,8 y ×0,9. No salen del presupuesto: se escriben grupo a grupo en la tabla `SIMULATION` de `make_waves.gd` (ver "Generador de oleadas").
-- **Al ganar** no sale la pantalla de victoria (no da estrellas ni victorias): NOVA se despide y se vuelve a la oficina. Perder deja reintentar.
+- **Al ganar** sale la pantalla de victoria como en un nivel normal, con sus estrellas, pero no guarda estrellas, no cuenta como victoria ni da logros (`complete_level`, `record_level_stars` y `register_win` no se aplican: no tiene número). Solo tiene "Menú", que vuelve a la oficina. Perder deja reintentar.
 - **No se repite:** salir del simulacro de cualquier forma (ganarlo, "Saltar", salir desde la pausa o desde la derrota) llama a `GameState.complete_tutorial()` en `Game._quit_to_menu` y vuelve a la oficina, no a la selección de nivel.
 - El nivel 1 ya no lleva tutorial.
 

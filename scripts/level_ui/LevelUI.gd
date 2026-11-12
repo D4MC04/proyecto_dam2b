@@ -81,7 +81,6 @@ func _ready() -> void:
 	tutorial_hints.info_panel = info_panel
 	tutorial_hints.turret_actions = turret_actions
 	tutorial_hints.skip_requested.connect(_request_action.bind(Action.QUIT))
-	tutorial_hints.finished.connect(_request_action.bind(Action.QUIT))
 	sidebar.tutorial_hints = tutorial_hints
 	turret_actions.tutorial_hints = tutorial_hints
 	set_state(UiState.PLAYING)
@@ -139,10 +138,6 @@ func start_simulation(level: Level) -> void:
 	level_indicator.set_title(tr("HUD_SIMULATION"))
 	_set_powers_enabled(false)
 	tutorial_hints.start(level)
-
-## El simulacro se ha ganado: en vez de la pantalla de victoria, NOVA se despide y después se sale.
-func show_simulation_complete() -> void:
-	tutorial_hints.show_complete()
 
 func _set_powers_enabled(enabled: bool) -> void:
 	_powers_enabled = enabled
