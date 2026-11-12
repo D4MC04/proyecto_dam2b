@@ -23,7 +23,7 @@ const TAB_TURRETS: int = 1
 const CELL_SCENE: PackedScene = preload("res://scenes/level_ui/EnemyCell.tscn")
 const UNKNOWN_TEXT: String = "???"
 # Lado de las celdas cuadradas de la cuadrícula.
-const CELL_SIZE: int = 40
+const CELL_SIZE: int = 36
 # Lado de las flechas de torreta.
 const ARROW_SIZE: int = 28
 # Aumento del terminal dibujado y sus piezas en píxeles del terminal (como tablet.png, de frente).
@@ -56,7 +56,7 @@ const BAR_HEIGHT: int = 3
 @onready var fusion_label: Label = %FusionLabel
 @onready var name_label: Label = %NameLabel
 @onready var description_label: Label = %DescriptionLabel
-@onready var stat_rows: VBoxContainer = %StatRows
+@onready var stat_rows: GridContainer = %StatRows
 @onready var prev_button: Button = %PrevButton
 @onready var next_button: Button = %NextButton
 
@@ -263,8 +263,11 @@ func _show_entry(data: InspectableData) -> void:
 # Fila del stat con una barra debajo: su valor frente al más alto de la pestaña (si no es un número, vacía).
 func _make_stat_row(entry: StatEntry, index: int) -> Control:
 	var box: VBoxContainer = VBoxContainer.new()
-	box.add_theme_constant_override("separation", 0)
-	box.add_child(StatRow.create(entry, index))
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.add_theme_constant_override("separation", 1)
+	# Dos columnas: el fondo alterno va por filas, no por stat.
+	@warning_ignore("integer_division")
+	box.add_child(StatRow.create(entry, index / 2))
 	var bar: ColorRect = ColorRect.new()
 	bar.color = OfficePaint.SCREEN_LINE
 	bar.custom_minimum_size.y = BAR_HEIGHT

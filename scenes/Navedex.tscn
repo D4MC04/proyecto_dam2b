@@ -31,41 +31,40 @@ mouse_filter = 2
 
 [node name="Content" type="MarginContainer" parent="Tablet"]
 layout_mode = 1
-offset_left = 48.0
-offset_top = 75.0
-offset_right = 393.0
-offset_bottom = 417.0
+offset_left = 59.0
+offset_top = 86.0
+offset_right = 382.0
+offset_bottom = 406.0
 mouse_filter = 2
 
 [node name="Box" type="VBoxContainer" parent="Tablet/Content"]
 layout_mode = 2
 mouse_filter = 2
+theme_override_constants/separation = 9
+
+[node name="Top" type="HBoxContainer" parent="Tablet/Content/Box"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="HoloColumn" type="VBoxContainer" parent="Tablet/Content/Box/Top"]
+layout_mode = 2
+mouse_filter = 2
 theme_override_constants/separation = 6
 
-[node name="Columns" type="HBoxContainer" parent="Tablet/Content/Box"]
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 8
-
-[node name="Left" type="VBoxContainer" parent="Tablet/Content/Box/Columns"]
-custom_minimum_size = Vector2(136, 0)
-layout_mode = 2
-mouse_filter = 2
-theme_override_constants/separation = 4
-
-[node name="Holo" type="Control" parent="Tablet/Content/Box/Columns/Left"]
+[node name="Holo" type="Control" parent="Tablet/Content/Box/Top/HoloColumn"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(136, 120)
+custom_minimum_size = Vector2(104, 80)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="Arrows" type="HBoxContainer" parent="Tablet/Content/Box/Columns/Left"]
+[node name="Arrows" type="HBoxContainer" parent="Tablet/Content/Box/Top/HoloColumn"]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 12
 alignment = 1
 
-[node name="PrevButton" type="Button" parent="Tablet/Content/Box/Columns/Left/Arrows"]
+[node name="PrevButton" type="Button" parent="Tablet/Content/Box/Top/HoloColumn/Arrows"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
@@ -73,7 +72,7 @@ focus_mode = 0
 theme_override_font_sizes/font_size = 24
 text = "<"
 
-[node name="NextButton" type="Button" parent="Tablet/Content/Box/Columns/Left/Arrows"]
+[node name="NextButton" type="Button" parent="Tablet/Content/Box/Top/HoloColumn/Arrows"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
@@ -81,47 +80,61 @@ focus_mode = 0
 theme_override_font_sizes/font_size = 24
 text = ">"
 
-[node name="FusionLabel" type="Label" parent="Tablet/Content/Box/Columns/Left"]
-unique_name_in_owner = true
-visible = false
+[node name="Detail" type="VBoxContainer" parent="Tablet/Content/Box/Top"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7450981, 0.98039216, 1, 1)
-theme_override_font_sizes/font_size = 16
-horizontal_alignment = 1
-autowrap_mode = 3
-
-[node name="Detail" type="VBoxContainer" parent="Tablet/Content/Box/Columns"]
-custom_minimum_size = Vector2(201, 0)
-layout_mode = 2
+size_flags_horizontal = 3
 mouse_filter = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 6
 
-[node name="NameLabel" type="Label" parent="Tablet/Content/Box/Columns/Detail"]
+[node name="NameLabel" type="Label" parent="Tablet/Content/Box/Top/Detail"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(207, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7450981, 0.98039216, 1, 1)
 theme_override_font_sizes/font_size = 24
 autowrap_mode = 3
 
-[node name="DescriptionLabel" type="Label" parent="Tablet/Content/Box/Columns/Detail"]
+[node name="FusionLabel" type="Label" parent="Tablet/Content/Box/Top/Detail"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(201, 0)
+visible = false
+custom_minimum_size = Vector2(207, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7450981, 0.98039216, 1, 1)
+theme_override_font_sizes/font_size = 16
+autowrap_mode = 3
+
+[node name="DescriptionLabel" type="Label" parent="Tablet/Content/Box/Top/Detail"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(207, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 autowrap_mode = 3
 
-[node name="StatRows" type="VBoxContainer" parent="Tablet/Content/Box/Columns/Detail"]
+[node name="StatRows" type="GridContainer" parent="Tablet/Content/Box"]
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 0
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 5
+columns = 2
+
+[node name="Spacer" type="Control" parent="Tablet/Content/Box"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="Divider" type="ColorRect" parent="Tablet/Content/Box"]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+mouse_filter = 2
+color = Color(0.10980392, 0.45490196, 0.5882353, 1)
 
 [node name="Grid" type="GridContainer" parent="Tablet/Content/Box"]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_vertical = 10
-theme_override_constants/h_separation = 3
-theme_override_constants/v_separation = 3
+size_flags_horizontal = 4
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
 columns = 8
 
 [node name="Buttons" type="HBoxContainer" parent="Tablet"]
