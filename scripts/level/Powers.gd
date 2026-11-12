@@ -27,6 +27,15 @@ const METEOR_SHAKE_DAMAGE: int = 60
 const METEOR_SCORCH_TIME: float = 3.0
 const FREEZE_FACTOR: float = 0.3
 const FREEZE_TIME: float = 4.0
+# Ola de frío: el frente cruza el área en FREEZE_WAVE_TIME; la escarcha crece en FREEZE_GROW_TIME y se derrite en FREEZE_MELT_TIME.
+const FREEZE_WAVE_TIME: float = 0.7
+const FREEZE_GROW_TIME: float = 0.9
+const FREEZE_MELT_TIME: float = 0.8
+const FREEZE_TINT: Color = Color(0.45, 0.75, 1.0, 0.28)
+const FREEZE_EDGE_SCALE: float = 1.0
+# Copos: uno cada FREEZE_FLAKE_INTERVAL durante FREEZE_TIME; caen FREEZE_FLAKE_FALL px.
+const FREEZE_FLAKE_INTERVAL: float = 0.04
+const FREEZE_FLAKE_FALL: float = 140.0
 # Ataque orbital: un rayo vertical barre la fila elegida de izquierda a derecha durante ORBITAL_TIME.
 const ORBITAL_TIME: float = 2.0
 const ORBITAL_DPS: float = 400.0
@@ -50,7 +59,16 @@ const METEOR_EXPLOSION_FRAMES: SpriteFrames = preload("res://resources/sprite_fr
 const METEOR_WARNING_TEXTURE: Texture2D = preload("res://assets/sprites/effects/meteor/meteor_warning.png")
 const METEOR_SCORCH_TEXTURE: Texture2D = preload("res://assets/sprites/effects/meteor/meteor_scorch.png")
 const EXPLOSION_SOUND: AudioStream = preload("res://assets/audio/effects/Turrets/Rocket/RocketExplosion.wav")
-const FROST_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/cryo_frost.tres")
+const FREEZE_BLOCK_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/freeze_block.tres")
+const FREEZE_SHATTER_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/freeze_shatter.tres")
+const FREEZE_CORNER_TEXTURE: Texture2D = preload("res://assets/sprites/effects/freeze/freeze_corner.png")
+const FREEZE_EDGE_TEXTURE: Texture2D = preload("res://assets/sprites/effects/freeze/freeze_edge.png")
+const FREEZE_FRONT_TEXTURE: Texture2D = preload("res://assets/sprites/effects/freeze/freeze_front.png")
+const FREEZE_FLAKE_TEXTURES: Array[Texture2D] = [
+	preload("res://assets/sprites/effects/freeze/freeze_flake_0.png"),
+	preload("res://assets/sprites/effects/freeze/freeze_flake_1.png"),
+	preload("res://assets/sprites/effects/freeze/freeze_flake_2.png"),
+]
 
 @export var state: LevelState
 
@@ -211,7 +229,94 @@ func _freeze() -> void:
 	power_used.emit(Power.FREEZE)
 	for enemy: Enemy in get_tree().get_nodes_in_group(&"enemies"):
 		if enemy.hp > 0:
-			enemy.slow(FREEZE_FACTOR, FREEZE_TIME, FROST_FRAMES)
+			enemy.slow(FREEZE_FACTOR, FREEZE_TIME, FREEZE_BLOCK_FRAMES, FREEZE_SHATTER_FRAMES)
+	_freeze_effects()
+
+# Ola de frío: tinte azul que se desvanece, frente que cruza el área, escarcha en esquinas y bordes
+# (crece, aguanta FREEZE_TIME y se derrite) y copos que caen mientras dura.
+func _freeze_effects() -> void:
+	var rect: Rect2 = Level.GAME_AREA_RECT
+	var root: Node2D = Node2D.new()
+	add_child(root)
+	root.global_position = Vector2.ZERO
+	var tint: ColorRect = ColorRect.new()
+	tint.color = FREEZE_TINT
+	tint.position = rect.position
+	tint.size = rect.size
+	tint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(tint)
+	var front: Sprite2D = Sprite2D.new()
+	front.texture = FREEZE_FRONT_TEXTURE
+	front.centered = false
+	front.region_enabled = true
+	front.region_rect = Rect2(0.0, 0.0, FREEZE_FRONT_TEXTURE.get_width(), FREEZE_FRONT_TEXTURE.get_height())
+	root.add_child(front)
+	# El frente es de 64 px de alto: se estira a todo el alto del área.
+	front.scale = Vector2(1.0, rect.size.y / FREEZE_FRONT_TEXTURE.get_height())
+	front.position = Vector2(rect.position.x - FREEZE_FRONT_TEXTURE.get_width(), rect.position.y)
+	var frost: Node2D = Node2D.new()
+	root.add_child(frost)
+	# Esquinas: la textura es la de arriba a la izquierda; el signo de la escala la voltea.
+	var corners: Array[Array] = [
+		[rect.position, Vector2(1, 1)],
+		[Vector2(rect.end.x, rect.position.y), Vector2(-1, 1)],
+		[Vector2(rect.position.x, rect.end.y), Vector2(1, -1)],
+		[rect.end, Vector2(-1, -1)],
+	]
+	var grow: Tween = create_tween().set_parallel()
+	for corner: Array in corners:
+		var sprite: Sprite2D = Sprite2D.new()
+		sprite.texture = FREEZE_CORNER_TEXTURE
+		sprite.centered = false
+		sprite.position = corner[0]
+		sprite.scale = Vector2.ZERO
+		frost.add_child(sprite)
+		grow.tween_property(sprite, "scale", corner[1], FREEZE_GROW_TIME).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	# Bordes: franjas repetidas a lo largo de cada lado, que crecen hacia dentro.
+	var edge_w: float = FREEZE_EDGE_TEXTURE.get_width()
+	var edge_h: float = FREEZE_EDGE_TEXTURE.get_height()
+	var sides: Array[Array] = [
+		[rect.position, 0.0, rect.size.x],
+		[Vector2(rect.end.x, rect.position.y), PI / 2.0, rect.size.y],
+		[rect.end, PI, rect.size.x],
+		[Vector2(rect.position.x, rect.end.y), -PI / 2.0, rect.size.y],
+	]
+	for side: Array in sides:
+		var strip: Sprite2D = Sprite2D.new()
+		strip.texture = FREEZE_EDGE_TEXTURE
+		strip.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
+		strip.centered = false
+		strip.region_enabled = true
+		strip.region_rect = Rect2(0.0, 0.0, side[2], edge_h)
+		strip.position = side[0]
+		strip.rotation = side[1]
+		strip.scale = Vector2(1.0, 0.0)
+		frost.add_child(strip)
+		grow.tween_property(strip, "scale:y", FREEZE_EDGE_SCALE, FREEZE_GROW_TIME).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	# Secuencia general: ola, aguante y derretido. Los copos salen en paralelo.
+	var life: Tween = root.create_tween().set_parallel()
+	life.tween_property(front, "position:x", rect.end.x, FREEZE_WAVE_TIME)
+	life.tween_property(front, "modulate:a", 0.0, 0.2).set_delay(FREEZE_WAVE_TIME - 0.2)
+	life.tween_property(tint, "modulate:a", 0.0, FREEZE_WAVE_TIME + 0.5).from(1.0)
+	life.tween_property(frost, "modulate:a", 0.0, FREEZE_MELT_TIME).set_delay(FREEZE_TIME)
+	var flakes: int = int(FREEZE_TIME / FREEZE_FLAKE_INTERVAL)
+	for i: int in flakes:
+		life.tween_callback(_spawn_flake.bind(root)).set_delay(i * FREEZE_FLAKE_INTERVAL)
+	# Espera a que los últimos copos acaben de caer.
+	life.tween_callback(root.queue_free).set_delay(FREEZE_TIME + FREEZE_MELT_TIME + 2.0)
+
+func _spawn_flake(root: Node2D) -> void:
+	var rect: Rect2 = Level.GAME_AREA_RECT
+	var flake: Sprite2D = Sprite2D.new()
+	flake.texture = FREEZE_FLAKE_TEXTURES[randi() % FREEZE_FLAKE_TEXTURES.size()]
+	root.add_child(flake)
+	flake.global_position = Vector2(randf_range(rect.position.x, rect.end.x), rect.position.y + randf_range(-10.0, rect.size.y * 0.9))
+	var fall: float = randf_range(0.6, 1.0) * FREEZE_FLAKE_FALL
+	var time: float = randf_range(1.0, 1.8)
+	var tween: Tween = flake.create_tween().set_parallel()
+	tween.tween_property(flake, "global_position", flake.global_position + Vector2(randf_range(-20.0, 20.0), fall), time)
+	tween.tween_property(flake, "modulate:a", 0.0, time * 0.4).set_delay(time * 0.6)
+	tween.chain().tween_callback(flake.queue_free)
 
 func _fire_orbital(row_y: float) -> void:
 	cancel_aiming()
