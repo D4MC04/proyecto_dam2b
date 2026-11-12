@@ -4,13 +4,14 @@ Creador: Renzo
 Responsable: Renzo
 Estado: aceptada
 Prioridad: media
-Modelo recomendado: sonnet
+Modelo recomendado: opus
 Esfuerzo recomendado: high
 
 ## Por qué
 El rayo del ataque orbital se ve muy simple: un zigzag cian dibujado con líneas. Ni el efecto ni el icono del botón llaman la atención.
 
 ## Qué hay que hacer
+- **Rehacer el rayo entero**, no retocar el actual: ahora es un zigzag fino de líneas con un punto blanco abajo y se ve pobre.
 - **Carga:** antes de caer, un destello o retícula en lo alto de la fila elegida (como un satélite apuntando), durante `ORBITAL_FALL_TIME`.
 - **Rayo:** más grueso y con capas (halo, cuerpo y núcleo blanco que vibra), con chispas y ramas que saltan a los lados mientras barre la fila.
 - **Suelo:** donde toca el rayo, un brillo y una estela quemada que se queda detrás un momento y se apaga.
