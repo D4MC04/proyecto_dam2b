@@ -20,8 +20,11 @@ const METEOR_DAMAGE: float = 150.0
 # Caída del meteorito: sale de este desplazamiento respecto al punto y tarda METEOR_FALL_TIME.
 const METEOR_FALL_OFFSET: Vector2 = Vector2(-90, -150)
 const METEOR_FALL_TIME: float = 0.3
-# El impacto del lanzacohetes es de 24 px; a ×3 cubre casi todo el área (80 px).
-const METEOR_EXPLOSION_SCALE: float = 3.0
+# Chispas que quedan en la estela: una cada METEOR_SPARK_INTERVAL durante la caída.
+const METEOR_SPARK_INTERVAL: float = 0.04
+const METEOR_SHAKE_DAMAGE: int = 60
+# La marca de quemado se apaga en este tiempo.
+const METEOR_SCORCH_TIME: float = 3.0
 const FREEZE_FACTOR: float = 0.3
 const FREEZE_TIME: float = 4.0
 # Ataque orbital: un rayo vertical barre la fila elegida de izquierda a derecha durante ORBITAL_TIME.
@@ -41,8 +44,11 @@ const ORBITAL_CORE_COLOR: Color = Color("#ffffff")
 const AIM_FILL_COLOR: Color = Color(1.0, 0.7, 0.24, 0.15)
 const AIM_BORDER_COLOR: Color = Color("#ecb23c")
 
-const METEOR_TEXTURE: Texture2D = preload("res://assets/sprites/backgrounds/espacio/cometa.png")
-const EXPLOSION_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/rocket_launcher_impact.tres")
+const METEOR_FALL_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/meteor_fall.tres")
+const METEOR_SPARK_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/meteor_spark.tres")
+const METEOR_EXPLOSION_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/meteor_explosion.tres")
+const METEOR_WARNING_TEXTURE: Texture2D = preload("res://assets/sprites/effects/meteor/meteor_warning.png")
+const METEOR_SCORCH_TEXTURE: Texture2D = preload("res://assets/sprites/effects/meteor/meteor_scorch.png")
 const EXPLOSION_SOUND: AudioStream = preload("res://assets/audio/effects/Turrets/Rocket/RocketExplosion.wav")
 const FROST_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/cryo_frost.tres")
 
@@ -146,20 +152,47 @@ func _drop_meteor(target: Vector2) -> void:
 	_cooldown_left[Power.METEOR] = COOLDOWNS[Power.METEOR]
 	set_process(true)
 	power_used.emit(Power.METEOR)
-	var meteor: Sprite2D = Sprite2D.new()
-	meteor.texture = METEOR_TEXTURE
+	# Marca en el suelo: se cierra hasta el radio del área mientras cae la roca.
+	var warning: Sprite2D = Sprite2D.new()
+	warning.texture = METEOR_WARNING_TEXTURE
+	add_child(warning)
+	warning.global_position = target
+	warning.scale = Vector2.ONE * 1.4
+	warning.modulate.a = 0.4
+	var start: Vector2 = target + METEOR_FALL_OFFSET
+	var meteor: AnimatedSprite2D = AnimatedSprite2D.new()
+	meteor.sprite_frames = METEOR_FALL_FRAMES
 	add_child(meteor)
-	meteor.global_position = target + METEOR_FALL_OFFSET
-	# La cabeza del cometa mira a +x: se gira hacia donde cae.
+	meteor.global_position = start
+	# La cabeza mira a +x: se gira hacia donde cae.
 	meteor.rotation = (-METEOR_FALL_OFFSET).angle()
+	meteor.play()
 	var tween: Tween = meteor.create_tween()
 	tween.tween_property(meteor, "global_position", target, METEOR_FALL_TIME)
+	tween.parallel().tween_property(warning, "scale", Vector2.ONE, METEOR_FALL_TIME)
+	tween.parallel().tween_property(warning, "modulate:a", 1.0, METEOR_FALL_TIME)
+	# Chispas que se quedan atrás, en la trayectoria.
+	var sparks: int = int(METEOR_FALL_TIME / METEOR_SPARK_INTERVAL)
+	for i: int in sparks:
+		var spot: Vector2 = start.lerp(target, float(i) / sparks) + Vector2(randf_range(-4.0, 4.0), randf_range(-4.0, 4.0))
+		tween.parallel().tween_callback(Effect.spawn.bind(self, METEOR_SPARK_FRAMES, spot)).set_delay(i * METEOR_SPARK_INTERVAL)
 	tween.tween_callback(func() -> void:
 		meteor.queue_free()
+		warning.queue_free()
 		_explode(target))
 
 func _explode(target: Vector2) -> void:
-	Effect.spawn(self, EXPLOSION_FRAMES, target, METEOR_EXPLOSION_SCALE)
+	Effect.spawn(self, METEOR_EXPLOSION_FRAMES, target)
+	var level: Level = get_parent() as Level
+	level.shake_map(METEOR_SHAKE_DAMAGE)
+	# Marca de quemado: va en el mapa (tiembla con él, queda bajo las naves) y se apaga sola.
+	var scorch: Sprite2D = Sprite2D.new()
+	scorch.texture = METEOR_SCORCH_TEXTURE
+	level.map.add_child(scorch)
+	scorch.global_position = target
+	var fade: Tween = scorch.create_tween()
+	fade.tween_property(scorch, "modulate:a", 0.0, METEOR_SCORCH_TIME)
+	fade.tween_callback(scorch.queue_free)
 	var player: AudioStreamPlayer2D = AudioStreamPlayer2D.new()
 	player.stream = EXPLOSION_SOUND
 	player.bus = &"SFX"
