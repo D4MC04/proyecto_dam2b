@@ -56,12 +56,16 @@ const AUTO_CLOSE_STEPS: Array[Step] = [Step.DONE]
 const AUTO_CLOSE_TIME: float = 5.0
 # Segundos por carácter del texto que va apareciendo, como si hablara.
 const TYPE_TIME_PER_CHAR: float = 0.02
-# Líneas por página: un mensaje más largo se corta y sigue con un clic. Si la página acaba a mitad
-# de frase, se le añade PAGE_CONTINUES (con espacio, sin cortar palabras).
+# Líneas por página: un mensaje más largo se corta y sigue con un clic (ver _paginate). Si la página
+# acaba a mitad de frase, se le añade PAGE_CONTINUES (con espacio, sin cortar palabras).
 const LINES_PER_PAGE: int = 2
 const PAGE_CONTINUES: String = " -"
 # Una página que acaba en uno de estos caracteres acaba la frase: no lleva el guion.
 const SENTENCE_ENDS: String = ".!?:…"
+# Final de frase: la página corta ahí si la frase siguiente no cabe entera.
+const SENTENCE_SPLITS: String = ".!?…"
+# En un texto, fuerza un corte de página (se puede poner a mano en el CSV).
+const PAGE_BREAK: String = "|"
 
 # Oscurecido de los pasos con foco: negro a esta opacidad, que entra y sale en DIM_FADE_TIME.
 const DIM_ALPHA: float = 0.6
@@ -208,32 +212,91 @@ func _on_page_typed() -> void:
 func _has_more_pages() -> bool:
 	return _page < _pages.size() - 1
 
-# Parte el texto por palabras con la fuente de la etiqueta y junta las líneas de LINES_PER_PAGE en
-# LINES_PER_PAGE. Se parte con el ancho de la etiqueta menos lo que ocupa PAGE_CONTINUES, para que
-# el guion de una página a medias quepa siempre en su última línea.
+# Arma las páginas frase a frase: una frase entra en la página si cabe entera; si no, empieza otra,
+# así la página corta en el punto aunque haya más texto. Una frase más larga que una página se parte
+# por líneas con PAGE_CONTINUES. PAGE_BREAK en el texto fuerza un corte.
 func _paginate(message: String) -> PackedStringArray:
-	var font: Font = message_label.get_theme_font(&"font")
-	var font_size: int = message_label.get_theme_font_size(&"font_size")
-	# Con el recuadro recién enseñado la etiqueta aún puede no tener su ancho: vale el mínimo, que es el fijo.
-	var width: float = maxf(message_label.size.x, message_label.custom_minimum_size.x)
-	var paragraph: TextParagraph = TextParagraph.new()
-	paragraph.width = (width - message_label.get_theme_stylebox(&"normal").get_minimum_size().x
-			- font.get_string_size(PAGE_CONTINUES, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x)
-	paragraph.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
-	paragraph.add_string(message, font, font_size)
 	var pages: PackedStringArray = []
-	var line_count: int = paragraph.get_line_count()
-	for first: int in range(0, line_count, LINES_PER_PAGE):
-		var last: int = mini(first + LINES_PER_PAGE, line_count) - 1
-		var start: int = paragraph.get_line_range(first).x
-		var end: int = paragraph.get_line_range(last).y
-		var page: String = message.substr(start, end - start).strip_edges()
-		if last < line_count - 1 and page.right(1) not in SENTENCE_ENDS:
-			page += PAGE_CONTINUES
-		pages.append(page)
+	for chunk: String in message.split(PAGE_BREAK, false):
+		var current: String = ""
+		for sentence: String in _split_sentences(chunk.strip_edges()):
+			var joined: String = sentence if current.is_empty() else current + " " + sentence
+			if _line_count(joined) <= LINES_PER_PAGE:
+				current = joined
+				continue
+			if not current.is_empty():
+				pages.append(current)
+			var parts: PackedStringArray = _split_by_lines(sentence)
+			for i: int in parts.size() - 1:
+				pages.append(parts[i])
+			current = parts[-1]
+		if not current.is_empty():
+			pages.append(current)
 	if pages.is_empty():
 		pages.append(message)
 	return pages
+
+# Frases del texto: cada una acaba en una palabra que termina en SENTENCE_SPLITS (puede llevar
+# detrás comillas o un paréntesis de cierre).
+func _split_sentences(text: String) -> PackedStringArray:
+	var sentences: PackedStringArray = []
+	var current: String = ""
+	for word: String in text.split(" ", false):
+		current = word if current.is_empty() else current + " " + word
+		var tail: String = word.rstrip("\"»)")
+		if not tail.is_empty() and tail.right(1) in SENTENCE_SPLITS:
+			sentences.append(current)
+			current = ""
+	if not current.is_empty():
+		sentences.append(current)
+	return sentences
+
+# Parte por líneas una frase que no cabe en una página, juntándolas de LINES_PER_PAGE en
+# LINES_PER_PAGE. Se mide con el ancho menos PAGE_CONTINUES, para que el guion de una página a
+# medias quepa siempre en su última línea.
+func _split_by_lines(text: String) -> PackedStringArray:
+	var lines: PackedStringArray = _wrap(text, _text_width() - _continues_width())
+	var pages: PackedStringArray = []
+	for first: int in range(0, lines.size(), LINES_PER_PAGE):
+		var last: int = mini(first + LINES_PER_PAGE, lines.size()) - 1
+		var page: String = " ".join(lines.slice(first, last + 1))
+		if last < lines.size() - 1 and page.right(1) not in SENTENCE_ENDS:
+			page += PAGE_CONTINUES
+		pages.append(page)
+	if pages.is_empty():
+		pages.append(text)
+	return pages
+
+func _line_count(text: String) -> int:
+	return _wrap(text, _text_width()).size()
+
+# Parte el texto en líneas de `width` px como mucho, solo por los espacios: nunca corta una palabra
+# (ni por un guion que lleve dentro). Una palabra más ancha que la línea va sola en la suya.
+func _wrap(text: String, width: float) -> PackedStringArray:
+	var font: Font = message_label.get_theme_font(&"font")
+	var font_size: int = message_label.get_theme_font_size(&"font_size")
+	var lines: PackedStringArray = []
+	var current: String = ""
+	for word: String in text.split(" ", false):
+		var joined: String = word if current.is_empty() else current + " " + word
+		if current.is_empty() or font.get_string_size(joined, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x <= width:
+			current = joined
+		else:
+			lines.append(current)
+			current = word
+	if not current.is_empty():
+		lines.append(current)
+	return lines
+
+# Ancho útil de la etiqueta. Con el recuadro recién enseñado aún puede no tener su ancho: vale el
+# mínimo, que es el fijo.
+func _text_width() -> float:
+	return (maxf(message_label.size.x, message_label.custom_minimum_size.x)
+			- message_label.get_theme_stylebox(&"normal").get_minimum_size().x)
+
+func _continues_width() -> float:
+	return message_label.get_theme_font(&"font").get_string_size(PAGE_CONTINUES, HORIZONTAL_ALIGNMENT_LEFT, -1,
+			message_label.get_theme_font_size(&"font_size")).x
 
 func _fade_dim(to_alpha: float) -> void:
 	if _dim_tween:
