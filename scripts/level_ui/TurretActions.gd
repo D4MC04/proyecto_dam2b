@@ -20,10 +20,10 @@ const DISABLED_FONT_COLOR: Color = Color(1, 1, 1, 0.3)
 # sobresalen los cañones y un respiro).
 const TURRET_GAP: float = 22.0
 # Margen del texto de los botones al borde, en px.
-const BUTTON_H_MARGIN: float = 7.0
-const BUTTON_V_MARGIN: float = 3.0
+const BUTTON_H_MARGIN: float = 6.0
+const BUTTON_V_MARGIN: float = 2.0
 # Hueco en px entre el icono y el precio.
-const ICON_TEXT_GAP: int = 4
+const ICON_TEXT_GAP: int = 3
 const UPGRADE_ICON: Texture2D = preload("res://assets/ui/upgrade.png")
 const SELL_ICON: Texture2D = preload("res://assets/ui/sell_closed.png")
 # Papelera con la tapa levantada: se ve mientras espera el segundo clic que confirma la venta.
