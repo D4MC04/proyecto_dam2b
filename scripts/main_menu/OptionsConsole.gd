@@ -5,13 +5,21 @@ extends OfficeObject
 # cerca (OptionsCloseUp), donde se tocan las opciones. El módulo (metal, pantalla hundida, tres pomos
 # brillantes y las ranuras de cinco interruptores) es parte de center_static.png. Aquí se pinta lo que
 # cambia, con los valores reales de Settings: la pantalla (tres vúmetros con el nivel de su bus y su
-# fader, llevados al trapecio de la pantalla), la marca de cada pomo y las palancas.
+# fader al lado, con aire entre los dos, llevados al trapecio de la pantalla), la marca de cada pomo y
+# las palancas, inclinadas con la consola en el trapecio de su ranura.
 
 const SEGMENTS: int = 10
 const SEGMENT_HEIGHT: int = 4
 const SEGMENT_GAP: int = 2
-const CHANNEL_WIDTH: int = 28
-const CHANNEL_GAP: int = 24
+const METER_WIDTH: int = 12
+# Hueco entre el vúmetro y el fader, y ancho del fader.
+const FADER_GAP: int = 7
+const FADER_WIDTH: int = 13
+const CHANNEL_WIDTH: int = METER_WIDTH + FADER_GAP + FADER_WIDTH
+const CHANNEL_GAP: int = 20
+# Ranura de un interruptor pintada de frente (el trapecio de OfficeLayout la inclina) y su palanca.
+const SWITCH_SLOT: Vector2i = Vector2i(8, 30)
+const LEVER_HEIGHT: int = 12
 const FADER_HEIGHT: int = 8
 
 # Opciones de cada mando, en el orden de la consola (de izquierda a derecha).
@@ -80,15 +88,16 @@ func _draw_object() -> void:
 			if segment >= level:
 				color = color.darkened(0.72)
 			var y: int = y0 + bar_height - SEGMENT_HEIGHT - segment * (SEGMENT_HEIGHT + SEGMENT_GAP)
-			_quad_rect(Rect2i(x, y, 12, SEGMENT_HEIGHT), color, origin)
-		_quad_rect(Rect2i(x + 19, y0, 3, bar_height), OfficePaint.OUTLINE, origin)
-		_quad_rect(Rect2i(x + 20, y0, 1, bar_height), OfficePaint.SCREEN_LINE, origin)
+			_quad_rect(Rect2i(x, y, METER_WIDTH, SEGMENT_HEIGHT), color, origin)
+		var fader_x: int = x + METER_WIDTH + FADER_GAP
+		_quad_rect(Rect2i(fader_x + 5, y0, 3, bar_height), OfficePaint.OUTLINE, origin)
+		_quad_rect(Rect2i(fader_x + 6, y0, 1, bar_height), OfficePaint.SCREEN_LINE, origin)
 		var volume: float = Settings.get_value(FADERS[channel])
 		var fader_y: int = y0 + roundi((1.0 - volume) * (bar_height - FADER_HEIGHT))
-		_quad_rect(Rect2i(x + 14, fader_y, 13, FADER_HEIGHT), OfficePaint.OUTLINE, origin)
-		_quad_rect(Rect2i(x + 15, fader_y + 1, 11, 6), OfficePaint.METAL_LIGHT, origin)
-		_quad_rect(Rect2i(x + 15, fader_y + 1, 11, 1), OfficePaint.METAL_SHINE, origin)
-		_quad_rect(Rect2i(x + 15, fader_y + 3, 11, 2), OfficePaint.CYAN_DARK, origin)
+		_quad_rect(Rect2i(fader_x, fader_y, FADER_WIDTH, FADER_HEIGHT), OfficePaint.OUTLINE, origin)
+		_quad_rect(Rect2i(fader_x + 1, fader_y + 1, FADER_WIDTH - 2, 6), OfficePaint.METAL_LIGHT, origin)
+		_quad_rect(Rect2i(fader_x + 1, fader_y + 1, FADER_WIDTH - 2, 1), OfficePaint.METAL_SHINE, origin)
+		_quad_rect(Rect2i(fader_x + 1, fader_y + 3, FADER_WIDTH - 2, 2), OfficePaint.CYAN_DARK, origin)
 	# Marca de cada pomo, hacia su posición.
 	var knobs: Array = OfficeLayout.CENTER.opt.knobs
 	for i: int in knobs.size():
@@ -96,13 +105,18 @@ func _draw_object() -> void:
 		var tip: Vector2i = center + Vector2i((Vector2.UP * 8.0).rotated(knob_angle(KNOBS[i])).round())
 		OfficePaint.line(self, center, tip, OfficePaint.OUTLINE)
 		OfficePaint.line(self, center + Vector2i.RIGHT, tip + Vector2i.RIGHT, OfficePaint.OUTLINE)
-	# Palancas de los interruptores, en sus ranuras: arriba ON, abajo OFF.
+	# Palancas de los interruptores, en sus ranuras inclinadas: arriba ON, abajo OFF.
 	var switches: Array = OfficeLayout.CENTER.opt.switches
 	for i: int in switches.size():
-		var slot: Vector2i = Vector2i(to_local_point(Vector2(switches[i][0], switches[i][1])))
-		var lever_y: int = slot.y + (2 if Settings.get_value(SWITCHES[i]) else 16)
-		OfficePaint.bevel_box(self, Rect2i(slot.x, lever_y, 8, 12), OfficePaint.METAL_LIGHT, OfficePaint.METAL_SHINE, OfficePaint.METAL_DARK)
-		OfficePaint.rect(self, Rect2i(slot.x + 2, lever_y + 5, 4, 1), OfficePaint.METAL)
+		var slot: Dictionary = switches[i]
+		var lever_y: int = 2 if Settings.get_value(SWITCHES[i]) else 16
+		OfficePaint.quad_bevel_box(self, slot, SWITCH_SLOT, Rect2i(0, lever_y, SWITCH_SLOT.x, LEVER_HEIGHT),
+				OfficePaint.METAL_LIGHT, OfficePaint.METAL_SHINE, OfficePaint.METAL_DARK, origin)
+		OfficePaint.quad_rect(self, slot, SWITCH_SLOT, Rect2i(2, lever_y + 5, 4, 1), OfficePaint.METAL, origin)
+
+# Los corchetes siguen el contorno inclinado del módulo.
+func hover_quad() -> PackedVector2Array:
+	return to_local_quad(OfficeLayout.CENTER.opt.quad)
 
 func _quad_rect(r: Rect2i, color: Color, origin: Vector2i) -> void:
 	OfficePaint.quad_rect(self, _screen, _source, r, color, origin)
