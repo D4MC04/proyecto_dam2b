@@ -465,7 +465,9 @@ func _draw() -> void:
 	# Al salir de un paso con foco el oscurecido se desvanece entero, ya sin huecos.
 	var holes: Array[Hole] = []
 	var spots: Array[Spotlight] = []
-	if _step in FOCUS_STEPS and not _is_talking():
+	# Lo que se pide hacer no se señala hasta que NOVA acaba de hablar; lo que solo explica (pasos
+	# informativos), desde el principio, porque habla de ello.
+	if _step in FOCUS_STEPS and (_step in INFO_STEPS or not _is_talking()):
 		holes = _focus_holes()
 		spots = _focus_spotlights()
 	var rects: Array[Rect2] = []
