@@ -154,16 +154,16 @@ SLOT_EMPTY,RANURA VACÍA,EMPTY SLOT
 SLOT_SECTOR,SECTOR %02d,SECTOR %02d
 SLOT_SAVED,GUARDADO,SAVED
 SLOT_PLAYED,JUGADO,PLAYED
-TUTORIAL_STATION,"¡Comandante, por fin llega! Aquí NOVA, desde la sala de control. Nos atacan y no aguantaremos mucho solos. Si sus naves alcanzan la estación, perdemos integridad: vigílala en la barra de la derecha.","Commander, you made it! NOVA here, from the control room. We are under attack and won't last long on our own. If their ships reach the station, we lose integrity: keep an eye on it in the right-hand bar."
-TUTORIAL_PLACE_TURRETS,"Nos quedan créditos para tres Cañones dobles. Móntelos en los asteroides con plataforma, donde mejor cubran el paso.","We have credits left for three Twin Cannons. Mount them on the asteroids with a platform, where they best cover the path."
-TUTORIAL_OPEN_WAVES,Los sensores ya detectan la primera oleada. Abra la pestaña Oleadas y veamos qué se nos viene encima.,Sensors are picking up the first wave. Open the Waves tab and let's see what's coming at us.
-TUTORIAL_INSPECT_ENEMY,Ahí están. Pulse una de esas naves y la analizo.,There they are. Click one of those ships and I'll scan it.
+TUTORIAL_STATION,"¡Comandante, por fin has llegado! Aquí NOVA, desde la sala de control. Nos atacan y no aguantaremos mucho solos. Si sus naves alcanzan la estación, perdemos integridad: vigílala en la barra de la derecha.","Commander, you made it! NOVA here, from the control room. We are under attack and won't last long on our own. If their ships reach the station, we lose integrity: keep an eye on it in the right-hand bar."
+TUTORIAL_PLACE_TURRETS,Quedan créditos para tres Cañones dobles. Móntalos en los asteroides con plataforma.,We have credits for three Twin Cannons. Mount them on the asteroids with a platform.
+TUTORIAL_OPEN_WAVES,Los sensores detectan la primera oleada. Abre la pestaña Oleadas y veamos qué viene.,Sensors detect the first wave. Open the Waves tab and let's see what's coming.
+TUTORIAL_INSPECT_ENEMY,Ahí están. Pulsa una de esas naves y la analizo.,There they are. Click one of those ships and I'll scan it.
 TUTORIAL_ENEMY_INFO,"El análisis sale en el panel de la izquierda: vida, velocidad, botín y el daño que nos hará si llega. Conocer al enemigo es media batalla.","The scan shows up in the left panel: health, speed, loot and the damage it does if it gets through. Knowing the enemy is half the battle."
-TUTORIAL_START_WAVE,"Cuando tenga la defensa lista, pulse INICIAR. Abriremos fuego en cuanto crucen el portal.","When your defense is ready, press START. We open fire as soon as they cross the portal."
-TUTORIAL_UPGRADE_PICK,¡Primera oleada rechazada! Con el botín podemos reforzar un cañón. Seleccione uno de los suyos.,First wave repelled! With the loot we can reinforce a cannon. Select one of yours.
-TUTORIAL_UPGRADE_GIFT,"Andamos cortos de créditos... Desvío fondos de reserva para la mejora, pero que no se repita. Seleccione uno de sus cañones.","We're short on credits... I'm diverting reserve funds for the upgrade, but don't make me do it again. Select one of your cannons."
-TUTORIAL_UPGRADE_PRESS,Pulse Mejorar y lo convertimos en un Cañón cuádruple.,Press Upgrade and we'll turn it into a Quad Cannon.
-TUTORIAL_DONE,"¡Así se hace! Vienen dos oleadas más. Aguante, comandante, y la estación seguirá en pie.","That's the way! Two more waves incoming. Hold on, commander, and the station will still be standing."
+TUTORIAL_START_WAVE,"Cuando tengas la defensa lista, pulsa INICIAR y abriremos fuego.","When your defense is ready, press START and we open fire."
+TUTORIAL_UPGRADE_PICK,¡Primera oleada rechazada! Con el botín podemos reforzar un cañón: selecciona uno.,First wave repelled! With the loot we can reinforce a cannon: select one.
+TUTORIAL_UPGRADE_GIFT,"Andamos cortos de créditos... Desvío fondos de reserva para la mejora, pero que no se repita. Selecciona uno de tus cañones.","We're short on credits... I'm diverting reserve funds for the upgrade, but don't make me do it again. Select one of your cannons."
+TUTORIAL_UPGRADE_PRESS,Pulsa Mejorar y lo convertimos en un Cañón cuádruple.,Press Upgrade and we'll turn it into a Quad Cannon.
+TUTORIAL_DONE,"¡Así se hace! Vienen dos oleadas más. Aguanta, comandante, y resistiremos.","That's it! Two more waves incoming. Hold on, commander, and we'll make it."
 TUTORIAL_SKIP_CONFIRM,¿Seguro?,Sure?
 HUD_EMERGENCY,EMERGENCIA,EMERGENCY
 ACH_FIRST_WIN_NAME,Primera victoria,First victory

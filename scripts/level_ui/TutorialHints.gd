@@ -56,8 +56,12 @@ const AUTO_CLOSE_STEPS: Array[Step] = [Step.DONE]
 const AUTO_CLOSE_TIME: float = 5.0
 # Segundos por carácter del texto que va apareciendo, como si hablara.
 const TYPE_TIME_PER_CHAR: float = 0.02
-# Líneas por página: un mensaje más largo se corta y sigue con un clic.
+# Líneas por página: un mensaje más largo se corta y sigue con un clic. Si la página acaba a mitad
+# de frase, se le añade PAGE_CONTINUES (con espacio, sin cortar palabras).
 const LINES_PER_PAGE: int = 2
+const PAGE_CONTINUES: String = " -"
+# Una página que acaba en uno de estos caracteres acaba la frase: no lleva el guion.
+const SENTENCE_ENDS: String = ".!?:…"
 
 # Oscurecido de los pasos con foco: negro a esta opacidad, que entra y sale en DIM_FADE_TIME.
 const DIM_ALPHA: float = 0.6
@@ -142,8 +146,15 @@ func stop() -> void:
 	_set_active(false)
 
 ## Si el paso actual deja hacer `action`. Sin tutorial en marcha o fuera de los pasos con foco todo vale.
+## En un paso con foco no se deja nada hasta que NOVA acaba de hablar.
 func allows(action: Action) -> bool:
-	return not _active or _step not in FOCUS_STEPS or action in ALLOWED_ACTIONS.get(_step, [])
+	if not _active or _step not in FOCUS_STEPS:
+		return true
+	return not _is_talking() and action in ALLOWED_ACTIONS.get(_step, [])
+
+# NOVA aún escribe o le quedan páginas: hasta que acabe no se señala nada ni se deja hacer nada.
+func _is_talking() -> bool:
+	return box.visible and (_has_more_pages() or message_label.visible_ratio < 1.0)
 
 func _set_active(active: bool) -> void:
 	_active = active
@@ -197,20 +208,29 @@ func _on_page_typed() -> void:
 func _has_more_pages() -> bool:
 	return _page < _pages.size() - 1
 
-# Parte el texto como lo partiría la etiqueta (mismo ancho, fuente y cortes) y junta las líneas de
-# LINES_PER_PAGE en LINES_PER_PAGE.
+# Parte el texto por palabras con la fuente de la etiqueta y junta las líneas de LINES_PER_PAGE en
+# LINES_PER_PAGE. Se parte con el ancho de la etiqueta menos lo que ocupa PAGE_CONTINUES, para que
+# el guion de una página a medias quepa siempre en su última línea.
 func _paginate(message: String) -> PackedStringArray:
+	var font: Font = message_label.get_theme_font(&"font")
+	var font_size: int = message_label.get_theme_font_size(&"font_size")
+	# Con el recuadro recién enseñado la etiqueta aún puede no tener su ancho: vale el mínimo, que es el fijo.
+	var width: float = maxf(message_label.size.x, message_label.custom_minimum_size.x)
 	var paragraph: TextParagraph = TextParagraph.new()
-	paragraph.width = message_label.size.x - message_label.get_theme_stylebox(&"normal").get_minimum_size().x
-	paragraph.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
-	paragraph.add_string(message, message_label.get_theme_font(&"font"), message_label.get_theme_font_size(&"font_size"))
+	paragraph.width = (width - message_label.get_theme_stylebox(&"normal").get_minimum_size().x
+			- font.get_string_size(PAGE_CONTINUES, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x)
+	paragraph.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
+	paragraph.add_string(message, font, font_size)
 	var pages: PackedStringArray = []
 	var line_count: int = paragraph.get_line_count()
 	for first: int in range(0, line_count, LINES_PER_PAGE):
 		var last: int = mini(first + LINES_PER_PAGE, line_count) - 1
 		var start: int = paragraph.get_line_range(first).x
 		var end: int = paragraph.get_line_range(last).y
-		pages.append(message.substr(start, end - start).strip_edges())
+		var page: String = message.substr(start, end - start).strip_edges()
+		if last < line_count - 1 and page.right(1) not in SENTENCE_ENDS:
+			page += PAGE_CONTINUES
+		pages.append(page)
 	if pages.is_empty():
 		pages.append(message)
 	return pages
@@ -277,7 +297,7 @@ func _on_wave_cleared(index: int) -> void:
 func _input(event: InputEvent) -> void:
 	if not is_visible_in_tree() or not box.visible:
 		return
-	if _step not in INFO_STEPS and not _has_more_pages():
+	if _step not in INFO_STEPS and not _is_talking():
 		return
 	var click: InputEventMouseButton = event as InputEventMouseButton
 	var is_click: bool = click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT
@@ -311,7 +331,7 @@ func _process(delta: float) -> void:
 	# delta sigue Engine.time_scale: se deshace para que el ×2 no acelere el parpadeo ni la flecha.
 	_time += delta / maxf(Engine.time_scale, 0.01)
 	# Abrir la pestaña Oleadas no emite nada: se mira aquí.
-	if _step == Step.OPEN_WAVES and sidebar.waves_page.visible:
+	if _step == Step.OPEN_WAVES and not _is_talking() and sidebar.waves_page.visible:
 		_show_step(Step.INSPECT_ENEMY)
 	queue_redraw()
 	if continue_arrow.visible:
@@ -445,7 +465,7 @@ func _draw() -> void:
 	# Al salir de un paso con foco el oscurecido se desvanece entero, ya sin huecos.
 	var holes: Array[Hole] = []
 	var spots: Array[Spotlight] = []
-	if _step in FOCUS_STEPS:
+	if _step in FOCUS_STEPS and not _is_talking():
 		holes = _focus_holes()
 		spots = _focus_spotlights()
 	var rects: Array[Rect2] = []
