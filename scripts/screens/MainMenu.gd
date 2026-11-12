@@ -5,7 +5,8 @@ extends Control
 # abre su panel holograma encima, con la oficina oscurecida detrás. Escape cierra el panel abierto
 # o, en la oficina, pregunta si volver a la pantalla de inicio. La pantalla de la mesa del radar enseña la pantalla
 # de Sectores (que, mientras está cerrada, se pinta en RadarViewport); al pulsarla, la vista se
-# acerca hasta que esa pantalla queda encima de la de Sectores, con su borde a la vista.
+# acerca hasta que esa pantalla queda encima de la de Sectores, con su borde a la vista. La consola
+# de opciones se acerca igual y al final aparece encima de cerca (OptionsCloseUp), donde se tocan.
 
 enum View { LEFT, CENTER, RIGHT }
 
@@ -24,8 +25,10 @@ const VIEW_SIZE: Vector2 = Vector2(960.0, 540.0)
 # Margen alrededor del contenido de Sectores en la pantalla de la mesa (ahí va su marco, y a los
 # lados se ve la oficina al final del zoom).
 const SCREEN_MARGIN: Vector2 = Vector2(40.0, 32.0)
-# Acercamiento a la mesa del radar al abrir Sectores (y alejamiento al cerrar).
+# Acercamiento a un objeto de la oficina (la mesa del radar o la consola de opciones) y alejamiento.
 const ZOOM_TIME: float = 0.7
+# Parte del zoom a la consola de opciones desde la que aparece encima la consola de cerca.
+const CLOSE_UP_FADE_START: float = 0.85
 
 var start_on_level_selection: bool = false
 
@@ -47,7 +50,8 @@ var start_on_level_selection: bool = false
 @onready var stats_label: Label = %StatsLabel
 @onready var navedex: Navedex = $Navedex
 @onready var achievements_screen: AchievementsScreen = $AchievementsScreen
-@onready var options_menu: OptionsMenu = $OptionsMenu
+@onready var options_console: OptionsConsole = $Office/Views/CenterView/OptionsConsole
+@onready var options_close_up: OptionsCloseUp = $OptionsCloseUp
 @onready var quit_confirm: Control = $QuitConfirm
 
 var _view: View = View.CENTER
@@ -57,7 +61,7 @@ var _panel: Control
 var _panel_tween: Tween
 var _jumping: bool = false
 var _leaving: bool = false
-# Zoom a la mesa del radar: mientras dura no se gira ni se pulsa nada.
+# Zoom a un objeto de la oficina: mientras dura no se gira ni se pulsa nada.
 var _zooming: bool = false
 var _zoom_tween: Tween
 # Sitio de la pantalla de Sectores entre los hijos del menú (para volver a ponerla en su capa).
@@ -155,6 +159,9 @@ func _close_panel() -> void:
 	if _panel == level_selection_panel:
 		_close_sectors()
 		return
+	if _panel == options_close_up:
+		_zoom_out(_set_options_zoom)
+		return
 	var panel: Control = _panel
 	_panel = null
 	_fade_panel(panel, false)
@@ -185,7 +192,9 @@ func _on_medal_case_pressed() -> void:
 	_open_panel(achievements_screen)
 
 func _on_options_console_pressed() -> void:
-	_open_panel(options_menu)
+	if _panel or _jumping or _leaving:
+		return
+	_zoom_in(options_close_up, _set_options_zoom)
 
 @warning_ignore("integer_division")
 func _on_combat_scoreboard_pressed() -> void:
@@ -203,47 +212,63 @@ func _on_combat_scoreboard_pressed() -> void:
 	])
 	_open_panel(stats_panel)
 
-# --- Zoom a la mesa del radar ---------------------------------------------------------------
+# --- Zoom a un objeto de la oficina --------------------------------------------------------
+
+# La vista se acerca a un objeto de la vista central y `panel` queda abierto. `step(amount)` (de 0, la
+# oficina normal, a 1) coloca la oficina con _zoom_office() y hace lo propio del objeto.
+func _zoom_in(panel: Control, step: Callable) -> void:
+	_panel = panel
+	_zooming = true
+	# PanelDim, transparente, solo tapa la oficina para que no se pulse nada.
+	panel_dim.modulate.a = 0.0
+	panel_dim.show()
+	await _tween_zoom(1.0, step)
+	_zooming = false
+
+# Lo inverso: la vista se aleja y se cierra el panel.
+func _zoom_out(step: Callable) -> void:
+	_zooming = true
+	await _tween_zoom(0.0, step)
+	panel_dim.hide()
+	_panel = null
+	_zooming = false
+
+func _tween_zoom(target: float, step: Callable) -> void:
+	_zoom_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_zoom_tween.tween_method(step, 1.0 - target, target, ZOOM_TIME)
+	await _zoom_tween.finished
+
+# Acerca la oficina y el espacio de detrás: con `amount` 1, el punto `focus` de la vista queda en
+# `target` (en píxeles del menú) con la escala `final_scale`.
+func _zoom_office(focus: Vector2, final_scale: float, target: Vector2, amount: float) -> void:
+	var zoom: float = lerpf(1.0, final_scale, amount)
+	var offset: Vector2 = (target - focus * final_scale) * amount
+	office.scale = Vector2(zoom, zoom)
+	office.position = offset
+	space.scale = Vector2(zoom, zoom)
+	space.position = offset
+
+# --- Mesa del radar ------------------------------------------------------------------------
 
 # La vista se acerca a la mesa y su pantalla se endereza hasta llenar la vista; entonces la pantalla
 # de Sectores sale de RadarViewport y queda encima, igual.
 func _open_sectors() -> void:
 	if _panel or _jumping or _leaving:
 		return
-	_panel = level_selection_panel
-	_zooming = true
 	_refresh_sectors()
-	# PanelDim, transparente, solo tapa la oficina para que no se pulse nada.
-	panel_dim.modulate.a = 0.0
-	panel_dim.show()
-	await _tween_zoom(1.0)
+	await _zoom_in(level_selection_panel, _set_radar_zoom)
 	_move_sectors(false)
-	_zooming = false
 
 # Lo inverso: la pantalla vuelve a la mesa y la vista se aleja.
 func _close_sectors() -> void:
-	_zooming = true
 	_move_sectors(true)
-	await _tween_zoom(0.0)
-	panel_dim.hide()
-	_panel = null
-	_zooming = false
-
-func _tween_zoom(target: float) -> void:
-	_zoom_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	_zoom_tween.tween_method(_set_radar_zoom, 1.0 - target, target, ZOOM_TIME)
-	await _zoom_tween.finished
+	_zoom_out(_set_radar_zoom)
 
 # Zoom de 0 (la oficina normal) a 1 (la pantalla de la mesa ocupa _screen_rect, centrada).
 func _set_radar_zoom(amount: float) -> void:
 	var center: Vector2 = radar_console.get_screen_center()
 	var final_scale: float = _screen_rect.size.x / radar_console.get_screen_width()
-	var zoom: float = lerpf(1.0, final_scale, amount)
-	var offset: Vector2 = (_screen_rect.get_center() - center * final_scale) * amount
-	office.scale = Vector2(zoom, zoom)
-	office.position = offset
-	space.scale = Vector2(zoom, zoom)
-	space.position = offset
+	_zoom_office(center, final_scale, _screen_rect.get_center(), amount)
 	radar_console.set_zoom(amount, Rect2(center - _screen_rect.size / final_scale / 2.0, _screen_rect.size / final_scale))
 
 # La mesa enseña solo el contenido de Sectores (con un margen), para que se lea mejor.
@@ -265,6 +290,17 @@ func _fit_radar_viewport() -> void:
 	var stretch: float = maxf(get_viewport().get_final_transform().x.x, 1.0)
 	radar_viewport.size = Vector2i((VIEW_SIZE * stretch).ceil())
 	radar_viewport.size_2d_override = Vector2i(VIEW_SIZE)
+
+# --- Consola de opciones -------------------------------------------------------------------
+
+# Zoom de 0 a 1: la consola de la oficina se acerca hasta ocupar el sitio de la consola de cerca, que
+# aparece encima al final.
+func _set_options_zoom(amount: float) -> void:
+	var console: Rect2 = options_console.get_rect()
+	var body: Rect2 = options_close_up.get_body_rect()
+	_zoom_office(console.get_center(), body.size.y / console.size.y, body.get_center(), amount)
+	options_close_up.modulate.a = smoothstep(CLOSE_UP_FADE_START, 1.0, amount)
+	options_close_up.visible = amount > CLOSE_UP_FADE_START
 
 # --- Selección de sector (radar) -----------------------------------------------------------
 

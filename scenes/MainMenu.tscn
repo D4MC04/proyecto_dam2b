@@ -8,7 +8,6 @@
 [ext_resource type="Script" uid="uid://mb67t4tqyohq" path="res://scripts/main_menu/Comets.gd" id="14_comets"]
 [ext_resource type="Script" uid="uid://dd6xsyc7ng8u7" path="res://scripts/main_menu/Asteroids.gd" id="17_asteroids"]
 [ext_resource type="Script" uid="uid://pdd67yive1em" path="res://scripts/main_menu/Satellites.gd" id="18_satellites"]
-[ext_resource type="PackedScene" path="res://scenes/OptionsMenu.tscn" id="19_options"]
 [ext_resource type="Script" uid="uid://cu5uq2sgohj00" path="res://scripts/level_ui/OverlayFrame.gd" id="20_frame"]
 [ext_resource type="PackedScene" path="res://scenes/level_ui/ScreenHeader.tscn" id="21_header"]
 [ext_resource type="PackedScene" path="res://scenes/Navedex.tscn" id="22_navedex"]
@@ -39,6 +38,7 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/office/access_lit.png" id="48_access_light"]
 [ext_resource type="Script" path="res://scripts/level_ui/SectorRadar.gd" id="28_radar"]
 [ext_resource type="Script" path="res://scripts/level_ui/SectorCard.gd" id="29_card"]
+[ext_resource type="Script" path="res://scripts/main_menu/OptionsCloseUp.gd" id="48_options_close"]
 
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_radar"]
@@ -455,9 +455,15 @@ layout_mode = 1
 visible = false
 layout_mode = 1
 
-[node name="OptionsMenu" parent="." unique_id=1195865161 instance=ExtResource("19_options")]
+[node name="OptionsCloseUp" type="Control" parent="."]
 visible = false
 layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("48_options_close")
 
 [node name="QuitConfirm" type="Control" parent="."]
 visible = false
@@ -554,6 +560,6 @@ render_target_update_mode = 4
 [connection signal="pressed" from="StatsScreen/StatsPanel/Margin/Content/BackButton" to="." method="_close_panel"]
 [connection signal="back_pressed" from="Navedex" to="." method="_close_panel"]
 [connection signal="back_pressed" from="AchievementsScreen" to="." method="_close_panel"]
-[connection signal="back_pressed" from="OptionsMenu" to="." method="_close_panel"]
+[connection signal="back_pressed" from="OptionsCloseUp" to="." method="_close_panel"]
 [connection signal="pressed" from="QuitConfirm/Center/Panel/Margin/Content/Buttons/QuitButton" to="." method="_on_quit_button_pressed"]
 [connection signal="pressed" from="QuitConfirm/Center/Panel/Margin/Content/Buttons/CancelButton" to="." method="_close_quit_confirm"]

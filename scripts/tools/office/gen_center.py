@@ -1,5 +1,5 @@
 # Genera los PNG de la vista central de la oficina, píxel a píxel: marco del ventanal, alféizar,
-# consola inclinada pegada al ventanal, mesa del radar, módulo de opciones, bandeja y tablet.
+# consola inclinada pegada al ventanal, mesa del radar, módulo de opciones (y de cerca), bandeja y tablet.
 # Los marcos se sombrean por perfiles (distancia al borde -> color, con luz arriba a la izquierda),
 # los detalles pequeños son plantillas de texto (un carácter por píxel).
 import json, os
@@ -273,6 +273,7 @@ def build_table(cv, ys, xs):
 # ---------------------------------------------------------------- módulo de opciones
 OPT = (690, 316, 860, 486)      # rectángulo de mundo
 OPT_EDGE = [M0, M0, D6, D6, D5, D5, D4, D4]
+OPT_SWITCHES = 5
 
 
 def build_options(cv, ys, xs):
@@ -291,13 +292,13 @@ def build_options(cv, ys, xs):
     dd_ = bevel(cv, deck, [(M2, M1, OUT), (M3, M2, D2), OUT], body=M0, sunk=True)
     for (X, y) in [(X0 + 5, y0 + 5), (X1 - 6, y0 + 5), (X0 + 5, y1 - 6), (X1 - 6, y1 - 6)]:
         rivet(cv, int(round(to_screen(X, y))), y, light=True)
-    # Mandos centrados en el recuadro de abajo: tres pomos brillantes y cuatro interruptores.
+    # Mandos centrados en el recuadro de abajo: tres pomos brillantes y cinco interruptores.
     # Se colocan en la fila del medio y se pasan a x de mundo: cada mando se inclina con el plano.
     dq = quad_of(deck & (dd_ >= 3))
     cy = (dq["top"] + dq["bot"]) // 2 - 1
     wl, wr = to_screen(X0 + 13, cy), to_screen(X1 - 13, cy)
-    r, kstep, gap, sstep = 12, 32, 14, 13
-    span = (2 * kstep + 2 * r + 2) + gap + (3 * sstep + 10)
+    r, kstep, gap, sstep = 12, 32, 10, 13
+    span = (2 * kstep + 2 * r + 2) + gap + ((OPT_SWITCHES - 1) * sstep + 10)
     left = wl + ((wr - wl) - span) / 2
 
     def world(x):
@@ -312,7 +313,7 @@ def build_options(cv, ys, xs):
     switches = []
     sx0 = left + 2 * kstep + 2 * r + 2 + gap
     sy = cy - 15
-    for i in range(4):
+    for i in range(OPT_SWITCHES):
         q = lean_quad(world(sx0 + i * sstep + 4), sy, sy + 29, 8)
         for y in range(sy - 1, sy + 31):
             x = lean_x(q, min(max(y, sy), sy + 29))
@@ -350,6 +351,70 @@ def lean_knob(cv, KX, cy, r):
             nz = max(0.0, 1 - (dd / (r - 2)) ** 2) ** 0.5
             lum = (-xx * 0.5 - yy * 0.6) / (r - 2) + nz * 0.6
             cv.put(x, y, M3 if lum > 0.75 else M2 if lum > 0.45 else M1 if lum > 0.1 else M0)
+
+
+# ---------------------------------------------------------------- consola de opciones de cerca
+# La misma consola, de frente y a tamaño de la vista, para cuando MainMenu se acerca a ella:
+# options_close.png lleva lo fijo (metal, recuadros hundidos, aro del pulsador, pomos, ranuras) y
+# OptionsCloseUp pinta encima los mandos en su posición. Coordenadas dentro del PNG.
+CLOSE_W, CLOSE_H = 660, 500
+CLOSE_SCREEN = (24, 24, 636, 236)       # x0, y0, x1, y1
+CLOSE_DECK = (24, 248, 636, 476)
+CLOSE_ROW = 330                          # fila de los mandos
+CLOSE_MUTE_X, CLOSE_MUTE_R = 88, 38      # aro del pulsador de silenciar
+CLOSE_KNOBS, CLOSE_KNOB_R = (206, 306, 406), 30
+CLOSE_SWITCH_X, CLOSE_SWITCH_STEP, CLOSE_SWITCH_W, CLOSE_SWITCH_H = 470, 32, 18, 76
+CLOSE_LCD = (44, 404, 424, 452)
+CLOSE_BACK = (468, 404, 616, 452)
+CLOSE_TICK = 45                          # posiciones de los pomos: grados a cada lado de arriba
+CLOSE_SUNK = [(M2, M1, OUT), (M3, M2, D2), OUT]
+
+
+def build_options_close():
+    cv = Canvas(CLOSE_W, CLOSE_H)
+    ys, xs = np.mgrid[0:CLOSE_H, 0:CLOSE_W]
+
+    def box(x0, y0, x1, y1, ch=0):
+        return chamfer_terms(xs, ys, x0, y0, x1, y1, tl=ch, br=ch)[0] <= 0
+
+    def inner(r, d):
+        return [r[0] + d, r[1] + d, r[2] - r[0] - 2 * d, r[3] - r[1] - 2 * d]
+
+    bevel(cv, box(0, 0, CLOSE_W, CLOSE_H, 16), [OUT, OUT, (M3, M2, M0), (M2, M1, M0), (M2, M1, M0)], body=M1)
+    bevel(cv, box(*CLOSE_SCREEN, ch=8), CLOSE_SUNK, body=S1, sunk=True)
+    bevel(cv, box(*CLOSE_DECK, ch=8), CLOSE_SUNK, body=M0, sunk=True)
+    for (x, y) in [(12, 12), (CLOSE_W - 13, 12), (12, CLOSE_H - 13), (CLOSE_W - 13, CLOSE_H - 13)]:
+        rivet(cv, x, y, light=True)
+    # Pulsador de silenciar: aro de metal con el hueco rojo oscuro (el botón lo pinta OptionsCloseUp).
+    ring = disc_mask(CLOSE_MUTE_X, CLOSE_ROW, CLOSE_MUTE_R, CLOSE_W, CLOSE_H)
+    bevel(cv, ring, [OUT, (M3, M2, M0), (M2, M1, M0), (M1, M0, M0), OUT, OUT], body=R0)
+    # Pomos con sus dos marcas (izquierda OFF / ES, derecha ON / EN).
+    for x in CLOSE_KNOBS:
+        knob(cv, x, CLOSE_ROW, CLOSE_KNOB_R)
+        for a in (-CLOSE_TICK, CLOSE_TICK):
+            tx = int(round(x + np.sin(np.radians(a)) * (CLOSE_KNOB_R + 8)))
+            ty = int(round(CLOSE_ROW - np.cos(np.radians(a)) * (CLOSE_KNOB_R + 8)))
+            cv.rect(tx - 2, ty - 2, 4, 4, OUT)
+            cv.rect(tx - 1, ty - 1, 2, 2, M3)
+    # Ranuras de los interruptores, con el hueco de su piloto encima.
+    switches = []
+    sy = CLOSE_ROW - CLOSE_SWITCH_H // 2
+    for i in range(OPT_SWITCHES):
+        sx = CLOSE_SWITCH_X + i * CLOSE_SWITCH_STEP
+        cv.rect(sx - 1, sy - 1, CLOSE_SWITCH_W + 2, CLOSE_SWITCH_H + 2, OUT)
+        cv.rect(sx, sy, CLOSE_SWITCH_W, CLOSE_SWITCH_H, D1)
+        cv.rect(sx, sy, CLOSE_SWITCH_W, 3, OUT)
+        cv.rect(sx + 3, sy - 11, CLOSE_SWITCH_W - 6, 6, OUT)
+        switches.append([sx, sy])
+    # Pantallita y botón "Volver" (los textos los pinta OptionsCloseUp).
+    bevel(cv, box(*CLOSE_LCD, ch=4), CLOSE_SUNK, body=S1, sunk=True)
+    bevel(cv, box(*CLOSE_BACK, ch=4), [OUT, (M3, M2, M0), (M3, M2, M0), (M2, M1, M0)], body=M2)
+    cv.save("options_close.png")
+    return {"size": [CLOSE_W, CLOSE_H], "screen": inner(CLOSE_SCREEN, 3),
+            "mute": [CLOSE_MUTE_X, CLOSE_ROW, CLOSE_MUTE_R - 8],
+            "knobs": [[x, CLOSE_ROW] for x in CLOSE_KNOBS], "knob_r": CLOSE_KNOB_R, "tick": CLOSE_TICK,
+            "switches": switches, "switch_size": [CLOSE_SWITCH_W, CLOSE_SWITCH_H],
+            "lcd": inner(CLOSE_LCD, 3), "back": inner(CLOSE_BACK, 0)}
 
 
 # ---------------------------------------------------------------- tablet y su bandeja
@@ -424,8 +489,9 @@ def main():
     tray, tray_quad, tray_light = build_tray(cv, ys, xs)
     opt = build_options(cv, ys, xs)
     cv.save("center_static.png")
+    opt_close = build_options_close()
     tablet = build_tablet(ys, xs)
-    meta = {"table_in": table_in, "table_out": table_out, "opt": opt, "tablet": tablet, "tray": tray,
+    meta = {"table_in": table_in, "table_out": table_out, "opt": opt, "opt_close": opt_close, "tablet": tablet, "tray": tray,
             "tray_quad": tray_quad, "tray_light": tray_light, "leds": LEDS, "sill": SILL, "top": SEAM,
             "strip": {"y": TUBE_Y, "h": TUBE_H, "clamps": clamps}}
     print("ok", json.dumps(table_in), json.dumps(tablet), len(LEDS), "pilotos")
