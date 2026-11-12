@@ -162,10 +162,11 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 | Parte | Colores |
 |---|---|
 | Contorno | `#0c0e16` |
-| Metal de los objetos (marco del ventanal por fuera, radar, módulo de opciones, escuadras de la tablet, panel de acceso, pomos) | `#343a4a`, `#606a7c`, `#96a2b6`, `#d2dceb` |
+| Metal de los objetos (marco del ventanal por fuera, radar, módulo de opciones, aro de la lente y botones de la tablet, panel de acceso, pomos) | `#343a4a`, `#606a7c`, `#96a2b6`, `#d2dceb` |
 | Metal oscuro de estructura (paredes, techo, suelo, consola, puerta, monitor de stats, vitrina, peana) | `#10141c`, `#151a24`, `#1d2330`, `#242b3a`, `#2c3446`, `#3a4256`, `#4f596d` |
 | Luces, juntas y pantallas | cian `#14304a`, `#1c7496`, `#40e0f0`, `#befaff`; pantallas `#060d18` y `#08111f` |
 | Oro (vitrina, insignia, medallas, apliques) | `#523710`, `#96641e`, `#ecb23c`, `#ffe082`, `#fff8e6` |
+| Carcasa de la tablet (datapad tipo Pokédex) | `#3a0a16`, `#961432`, `#ff3c5a`, `#ffaabe` |
 | Terciopelo del fondo de la vitrina | `#070c17`, `#0b1322`, `#101b30` |
 | Medallas | cinta de rayas en la rampa ámbar, roja o cian según el logro; disco dorado con el símbolo del icono del logro (sin su placa de metal), ampliado ×3 con Scale3x y con contorno de 1 px; las que faltan dejan el alfiler y una marca tenue `#131e34` |
 | Corchetes del objeto con el ratón encima (sin rótulo) | `#befaff` |

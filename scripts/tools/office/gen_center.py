@@ -432,7 +432,15 @@ TRAY = (TRAY_X0, TRAY_Y0, TRAY_X0 + TRAY_W, TRAY_Y0 + TRAY_H)
 # marco), y el canto oscuro de la tablet también parece hueco: por eso no está en el centro geométrico.
 # La ranura de luz queda bajo el canto.
 TAB = (TRAY[0] + 7, TRAY[1] + 10, TRAY[0] + 111, TRAY[1] + TRAY_H - 14)
-TAB_EDGE = [D5, D5, D4, D3, D2, D2]
+# Datapad tipo Pokédex: carcasa roja con su canto, banda de arriba (lente cian, tres pilotos y rejilla),
+# pantalla en medio y abajo tres botones físicos (NAVES encendido, TORRETAS y VOLVER), como el de cerca.
+TAB_EDGE = [R1, R1, R0, R0, R0, R0]
+TAB_TOP = 24        # alto de la banda de arriba (la pantalla empieza ahí)
+TAB_BOTTOM = 26     # alto de la banda de los botones
+TAB_SIDE = 8        # marco a los lados de la pantalla
+LENS = (14, 12, 8)  # centro (desde la esquina de la cara) y radio de la lente
+TAB_LEDS = [(30, R2), (37, A2), (44, G2)]
+TAB_BUTTON_W, TAB_BUTTON_GAP = 24, 8
 
 
 def build_tray(cv, ys, xs):
@@ -446,27 +454,68 @@ def build_tray(cv, ys, xs):
     return bbox_of(m), plane_corners(X0, y0, X1, y1), [xa, yl, xb - xa, 1]
 
 
+def lens(cv, cx, cy, r):
+    """Lente redonda: contorno, aro de metal con luz arriba a la izquierda y cristal cian con brillo."""
+    for yy in range(-r - 2, r + 3):
+        for xx in range(-r - 2, r + 3):
+            dd = (xx * xx + yy * yy) ** 0.5
+            if dd > r + 1.5:
+                continue
+            lt = (-xx - yy) / (abs(xx) + abs(yy) + 1e-6)
+            if dd > r + 0.5:
+                col = OUT
+            elif dd > r - 1.5:
+                col = M3 if lt > 0.5 else M2 if lt > -0.3 else M0
+            elif dd > r - 2.5:
+                col = OUT
+            else:
+                # Cristal: claro hacia arriba a la izquierda, hondo abajo a la derecha.
+                l = (-xx * 0.6 - yy * 0.7) / (r - 2) + 0.2
+                col = C2 if l > 0.45 else C1 if l > -0.35 else C0
+            cv.put(cx + xx, cy + yy, col)
+    cv.rect(cx - r // 2, cy - r // 2, 2, 2, C3)
+
+
 def build_tablet(ys, xs):
-    """Tablet robusta apoyada en el plano: marco grueso, escuadras atornilladas y el canto abajo."""
+    """Datapad tipo Pokédex apoyado en el plano: carcasa roja, lente cian, pantalla y botones abajo."""
     X0, y0, X1, y1 = TAB
     full = Canvas(W, H)
     face = plane_rect(ys, xs, X0, y0, X1, y1, tl=6, br=6)
     thickness(full, face, TAB_EDGE)
-    bevel(full, face, [OUT, OUT, (D6, D5, D2), (D5, D4, D2), D4], body=D4)
-    scr = plane_rect(ys, xs, X0 + 8, y0 + 8, X1 - 8, y1 - 8)
-    ring = plane_rect(ys, xs, X0 + 7, y0 + 7, X1 - 7, y1 - 7) & ~scr
-    full.px[ring] = OUT
+    bevel(full, face, [OUT, (R3, R2, R0), (R2, R1, R0)], body=R1)
+    # Junta de la banda de arriba: ranura oscura con un filo de luz debajo.
+    full.px[plane_rect(ys, xs, X0 + 2, y0 + TAB_TOP - 4, X1 - 2, y0 + TAB_TOP - 3)] = R0
+    full.px[plane_rect(ys, xs, X0 + 2, y0 + TAB_TOP - 3, X1 - 2, y0 + TAB_TOP - 2)] = R2
+    # Pantalla hundida con su aro.
+    scr = plane_rect(ys, xs, X0 + TAB_SIDE, y0 + TAB_TOP, X1 - TAB_SIDE, y1 - TAB_BOTTOM)
+    ring = plane_rect(ys, xs, X0 + TAB_SIDE - 2, y0 + TAB_TOP - 1, X1 - TAB_SIDE + 2, y1 - TAB_BOTTOM + 2) & ~scr
+    # Aro de 2 px: el de fuera, sombra roja; el de dentro, contorno.
+    full.px[ring] = R0
+    full.px[ring & plane_rect(ys, xs, X0 + TAB_SIDE - 1, y0 + TAB_TOP, X1 - TAB_SIDE + 1, y1 - TAB_BOTTOM + 1)] = OUT
     full.px[scr] = S1
-    # Escuadras de las esquinas: L de metal claro con tornillo.
-    L, Tk = 20, 7
-    for (fx, fy) in [(1, 1), (-1, 1), (1, -1), (-1, -1)]:
-        cx0 = X0 if fx > 0 else X1 - L
-        cy0 = y0 if fy > 0 else y1 - L
-        hy = cy0 if fy > 0 else cy0 + L - Tk
-        vx = cx0 if fx > 0 else cx0 + L - Tk
-        arm = plane_rect(ys, xs, cx0, hy, cx0 + L, hy + Tk) | plane_rect(ys, xs, vx, cy0, vx + Tk, cy0 + L)
-        bevel(full, arm, [OUT, (M3, M2, M0), (M2, M1, M0)], body=M1)
-        rivet(full, rnd(to_screen(vx + 3.5, hy + 3)), hy + 3, light=True)
+    # Lente, pilotos y rejilla del altavoz en la banda de arriba (siguen la inclinación del plano).
+    ly = y0 + LENS[1]
+    lens_at = [rnd(to_screen(X0 + LENS[0], ly)), ly]
+    lens(full, lens_at[0], lens_at[1], LENS[2])
+    for (dx, col) in TAB_LEDS:
+        lx = rnd(to_screen(X0 + dx, y0 + 7))
+        full.rect(lx - 2, y0 + 5, 5, 5, OUT)
+        full.rect(lx - 1, y0 + 6, 3, 3, col)
+        full.put(lx - 1, y0 + 6, R3 if col == R2 else A4 if col == A2 else G3)
+    for k in range(3):
+        gy = y0 + 6 + k * 4
+        full.px[plane_rect(ys, xs, X1 - 26, gy, X1 - 9, gy + 2)] = OUT
+        full.px[plane_rect(ys, xs, X1 - 26, gy + 2, X1 - 9, gy + 3)] = R2
+    # Botones físicos: NAVES (encendido), TORRETAS y VOLVER.
+    by0, by1 = y1 - TAB_BOTTOM + 7, y1 - 7
+    bx = X0 + (X1 - X0 - 3 * TAB_BUTTON_W - 2 * TAB_BUTTON_GAP) // 2
+    for i in range(3):
+        bm = plane_rect(ys, xs, bx, by0, bx + TAB_BUTTON_W, by1)
+        if i == 0:
+            bevel(full, bm, [OUT, (C3, C2, C1)], body=C2)
+        else:
+            bevel(full, bm, [OUT, (M2, M1, M0)], body=M1)
+        bx += TAB_BUTTON_W + TAB_BUTTON_GAP
     solid = face.copy()
     for dd in range(1, len(TAB_EDGE) + 1):
         solid |= np.roll(face, dd, 0)
@@ -478,7 +527,8 @@ def build_tablet(ys, xs):
     from PIL import Image
     Image.fromarray(full.px[y0_:y1_, x0:x1], "RGBA").save(os.path.join(OUT_DIR, "tablet.png"))
     return {"x": int(x0), "y": int(y0_), "w": int(x1 - x0), "h": int(y1_ - y0_),
-            "screen": quad_of(scr[y0_:y1_, x0:x1]), "shadow": quad_of(solid, 0, 0)}
+            "screen": quad_of(scr[y0_:y1_, x0:x1]), "shadow": quad_of(solid, 0, 0),
+            "lens": [lens_at[0] - x0, lens_at[1] - y0_, LENS[2] - 3]}
 
 
 def main():
