@@ -37,8 +37,6 @@ const TANGENT_STEP: float = 2.0
 var _slow: float = 1.0
 var _slow_tween: Tween
 var _frost: AnimatedSprite2D
-# Si no es null, al acabar la ralentización el hielo se rompe en trozos con estos frames.
-var _break_frames: SpriteFrames
 var _health_bar: HealthBar
 
 # Camuflado: las torretas no lo eligen como objetivo, pero los ataques de área le dan.
@@ -173,11 +171,9 @@ func _heal_nearby() -> void:
 			enemy.heal(max_hp * HEAL_RATIO)
 
 # Ralentiza durante `duration` segundos con un destello y la escarcha encima.
-# Si ya estaba ralentizado se renueva la duración, no se acumula. `break_frames`: trozos de hielo al acabar.
-func slow(factor: float, duration: float, frost_frames: SpriteFrames = null, break_frames: SpriteFrames = null) -> void:
+# Si ya estaba ralentizado se renueva la duración, no se acumula.
+func slow(factor: float, duration: float, frost_frames: SpriteFrames = null) -> void:
 	_slow = factor
-	if break_frames:
-		_break_frames = break_frames
 	if _frost == null and frost_frames:
 		_frost = AnimatedSprite2D.new()
 		_frost.sprite_frames = frost_frames
@@ -197,9 +193,6 @@ func _end_slow() -> void:
 	if _frost:
 		_frost.queue_free()
 		_frost = null
-		if _break_frames and hp > 0:
-			Effect.spawn(get_parent(), _break_frames, global_position, effect_scale())
-			_break_frames = null
 
 # Destello de golpe; al acabar vuelve al color normal, o al tinte si está ralentizado.
 func flash() -> void:
