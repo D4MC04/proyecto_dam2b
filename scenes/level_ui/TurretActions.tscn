@@ -6,19 +6,19 @@
 [node name="TurretActions" type="VBoxContainer"]
 visible = false
 theme = ExtResource("2_theme")
-theme_override_constants/separation = 2
+theme_override_constants/separation = 6
 script = ExtResource("1_script")
 
 [node name="UpgradeButton" type="Button" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 0
+custom_minimum_size = Vector2(104, 0)
 theme_override_font_sizes/font_size = 16
-text = "TURRET_UPGRADE"
 
 [node name="SellButton" type="Button" parent="."]
 unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 0
+custom_minimum_size = Vector2(104, 0)
 theme_override_font_sizes/font_size = 16
-text = "TURRET_SELL"

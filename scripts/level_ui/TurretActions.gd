@@ -1,6 +1,6 @@
 extends VBoxContainer
 class_name TurretActions
-## Recuadro con "Mejorar" y "Vender" que sale encima de la torreta colocada seleccionada (debajo
+## Recuadro con los iconos de Mejorar (flecha) y Vender (papelera) que sale encima de la torreta colocada seleccionada (debajo
 ## si arriba no cabe en el área de juego). Solo emite peticiones; LevelUI y LevelState deciden.
 
 ## El jugador pulsa "Vender" por segunda vez (la primera pide confirmar).
@@ -20,10 +20,14 @@ const DISABLED_FONT_COLOR: Color = Color(1, 1, 1, 0.3)
 # sobresalen los cañones y un respiro).
 const TURRET_GAP: float = 22.0
 # Margen del texto de los botones al borde, en px.
-const BUTTON_H_MARGIN: float = 8.0
-const BUTTON_V_MARGIN: float = 3.0
-# Texto del botón mientras espera el segundo clic que confirma la venta.
-const CONFIRM_SELL_TEXT: String = "TURRET_SELL_CONFIRM"
+const BUTTON_H_MARGIN: float = 14.0
+const BUTTON_V_MARGIN: float = 7.0
+# Hueco en px entre el icono y el precio.
+const ICON_TEXT_GAP: int = 8
+const UPGRADE_ICON: Texture2D = preload("res://assets/ui/upgrade.png")
+const SELL_ICON: Texture2D = preload("res://assets/ui/sell_closed.png")
+# Papelera con la tapa levantada: se ve mientras espera el segundo clic que confirma la venta.
+const SELL_OPEN_ICON: Texture2D = preload("res://assets/ui/sell_open.png")
 
 @onready var upgrade_button: Button = %UpgradeButton
 @onready var sell_button: Button = %SellButton
@@ -61,9 +65,11 @@ func set_money(amount: int) -> void:
 		_refresh_upgrade()
 
 func _refresh() -> void:
-	sell_button.text = tr(CONFIRM_SELL_TEXT) if _confirming_sell else tr("TURRET_SELL_VALUE") % UiFormat.money(_turret.get_sell_value())
+	sell_button.icon = SELL_OPEN_ICON if _confirming_sell else SELL_ICON
+	sell_button.text = "+" + UiFormat.money(_turret.get_sell_value())
 	if _turret.data.fusion != null:
-		upgrade_button.text = tr("TURRET_UPGRADE_COST") % UiFormat.money(_turret.data.fusion.cost)
+		upgrade_button.icon = UPGRADE_ICON
+		upgrade_button.text = "-" + UiFormat.money(_turret.data.fusion.cost)
 	_refresh_upgrade()
 	# El texto cambia el ancho: se encoge al mínimo y se recoloca.
 	reset_size()
@@ -103,6 +109,7 @@ func _style_button(button: Button) -> void:
 	button.add_theme_stylebox_override("disabled", _create_style(DISABLED_BG_COLOR, DISABLED_BORDER_COLOR))
 	button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	button.add_theme_color_override("font_disabled_color", DISABLED_FONT_COLOR)
+	button.add_theme_constant_override("h_separation", ICON_TEXT_GAP)
 
 func _create_style(bg: Color, border: Color) -> ClippedBoxStyle:
 	var style: ClippedBoxStyle = ClippedBoxStyle.create(bg, border)
