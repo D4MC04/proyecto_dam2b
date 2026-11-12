@@ -27,20 +27,36 @@ const METEOR_SHAKE_DAMAGE: int = 60
 const METEOR_SCORCH_TIME: float = 3.0
 const FREEZE_FACTOR: float = 0.3
 const FREEZE_TIME: float = 4.0
-# Ataque orbital: un rayo vertical barre la fila elegida de izquierda a derecha durante ORBITAL_TIME.
+# Ataque orbital: el rayo cae en el borde izquierdo (ORBITAL_FALL_TIME), barre la fila elegida hasta el
+# borde derecho durante ORBITAL_TIME y se va hacia arriba en ORBITAL_EXIT_TIME.
 const ORBITAL_TIME: float = 2.0
 const ORBITAL_DPS: float = 400.0
 const ORBITAL_HALF_WIDTH: float = 6.0
 const ORBITAL_HALF_HEIGHT: float = 16.0
 const ORBITAL_FALL_TIME: float = 0.15
+const ORBITAL_EXIT_TIME: float = 0.08
+const ORBITAL_SWEEP_END: float = ORBITAL_FALL_TIME + ORBITAL_TIME
+const ORBITAL_END_TIME: float = ORBITAL_SWEEP_END + ORBITAL_EXIT_TIME
 # Temblor del mapa mientras dura el rayo: se repite cada ORBITAL_SHAKE_INTERVAL con este "daño" (amplitud).
 const ORBITAL_SHAKE_INTERVAL: float = 0.15
 const ORBITAL_SHAKE_DAMAGE: int = 40
-const ORBITAL_BOLT_STEP: float = 14.0
-const ORBITAL_BOLT_JITTER: float = 6.0
-const ORBITAL_BEAM_COLOR: Color = Color("#40e0f0")
-const ORBITAL_GLOW_COLOR: Color = Color(0.25, 0.88, 0.94, 0.3)
-const ORBITAL_CORE_COLOR: Color = Color("#ffffff")
+# Parte de ORBITAL_FALL_TIME que dura la carga (retícula arriba); en el resto el rayo cae hasta la fila.
+const ORBITAL_CHARGE_PART: float = 0.6
+# Altura del emisor (la retícula del satélite) respecto al borde de arriba del área de juego.
+const ORBITAL_EMITTER_Y: float = 12.0
+# Ramas que saltan del rayo en cada frame y chispas en el impacto (dos cada ORBITAL_SPARK_INTERVAL).
+const ORBITAL_BRANCHES: int = 3
+const ORBITAL_SPARK_INTERVAL: float = 0.03
+# Estela quemada: un tramo (del ancho de su sprite) cada ORBITAL_SCORCH_STEP px, que se apaga en ORBITAL_SCORCH_TIME.
+const ORBITAL_SCORCH_STEP: float = 8.0
+const ORBITAL_SCORCH_TIME: float = 1.2
+# Capas del rayo, de fuera a dentro.
+const ORBITAL_HALO_COLOR: Color = Color(0.25, 0.88, 0.94, 0.25)
+const ORBITAL_EDGE_COLOR: Color = Color("#1c7496")
+const ORBITAL_BODY_COLOR: Color = Color("#40e0f0")
+const ORBITAL_LIGHT_COLOR: Color = Color("#befaff")
+const ORBITAL_CORE_COLOR: Color = Color("#f0faff")
+const ORBITAL_BRANCH_GLOW_COLOR: Color = Color(0.25, 0.88, 0.94, 0.5)
 const AIM_FILL_COLOR: Color = Color(1.0, 0.7, 0.24, 0.15)
 const AIM_BORDER_COLOR: Color = Color("#ecb23c")
 
@@ -49,6 +65,16 @@ const METEOR_SPARK_FRAMES: SpriteFrames = preload("res://resources/sprite_frames
 const METEOR_EXPLOSION_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/meteor_explosion.tres")
 const METEOR_WARNING_TEXTURE: Texture2D = preload("res://assets/sprites/effects/meteor/meteor_warning.png")
 const METEOR_SCORCH_TEXTURE: Texture2D = preload("res://assets/sprites/effects/meteor/meteor_scorch.png")
+const ORBITAL_CHARGE_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/orbital_charge.tres")
+const ORBITAL_EMITTER_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/orbital_emitter.tres")
+const ORBITAL_IMPACT_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/orbital_impact.tres")
+const ORBITAL_SPARK_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/orbital_spark.tres")
+const ORBITAL_FLASH_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/orbital_flash.tres")
+const ORBITAL_SCORCH_TEXTURES: Array[Texture2D] = [
+	preload("res://assets/sprites/effects/orbital/orbital_scorch_0.png"),
+	preload("res://assets/sprites/effects/orbital/orbital_scorch_1.png"),
+	preload("res://assets/sprites/effects/orbital/orbital_scorch_2.png"),
+]
 const EXPLOSION_SOUND: AudioStream = preload("res://assets/audio/effects/Turrets/Rocket/RocketExplosion.wav")
 const FROST_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/cryo_frost.tres")
 
@@ -58,8 +84,11 @@ var _cooldown_left: Dictionary[Power, float] = {Power.METEOR: 0.0, Power.FREEZE:
 # Poder que se está apuntando, o -1.
 var _aimed_power: int = -1
 var _orbital_row: float = 0.0
-var _orbital_elapsed: float = ORBITAL_TIME
+var _orbital_elapsed: float = ORBITAL_END_TIME
 var _orbital_shake_left: float = 0.0
+var _orbital_spark_left: float = 0.0
+# x global del próximo tramo de estela quemada.
+var _orbital_scorch_x: float = 0.0
 
 func _ready() -> void:
 	# Duerme hasta que se usa un poder.
@@ -72,19 +101,24 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	for power: Power in _cooldown_left:
 		_cooldown_left[power] = maxf(_cooldown_left[power] - delta, 0.0)
-	if _orbital_elapsed < ORBITAL_TIME:
+	if _orbital_elapsed < ORBITAL_END_TIME:
+		var was_sweeping: bool = _orbital_elapsed < ORBITAL_SWEEP_END
 		_orbital_elapsed += delta
 		_orbital_shake_left -= delta
 		if _orbital_shake_left <= 0.0:
 			_orbital_shake_left = ORBITAL_SHAKE_INTERVAL
 			(get_parent() as Level).shake_map(ORBITAL_SHAKE_DAMAGE)
 		var beam: Vector2 = _beam_position()
-		for enemy: Enemy in get_tree().get_nodes_in_group(&"enemies"):
-			var offset: Vector2 = (enemy.global_position - beam).abs()
-			if _orbital_elapsed >= ORBITAL_FALL_TIME and enemy.hp > 0 and offset.x <= ORBITAL_HALF_WIDTH and offset.y <= ORBITAL_HALF_HEIGHT:
-				enemy.take_damage(ORBITAL_DPS * delta)
+		if was_sweeping and _orbital_elapsed >= ORBITAL_FALL_TIME:
+			for enemy: Enemy in get_tree().get_nodes_in_group(&"enemies"):
+				var offset: Vector2 = (enemy.global_position - beam).abs()
+				if enemy.hp > 0 and offset.x <= ORBITAL_HALF_WIDTH and offset.y <= ORBITAL_HALF_HEIGHT:
+					enemy.take_damage(ORBITAL_DPS * delta)
+			_burn_row(beam, delta)
+			if _orbital_elapsed >= ORBITAL_SWEEP_END:
+				Effect.spawn(self, ORBITAL_FLASH_FRAMES, beam)
 		queue_redraw()
-	if _orbital_elapsed >= ORBITAL_TIME and _cooldown_left.values().all(func(left: float) -> bool: return left <= 0.0):
+	if _orbital_elapsed >= ORBITAL_END_TIME and _cooldown_left.values().all(func(left: float) -> bool: return left <= 0.0):
 		set_process(false)
 
 func get_cooldown_left(power: Power) -> float:
@@ -133,13 +167,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func _draw() -> void:
-	if _orbital_elapsed < ORBITAL_TIME:
-		_draw_bolt()
+	if _orbital_elapsed < ORBITAL_END_TIME:
+		_draw_beam()
 	if _aimed_power == Power.ORBITAL:
 		var row: Vector2 = to_local(Vector2(Level.GAME_AREA_RECT.position.x, get_global_mouse_position().y)).round()
 		var band: Rect2 = Rect2(row.x, row.y - ORBITAL_HALF_HEIGHT, Level.GAME_AREA_RECT.size.x, ORBITAL_HALF_HEIGHT * 2.0)
 		draw_rect(band, AIM_FILL_COLOR, true)
-		draw_rect(band, AIM_BORDER_COLOR, false, 1.0)
+		# Solo las líneas de arriba y abajo: la franja cruza el área de punta a punta.
+		draw_rect(Rect2(band.position, Vector2(band.size.x, 1.0)), AIM_BORDER_COLOR)
+		draw_rect(Rect2(band.position.x, band.end.y - 1.0, band.size.x, 1.0), AIM_BORDER_COLOR)
 		return
 	if _aimed_power != Power.METEOR:
 		return
@@ -219,27 +255,84 @@ func _fire_orbital(row_y: float) -> void:
 	set_process(true)
 	_orbital_row = row_y
 	_orbital_elapsed = 0.0
+	_orbital_spark_left = 0.0
+	_orbital_scorch_x = Level.GAME_AREA_RECT.position.x
 	power_used.emit(Power.ORBITAL)
 
-# Posición global del rayo: recorre el ancho del área de juego en ORBITAL_TIME.
+# Posición global del rayo: quieto en el borde izquierdo mientras cae, recorre el ancho del área de juego en
+# ORBITAL_TIME y se queda en el borde derecho mientras se va.
 func _beam_position() -> Vector2:
 	var rect: Rect2 = Level.GAME_AREA_RECT
-	return Vector2(rect.position.x + rect.size.x * _orbital_elapsed / ORBITAL_TIME, _orbital_row)
+	var sweep: float = clampf((_orbital_elapsed - ORBITAL_FALL_TIME) / ORBITAL_TIME, 0.0, 1.0)
+	return Vector2(rect.position.x + rect.size.x * sweep, _orbital_row)
 
-# Rayo en zigzag que cae desde arriba hasta la fila (en ORBITAL_FALL_TIME) y parpadea cada frame.
-func _draw_bolt() -> void:
-	var beam: Vector2 = to_local(_beam_position())
-	var top: float = to_local(Vector2(0.0, Level.GAME_AREA_RECT.position.y)).y
-	var bottom: float = lerpf(top, beam.y, minf(_orbital_elapsed / ORBITAL_FALL_TIME, 1.0))
-	var points: PackedVector2Array = PackedVector2Array()
-	var y: float = top
-	while y < bottom:
-		points.append(Vector2(beam.x + randf_range(-ORBITAL_BOLT_JITTER, ORBITAL_BOLT_JITTER), y))
-		y += ORBITAL_BOLT_STEP
-	points.append(Vector2(beam.x, bottom))
-	draw_polyline(points, ORBITAL_GLOW_COLOR, ORBITAL_HALF_WIDTH * 3.0, false)
-	draw_polyline(points, ORBITAL_BEAM_COLOR, ORBITAL_HALF_WIDTH, false)
-	draw_polyline(points, ORBITAL_CORE_COLOR, 2.0, false)
-	# Destello del impacto en la fila.
-	draw_circle(Vector2(beam.x, bottom), ORBITAL_HALF_HEIGHT * randf_range(0.8, 1.3), ORBITAL_GLOW_COLOR)
-	draw_circle(Vector2(beam.x, bottom), ORBITAL_HALF_WIDTH, ORBITAL_CORE_COLOR)
+# Lo que deja el rayo al barrer la fila: tramos de estela quemada hasta donde ha llegado y chispas en el impacto.
+func _burn_row(beam: Vector2, delta: float) -> void:
+	var level: Level = get_parent() as Level
+	while _orbital_scorch_x <= beam.x:
+		# En el mapa, como la marca del meteorito: tiembla con él y queda bajo las naves.
+		var scorch: Sprite2D = Sprite2D.new()
+		scorch.texture = ORBITAL_SCORCH_TEXTURES.pick_random()
+		level.map.add_child(scorch)
+		scorch.global_position = Vector2(_orbital_scorch_x, _orbital_row).round()
+		var fade: Tween = scorch.create_tween()
+		fade.tween_property(scorch, "modulate:a", 0.0, ORBITAL_SCORCH_TIME)
+		fade.tween_callback(scorch.queue_free)
+		_orbital_scorch_x += ORBITAL_SCORCH_STEP
+	_orbital_spark_left -= delta
+	if _orbital_spark_left <= 0.0:
+		_orbital_spark_left = ORBITAL_SPARK_INTERVAL
+		for i: int in 2:
+			Effect.spawn(self, ORBITAL_SPARK_FRAMES, beam + Vector2(randf_range(-14.0, 14.0), randf_range(-12.0, 2.0)))
+
+# Rayo: primero la retícula de carga arriba; luego cae hasta la fila (y al final sube) en capas (halo, borde, cuerpo y núcleo
+# que vibra) con pulsos que bajan, ramas que saltan a los lados, el emisor arriba y el impacto en el suelo.
+# Todo en píxeles enteros y re-sorteado cada frame para que parpadee.
+func _draw_beam() -> void:
+	var beam: Vector2 = to_local(_beam_position()).round()
+	var top: float = roundf(to_local(Vector2(0.0, Level.GAME_AREA_RECT.position.y + ORBITAL_EMITTER_Y)).y)
+	var lens: Vector2 = Vector2(beam.x, top)
+	var charge_time: float = ORBITAL_FALL_TIME * ORBITAL_CHARGE_PART
+	if _orbital_elapsed < charge_time:
+		_draw_frame(ORBITAL_CHARGE_FRAMES, int(_orbital_elapsed / charge_time * ORBITAL_CHARGE_FRAMES.get_frame_count(&"default")), lens)
+		return
+	var fall: float = minf((_orbital_elapsed - charge_time) / (ORBITAL_FALL_TIME - charge_time), 1.0)
+	# Al acabar el barrido, la punta sube hasta el emisor.
+	var leaving: float = clampf((_orbital_elapsed - ORBITAL_SWEEP_END) / ORBITAL_EXIT_TIME, 0.0, 1.0)
+	var bottom: float = roundf(lerpf(top, beam.y, fall * (1.0 - leaving)))
+	var height: float = bottom - top
+	var x: float = beam.x
+	var halo: float = 8.0 + randi_range(0, 1)
+	draw_rect(Rect2(x - halo, top, halo * 2.0, height), ORBITAL_HALO_COLOR)
+	draw_rect(Rect2(x - 5.0, top, 10.0, height), ORBITAL_EDGE_COLOR)
+	draw_rect(Rect2(x - 4.0, top, 8.0, height), ORBITAL_BODY_COLOR)
+	draw_rect(Rect2(x - 2.0, top, 4.0, height), ORBITAL_LIGHT_COLOR)
+	var core: float = randi_range(1, 2)
+	draw_rect(Rect2(x - core + randi_range(-1, 1), top, core * 2.0, height), ORBITAL_CORE_COLOR)
+	# Pulsos de energía que bajan por el rayo.
+	var phase: int = int(_orbital_elapsed * 300.0) % 16
+	for y: int in range(int(top) + phase, int(bottom) - 3, 16):
+		draw_rect(Rect2(x - 5.0, y, 10.0, 3.0), ORBITAL_LIGHT_COLOR)
+	for i: int in ORBITAL_BRANCHES:
+		# Más ramas cerca del suelo que arriba.
+		var side: float = 1.0 if randf() < 0.5 else -1.0
+		_draw_branch(Vector2(x + side * 4.0, roundf(lerpf(top, bottom, sqrt(randf())))), side)
+	_draw_frame(ORBITAL_EMITTER_FRAMES, int(_orbital_elapsed * ORBITAL_EMITTER_FRAMES.get_animation_speed(&"default")), lens)
+	if fall >= 1.0 and leaving == 0.0:
+		# El óvalo del sprite de impacto está 4 px por debajo de su centro.
+		_draw_frame(ORBITAL_IMPACT_FRAMES, int(_orbital_elapsed * ORBITAL_IMPACT_FRAMES.get_animation_speed(&"default")), Vector2(x, bottom - 4.0))
+
+# Rama quebrada que sale del rayo hacia un lado (side: 1 derecha, -1 izquierda).
+func _draw_branch(start: Vector2, side: float) -> void:
+	var points: PackedVector2Array = PackedVector2Array([start])
+	var point: Vector2 = start
+	for k: int in randi_range(2, 4):
+		point += Vector2(side * randi_range(3, 6), randi_range(-4, 4))
+		points.append(point)
+	draw_polyline(points, ORBITAL_BRANCH_GLOW_COLOR, 3.0, false)
+	draw_polyline(points, ORBITAL_LIGHT_COLOR, 1.0, false)
+
+# Dibuja un frame de la animación por defecto (en bucle) centrado en el punto, en píxeles enteros.
+func _draw_frame(frames: SpriteFrames, index: int, center: Vector2) -> void:
+	var texture: Texture2D = frames.get_frame_texture(&"default", index % frames.get_frame_count(&"default"))
+	draw_texture(texture, (center - texture.get_size() / 2.0).round())
