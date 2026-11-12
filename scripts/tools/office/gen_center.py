@@ -433,14 +433,12 @@ TRAY = (TRAY_X0, TRAY_Y0, TRAY_X0 + TRAY_W, TRAY_Y0 + TRAY_H)
 # La ranura de luz queda bajo el canto.
 TAB = (TRAY[0] + 7, TRAY[1] + 10, TRAY[0] + 111, TRAY[1] + TRAY_H - 14)
 # Terminal de mano militar: carcasa de metal oscuro con las esquinas cortadas (como los paneles del
-# juego) y su canto, asas atornilladas a los lados, antena corta arriba a la derecha con la luz en la
-# punta, pantalla, tira de luz cian y abajo tres botones físicos (NAVES encendido, TORRETAS y VOLVER)
+# juego) y su canto, asas atornilladas a los lados, pantalla, tira de luz cian y abajo tres botones físicos (NAVES encendido, TORRETAS y VOLVER)
 # con un piloto encima de cada uno, como el de cerca (Navedex).
 TAB_EDGE = [D5, D5, D4, D3, D2, D2]
 TAB_HANDLE = 6       # ancho de las asas (la carcasa empieza detrás)
 TAB_HANDLE_Y = (40, 52)  # las asas van de y0 + 40 a y1 - 52
-TAB_ANTENNA = (20, 7)    # antena: distancia al borde derecho y lo que sobresale por arriba
-TAB_TOP = 20         # banda de arriba: la pantalla empieza ahí (desde la carcasa)
+TAB_TOP = 19         # banda de arriba: la pantalla empieza ahí (desde la carcasa)
 TAB_SIDE = 7         # marco de la carcasa a los lados de la pantalla
 TAB_BOTTOM = 36      # banda de abajo: tira de luz, pilotos y botones
 TAB_LEDS = [C2, C2, A2]
@@ -458,20 +456,14 @@ def build_tray(cv, ys, xs):
 
 
 def build_tablet(ys, xs):
-    """Terminal de mano militar apoyado en el plano: carcasa de metal, asas, antena y botones abajo."""
+    """Terminal de mano militar apoyado en el plano: carcasa de metal, asas y botones abajo."""
     X0, y0, X1, y1 = TAB
     full = Canvas(W, H)
-    # La carcasa empieza bajo la antena y entre las asas.
-    bx0, by0, bx1 = X0 + TAB_HANDLE, y0 + TAB_ANTENNA[1], X1 - TAB_HANDLE
+    # La carcasa va entre las asas.
+    bx0, by0, bx1 = X0 + TAB_HANDLE, y0, X1 - TAB_HANDLE
     body = plane_rect(ys, xs, bx0, by0, bx1, y1, tl=8, br=8)
     handles = (plane_rect(ys, xs, X0, y0 + TAB_HANDLE_Y[0], bx0 + 2, y1 - TAB_HANDLE_Y[1])
                | plane_rect(ys, xs, bx1 - 2, y0 + TAB_HANDLE_Y[0], X1, y1 - TAB_HANDLE_Y[1]))
-    # Antena: varilla de metal de 3 px con la punta oscura (la luz la enciende ArchiveTablet).
-    ax = rnd(to_screen(bx1 - TAB_ANTENNA[0], y0))
-    full.rect(ax - 1, y0 - 1, 5, TAB_ANTENNA[1] + 2, OUT)
-    full.rect(ax, y0 + 2, 1, TAB_ANTENNA[1], M2)
-    full.rect(ax + 1, y0 + 2, 2, TAB_ANTENNA[1], M0)
-    full.rect(ax, y0, 3, 2, C0)
     face = body | handles
     thickness(full, face, TAB_EDGE)
     bevel(full, handles, [OUT, (M3, M2, M0), (M2, M1, M0)], body=M1)
@@ -482,7 +474,7 @@ def build_tablet(ys, xs):
     for X in (bx0 + 9, bx1 - 9):
         rivet(full, rnd(to_screen(X, by0 + 6)), by0 + 6, light=True)
     # Pantalla hundida con su aro de 2 px (sombra fuera, contorno dentro).
-    sx0, sy0, sx1, sy1 = bx0 + TAB_SIDE, by0 + TAB_TOP - TAB_ANTENNA[1] + 6, bx1 - TAB_SIDE, y1 - TAB_BOTTOM
+    sx0, sy0, sx1, sy1 = bx0 + TAB_SIDE, by0 + TAB_TOP, bx1 - TAB_SIDE, y1 - TAB_BOTTOM
     scr = plane_rect(ys, xs, sx0, sy0, sx1, sy1)
     ring = plane_rect(ys, xs, sx0 - 2, sy0 - 2, sx1 + 2, sy1 + 2) & ~scr
     full.px[ring] = D2
@@ -509,15 +501,14 @@ def build_tablet(ys, xs):
     solid = face.copy()
     for dd in range(1, len(TAB_EDGE) + 1):
         solid |= np.roll(face, dd, 0)
-    # Recorte: caja de todo lo pintado (con la antena).
+    # Recorte: caja de todo lo pintado.
     cols = np.where(full.px[..., 3].any(0))[0]
     rows = np.where(full.px[..., 3].any(1))[0]
     x0, x1, y0_, y1_ = int(cols.min()), int(cols.max()) + 1, int(rows.min()), int(rows.max()) + 1
     from PIL import Image
     Image.fromarray(full.px[y0_:y1_, x0:x1], "RGBA").save(os.path.join(OUT_DIR, "tablet.png"))
     return {"x": int(x0), "y": int(y0_), "w": int(x1 - x0), "h": int(y1_ - y0_),
-            "screen": quad_of(scr[y0_:y1_, x0:x1]), "shadow": quad_of(solid, 0, 0),
-            "beacon": [ax - x0, y0 - y0_, 3, 2]}
+            "screen": quad_of(scr[y0_:y1_, x0:x1]), "shadow": quad_of(solid, 0, 0)}
 
 def main():
     cv, ys, xs, clamps = build_center()
