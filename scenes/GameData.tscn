@@ -22,10 +22,10 @@
 [ext_resource type="Resource" path="res://resources/turret_data/amplifier.tres" id="amplifier"]
 [ext_resource type="Resource" path="res://resources/turret_data/miner.tres" id="miner"]
 [ext_resource type="Resource" path="res://resources/turret_data/orbiter.tres" id="orbiter"]
-[ext_resource type="Resource" uid="uid://bvqn41skgbvxt" path="res://resources/level_data/simulation.tres" id="simulation"]
+[ext_resource type="Resource" uid="uid://bvqn41skgbvxt" path="res://resources/level_data/emergency.tres" id="emergency"]
 
 [node name="GameData" type="Node" unique_id=1456673338]
 script = ExtResource("1_fa5ai")
 turret_order = Array[ExtResource("8_c77oh")]([ExtResource("9_jj5sp"), ExtResource("11_1wlqr"), ExtResource("cryo"), ExtResource("10_5ltge"), ExtResource("miner"), ExtResource("tesla"), ExtResource("orbiter"), ExtResource("amplifier"), ExtResource("disintegrator"), ExtResource("rail")])
 levels = Array[ExtResource("2_5qiqv")]([ExtResource("3_8md65"), ExtResource("4_d0bd5"), ExtResource("5_fvrfv"), ExtResource("6_24vlh"), ExtResource("level_5"), ExtResource("8_huf1t"), ExtResource("level_7"), ExtResource("level_8"), ExtResource("level_9")])
-simulation_level = ExtResource("simulation")
+emergency_level = ExtResource("emergency")

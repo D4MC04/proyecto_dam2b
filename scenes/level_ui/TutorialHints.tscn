@@ -78,7 +78,7 @@ theme_override_constants/separation = 0
 [node name="SpeakerLabel" type="Label" parent="Box/Margin/Row/Column"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92549, 0.698039, 0.235294, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 24
 text = "NOVA"
 
 [node name="MessageLabel" type="Label" parent="Box/Margin/Row/Column"]
@@ -89,7 +89,7 @@ size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.8, 0.901961, 1, 1)
 theme_override_font_sizes/font_size = 16
 autowrap_mode = 3
-max_lines_visible = 3
+max_lines_visible = 2
 
 [node name="ContinueArrow" type="Control" parent="."]
 unique_name_in_owner = true
@@ -109,12 +109,12 @@ mouse_filter = 2
 
 [node name="SkipButton" type="Button" parent="."]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 20)
+custom_minimum_size = Vector2(72, 20)
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -268.0
+offset_left = -208.0
 offset_top = 8.0
 offset_right = -136.0
 offset_bottom = 28.0
@@ -122,3 +122,4 @@ grow_horizontal = 0
 focus_mode = 0
 theme_override_font_sizes/font_size = 16
 text = "TUTORIAL_SKIP"
+clip_text = true

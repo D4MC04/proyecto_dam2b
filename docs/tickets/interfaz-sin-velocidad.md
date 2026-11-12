@@ -13,7 +13,7 @@ El botón ×2 cambia `Engine.time_scale`, que acelera todo lo que va con `_proce
 ## Qué hay que hacer
 - Revisar las animaciones de la interfaz del nivel que siguen `Engine.time_scale` y pasarlas a tiempo real: tweens con `set_ignore_time_scale()` (como ya hacen `BossAlert`, `WaveAnnouncer`, `RunSummary` y `VictoryScreen`) y `_process` con el `delta` deshecho (`delta / Engine.time_scale`, como `TutorialHints`). Candidatos vistos: `LevelIndicator` (fundido), `Sidebar` (golpe en la vida de la estación y parpadeo de INICIAR) y cualquier otro de `scripts/level_ui/` que anime con `_process` o tweens.
 - Lo que es de la partida sigue el ×2: recargas de poderes (`PowerButton` enseña la recarga de `Powers`), temblor del mapa, portales, naves, torretas.
-- El simulacro (`TutorialHints`) ya va en tiempo real.
+- El nivel de emergencia (`TutorialHints`) ya va en tiempo real.
 
 ## Qué leer
 Solo esto; `/work` no lee nada más de docs/design.

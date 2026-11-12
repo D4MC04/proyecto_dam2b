@@ -10,8 +10,8 @@ enum View { LEFT, CENTER, RIGHT }
 const FADE_TIME: float = 0.25
 const WARP_TIME: float = 0.5
 const FLASH_TIME: float = 0.1
-# Segundos que se ve la oficina (mientras la destapa la pantalla de inicio) antes de saltar al simulacro.
-const SIMULATION_DELAY: float = 0.8
+# Segundos que se ve la oficina (mientras la destapa la pantalla de inicio) antes de saltar al nivel de emergencia.
+const EMERGENCY_DELAY: float = 0.8
 # Giro de la silla: duración del paso a la vista de al lado y ancho de cada vista.
 const TURN_TIME: float = 0.45
 const VIEW_WIDTH: float = 960.0
@@ -58,10 +58,10 @@ func _ready() -> void:
 	sector_card.deploy_pressed.connect(_on_deploy_pressed)
 	GameState.progress_reset.connect(_refresh_sectors)
 	_refresh_sectors()
-	# Una partida que aún no ha pasado por el simulacro empieza por él.
+	# Una partida que aún no ha pasado por el nivel de emergencia empieza por él.
 	if not GameState.tutorial_done and not start_on_level_selection:
-		await get_tree().create_timer(SIMULATION_DELAY).timeout
-		open_simulation()
+		await get_tree().create_timer(EMERGENCY_DELAY).timeout
+		open_emergency()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _jumping or _leaving:
@@ -212,9 +212,9 @@ func _quit() -> void:
 
 # --- Salto al hiperespacio -----------------------------------------------------------------
 
-## Lanza el simulacro (el nivel de prueba del tutorial) con el salto al hiperespacio de siempre.
-func open_simulation() -> void:
-	_open_level(GameData.simulation_level)
+## Lanza el nivel de emergencia (el nivel de prueba del tutorial) con el salto al hiperespacio de siempre.
+func open_emergency() -> void:
+	_open_level(GameData.emergency_level)
 
 func _open_level(data: LevelData) -> void:
 	if _jumping:

@@ -59,7 +59,7 @@ var _screen_delay: Tween
 var _fast_speed: bool = false
 # Latido de la viñeta; null si está apagada.
 var _vignette_pulse: Tween
-# En el simulacro no hay poderes: ni se ven ni responden las teclas.
+# En el nivel de emergencia no hay poderes: ni se ven ni responden las teclas.
 var _powers_enabled: bool = true
 
 func _ready() -> void:
@@ -128,14 +128,14 @@ func setup(state: LevelState, turrets: Array[TurretData], level_number: int, spa
 	info_panel.show_inspected(state.inspected)
 	info_panel.show_sellable(state.sellable_turret)
 	turret_actions.show_for(state.sellable_turret, state.money)
-	# El tutorial solo sale en el simulacro, que lo arranca después con start_simulation.
+	# El tutorial solo sale en el nivel de emergencia, que lo arranca después con start_emergency.
 	tutorial_hints.stop()
 	_set_powers_enabled(true)
 
-## Monta el simulacro (el nivel de prueba) sobre lo que dejó setup: rótulo "SIMULACRO", sin poderes
+## Monta el nivel de emergencia (el nivel de prueba) sobre lo que dejó setup: rótulo "EMERGENCIA", sin poderes
 ## y con el tutorial de NOVA. Game lo llama justo después de setup.
-func start_simulation(level: Level) -> void:
-	level_indicator.set_title(tr("HUD_SIMULATION"))
+func start_emergency(level: Level) -> void:
+	level_indicator.set_title(tr("HUD_EMERGENCY"))
 	_set_powers_enabled(false)
 	tutorial_hints.start(level)
 
@@ -169,7 +169,7 @@ func _set_vignette(active: bool) -> void:
 	_vignette_pulse.tween_method(func(value: float) -> void: material.set_shader_parameter(&"intensity", value),
 			VIGNETTE_MAX_INTENSITY, VIGNETTE_MIN_INTENSITY, VIGNETTE_PULSE_TIME).set_trans(Tween.TRANS_SINE)
 
-# Los poderes solo se usan jugando (y no en el simulacro).
+# Los poderes solo se usan jugando (y no en el nivel de emergencia).
 func _use_power(power: Powers.Power) -> void:
 	if _powers_enabled and is_instance_valid(_powers) and _ui_state == UiState.PLAYING and tutorial_hints.allows(POWER_ACTIONS[power]):
 		_powers.use(power)

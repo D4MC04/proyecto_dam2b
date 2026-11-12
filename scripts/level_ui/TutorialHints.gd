@@ -1,11 +1,11 @@
 extends Control
 class_name TutorialHints
-## Tutorial del simulacro (el nivel de prueba): NOVA, el astronauta guía, da un mensaje cada vez en un
-## recuadro abajo del área de juego. Cuando pide algo, oscurece la pantalla menos lo que hay que tocar
-## (y su recuadro), solo deja hacer eso y no se va hasta que se hace. Entre peticiones se juega libre.
-## Va en tiempo real: la velocidad ×2 del juego no lo acelera.
+## Tutorial del nivel de emergencia (la estación atacada a la que se llega antes que a la oficina):
+## NOVA, desde la sala de control, da instrucciones en un recuadro abajo del área de juego. Cuando
+## pide algo, oscurece la pantalla menos lo que hay que tocar (y su recuadro), solo deja hacer eso y
+## no se va hasta que se hace. Entre peticiones se juega libre. Va en tiempo real: el ×2 no lo acelera.
 
-## "Saltar simulacro" pulsado dos veces (la segunda confirma): Game sale del simulacro.
+## "Saltar" pulsado dos veces (la segunda confirma): Game sale del nivel de emergencia.
 signal skip_requested
 
 enum Step { STATION, PLACE_TURRETS, OPEN_WAVES, INSPECT_ENEMY, ENEMY_INFO, START_WAVE, FIRST_WAVE,
@@ -51,11 +51,13 @@ const NEXT_AFTER_OK: Dictionary[Step, Step] = {
 	Step.ENEMY_INFO: Step.START_WAVE,
 	Step.DONE: Step.FREE,
 }
-# Mensajes que se cierran solos tras AUTO_CLOSE_TIME si no se pasan antes.
+# Mensajes que se cierran solos tras AUTO_CLOSE_TIME (desde que se acaba de escribir) si no se pasan antes.
 const AUTO_CLOSE_STEPS: Array[Step] = [Step.DONE]
 const AUTO_CLOSE_TIME: float = 5.0
 # Segundos por carácter del texto que va apareciendo, como si hablara.
 const TYPE_TIME_PER_CHAR: float = 0.02
+# Líneas por página: un mensaje más largo se corta y sigue con un clic.
+const LINES_PER_PAGE: int = 2
 
 # Oscurecido de los pasos con foco: negro a esta opacidad, que entra y sale en DIM_FADE_TIME.
 const DIM_ALPHA: float = 0.6
@@ -65,7 +67,7 @@ const HIGHLIGHT_COLOR: Color = Color("#ecb23c")
 const HIGHLIGHT_BLINK_TIME: float = 0.4
 # Margen del hueco y de su borde respecto a lo señalado de la interfaz.
 const HIGHLIGHT_GROW: int = 2
-# Flecha de "sigue" de los mensajes informativos: triángulo de 7 px de ancho que sube y baja.
+# Flecha de "sigue": triángulo de 7 px de ancho que sube y baja.
 const ARROW_COLOR: Color = Color("#ecb23c")
 const ARROW_WIDTH: int = 7
 const ARROW_ROWS: int = 4
@@ -90,10 +92,13 @@ var _dim_alpha: float = 0.0
 # Segundos reales desde que empezó el tutorial: mueven el parpadeo y la flecha.
 var _time: float = 0.0
 var _confirming_skip: bool = false
-# Contornos ámbar de los sprites del mapa, por textura y región (se calculan una vez).
+# Páginas del mensaje actual y la que se ve.
+var _pages: PackedStringArray = []
+var _page: int = 0
+# Contornos blancos de los sprites del mapa, por textura y región (se calculan una vez y se tiñen al dibujar).
 var _outlines: Dictionary[String, ImageTexture] = {}
 
-# Lo que se señala del mapa: un trozo de textura dibujado encima del oscurecido, con su contorno.
+# Lo que se señala del mapa: un trozo de textura dibujado encima del oscurecido, con o sin contorno.
 class Spotlight:
 	var texture: Texture2D
 	var region: Rect2
@@ -101,6 +106,9 @@ class Spotlight:
 	var rect: Rect2
 	# De ese espacio a las coordenadas de TutorialHints.
 	var transform: Transform2D
+	var outlined: bool = true
+	# El contorno parpadea (lo que hay que pulsar) o se queda fijo (la torreta ya seleccionada).
+	var blinking: bool = true
 
 # Hueco de la interfaz: lo que hay debajo se ve sin oscurecer; con borde, parpadea alrededor.
 class Hole:
@@ -116,7 +124,7 @@ func _ready() -> void:
 	continue_arrow.draw.connect(_draw_continue_arrow)
 	_set_active(false)
 
-## Empieza el tutorial con el simulacro recién montado. Las señales del nivel anterior se van con él.
+## Empieza el tutorial con el nivel de emergencia recién montado. Las señales del nivel anterior se van con él.
 func start(level: Level) -> void:
 	_level = level
 	var state: LevelState = level.game_state
@@ -129,7 +137,7 @@ func start(level: Level) -> void:
 	_set_active(true)
 	_show_step(Step.STATION)
 
-## Quita el tutorial (cualquier nivel que no sea el simulacro).
+## Quita el tutorial (cualquier nivel que no sea el de emergencia).
 func stop() -> void:
 	_set_active(false)
 
@@ -153,26 +161,59 @@ func _show_step(step: Step) -> void:
 	var was_focus: bool = _step in FOCUS_STEPS and box.visible
 	_step = step
 	box.visible = step not in HIDDEN_STEPS
-	continue_arrow.visible = false
 	if TEXTS.has(step):
-		_type_message(tr(TEXTS[step]))
-	if step in AUTO_CLOSE_STEPS:
-		_typing.tween_interval(AUTO_CLOSE_TIME)
-		_typing.tween_callback(_advance_info)
+		_say(tr(TEXTS[step]))
 	var is_focus: bool = step in FOCUS_STEPS
 	if is_focus != was_focus:
 		_fade_dim(DIM_ALPHA if is_focus else 0.0)
 	queue_redraw()
 
-# El texto aparece letra a letra, como si NOVA hablara; en los informativos sale después la flecha.
-func _type_message(message: String) -> void:
-	message_label.text = message
+# Empieza un mensaje: se parte en páginas de LINES_PER_PAGE líneas y se escribe la primera.
+func _say(message: String) -> void:
+	_pages = _paginate(message)
+	_page = 0
+	_type_page()
+
+# La página actual aparece letra a letra, como si NOVA hablara.
+func _type_page() -> void:
+	continue_arrow.visible = false
+	message_label.text = _pages[_page]
 	message_label.visible_ratio = 0.0
 	if _typing:
 		_typing.kill()
 	_typing = create_tween().set_ignore_time_scale()
-	_typing.tween_property(message_label, "visible_ratio", 1.0, message.length() * TYPE_TIME_PER_CHAR)
-	_typing.tween_callback(func() -> void: continue_arrow.visible = _step in INFO_STEPS)
+	_typing.tween_property(message_label, "visible_ratio", 1.0, _pages[_page].length() * TYPE_TIME_PER_CHAR)
+	_typing.tween_callback(_on_page_typed)
+
+# Página escrita: sale la flecha si queda algo que pasar con un clic; la última despedida se cierra sola.
+func _on_page_typed() -> void:
+	message_label.visible_ratio = 1.0
+	continue_arrow.visible = _has_more_pages() or _step in INFO_STEPS
+	if not _has_more_pages() and _step in AUTO_CLOSE_STEPS:
+		_typing = create_tween().set_ignore_time_scale()
+		_typing.tween_interval(AUTO_CLOSE_TIME)
+		_typing.tween_callback(_advance_info)
+
+func _has_more_pages() -> bool:
+	return _page < _pages.size() - 1
+
+# Parte el texto como lo partiría la etiqueta (mismo ancho, fuente y cortes) y junta las líneas de
+# LINES_PER_PAGE en LINES_PER_PAGE.
+func _paginate(message: String) -> PackedStringArray:
+	var paragraph: TextParagraph = TextParagraph.new()
+	paragraph.width = message_label.size.x - message_label.get_theme_stylebox(&"normal").get_minimum_size().x
+	paragraph.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND | TextServer.BREAK_ADAPTIVE
+	paragraph.add_string(message, message_label.get_theme_font(&"font"), message_label.get_theme_font_size(&"font_size"))
+	var pages: PackedStringArray = []
+	var line_count: int = paragraph.get_line_count()
+	for first: int in range(0, line_count, LINES_PER_PAGE):
+		var last: int = mini(first + LINES_PER_PAGE, line_count) - 1
+		var start: int = paragraph.get_line_range(first).x
+		var end: int = paragraph.get_line_range(last).y
+		pages.append(message.substr(start, end - start).strip_edges())
+	if pages.is_empty():
+		pages.append(message)
+	return pages
 
 func _fade_dim(to_alpha: float) -> void:
 	if _dim_tween:
@@ -227,13 +268,16 @@ func _on_wave_cleared(index: int) -> void:
 	var missing: int = _upgrade_cost() - _level.game_state.money
 	if missing > 0:
 		_level.game_state.add_money(missing)
-		_type_message(tr(UPGRADE_GIFT_TEXT))
+		_say(tr(UPGRADE_GIFT_TEXT))
 
-# Un clic en cualquier sitio (o Intro/Espacio) pasa los mensajes informativos: el primero acaba de
-# escribir el texto y el siguiente pasa de paso. Se lo come, para que no construya ni pulse nada.
-# El botón de saltar sigue respondiendo.
+# Un clic en cualquier sitio (o Intro/Espacio) pasa los mensajes: el primero acaba de escribir la
+# página y el siguiente pasa de página o, en la última de un mensaje informativo, de paso. Se lo come,
+# para que no construya ni pulse nada. En los pasos que piden hacer algo, la última página no se pasa:
+# el clic va al juego. El botón de saltar sigue respondiendo.
 func _input(event: InputEvent) -> void:
-	if not is_visible_in_tree() or not box.visible or _step not in INFO_STEPS:
+	if not is_visible_in_tree() or not box.visible:
+		return
+	if _step not in INFO_STEPS and not _has_more_pages():
 		return
 	var click: InputEventMouseButton = event as InputEventMouseButton
 	var is_click: bool = click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT
@@ -244,14 +288,12 @@ func _input(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 	if message_label.visible_ratio < 1.0:
 		_typing.kill()
-		message_label.visible_ratio = 1.0
-		continue_arrow.visible = true
-		if _step in AUTO_CLOSE_STEPS:
-			_typing = create_tween().set_ignore_time_scale()
-			_typing.tween_interval(AUTO_CLOSE_TIME)
-			_typing.tween_callback(_advance_info)
-		return
-	_advance_info()
+		_on_page_typed()
+	elif _has_more_pages():
+		_page += 1
+		_type_page()
+	else:
+		_advance_info()
 
 func _advance_info() -> void:
 	if NEXT_AFTER_OK.has(_step):
@@ -301,7 +343,7 @@ func _upgraded_turret() -> Turret:
 			return turret
 	return null
 
-# Lo que cuesta mejorar la torreta del simulacro.
+# Lo que cuesta mejorar la torreta del nivel de emergencia.
 func _upgrade_cost() -> int:
 	var data: TurretData = _level.turrets[0]
 	return data.fusion.cost if data.fusion != null else 0
@@ -329,7 +371,7 @@ func _focus_holes() -> Array[Hole]:
 				holes.append(_control_hole(turret_actions.upgrade_button, true))
 	return holes
 
-# Lo que se señala del mapa en el paso actual: se dibuja encima del oscurecido con su contorno.
+# Lo que se señala del mapa en el paso actual: se dibuja encima del oscurecido.
 func _focus_spotlights() -> Array[Spotlight]:
 	var spots: Array[Spotlight] = []
 	match _step:
@@ -340,29 +382,34 @@ func _focus_spotlights() -> Array[Spotlight]:
 				_add_slot_spotlight(spots, cell)
 		Step.UPGRADE_PICK:
 			for turret: Turret in _placed_turrets():
-				_add_turret_spotlight(spots, turret)
+				_add_slot_spotlight(spots, _level.grid.cell(turret.global_position))
+				_add_turret_spotlight(spots, turret, true)
 		Step.UPGRADE_PRESS:
-			if is_instance_valid(_level.game_state.sellable_turret):
-				_add_turret_spotlight(spots, _level.game_state.sellable_turret)
+			# Lo que parpadea es Mejorar: la torreta se ve con el contorno fijo de estar seleccionada.
+			var selected: Turret = _level.game_state.sellable_turret
+			if is_instance_valid(selected):
+				var slot: Spotlight = _add_slot_spotlight(spots, _level.grid.cell(selected.global_position))
+				slot.outlined = false
+				_add_turret_spotlight(spots, selected, false)
 	return spots
 
 func _control_hole(target: Control, border: bool) -> Hole:
 	var rect: Rect2 = Rect2(target.global_position - global_position, target.size)
 	return Hole.new(rect.grow(HIGHLIGHT_GROW) if border else rect, border)
 
-# La torreta con su asteroide de debajo.
-func _add_turret_spotlight(spots: Array[Spotlight], turret: Turret) -> void:
-	_add_slot_spotlight(spots, _level.grid.cell(turret.global_position))
-	_add_sprite_spotlight(spots, turret.sprite)
-	_add_sprite_spotlight(spots, turret.cannon)
+func _add_turret_spotlight(spots: Array[Spotlight], turret: Turret, blinking: bool) -> void:
+	for sprite: AnimatedSprite2D in [turret.sprite, turret.cannon]:
+		var spot: Spotlight = _add_sprite_spotlight(spots, sprite)
+		if spot != null:
+			spot.blinking = blinking
 
-# El frame actual de un AnimatedSprite2D, tal como está en el mapa.
-func _add_sprite_spotlight(spots: Array[Spotlight], sprite: AnimatedSprite2D) -> void:
+# El frame actual de un AnimatedSprite2D, tal como está en el mapa. Devuelve null si no se ve.
+func _add_sprite_spotlight(spots: Array[Spotlight], sprite: AnimatedSprite2D) -> Spotlight:
 	if not sprite.visible or sprite.sprite_frames == null or not sprite.sprite_frames.has_animation(sprite.animation):
-		return
+		return null
 	var texture: Texture2D = sprite.sprite_frames.get_frame_texture(sprite.animation, sprite.frame)
 	if texture == null:
-		return
+		return null
 	var spot: Spotlight = Spotlight.new()
 	spot.texture = texture
 	spot.region = Rect2(Vector2.ZERO, texture.get_size())
@@ -370,17 +417,19 @@ func _add_sprite_spotlight(spots: Array[Spotlight], sprite: AnimatedSprite2D) ->
 	spot.rect = Rect2(top_left, texture.get_size())
 	spot.transform = get_global_transform_with_canvas().affine_inverse() * sprite.get_global_transform_with_canvas()
 	spots.append(spot)
+	return spot
 
-# El asteroide con plataforma de una casilla de torreta, de la capa TurretSlots del mapa.
-func _add_slot_spotlight(spots: Array[Spotlight], cell: Vector2i) -> void:
+# El asteroide con plataforma de una casilla de torreta, de la capa TurretSlots del mapa. Devuelve un
+# Spotlight vacío (que no se dibuja) si no lo encuentra.
+func _add_slot_spotlight(spots: Array[Spotlight], cell: Vector2i) -> Spotlight:
+	var spot: Spotlight = Spotlight.new()
 	var layer: TileMapLayer = _level.map.get_node_or_null(^"TurretSlots") as TileMapLayer
 	if layer == null or layer.get_cell_source_id(cell) < 0:
-		return
+		return spot
 	var source: TileSetAtlasSource = layer.tile_set.get_source(layer.get_cell_source_id(cell)) as TileSetAtlasSource
 	if source == null:
-		return
+		return spot
 	var coords: Vector2i = layer.get_cell_atlas_coords(cell)
-	var spot: Spotlight = Spotlight.new()
 	spot.texture = source.texture
 	spot.region = source.get_tile_texture_region(coords)
 	var origin: Vector2 = Vector2(source.get_tile_data(coords, layer.get_cell_alternative_tile(cell)).texture_origin)
@@ -388,6 +437,7 @@ func _add_slot_spotlight(spots: Array[Spotlight], cell: Vector2i) -> void:
 	spot.transform = (get_global_transform_with_canvas().affine_inverse() * layer.get_global_transform_with_canvas()
 			* Transform2D(0.0, layer.map_to_local(cell)))
 	spots.append(spot)
+	return spot
 
 func _draw() -> void:
 	if not _active or not box.visible or _dim_alpha <= 0.0:
@@ -403,24 +453,33 @@ func _draw() -> void:
 		rects.append(hole.rect)
 	_draw_dim(rects)
 	var blink: bool = _blink_on()
-	# Primero todos los contornos y después los sprites, para que el contorno quede solo por fuera.
-	if blink:
-		for spot: Spotlight in spots:
-			draw_set_transform_matrix(spot.transform)
-			draw_texture(_outline_texture(spot.texture, spot.region), spot.rect.position - Vector2.ONE)
+	# Primero lo que no lleva contorno, luego los contornos y encima lo que los lleva: así el contorno
+	# rodea solo la silueta de lo señalado (la torreta y su asteroide, juntos).
 	for spot: Spotlight in spots:
-		draw_set_transform_matrix(spot.transform)
-		draw_texture_rect_region(spot.texture, spot.rect, spot.region)
+		if spot.texture != null and not spot.outlined:
+			_draw_spotlight(spot)
+	for spot: Spotlight in spots:
+		if spot.texture != null and spot.outlined and (blink or not spot.blinking):
+			draw_set_transform_matrix(spot.transform)
+			draw_texture(_outline_texture(spot.texture, spot.region), spot.rect.position - Vector2.ONE, HIGHLIGHT_COLOR)
+	for spot: Spotlight in spots:
+		if spot.texture != null and spot.outlined:
+			_draw_spotlight(spot)
 	draw_set_transform_matrix(Transform2D.IDENTITY)
 	if blink:
 		for hole: Hole in holes:
 			if hole.border:
 				draw_rect(hole.rect, HIGHLIGHT_COLOR, false, 1.0)
 
-# Contorno ámbar de 1 px alrededor de los píxeles opacos de una región de textura: una imagen 2 px
-# más grande con ámbar en cada píxel transparente que toca uno opaco. Se guarda para no repetirlo.
+func _draw_spotlight(spot: Spotlight) -> void:
+	draw_set_transform_matrix(spot.transform)
+	draw_texture_rect_region(spot.texture, spot.rect, spot.region)
+
+# Contorno blanco de 1 px alrededor de los píxeles opacos de una región de textura (se tiñe al
+# dibujarlo): una imagen 2 px más grande con un píxel en cada transparente que toca uno opaco. Cada
+# frame de una animación es su propia textura, así que tiene su propio contorno y lo sigue al animarse.
 func _outline_texture(texture: Texture2D, region: Rect2) -> ImageTexture:
-	var key: String = "%d|%s" % [texture.get_rid().get_id(), region]
+	var key: String = "%d|%s" % [texture.get_instance_id(), region]
 	if _outlines.has(key):
 		return _outlines[key]
 	var image: Image = texture.get_image()
@@ -439,7 +498,7 @@ func _outline_texture(texture: Texture2D, region: Rect2) -> ImageTexture:
 				continue
 			if (_is_opaque(image, x - 2, y - 1) or _is_opaque(image, x, y - 1)
 					or _is_opaque(image, x - 1, y - 2) or _is_opaque(image, x - 1, y)):
-				outline.set_pixel(x, y, HIGHLIGHT_COLOR)
+				outline.set_pixel(x, y, Color.WHITE)
 	var result: ImageTexture = ImageTexture.create_from_image(outline)
 	_outlines[key] = result
 	return result

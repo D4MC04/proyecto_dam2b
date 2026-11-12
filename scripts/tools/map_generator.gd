@@ -1,9 +1,9 @@
 extends SceneTree
-## Genera los mapas de los niveles a partir de resources/map_data/level_N.txt (y el del simulacro,
-## resources/map_data/simulation.txt).
+## Genera los mapas de los niveles a partir de resources/map_data/level_N.txt (y el del nivel de emergencia,
+## resources/map_data/emergency.txt).
 ##
-## Uso: godot --headless --path . -s scripts/tools/map_generator.gd -- [N ... | simulation]
-## Sin argumentos genera los 9 niveles y el simulacro.
+## Uso: godot --headless --path . -s scripts/tools/map_generator.gd -- [N ... | emergency]
+## Sin argumentos genera los 9 niveles y el nivel de emergencia.
 ##
 ## Los caminos no se dibujan: son pasillos de espacio libre que atraviesan un campo de asteroides
 ## que llena el resto del mapa. La orilla del pasillo va casi llena y dentro del campo no quedan
@@ -27,8 +27,8 @@ const TILE_SIZE: int = 16
 const LEVEL_COUNT: int = 9
 const DATA_PATH: String = "res://resources/map_data/%s.txt"
 const SCENE_PATH: String = "res://scenes/maps/levels/%s.tscn"
-# Argumento y nombre de archivo del mapa del simulacro (el nivel de prueba del tutorial)
-const SIMULATION: String = "simulation"
+# Argumento y nombre de archivo del mapa del nivel de emergencia (el nivel de prueba del tutorial)
+const EMERGENCY: String = "emergency"
 const MAP_SCRIPT: String = "res://scripts/level/Map.gd"
 const BACKGROUND_SCENE: String = "res://scenes/maps/SpaceBackground.tscn"
 const BASE_SCENE: String = "res://scenes/entities/Base.tscn"
@@ -188,10 +188,10 @@ func _initialize() -> void:
 	if maps.is_empty():
 		for n: int in range(1, LEVEL_COUNT + 1):
 			maps.append(str(n))
-		maps.append(SIMULATION)
+		maps.append(EMERGENCY)
 	for map_name: String in maps:
-		if map_name == SIMULATION:
-			_generate(SIMULATION, "Simulation")
+		if map_name == EMERGENCY:
+			_generate(EMERGENCY, "Emergency")
 		else:
 			_generate("level_%d" % map_name.to_int(), "Level%d" % map_name.to_int())
 	quit()
