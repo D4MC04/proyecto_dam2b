@@ -9,6 +9,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Tesla/ElectricZap.wav" id="snd"]
 [ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Tesla/CharginTurret.wav" id="chg"]
 [ext_resource type="Resource" path="res://resources/amp_effects/tesla.tres" id="amp"]
+[ext_resource type="Resource" path="res://resources/turret_data/tesla_level3.tres" id="level3"]
 
 [resource]
 script = ExtResource("1")
@@ -24,4 +25,5 @@ cannon = ExtResource("7")
 chain = ExtResource("3")
 amp_effect = ExtResource("amp")
 description = "TURRET_TESLA_FUSION_DESC"
+fusion = ExtResource("level3")
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

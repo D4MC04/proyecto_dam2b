@@ -6,6 +6,7 @@
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/estacion.tres" id="4_frames"]
 
 [node name="SpaceStation" type="AnimatedSprite2D" unique_id=1287593236]
+process_mode = 3
 position = Vector2(4.7683716e-07, 4.7683716e-07)
 sprite_frames = ExtResource("4_frames")
 animation = &"fase_0"

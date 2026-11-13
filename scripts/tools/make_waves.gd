@@ -1,7 +1,8 @@
 extends SceneTree
 ## Genera las oleadas de todos los niveles a partir de la tabla LEVELS y las enlaza en su nivel.
 ##
-## Uso: godot --headless --path . -s scripts/tools/make_waves.gd
+## Uso: godot --headless --path . -s scripts/tools/make_waves.gd [-- emergency]
+## Con "emergency" solo genera el nivel de emergencia (el nivel de prueba del tutorial); sin argumentos, todo.
 ##
 ## Escribe resources/wave_data/level_N.tres (oleada 1) y level_N_K.tres (oleada K). Si el archivo
 ## ya existe se carga y se rellena, así conserva su uid. Después pone la lista de oleadas en
@@ -71,15 +72,70 @@ const LEVELS: Array[Dictionary] = [
 		"old": [DART, "wasp", "nave_normal", "nave_agresiva", "acorazado", "ariete"], "boss": true},
 ]
 
+## Nivel de emergencia (nivel de prueba del tutorial): sus oleadas no salen del presupuesto, se escriben grupo a
+## grupo para controlar el dinero. Por oleada: multiplicador de vida y grupos [nave, cuántas, separación].
+## La 1 da 200 € (lo justo para mejorar un Cañón doble), la 2 da 400 € (las otras dos mejoras) y la 3
+## aprieta, pero se pasa con dos Cañones dobles y uno mejorado.
+const EMERGENCY: Array[Dictionary] = [
+	{"health": 0.7, "groups": [["dart_rojo", 5, 0.6], ["wasp", 8, 0.7], ["dart_verde", 5, 0.6], ["wasp", 7, 0.7]]},
+	{"health": 0.8, "groups": [["dart_rojo", 10, 0.5], ["wasp", 5, 0.6], ["nave_normal", 5, 0.9], ["dart_morado", 10, 0.5],
+			["wasp", 5, 0.6], ["nave_normal", 5, 0.9], ["dart_hielo", 10, 0.5]]},
+	{"health": 0.8, "groups": [["dart_rojo", 10, 0.4], ["wasp", 10, 0.5], ["nave_normal", 5, 0.7], ["dart_verde", 10, 0.4],
+			["wasp", 10, 0.5], ["nave_normal", 5, 0.7]]},
+]
+## Segundos entre la última nave de un grupo del nivel de emergencia y la primera del siguiente.
+const EMERGENCY_PAUSE: float = 1.5
+const EMERGENCY_NAME: String = "emergency"
+const EMERGENCY_MAP: String = "res://scenes/maps/levels/Emergency.tscn"
+const EMERGENCY_MONEY: int = 300
+const EMERGENCY_TURRET: String = "res://resources/turret_data/turret.tres"
+
 var _enemies: Dictionary[String, EnemyData] = {}
 
 
 func _initialize() -> void:
-	for i: int in LEVELS.size():
-		var level_number: int = i + 1
-		var waves: Array[WaveData] = _make_level(level_number, LEVELS[i])
-		_save_level(level_number, waves)
+	if not EMERGENCY_NAME in OS.get_cmdline_user_args():
+		for i: int in LEVELS.size():
+			var level_number: int = i + 1
+			var waves: Array[WaveData] = _make_level(level_number, LEVELS[i])
+			_save_level(level_number, waves)
+	_make_emergency()
 	quit()
+
+
+# Escribe wave_data/emergency_K.tres y los enlaza en level_data/emergency.tres (que crea si no existe,
+# con su mapa, su dinero y el Cañón doble como única torreta).
+func _make_emergency() -> void:
+	var waves: Array[WaveData] = []
+	for k: int in EMERGENCY.size():
+		var path: String = WAVE_DIR + "%s_%d.tres" % [EMERGENCY_NAME, k + 1]
+		var wave: WaveData = load(path) if ResourceLoader.exists(path) else WaveData.new()
+		var groups: Array[SpawnGroup] = []
+		var reward: int = 0
+		for row: Array in EMERGENCY[k]["groups"]:
+			var group: SpawnGroup = SpawnGroup.new()
+			group.enemy_data = _enemy(row[0])
+			group.count = row[1]
+			group.spacing = row[2]
+			group.pause_after = EMERGENCY_PAUSE
+			group.path_index = 0
+			groups.append(group)
+			reward += group.enemy_data.reward * group.count
+		wave.groups = groups
+		wave.health_multiplier = EMERGENCY[k]["health"]
+		_save(wave, path)
+		waves.append(load(path) as WaveData)
+		print("Nivel de emergencia, oleada %d: %d naves, %d €, vida x%.2f" % [k + 1, wave.get_entries().size(), reward,
+				wave.health_multiplier])
+	var level_path: String = LEVEL_DIR + EMERGENCY_NAME + ".tres"
+	var level: LevelData = load(level_path) if ResourceLoader.exists(level_path) else LevelData.new()
+	if level.map == null:
+		level.map = load(EMERGENCY_MAP)
+		level.starting_money = EMERGENCY_MONEY
+		var turrets: Array[TurretData] = [load(EMERGENCY_TURRET) as TurretData]
+		level.turrets = turrets
+	level.waves = waves
+	_save(level, level_path)
 
 
 func _make_level(level_number: int, table: Dictionary) -> Array[WaveData]:

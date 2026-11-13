@@ -9,9 +9,8 @@ No se puede deshacer.","The save in slot %d will be deleted.
 This cannot be undone."
 BTN_DELETE,Borrar,Delete
 BTN_CANCEL,Cancelar,Cancel
-HUD_LEVEL,NIVEL,LEVEL
+HUD_LEVEL,SECTOR,SECTOR
 HUD_WAVE,OLEADA,WAVE
-TUTORIAL_OK,Entendido,Got it
 TUTORIAL_SKIP,Saltar,Skip
 DEFEAT_TITLE,"SEÑAL
 PERDIDA","SIGNAL
@@ -36,7 +35,7 @@ HEADER_POWERS,PODERES,POWERS
 VICTORY_TITLE,"SECTOR
 ASEGURADO","SECTOR
 SECURED"
-BTN_NEXT_LEVEL,Siguiente nivel,Next level
+BTN_NEXT_LEVEL,Siguiente sector,Next sector
 BTN_PLAY,Jugar,Play
 BTN_ARCHIVE,Archivo,Archive
 BTN_STATS,Stats,Stats
@@ -60,42 +59,62 @@ TURRET_AMPLIFIER_NAME,Amplificador,Amplifier
 TURRET_AMPLIFIER_DESC,"No dispara: mejora a las torretas que tiene cerca, cada una a su manera.","Doesn't shoot: boosts nearby turrets, each in its own way."
 TURRET_AMPLIFIER_FUSION_NAME,Amplificador mayor,Major Amplifier
 TURRET_AMPLIFIER_FUSION_DESC,Las torretas de alrededor mejoran aún más. Mejora del Amplificador.,Nearby turrets get even stronger. Upgrade of the Amplifier.
+TURRET_AMPLIFIER_LEVEL3_NAME,Amplificador mayor III,Major Amplifier III
+TURRET_AMPLIFIER_LEVEL3_DESC,Las torretas de alrededor mejoran aún más. Mejora del Amplificador.,Nearby turrets get even stronger. Upgrade of the Amplifier.
 TURRET_CRYO_NAME,Cryo,Cryo
 TURRET_CRYO_DESC,Lanza una onda helada que daña y frena a todos los enemigos cercanos.,Releases an icy wave that damages and slows every nearby enemy.
 TURRET_CRYO_FUSION_NAME,Cryo ventisca,Blizzard Cryo
 TURRET_CRYO_FUSION_DESC,Una ventisca que casi congela todo lo que alcanza. Fusión de dos Cryo.,A blizzard that almost freezes everything it reaches. Fusion of two Cryos.
+TURRET_CRYO_LEVEL3_NAME,Cryo ventisca III,Blizzard Cryo III
+TURRET_CRYO_LEVEL3_DESC,Una ventisca que casi congela todo lo que alcanza. Fusión de dos Cryo.,A blizzard that almost freezes everything it reaches. Fusion of two Cryos.
 TURRET_DISINTEGRATOR_NAME,Disintegrator,Disintegrator
 TURRET_DISINTEGRATOR_DESC,Haz continuo que hace más daño cuanto más tiempo sigue al mismo enemigo.,Continuous beam that deals more damage the longer it stays on the same enemy.
 TURRET_DISINTEGRATOR_FUSION_NAME,Aniquilador,Annihilator
 TURRET_DISINTEGRATOR_FUSION_DESC,Haz continuo que alcanza su máxima potencia en la mitad de tiempo. Fusión de dos Disintegrator.,Continuous beam that reaches full power in half the time. Fusion of two Disintegrators.
+TURRET_DISINTEGRATOR_LEVEL3_NAME,Aniquilador III,Annihilator III
+TURRET_DISINTEGRATOR_LEVEL3_DESC,Haz continuo que alcanza su máxima potencia en la mitad de tiempo. Fusión de dos Disintegrator.,Continuous beam that reaches full power in half the time. Fusion of two Disintegrators.
 TURRET_MINER_NAME,Minero,Miner
 TURRET_MINER_DESC,No dispara: durante las oleadas perfora asteroides y saca oro.,Doesn't shoot: during waves it drills asteroids and digs up gold.
 TURRET_MINER_FUSION_NAME,Excavadora,Excavator
 TURRET_MINER_FUSION_DESC,Saca el doble de oro. Mejora del Minero.,Digs up twice as much gold. Upgrade of the Miner.
+TURRET_MINER_LEVEL3_NAME,Excavadora III,Excavator III
+TURRET_MINER_LEVEL3_DESC,Saca el doble de oro. Mejora del Minero.,Digs up twice as much gold. Upgrade of the Miner.
 TURRET_MINIGUN_NAME,Minigun,Minigun
 TURRET_MINIGUN_DESC,"Empieza lenta y acelera hasta una lluvia de balas, pero se sobrecalienta y para un momento.","Starts slow and spins up into a hail of bullets, but overheats and stops for a moment."
 TURRET_MINIGUN_FUSION_NAME,Minigun pesada,Heavy Minigun
 TURRET_MINIGUN_FUSION_DESC,"Más daño y alcance, dispara aún más rápido y aguanta más antes de sobrecalentarse.","More damage and range, fires even faster and lasts longer before overheating."
+TURRET_MINIGUN_LEVEL3_NAME,Minigun pesada III,Heavy Minigun III
+TURRET_MINIGUN_LEVEL3_DESC,"Más daño y alcance, dispara aún más rápido y aguanta más antes de sobrecalentarse.","More damage and range, fires even faster and lasts longer before overheating."
 TURRET_ORBITER_NAME,Orbitador,Orbiter
 TURRET_ORBITER_DESC,Genera cargas de plasma que giran a su alrededor y explotan al chocar. No llega a lo que pasa pegado a ella.,Creates plasma charges that orbit around it and explode on impact. Can't reach what passes right next to it.
 TURRET_ORBITER_FUSION_NAME,Cinturón,Belt
 TURRET_ORBITER_FUSION_DESC,"Rodea la torreta de un cinturón de plasma: genera más cargas, más rápido y más fuertes.","Surrounds the turret with a plasma belt: more charges, faster and stronger."
+TURRET_ORBITER_LEVEL3_NAME,Cinturón III,Belt III
+TURRET_ORBITER_LEVEL3_DESC,"Rodea la torreta de un cinturón de plasma: genera más cargas, más rápido y más fuertes.","Surrounds the turret with a plasma belt: more charges, faster and stronger."
 TURRET_RAIL_NAME,Rail,Rail
 TURRET_RAIL_DESC,"Tras cargar, dispara un haz que atraviesa a todos los enemigos de la línea.","After charging, fires a beam that pierces every enemy in the line."
 TURRET_RAIL_FUSION_NAME,Rail Gauss,Gauss Rail
 TURRET_RAIL_FUSION_DESC,Un haz ancho y larguísimo que barre toda la línea. Fusión de dos Rail.,"A wide, extra-long beam that sweeps the whole line. Fusion of two Rails."
+TURRET_RAIL_LEVEL3_NAME,Rail Gauss III,Gauss Rail III
+TURRET_RAIL_LEVEL3_DESC,Un haz ancho y larguísimo que barre toda la línea. Fusión de dos Rail.,"A wide, extra-long beam that sweeps the whole line. Fusion of two Rails."
 TURRET_ROCKET_LAUNCHER_NAME,Cañón pesado,Heavy Cannon
 TURRET_ROCKET_LAUNCHER_DESC,Balas lentas y potentes que hacen mucho daño en cada impacto.,"Slow, powerful shells that deal heavy damage on each hit."
 TURRET_ROCKET_LAUNCHER_FUSION_NAME,Cañón de asedio,Siege Cannon
 TURRET_ROCKET_LAUNCHER_FUSION_DESC,Dispara salvas de dos proyectiles explosivos seguidos que caen uno encima del otro. Fusión de dos Cañones pesados.,Fires salvos of two explosive shells in a row that land on top of each other. Fusion of two Heavy Cannons.
+TURRET_ROCKET_LAUNCHER_LEVEL3_NAME,Cañón de asedio III,Siege Cannon III
+TURRET_ROCKET_LAUNCHER_LEVEL3_DESC,Dispara salvas de dos proyectiles explosivos seguidos que caen uno encima del otro. Fusión de dos Cañones pesados.,Fires salvos of two explosive shells in a row that land on top of each other. Fusion of two Heavy Cannons.
 TURRET_TESLA_NAME,Tesla,Tesla
 TURRET_TESLA_DESC,Un rayo salta de enemigo en enemigo y alcanza a varios a la vez.,A bolt jumps from enemy to enemy and hits several at once.
 TURRET_TESLA_FUSION_NAME,Tormenta,Storm
 TURRET_TESLA_FUSION_DESC,Una tormenta eléctrica que salta entre hasta seis enemigos. Fusión de dos Tesla.,An electric storm that jumps between up to six enemies. Fusion of two Teslas.
+TURRET_TESLA_LEVEL3_NAME,Tormenta III,Storm III
+TURRET_TESLA_LEVEL3_DESC,Una tormenta eléctrica que salta entre hasta seis enemigos. Fusión de dos Tesla.,An electric storm that jumps between up to six enemies. Fusion of two Teslas.
 TURRET_TURRET_NAME,Cañón doble,Twin Cannon
 TURRET_TURRET_DESC,Dispara ráfagas rápidas con sus dos cañones. Barata y fiable.,Fires quick bursts from its two barrels. Cheap and reliable.
 TURRET_TURRET_FUSION_NAME,Cañón cuádruple,Quad Cannon
 TURRET_TURRET_FUSION_DESC,Cuatro cañones y una ráfaga muy rápida. Fusión de dos Cañones dobles.,Four barrels and a very fast burst. Fusion of two Twin Cannons.
+TURRET_TURRET_LEVEL3_NAME,Cañón cuádruple III,Quad Cannon III
+TURRET_TURRET_LEVEL3_DESC,Cuatro cañones y una ráfaga muy rápida. Fusión de dos Cañones dobles.,Four barrels and a very fast burst. Fusion of two Twin Cannons.
 ENEMY_ACORAZADO_NAME,Acorazado,Dreadnought
 ENEMY_ACORAZADO_DESC,Blindaje pesado. Muy lento y difícil de abatir.,Heavy armor. Very slow and hard to bring down.
 ENEMY_ARIETE_NAME,Ariete,Ram
@@ -127,7 +146,7 @@ ENEMY_SABOTEADORA_DESC,Nave de guerra electrónica. Sus pulsos EMP apagan las to
 ENEMY_WASP_NAME,Wasp,Wasp
 ENEMY_WASP_DESC,Insecto mecánico ágil con más blindaje que un Dart.,Agile mechanical insect with more armor than a Dart.
 AWARD_PERFECT,PERFECTA,PERFECT
-HUD_LEVEL_N,NIVEL %d,LEVEL %d
+HUD_LEVEL_N,SECTOR %d,SECTOR %d
 HUD_WAVE_N_OF,OLEADA %d/%d,WAVE %d/%d
 HUD_WAVE_N,OLEADA %d,WAVE %d
 HUD_WAVE_LAST,ÚLTIMA OLEADA,FINAL WAVE
@@ -142,7 +161,7 @@ STATS_KILLS,Naves destruidas: %d,Ships destroyed: %d
 STATS_SPENT,Dinero gastado: %s,Money spent: %s
 STATS_TIME,Tiempo jugado: %dh %02dm,Time played: %dh %02dm
 STATS_FAVORITE,Torreta favorita: %s,Favorite turret: %s
-STATS_WINS,Niveles ganados: %d,Levels won: %d
+STATS_WINS,Sectores ganados: %d,Sectors won: %d
 NAVEDEX_SHIPS,NAVES,SHIPS
 NAVEDEX_ACHIEVEMENTS,LOGROS,ACHIEVEMENTS
 NAVEDEX_UPGRADE,MEJORA: %s,UPGRADE: %s
@@ -151,27 +170,31 @@ SLOT_EMPTY,RANURA VACÍA,EMPTY SLOT
 SLOT_SECTOR,SECTOR %02d,SECTOR %02d
 SLOT_SAVED,GUARDADO,SAVED
 SLOT_PLAYED,JUGADO,PLAYED
-TUTORIAL_PICK_TURRET,"¡Hola, recluta! Los enemigos vienen a por la estación. Elige una torreta en la barra de la derecha.","Hi, recruit! The enemies are coming for the station. Pick a turret from the bar on the right."
-TUTORIAL_PLACE_TURRET,Bien. Ahora haz clic en los asteroides con plataforma libre para colocar 3 torretas.,Good. Now click on asteroids with a free platform to place 3 turrets.
-TUTORIAL_START_WAVE,Lista la defensa. Abre la pestaña Oleadas y pulsa Siguiente oleada (o Espacio).,Defense ready. Open the Waves tab and press Next wave (or Space).
-TUTORIAL_WAIT_WAVE_END,"Ahí vienen. Si la oleada se hace larga, el botón ×1 de abajo acelera el tiempo.","Here they come. If the wave drags on, the ×1 button below speeds up time."
-TUTORIAL_INSPECT_TURRET,¡Oleada superada! Vuelve a la pestaña Torretas y haz clic en una de las tuyas del mapa para ver su ficha.,Wave cleared! Go back to the Turrets tab and click one of your turrets on the map to see its card.
-TUTORIAL_FUSE_INFO,"Desde la ficha puedes venderla o, si tiene mejora, pulsar Mejorar para convertirla en una más fuerte.","From the card you can sell it or, if it has an upgrade, press Upgrade to turn it into a stronger one."
-TUTORIAL_DESELECT_INFO,"Para soltar la torreta de la tienda o cerrar la ficha, haz clic derecho o en un hueco vacío del mapa.","To drop the shop turret or close the card, right-click or click an empty spot on the map."
-TUTORIAL_POWERS_INFO,"Tienes tres poderes en la ficha: meteorito (Q), congelar (E) y rayo orbital (R), que barre una fila.","You have three powers on the card: meteor (Q), freeze (E) and orbital beam (R), which sweeps a row."
-TUTORIAL_POWERS,Prueba uno: el meteorito (Q) o congelar (E). El rayo orbital es para luego.,Try one: the meteor (Q) or freeze (E). Save the orbital beam for later.
-TUTORIAL_DONE,¡Eso es! El resto es cosa tuya. Suerte ahí fuera.,That's it! The rest is up to you. Good luck out there.
+TUTORIAL_STATION,"¡Comandante, por fin has llegado! Aquí NOVA, desde la sala de control. Nos atacan y no aguantaremos mucho solos.","Commander, you made it! NOVA here, from the control room. We are under attack and won't last long on our own."
+TUTORIAL_STATION_BASE,"Si sus naves alcanzan la estación, sufriremos graves daños.","If their ships reach the station, we'll take heavy damage."
+TUTORIAL_STATION_HEALTH,Puedes comprobar su estado desde la barra de la derecha.,You can check its status in the right-hand bar.
+TUTORIAL_PREPARE,Debemos preparar nuestras defensas cuanto antes.,We must get our defenses ready as soon as possible.
+TUTORIAL_PLACE_TURRETS,Nos quedan créditos para tres Cañones Dobles. Móntalos en los asteroides con plataforma.,We have credits left for three Twin Cannons. Mount them on the asteroids with a platform.
+TUTORIAL_OPEN_WAVES,"Nuestros sensores han detectado la próxima oleada. Abre la pestaña ""Oleadas"" para ver lo que hemos encontrado.",Sensors detect the first wave. Open the Waves tab and let's see what's coming.
+TUTORIAL_INSPECT_ENEMY,Ahí están. Pulsa una de esas naves para ver sus datos.,There they are. Click one of those ships and I'll scan it.
+TUTORIAL_ENEMY_INFO,"El análisis aparecerá en el panel izquierdo: vida, velocidad, botín y el daño que recibiremos si colisiona. Conocer al enemigo es crucial para poder interceptar sus ataques.","The scan shows up in the left panel: health, speed, loot and the damage it does if it gets through. Knowing the enemy is half the battle."
+TUTORIAL_START_WAVE,"Cuando hayas acabado de preparar las defensas, pulsa INICIAR y abriremos fuego tan pronto como aparezcan.","When your defense is ready, press START and we open fire."
+TUTORIAL_UPGRADE_PICK,¡Primera oleada neutralizada! Con el botín podemos reforzar uno de nuestros cañones: selecciona uno.,First wave repelled! With the loot we can reinforce a cannon: select one.
+TUTORIAL_UPGRADE_GIFT,"Andamos cortos de créditos... Desvío fondos de reserva para la mejora, pero que no se repita. Selecciona uno de tus cañones.","We're short on credits... I'm diverting reserve funds for the upgrade, but don't make me do it again. Select one of your cannons."
+TUTORIAL_UPGRADE_PRESS,"Pulsa ""Mejorar"" para convertirlo en un Cañón Cuádruple.",Press Upgrade and we'll turn it into a Quad Cannon.
+TUTORIAL_DONE,"¡Así se hace! Vienen dos oleadas más. Aguanta, comandante, seguro que resistiremos.","That's it! Two more waves incoming. Hold on, commander, and we'll make it."
+HUD_EMERGENCY,SECTOR 0,SECTOR 0
 ACH_FIRST_WIN_NAME,Primera victoria,First victory
-ACH_FIRST_WIN_DESC,Gana un nivel,Win a level
+ACH_FIRST_WIN_DESC,Gana un sector,Win a sector
 ACH_FLAWLESS_NAME,Intacto,Flawless
-ACH_FLAWLESS_DESC,Gana un nivel sin perder vida,Win a level without losing health
+ACH_FLAWLESS_DESC,Gana un sector sin perder vida,Win a sector without losing health
 ACH_ALL_LEVELS_NAME,Sector despejado,Sector cleared
-ACH_ALL_LEVELS_DESC,Gana el último nivel,Win the last level
+ACH_ALL_LEVELS_DESC,Gana el último sector,Win the last sector
 ACH_PHASE_BRONZE,bronce,bronze
 ACH_PHASE_SILVER,plata,silver
 ACH_PHASE_GOLD,oro,gold
 ACH_WINS_NAME,Veterano,Veteran
-ACH_WINS_DESC,Gana %d niveles,Win %d levels
+ACH_WINS_DESC,Gana %d sectores,Win %d sectors
 ACH_KILLS_NAME,Cazador,Hunter
 ACH_KILLS_DESC,Destruye %d naves,Destroy %d ships
 ACH_SEEN_NAME,Observador,Observer

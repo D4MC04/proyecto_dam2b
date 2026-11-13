@@ -18,6 +18,8 @@ const START_COVER_TIME: float = 0.7
 const START_UNCOVER_TIME: float = 0.6
 const WARP_TIME: float = 0.5
 const FLASH_TIME: float = 0.1
+# Segundos que se ve la oficina (mientras la destapa la pantalla de inicio) antes de saltar al nivel de emergencia.
+const EMERGENCY_DELAY: float = 0.8
 # Giro de la silla: duración del paso a la vista de al lado y ancho de cada vista.
 const TURN_TIME: float = 0.45
 const VIEW_WIDTH: float = 960.0
@@ -50,7 +52,6 @@ var start_on_level_selection: bool = false
 @onready var stats_label: Label = %StatsLabel
 @onready var navedex: Navedex = $Navedex
 @onready var archive_tablet: ArchiveTablet = $Office/Views/CenterView/ArchiveTablet
-@onready var achievements_screen: AchievementsScreen = $AchievementsScreen
 @onready var options_console: OptionsConsole = $Office/Views/CenterView/OptionsConsole
 @onready var options_close_up: OptionsCloseUp = $OptionsCloseUp
 @onready var quit_confirm: Control = $QuitConfirm
@@ -97,6 +98,10 @@ func _ready() -> void:
 	sector_card.deploy_pressed.connect(_on_deploy_pressed)
 	GameState.progress_reset.connect(_refresh_sectors)
 	_refresh_sectors()
+	# Una partida que aún no ha pasado por el nivel de emergencia empieza por él.
+	if not GameState.tutorial_done and not start_on_level_selection:
+		await get_tree().create_timer(EMERGENCY_DELAY).timeout
+		open_emergency()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _jumping or _leaving or _zooming:
@@ -195,9 +200,6 @@ func _on_archive_tablet_pressed() -> void:
 		return
 	archive_tablet.held = true
 	_zoom_in(navedex, _set_tablet_zoom)
-
-func _on_medal_case_pressed() -> void:
-	_open_panel(achievements_screen)
 
 func _on_options_console_pressed() -> void:
 	if _panel or _jumping or _leaving:
@@ -377,6 +379,10 @@ func _go_to_start_screen() -> void:
 	wipe.uncover(center, START_UNCOVER_TIME)
 
 # --- Salto al hiperespacio -----------------------------------------------------------------
+
+## Lanza el nivel de emergencia (el nivel de prueba del tutorial) con el salto al hiperespacio de siempre.
+func open_emergency() -> void:
+	_open_level(GameData.emergency_level)
 
 func _open_level(data: LevelData) -> void:
 	if _jumping:

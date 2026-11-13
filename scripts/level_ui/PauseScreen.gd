@@ -19,6 +19,12 @@ var _cursor_label: Label
 
 func _ready() -> void:
 	super()
+	# El oscurecido tapa toda la pantalla (también las barras), no solo el área de juego donde vive la pausa.
+	background.top_level = true
+	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	# Los controles top_level se miran antes que el resto al buscar dónde cae el ratón: si el fondo lo
+	# parase, taparía los botones de la pausa. Las barras no responden igualmente (LevelUI las pausa).
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_add_cursor()
 	title_label.add_theme_color_override("font_color", accent_color)
 	folded_tag.accent_color = accent_color

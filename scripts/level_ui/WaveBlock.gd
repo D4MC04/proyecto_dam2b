@@ -23,16 +23,19 @@ const PAST_COLOR: Color = Color(1, 1, 1, 0.4)
 
 @onready var cells: GridContainer = %Cells
 
-## Rellena el bloque con una celda por tipo de enemigo, en orden de primera aparición.
+## Rellena el bloque con una celda por tipo de enemigo, ordenadas de menos a más vida máxima (a
+## igualdad, por nombre), siempre igual aunque cambie el orden en que salen.
 func setup(wave: WaveData) -> void:
 	var entries: Array[SpawnEntry] = wave.get_entries()
-	# Un Dictionary conserva el orden de inserción: la primera aparición manda.
 	var counts: Dictionary = {}
 	for entry: SpawnEntry in entries:
 		if entry.enemy_data == null:
 			continue
 		counts[entry.enemy_data] = int(counts.get(entry.enemy_data, 0)) + 1
-	for enemy_data: EnemyData in counts:
+	var ordered: Array = counts.keys()
+	ordered.sort_custom(func(a: EnemyData, b: EnemyData) -> bool:
+		return a.hp < b.hp if a.hp != b.hp else a.name < b.name)
+	for enemy_data: EnemyData in ordered:
 		var cell: EnemyCell = ENEMY_CELL.instantiate()
 		cell.custom_minimum_size.y = CELL_HEIGHT
 		cells.add_child(cell)

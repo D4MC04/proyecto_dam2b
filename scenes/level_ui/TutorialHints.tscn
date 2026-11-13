@@ -5,6 +5,19 @@
 [ext_resource type="Texture2D" path="res://assets/ui/guide_portrait.png" id="3_portrait"]
 [ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="4_theme"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_portrait"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.054902, 0.0862745, 0.14902, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.109804, 0.454902, 0.588235, 1)
+anti_aliasing = false
+
 [node name="TutorialHints" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -18,15 +31,16 @@ script = ExtResource("1_hints")
 
 [node name="Box" type="PanelContainer" parent="."]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(528, 93)
 layout_mode = 1
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -190.0
-offset_top = -84.0
-offset_right = 190.0
+offset_left = -264.0
+offset_top = -105.0
+offset_right = 264.0
 offset_bottom = -12.0
 grow_horizontal = 2
 grow_vertical = 0
@@ -35,19 +49,24 @@ decorated = false
 
 [node name="Margin" type="MarginContainer" parent="Box"]
 layout_mode = 2
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 6
-theme_override_constants/margin_bottom = 4
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
 
 [node name="Row" type="HBoxContainer" parent="Box/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 12
 
-[node name="Portrait" type="TextureRect" parent="Box/Margin/Row"]
+[node name="PortraitFrame" type="PanelContainer" parent="Box/Margin/Row"]
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_portrait")
+
+[node name="Portrait" type="TextureRect" parent="Box/Margin/Row/PortraitFrame"]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
-size_flags_vertical = 0
 texture = ExtResource("3_portrait")
 expand_mode = 1
 
@@ -59,32 +78,32 @@ theme_override_constants/separation = 0
 [node name="SpeakerLabel" type="Label" parent="Box/Margin/Row/Column"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.92549, 0.698039, 0.235294, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 32
 text = "NOVA"
 
 [node name="MessageLabel" type="Label" parent="Box/Margin/Row/Column"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(280, 0)
+custom_minimum_size = Vector2(418, 37)
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_colors/font_color = Color(0.8, 0.901961, 1, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_constants/line_spacing = -1
+theme_override_font_sizes/font_size = 24
 autowrap_mode = 3
+max_lines_visible = 2
 
-[node name="Buttons" type="HBoxContainer" parent="Box/Margin/Row/Column"]
-layout_mode = 2
-alignment = 2
-
-[node name="OkButton" type="Button" parent="Box/Margin/Row/Column/Buttons"]
+[node name="ContinueArrow" type="Control" parent="."]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(72, 16)
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "TUTORIAL_OK"
-
-[node name="SkipButton" type="Button" parent="Box/Margin/Row/Column/Buttons"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(56, 16)
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "TUTORIAL_SKIP"
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 242.0
+offset_top = -26.0
+offset_right = 252.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2

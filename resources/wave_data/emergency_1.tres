@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="WaveData" format=3 uid="uid://bbxl176bbxqgp"]
+
+[ext_resource type="Script" uid="uid://dclc5suu1kxn3" path="res://scripts/resources/SpawnGroup.gd" id="1_5vfco"]
+[ext_resource type="Resource" uid="uid://bakq6nmr73sl0" path="res://resources/enemy_data/dart_rojo.tres" id="2_g02fs"]
+[ext_resource type="Resource" uid="uid://bfiipacu4434d" path="res://resources/enemy_data/wasp.tres" id="3_a3hki"]
+[ext_resource type="Resource" uid="uid://bcvbohxs6cxsf" path="res://resources/enemy_data/dart_verde.tres" id="4_3lo5o"]
+[ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="5_vvtng"]
+
+[sub_resource type="Resource" id="Resource_jivq2"]
+script = ExtResource("1_5vfco")
+enemy_data = ExtResource("2_g02fs")
+count = 5
+spacing = 0.6
+pause_after = 1.5
+
+[sub_resource type="Resource" id="Resource_t5l8y"]
+script = ExtResource("1_5vfco")
+enemy_data = ExtResource("3_a3hki")
+count = 8
+spacing = 0.7
+pause_after = 1.5
+
+[sub_resource type="Resource" id="Resource_tvvt7"]
+script = ExtResource("1_5vfco")
+enemy_data = ExtResource("4_3lo5o")
+count = 5
+spacing = 0.6
+pause_after = 1.5
+
+[sub_resource type="Resource" id="Resource_oomqq"]
+script = ExtResource("1_5vfco")
+enemy_data = ExtResource("3_a3hki")
+count = 7
+spacing = 0.7
+pause_after = 1.5
+
+[resource]
+script = ExtResource("5_vvtng")
+health_multiplier = 0.7
+groups = Array[ExtResource("1_5vfco")]([SubResource("Resource_jivq2"), SubResource("Resource_t5l8y"), SubResource("Resource_tvvt7"), SubResource("Resource_oomqq")])
