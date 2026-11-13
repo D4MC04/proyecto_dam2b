@@ -78,8 +78,8 @@ const LEVELS: Array[Dictionary] = [
 ## aprieta, pero se pasa con dos Cañones dobles y uno mejorado.
 const EMERGENCY: Array[Dictionary] = [
 	{"health": 0.7, "groups": [["dart_rojo", 5, 0.6], ["wasp", 8, 0.7], ["dart_verde", 5, 0.6], ["wasp", 7, 0.7]]},
-	{"health": 0.8, "groups": [["dart_rojo", 6, 0.5], ["wasp", 5, 0.6], ["nave_normal", 7, 0.9], ["dart_morado", 6, 0.5],
-			["wasp", 5, 0.6], ["nave_normal", 7, 0.9], ["dart_hielo", 6, 0.5]]},
+	{"health": 0.8, "groups": [["dart_rojo", 10, 0.5], ["wasp", 5, 0.6], ["nave_normal", 5, 0.9], ["dart_morado", 10, 0.5],
+			["wasp", 5, 0.6], ["nave_normal", 5, 0.9], ["dart_hielo", 10, 0.5]]},
 	{"health": 0.8, "groups": [["dart_rojo", 10, 0.4], ["wasp", 10, 0.5], ["nave_normal", 5, 0.7], ["dart_verde", 10, 0.4],
 			["wasp", 10, 0.5], ["nave_normal", 5, 0.7]]},
 ]

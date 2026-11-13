@@ -53,6 +53,9 @@ const INFO_STEPS: Array[Step] = [Step.STATION, Step.STATION_BASE, Step.STATION_H
 # Pasos que piden hacer algo y aun así dejan hacerlo mientras NOVA habla: lo que se pide sigue
 # directamente a lo que acaba de hacer el jugador (al elegir una torreta, Mejorar).
 const NO_WAIT_STEPS: Array[Step] = [Step.UPGRADE_PRESS]
+# Pasos que señalan desde la primera página (los demás, desde la última): lo señalado es lo que el
+# jugador acaba de abrir (la ficha de la nave que ha pulsado).
+const HIGHLIGHT_NOW_STEPS: Array[Step] = [Step.ENEMY_INFO]
 # Paso al que lleva pasar cada mensaje informativo.
 const NEXT_AFTER_OK: Dictionary[Step, Step] = {
 	Step.STATION: Step.STATION_BASE,
@@ -118,6 +121,13 @@ var _pages: PackedStringArray = []
 var _page: int = 0
 # Contornos blancos de los sprites del mapa, por textura y región (se calculan una vez y se tiñen al dibujar).
 var _outlines: Dictionary[String, ImageTexture] = {}
+# Lo señalado este frame (se calcula en _process y se dibuja en _draw).
+var _holes: Array[Hole] = []
+var _spots: Array[Spotlight] = []
+# Los sprites con material (el holograma de construir) se dibujan en un Node2D hijo con ese material,
+# uno por material, para que su copia sobre el oscurecido se vea igual que en el mapa.
+var _material_layers: Dictionary[Material, Node2D] = {}
+var _layer_spots: Dictionary[Node2D, Array] = {}
 
 # Lo que se señala del mapa: un trozo de textura dibujado encima del oscurecido, con o sin contorno.
 class Spotlight:
@@ -130,6 +140,8 @@ class Spotlight:
 	var outlined: bool = true
 	# El contorno parpadea (lo que hay que pulsar) o se queda fijo (la torreta ya seleccionada).
 	var blinking: bool = true
+	# El material del sprite en el mapa (el holograma al construir), o null.
+	var material: Material
 
 # Hueco de la interfaz: lo que hay debajo se ve sin oscurecer; con borde, parpadea alrededor.
 class Hole:
@@ -192,6 +204,9 @@ func _set_active(active: bool) -> void:
 	_confirming_skip = false
 	skip_button.text = tr(SKIP_TEXT)
 	_dim_alpha = 0.0
+	_holes.clear()
+	_spots.clear()
+	_sync_material_layers()
 	set_process(active)
 	set_process_input(active)
 	queue_redraw()
@@ -424,6 +439,14 @@ func _process(delta: float) -> void:
 	# Abrir la pestaña Oleadas no emite nada: se mira aquí.
 	if _step == Step.OPEN_WAVES and not _waiting_for_talk() and sidebar.waves_page.visible:
 		_show_step(Step.INSPECT_ENEMY)
+	_holes.clear()
+	_spots.clear()
+	# Lo señalado se ve desde que empieza la última página del mensaje (antes, todo oscuro), salvo en
+	# HIGHLIGHT_NOW_STEPS, que se ve desde la primera.
+	if _step in FOCUS_STEPS and (_step in HIGHLIGHT_NOW_STEPS or not _has_more_pages()):
+		_holes = _focus_holes()
+		_spots = _focus_spotlights()
+	_sync_material_layers()
 	queue_redraw()
 	if continue_arrow.visible:
 		continue_arrow.queue_redraw()
@@ -532,6 +555,7 @@ func _add_sprite_spotlight(spots: Array[Spotlight], sprite: AnimatedSprite2D) ->
 	var top_left: Vector2 = sprite.offset - (texture.get_size() / 2.0 if sprite.centered else Vector2.ZERO)
 	spot.rect = Rect2(top_left, texture.get_size())
 	spot.transform = get_global_transform_with_canvas().affine_inverse() * sprite.get_global_transform_with_canvas()
+	spot.material = sprite.material
 	spots.append(spot)
 	return spot
 
@@ -559,12 +583,8 @@ func _draw() -> void:
 	if not _active or _step in HIDDEN_STEPS or _dim_alpha <= 0.0:
 		return
 	# Al salir de un paso con foco el oscurecido se desvanece entero, ya sin huecos.
-	var holes: Array[Hole] = []
-	var spots: Array[Spotlight] = []
-	# Lo señalado se ve desde que empieza la última página del mensaje (antes, todo oscuro).
-	if _step in FOCUS_STEPS and not _has_more_pages():
-		holes = _focus_holes()
-		spots = _focus_spotlights()
+	var holes: Array[Hole] = _holes
+	var spots: Array[Spotlight] = _spots
 	var rects: Array[Rect2] = []
 	for hole: Hole in holes:
 		rects.append(hole.rect)
@@ -579,8 +599,9 @@ func _draw() -> void:
 		if spot.texture != null and spot.outlined and (blink or not spot.blinking):
 			draw_set_transform_matrix(spot.transform)
 			draw_texture(_outline_texture(spot.texture, spot.region), spot.rect.position - Vector2.ONE, HIGHLIGHT_COLOR)
+	# Los que llevan material los dibuja su capa hija (_sync_material_layers), encima de esto.
 	for spot: Spotlight in spots:
-		if spot.texture != null and spot.outlined:
+		if spot.texture != null and spot.outlined and spot.material == null:
 			_draw_spotlight(spot)
 	draw_set_transform_matrix(Transform2D.IDENTITY)
 	if blink:
@@ -591,6 +612,39 @@ func _draw() -> void:
 func _draw_spotlight(spot: Spotlight) -> void:
 	draw_set_transform_matrix(spot.transform)
 	draw_texture_rect_region(spot.texture, spot.rect, spot.region)
+
+# Una capa hija por cada material de lo señalado (el holograma de construir de cada torreta), con los
+# sprites que lo llevan; las que ya no hacen falta se quitan. Van las primeras entre los hijos, así que
+# se pintan encima del oscurecido y debajo del recuadro de NOVA.
+func _sync_material_layers() -> void:
+	var groups: Dictionary[Material, Array] = {}
+	for spot: Spotlight in _spots:
+		if spot.texture != null and spot.material != null:
+			if not groups.has(spot.material):
+				groups[spot.material] = []
+			groups[spot.material].append(spot)
+	for material: Material in _material_layers.keys():
+		if not groups.has(material):
+			var old: Node2D = _material_layers[material]
+			_layer_spots.erase(old)
+			old.queue_free()
+			_material_layers.erase(material)
+	for material: Material in groups:
+		var layer: Node2D = _material_layers.get(material)
+		if layer == null:
+			layer = Node2D.new()
+			layer.material = material
+			add_child(layer)
+			move_child(layer, 0)
+			layer.draw.connect(_draw_material_layer.bind(layer))
+			_material_layers[material] = layer
+		_layer_spots[layer] = groups[material]
+		layer.queue_redraw()
+
+func _draw_material_layer(layer: Node2D) -> void:
+	for spot: Spotlight in _layer_spots.get(layer, []):
+		layer.draw_set_transform_matrix(spot.transform)
+		layer.draw_texture_rect_region(spot.texture, spot.rect, spot.region)
 
 # Contorno blanco de 1 px alrededor de los píxeles opacos de una región de textura (se tiñe al
 # dibujarlo): una imagen 2 px más grande con un píxel en cada transparente que toca uno opaco. Cada
