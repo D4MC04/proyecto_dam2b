@@ -6,35 +6,35 @@
 [ext_resource type="Resource" uid="uid://bcvbohxs6cxsf" path="res://resources/enemy_data/dart_verde.tres" id="4_3lo5o"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="5_vvtng"]
 
-[sub_resource type="Resource" id="Resource_l4qjv"]
+[sub_resource type="Resource" id="Resource_jivq2"]
 script = ExtResource("1_5vfco")
 enemy_data = ExtResource("2_g02fs")
 count = 5
-spacing = 1.0
-pause_after = 2.5
+spacing = 0.6
+pause_after = 1.5
 
-[sub_resource type="Resource" id="Resource_42tg8"]
+[sub_resource type="Resource" id="Resource_t5l8y"]
 script = ExtResource("1_5vfco")
 enemy_data = ExtResource("3_a3hki")
 count = 8
-spacing = 1.2
-pause_after = 2.5
+spacing = 0.7
+pause_after = 1.5
 
-[sub_resource type="Resource" id="Resource_w5pxs"]
+[sub_resource type="Resource" id="Resource_tvvt7"]
 script = ExtResource("1_5vfco")
 enemy_data = ExtResource("4_3lo5o")
 count = 5
-spacing = 1.0
-pause_after = 2.5
+spacing = 0.6
+pause_after = 1.5
 
-[sub_resource type="Resource" id="Resource_vdgxe"]
+[sub_resource type="Resource" id="Resource_oomqq"]
 script = ExtResource("1_5vfco")
 enemy_data = ExtResource("3_a3hki")
 count = 7
-spacing = 1.2
-pause_after = 2.5
+spacing = 0.7
+pause_after = 1.5
 
 [resource]
 script = ExtResource("5_vvtng")
 health_multiplier = 0.7
-groups = Array[ExtResource("1_5vfco")]([SubResource("Resource_l4qjv"), SubResource("Resource_42tg8"), SubResource("Resource_w5pxs"), SubResource("Resource_vdgxe")])
+groups = Array[ExtResource("1_5vfco")]([SubResource("Resource_jivq2"), SubResource("Resource_t5l8y"), SubResource("Resource_tvvt7"), SubResource("Resource_oomqq")])

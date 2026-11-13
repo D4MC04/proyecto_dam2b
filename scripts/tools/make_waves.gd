@@ -77,14 +77,14 @@ const LEVELS: Array[Dictionary] = [
 ## La 1 da 200 € (lo justo para mejorar un Cañón doble), la 2 da 400 € (las otras dos mejoras) y la 3
 ## aprieta, pero se pasa con dos Cañones dobles y uno mejorado.
 const EMERGENCY: Array[Dictionary] = [
-	{"health": 0.7, "groups": [["dart_rojo", 5, 1.0], ["wasp", 8, 1.2], ["dart_verde", 5, 1.0], ["wasp", 7, 1.2]]},
-	{"health": 0.8, "groups": [["dart_rojo", 6, 0.8], ["wasp", 5, 1.0], ["nave_normal", 7, 1.4], ["dart_morado", 6, 0.8],
-			["wasp", 5, 1.0], ["nave_normal", 7, 1.4], ["dart_hielo", 6, 0.8]]},
-	{"health": 0.9, "groups": [["dart_rojo", 8, 0.6], ["wasp", 10, 0.8], ["nave_normal", 6, 1.1], ["dart_verde", 8, 0.6],
-			["wasp", 10, 0.8], ["nave_normal", 6, 1.1]]},
+	{"health": 0.7, "groups": [["dart_rojo", 5, 0.6], ["wasp", 8, 0.7], ["dart_verde", 5, 0.6], ["wasp", 7, 0.7]]},
+	{"health": 0.8, "groups": [["dart_rojo", 6, 0.5], ["wasp", 5, 0.6], ["nave_normal", 7, 0.9], ["dart_morado", 6, 0.5],
+			["wasp", 5, 0.6], ["nave_normal", 7, 0.9], ["dart_hielo", 6, 0.5]]},
+	{"health": 0.8, "groups": [["dart_rojo", 8, 0.4], ["wasp", 10, 0.5], ["nave_normal", 6, 0.7], ["dart_verde", 8, 0.4],
+			["wasp", 10, 0.5], ["nave_normal", 6, 0.7]]},
 ]
 ## Segundos entre la última nave de un grupo del nivel de emergencia y la primera del siguiente.
-const EMERGENCY_PAUSE: float = 2.5
+const EMERGENCY_PAUSE: float = 1.5
 const EMERGENCY_NAME: String = "emergency"
 const EMERGENCY_MAP: String = "res://scenes/maps/levels/Emergency.tscn"
 const EMERGENCY_MONEY: int = 300

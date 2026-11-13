@@ -332,8 +332,10 @@ func set_state(new_state: UiState) -> void:
 			_show_screen(screen))
 		return
 	_show_screen(_screens_by_state.get(new_state))
-	# Con una pantalla abierta el tutorial no se ve (no tapa la pausa ni señala botones de debajo).
-	tutorial_hints.visible = new_state == UiState.PLAYING
+	# Con la pausa el tutorial deja su oscurecido (por debajo de la pantalla de pausa, que tiene un
+	# z_index mayor) pero esconde el recuadro y "Saltar".
+	tutorial_hints.visible = true
+	tutorial_hints.set_paused(new_state == UiState.PAUSED)
 	get_tree().paused = new_state != UiState.PLAYING
 
 ## Abre la pausa solo si se está jugando; en pausa, derrota o victoria no hace nada.

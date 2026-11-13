@@ -72,6 +72,7 @@ const STATUS_COLORS: Dictionary[WaveStatus, Color] = {
 @onready var wave_title_panel: PanelContainer = %WaveTitlePanel
 @onready var wave_title_label: Label = %WaveTitleLabel
 @onready var station_header: Control = %StationHeader
+@onready var credits_header: Control = %CreditsHeader
 @onready var station_bar: ProgressBar = %StationBar
 @onready var station_value_label: Label = %StationValueLabel
 @onready var footer_wave_label: Label = %FooterWaveLabel

@@ -123,16 +123,19 @@ layout_mode = 0
 [node name="GameOverScreen" parent="UI/HBoxContainer/GameArea" unique_id=592437674 instance=ExtResource("1_8klgi")]
 unique_name_in_owner = true
 visible = false
+z_index = 2
 layout_mode = 1
 
 [node name="VictoryScreen" parent="UI/HBoxContainer/GameArea" unique_id=930114862 instance=ExtResource("6_victory")]
 unique_name_in_owner = true
 visible = false
+z_index = 2
 layout_mode = 1
 
 [node name="PauseMenu" parent="UI/HBoxContainer/GameArea" unique_id=102313545 instance=ExtResource("2_3xbq7")]
 unique_name_in_owner = true
 visible = false
+z_index = 2
 layout_mode = 1
 
 [node name="Sidebar" parent="UI/HBoxContainer" unique_id=1395524302 instance=ExtResource("3_ln102")]
@@ -142,4 +145,5 @@ layout_mode = 2
 
 [node name="TutorialHints" parent="UI" instance=ExtResource("7_tutorial")]
 unique_name_in_owner = true
+z_index = 1
 layout_mode = 1
