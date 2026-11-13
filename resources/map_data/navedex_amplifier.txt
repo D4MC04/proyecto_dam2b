@@ -1,6 +1,6 @@
 # Vitrina de la Navedex, Amplificador: el Amplificador en el centro (22,9) con un Cañón pesado y una Tesla
 # a 6 casillas, dentro de su aura, y un camino por debajo. Más grande que los demás porque la vitrina lo
-# enseña más lejos (×0,5), para que se vea el aura entera. Datos de scripts/tools/map_generator.gd.
+# enseña más lejos (×0,75), para que se vea casi toda el aura. Datos de scripts/tools/map_generator.gd.
 
 size = 44 18
 seed = 449

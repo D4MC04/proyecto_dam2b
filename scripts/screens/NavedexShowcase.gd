@@ -42,9 +42,10 @@ const SCENES: Dictionary[String, Dictionary] = {
 	# Entre dos caminos, uno a cada lado a 3 casillas, dentro de su onda: Darts rápidos que no mueren
 	# entran corriendo por arriba y por abajo y frenan al pasar junto a ella.
 	"cryo": {"enemy": "dart_rojo", "speed": 60.0, "health": 100.0, "interval": 1.6},
-	# Pasillo vertical a su derecha: grupos de tres, y la explosión alcanza a las de al lado.
+	# Pasillo vertical a su derecha: grupos de dos con pausa entre grupo y grupo, y la explosión alcanza a
+	# la de al lado.
 	"rocket_launcher": {"map": "navedex", "slot": Vector2i(6, 8), "view": Vector2(0.3, 0.5),
-		"enemy": "nave_normal", "speed": 20.0, "health": 1.0, "interval": 4.0, "group": 3},
+		"enemy": "nave_normal", "speed": 20.0, "health": 1.0, "interval": 7.0, "group": 2},
 	# Un camino en zigzag a su alrededor: oleadas de cuatro naves, y la cadena salta de una a otra.
 	"tesla": {"enemy": "nave_normal", "speed": 25.0, "health": 1.0, "interval": 6.0, "group": 4},
 	# Al final de un tramo recto que viene hacia ella: el haz atraviesa la fila entera.
@@ -53,13 +54,14 @@ const SCENES: Dictionary[String, Dictionary] = {
 	# El camino le pasa por encima en arco, siempre a su alcance: un Acorazado lento cada vez, al que el haz
 	# no suelta y sube de nivel hasta romperlo.
 	"disintegrator": {"enemy": "acorazado", "speed": 15.0, "health": 1.0, "interval": 1.5, "max": 1},
-	# Entre dos caminos, uno a cada lado a 3 casillas, dentro de su anillo: las naves de los dos chocan
-	# con las cargas.
-	"orbiter": {"enemy": "dart_verde", "speed": 30.0, "health": 1.0, "interval": 1.5},
+	# Entre dos caminos, uno por encima y otro por debajo a 3 casillas, que cruzan su anillo: Naves
+	# agresivas lentas y espaciadas, para que dé tiempo a cargar y se vean las cargas girar y chocar. Algo
+	# más lejos (×0,75) para que quepan los dos caminos.
+	"orbiter": {"zoom": 0.75, "enemy": "nave_agresiva", "speed": 20.0, "health": 1.0, "interval": 7.0},
 	# Un Cañón pesado a un lado y una Tesla al otro, separados, dentro de su aura, y un camino por debajo:
-	# la onda los hace brillar, la explosión del cañón es más grande y la cadena salta a más naves. Más
-	# lejos (×0,5) para que el aura entera (100 px de radio) quepa en la vitrina.
-	"amplifier": {"slot": Vector2i(22, 9), "zoom": 0.5,
+	# la onda los hace brillar, la explosión del cañón es más grande y la cadena salta a más naves. Algo más
+	# lejos (×0,75) para que se vea casi toda el aura sin que torretas y naves queden pequeñas.
+	"amplifier": {"slot": Vector2i(22, 9), "zoom": 0.75,
 		"enemy": "nave_normal", "speed": 25.0, "health": 2.0, "interval": 3.0,
 		"helpers": {"rocket_launcher": Vector2i(16, 9), "tesla": Vector2i(28, 9)}},
 	# Sin naves: con la oleada en curso, genera dinero.
