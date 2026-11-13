@@ -2,10 +2,11 @@ class_name ArchiveTablet
 extends OfficeObject
 
 # Tablet del Archivo en su bandeja de la consola inclinada: abre la Navedex. La bandeja es parte de
-# center_static.png y la tablet es tablet.png (marco grueso con escuadras y el canto abajo). Aquí se
-# pinta la pantalla (pestañas, el holograma cian de una nave, líneas de datos y fichas), llevada al
-# trapecio de la tablet. Con el ratón encima la tablet sube un poco, como para sacarla, con su
-# sombra, se enciende la luz del fondo de la bandeja, la nave gira y baja una línea de escaneo.
+# center_static.png y la tablet es tablet.png (terminal de mano militar: carcasa de metal con asas y
+# tres botones físicos abajo). Aquí se pinta la pantalla (cabecera, el holograma cian de una nave,
+# líneas de datos y fichas), llevada al trapecio de la tablet. Con el ratón encima la tablet sube un
+# poco, como para sacarla, con su sombra, se enciende la luz del fondo de la bandeja, la nave gira y
+# baja una línea de escaneo.
 
 const TABLET: Texture2D = preload("res://assets/sprites/office/tablet.png")
 # Naves que enseña la pantalla, en su animación hacia arriba.
@@ -23,15 +24,16 @@ const SELECTED_FILL: Color = Color("#13414f")
 const LIFT: int = 8
 const LIFT_SPEED: float = 12.0
 const SHADOW: Color = Color(0, 0, 0, 0.45)
-# Maqueta de la pantalla (en píxeles de la pantalla de frente): margen a los cuatro lados, pestañas,
-# alto reservado para la nave (la más grande mide 32), líneas de datos (fracción del ancho) y fichas.
+# Maqueta de la pantalla (en píxeles de la pantalla de frente): margen a los cuatro lados, alto
+# reservado para la nave (la más grande mide 32), líneas de datos (fracción del ancho) y fichas.
 const MARGIN: int = 6
-const TAB_WIDTH: int = 14
-const TAB_GAP: int = 4
 const SHIP_BOX: int = 32
 const DATA_LINES: Array[float] = [0.7, 0.45, 0.58]
 const DATA_LINE_STEP: int = 5
 const CELL_GAP: int = 3
+
+## MainMenu lo pone mientras la Navedex está abierta: la tablet se queda sacada aunque el ratón no esté encima.
+var held: bool = false
 
 var _holograms: Array[Texture2D] = []
 var _lift: float = 0.0
@@ -45,14 +47,18 @@ func _ready() -> void:
 	_screen = _tablet.screen
 	_source = OfficePaint.quad_source_size(_screen)
 	for frames: SpriteFrames in SHIPS:
-		_holograms.append(_make_hologram(frames.get_frame_texture(&"up", 0)))
+		_holograms.append(make_hologram(frames.get_frame_texture(&"up", 0)))
 
 func _process(delta: float) -> void:
-	_lift = lerpf(_lift, 1.0 if hovered else 0.0, minf(1.0, delta * LIFT_SPEED))
+	_lift = lerpf(_lift, 1.0 if hovered or held else 0.0, minf(1.0, delta * LIFT_SPEED))
 	super(delta)
 
-# Copia de la nave en la rampa cian: el contorno y las sombras en los tonos oscuros, las luces en los claros.
-func _make_hologram(texture: Texture2D) -> Texture2D:
+## Caja de la tablet sacada (con el ratón encima), en coordenadas de la vista.
+func get_lifted_rect() -> Rect2:
+	return Rect2(_tablet.x, _tablet.y - LIFT, _tablet.w, _tablet.h)
+
+## Copia de la nave en la rampa cian: el contorno y las sombras en los tonos oscuros, las luces en los claros.
+static func make_hologram(texture: Texture2D) -> Texture2D:
 	var image: Image = texture.get_image()
 	if image.is_compressed():
 		image.decompress()
@@ -84,21 +90,16 @@ func _draw_object() -> void:
 	_draw_screen(origin)
 
 # Pantalla pintada de frente (tamaño _source) y llevada al trapecio de la tablet. Todo va centrado y
-# llena la pantalla: pestañas y cabecera arriba, fichas abajo a todo el ancho y, en medio, la nave y
-# las líneas de datos con el mismo hueco arriba, entre ellas y abajo.
+# llena la pantalla: cabecera arriba (las pestañas son los botones de la carcasa), fichas abajo a todo
+# el ancho y, en medio, la nave y las líneas de datos con el mismo hueco arriba, entre ellas y abajo.
 func _draw_screen(origin: Vector2i) -> void:
 	var w: int = _source.x
 	var h: int = _source.y
 	for y: int in range(1, h, 2):
 		_quad_rect(Rect2i(0, y, w, 1), OfficePaint.SCREEN_DARK, origin)
 	var column: int = w - 2 * MARGIN
-	@warning_ignore("integer_division")
-	var tabs_x: int = (w - (3 * TAB_WIDTH + 2 * TAB_GAP)) / 2
-	for i: int in 3:
-		_quad_rect(Rect2i(tabs_x + i * (TAB_WIDTH + TAB_GAP), MARGIN, TAB_WIDTH, 3),
-				OfficePaint.CYAN if i == 0 else OfficePaint.SCREEN_LINE, origin)
-	_quad_rect(Rect2i(MARGIN, MARGIN + 6, column, 2), OfficePaint.CYAN_DARK, origin)
-	var header_end: int = MARGIN + 8
+	_quad_rect(Rect2i(MARGIN, MARGIN, column, 2), OfficePaint.CYAN_DARK, origin)
+	var header_end: int = MARGIN + 2
 	# Fichas: cuatro a todo el ancho, pegadas al margen de abajo.
 	@warning_ignore("integer_division")
 	var cell_size: int = (column - 3 * CELL_GAP) / 4

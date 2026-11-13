@@ -2,8 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/screens/Navedex.gd" id="1_navedex"]
 [ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="2_theme"]
-[ext_resource type="Script" path="res://scripts/level_ui/OverlayFrame.gd" id="3_frame"]
-[ext_resource type="PackedScene" path="res://scenes/level_ui/ScreenHeader.tscn" id="4_header"]
+[ext_resource type="Script" path="res://scripts/screens/NavedexShowcase.gd" id="3_showcase"]
 
 [node name="Navedex" type="Control"]
 layout_mode = 3
@@ -15,65 +14,49 @@ grow_vertical = 2
 theme = ExtResource("2_theme")
 script = ExtResource("1_navedex")
 
-[node name="Center" type="CenterContainer" parent="."]
+[node name="Tablet" type="Control" parent="."]
+unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.5
+offset_top = -267.0
+offset_right = 220.5
+offset_bottom = 267.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Frame" type="PanelContainer" parent="Center"]
-layout_mode = 2
-script = ExtResource("3_frame")
+[node name="Content" type="MarginContainer" parent="Tablet"]
+layout_mode = 1
+offset_left = 57.0
+offset_top = 63.0
+offset_right = 384.0
+offset_bottom = 435.0
+mouse_filter = 2
 
-[node name="Margin" type="MarginContainer" parent="Center/Frame"]
+[node name="Box" type="VBoxContainer" parent="Tablet/Content"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 21
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 21
-
-[node name="Box" type="VBoxContainer" parent="Center/Frame/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 18
-
-[node name="Header" parent="Center/Frame/Margin/Box" instance=ExtResource("4_header")]
-layout_mode = 2
-title = "HEADER_ARCHIVE"
-text_size = 24
-
-[node name="Tabs" type="TabBar" parent="Center/Frame/Margin/Box"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-
-[node name="Columns" type="HBoxContainer" parent="Center/Frame/Margin/Box"]
-layout_mode = 2
-theme_override_constants/separation = 24
-
-[node name="Grid" type="GridContainer" parent="Center/Frame/Margin/Box/Columns"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(274, 274)
-layout_mode = 2
-size_flags_vertical = 0
-theme_override_constants/h_separation = 6
-theme_override_constants/v_separation = 6
-columns = 4
-
-[node name="Detail" type="VBoxContainer" parent="Center/Frame/Margin/Box/Columns"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(420, 340)
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="SpriteBox" type="HBoxContainer" parent="Center/Frame/Margin/Box/Columns/Detail"]
-layout_mode = 2
+mouse_filter = 2
 theme_override_constants/separation = 6
-alignment = 1
 
-[node name="PrevButton" type="Button" parent="Center/Frame/Margin/Box/Columns/Detail/SpriteBox"]
+[node name="Showcase" type="Control" parent="Tablet/Content/Box"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 112)
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+script = ExtResource("3_showcase")
+
+[node name="NameRow" type="HBoxContainer" parent="Tablet/Content/Box"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="PrevButton" type="Button" parent="Tablet/Content/Box/NameRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
@@ -82,22 +65,16 @@ focus_mode = 0
 theme_override_font_sizes/font_size = 24
 text = "<"
 
-[node name="SpriteHolder" type="Control" parent="Center/Frame/Margin/Box/Columns/Detail/SpriteBox"]
-custom_minimum_size = Vector2(40, 64)
+[node name="NameLabel" type="Label" parent="Tablet/Content/Box/NameRow"]
+unique_name_in_owner = true
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.7450981, 0.98039216, 1, 1)
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+text_overrun_behavior = 3
 
-[node name="Sprite" type="AnimatedSprite2D" parent="Center/Frame/Margin/Box/Columns/Detail/SpriteBox/SpriteHolder"]
-unique_name_in_owner = true
-position = Vector2(20, 32)
-scale = Vector2(2, 2)
-
-[node name="TurretIcon" type="Sprite2D" parent="Center/Frame/Margin/Box/Columns/Detail/SpriteBox/SpriteHolder"]
-unique_name_in_owner = true
-visible = false
-position = Vector2(20, 32)
-scale = Vector2(2, 2)
-
-[node name="NextButton" type="Button" parent="Center/Frame/Margin/Box/Columns/Detail/SpriteBox"]
+[node name="NextButton" type="Button" parent="Tablet/Content/Box/NameRow"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(28, 28)
 layout_mode = 2
@@ -106,37 +83,86 @@ focus_mode = 0
 theme_override_font_sizes/font_size = 24
 text = ">"
 
-[node name="NameLabel" type="Label" parent="Center/Frame/Margin/Box/Columns/Detail"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.7450981, 0.98039216, 1, 1)
-theme_override_font_sizes/font_size = 32
-horizontal_alignment = 1
-
-[node name="DescriptionLabel" type="Label" parent="Center/Frame/Margin/Box/Columns/Detail"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(420, 0)
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-autowrap_mode = 3
-
-[node name="FusionLabel" type="Label" parent="Center/Frame/Margin/Box/Columns/Detail"]
+[node name="FusionLabel" type="Label" parent="Tablet/Content/Box"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7450981, 0.98039216, 1, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 16
 horizontal_alignment = 1
 
-[node name="StatRows" type="VBoxContainer" parent="Center/Frame/Margin/Box/Columns/Detail"]
+[node name="DescriptionLabel" type="Label" parent="Tablet/Content/Box"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(327, 0)
 layout_mode = 2
-theme_override_constants/separation = 0
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+autowrap_mode = 3
 
-[node name="VolverButton" type="Button" parent="Center/Frame/Margin/Box"]
+[node name="StatRows" type="GridContainer" parent="Tablet/Content/Box"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(204, 36)
 layout_mode = 2
-size_flags_horizontal = 4
+mouse_filter = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 5
+columns = 2
+
+[node name="Carousel" type="HBoxContainer" parent="Tablet/Content/Box"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="CarouselPrev" type="Button" parent="Tablet/Content/Box/Carousel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_vertical = 4
+focus_mode = 0
+theme_override_font_sizes/font_size = 24
+text = "<"
+
+[node name="CarouselNext" type="Button" parent="Tablet/Content/Box/Carousel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(28, 28)
+layout_mode = 2
+size_flags_vertical = 4
+focus_mode = 0
+theme_override_font_sizes/font_size = 24
+text = ">"
+
+[node name="Buttons" type="HBoxContainer" parent="Tablet"]
+layout_mode = 1
+offset_left = 45.0
+offset_top = 480.0
+offset_right = 396.0
+offset_bottom = 522.0
+theme_override_constants/separation = 24
+
+[node name="ShipsButton" type="Button" parent="Tablet/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_font_sizes/font_size = 24
+toggle_mode = true
+button_pressed = true
+text = "NAVEDEX_SHIPS"
+
+[node name="TurretsButton" type="Button" parent="Tablet/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+theme_override_font_sizes/font_size = 24
+toggle_mode = true
+text = "HEADER_TURRETS"
+
+[node name="VolverButton" type="Button" parent="Tablet/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
 theme_override_font_sizes/font_size = 24
 text = "BTN_BACK"

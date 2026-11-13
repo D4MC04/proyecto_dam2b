@@ -432,8 +432,17 @@ TRAY = (TRAY_X0, TRAY_Y0, TRAY_X0 + TRAY_W, TRAY_Y0 + TRAY_H)
 # marco), y el canto oscuro de la tablet también parece hueco: por eso no está en el centro geométrico.
 # La ranura de luz queda bajo el canto.
 TAB = (TRAY[0] + 7, TRAY[1] + 10, TRAY[0] + 111, TRAY[1] + TRAY_H - 14)
+# Terminal de mano militar: carcasa de metal oscuro con las esquinas cortadas (como los paneles del
+# juego) y su canto, asas atornilladas a los lados, pantalla, tira de luz cian y abajo tres botones físicos (NAVES encendido, TORRETAS y VOLVER)
+# con un piloto encima de cada uno, como el de cerca (Navedex).
 TAB_EDGE = [D5, D5, D4, D3, D2, D2]
-
+TAB_HANDLE = 6       # ancho de las asas (la carcasa empieza detrás)
+TAB_HANDLE_Y = (40, 52)  # las asas van de y0 + 40 a y1 - 52
+TAB_TOP = 19         # banda de arriba: la pantalla empieza ahí (desde la carcasa)
+TAB_SIDE = 7         # marco de la carcasa a los lados de la pantalla
+TAB_BOTTOM = 36      # banda de abajo: tira de luz, pilotos y botones
+TAB_LEDS = [C2, C2, A2]
+TAB_BUTTON_W, TAB_BUTTON_GAP = 22, 6
 
 def build_tray(cv, ys, xs):
     X0, y0, X1, y1 = TRAY
@@ -447,31 +456,52 @@ def build_tray(cv, ys, xs):
 
 
 def build_tablet(ys, xs):
-    """Tablet robusta apoyada en el plano: marco grueso, escuadras atornilladas y el canto abajo."""
+    """Terminal de mano militar apoyado en el plano: carcasa de metal, asas y botones abajo."""
     X0, y0, X1, y1 = TAB
     full = Canvas(W, H)
-    face = plane_rect(ys, xs, X0, y0, X1, y1, tl=6, br=6)
+    # La carcasa va entre las asas.
+    bx0, by0, bx1 = X0 + TAB_HANDLE, y0, X1 - TAB_HANDLE
+    body = plane_rect(ys, xs, bx0, by0, bx1, y1, tl=8, br=8)
+    handles = (plane_rect(ys, xs, X0, y0 + TAB_HANDLE_Y[0], bx0 + 2, y1 - TAB_HANDLE_Y[1])
+               | plane_rect(ys, xs, bx1 - 2, y0 + TAB_HANDLE_Y[0], X1, y1 - TAB_HANDLE_Y[1]))
+    face = body | handles
     thickness(full, face, TAB_EDGE)
-    bevel(full, face, [OUT, OUT, (D6, D5, D2), (D5, D4, D2), D4], body=D4)
-    scr = plane_rect(ys, xs, X0 + 8, y0 + 8, X1 - 8, y1 - 8)
-    ring = plane_rect(ys, xs, X0 + 7, y0 + 7, X1 - 7, y1 - 7) & ~scr
-    full.px[ring] = OUT
+    bevel(full, handles, [OUT, (M3, M2, M0), (M2, M1, M0)], body=M1)
+    for X in (X0 + 2, X1 - 4):
+        full.px[plane_rect(ys, xs, X, y0 + TAB_HANDLE_Y[0] + 4, X + 2, y1 - TAB_HANDLE_Y[1] - 4)] = OUT
+    bevel(full, body, [OUT, (M2, M1, D2), (D6, D5, D2)], body=D5)
+    # Tornillos de las esquinas de la banda de arriba.
+    for X in (bx0 + 9, bx1 - 9):
+        rivet(full, rnd(to_screen(X, by0 + 6)), by0 + 6, light=True)
+    # Pantalla hundida con su aro de 2 px (sombra fuera, contorno dentro).
+    sx0, sy0, sx1, sy1 = bx0 + TAB_SIDE, by0 + TAB_TOP, bx1 - TAB_SIDE, y1 - TAB_BOTTOM
+    scr = plane_rect(ys, xs, sx0, sy0, sx1, sy1)
+    ring = plane_rect(ys, xs, sx0 - 2, sy0 - 2, sx1 + 2, sy1 + 2) & ~scr
+    full.px[ring] = D2
+    full.px[ring & plane_rect(ys, xs, sx0 - 1, sy0 - 1, sx1 + 1, sy1 + 1)] = OUT
     full.px[scr] = S1
-    # Escuadras de las esquinas: L de metal claro con tornillo.
-    L, Tk = 20, 7
-    for (fx, fy) in [(1, 1), (-1, 1), (1, -1), (-1, -1)]:
-        cx0 = X0 if fx > 0 else X1 - L
-        cy0 = y0 if fy > 0 else y1 - L
-        hy = cy0 if fy > 0 else cy0 + L - Tk
-        vx = cx0 if fx > 0 else cx0 + L - Tk
-        arm = plane_rect(ys, xs, cx0, hy, cx0 + L, hy + Tk) | plane_rect(ys, xs, vx, cy0, vx + Tk, cy0 + L)
-        bevel(full, arm, [OUT, (M3, M2, M0), (M2, M1, M0)], body=M1)
-        rivet(full, rnd(to_screen(vx + 3.5, hy + 3)), hy + 3, light=True)
+    # Tira de luz cian bajo la pantalla, con los extremos apagados.
+    ty = sy1 + 4
+    full.px[plane_rect(ys, xs, sx0 + 2, ty - 1, sx1 - 2, ty + 2)] = OUT
+    full.px[plane_rect(ys, xs, sx0 + 3, ty, sx1 - 3, ty + 1)] = C2
+    full.px[plane_rect(ys, xs, sx0 + 3, ty, sx0 + 7, ty + 1) | plane_rect(ys, xs, sx1 - 7, ty, sx1 - 3, ty + 1)] = C1
+    # Botones físicos (NAVES encendido, TORRETAS y VOLVER) con su piloto encima.
+    bty0, bty1 = y1 - 21, y1 - 8
+    bx = bx0 + (bx1 - bx0 - 3 * TAB_BUTTON_W - 2 * TAB_BUTTON_GAP) // 2
+    for i in range(3):
+        bm = plane_rect(ys, xs, bx, bty0, bx + TAB_BUTTON_W, bty1)
+        if i == 0:
+            bevel(full, bm, [OUT, (C3, C2, C1)], body=C2)
+        else:
+            bevel(full, bm, [OUT, (M2, M1, M0)], body=M1)
+        lx = rnd(to_screen(bx + TAB_BUTTON_W / 2, bty0 - 4))
+        full.rect(lx - 3, bty0 - 6, 6, 3, OUT)
+        full.rect(lx - 2, bty0 - 5, 4, 1, TAB_LEDS[i] if i == 0 else D2)
+        bx += TAB_BUTTON_W + TAB_BUTTON_GAP
     solid = face.copy()
     for dd in range(1, len(TAB_EDGE) + 1):
         solid |= np.roll(face, dd, 0)
-    q = quad_of(solid)
-    # Recorte: caja de todo lo pintado (el recorte de las esquinas no debe cortar las escuadras).
+    # Recorte: caja de todo lo pintado.
     cols = np.where(full.px[..., 3].any(0))[0]
     rows = np.where(full.px[..., 3].any(1))[0]
     x0, x1, y0_, y1_ = int(cols.min()), int(cols.max()) + 1, int(rows.min()), int(rows.max()) + 1
@@ -479,7 +509,6 @@ def build_tablet(ys, xs):
     Image.fromarray(full.px[y0_:y1_, x0:x1], "RGBA").save(os.path.join(OUT_DIR, "tablet.png"))
     return {"x": int(x0), "y": int(y0_), "w": int(x1 - x0), "h": int(y1_ - y0_),
             "screen": quad_of(scr[y0_:y1_, x0:x1]), "shadow": quad_of(solid, 0, 0)}
-
 
 def main():
     cv, ys, xs, clamps = build_center()

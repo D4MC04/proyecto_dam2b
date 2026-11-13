@@ -49,6 +49,7 @@ var start_on_level_selection: bool = false
 @onready var stats_panel: VBoxContainer = $StatsScreen
 @onready var stats_label: Label = %StatsLabel
 @onready var navedex: Navedex = $Navedex
+@onready var archive_tablet: ArchiveTablet = $Office/Views/CenterView/ArchiveTablet
 @onready var achievements_screen: AchievementsScreen = $AchievementsScreen
 @onready var options_console: OptionsConsole = $Office/Views/CenterView/OptionsConsole
 @onready var options_close_up: OptionsCloseUp = $OptionsCloseUp
@@ -162,6 +163,10 @@ func _close_panel() -> void:
 	if _panel == options_close_up:
 		_zoom_out(_set_options_zoom)
 		return
+	if _panel == navedex:
+		archive_tablet.held = false
+		_zoom_out(_set_tablet_zoom)
+		return
 	var panel: Control = _panel
 	_panel = null
 	_fade_panel(panel, false)
@@ -186,7 +191,10 @@ func _on_radar_console_pressed() -> void:
 	_open_sectors()
 
 func _on_archive_tablet_pressed() -> void:
-	_open_panel(navedex)
+	if _panel or _jumping or _leaving:
+		return
+	archive_tablet.held = true
+	_zoom_in(navedex, _set_tablet_zoom)
 
 func _on_medal_case_pressed() -> void:
 	_open_panel(achievements_screen)
@@ -301,6 +309,16 @@ func _set_options_zoom(amount: float) -> void:
 	_zoom_office(console.get_center(), body.size.y / console.size.y, body.get_center(), amount)
 	options_close_up.modulate.a = smoothstep(CLOSE_UP_FADE_START, 1.0, amount)
 	options_close_up.visible = amount > CLOSE_UP_FADE_START
+
+# --- Tablet del archivo --------------------------------------------------------------------
+
+# Zoom de 0 a 1: la tablet de la oficina se acerca al centro de la vista, al aumento del marco de la
+# Navedex, que aparece encima al final con el mismo fundido que la consola de opciones.
+func _set_tablet_zoom(amount: float) -> void:
+	var tablet_rect: Rect2 = archive_tablet.get_lifted_rect()
+	_zoom_office(tablet_rect.get_center(), float(Navedex.SCALE), VIEW_SIZE / 2.0, amount)
+	navedex.modulate.a = smoothstep(CLOSE_UP_FADE_START, 1.0, amount)
+	navedex.visible = amount > CLOSE_UP_FADE_START
 
 # --- Selección de sector (radar) -----------------------------------------------------------
 
