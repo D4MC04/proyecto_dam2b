@@ -164,8 +164,8 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
 | Parte | Colores |
 |---|---|
 | Contorno | `#0c0e16` |
-| Metal de los objetos (marco del ventanal por fuera, radar, módulo de opciones, escuadras de la tablet, panel de acceso, pomos) | `#343a4a`, `#606a7c`, `#96a2b6`, `#d2dceb` |
-| Metal oscuro de estructura (paredes, techo, suelo, consola, puerta, monitor de stats, vitrina, peana) | `#10141c`, `#151a24`, `#1d2330`, `#242b3a`, `#2c3446`, `#3a4256`, `#4f596d` |
+| Metal de los objetos (marco del ventanal por fuera, radar, módulo de opciones, asas y botones de la tablet, panel de acceso, pomos) | `#343a4a`, `#606a7c`, `#96a2b6`, `#d2dceb` |
+| Metal oscuro de estructura (paredes, techo, suelo, consola, carcasa de la tablet, puerta, monitor de stats, vitrina, peana) | `#10141c`, `#151a24`, `#1d2330`, `#242b3a`, `#2c3446`, `#3a4256`, `#4f596d` |
 | Luces, juntas y pantallas | cian `#14304a`, `#1c7496`, `#40e0f0`, `#befaff`; pantallas `#060d18` y `#08111f` |
 | Oro (vitrina, insignia, medallas, apliques) | `#523710`, `#96641e`, `#ecb23c`, `#ffe082`, `#fff8e6` |
 | Terciopelo del fondo de la vitrina | `#070c17`, `#0b1322`, `#101b30` |
