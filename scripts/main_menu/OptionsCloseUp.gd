@@ -22,8 +22,10 @@ const SEGMENT_HEIGHT: int = 8
 const SEGMENT_GAP: int = 4
 const METER_WIDTH: int = 40
 const CAP_SIZE: Vector2i = Vector2i(40, 20)
-const CHANNEL_WIDTH: int = 84
-const CHANNEL_GAP: int = 100
+# Hueco entre el vúmetro y el carril del fader (como en la consola pequeña).
+const FADER_GAP: int = 24
+const CHANNEL_WIDTH: int = METER_WIDTH + FADER_GAP + CAP_SIZE.x
+const CHANNEL_GAP: int = 80
 const VOLUME_STEP: float = 0.05
 # Palancas: alto de la palanca dentro de su ranura.
 const LEVER_HEIGHT: int = 32
@@ -208,14 +210,14 @@ func _draw_screen() -> void:
 			var y: int = _bar_top + _bar_height - SEGMENT_HEIGHT - segment * (SEGMENT_HEIGHT + SEGMENT_GAP)
 			OfficePaint.rect(self, Rect2i(x, y, METER_WIDTH, SEGMENT_HEIGHT), color)
 		# Carril con marcas cada 10 %.
-		var track_x: int = x + METER_WIDTH + 4 + CAP_SIZE.x / 2
+		var track_x: int = x + METER_WIDTH + FADER_GAP + CAP_SIZE.x / 2
 		for step: int in 11:
 			var mark_y: int = _bar_top + CAP_SIZE.y / 2 + roundi(step / 10.0 * (_bar_height - CAP_SIZE.y))
 			OfficePaint.rect(self, Rect2i(track_x - 12, mark_y, 24, 1), OfficePaint.SCREEN_LINE)
 		OfficePaint.rect(self, Rect2i(track_x - 3, _bar_top, 7, _bar_height), OfficePaint.OUTLINE)
 		OfficePaint.rect(self, Rect2i(track_x - 1, _bar_top, 3, _bar_height), OfficePaint.SCREEN_LINE)
 		var volume: float = Settings.get_value(OptionsConsole.FADERS[channel])
-		var cap: Rect2i = Rect2i(Vector2i(x + METER_WIDTH + 4, _bar_top + roundi((1.0 - volume) * (_bar_height - CAP_SIZE.y))), CAP_SIZE)
+		var cap: Rect2i = Rect2i(Vector2i(x + METER_WIDTH + FADER_GAP, _bar_top + roundi((1.0 - volume) * (_bar_height - CAP_SIZE.y))), CAP_SIZE)
 		OfficePaint.bevel_box(self, cap, OfficePaint.METAL_LIGHT, OfficePaint.METAL_SHINE, OfficePaint.METAL_DARK)
 		OfficePaint.rect(self, Rect2i(cap.position.x + 3, cap.position.y + 9, cap.size.x - 6, 2), OfficePaint.CYAN_DARK)
 
