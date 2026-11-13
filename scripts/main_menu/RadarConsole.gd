@@ -28,6 +28,10 @@ func _ready() -> void:
 func _has_point(point: Vector2) -> bool:
 	return Geometry2D.is_point_in_polygon(point, _outline)
 
+# Los corchetes siguen el contorno inclinado de la mesa.
+func hover_quad() -> PackedVector2Array:
+	return _outline
+
 ## Centro de la pantalla de la mesa (fila del medio), en coordenadas de la vista.
 func get_screen_center() -> Vector2:
 	var span: Vector2 = Vector2(lerpf(_table.tl, _table.bl, 0.5), lerpf(_table.tr, _table.br, 0.5))
