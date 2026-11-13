@@ -22,6 +22,8 @@ var _tween: Tween
 	&"vsync": %VsyncButton,
 	&"show_fps": %FpsButton,
 	&"show_turret_range": %TurretRangeButton,
+	&"show_damage_numbers": %DamageNumbersButton,
+	&"screen_shake": %ScreenShakeButton,
 	&"pause_on_focus_loss": %FocusPauseButton,
 }
 @onready var _language_button: Button = %LanguageButton
@@ -35,6 +37,8 @@ func _ready() -> void:
 		var button: Button = _toggles[key]
 		button.set_pressed_no_signal(Settings.get_value(key))
 		_update_toggle_text(button)
+		# Incrustado en el editor la ventana no cambia: el botón queda apagado y sin uso.
+		button.disabled = key == &"fullscreen" and not Settings.fullscreen_supported()
 		button.toggled.connect(func(on: bool) -> void:
 			Settings.set_value(key, on)
 			_update_toggle_text(button))

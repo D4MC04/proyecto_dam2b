@@ -61,7 +61,7 @@ Cuando la estación se destruye, `Level` deja de construir y ya no puede ganar, 
 
 ## Cambio de escena
 
-Tanto `MainMenu._open_level` como `Game._quit_to_menu` cambian de escena a mano (añadir a `root`, asignar `current_scene`, `queue_free` de la anterior) porque necesitan asignar una propiedad a la escena nueva antes de que entre en el árbol. No se usa `change_scene_to_file`.
+`MainMenu._open_level`, `MainMenu._go_to_start_screen` (puerta y "Salir" de la oficina, vuelven a `StartScreen`) y `Game._quit_to_menu` cambian de escena a mano (añadir a `root`, asignar `current_scene`, `queue_free` de la anterior) porque necesitan asignar una propiedad a la escena nueva antes de que entre en el árbol. No se usa `change_scene_to_file`.
 
 ## Enemigos vistos
 

@@ -1,9 +1,9 @@
 extends SceneTree
-## Genera los mapas de los niveles a partir de resources/map_data/level_N.txt (y el del nivel de emergencia,
-## resources/map_data/emergency.txt).
+## Genera los mapas de los niveles a partir de resources/map_data/level_N.txt, el de la vitrina de
+## la Navedex a partir de navedex.txt y el del nivel de emergencia a partir de emergency.txt.
 ##
-## Uso: godot --headless --path . -s scripts/tools/map_generator.gd -- [N ... | emergency]
-## Sin argumentos genera los 9 niveles y el nivel de emergencia.
+## Uso: godot --headless --path . -s scripts/tools/map_generator.gd -- [N | navedex | emergency ...]
+## Sin argumentos genera los 9 niveles, el de la Navedex y el del nivel de emergencia.
 ##
 ## Los caminos no se dibujan: son pasillos de espacio libre que atraviesan un campo de asteroides
 ## que llena el resto del mapa. La orilla del pasillo va casi llena y dentro del campo no quedan
@@ -13,22 +13,31 @@ extends SceneTree
 ## (conserva su uid), así que los retoques hechos en el editor se pierden al regenerar.
 ##
 ## Formato del .txt (en casillas; la (0, 0) es la de arriba a la izquierda):
+##   size = 43 33                tamaño en casillas (opcional; 43 33 si falta)
 ##   seed = 7                    semilla de la decoración
-##   station = 5 16              casilla del centro de la estación
+##   station = 5 16              casilla del centro de la estación (opcional: sin ella el mapa no
+##                               lleva estación ni script Map, como el de la Navedex)
 ##   path = -2,4 11,4 11,10 ...  un camino por línea, con tramos horizontales o verticales;
 ##                               empieza fuera del mapa y acaba en el centro de la estación
+##                               (sin estación, acaba en su última casilla)
 ##   slots = 7,6 12,6 ...        casillas de torreta (un asteroide con plataforma en cada una)
 ##   rocks = grey brown ice      familias de roca del nivel (grey, brown, dark, ore, ice, crystal,
 ##                               lava); la primera es la principal y cierra el borde del mapa
 ## Las líneas vacías y las que empiezan por "#" se ignoran.
 
-const MAP_SIZE: Vector2i = Vector2i(43, 33)
+const DEFAULT_MAP_SIZE: Vector2i = Vector2i(43, 33)
 const TILE_SIZE: int = 16
 const LEVEL_COUNT: int = 9
-const DATA_PATH: String = "res://resources/map_data/%s.txt"
-const SCENE_PATH: String = "res://scenes/maps/levels/%s.tscn"
-# Argumento y nombre de archivo del mapa del nivel de emergencia (el nivel de prueba del tutorial)
-const EMERGENCY: String = "emergency"
+const DATA_PATH: String = "res://resources/map_data/level_%d.txt"
+const SCENE_PATH: String = "res://scenes/maps/levels/Level%d.tscn"
+const SHOWCASE_NAME: String = "navedex"
+const SHOWCASE_DATA_PATH: String = "res://resources/map_data/navedex.txt"
+const SHOWCASE_SCENE_PATH: String = "res://scenes/maps/NavedexMap.tscn"
+# Casilla de estación de un mapa sin estación: tan lejos que no tapa nada
+const NO_STATION: Vector2i = Vector2i(-1000, -1000)
+const EMERGENCY_NAME: String = "emergency"
+const EMERGENCY_DATA_PATH: String = "res://resources/map_data/emergency.txt"
+const EMERGENCY_SCENE_PATH: String = "res://scenes/maps/levels/Emergency.tscn"
 const MAP_SCRIPT: String = "res://scripts/level/Map.gd"
 const BACKGROUND_SCENE: String = "res://scenes/maps/SpaceBackground.tscn"
 const BASE_SCENE: String = "res://scenes/entities/Base.tscn"
@@ -153,8 +162,9 @@ class RockFamily:
 
 
 class LevelLayout:
+	var map_size: Vector2i = DEFAULT_MAP_SIZE
 	var random_seed: int = 0
-	var station: Vector2i = Vector2i.ZERO
+	var station: Vector2i = NO_STATION
 	var paths: Array[PackedVector2Array] = []
 	var slots: Array[Vector2i] = []
 	var rocks: PackedStringArray = ["grey"]
@@ -170,6 +180,7 @@ var _beacon: Piece
 
 # Estado del nivel que se está generando
 var _rng: RandomNumberGenerator
+var _map_size: Vector2i = DEFAULT_MAP_SIZE
 var _density: FastNoiseLite
 var _distance: Dictionary[Vector2i, int] = {}
 # Casillas con algo puesto. _solid, las que tapa algo que se ve bien (todo menos piedrecitas)
@@ -182,18 +193,20 @@ var _main_family: String = ""
 
 func _initialize() -> void:
 	_build_catalog()
-	var maps: Array[String] = []
-	for arg: String in OS.get_cmdline_user_args():
-		maps.append(arg)
-	if maps.is_empty():
+	var names: Array[String] = []
+	names.assign(OS.get_cmdline_user_args())
+	if names.is_empty():
 		for n: int in range(1, LEVEL_COUNT + 1):
-			maps.append(str(n))
-		maps.append(EMERGENCY)
-	for map_name: String in maps:
-		if map_name == EMERGENCY:
-			_generate(EMERGENCY, "Emergency")
+			names.append(str(n))
+		names.append(SHOWCASE_NAME)
+		names.append(EMERGENCY_NAME)
+	for map_name: String in names:
+		if map_name == SHOWCASE_NAME:
+			_generate(SHOWCASE_DATA_PATH, SHOWCASE_SCENE_PATH)
+		elif map_name == EMERGENCY_NAME:
+			_generate(EMERGENCY_DATA_PATH, EMERGENCY_SCENE_PATH)
 		else:
-			_generate("level_%d" % map_name.to_int(), "Level%d" % map_name.to_int())
+			_generate(DATA_PATH % map_name.to_int(), SCENE_PATH % map_name.to_int())
 	quit()
 
 
@@ -241,14 +254,11 @@ func _family(small: Array[Vector2i], medium: Array[Vector2i], large: Array[Vecto
 	return family
 
 
-# Genera scenes/maps/levels/<scene_name>.tscn a partir de resources/map_data/<data_name>.txt.
-func _generate(data_name: String, scene_name: String) -> void:
-	var data_path: String = DATA_PATH % data_name
+func _generate(data_path: String, scene_path: String) -> void:
 	var layout: LevelLayout = _parse(FileAccess.get_file_as_string(data_path))
 	if layout == null:
 		push_error("No se puede leer %s" % data_path)
 		return
-	var scene_path: String = SCENE_PATH % scene_name
 	var old_uid: int = _read_scene_uid(scene_path)
 	var map: Node2D = _build_map(layout)
 	var packed: PackedScene = PackedScene.new()
@@ -302,6 +312,9 @@ func _parse(text: String) -> LevelLayout:
 		var key: String = line.get_slice("=", 0).strip_edges()
 		var value: String = line.get_slice("=", 1).strip_edges()
 		match key:
+			"size":
+				var dims: PackedStringArray = value.split(" ", false)
+				layout.map_size = Vector2i(dims[0].to_int(), dims[1].to_int())
 			"seed":
 				layout.random_seed = value.to_int()
 			"station":
@@ -333,6 +346,8 @@ func _parse_cells(value: String) -> Array[Vector2i]:
 
 
 func _build_map(layout: LevelLayout) -> Node2D:
+	_map_size = layout.map_size
+	var has_station: bool = layout.station != NO_STATION
 	_rng = RandomNumberGenerator.new()
 	_rng.seed = layout.random_seed
 	_density = _make_noise(layout.random_seed, 0.12)
@@ -342,7 +357,8 @@ func _build_map(layout: LevelLayout) -> Node2D:
 
 	var map: Node2D = Node2D.new()
 	map.name = "Map"
-	map.set_script(load(MAP_SCRIPT))
+	if has_station:
+		map.set_script(load(MAP_SCRIPT))
 	var background: Node = (load(BACKGROUND_SCENE) as PackedScene).instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE)
 	background.name = "Background"
 	_add(map, background)
@@ -361,10 +377,12 @@ func _build_map(layout: LevelLayout) -> Node2D:
 	_distance = _distance_to_path(path_cells)
 	_blocked = {}
 	_solid = {}
-	_mark(layout.station, STATION_RADIUS)
+	if has_station:
+		_mark(layout.station, STATION_RADIUS)
 
 	_place_turret_slots(turret_slots, layout.slots)
-	_place_entrances(scenery, _find_entrances(layout))
+	if has_station:
+		_place_entrances(scenery, _find_entrances(layout))
 	_place_lights(lights, path_cells, layout.station)
 	_place_landmarks(scenery)
 	_place_wrecks(scenery)
@@ -385,10 +403,11 @@ func _build_map(layout: LevelLayout) -> Node2D:
 		paths_node.add_child(path)
 		path.owner = map
 
-	var station: Node2D = (load(BASE_SCENE) as PackedScene).instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE)
-	station.name = "SpaceStation"
-	station.position = _cell_center(layout.station)
-	_add(map, station)
+	if has_station:
+		var station: Node2D = (load(BASE_SCENE) as PackedScene).instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE)
+		station.name = "SpaceStation"
+		station.position = _cell_center(layout.station)
+		_add(map, station)
 	return map
 
 
@@ -405,7 +424,7 @@ func _setup_zones(rocks: PackedStringArray) -> void:
 	_zone_points.clear()
 	_zone_families.clear()
 	for i: int in ZONE_COUNT:
-		_zone_points.append(Vector2(_rng.randf_range(0, MAP_SIZE.x), _rng.randf_range(0, MAP_SIZE.y)))
+		_zone_points.append(Vector2(_rng.randf_range(0, _map_size.x), _rng.randf_range(0, _map_size.y)))
 		var family: String = rocks[0]
 		if i < rocks.size():
 			family = rocks[i]
@@ -490,7 +509,7 @@ func _distance_to_path(path_cells: Dictionary[Vector2i, int]) -> Dictionary[Vect
 
 
 func _decor_rect() -> Rect2i:
-	return Rect2i(Vector2i(-DECOR_MARGIN, -DECOR_MARGIN), MAP_SIZE + Vector2i(2, 2) * DECOR_MARGIN)
+	return Rect2i(Vector2i(-DECOR_MARGIN, -DECOR_MARGIN), _map_size + Vector2i(2, 2) * DECOR_MARGIN)
 
 
 func _decor_cells() -> Array[Vector2i]:
@@ -504,7 +523,7 @@ func _decor_cells() -> Array[Vector2i]:
 
 ## 0 en el margen, 1 en la casilla del borde del mapa, 2 en la siguiente…
 func _edge_depth(cell: Vector2i) -> int:
-	return mini(mini(cell.x, MAP_SIZE.x - 1 - cell.x), mini(cell.y, MAP_SIZE.y - 1 - cell.y)) + DECOR_MARGIN
+	return mini(mini(cell.x, _map_size.x - 1 - cell.x), mini(cell.y, _map_size.y - 1 - cell.y)) + DECOR_MARGIN
 
 
 func _is_corridor(cell: Vector2i) -> bool:
@@ -666,7 +685,7 @@ func _place_turret_slots(layer: TileMapLayer, cells: Array[Vector2i]) -> void:
 ## Primera casilla de cada camino dentro del mapa y su dirección de avance, sin repetir.
 func _find_entrances(layout: LevelLayout) -> Dictionary[Vector2i, Vector2i]:
 	var entrances: Dictionary[Vector2i, Vector2i] = {}
-	var map_rect: Rect2i = Rect2i(Vector2i.ZERO, MAP_SIZE)
+	var map_rect: Rect2i = Rect2i(Vector2i.ZERO, _map_size)
 	for points: PackedVector2Array in layout.paths:
 		var found: bool = false
 		for i: int in points.size() - 1:
@@ -697,7 +716,7 @@ func _place_entrances(layer: TileMapLayer, entrances: Dictionary[Vector2i, Vecto
 
 ## Una luz cada 2 casillas en los tramos rectos; nada en esquinas, cruces ni junto a ellos.
 func _place_lights(layer: TileMapLayer, path_cells: Dictionary[Vector2i, int], station: Vector2i) -> void:
-	var map_rect: Rect2i = Rect2i(Vector2i.ZERO, MAP_SIZE)
+	var map_rect: Rect2i = Rect2i(Vector2i.ZERO, _map_size)
 	for cell: Vector2i in path_cells:
 		var orientation: int = path_cells[cell]
 		if not map_rect.has_point(cell) or orientation == 3 or _chebyshev(cell, station) <= STATION_RADIUS:
@@ -863,8 +882,8 @@ func _place_gravel(layer: TileMapLayer) -> void:
 
 ## Toda la cuadrícula: camino, hueco de torreta o decorado.
 func _fill_logic(layer: TileMapLayer, path_cells: Dictionary[Vector2i, int], layout: LevelLayout) -> void:
-	for y: int in MAP_SIZE.y:
-		for x: int in MAP_SIZE.x:
+	for y: int in _map_size.y:
+		for x: int in _map_size.x:
 			var cell: Vector2i = Vector2i(x, y)
 			var kind: Vector2i = LOGIC_SCENERY
 			if layout.slots.has(cell):
@@ -879,6 +898,9 @@ func _make_curve(points: PackedVector2Array, station: Vector2i) -> Curve2D:
 	var curve: Curve2D = Curve2D.new()
 	for i: int in points.size() - 1:
 		curve.add_point(_cell_center(Vector2i(points[i])))
+	if station == NO_STATION:
+		curve.add_point(_cell_center(Vector2i(points[points.size() - 1])))
+		return curve
 	var last: Vector2 = _cell_center(Vector2i(points[points.size() - 2]))
 	var target: Vector2 = _cell_center(station)
 	curve.add_point(target - (target - last).normalized() * STATION_REACH)

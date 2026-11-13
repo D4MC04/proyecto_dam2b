@@ -166,6 +166,11 @@ func start(level: Level) -> void:
 func stop() -> void:
 	_set_active(false)
 
+## True mientras NOVA guía con foco (pasos que oscurecen y bloquean). Fuera de ellos (jugando libre
+## o ya acabado) el resto de la interfaz se comporta como en cualquier sector.
+func is_running() -> bool:
+	return _active and _step in FOCUS_STEPS
+
 ## Si el paso actual deja hacer `action`. Sin tutorial en marcha o fuera de los pasos con foco todo vale.
 ## En un paso con foco no se deja nada hasta que NOVA acaba de hablar (salvo en NO_WAIT_STEPS); lo
 ## señalado, en cambio, se ve desde que empieza la última página.

@@ -13,7 +13,8 @@ extends SceneTree
 ## La base es la plantilla del Cañón doble con las luces en violeta. El emisor no gira: aro de metal
 ## con abrazaderas que tienen una luz en la punta y una esfera de contención oscura con un remolino de
 ## plasma y un núcleo claro. El Cinturón añade a la base un aro discontinuo violeta y luces más grandes
-## en las esquinas; su emisor es más grande, con cuatro abrazaderas en vez de tres, tres brazos de
+## en las esquinas; su emisor es una esfera más pequeña sin abrazaderas, rodeada por dos aros de
+## giroscopio cruzados (metal con el borde violeta y las puntas blancas) que giran, con tres brazos de
 ## remolino en vez de dos y el núcleo blanco (también en la carga), para no confundirse con la Tormenta.
 ## Caracteres de la plantilla: "." vacío, "O" contorno, "1" a "4" metal de sombra a luz y "a" a "c"
 ## violeta de oscuro a claro.
@@ -167,7 +168,7 @@ func _draw_major_ring() -> void:
 ## animación de generar una carga.
 func _make_emitter(idle_frame: int, fire_frame: int) -> Image:
 	_new_image(SIZE)
-	var ring_radius: float = 10.6 if _major else 10.0
+	var ring_radius: float = 8.6 if _major else 10.0
 	var glass_radius: float = ring_radius - 3.0
 	var arms: int = 3 if _major else 2
 	var core_radius: float = 2.2 if _major else 1.6
@@ -176,6 +177,8 @@ func _make_emitter(idle_frame: int, fire_frame: int) -> Image:
 	if fire_frame >= 0:
 		core_radius = FIRE_CORE[fire_frame] + (0.6 if _major else 0.0)
 		spin = fire_frame * TAU / IDLE_FRAMES
+	if _major:
+		_draw_gimbals(idle_frame if fire_frame < 0 else fire_frame)
 	for y: int in SIZE:
 		for x: int in SIZE:
 			var offset: Vector2 = Vector2(x, y) - CENTER
@@ -192,9 +195,12 @@ func _make_emitter(idle_frame: int, fire_frame: int) -> Image:
 				_put(x, y, _plasma_color(offset, distance, arms, spin, flash))
 	_draw_core(core_radius, fire_frame)
 	# Brillo del cristal arriba a la izquierda
-	_put(12, 11, METAL[3])
-	_put(11, 12, METAL[2])
-	_draw_clamps(ring_radius, idle_frame, fire_frame)
+	if _major:
+		_put(12, 12, METAL[3])
+	else:
+		_put(12, 11, METAL[3])
+		_put(11, 12, METAL[2])
+		_draw_clamps(ring_radius, idle_frame, fire_frame)
 	_close_outline()
 	return _image
 
@@ -227,10 +233,30 @@ func _draw_core(radius: float, fire_frame: int) -> void:
 	_fill_circle(CENTER, maxf(radius - 1.2, 0.5), center_color)
 
 
-## Abrazaderas de metal (tres, o cuatro en el Cinturón) con una luz violeta en la punta, que en reposo
-## parpadea y al generar se enciende mientras se carga y destella.
+## Dos aros de giroscopio del Cinturón, a 90° entre sí, que pasan por debajo de la esfera. Giran 22,5°
+## por frame, así que el bucle cierra en 4 frames. Banda de metal con el borde violeta (más claros en la
+## mitad de cara a la luz) y una punta blanca en cada extremo.
+func _draw_gimbals(step: int) -> void:
+	for ring: int in 2:
+		var angle: float = PI / 4.0 + ring * PI / 2.0 + step * PI / 8.0
+		for y: int in SIZE:
+			for x: int in SIZE:
+				var offset: Vector2 = (Vector2(x, y) - CENTER).rotated(-angle)
+				var value: float = pow(offset.x / 14.2, 2.0) + pow(offset.y / 6.0, 2.0)
+				if value < 0.72 or value >= 1.0:
+					continue
+				if value >= 0.86:
+					_put(x, y, VIOLET[2] if offset.y < 0.0 else VIOLET[1])
+				else:
+					_put(x, y, METAL[2] if offset.y < 0.0 else METAL[1])
+		for side: float in [-1.0, 1.0]:
+			_fill_circle(CENTER + Vector2(13.0 * side, 0.0).rotated(angle), 1.0, WHITE)
+
+
+## Abrazaderas de metal del Orbitador con una luz violeta en la punta, que en reposo parpadea y al
+## generar se enciende mientras se carga y destella.
 func _draw_clamps(ring_radius: float, idle_frame: int, fire_frame: int) -> void:
-	var count: int = 4 if _major else 3
+	var count: int = 3
 	var lit: bool = (fire_frame >= 2 and fire_frame <= FLASH_FRAME) or (fire_frame < 0 and idle_frame % 2 == 0)
 	for i: int in count:
 		var direction: Vector2 = Vector2.from_angle(-PI / 2.0 + i * TAU / count)
@@ -242,10 +268,13 @@ func _draw_clamps(ring_radius: float, idle_frame: int, fire_frame: int) -> void:
 # --- Carga en órbita ---
 
 ## Bola de plasma sin contorno: halo transparente, bola violeta y un brillo que da vueltas. La del
-## Cinturón tiene el centro blanco.
+## Cinturón es un giroscopio en pequeño (ver _make_major_orb).
 func _make_orb(frame: int) -> Image:
 	_new_image(ORB_SIZE)
 	var center: Vector2 = Vector2(4.5, 4.5)
+	if _major:
+		_make_major_orb(center, frame)
+		return _image
 	var halo: Color = VIOLET[1]
 	halo.a = 0.45
 	_fill_circle(center, 4.0, halo)
@@ -254,9 +283,32 @@ func _make_orb(frame: int) -> Image:
 	var shine: Vector2 = center + Vector2.from_angle(-PI * 0.75 + frame * TAU / IDLE_FRAMES) * 1.2
 	_put(roundi(shine.x), roundi(shine.y), VIOLET[3])
 	_put(4, 4, VIOLET[3])
-	if _major:
-		_fill_circle(center, 1.0, WHITE)
 	return _image
+
+
+## Carga del Cinturón: halo tenue, bola violeta con el núcleo blanco y un aro claro inclinado, como los
+## del emisor, que gira 45° por frame (el aro es simétrico a 180°, así que el bucle cierra en 4 frames).
+## La mitad de atrás del aro queda tapada por la bola.
+func _make_major_orb(center: Vector2, frame: int) -> void:
+	var halo: Color = VIOLET[1]
+	halo.a = 0.3
+	_fill_circle(center, 4.6, halo)
+	var angle: float = PI / 4.0 + frame * PI / 4.0
+	_draw_orb_ring(center, angle, false)
+	_fill_circle(center, 2.6, VIOLET[1])
+	_fill_circle(center, 1.8, VIOLET[2])
+	_fill_circle(center, 1.0, WHITE)
+	_draw_orb_ring(center, angle, true)
+
+
+func _draw_orb_ring(center: Vector2, angle: float, front: bool) -> void:
+	for y: int in ORB_SIZE:
+		for x: int in ORB_SIZE:
+			var offset: Vector2 = (Vector2(x, y) - center).rotated(-angle)
+			var value: float = pow(offset.x / 4.4, 2.0) + pow(offset.y / 1.7, 2.0)
+			if value < 0.72 or value >= 1.12 or (offset.y > 0.0) != front:
+				continue
+			_put(x, y, WHITE if absf(offset.x) > 3.6 else VIOLET[3])
 
 
 # --- Impacto ---

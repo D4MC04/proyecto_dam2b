@@ -167,3 +167,39 @@ static func quad_rect(item: CanvasItem, quad: Dictionary, source_size: Vector2i,
 ## Tamaño de la pantalla de frente que se pinta en un trapecio: su ancho mayor y su alto.
 static func quad_source_size(quad: Dictionary) -> Vector2i:
 	return Vector2i(maxi(quad.tr - quad.tl, quad.br - quad.bl), quad.bot - quad.top + 1)
+
+## Corchetes en L por fuera de las cuatro esquinas de un trapecio, para las piezas apoyadas en la
+## consola inclinada. `corners`: arriba a la izquierda, arriba a la derecha, abajo a la derecha y abajo
+## a la izquierda, con el borde derecho y el de abajo por fuera (como un Rect2i). Los brazos de arriba
+## y de abajo van en horizontal; los de los lados siguen la inclinación de su lado.
+static func quad_brackets(item: CanvasItem, corners: PackedVector2Array, color: Color, length: int = 8,
+		gap: int = 3) -> void:
+	var grow: int = gap + 1
+	var height: float = maxf(corners[3].y - corners[0].y, 1.0)
+	var rows: Array[int] = [roundi(corners[0].y) - grow, roundi(corners[3].y) - 1 + grow]
+	for side: int in 2:
+		# Línea de fuera del lado: x en cada fila, `grow` px por fuera del borde.
+		var top: Vector2 = corners[0] if side == 0 else corners[1] - Vector2(1, 0)
+		var bottom: Vector2 = corners[3] if side == 0 else corners[2] - Vector2(1, 0)
+		var slope: float = (bottom.x - top.x) / height
+		var x_dir: int = 1 if side == 0 else -1
+		var offset: float = -grow if side == 0 else grow
+		for end: int in 2:
+			var y: int = rows[end]
+			var y_dir: int = 1 if end == 0 else -1
+			var x: int = roundi(top.x + (y - top.y) * slope + offset)
+			rect(item, Rect2i(x if x_dir > 0 else x - length + 1, y, length, 1), color)
+			for i: int in range(1, length):
+				var arm_y: int = y + i * y_dir
+				rect(item, Rect2i(roundi(top.x + (arm_y - top.y) * slope + offset), arm_y, 1, 1), color)
+
+## bevel_box de una pantalla pintada de frente (`source_size`) llevada al trapecio `quad`.
+static func quad_bevel_box(item: CanvasItem, quad: Dictionary, source_size: Vector2i, r: Rect2i, body: Color,
+		light: Color, shadow: Color, origin: Vector2i = Vector2i.ZERO) -> void:
+	quad_rect(item, quad, source_size, r, OUTLINE, origin)
+	var inner: Rect2i = r.grow(-1)
+	quad_rect(item, quad, source_size, inner, body, origin)
+	quad_rect(item, quad, source_size, Rect2i(inner.position, Vector2i(inner.size.x, 1)), light, origin)
+	quad_rect(item, quad, source_size, Rect2i(inner.position, Vector2i(1, inner.size.y)), light, origin)
+	quad_rect(item, quad, source_size, Rect2i(inner.position.x + 1, inner.end.y - 1, inner.size.x - 1, 1), shadow, origin)
+	quad_rect(item, quad, source_size, Rect2i(inner.end.x - 1, inner.position.y + 1, 1, inner.size.y - 1), shadow, origin)

@@ -132,6 +132,8 @@ func _ready() -> void:
 	box.add_child(gap)
 	_deploy_button.custom_minimum_size.y = BUTTON_HEIGHT
 	_deploy_button.clip_text = true
+	# Botón dibujado en la pantalla (solo el contorno), como la ficha.
+	_deploy_button.theme_type_variation = &"ScreenButton"
 	_deploy_button.auto_translate_mode = AUTO_TRANSLATE_MODE_DISABLED
 	_deploy_button.add_theme_font_size_override("font_size", TEXT_SIZE)
 	_deploy_button.pressed.connect(deploy_pressed.emit)

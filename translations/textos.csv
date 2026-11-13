@@ -3,7 +3,6 @@ HEADER_ARCHIVE,ARCHIVO,ARCHIVE
 BTN_BACK,Volver,Back
 START_PRESS_ANY_KEY,PULSA CUALQUIER TECLA,PRESS ANY KEY
 START_SELECT_SAVE,SELECCIONA PARTIDA,SELECT SAVE
-START_ESC_BACK,ESC  VOLVER,ESC  BACK
 START_CONFIRM_TITLE,¿SEGURO?,ARE YOU SURE?
 START_CONFIRM_DELETE,"Se borrará la partida de la ranura %d.
 No se puede deshacer.","The save in slot %d will be deleted.
@@ -33,8 +32,6 @@ HEADER_ANALYSIS,ANÁLISIS,SCAN
 INFO_NO_TARGET,SIN OBJETIVO,NO TARGET
 INFO_HINT,Clic derecho para analizar,Right-click to scan
 HEADER_POWERS,PODERES,POWERS
-TURRET_UPGRADE,Mejorar,Upgrade
-TURRET_SELL,Vender,Sell
 VICTORY_TITLE,"SECTOR
 ASEGURADO","SECTOR
 SECURED"
@@ -55,6 +52,8 @@ OPT_FULLSCREEN,Pantalla completa,Fullscreen
 OPT_SHOW_FPS,Mostrar FPS,Show FPS
 OPT_GAME,JUEGO,GAME
 OPT_TURRET_RANGE,Rango de torretas,Turret range
+OPT_DAMAGE_NUMBERS,Números de daño,Damage numbers
+OPT_SCREEN_SHAKE,Temblor de pantalla,Screen shake
 OPT_PAUSE_ON_FOCUS_LOSS,Pausar sin foco,Pause on focus loss
 TURRET_AMPLIFIER_NAME,Amplificador,Amplifier
 TURRET_AMPLIFIER_DESC,"No dispara: mejora a las torretas que tiene cerca, cada una a su manera.","Doesn't shoot: boosts nearby turrets, each in its own way."
@@ -137,10 +136,7 @@ WAVE_IN_PROGRESS,EN CURSO,ONGOING
 WAVE_COMPLETE,COMPLETA,CLEARED
 BOSS_ALERT,ALERTA,ALERT
 BOSS_APPROACHING,%s ACERCÁNDOSE,%s INCOMING
-TURRET_UPGRADE_COST,Mejorar (-%s),Upgrade (-%s)
-TURRET_SELL_VALUE,Vender (+%s),Sell (+%s)
-TURRET_SELL_CONFIRM,¿Seguro?,Sure?
-ACHIEVEMENT_TOAST,LOGRO: %s,ACHIEVEMENT: %s
+ACHIEVEMENT_TOAST,LOGRO: %s (%s),ACHIEVEMENT: %s (%s)
 STATS_KILLS,Naves destruidas: %d,Ships destroyed: %d
 STATS_SPENT,Dinero gastado: %s,Money spent: %s
 STATS_TIME,Tiempo jugado: %dh %02dm,Time played: %dh %02dm
@@ -172,26 +168,27 @@ ACH_FIRST_WIN_NAME,Primera victoria,First victory
 ACH_FIRST_WIN_DESC,Gana un sector,Win a sector
 ACH_FLAWLESS_NAME,Intacto,Flawless
 ACH_FLAWLESS_DESC,Gana un sector sin perder vida,Win a sector without losing health
-ACH_WINS_5_NAME,Veterano,Veteran
-ACH_WINS_5_DESC,Gana 5 sectores,Win 5 sectors
 ACH_ALL_LEVELS_NAME,Sector despejado,Sector cleared
 ACH_ALL_LEVELS_DESC,Gana el último sector,Win the last sector
-ACH_KILLS_100_NAME,Cazador,Hunter
-ACH_KILLS_100_DESC,Destruye 100 naves,Destroy 100 ships
-ACH_KILLS_1000_NAME,Exterminador,Exterminator
-ACH_KILLS_1000_DESC,Destruye 1000 naves,Destroy 1000 ships
-ACH_SEEN_10_NAME,Observador,Observer
-ACH_SEEN_10_DESC,Descubre 10 tipos de nave,Discover 10 ship types
-ACH_TURRETS_50_NAME,Constructor,Builder
-ACH_TURRETS_50_DESC,Construye 50 torretas,Build 50 turrets
-ACH_FUSE_FIRST_NAME,Primera mejora,First upgrade
-ACH_FUSE_FIRST_DESC,Mejora una torreta,Upgrade a turret
-ACH_FUSE_ALL_NAME,Maestro de mejoras,Upgrade master
-ACH_FUSE_ALL_DESC,Mejora todas las torretas,Upgrade every turret
-ACH_POWER_FIRST_NAME,Poder desatado,Power unleashed
-ACH_POWER_FIRST_DESC,Usa un poder,Use a power
-ACH_PERFECT_10_NAME,Defensa perfecta,Perfect defense
-ACH_PERFECT_10_DESC,Logra 10 oleadas perfectas,Get 10 perfect waves
+ACH_PHASE_BRONZE,bronce,bronze
+ACH_PHASE_SILVER,plata,silver
+ACH_PHASE_GOLD,oro,gold
+ACH_WINS_NAME,Veterano,Veteran
+ACH_WINS_DESC,Gana %d sectores,Win %d sectors
+ACH_KILLS_NAME,Cazador,Hunter
+ACH_KILLS_DESC,Destruye %d naves,Destroy %d ships
+ACH_SEEN_NAME,Observador,Observer
+ACH_SEEN_DESC,Descubre %d tipos de nave,Discover %d ship types
+ACH_TURRETS_NAME,Constructor,Builder
+ACH_TURRETS_DESC,Construye %d torretas,Build %d turrets
+ACH_FUSIONS_NAME,Maestro de mejoras,Upgrade master
+ACH_FUSIONS_DESC,Mejora %d tipos de torreta,Upgrade %d turret types
+ACH_FUSIONS_DESC_ONE,Mejora una torreta,Upgrade a turret
+ACH_POWERS_NAME,Poder desatado,Power unleashed
+ACH_POWERS_DESC,Usa %d poderes,Use %d powers
+ACH_POWERS_DESC_ONE,Usa un poder,Use a power
+ACH_PERFECT_WAVES_NAME,Defensa perfecta,Perfect defense
+ACH_PERFECT_WAVES_DESC,Logra %d oleadas perfectas,Get %d perfect waves
 TAG_ENEMY,ENEMIGO,ENEMY
 TAG_SUPPORT,APOYO,SUPPORT
 TAG_ORBIT,ÓRBITA,ORBIT
@@ -267,6 +264,6 @@ SECTOR_6_NAME,Paso del Eco,Echo Pass
 SECTOR_7_NAME,Deriva Tóxica,Toxic Drift
 SECTOR_8_NAME,Nido Exterior,Outer Nest
 SECTOR_9_NAME,Frontera Muerta,Dead Frontier
-QUIT_CONFIRM_TITLE,¿SALIR DEL JUEGO?,QUIT THE GAME?
+QUIT_CONFIRM_TITLE,¿VOLVER AL INICIO?,BACK TO THE TITLE?
 OFFICE_COMBAT_LOG,// REGISTRO DE COMBATE,// COMBAT LOG
 OFFICE_STANDBY,SISTEMA EN ESPERA,SYSTEM ON STANDBY

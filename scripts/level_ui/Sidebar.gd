@@ -279,13 +279,13 @@ func _on_tab_toggled(turrets_active: bool) -> void:
 
 # Con el tutorial en marcha el botón solo vale desde la pestaña Oleadas (el pie se ve en las dos).
 func _on_next_wave_pressed() -> void:
-	if tutorial_hints == null or (tutorial_hints.allows(TutorialHints.Action.NEXT_WAVE) and waves_page.visible):
+	if tutorial_hints == null or (tutorial_hints.allows(TutorialHints.Action.NEXT_WAVE) and (not tutorial_hints.is_running() or waves_page.visible)):
 		next_wave_requested.emit()
 
-## Atajo de teclado de siguiente oleada: vale desde cualquier pestaña.
+## Atajo de teclado de siguiente oleada: vale desde cualquier pestaña, también en el tutorial.
 func press_next_wave() -> void:
 	if tutorial_hints == null or tutorial_hints.allows(TutorialHints.Action.NEXT_WAVE):
-		next_wave_button.pressed.emit()
+		next_wave_requested.emit()
 
 # Los interruptores bloqueados por el tutorial se devuelven a su estado sin emitir nada.
 func _on_auto_toggled(enabled: bool) -> void:
