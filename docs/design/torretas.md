@@ -34,20 +34,20 @@ La fusionada es otro `TurretData` (`resources/turret_data/<x>_fusion.tres`) con 
 | Aniquilador | Disintegrator | 900 | 60/130/280 por s | 128 | no se usa | Sube de nivel en la mitad de tiempo (`level_time` 0,75) |
 | Amplificador mayor | Amplificador | 800 | no ataca | aura 100 | no se usa | Las torretas de su aura ganan el efecto mayor |
 
-**Nivel 3 (provisional).** De momento cada `<x>_level3.tres` es una copia del nivel 2 (mismo ataque, números y sprites, sin `upgrade_frames`) con nombre "<nivel 2> III" y la misma descripción; cada torreta lo sustituirá por su propio diseño. Solo cambia el coste:
+**Nivel 3 (provisional).** De momento cada `<x>_level3.tres` usa los sprites y el ataque del nivel 2 (sin `upgrade_frames`), con nombre "<nivel 2> III" y la misma descripción; cada torreta lo sustituirá por su propio diseño. Sus números siguen el mismo camino que la mejora 1 → 2 pero con medio paso: cada stat que cambió del nivel 1 al 2 vuelve a cambiar en la misma dirección la mitad (nivel 3 = nivel 2 + (nivel 2 − nivel 1) / 2). Los stats propios van en recursos `<x>_level3` (`collision_shapes/`, `bullet_data/<x>_level3_bullet`, `pulse_data/`, `chain_data/`, `beam_data/`, `focus_beam_data/`, `orbit_data/`). No se repite lo que en el nivel 2 empeoró para compensar una mecánica nueva (cadencia del Cañón de asedio por la salva) ni lo visual (velocidad de bala, `growth`, `fire_frame`, `tint`).
 
-| Nivel 1 | Nivel 2 | Nivel 3 |
+| Nivel 3 | Coste | Cambios respecto al nivel 2 |
 |---|---|---|
-| Cañón doble | 200 | 400 |
-| Minigun | 400 | 800 |
-| Cryo | 500 | 1000 |
-| Cañón pesado | 600 | 1200 |
-| Tesla | 700 | 1400 |
-| Orbitador | 700 | 1400 |
-| Rail | 1000 | 2000 |
-| Disintegrator | 900 | 1800 |
-| Amplificador | 800 | 1600 |
-| Minero | 600 | 1200 |
+| Cañón cuádruple III | 400 | Cadencia 0,15 → 0,1 s, alcance 72 → 78 |
+| Minigun pesada III | 800 | Daño 14 → 17, alcance 96 → 104, cadencia 0,3 → 0,25 (mínima 0,04 → 0,035), 105 disparos hasta sobrecalentarse, parada 1,5 s, tubos 0,275 s |
+| Cañón de asedio III | 1200 | Daño 55 → 63, área 32 → 33, alcance 96 → 100 |
+| Cryo ventisca III | 1000 | Daño 12 → 15, alcance 96 → 112 (`wave_scale` 1,75), frena al 25 % durante 5 s |
+| Tormenta III | 1400 | Daño 50 → 60, 8 objetivos, saltos de 88 px, alcance 120 → 125 |
+| Cinturón III | 1400 | Cadencia 1,0 → 0,7 s, daño 85 → 103, área 28, hasta 6 cargas, 120°/s |
+| Rail Gauss III | 2000 | Daño 800 → 975, cadencia 4,5 → 4,25 s, haz de 1000 px y `half_width` 18, alcance 176 → 184 |
+| Aniquilador III | 1800 | 73/160/350 por s, `level_time` 0,375, alcance 128 → 136 |
+| Amplificador mayor III | 1600 | `amplifier_level` 3: efecto = `major` + (`major` − `normal`) / 2 (en la Tesla, redondeado) |
+| Excavadora III | 1200 | +25€ en vez de +20€ |
 
 ## Vender
 
@@ -202,10 +202,10 @@ En el Disintegrator y el Aniquilador, las tres cifras son el nivel 1 del haz (lo
 
 ## Amplificador
 
-Torreta de apoyo (`amplifier.tres`, mejora `amplifier_fusion.tres`, desde el nivel 8). Su `TurretData` no tiene ataque y lleva `amplifier_level` 1 (2 el mayor). `Turret._ready` la deja sin apuntar, con el `Timer` parado, sin sonido y con el emisor (`cannon`, animación `default` en bucle) siempre animado; el EMP la apaga igual que a las demás.
+Torreta de apoyo (`amplifier.tres`, mejora `amplifier_fusion.tres`, desde el nivel 8). Su `TurretData` no tiene ataque y lleva `amplifier_level` 1 (2 el mayor, 3 el de nivel 3). `Turret._ready` la deja sin apuntar, con el `Timer` parado, sin sonido y con el emisor (`cannon`, animación `default` en bucle) siempre animado; el EMP la apaga igual que a las demás.
 
 - **Aura**: círculo de `attack_range` (100 px, `collision_shapes/amplifier.tres`, igual en el mayor) alrededor del Amplificador. Una torreta está amplificada si su centro cae dentro del aura de un Amplificador encendido. Varios no se suman: cuenta el de más nivel. Lo calcula `Grid._update_amplification()`, que llama a `Turret.set_amplification(nivel)` en todas las torretas; se pide (`_queue_amplification`, una vez por frame como mucho) al registrar una torreta, al salir una del árbol (vender, mejorar) y cuando un Amplificador emite `Turret.power_changed` (se apaga por un EMP o vuelve). Las casillas de torreta de los mapas están separadas 5 o 6 casillas, así que el aura no se mide en casillas.
-- **Efecto**: cada torreta que ataca tiene en `TurretData.amp_effect` un `AmpEffect` (`scripts/resources/AmpEffect.gd`, recursos en `resources/amp_effects/`) con `kind`, `normal` (Amplificador) y `major` (Amplificador mayor). Las fusionadas usan el de su base. `Turret.amp_value(kind, fallback)` da el valor si está amplificada y su efecto es de ese tipo; si no, `fallback`. **Toda torreta nueva que ataque necesita su efecto.**
+- **Efecto**: cada torreta que ataca tiene en `TurretData.amp_effect` un `AmpEffect` (`scripts/resources/AmpEffect.gd`, recursos en `resources/amp_effects/`) con `kind`, `normal` (Amplificador) y `major` (Amplificador mayor); con el de nivel 3 vale `major` + (`major` − `normal`) / 2 (`AmpEffect.get_value`). Las fusionadas usan el de su base. `Turret.amp_value(kind, fallback)` da el valor si está amplificada y su efecto es de ese tipo; si no, `fallback`. **Toda torreta nueva que ataque necesita su efecto.**
 
 | Torreta | `kind` | Normal / mayor | Dónde se aplica |
 |---|---|---|---|
