@@ -1,0 +1,10 @@
+# Vitrina de la Navedex, Minero: junto a la estación espacial (5 casillas a su derecha), con el camino
+# que llega a ella, para que se vea que no ataca y solo genera dinero. La torreta va en el centro
+# (14,8). Datos de scripts/tools/map_generator.gd.
+
+size = 28 16
+seed = 457
+rocks = grey ore
+station = 19 8
+path = 31,8 19,8
+slots = 14,8

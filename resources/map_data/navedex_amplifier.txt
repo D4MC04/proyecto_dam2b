@@ -1,0 +1,9 @@
+# Vitrina de la Navedex, Amplificador: el Amplificador en el centro (22,9) con un Cañón pesado y una Tesla
+# a 6 casillas, dentro de su aura, y un camino por debajo. Más grande que los demás, que
+# deja sitio a los lados de las tres torretas. Datos de scripts/tools/map_generator.gd.
+
+size = 44 18
+seed = 449
+rocks = grey brown
+path = 47,11 -3,11
+slots = 22,9 16,9 28,9
