@@ -1,300 +1,244 @@
 class_name NavedexShowcase
 extends Control
-## Vitrina de la Navedex: una escena en vivo de cómo es lo elegido en partida, con sus sprites del juego.
-## Torretas: la torreta gira hacia una nave de prueba que pasa y le dispara con su efecto (balas, onda,
-## rayo encadenado, haz, orbes); el amplificador emite ondas y la excavadora suelta dinero.
-## Naves: la nave cruza la vitrina con su animación y enseña su habilidad (curar, camuflarse, dividirse,
-## pulso EMP). Las naves no vistas salen como silueta negra, sin habilidad.
+## Vitrina de la Navedex: un mini nivel en vivo (SubViewport) con las piezas reales del juego, para que
+## se vea igual que en partida. Un camino cerrado (rectángulo) recorre la vitrina.
+## - Torreta: la Turret de verdad a la izquierda, y una nave de prueba que no muere da vueltas a un
+##   camino a la derecha, a la distancia a la que llegan todas (alcance de 60 px o más, el Orbitador
+##   no dispara a menos de 40);
+##   la torreta la sigue y le dispara con sus propias balas, ondas, rayos, haces, orbes y escarcha. El
+##   amplificador y la excavadora (con su BuildManager y LevelState, como en partida) van sin nave.
+## - Nave: el Enemy de verdad da vueltas al camino con su animación, su giro y su habilidad (camuflaje,
+##   pulso EMP...). La Reparadora cura a una nave secundaria, tenue y dañada; la Divisora se parte cada
+##   pocos segundos como en Spawner. Las no vistas van en silueta negra y sin habilidad.
 
-# Aumento de los sprites y medidas del mundo de la vitrina (en píxeles del juego, antes del aumento).
 const ZOOM: int = 2
-const TARGET_FRAMES: SpriteFrames = preload("res://resources/sprite_frames/dart_verde.tres")
-# La torreta va a esta distancia del borde izquierdo, centrada en alto.
-const TURRET_X: float = 36.0
-# Nave de prueba para las torretas: sube por la derecha, con un vaivén, una vez cada TARGET_TIME.
-const TARGET_X: float = 118.0
-const TARGET_SWAY: float = 14.0
-const TARGET_TIME: float = 2.6
-# Disparo: tiempo entre disparos (el de la torreta, entre estos topes) y velocidad de las balas.
-const MIN_COOLDOWN: float = 0.3
-const MAX_COOLDOWN: float = 1.2
-const BULLET_SPEED: float = 150.0
-const EFFECT_TIME: float = 0.18
-const RING_TIME: float = 0.6
-const ORBIT_RADIUS: float = 18.0
-# Naves: una pasada de izquierda a derecha cada FLY_TIME, con un vaivén vertical.
-const FLY_TIME: float = 4.0
-const FLY_SWAY: float = 6.0
-const ABILITY_TIME: float = 1.2
-const COMPANION_GAP: float = 26.0
+const TURRET_SCENE: PackedScene = preload("res://scenes/entities/Turret.tscn")
+const ENEMY_SCENE: PackedScene = preload("res://scenes/entities/Enemy.tscn")
+const TARGET_DATA: EnemyData = preload("res://resources/enemy_data/dart_verde.tres")
+# La nave de prueba aguanta lo que haga falta (multiplicador de vida); si aun así cae, sale otra.
+const TARGET_HEALTH: float = 1000.0
+const RESPAWN_TIME: float = 0.6
+# Va despacio (px/s) para que las torretas que giran lento (Rail, 45°/s) lleguen a apuntarle.
+const TARGET_SPEED: float = 30.0
+# Margen del camino al borde de la vitrina (píxeles del juego; deja sitio a la barra de vida).
+const PATH_MARGIN: float = 14.0
+# Torreta: su x y la del camino de la nave de prueba, en fracción del ancho.
+const TURRET_X: float = 0.3
+const TARGET_PATH_X: Vector2 = Vector2(0.45, 0.75)
+# Naves: alto del bucle, en fracción del alto (centrado).
+const SHIP_PATH_Y: Vector2 = Vector2(0.3, 0.7)
+# Nave secundaria de la Reparadora: distancia por delante en el camino, opacidad y vida que le falta.
+const COMPANION_GAP: float = 34.0
+const COMPANION_ALPHA: float = 0.45
+const COMPANION_DAMAGE: float = 0.6
+# Divisora: segundos entera y segundos partida, en bucle.
+const SPLIT_WHOLE_TIME: float = 3.0
+const SPLIT_PARTS_TIME: float = 3.0
 const GRID_STEP: int = 8
-const HEAL_COLOR: Color = Color("#7ee89a")
-const MONEY_COLOR: Color = Color("#ffe082")
 
 var _data: InspectableData
 var _known: bool = true
-var _time: float = 0.0
-var _cooldown: float = 0.0
-var _turret_at: Vector2
-var _world: Node2D
-var _effects: Node2D
-var _turret_base: AnimatedSprite2D
-var _cannon: AnimatedSprite2D
-var _ship: AnimatedSprite2D
-var _companion: AnimatedSprite2D
-var _splits: Array[AnimatedSprite2D] = []
-# Efectos en curso: {kind, from, to, t, ...}; las balas llevan su sprite.
-var _shots: Array[Dictionary] = []
+var _viewport: SubViewport
+var _border: Control
+# Todo lo del mini nivel cuelga de aquí; se rehace al cambiar de dato o de tamaño.
+var _level: Node2D
+var _path: Path2D
+var _turret_parent: BuildManager
+var _ship: Enemy
+var _companion: Enemy
+var _parts: Array[Enemy] = []
+var _split_timer: float = 0.0
 
 func _ready() -> void:
 	clip_contents = true
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_world = Node2D.new()
-	_world.scale = Vector2(ZOOM, ZOOM)
-	add_child(_world)
-	_effects = Node2D.new()
-	_effects.z_index = 1
-	_effects.draw.connect(_draw_effects)
-	_world.add_child(_effects)
-	resized.connect(_place_world)
+	var container: SubViewportContainer = SubViewportContainer.new()
+	container.stretch = true
+	container.stretch_shrink = ZOOM
+	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	container.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(container)
+	_viewport = SubViewport.new()
+	_viewport.canvas_item_default_texture_filter = Viewport.DEFAULT_CANVAS_ITEM_TEXTURE_FILTER_NEAREST
+	container.add_child(_viewport)
+	_viewport.size_changed.connect(_rebuild)
+	_border = Control.new()
+	_border.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_border.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_border.draw.connect(_draw_border)
+	add_child(_border)
+
+# Con la Navedex cerrada el mini nivel se para (y no suena).
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_VISIBILITY_CHANGED and _viewport != null:
+		_viewport.process_mode = Node.PROCESS_MODE_INHERIT if is_visible_in_tree() else Node.PROCESS_MODE_DISABLED
 
 ## Enseña la escena de `data`; `known` en falso la deja en silueta y sin habilidad.
 func show_data(data: InspectableData, known: bool) -> void:
 	_data = data
 	_known = known
-	_time = 0.0
-	_cooldown = 0.0
-	for shot: Dictionary in _shots:
-		if shot.has("sprite"):
-			(shot.sprite as Node).queue_free()
-	_shots.clear()
-	for node: Node in _world.get_children():
-		if node != _effects:
-			node.queue_free()
-	_turret_base = null
-	_cannon = null
+	_rebuild()
+
+func _rebuild() -> void:
+	if _level != null:
+		_level.queue_free()
+	_level = null
 	_ship = null
 	_companion = null
-	_splits.clear()
-	var turret: TurretData = data as TurretData
-	if turret != null:
-		_turret_base = _sprite(turret.sprite_frames, &"default")
-		if turret.cannon != null:
-			_cannon = AnimatedSprite2D.new()
-			_cannon.sprite_frames = turret.cannon
-			_turret_base.add_child(_cannon)
-			_cannon.play(&"default")
-			_cannon.animation_finished.connect(_cannon.play.bind(&"default"))
-		if _attacks():
-			_ship = _sprite(TARGET_FRAMES, &"up")
-	else:
-		var enemy: EnemyData = data as EnemyData
-		_ship = _sprite(enemy.sprite_frames, &"right")
-		if enemy.rotate_sprite:
-			_ship.rotation = PI / 2.0 + deg_to_rad(enemy.rotation_offset)
-		if not known:
-			_ship.modulate = Color.BLACK
-		elif enemy.heal_aura:
-			_companion = _sprite(TARGET_FRAMES, &"right")
-	_place_world()
-
-# El mundo centrado en la vitrina y la torreta en su sitio (la vitrina crece con el hueco que sobra).
-func _place_world() -> void:
-	_world.position = ((size - Vector2(_world_size()) * ZOOM) / 2.0).round()
-	_turret_at = Vector2(TURRET_X, roundf(_world_size().y / 2.0))
-	if _turret_base != null:
-		_turret_base.position = _turret_at
-
-func _world_size() -> Vector2i:
-	@warning_ignore("integer_division")
-	return Vector2i(int(size.x) / ZOOM, int(size.y) / ZOOM)
-
-func _sprite(frames: SpriteFrames, animation: StringName) -> AnimatedSprite2D:
-	var sprite: AnimatedSprite2D = AnimatedSprite2D.new()
-	sprite.sprite_frames = frames
-	_world.add_child(sprite)
-	_world.move_child(_effects, -1)
-	if frames.has_animation(animation):
-		sprite.play(animation)
-	else:
-		sprite.play()
-	return sprite
-
-# Torretas que disparan a una nave (el amplificador y la excavadora no).
-func _attacks() -> bool:
+	_parts.clear()
+	var world: Vector2 = Vector2(_viewport.size)
+	if _data == null or world.x < 2.0 * PATH_MARGIN or world.y < 2.0 * PATH_MARGIN:
+		return
+	_level = Node2D.new()
+	_viewport.add_child(_level)
+	var backdrop: Node2D = Node2D.new()
+	backdrop.draw.connect(_draw_backdrop.bind(backdrop, world))
+	_level.add_child(backdrop)
 	var turret: TurretData = _data as TurretData
-	return turret.money_amount == 0 and (turret.bullet_data != null or turret.pulse != null or turret.chain != null
-			or turret.beam != null or turret.focus_beam != null or turret.orbit != null)
+	# Bucle: a la derecha de la torreta, o centrado para las naves.
+	var loop: Rect2
+	if turret != null:
+		loop = Rect2(world.x * TARGET_PATH_X.x, PATH_MARGIN, world.x * (TARGET_PATH_X.y - TARGET_PATH_X.x), world.y - 2.0 * PATH_MARGIN)
+	else:
+		var top: float = minf(world.y * SHIP_PATH_Y.x, world.y / 2.0 - 1.0)
+		top = maxf(top, minf(PATH_MARGIN, world.y / 2.0 - 1.0))
+		loop = Rect2(PATH_MARGIN, top, world.x - 2.0 * PATH_MARGIN, maxf(world.y * SHIP_PATH_Y.y - top, 2.0))
+	loop = Rect2(loop.position.round(), loop.size.round())
+	_path = Path2D.new()
+	_path.curve = Curve2D.new()
+	for corner: Vector2 in [loop.position, Vector2(loop.end.x, loop.position.y), loop.end, Vector2(loop.position.x, loop.end.y), loop.position]:
+		_path.curve.add_point(corner)
+	_level.add_child(_path)
+	if turret != null:
+		_build_turret(turret, world)
+	else:
+		_build_ship(_data as EnemyData)
+
+# --- Torreta ------------------------------------------------------------------------------
+
+func _build_turret(data: TurretData, world: Vector2) -> void:
+	# Como en partida, la torreta cuelga del BuildManager (la excavadora lee de él el estado del nivel).
+	var state: LevelState = LevelState.new()
+	state.wave_in_progress = true
+	_level.add_child(state)
+	_turret_parent = BuildManager.new()
+	_turret_parent.state = state
+	_level.add_child(_turret_parent)
+	_turret_parent.stop_building()
+	var node: Turret = TURRET_SCENE.instantiate()
+	node.data = data
+	node.position = Vector2(world.x * TURRET_X, world.y / 2.0).round()
+	_turret_parent.add_child(node)
+	if not data.is_amplifier() and not data.is_miner():
+		_spawn_target()
+
+func _spawn_target() -> void:
+	if _level == null or not is_instance_valid(_path):
+		return
+	var target: Enemy = _spawn(TARGET_DATA, 0.0, TARGET_HEALTH)
+	target.speed = TARGET_SPEED
+	target.died.connect(func(_reward: int) -> void:
+		get_tree().create_timer(RESPAWN_TIME).timeout.connect(_spawn_target))
+
+# --- Nave ---------------------------------------------------------------------------------
+
+func _build_ship(data: EnemyData) -> void:
+	if not _known:
+		# Silueta: la misma nave sin habilidades, en negro.
+		data = data.duplicate() as EnemyData
+		data.heal_aura = false
+		data.cloak_interval = 0.0
+		data.emp_interval = 0.0
+		# El duplicado comparte el array con el original: se cambia por una copia vacía.
+		data.split_into = data.split_into.duplicate()
+		data.split_into.clear()
+	_ship = _spawn(data, 0.0, 1.0)
+	if not _known:
+		_ship.sprite.modulate = Color.BLACK
+		return
+	if data.heal_aura:
+		_companion = _spawn(TARGET_DATA, COMPANION_GAP, 1.0)
+		_companion.speed = _ship.speed
+		_companion.modulate.a = COMPANION_ALPHA
+		_hurt_companion()
+	_split_timer = SPLIT_WHOLE_TIME
 
 func _process(delta: float) -> void:
-	if _data == null or not is_visible_in_tree():
+	if _level == null or not is_visible_in_tree():
 		return
-	_time += delta
-	if _data is TurretData:
-		_update_turret(delta)
+	# La secundaria de la Reparadora vuelve a dañarse cuando la ha curado del todo.
+	if is_instance_valid(_companion) and _companion.hp >= _companion.max_hp:
+		_hurt_companion()
+	if _ship == null or not _known or (_data as EnemyData).split_into.is_empty():
+		return
+	_split_timer -= delta
+	if _split_timer > 0.0:
+		return
+	if is_instance_valid(_ship) and _parts.is_empty():
+		_split(_ship)
+		_split_timer = SPLIT_PARTS_TIME
 	else:
-		_update_ship()
-	_update_shots(delta)
-	_effects.queue_redraw()
-	queue_redraw()
+		for part: Enemy in _parts:
+			part.queue_free()
+		_parts.clear()
+		_ship = _spawn(_data as EnemyData, 0.0, 1.0)
+		_ship.spawn_in()
+		_split_timer = SPLIT_WHOLE_TIME
 
-# --- Torretas -----------------------------------------------------------------------------
+# Le quita vida sin golpe (sin destello ni número de daño), para que la Reparadora tenga a quién curar.
+func _hurt_companion() -> void:
+	_companion.hp = _companion.max_hp * (1.0 - COMPANION_DAMAGE)
 
-func _update_turret(delta: float) -> void:
-	var turret: TurretData = _data as TurretData
-	var world: Vector2i = _world_size()
-	if _ship != null:
-		var loop: float = fmod(_time, TARGET_TIME) / TARGET_TIME
-		_ship.position = Vector2(TARGET_X + sin(_time * 2.0) * TARGET_SWAY, lerpf(world.y + 12.0, -12.0, loop))
-		if _cannon != null:
-			# Los cañones miran hacia arriba, como en Turret._target_angle.
-			_cannon.rotation = (_ship.position - _turret_at).angle() + PI / 2.0
-	_cooldown -= delta
-	if _cooldown > 0.0:
-		return
-	_cooldown = clampf(turret.attack_cooldown, MIN_COOLDOWN, MAX_COOLDOWN)
-	if turret.money_amount > 0:
-		_shots.append({"kind": "money", "from": _turret_at + Vector2(0, -12), "t": 0.0, "text": "+%d" % turret.money_amount})
-		return
-	if _ship == null:
-		_shots.append({"kind": "ring", "from": _turret_at, "t": 0.0, "radius": 40.0, "color": OfficePaint.CYAN_LIGHT})
-		return
-	if _ship.position.y < 0.0 or _ship.position.y > world.y:
-		return
-	_animate_cannon()
-	var muzzle: Vector2 = _turret_at + (turret.muzzle_offset.rotated(_cannon.rotation) if _cannon != null else Vector2.ZERO)
-	var target: Vector2 = _ship.position
-	if turret.bullet_data != null and turret.bullet_data.sprite_frames != null:
-		var bullet: AnimatedSprite2D = _sprite(turret.bullet_data.sprite_frames, &"default")
-		bullet.position = muzzle
-		bullet.rotation = (target - muzzle).angle() + PI / 2.0 + deg_to_rad(turret.bullet_data.rotation_offset)
-		if turret.bullet_data.sprite_scale > 0.0:
-			bullet.scale = Vector2.ONE * turret.bullet_data.sprite_scale
-		_shots.append({"kind": "bullet", "sprite": bullet, "to": target, "impact": turret.bullet_data.impact_frames, "t": 0.0})
-	elif turret.pulse != null:
-		_shots.append({"kind": "ring", "from": _turret_at, "t": 0.0, "radius": 50.0, "color": OfficePaint.CYAN_LIGHT})
-	elif turret.chain != null:
-		_shots.append({"kind": "chain", "from": muzzle, "to": target, "t": 0.0, "seed": randi()})
-	elif turret.beam != null:
-		_shots.append({"kind": "beam", "from": muzzle, "to": muzzle + (target - muzzle).normalized() * 200.0, "t": 0.0,
-				"color": OfficePaint.CYAN_LIGHT})
-	elif turret.focus_beam != null:
-		_shots.append({"kind": "beam", "from": muzzle, "to": target, "t": 0.0, "color": turret.focus_beam.tint})
+# Se parte como en Spawner._crack y Spawner._split: frame agrietado con destello y los trozos
+# despedidos de lado que vuelven al camino.
+func _split(whole: Enemy) -> void:
+	var data: EnemyData = whole.data
+	var progress: float = whole.progress
+	var crack: AnimatedSprite2D = AnimatedSprite2D.new()
+	crack.sprite_frames = whole.sprite.sprite_frames
+	crack.animation = &"crack" if crack.sprite_frames.has_animation(&"crack") else whole.sprite.animation
+	crack.position = whole.position
+	crack.rotation = whole.sprite.rotation
+	_path.add_child(crack)
+	var sprite_rotation: float = whole.sprite.rotation
+	whole.queue_free()
+	var tween: Tween = crack.create_tween()
+	tween.tween_property(crack, "modulate", Color.WHITE, Spawner.CRACK_TIME).from(Enemy.SLOW_FLASH)
+	tween.tween_callback(func() -> void:
+		var side: Vector2 = Vector2.RIGHT.rotated(sprite_rotation)
+		var count: int = data.split_into.size()
+		for i: int in count:
+			var piece: Enemy = _spawn(data.split_into[i], progress, 1.0)
+			var offset: Vector2 = side * (i - (count - 1) / 2.0)
+			piece.sprite.rotation = sprite_rotation
+			piece.flash()
+			var push: Tween = piece.create_tween()
+			push.tween_property(piece.sprite, "position", offset * (Spawner.SPLIT_GAP + Spawner.SPLIT_PUSH), Spawner.SPLIT_PUSH_TIME).from(offset * Spawner.SPLIT_GAP)
+			push.tween_property(piece.sprite, "position", Vector2.ZERO, Spawner.SPLIT_RETURN_TIME).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
+			_parts.append(piece))
+	tween.tween_callback(crack.queue_free)
 
-# El cañón anima el disparo como en Outpost.fire_at.
-func _animate_cannon() -> void:
-	if _cannon == null:
-		return
-	if _cannon.sprite_frames.has_animation(&"fire_0"):
-		_cannon.play(&"fire_0")
-	elif _cannon.sprite_frames.has_animation(&"spin"):
-		_cannon.play(&"spin")
+# Un Enemy en el camino cerrado, que da vueltas sin llegar nunca al final.
+func _spawn(data: EnemyData, progress: float, health: float) -> Enemy:
+	var enemy: Enemy = ENEMY_SCENE.instantiate()
+	_path.add_child(enemy)
+	enemy.loop = true
+	# El avance antes de setup(), para que su primer giro salga del camino y no de un salto (como en Spawner).
+	enemy.progress = progress
+	enemy.setup(data, health)
+	return enemy
 
-# --- Naves --------------------------------------------------------------------------------
+# --- Dibujo -------------------------------------------------------------------------------
 
-func _update_ship() -> void:
-	var enemy: EnemyData = _data as EnemyData
-	var world: Vector2i = _world_size()
-	var loop: float = fmod(_time, FLY_TIME) / FLY_TIME
-	if loop < 0.02 and not _splits.is_empty():
-		for split: AnimatedSprite2D in _splits:
-			split.queue_free()
-		_splits.clear()
-		_ship.show()
-	var x: float = lerpf(-20.0, world.x + 20.0, loop)
-	var y: float = world.y / 2.0 + sin(_time * 1.5) * FLY_SWAY
-	_ship.position = Vector2(x, y)
-	if _companion != null:
-		_companion.position = Vector2(x + COMPANION_GAP, y - 4.0)
-	if not _known:
-		return
-	var ability_now: bool = fmod(_time, ABILITY_TIME) < get_process_delta_time()
-	if enemy.heal_aura and ability_now:
-		_shots.append({"kind": "ring", "from": _ship.position, "t": 0.0, "radius": 22.0, "color": HEAL_COLOR})
-		_shots.append({"kind": "money", "from": _companion.position + Vector2(0, -8), "t": 0.0, "text": "+", "color": HEAL_COLOR})
-	if enemy.emp_interval > 0.0 and ability_now:
-		_shots.append({"kind": "ring", "from": _ship.position, "t": 0.0, "radius": 30.0, "color": OfficePaint.CYAN})
-	if enemy.cloak_interval > 0.0:
-		# Camuflada en la mitad de la pasada.
-		_ship.modulate.a = 0.25 if loop > 0.35 and loop < 0.65 else 1.0
-	if not enemy.split_into.is_empty() and loop > 0.55 and _splits.is_empty():
-		_ship.hide()
-		_shots.append({"kind": "ring", "from": _ship.position, "t": 0.0, "radius": 16.0, "color": OfficePaint.CYAN_LIGHT})
-		for i: int in enemy.split_into.size():
-			var split: AnimatedSprite2D = _sprite(enemy.split_into[i].sprite_frames, &"right")
-			split.position = _ship.position
-			split.set_meta(&"spread", (i - (enemy.split_into.size() - 1) / 2.0) * 12.0)
-			_splits.append(split)
-	for split: AnimatedSprite2D in _splits:
-		split.position = Vector2(x, y + split.get_meta(&"spread") * clampf((loop - 0.55) * 6.0, 0.0, 1.0))
+# Fondo del mini nivel: pantalla oscura con cuadrícula tenue.
+func _draw_backdrop(canvas: Node2D, world: Vector2) -> void:
+	canvas.draw_rect(Rect2(Vector2.ZERO, world), OfficePaint.SCREEN_DARK)
+	for x: int in range(GRID_STEP, int(world.x), GRID_STEP):
+		canvas.draw_rect(Rect2(x, 0, 1, world.y), OfficePaint.SCREEN)
+	for y: int in range(GRID_STEP, int(world.y), GRID_STEP):
+		canvas.draw_rect(Rect2(0, y, world.x, 1), OfficePaint.SCREEN)
 
-# --- Efectos ------------------------------------------------------------------------------
-
-func _update_shots(delta: float) -> void:
-	for shot: Dictionary in _shots.duplicate():
-		shot.t += delta
-		if shot.kind == "bullet":
-			var sprite: AnimatedSprite2D = shot.sprite
-			var to: Vector2 = shot.to
-			sprite.position = sprite.position.move_toward(to, BULLET_SPEED * delta)
-			if sprite.position.is_equal_approx(to):
-				sprite.queue_free()
-				_shots.erase(shot)
-				_impact(to, shot.impact)
-		elif shot.t > (RING_TIME if shot.kind in ["ring", "money"] else EFFECT_TIME):
-			_shots.erase(shot)
-
-# Explosión de impacto (la de la bala si la tiene) que se borra al acabar.
-func _impact(at: Vector2, frames: SpriteFrames) -> void:
-	if frames == null:
-		_shots.append({"kind": "ring", "from": at, "t": 0.0, "radius": 6.0, "color": OfficePaint.AMBER_LIGHT})
-		return
-	var boom: AnimatedSprite2D = _sprite(frames, &"default")
-	boom.position = at
-	boom.sprite_frames = frames.duplicate()
-	boom.sprite_frames.set_animation_loop(boom.animation, false)
-	boom.play(boom.animation)
-	boom.animation_finished.connect(boom.queue_free)
-
-func _draw_effects() -> void:
-	var turret: TurretData = _data as TurretData
-	if turret != null and turret.orbit != null:
-		for i: int in turret.orbit.max_orbs:
-			var angle: float = _time * deg_to_rad(turret.orbit.orbit_speed) + TAU * i / turret.orbit.max_orbs
-			_effects.draw_circle(_turret_at + Vector2.from_angle(angle) * ORBIT_RADIUS, 2.0, OfficePaint.CYAN_LIGHT, true, -1.0, false)
-	for shot: Dictionary in _shots:
-		var fade: float = 1.0 - shot.t / (RING_TIME if shot.kind in ["ring", "money"] else EFFECT_TIME)
-		match shot.kind:
-			"ring":
-				var color: Color = shot.color
-				_effects.draw_arc(shot.from, maxf(1.0, shot.radius * (1.0 - fade)), 0.0, TAU, 24, Color(color, fade), 1.0, false)
-			"beam":
-				var color: Color = shot.color
-				_effects.draw_line(shot.from, shot.to, Color(color, fade), 2.0, false)
-			"chain":
-				_draw_bolt(shot.from, shot.to, shot.seed, fade)
-			"money":
-				var color: Color = shot.get("color", MONEY_COLOR)
-				var at: Vector2 = shot.from + Vector2(0, -14.0 * (1.0 - fade))
-				_effects.draw_string(OfficePaint.FONT, at.round(), shot.text, HORIZONTAL_ALIGNMENT_CENTER, -1, 8, Color(color, fade))
-
-# Rayo en zigzag (siempre igual para el mismo disparo).
-func _draw_bolt(from: Vector2, to: Vector2, bolt_seed: int, fade: float) -> void:
-	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
-	rng.seed = bolt_seed
-	var points: PackedVector2Array = [from]
-	var normal: Vector2 = (to - from).orthogonal().normalized()
-	for k: int in range(1, 6):
-		points.append(from.lerp(to, k / 6.0) + normal * rng.randf_range(-4.0, 4.0))
-	points.append(to)
-	_effects.draw_polyline(points, Color(OfficePaint.CYAN_LIGHT, fade), 1.0, false)
-
-# Fondo de la vitrina: pantalla oscura con cuadrícula tenue y borde cian.
-func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, size), OfficePaint.SCREEN_DARK)
-	for x: int in range(GRID_STEP, int(size.x), GRID_STEP * ZOOM):
-		draw_rect(Rect2(x, 0, 1, size.y), OfficePaint.SCREEN)
-	for y: int in range(GRID_STEP, int(size.y), GRID_STEP * ZOOM):
-		draw_rect(Rect2(0, y, size.x, 1), OfficePaint.SCREEN)
-	OfficePaint.brackets(self, Rect2i(Vector2i(4, 4), Vector2i(size) - Vector2i(8, 8)), OfficePaint.CYAN_DARK)
-	draw_rect(Rect2(Vector2.ZERO, size), OfficePaint.CYAN_DARK, false, 1.0)
+# Borde cian y escuadras por encima del mini nivel.
+func _draw_border() -> void:
+	OfficePaint.brackets(_border, Rect2i(Vector2i(4, 4), Vector2i(size) - Vector2i(8, 8)), OfficePaint.CYAN_DARK)
+	_border.draw_rect(Rect2(Vector2.ZERO, size), OfficePaint.CYAN_DARK, false, 1.0)
