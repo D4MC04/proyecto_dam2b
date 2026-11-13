@@ -3,11 +3,10 @@ extends Control
 ## Vitrina de la Navedex: un mini nivel en vivo (SubViewport) con las piezas reales del juego, para que
 ## se vea igual que en partida.
 ## - Torreta: un trozo del mapa del juego (NavedexMap, generado de resources/map_data/navedex.txt) con la
-##   Turret de verdad sobre su asteroide con plataforma a la izquierda, y una nave de prueba que no muere
-##   sube y baja por el pasillo libre de la derecha, a 48 px de la torreta (alcance de 60 px o más, el
-##   Orbitador no dispara a menos de 40);
-##   la torreta la sigue y le dispara con sus propias balas, ondas, rayos, haces, orbes y escarcha. El
-##   amplificador y la excavadora (con su BuildManager y LevelState, como en partida) van sin nave.
+##   Turret de verdad sobre su asteroide con plataforma a la izquierda (con su BuildManager y LevelState,
+##   como en partida), y por el pasillo libre de la derecha, a 48 px de ella, bajan las naves de su escena
+##   (SCENES), elegidas para que se vea su mecánica; la torreta les dispara con sus propias balas, ondas,
+##   rayos, haces, orbes y escarcha.
 ## - Nave: el Enemy de verdad da vueltas al camino con su animación, su giro y su habilidad (camuflaje,
 ##   pulso EMP...). La Reparadora cura a una nave secundaria, tenue y dañada; la Divisora se parte cada
 ##   pocos segundos como en Spawner. Las no vistas van en silueta negra y sin habilidad. Dan vueltas a un
@@ -19,12 +18,39 @@ const TURRET_ZOOM: int = 1
 const TURRET_SCENE: PackedScene = preload("res://scenes/entities/Turret.tscn")
 const MAP_SCENE: PackedScene = preload("res://scenes/maps/NavedexMap.tscn")
 const ENEMY_SCENE: PackedScene = preload("res://scenes/entities/Enemy.tscn")
-const TARGET_DATA: EnemyData = preload("res://resources/enemy_data/dart_verde.tres")
-# La nave de prueba aguanta lo que haga falta (multiplicador de vida); si aun así cae, sale otra.
-const TARGET_HEALTH: float = 1000.0
-const RESPAWN_TIME: float = 0.6
-# Va despacio (px/s) para que las torretas que giran lento (Rail, 45°/s) lleguen a apuntarle.
-const TARGET_SPEED: float = 30.0
+# Escena de cada torreta base; las mejoras usan la de su base (ver _turret_scene). Las naves bajan por el
+# pasillo y salen por abajo o mueren. Claves: "enemy" (archivo de resources/enemy_data/; sin él no sale
+# ninguna), "speed" (px/s; despacio para que el Rail, que gira a 45°/s, llegue a apuntar), "health"
+# (multiplicador de vida), "interval" (segundos entre salidas), "group" (naves que salen a la vez, una al
+# lado de otra, hasta 3), "max" (naves en la vitrina como mucho) y "helpers" (torretas alrededor:
+# archivo de resources/turret_data/ y casillas desde la torreta). Solo para la vitrina: no cambia el balance.
+const SCENES: Dictionary[String, Dictionary] = {
+	# Lo básico: un disparo tras otro a una nave.
+	"turret": {"enemy": "dart_verde", "speed": 25.0, "health": 4.0, "interval": 3.0},
+	# Naves lentas y duras, seguidas: no le falta objetivo, acelera hasta el tope, se calienta y para.
+	"minigun": {"enemy": "acorazado", "speed": 20.0, "health": 3.0, "interval": 2.5},
+	# Naves rápidas que no mueren: entran corriendo y frenan al pasar la onda.
+	"cryo": {"enemy": "dart_rojo", "speed": 60.0, "health": 100.0, "interval": 1.0},
+	# Grupos de tres juntas: la explosión las alcanza a todas.
+	"rocket_launcher": {"enemy": "nave_normal", "speed": 20.0, "health": 1.0, "interval": 3.5, "group": 3},
+	# Una fila seguida y cerca: la cadena salta de una a otra.
+	"tesla": {"enemy": "nave_normal", "speed": 25.0, "health": 1.0, "interval": 1.0},
+	# Tres en fila, una al lado de otra: al cruzar delante de la torreta el haz las atraviesa todas.
+	"rail": {"enemy": "nave_normal", "speed": 25.0, "health": 1.0, "interval": 4.0, "group": 3},
+	# Una nave dura y lenta, de una en una: el haz no la suelta y sube de nivel hasta romperla.
+	"disintegrator": {"enemy": "acorazado", "speed": 15.0, "health": 1.0, "interval": 1.5, "max": 1},
+	# Naves seguidas que cruzan el anillo y chocan con las cargas.
+	"orbiter": {"enemy": "dart_verde", "speed": 30.0, "health": 1.0, "interval": 1.2},
+	# Un Cañón doble arriba y una Tesla abajo dentro del aura, con naves a las que disparar.
+	"amplifier": {"enemy": "nave_normal", "speed": 25.0, "health": 2.0, "interval": 1.5,
+		"helpers": {"turret": Vector2i(0, -2), "tesla": Vector2i(0, 2)}},
+	# Sin naves: con la oleada en curso, genera dinero.
+	"miner": {},
+}
+# Separación de las naves que salen a la vez (px, de lado a lado del pasillo de 48 px).
+const LANE_GAP: float = 15.0
+# Nave secundaria de la Reparadora.
+const COMPANION_DATA: EnemyData = preload("res://resources/enemy_data/dart_verde.tres")
 # Margen del camino al borde de la vitrina (píxeles del juego; deja sitio a la barra de vida).
 const PATH_MARGIN: float = 14.0
 # Torreta: su x en fracción del ancho. Del mapa (navedex.txt): la casilla de su asteroide y la columna
@@ -53,6 +79,9 @@ var _border: Control
 # Todo lo del mini nivel cuelga de aquí; se rehace al cambiar de dato o de tamaño.
 var _level: Node2D
 var _path: Path2D
+# Torretas: carriles del pasillo (centro, izquierda y derecha) y naves en la vitrina.
+var _lanes: Array[Path2D] = []
+var _ships: Array = []
 var _turret_parent: BuildManager
 var _ship: Enemy
 var _companion: Enemy
@@ -106,6 +135,8 @@ func _rebuild() -> void:
 	_ship = null
 	_companion = null
 	_parts.clear()
+	_lanes.clear()
+	_ships.clear()
 	# Píxeles de pantalla por píxel de la vitrina: el escalado de la ventana (stretch canvas_items, que
 	# get_screen_transform no cuenta) por lo que amplíen los padres.
 	var pixel_scale: float = maxf(roundf((get_viewport().get_final_transform() * get_global_transform_with_canvas()).get_scale().x), 1.0)
@@ -117,13 +148,12 @@ func _rebuild() -> void:
 	_level = Node2D.new()
 	_viewport.add_child(_level)
 	var turret: TurretData = _data as TurretData
-	_path = Path2D.new()
-	_path.curve = Curve2D.new()
 	if turret != null:
 		_build_map(world)
-		_level.add_child(_path)
 		_build_turret(turret, world)
 		return
+	_path = Path2D.new()
+	_path.curve = Curve2D.new()
 	var backdrop: Node2D = Node2D.new()
 	backdrop.draw.connect(_draw_backdrop.bind(backdrop, world))
 	_level.add_child(backdrop)
@@ -143,8 +173,8 @@ func _turret_position(world: Vector2) -> Vector2:
 	return Vector2(world.x * TURRET_X, world.y / 2.0).round()
 
 # El trozo de mapa, colocado para que su casilla de torreta caiga donde va la torreta (el resto se recorta
-# por los bordes), y el camino de la nave de prueba: una línea recta por el centro del pasillo que sale
-# de la vitrina por arriba y por abajo, para que al dar la vuelta no se vea.
+# por los bordes), y los carriles de las naves: rectas por el pasillo que entran por arriba y salen por
+# abajo de la vitrina, para que no se vea dónde aparecen ni dónde se van.
 func _build_map(world: Vector2) -> void:
 	var map: Node2D = MAP_SCENE.instantiate()
 	map.position = _turret_position(world) - (Vector2(MAP_SLOT) + Vector2(0.5, 0.5)) * TILE_SIZE
@@ -152,8 +182,14 @@ func _build_map(world: Vector2) -> void:
 	# El fondo cubre todo el área, así que se coloca en el origen de la vitrina y no del mapa.
 	(map.get_node("Background") as Node2D).position = -map.position
 	var path_x: float = map.position.x + (MAP_PATH_COLUMN + 0.5) * TILE_SIZE
-	_path.curve.add_point(Vector2(path_x, -PATH_MARGIN))
-	_path.curve.add_point(Vector2(path_x, world.y + PATH_MARGIN))
+	for offset: float in [0.0, -LANE_GAP, LANE_GAP]:
+		var lane: Path2D = Path2D.new()
+		lane.curve = Curve2D.new()
+		lane.curve.add_point(Vector2(path_x + offset, -PATH_MARGIN))
+		lane.curve.add_point(Vector2(path_x + offset, world.y + PATH_MARGIN))
+		_level.add_child(lane)
+		_lanes.append(lane)
+	_path = _lanes[0]
 
 func _build_turret(data: TurretData, world: Vector2) -> void:
 	# Como en partida, la torreta cuelga del BuildManager (la excavadora lee de él el estado del nivel).
@@ -168,16 +204,42 @@ func _build_turret(data: TurretData, world: Vector2) -> void:
 	node.data = data
 	node.position = _turret_position(world)
 	_turret_parent.add_child(node)
-	if not data.is_amplifier() and not data.is_miner():
-		_spawn_target()
-
-func _spawn_target() -> void:
-	if _level == null or not is_instance_valid(_path):
+	var scene: Dictionary = _turret_scene(data)
+	var helpers: Dictionary = scene.get("helpers", {})
+	for file: String in helpers:
+		var helper: Turret = TURRET_SCENE.instantiate()
+		helper.data = load(Navedex.TURRET_DIR + file + ".tres") as TurretData
+		helper.position = node.position + Vector2(helpers[file] as Vector2i) * TILE_SIZE
+		_turret_parent.add_child(helper)
+		# Sin Grid que calcule el aura: dentro de la del Amplificador desde el principio.
+		if data.is_amplifier():
+			helper.set_amplification(data.amplifier_level)
+	if not scene.has("enemy"):
 		return
-	var target: Enemy = _spawn(TARGET_DATA, 0.0, TARGET_HEALTH)
-	target.speed = TARGET_SPEED
-	target.died.connect(func(_reward: int) -> void:
-		get_tree().create_timer(RESPAWN_TIME).timeout.connect(_spawn_target))
+	var timer: Timer = Timer.new()
+	timer.wait_time = scene["interval"]
+	timer.autostart = true
+	timer.timeout.connect(_spawn_group.bind(scene))
+	_level.add_child(timer)
+	_spawn_group(scene)
+
+# La escena de la torreta, o la de su base si es una mejora (archivo base + "_fusion").
+func _turret_scene(data: TurretData) -> Dictionary:
+	var file: String = data.resource_path.get_file().get_basename()
+	return SCENES.get(file, SCENES.get(file.trim_suffix("_fusion"), {}))
+
+# Saca por arriba del pasillo las naves de un grupo, una por carril, si caben en la vitrina.
+func _spawn_group(scene: Dictionary) -> void:
+	_ships = _ships.filter(func(ship: Variant) -> bool: return is_instance_valid(ship))
+	var group: int = scene.get("group", 1)
+	if _ships.size() + group > scene.get("max", 99):
+		return
+	var enemy_data: EnemyData = load(Navedex.ENEMY_DIR + scene["enemy"] + ".tres") as EnemyData
+	for lane: Path2D in _lanes.slice(0, group):
+		var ship: Enemy = _spawn(enemy_data, 0.0, scene["health"], lane)
+		ship.loop = false
+		ship.speed = scene["speed"]
+		_ships.append(ship)
 
 # --- Nave ---------------------------------------------------------------------------------
 
@@ -196,7 +258,7 @@ func _build_ship(data: EnemyData) -> void:
 		_ship.sprite.modulate = Color.BLACK
 		return
 	if data.heal_aura:
-		_companion = _spawn(TARGET_DATA, COMPANION_GAP, 1.0)
+		_companion = _spawn(COMPANION_DATA, COMPANION_GAP, 1.0)
 		_companion.speed = _ship.speed
 		_companion.modulate.a = COMPANION_ALPHA
 		_hurt_companion()
@@ -257,10 +319,10 @@ func _split(whole: Enemy) -> void:
 			_parts.append(piece))
 	tween.tween_callback(crack.queue_free)
 
-# Un Enemy en el camino cerrado, que da vueltas sin llegar nunca al final.
-func _spawn(data: EnemyData, progress: float, health: float) -> Enemy:
+# Un Enemy en `path` (por defecto el camino cerrado de las naves), que da vueltas sin llegar nunca al final.
+func _spawn(data: EnemyData, progress: float, health: float, path: Path2D = null) -> Enemy:
 	var enemy: Enemy = ENEMY_SCENE.instantiate()
-	_path.add_child(enemy)
+	(path if path != null else _path).add_child(enemy)
 	enemy.loop = true
 	# El avance antes de setup(), para que su primer giro salga del camino y no de un salto (como en Spawner).
 	enemy.progress = progress
