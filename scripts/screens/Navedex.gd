@@ -31,6 +31,9 @@ const ARROW_SIZE: int = 28
 # Aumento del terminal dibujado y sus piezas en píxeles del terminal (como tablet.png, de frente).
 # MainMenu acerca la oficina hasta ese aumento, así que queda encima de la tablet de la oficina.
 const SCALE: int = 3
+# Alto de la vitrina: mínimo en las naves y fijo en las torretas (cabe con la que más texto lleva).
+const SHIP_SHOWCASE_MIN_HEIGHT: float = 112.0
+const TURRET_SHOWCASE_HEIGHT: float = 112.0
 const FRAME_SIZE: Vector2i = Vector2i(147, 178)
 # Carcasa (con las esquinas de arriba a la izquierda y abajo a la derecha cortadas), asas y pantalla.
 const BODY_RECT: Rect2i = Rect2i(8, 0, 131, 178)
@@ -45,6 +48,7 @@ const BAR_HEIGHT: int = 3
 
 @onready var tablet: Control = %Tablet
 @onready var showcase: NavedexShowcase = %Showcase
+@onready var spacer: Control = %Spacer
 @onready var ships_button: Button = %ShipsButton
 @onready var turrets_button: Button = %TurretsButton
 @onready var fusion_label: Label = %FusionLabel
@@ -172,6 +176,10 @@ func _open_tab(tab: int) -> void:
 	_entries.clear()
 	_stat_max.clear()
 	var enemies: bool = tab == TAB_ENEMIES
+	# Naves: la vitrina crece con el hueco. Torretas: alto fijo y el hueco va entre los stats y el carrusel.
+	showcase.custom_minimum_size.y = SHIP_SHOWCASE_MIN_HEIGHT if enemies else TURRET_SHOWCASE_HEIGHT
+	showcase.size_flags_vertical = Control.SIZE_EXPAND_FILL if enemies else Control.SIZE_FILL
+	spacer.size_flags_vertical = Control.SIZE_FILL if enemies else Control.SIZE_EXPAND_FILL
 	for file: String in (ENEMY_FILES if enemies else TURRET_FILES):
 		var data: InspectableData = load((ENEMY_DIR if enemies else TURRET_DIR) + file + ".tres") as InspectableData
 		_entries.append(data)
