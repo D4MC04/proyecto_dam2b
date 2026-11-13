@@ -1,8 +1,8 @@
-# Vitrina de la Navedex, Amplificador: el Amplificador en el centro con tres torretas dentro de su aura
-# (Cañón doble, Minigun y Tesla) y un camino recto por debajo al que disparan.
+# Vitrina de la Navedex, Amplificador: el Amplificador en el centro con un Cañón pesado y una Tesla a 6 casillas, dentro de su aura, y un camino por debajo.
+# La torreta va en el centro (14,8). Datos de scripts/tools/map_generator.gd.
 
 size = 28 16
-seed = 331
+seed = 449
 rocks = grey brown
-path = 30,10 -3,10
-slots = 14,6 9,7 19,7 14,8
+path = 31,10 -3,10
+slots = 14,8 8,8 20,8

@@ -1,8 +1,9 @@
-# Vitrina de la Navedex, Cryo: el camino baja y hace un codo hacia la izquierda; la torreta va dentro
-# de la curva, a 3 casillas de los dos tramos, para que su onda alcance a las naves de ambos.
+# Vitrina de la Navedex, Cryo: entre dos caminos, uno a cada lado a 3 casillas, dentro de su onda.
+# La torreta va en el centro (14,8). Datos de scripts/tools/map_generator.gd.
 
 size = 28 16
-seed = 311
+seed = 419
 rocks = grey ice
-path = 9,-2 9,11 -3,11
-slots = 6,8
+path = 11,-3 11,19
+path = 17,19 17,-3
+slots = 14,8

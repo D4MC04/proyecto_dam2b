@@ -1,0 +1,8 @@
+# Vitrina de la Navedex, Minigun: el camino sube por su izquierda y baja por su derecha, a 3 casillas, sin salir de su alcance (la vuelta queda fuera de la vitrina).
+# La torreta va en el centro (14,8). Datos de scripts/tools/map_generator.gd.
+
+size = 28 16
+seed = 409
+rocks = grey brown
+path = 11,19 11,2 17,2 17,19
+slots = 14,8

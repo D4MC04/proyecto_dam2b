@@ -1,8 +1,8 @@
-# Vitrina de la Navedex, Rail: el camino llega en recta hacia la torreta y gira hacia abajo 4 casillas
-# antes; la torreta apunta a lo largo del tramo recto y el haz atraviesa la fila entera.
+# Vitrina de la Navedex, Rail: un camino recto que le pasa por delante, 2 casillas por encima; entra en la vitrina ya a su alcance.
+# La torreta va en el centro (14,8). Datos de scripts/tools/map_generator.gd.
 
 size = 28 16
-seed = 317
+seed = 433
 rocks = grey brown
-path = 30,8 10,8 10,17
-slots = 6,8
+path = 31,6 -3,6
+slots = 14,8

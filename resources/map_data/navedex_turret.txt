@@ -1,0 +1,8 @@
+# Vitrina de la Navedex, Cañón doble: un camino recto por debajo, a 2 casillas: lo básico, un disparo tras otro.
+# La torreta va en el centro (14,8). Datos de scripts/tools/map_generator.gd.
+
+size = 28 16
+seed = 401
+rocks = grey brown
+path = 31,10 -3,10
+slots = 14,8

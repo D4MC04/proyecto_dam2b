@@ -1,0 +1,8 @@
+# Vitrina de la Navedex, Cañón pesado: el camino baja por su derecha y sube por su izquierda, a 3 casillas (la vuelta queda fuera de la vitrina).
+# La torreta va en el centro (14,8). Datos de scripts/tools/map_generator.gd.
+
+size = 28 16
+seed = 421
+rocks = brown grey
+path = 17,-3 17,14 11,14 11,-3
+slots = 14,8
