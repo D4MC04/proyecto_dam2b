@@ -1,10 +1,10 @@
-# Vitrina de la Navedex, Orbitador: entre dos caminos, uno por encima y otro por debajo a 3 casillas
-# (48 px), que cruzan su anillo (40-64 px). La torreta va en el centro (14,8). Datos de
-# scripts/tools/map_generator.gd.
+# Vitrina de la Navedex, Orbitador: entre dos caminos que cruzan su anillo (40-64 px), uno 2 casillas
+# por encima (32 px: pasa también por el hueco de dentro) y otro 3 por debajo (48 px). La torreta va en
+# el centro (14,8). Datos de scripts/tools/map_generator.gd.
 
 size = 28 16
 seed = 443
 rocks = grey brown
-path = -3,5 31,5
+path = -3,6 31,6
 path = 31,11 -3,11
 slots = 14,8
