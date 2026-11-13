@@ -23,6 +23,9 @@ const LOW_HEALTH_FRACTION: float = 0.25
 const VIGNETTE_MIN_INTENSITY: float = 0.25
 const VIGNETTE_MAX_INTENSITY: float = 0.8
 const VIGNETTE_PULSE_TIME: float = 0.5
+# Texto de la opción de salir de la pausa: normal y en el nivel de emergencia, donde salir es saltarlo.
+const QUIT_TEXT: String = "BTN_QUIT"
+const SKIP_TEXT: String = "TUTORIAL_SKIP"
 # Acción del tutorial que corresponde a cada poder.
 const POWER_ACTIONS: Dictionary[Powers.Power, TutorialHints.Action] = {
 	Powers.Power.METEOR: TutorialHints.Action.POWER_METEOR,
@@ -59,6 +62,8 @@ var _screen_delay: Tween
 var _fast_speed: bool = false
 # Latido de la viñeta; null si está apagada.
 var _vignette_pulse: Tween
+# En el nivel de emergencia no hay poderes: ni se ven ni responden las teclas.
+var _powers_enabled: bool = true
 
 func _ready() -> void:
 	_update_fps_label()
@@ -77,6 +82,7 @@ func _ready() -> void:
 	info_panel.orbital_button.pressed.connect(_use_power.bind(Powers.Power.ORBITAL))
 	tutorial_hints.sidebar = sidebar
 	tutorial_hints.info_panel = info_panel
+	tutorial_hints.turret_actions = turret_actions
 	sidebar.tutorial_hints = tutorial_hints
 	turret_actions.tutorial_hints = tutorial_hints
 	set_state(UiState.PLAYING)
@@ -124,11 +130,24 @@ func setup(state: LevelState, turrets: Array[TurretData], level_number: int, spa
 	info_panel.show_inspected(state.inspected)
 	info_panel.show_sellable(state.sellable_turret)
 	turret_actions.show_for(state.sellable_turret, state.money)
-	# El tutorial sale en el nivel 1 hasta que se acaba o se salta; necesita setup_powers antes.
-	if level_number == 1 and not GameState.tutorial_done:
-		tutorial_hints.start(state, spawner, _powers)
-	else:
-		tutorial_hints.stop()
+	# El tutorial solo sale en el nivel de emergencia, que lo arranca después con start_emergency.
+	tutorial_hints.stop()
+	_set_powers_enabled(true)
+	pause_menu.set_option_text(OverlayScreen.Option.QUIT, QUIT_TEXT)
+
+## Monta el nivel de emergencia (el nivel de prueba) sobre lo que dejó setup: rótulo "SECTOR 0", sin poderes
+## y con el tutorial de NOVA. Game lo llama justo después de setup.
+func start_emergency(level: Level) -> void:
+	level_indicator.set_title(tr("HUD_EMERGENCY"))
+	_set_powers_enabled(false)
+	# En la pausa, "Salir" es "Saltar": sale del nivel de emergencia y lo da por hecho (Game._quit_to_menu).
+	pause_menu.set_option_text(OverlayScreen.Option.QUIT, SKIP_TEXT)
+	tutorial_hints.start(level)
+
+func _set_powers_enabled(enabled: bool) -> void:
+	_powers_enabled = enabled
+	info_panel.meteor_button.get_parent().visible = enabled
+	info_panel.powers_header.visible = enabled
 
 ## Powers es nuevo en cada nivel o reinicio: los botones pasan a leer el nuevo. Va antes que setup.
 func setup_powers(powers: Powers) -> void:
@@ -156,9 +175,9 @@ func _set_vignette(active: bool) -> void:
 	_vignette_pulse.tween_method(func(value: float) -> void: material.set_shader_parameter(&"intensity", value),
 			VIGNETTE_MAX_INTENSITY, VIGNETTE_MIN_INTENSITY, VIGNETTE_PULSE_TIME).set_trans(Tween.TRANS_SINE)
 
-# Los poderes solo se usan jugando.
+# Los poderes solo se usan jugando (y no en el nivel de emergencia).
 func _use_power(power: Powers.Power) -> void:
-	if is_instance_valid(_powers) and _ui_state == UiState.PLAYING and tutorial_hints.allows(POWER_ACTIONS[power]):
+	if _powers_enabled and is_instance_valid(_powers) and _ui_state == UiState.PLAYING and tutorial_hints.allows(POWER_ACTIONS[power]):
 		_powers.use(power)
 
 # Cualquier clic sobre la interfaz suelta la torreta colocada, menos en el recuadro de Mejorar y Vender:
@@ -319,8 +338,13 @@ func set_state(new_state: UiState) -> void:
 			_show_screen(screen))
 		return
 	_show_screen(_screens_by_state.get(new_state))
-	# Con una pantalla abierta el tutorial no se ve (no tapa la pausa ni señala botones de debajo).
+	# Con una pantalla abierta el tutorial no se ve: la pausa ya oscurece toda la pantalla igual.
 	tutorial_hints.visible = new_state == UiState.PLAYING
+	# La pausa deshabilita todo: las barras no reciben el ratón, pero siguen animándose (botones, escáner).
+	var panels_mouse: Control.MouseBehaviorRecursive = (Control.MOUSE_BEHAVIOR_DISABLED if new_state == UiState.PAUSED
+			else Control.MOUSE_BEHAVIOR_INHERITED)
+	sidebar.mouse_behavior_recursive = panels_mouse
+	info_panel.mouse_behavior_recursive = panels_mouse
 	get_tree().paused = new_state != UiState.PLAYING
 
 ## Abre la pausa solo si se está jugando; en pausa, derrota o victoria no hace nada.

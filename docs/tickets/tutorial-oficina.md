@@ -12,14 +12,15 @@ Al empezar una partida, el jugador cae en la oficina sin saber qué es cada obje
 
 ## Qué hay que hacer
 - **Antes de tocar nada**, preguntar al usuario cómo quiere el tutorial de la oficina (qué enseñar y en qué orden) y hacerlo así.
-- Primera fase del tutorial: en una partida nueva, el guía (NOVA, mismo estilo que `TutorialHints`) enseña la oficina: girar la silla, la mesa de sectores, la tablet (archivo), las opciones, las stats, la vitrina y la puerta.
-- Al acabar, lleva a la segunda fase: el nivel de prueba del ticket `tutorial-nivel-prueba`.
+- Última fase del tutorial. Orden de una partida nueva: intro (`intro-partida`) → nivel de emergencia (`tutorial-nivel-prueba`) → oficina. Sale al llegar a la oficina por primera vez después del nivel de emergencia (hecho o saltado).
+- Si el nivel de emergencia se ganó (sale su pantalla de victoria y se vuelve con "Menú"), NOVA empieza felicitando por superarlo y de ahí pasa al tutorial de la oficina; si se saltó o se abandonó, empieza sin felicitar. Hay que guardar en `GameState` cómo acabó (ahora `tutorial_done` solo dice que ya se pasó por él; `Game._quit_to_menu` lo marca).
+- El guía (NOVA, mismo estilo y foco que el nivel de emergencia: se oscurece todo menos lo que se señala y su recuadro) enseña solo lo necesario, de forma inmersiva. Propuesta para enseñar al usuario: que la oficina tiene varias vistas girando la silla ("echa un vistazo alrededor"), la mesa de sectores (donde se juega) y las opciones. Logros, vitrina, stats y archivo no se explican (como mucho, "lo demás, explóralo tú").
 - Se puede saltar, y no vuelve a salir en esa ranura una vez hecho o saltado.
 
 ## Qué leer
 Solo esto; `/work` no lee nada más de docs/design.
 - docs/design/menu.md › "Oficina" y "Comportamiento"
-- docs/design/ui.md › "Tutorial del nivel 1" (estilo del guía)
+- docs/design/ui.md › "Tutorial del nivel de emergencia" (estilo del guía y foco)
 - scripts/level_ui/TutorialHints.gd
 - scripts/autoloads/GameState.gd › `tutorial_done`, `complete_tutorial()`
 
@@ -32,6 +33,5 @@ Solo esto; `/work` no lee nada más de docs/design.
 - docs/design/menu.md, docs/design/ui.md
 
 ## Cómo se prueba a mano
-1. Empezar una partida en una ranura vacía: en la oficina sale NOVA y enseña cada objeto.
-2. Al acabar, lleva al nivel de prueba.
-3. Volver a la oficina: el tutorial no vuelve a salir. "Saltar" también lo da por hecho.
+1. Empezar una partida en una ranura vacía y acabar o saltar el nivel de emergencia: en la oficina sale NOVA y enseña lo acordado.
+2. Volver a la oficina: el tutorial no vuelve a salir. "Saltar" también lo da por hecho.

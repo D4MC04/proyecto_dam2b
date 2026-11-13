@@ -35,6 +35,7 @@ const HINT_END_MARGIN: float = 1.0
 @onready var description_label: Label = %DescriptionLabel
 @onready var scroll_hint: Control = %ScrollHint
 @onready var scan_flash: Control = %ScanFlash
+@onready var powers_header: Control = $Content/PowersHeader
 @onready var meteor_button: PowerButton = %MeteorButton
 @onready var freeze_button: PowerButton = %FreezeButton
 @onready var orbital_button: PowerButton = %OrbitalButton

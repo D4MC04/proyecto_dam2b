@@ -1,9 +1,9 @@
 extends SceneTree
-## Genera los mapas de los niveles a partir de resources/map_data/level_N.txt, y el de la vitrina de
-## la Navedex a partir de navedex.txt.
+## Genera los mapas de los niveles a partir de resources/map_data/level_N.txt, el de la vitrina de
+## la Navedex a partir de navedex.txt y el del nivel de emergencia a partir de emergency.txt.
 ##
-## Uso: godot --headless --path . -s scripts/tools/map_generator.gd -- [N | navedex ...]
-## Sin argumentos genera los 9 niveles y el de la Navedex.
+## Uso: godot --headless --path . -s scripts/tools/map_generator.gd -- [N | navedex | emergency ...]
+## Sin argumentos genera los 9 niveles, el de la Navedex y el del nivel de emergencia.
 ##
 ## Los caminos no se dibujan: son pasillos de espacio libre que atraviesan un campo de asteroides
 ## que llena el resto del mapa. La orilla del pasillo va casi llena y dentro del campo no quedan
@@ -35,6 +35,9 @@ const SHOWCASE_DATA_PATH: String = "res://resources/map_data/navedex.txt"
 const SHOWCASE_SCENE_PATH: String = "res://scenes/maps/NavedexMap.tscn"
 # Casilla de estación de un mapa sin estación: tan lejos que no tapa nada
 const NO_STATION: Vector2i = Vector2i(-1000, -1000)
+const EMERGENCY_NAME: String = "emergency"
+const EMERGENCY_DATA_PATH: String = "res://resources/map_data/emergency.txt"
+const EMERGENCY_SCENE_PATH: String = "res://scenes/maps/levels/Emergency.tscn"
 const MAP_SCRIPT: String = "res://scripts/level/Map.gd"
 const BACKGROUND_SCENE: String = "res://scenes/maps/SpaceBackground.tscn"
 const BASE_SCENE: String = "res://scenes/entities/Base.tscn"
@@ -196,9 +199,12 @@ func _initialize() -> void:
 		for n: int in range(1, LEVEL_COUNT + 1):
 			names.append(str(n))
 		names.append(SHOWCASE_NAME)
+		names.append(EMERGENCY_NAME)
 	for map_name: String in names:
 		if map_name == SHOWCASE_NAME:
 			_generate(SHOWCASE_DATA_PATH, SHOWCASE_SCENE_PATH)
+		elif map_name == EMERGENCY_NAME:
+			_generate(EMERGENCY_DATA_PATH, EMERGENCY_SCENE_PATH)
 		else:
 			_generate(DATA_PATH % map_name.to_int(), SCENE_PATH % map_name.to_int())
 	quit()

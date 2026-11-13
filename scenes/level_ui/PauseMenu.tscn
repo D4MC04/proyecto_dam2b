@@ -11,7 +11,7 @@
 
 [node name="PauseMenu" instance=ExtResource("1_overlay")]
 script = ExtResource("3_pause")
-dim_opacity = 0.35
+dim_opacity = 0.6
 
 [node name="Title" parent="Center/Frame/Margin/Box" index="0"]
 text = "PAUSE_TITLE"

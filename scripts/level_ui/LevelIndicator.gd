@@ -32,6 +32,12 @@ func set_level_number(number: int) -> void:
 	_level_number = number
 	level_label.text = tr("HUD_LEVEL_N") % number if number > 0 else ""
 
+## Pone un rótulo en vez de "SECTOR N" (el nivel de emergencia no está en GameData.levels: sale "SECTOR 0").
+func set_title(text: String) -> void:
+	visible = true
+	_level_number = 0
+	level_label.text = text
+
 func set_wave(number: int, total: int) -> void:
 	_wave = Vector2i(number, total)
 	wave_label.text = tr("HUD_WAVE_N_OF") % [number, total]

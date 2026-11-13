@@ -9,9 +9,8 @@ No se puede deshacer.","The save in slot %d will be deleted.
 This cannot be undone."
 BTN_DELETE,Borrar,Delete
 BTN_CANCEL,Cancelar,Cancel
-HUD_LEVEL,NIVEL,LEVEL
+HUD_LEVEL,SECTOR,SECTOR
 HUD_WAVE,OLEADA,WAVE
-TUTORIAL_OK,Entendido,Got it
 TUTORIAL_SKIP,Saltar,Skip
 DEFEAT_TITLE,"SEÑAL
 PERDIDA","SIGNAL
@@ -36,7 +35,7 @@ HEADER_POWERS,PODERES,POWERS
 VICTORY_TITLE,"SECTOR
 ASEGURADO","SECTOR
 SECURED"
-BTN_NEXT_LEVEL,Siguiente nivel,Next level
+BTN_NEXT_LEVEL,Siguiente sector,Next sector
 BTN_PLAY,Jugar,Play
 BTN_ARCHIVE,Archivo,Archive
 BTN_STATS,Stats,Stats
@@ -127,7 +126,7 @@ ENEMY_SABOTEADORA_DESC,Nave de guerra electrónica. Sus pulsos EMP apagan las to
 ENEMY_WASP_NAME,Wasp,Wasp
 ENEMY_WASP_DESC,Insecto mecánico ágil con más blindaje que un Dart.,Agile mechanical insect with more armor than a Dart.
 AWARD_PERFECT,PERFECTA,PERFECT
-HUD_LEVEL_N,NIVEL %d,LEVEL %d
+HUD_LEVEL_N,SECTOR %d,SECTOR %d
 HUD_WAVE_N_OF,OLEADA %d/%d,WAVE %d/%d
 HUD_WAVE_N,OLEADA %d,WAVE %d
 HUD_WAVE_LAST,ÚLTIMA OLEADA,FINAL WAVE
@@ -142,7 +141,7 @@ STATS_KILLS,Naves destruidas: %d,Ships destroyed: %d
 STATS_SPENT,Dinero gastado: %s,Money spent: %s
 STATS_TIME,Tiempo jugado: %dh %02dm,Time played: %dh %02dm
 STATS_FAVORITE,Torreta favorita: %s,Favorite turret: %s
-STATS_WINS,Niveles ganados: %d,Levels won: %d
+STATS_WINS,Sectores ganados: %d,Sectors won: %d
 NAVEDEX_SHIPS,NAVES,SHIPS
 NAVEDEX_ACHIEVEMENTS,LOGROS,ACHIEVEMENTS
 NAVEDEX_UPGRADE,MEJORA: %s,UPGRADE: %s
@@ -151,27 +150,31 @@ SLOT_EMPTY,RANURA VACÍA,EMPTY SLOT
 SLOT_SECTOR,SECTOR %02d,SECTOR %02d
 SLOT_SAVED,GUARDADO,SAVED
 SLOT_PLAYED,JUGADO,PLAYED
-TUTORIAL_PICK_TURRET,"¡Hola, recluta! Los enemigos vienen a por la estación. Elige una torreta en la barra de la derecha.","Hi, recruit! The enemies are coming for the station. Pick a turret from the bar on the right."
-TUTORIAL_PLACE_TURRET,Bien. Ahora haz clic en los asteroides con plataforma libre para colocar 3 torretas.,Good. Now click on asteroids with a free platform to place 3 turrets.
-TUTORIAL_START_WAVE,Lista la defensa. Abre la pestaña Oleadas y pulsa Siguiente oleada (o Espacio).,Defense ready. Open the Waves tab and press Next wave (or Space).
-TUTORIAL_WAIT_WAVE_END,"Ahí vienen. Si la oleada se hace larga, el botón ×1 de abajo acelera el tiempo.","Here they come. If the wave drags on, the ×1 button below speeds up time."
-TUTORIAL_INSPECT_TURRET,¡Oleada superada! Vuelve a la pestaña Torretas y haz clic en una de las tuyas del mapa para ver su ficha.,Wave cleared! Go back to the Turrets tab and click one of your turrets on the map to see its card.
-TUTORIAL_FUSE_INFO,"Desde la ficha puedes venderla o, si tiene mejora, pulsar Mejorar para convertirla en una más fuerte.","From the card you can sell it or, if it has an upgrade, press Upgrade to turn it into a stronger one."
-TUTORIAL_DESELECT_INFO,"Para soltar la torreta de la tienda o cerrar la ficha, haz clic derecho o en un hueco vacío del mapa.","To drop the shop turret or close the card, right-click or click an empty spot on the map."
-TUTORIAL_POWERS_INFO,"Tienes tres poderes en la ficha: meteorito (Q), congelar (E) y rayo orbital (R), que barre una fila.","You have three powers on the card: meteor (Q), freeze (E) and orbital beam (R), which sweeps a row."
-TUTORIAL_POWERS,Prueba uno: el meteorito (Q) o congelar (E). El rayo orbital es para luego.,Try one: the meteor (Q) or freeze (E). Save the orbital beam for later.
-TUTORIAL_DONE,¡Eso es! El resto es cosa tuya. Suerte ahí fuera.,That's it! The rest is up to you. Good luck out there.
+TUTORIAL_STATION,"¡Comandante, por fin has llegado! Aquí NOVA, desde la sala de control. Nos atacan y no aguantaremos mucho solos.","Commander, you made it! NOVA here, from the control room. We are under attack and won't last long on our own."
+TUTORIAL_STATION_BASE,"Si sus naves alcanzan la estación, sufriremos graves daños.","If their ships reach the station, we'll take heavy damage."
+TUTORIAL_STATION_HEALTH,Puedes comprobar su estado desde la barra de la derecha.,You can check its status in the right-hand bar.
+TUTORIAL_PREPARE,Debemos preparar nuestras defensas cuanto antes.,We must get our defenses ready as soon as possible.
+TUTORIAL_PLACE_TURRETS,Nos quedan créditos para tres Cañones Dobles. Móntalos en los asteroides con plataforma.,We have credits left for three Twin Cannons. Mount them on the asteroids with a platform.
+TUTORIAL_OPEN_WAVES,"Nuestros sensores han detectado la próxima oleada. Abre la pestaña ""Oleadas"" para ver lo que hemos encontrado.",Sensors detect the first wave. Open the Waves tab and let's see what's coming.
+TUTORIAL_INSPECT_ENEMY,Ahí están. Pulsa una de esas naves para ver sus datos.,There they are. Click one of those ships and I'll scan it.
+TUTORIAL_ENEMY_INFO,"El análisis aparecerá en el panel izquierdo: vida, velocidad, botín y el daño que recibiremos si colisiona. Conocer al enemigo es crucial para poder interceptar sus ataques.","The scan shows up in the left panel: health, speed, loot and the damage it does if it gets through. Knowing the enemy is half the battle."
+TUTORIAL_START_WAVE,"Cuando hayas acabado de preparar las defensas, pulsa INICIAR y abriremos fuego tan pronto como aparezcan.","When your defense is ready, press START and we open fire."
+TUTORIAL_UPGRADE_PICK,¡Primera oleada neutralizada! Con el botín podemos reforzar uno de nuestros cañones: selecciona uno.,First wave repelled! With the loot we can reinforce a cannon: select one.
+TUTORIAL_UPGRADE_GIFT,"Andamos cortos de créditos... Desvío fondos de reserva para la mejora, pero que no se repita. Selecciona uno de tus cañones.","We're short on credits... I'm diverting reserve funds for the upgrade, but don't make me do it again. Select one of your cannons."
+TUTORIAL_UPGRADE_PRESS,"Pulsa ""Mejorar"" para convertirlo en un Cañón Cuádruple.",Press Upgrade and we'll turn it into a Quad Cannon.
+TUTORIAL_DONE,"¡Así se hace! Vienen dos oleadas más. Aguanta, comandante, seguro que resistiremos.","That's it! Two more waves incoming. Hold on, commander, and we'll make it."
+HUD_EMERGENCY,SECTOR 0,SECTOR 0
 ACH_FIRST_WIN_NAME,Primera victoria,First victory
-ACH_FIRST_WIN_DESC,Gana un nivel,Win a level
+ACH_FIRST_WIN_DESC,Gana un sector,Win a sector
 ACH_FLAWLESS_NAME,Intacto,Flawless
-ACH_FLAWLESS_DESC,Gana un nivel sin perder vida,Win a level without losing health
+ACH_FLAWLESS_DESC,Gana un sector sin perder vida,Win a sector without losing health
 ACH_ALL_LEVELS_NAME,Sector despejado,Sector cleared
-ACH_ALL_LEVELS_DESC,Gana el último nivel,Win the last level
+ACH_ALL_LEVELS_DESC,Gana el último sector,Win the last sector
 ACH_PHASE_BRONZE,bronce,bronze
 ACH_PHASE_SILVER,plata,silver
 ACH_PHASE_GOLD,oro,gold
 ACH_WINS_NAME,Veterano,Veteran
-ACH_WINS_DESC,Gana %d niveles,Win %d levels
+ACH_WINS_DESC,Gana %d sectores,Win %d sectors
 ACH_KILLS_NAME,Cazador,Hunter
 ACH_KILLS_DESC,Destruye %d naves,Destroy %d ships
 ACH_SEEN_NAME,Observador,Observer

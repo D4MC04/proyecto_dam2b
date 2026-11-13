@@ -71,6 +71,8 @@ const STATUS_COLORS: Dictionary[WaveStatus, Color] = {
 @onready var next_wave_arrow: Button = %NextWaveArrow
 @onready var wave_title_panel: PanelContainer = %WaveTitlePanel
 @onready var wave_title_label: Label = %WaveTitleLabel
+@onready var station_header: Control = %StationHeader
+@onready var credits_header: Control = %CreditsHeader
 @onready var station_bar: ProgressBar = %StationBar
 @onready var station_value_label: Label = %StationValueLabel
 @onready var footer_wave_label: Label = %FooterWaveLabel
@@ -226,6 +228,10 @@ func view_wave(index: int) -> void:
 	WaveBlock.apply_title_style(wave_title_panel, wave_title_label, state)
 	prev_wave_arrow.disabled = _viewed_wave == 0
 	next_wave_arrow.disabled = _viewed_wave == _wave_blocks.size() - 1
+
+## Bloque de la oleada que se está viendo en la pestaña Oleadas (null si no hay oleadas). Lo señala el tutorial.
+func get_viewed_wave_block() -> WaveBlock:
+	return null if _wave_blocks.is_empty() else _wave_blocks[_viewed_wave]
 
 ## Pie de la barra: "OL. X/Y" y el estado de la oleada. Lo calcula LevelUI.
 func set_wave_status(status: WaveStatus, wave_number: int, total: int) -> void:
