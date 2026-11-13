@@ -25,6 +25,7 @@ La casilla del mapa es de 16x16 px. Los sprites de juego son múltiplos de esa m
 | Meteorito (`assets/sprites/effects/meteor/`): roca en llamas 48x24 (4 frames, cabeza a la derecha), chispa 8x8 (4), explosión 112x112 (12), marca de aviso 96x96, marca de quemado 64x64 |
 | Ataque orbital (`assets/sprites/effects/orbital/`): carga 32x32 (6 frames), emisor 32x32 (4), impacto 32x24 (4), chispa 8x8 (4), destello final 64x64 (8), tramo de estela quemada 8x14 (3 variantes) |
 | Onda del Cryo | 128x128 |
+| Congelar (`assets/sprites/effects/freeze/`): copo 7x7 (3 variantes), escarcha de esquina 112x112 (copos de 6 brazos y polvo); la onda se pinta en código |
 | Texturas de haz y rayo (se repiten a lo largo de una línea) | 32 px de ancho y 3 a 15 de alto |
 | Tiles de espacio | 16x16, con piezas de 2x1, 1x2, 2x2, 3x2 y 3x3 casillas |
 | Asteroides de las casillas de torreta | 32x32 (2x2 casillas) |
