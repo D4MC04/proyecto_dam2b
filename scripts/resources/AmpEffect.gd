@@ -30,8 +30,12 @@ const MIN_SLOW_FACTOR: float = 0.25
 @export var normal: float
 @export var major: float
 
-## Valor del efecto con un Amplificador de nivel `level` (1 normal, 2 mayor).
+## Valor del efecto con un Amplificador de nivel `level` (1 normal, 2 mayor, 3 mayor + medio salto).
 func get_value(level: int) -> float:
+	if level >= 3:
+		var value: float = major + (major - normal) * 0.5
+		# Los objetivos de la cadena son enteros.
+		return roundf(value) if kind == Kind.TARGETS else value
 	return major if level >= 2 else normal
 
 ## Fila de la ficha de una torreta amplificada: nombre del stat que mejora y cuánto.

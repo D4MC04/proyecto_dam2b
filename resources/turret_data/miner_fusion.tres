@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" path="res://assets/sprites/turrets/miner_fusion/miner_full_up.png" id="2"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/miner_fusion.tres" id="3"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/miner_fusion_cannon.tres" id="4"]
+[ext_resource type="Resource" path="res://resources/turret_data/miner_level3.tres" id="level3"]
 
 [resource]
 script = ExtResource("1")
@@ -15,4 +16,5 @@ sprite_frames = ExtResource("3")
 cannon = ExtResource("4")
 money_amount = 20
 description = "TURRET_MINER_FUSION_DESC"
+fusion = ExtResource("level3")
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

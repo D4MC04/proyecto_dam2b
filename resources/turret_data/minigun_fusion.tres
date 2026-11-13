@@ -9,6 +9,7 @@
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/minigun_fusion_cannon.tres" id="7"]
 [ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Turret/DobleLaserShoot.wav" id="snd"]
 [ext_resource type="Resource" path="res://resources/amp_effects/minigun.tres" id="amp"]
+[ext_resource type="Resource" path="res://resources/turret_data/minigun_level3.tres" id="level3"]
 
 [resource]
 script = ExtResource("1")
@@ -31,4 +32,5 @@ overheat_cool_time = 3.0
 spin_up_time = 0.3
 amp_effect = ExtResource("amp")
 description = "TURRET_MINIGUN_FUSION_DESC"
+fusion = ExtResource("level3")
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

@@ -10,6 +10,7 @@
 [ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Rail/RailgunShoot.wav" id="snd"]
 [ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Rail/RailgunCharging.wav" id="chg"]
 [ext_resource type="Resource" path="res://resources/amp_effects/rail.tres" id="amp"]
+[ext_resource type="Resource" path="res://resources/turret_data/rail_level3.tres" id="level3"]
 
 [resource]
 script = ExtResource("1")
@@ -28,4 +29,5 @@ turn_speed = 45.0
 beam = ExtResource("3")
 amp_effect = ExtResource("amp")
 description = "TURRET_RAIL_FUSION_DESC"
+fusion = ExtResource("level3")
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

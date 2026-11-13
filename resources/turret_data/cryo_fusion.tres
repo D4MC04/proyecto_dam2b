@@ -8,6 +8,7 @@
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/cryo_fusion_cannon.tres" id="7"]
 [ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Cryo/IceShoot.wav" id="snd"]
 [ext_resource type="Resource" path="res://resources/amp_effects/cryo.tres" id="amp"]
+[ext_resource type="Resource" path="res://resources/turret_data/cryo_level3.tres" id="level3"]
 
 [resource]
 script = ExtResource("1")
@@ -22,4 +23,5 @@ cannon = ExtResource("7")
 pulse = ExtResource("3")
 amp_effect = ExtResource("amp")
 description = "TURRET_CRYO_FUSION_DESC"
+fusion = ExtResource("level3")
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"
