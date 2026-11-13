@@ -23,7 +23,6 @@
 [ext_resource type="Script" path="res://scripts/main_menu/CombatScoreboard.gd" id="33_scoreboard"]
 [ext_resource type="Script" path="res://scripts/main_menu/OptionsConsole.gd" id="34_maintenance"]
 [ext_resource type="Script" path="res://scripts/main_menu/TurnArrow.gd" id="35_arrow"]
-[ext_resource type="PackedScene" path="res://scenes/AchievementsScreen.tscn" id="36_achievements"]
 [ext_resource type="Script" path="res://scripts/main_menu/OfficeLights.gd" id="37_lights"]
 [ext_resource type="Texture2D" path="res://assets/sprites/office/left_static.png" id="38_left_room"]
 [ext_resource type="Texture2D" path="res://assets/sprites/office/center_static.png" id="39_center_room"]
@@ -451,10 +450,6 @@ text = "BTN_BACK"
 visible = false
 layout_mode = 1
 
-[node name="AchievementsScreen" parent="." instance=ExtResource("36_achievements")]
-visible = false
-layout_mode = 1
-
 [node name="OptionsCloseUp" type="Control" parent="."]
 visible = false
 layout_mode = 1
@@ -549,7 +544,6 @@ size_2d_override_stretch = true
 render_target_update_mode = 4
 
 [connection signal="pressed" from="Office/Views/LeftView/ExitDoor" to="." method="_on_exit_door_pressed"]
-[connection signal="pressed" from="Office/Views/RightView/MedalCase" to="." method="_on_medal_case_pressed"]
 [connection signal="pressed" from="Office/Views/CenterView/RadarConsole" to="." method="_on_radar_console_pressed"]
 [connection signal="pressed" from="Office/Views/CenterView/ArchiveTablet" to="." method="_on_archive_tablet_pressed"]
 [connection signal="pressed" from="Office/Views/LeftView/CombatScoreboard" to="." method="_on_combat_scoreboard_pressed"]
@@ -559,7 +553,6 @@ render_target_update_mode = 4
 [connection signal="pressed" from="LevelSelectionScreen/LevelsPanel/Margin/Content/VolverButton" to="." method="_close_panel"]
 [connection signal="pressed" from="StatsScreen/StatsPanel/Margin/Content/BackButton" to="." method="_close_panel"]
 [connection signal="back_pressed" from="Navedex" to="." method="_close_panel"]
-[connection signal="back_pressed" from="AchievementsScreen" to="." method="_close_panel"]
 [connection signal="back_pressed" from="OptionsCloseUp" to="." method="_close_panel"]
 [connection signal="pressed" from="QuitConfirm/Center/Panel/Margin/Content/Buttons/QuitButton" to="." method="_on_quit_button_pressed"]
 [connection signal="pressed" from="QuitConfirm/Center/Panel/Margin/Content/Buttons/CancelButton" to="." method="_close_quit_confirm"]
