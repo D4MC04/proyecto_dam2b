@@ -702,6 +702,9 @@ func register_damage(amount: float, killed: bool) -> void:
 
 ## Dinero que devuelve vender la torreta: la mitad de lo invertido, redondeada hacia abajo.
 func get_sell_value() -> int:
+	# El nivel 3 (el único sin `fusion`) devuelve la mitad de su precio, no de todo lo invertido.
+	if data.fusion == null:
+		return floori(data.cost / 2.0)
 	return floori(invested / 2.0)
 
 ## Se materializa: una línea de escaneo cian sube por la base y el cañón; lo de encima es holograma.
