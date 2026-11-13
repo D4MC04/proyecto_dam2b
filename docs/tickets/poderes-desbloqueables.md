@@ -13,6 +13,7 @@ Ahora los tres poderes (meteorito, congelar y rayo orbital) están desde el prim
 ## Qué hay que hacer
 - **Antes de tocar nada**, preguntar al usuario: en qué nivel se desbloquea cada poder, cuánto cuesta usarlo y qué recarga nueva lleva.
 - Los poderes no están disponibles desde el principio: cada uno se desbloquea en su nivel (se guarda en `GameState`). Los bloqueados no se ven o salen bloqueados en la fila de poderes, según diga el usuario.
+- Antes de desbloquear el primero no sale nada de poderes en la ficha: ni la fila ni la cabecera "PODERES" (como ya pasa en el nivel de emergencia con `LevelUI._set_powers_enabled`, que esconde las dos).
 - Usar un poder cuesta dinero (`LevelState.spend_money`); sin dinero suficiente no se lanza.
 - Recargas más cortas que las actuales (45, 60 y 75 s).
 - Mini tutorial al desbloquear el primero: NOVA (mismo estilo y foco que el nivel de emergencia) explica qué son los poderes y cómo se usan (botón o Q/E/R, apuntar, recarga y coste).

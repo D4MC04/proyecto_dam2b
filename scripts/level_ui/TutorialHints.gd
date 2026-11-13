@@ -5,9 +5,6 @@ class_name TutorialHints
 ## pide algo, oscurece la pantalla menos lo que hay que tocar (y su recuadro), solo deja hacer eso y
 ## no se va hasta que se hace. Entre peticiones se juega libre. Va en tiempo real: el ×2 no lo acelera.
 
-## "Saltar" pulsado dos veces (la segunda confirma): Game sale del nivel de emergencia.
-signal skip_requested
-
 enum Step { STATION, STATION_BASE, STATION_HEALTH, PREPARE, PLACE_TURRETS, OPEN_WAVES, INSPECT_ENEMY,
 		ENEMY_INFO, START_WAVE, FIRST_WAVE, UPGRADE_PICK, UPGRADE_PRESS, DONE, FREE }
 # Acciones del jugador que el tutorial puede bloquear; cada sitio donde entran pregunta con allows().
@@ -45,8 +42,6 @@ const TEXTS: Dictionary[Step, String] = {
 }
 # Texto de UPGRADE_PICK cuando NOVA tiene que poner el dinero que falta para la mejora.
 const UPGRADE_GIFT_TEXT: String = "TUTORIAL_UPGRADE_GIFT"
-const SKIP_CONFIRM_TEXT: String = "TUTORIAL_SKIP_CONFIRM"
-const SKIP_TEXT: String = "TUTORIAL_SKIP"
 # Pasos que no esperan una acción del juego: se pasan con un clic en cualquier sitio (o Intro/Espacio).
 const INFO_STEPS: Array[Step] = [Step.STATION, Step.STATION_BASE, Step.STATION_HEALTH, Step.PREPARE,
 		Step.ENEMY_INFO, Step.DONE]
@@ -99,7 +94,6 @@ const ARROW_BOB_TIME: float = 0.8
 @onready var box: Control = %Box
 @onready var message_label: Label = %MessageLabel
 @onready var continue_arrow: Control = %ContinueArrow
-@onready var skip_button: Button = %SkipButton
 
 var sidebar: Sidebar
 var info_panel: InfoPanel
@@ -113,7 +107,6 @@ var _dim_tween: Tween
 var _dim_alpha: float = 0.0
 # Segundos reales desde que empezó el tutorial: mueven el parpadeo y la flecha.
 var _time: float = 0.0
-var _confirming_skip: bool = false
 # La flecha de "sigue" toca (página escrita y algo que pasar); se ve si además se ve el recuadro.
 var _arrow_wanted: bool = false
 # Páginas del mensaje actual y la que se ve.
@@ -153,7 +146,6 @@ class Hole:
 		border = has_border
 
 func _ready() -> void:
-	skip_button.pressed.connect(_on_skip_pressed)
 	continue_arrow.draw.connect(_draw_continue_arrow)
 	_set_active(false)
 
@@ -194,15 +186,12 @@ func _waiting_for_talk() -> bool:
 func _refresh_children() -> void:
 	box.visible = _active and _step not in HIDDEN_STEPS
 	continue_arrow.visible = box.visible and _arrow_wanted
-	skip_button.visible = _active
 
 func _set_active(active: bool) -> void:
 	_active = active
 	_step = Step.FREE
 	_arrow_wanted = false
 	_refresh_children()
-	_confirming_skip = false
-	skip_button.text = tr(SKIP_TEXT)
 	_dim_alpha = 0.0
 	_holes.clear()
 	_spots.clear()
@@ -407,8 +396,6 @@ func _input(event: InputEvent) -> void:
 		return
 	var click: InputEventMouseButton = event as InputEventMouseButton
 	var is_click: bool = click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT
-	if is_click and skip_button.get_global_rect().has_point(click.global_position):
-		return
 	if not is_click and not event.is_action_pressed("ui_accept"):
 		return
 	get_viewport().set_input_as_handled()
@@ -424,14 +411,6 @@ func _input(event: InputEvent) -> void:
 func _advance_info() -> void:
 	if NEXT_AFTER_OK.has(_step):
 		_show_step(NEXT_AFTER_OK[_step])
-
-# Saltar pide confirmar con un segundo clic, como vender.
-func _on_skip_pressed() -> void:
-	if _confirming_skip:
-		skip_requested.emit()
-		return
-	_confirming_skip = true
-	skip_button.text = tr(SKIP_CONFIRM_TEXT)
 
 func _process(delta: float) -> void:
 	# delta sigue Engine.time_scale: se deshace para que el ×2 no acelere el parpadeo ni la flecha.
@@ -515,10 +494,14 @@ func _focus_spotlights() -> Array[Spotlight]:
 		Step.PLACE_TURRETS:
 			for cell: Vector2i in _free_slots():
 				_add_slot_spotlight(spots, cell)
-			# Las ya colocadas siguen a la vista hasta que estén las 3.
+			# Las ya colocadas siguen a la vista hasta que estén las 3, sin borde: ya no hay que tocarlas.
 			for turret: Turret in _placed_turrets():
-				_add_slot_spotlight(spots, _level.grid.cell(turret.global_position))
-				_add_turret_spotlight(spots, turret, true)
+				var slot: Spotlight = _add_slot_spotlight(spots, _level.grid.cell(turret.global_position))
+				slot.outlined = false
+				for sprite: AnimatedSprite2D in [turret.sprite, turret.cannon]:
+					var spot: Spotlight = _add_sprite_spotlight(spots, sprite)
+					if spot != null:
+						spot.outlined = false
 		Step.UPGRADE_PICK:
 			for turret: Turret in _placed_turrets():
 				_add_slot_spotlight(spots, _level.grid.cell(turret.global_position))

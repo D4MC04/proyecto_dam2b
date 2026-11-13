@@ -23,6 +23,9 @@ const LOW_HEALTH_FRACTION: float = 0.25
 const VIGNETTE_MIN_INTENSITY: float = 0.25
 const VIGNETTE_MAX_INTENSITY: float = 0.8
 const VIGNETTE_PULSE_TIME: float = 0.5
+# Texto de la opción de salir de la pausa: normal y en el nivel de emergencia, donde salir es saltarlo.
+const QUIT_TEXT: String = "BTN_QUIT"
+const SKIP_TEXT: String = "TUTORIAL_SKIP"
 # Acción del tutorial que corresponde a cada poder.
 const POWER_ACTIONS: Dictionary[Powers.Power, TutorialHints.Action] = {
 	Powers.Power.METEOR: TutorialHints.Action.POWER_METEOR,
@@ -80,7 +83,6 @@ func _ready() -> void:
 	tutorial_hints.sidebar = sidebar
 	tutorial_hints.info_panel = info_panel
 	tutorial_hints.turret_actions = turret_actions
-	tutorial_hints.skip_requested.connect(_request_action.bind(Action.QUIT))
 	sidebar.tutorial_hints = tutorial_hints
 	turret_actions.tutorial_hints = tutorial_hints
 	set_state(UiState.PLAYING)
@@ -131,12 +133,15 @@ func setup(state: LevelState, turrets: Array[TurretData], level_number: int, spa
 	# El tutorial solo sale en el nivel de emergencia, que lo arranca después con start_emergency.
 	tutorial_hints.stop()
 	_set_powers_enabled(true)
+	pause_menu.set_option_text(OverlayScreen.Option.QUIT, QUIT_TEXT)
 
 ## Monta el nivel de emergencia (el nivel de prueba) sobre lo que dejó setup: rótulo "SECTOR 0", sin poderes
 ## y con el tutorial de NOVA. Game lo llama justo después de setup.
 func start_emergency(level: Level) -> void:
 	level_indicator.set_title(tr("HUD_EMERGENCY"))
 	_set_powers_enabled(false)
+	# En la pausa, "Salir" es "Saltar": sale del nivel de emergencia y lo da por hecho (Game._quit_to_menu).
+	pause_menu.set_option_text(OverlayScreen.Option.QUIT, SKIP_TEXT)
 	tutorial_hints.start(level)
 
 func _set_powers_enabled(enabled: bool) -> void:
@@ -335,10 +340,11 @@ func set_state(new_state: UiState) -> void:
 	_show_screen(_screens_by_state.get(new_state))
 	# Con una pantalla abierta el tutorial no se ve: la pausa ya oscurece toda la pantalla igual.
 	tutorial_hints.visible = new_state == UiState.PLAYING
-	# La pausa deshabilita todo: las barras dejan de procesar (y de recibir el ratón) con el árbol en pausa.
-	var panels_mode: Node.ProcessMode = Node.PROCESS_MODE_PAUSABLE if new_state == UiState.PAUSED else Node.PROCESS_MODE_INHERIT
-	sidebar.process_mode = panels_mode
-	info_panel.process_mode = panels_mode
+	# La pausa deshabilita todo: las barras no reciben el ratón, pero siguen animándose (botones, escáner).
+	var panels_mouse: Control.MouseBehaviorRecursive = (Control.MOUSE_BEHAVIOR_DISABLED if new_state == UiState.PAUSED
+			else Control.MOUSE_BEHAVIOR_INHERITED)
+	sidebar.mouse_behavior_recursive = panels_mouse
+	info_panel.mouse_behavior_recursive = panels_mouse
 	get_tree().paused = new_state != UiState.PLAYING
 
 ## Abre la pausa solo si se está jugando; en pausa, derrota o victoria no hace nada.
