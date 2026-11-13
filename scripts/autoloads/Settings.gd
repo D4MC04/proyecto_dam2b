@@ -28,7 +28,8 @@ var _values: Dictionary[StringName, Variant] = {
 	&"music_volume": 1.0,
 	&"sfx_volume": 1.0,
 	&"muted": false,
-	&"fullscreen": false,
+	# Igual que window/size/mode=3 de project.godot: el juego arranca en pantalla completa.
+	&"fullscreen": true,
 	&"vsync": true,
 	&"show_fps": false,
 	&"show_turret_range": false,
@@ -52,10 +53,19 @@ func _ready() -> void:
 	for key: StringName in _values:
 		_apply(key)
 
+# Dentro del editor (F5 incrustado en Godot 4.7) la ventana no se puede cambiar.
+func fullscreen_supported() -> bool:
+	return not Engine.is_embedded_in_editor()
+
 func get_value(key: StringName) -> Variant:
+	# Lo que se enseña coincide con la ventana real: incrustado, siempre ventana.
+	if key == &"fullscreen" and not fullscreen_supported():
+		return false
 	return _values[key]
 
 func set_value(key: StringName, value: Variant) -> void:
+	if key == &"fullscreen" and not fullscreen_supported():
+		return
 	_values[key] = value
 	_apply(key)
 	_save()
@@ -72,7 +82,11 @@ func _apply(key: StringName) -> void:
 			# Silencia el bus Master sin tocar los volúmenes: al quitarlo vuelven como estaban.
 			AudioServer.set_bus_mute(AudioServer.get_bus_index(&"Master"), value)
 		&"fullscreen":
-			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if value else DisplayServer.WINDOW_MODE_WINDOWED)
+			if fullscreen_supported():
+				# OFF = ventana maximizada: ocupa la pantalla menos la barra de tareas.
+				# Al restaurarla usa window_*_override de project.godot, que es menor que el monitor porque
+				# Windows convierte una ventana del tamaño exacto de la pantalla en pantalla completa exclusiva.
+				DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if value else DisplayServer.WINDOW_MODE_MAXIMIZED)
 		&"vsync":
 			DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED if value else DisplayServer.VSYNC_DISABLED)
 		&"language":
