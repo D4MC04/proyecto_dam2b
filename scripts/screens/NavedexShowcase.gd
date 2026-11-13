@@ -12,15 +12,17 @@ extends Control
 ##   pocos segundos como en Spawner. Las no vistas van en silueta negra y sin habilidad. Dan vueltas a un
 ##   camino cerrado (rectángulo) sobre un fondo de pantalla oscura con cuadrícula.
 
-# Aumento del mini nivel: las naves de cerca; las torretas a ×1, con la cámara lejos para ver más mapa.
-const SHIP_ZOOM: int = 2
-const TURRET_ZOOM: int = 1
+# Aumento del mini nivel: las naves de cerca; las torretas a ×1, con la cámara lejos para ver más mapa
+# (o el "zoom" de su escena).
+const SHIP_ZOOM: float = 2.0
+const TURRET_ZOOM: float = 1.0
 const TURRET_SCENE: PackedScene = preload("res://scenes/entities/Turret.tscn")
 const ENEMY_SCENE: PackedScene = preload("res://scenes/entities/Enemy.tscn")
 # Escena de cada torreta base; las mejoras usan la de su base (ver _turret_base). Claves:
 # - "map": trozo de mapa (scenes/maps/<Nombre>Map.tscn, generado de resources/map_data/<nombre>.txt con
-#   map_generator.gd; "navedex_<torreta>" si falta), "slot": su casilla de torreta (MAP_SLOT si falta) y
-#   "view": dónde queda esa casilla en la vitrina, en fracción del ancho y del alto (centrada si falta).
+#   map_generator.gd; "navedex_<torreta>" si falta), "slot": su casilla de torreta (MAP_SLOT si falta),
+#   "view": dónde queda esa casilla en la vitrina, en fracción del ancho y del alto (centrada si falta), y
+#   "zoom": el aumento (TURRET_ZOOM si falta).
 # - Las naves van por los caminos del mapa como en una oleada: entran donde cada camino entra en la
 #   vitrina y salen por otro borde o mueren. "enemy" (archivo de resources/enemy_data/; sin él no sale
 #   ninguna), "speed" (px/s; despacio para que el Rail, que gira a 45°/s, llegue a apuntar), "health"
@@ -29,32 +31,37 @@ const ENEMY_SCENE: PackedScene = preload("res://scenes/entities/Enemy.tscn")
 # - "helpers": torretas de alrededor (archivo de resources/turret_data/ y su casilla del mapa).
 # Solo para la vitrina: no cambia el balance.
 const SCENES: Dictionary[String, Dictionary] = {
-	# Un camino recto por debajo: lo básico, un disparo tras otro a una nave.
-	"turret": {"enemy": "dart_verde", "speed": 25.0, "health": 4.0, "interval": 3.0},
-	# El camino sube por su izquierda y baja por su derecha (la vuelta queda fuera de la vitrina):
-	# Acorazados lentos y duros que no salen de su alcance, así que acelera hasta el tope, se calienta y para.
-	"minigun": {"enemy": "acorazado", "speed": 20.0, "health": 3.0, "interval": 2.5},
+	# Pasillo vertical a su derecha (navedex.txt): lo básico, un disparo tras otro, a grupos de tres naves
+	# con pausa entre grupo y grupo.
+	"turret": {"map": "navedex", "slot": Vector2i(6, 8), "view": Vector2(0.3, 0.5),
+		"enemy": "dart_verde", "speed": 25.0, "health": 4.0, "interval": 6.0, "group": 3},
+	# Pasillo vertical a su derecha: Acorazados lentos y duros seguidos, así que no le falta objetivo,
+	# acelera hasta el tope, se calienta y para.
+	"minigun": {"map": "navedex", "slot": Vector2i(6, 8), "view": Vector2(0.3, 0.5),
+		"enemy": "acorazado", "speed": 20.0, "health": 3.0, "interval": 2.5},
 	# Entre dos caminos, uno a cada lado a 3 casillas, dentro de su onda: Darts rápidos que no mueren
 	# entran corriendo por arriba y por abajo y frenan al pasar junto a ella.
 	"cryo": {"enemy": "dart_rojo", "speed": 60.0, "health": 100.0, "interval": 1.6},
-	# El camino baja por su derecha y sube por su izquierda (la vuelta queda fuera de la vitrina): grupos
-	# de tres, y la explosión alcanza a las de al lado.
-	"rocket_launcher": {"enemy": "nave_normal", "speed": 20.0, "health": 1.0, "interval": 4.0, "group": 3},
-	# Un camino en zigzag a su alrededor: naves seguidas y cerca entre tramos, y la cadena salta de una a otra.
-	"tesla": {"enemy": "nave_normal", "speed": 25.0, "health": 1.0, "interval": 1.2},
-	# Un camino recto que le pasa por delante, 2 casillas por encima, y entra en la vitrina ya a su alcance:
-	# apunta y carga desde lejos y el haz atraviesa la fila entera, que viene casi en su línea.
-	"rail": {"enemy": "nave_normal", "speed": 25.0, "health": 1.0, "interval": 6.0, "group": 4},
+	# Pasillo vertical a su derecha: grupos de tres, y la explosión alcanza a las de al lado.
+	"rocket_launcher": {"map": "navedex", "slot": Vector2i(6, 8), "view": Vector2(0.3, 0.5),
+		"enemy": "nave_normal", "speed": 20.0, "health": 1.0, "interval": 4.0, "group": 3},
+	# Un camino en zigzag a su alrededor: oleadas de cuatro naves, y la cadena salta de una a otra.
+	"tesla": {"enemy": "nave_normal", "speed": 25.0, "health": 1.0, "interval": 6.0, "group": 4},
+	# Al final de un tramo recto que viene hacia ella: el haz atraviesa la fila entera.
+	"rail": {"slot": Vector2i(6, 8), "view": Vector2(0.3, 0.5),
+		"enemy": "nave_normal", "speed": 25.0, "health": 1.0, "interval": 5.0, "group": 4},
 	# El camino le pasa por encima en arco, siempre a su alcance: un Acorazado lento cada vez, al que el haz
 	# no suelta y sube de nivel hasta romperlo.
 	"disintegrator": {"enemy": "acorazado", "speed": 15.0, "health": 1.0, "interval": 1.5, "max": 1},
-	# Un camino recto por debajo que cruza su anillo dos veces (y pasa por el hueco de dentro, donde no
-	# llega): las naves chocan con las cargas.
+	# Entre dos caminos, uno a cada lado a 3 casillas, dentro de su anillo: las naves de los dos chocan
+	# con las cargas.
 	"orbiter": {"enemy": "dart_verde", "speed": 30.0, "health": 1.0, "interval": 1.5},
 	# Un Cañón pesado a un lado y una Tesla al otro, separados, dentro de su aura, y un camino por debajo:
-	# la onda los hace brillar, la explosión del cañón es más grande y la cadena salta a más naves.
-	"amplifier": {"enemy": "nave_normal", "speed": 25.0, "health": 2.0, "interval": 3.0,
-		"helpers": {"rocket_launcher": Vector2i(8, 8), "tesla": Vector2i(20, 8)}},
+	# la onda los hace brillar, la explosión del cañón es más grande y la cadena salta a más naves. Más
+	# lejos (×0,5) para que el aura entera (100 px de radio) quepa en la vitrina.
+	"amplifier": {"slot": Vector2i(22, 9), "zoom": 0.5,
+		"enemy": "nave_normal", "speed": 25.0, "health": 2.0, "interval": 3.0,
+		"helpers": {"rocket_launcher": Vector2i(16, 9), "tesla": Vector2i(28, 9)}},
 	# Sin naves: con la oleada en curso, genera dinero.
 	"miner": {"map": "navedex", "slot": Vector2i(6, 8), "view": Vector2(0.3, 0.5)},
 }
@@ -83,7 +90,7 @@ var _data: InspectableData
 var _known: bool = true
 var _viewport: SubViewport
 # Aumento del mini nivel en uso (SHIP_ZOOM o TURRET_ZOOM).
-var _zoom: int = SHIP_ZOOM
+var _zoom: float = SHIP_ZOOM
 var _border: Control
 # Todo lo del mini nivel cuelga de aquí; se rehace al cambiar de dato o de tamaño.
 var _level: Node2D
@@ -136,7 +143,7 @@ func _notification(what: int) -> void:
 func show_data(data: InspectableData, known: bool) -> void:
 	_data = data
 	_known = known
-	_zoom = TURRET_ZOOM if data is TurretData else SHIP_ZOOM
+	_zoom = SHIP_ZOOM if data is EnemyData else SCENES.get(_turret_base(data as TurretData), {}).get("zoom", TURRET_ZOOM)
 	_rebuild()
 
 func _rebuild() -> void:
@@ -153,7 +160,7 @@ func _rebuild() -> void:
 	var pixel_scale: float = maxf(roundf((get_viewport().get_final_transform() * get_global_transform_with_canvas()).get_scale().x), 1.0)
 	_viewport.size = Vector2i((size * pixel_scale).round())
 	_viewport.canvas_transform = Transform2D.IDENTITY.scaled(Vector2.ONE * pixel_scale * _zoom)
-	var world: Vector2 = (size / float(_zoom)).floor()
+	var world: Vector2 = (size / _zoom).floor()
 	if _data == null or world.x < 2.0 * PATH_MARGIN or world.y < 2.0 * PATH_MARGIN:
 		return
 	_level = Node2D.new()
