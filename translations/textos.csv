@@ -158,8 +158,7 @@ TUTORIAL_STATION,"¡Comandante, por fin has llegado! Aquí NOVA, desde la sala d
 TUTORIAL_STATION_BASE,"Si sus naves alcanzan la estación, sufriremos graves daños.","If their ships reach the station, we'll take heavy damage."
 TUTORIAL_STATION_HEALTH,Puedes comprobar su estado desde la barra de la derecha.,You can check its status in the right-hand bar.
 TUTORIAL_PREPARE,Debemos preparar nuestras defensas cuanto antes.,We must get our defenses ready as soon as possible.
-TUTORIAL_CREDITS,Nos quedan créditos para tres Cañones Dobles.,We have credits left for three Twin Cannons.
-TUTORIAL_PLACE_TURRETS,Móntalos en los asteroides con plataforma.,Mount them on the asteroids with a platform.
+TUTORIAL_PLACE_TURRETS,Nos quedan créditos para tres Cañones Dobles. Móntalos en los asteroides con plataforma.,We have credits left for three Twin Cannons. Mount them on the asteroids with a platform.
 TUTORIAL_OPEN_WAVES,"Nuestros sensores han detectado la próxima oleada. Abre la pestaña ""Oleadas"" para ver lo que hemos encontrado.",Sensors detect the first wave. Open the Waves tab and let's see what's coming.
 TUTORIAL_INSPECT_ENEMY,Ahí están. Pulsa una de esas naves para ver sus datos.,There they are. Click one of those ships and I'll scan it.
 TUTORIAL_ENEMY_INFO,"El análisis aparecerá en el panel izquierdo: vida, velocidad, botín y el daño que recibiremos si colisiona. Conocer al enemigo es crucial para poder interceptar sus ataques.","The scan shows up in the left panel: health, speed, loot and the damage it does if it gets through. Knowing the enemy is half the battle."

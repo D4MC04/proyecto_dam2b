@@ -8,7 +8,7 @@ class_name TutorialHints
 ## "Saltar" pulsado dos veces (la segunda confirma): Game sale del nivel de emergencia.
 signal skip_requested
 
-enum Step { STATION, STATION_BASE, STATION_HEALTH, PREPARE, CREDITS, PLACE_TURRETS, OPEN_WAVES, INSPECT_ENEMY,
+enum Step { STATION, STATION_BASE, STATION_HEALTH, PREPARE, PLACE_TURRETS, OPEN_WAVES, INSPECT_ENEMY,
 		ENEMY_INFO, START_WAVE, FIRST_WAVE, UPGRADE_PICK, UPGRADE_PRESS, DONE, FREE }
 # Acciones del jugador que el tutorial puede bloquear; cada sitio donde entran pregunta con allows().
 enum Action { SELECT_TURRET, BUILD, RELEASE_TURRET, SELECT_PLACED, TAB_TURRETS, TAB_WAVES, NEXT_WAVE, WAVE_ARROWS,
@@ -16,7 +16,7 @@ enum Action { SELECT_TURRET, BUILD, RELEASE_TURRET, SELECT_PLACED, TAB_TURRETS, 
 
 # Pasos en los que NOVA pide algo o enseña algo: se oscurece todo menos lo señalado y solo valen las
 # acciones de ALLOWED_ACTIONS (un paso sin entrada no deja ninguna). En los demás todo es libre.
-const FOCUS_STEPS: Array[Step] = [Step.STATION, Step.STATION_BASE, Step.STATION_HEALTH, Step.PREPARE, Step.CREDITS,
+const FOCUS_STEPS: Array[Step] = [Step.STATION, Step.STATION_BASE, Step.STATION_HEALTH, Step.PREPARE,
 		Step.PLACE_TURRETS, Step.OPEN_WAVES, Step.INSPECT_ENEMY, Step.ENEMY_INFO, Step.START_WAVE, Step.UPGRADE_PICK,
 		Step.UPGRADE_PRESS]
 const ALLOWED_ACTIONS: Dictionary[Step, Array] = {
@@ -34,7 +34,6 @@ const TEXTS: Dictionary[Step, String] = {
 	Step.STATION_BASE: "TUTORIAL_STATION_BASE",
 	Step.STATION_HEALTH: "TUTORIAL_STATION_HEALTH",
 	Step.PREPARE: "TUTORIAL_PREPARE",
-	Step.CREDITS: "TUTORIAL_CREDITS",
 	Step.PLACE_TURRETS: "TUTORIAL_PLACE_TURRETS",
 	Step.OPEN_WAVES: "TUTORIAL_OPEN_WAVES",
 	Step.INSPECT_ENEMY: "TUTORIAL_INSPECT_ENEMY",
@@ -49,18 +48,17 @@ const UPGRADE_GIFT_TEXT: String = "TUTORIAL_UPGRADE_GIFT"
 const SKIP_CONFIRM_TEXT: String = "TUTORIAL_SKIP_CONFIRM"
 const SKIP_TEXT: String = "TUTORIAL_SKIP"
 # Pasos que no esperan una acción del juego: se pasan con un clic en cualquier sitio (o Intro/Espacio).
-const INFO_STEPS: Array[Step] = [Step.STATION, Step.STATION_BASE, Step.STATION_HEALTH, Step.PREPARE, Step.CREDITS,
+const INFO_STEPS: Array[Step] = [Step.STATION, Step.STATION_BASE, Step.STATION_HEALTH, Step.PREPARE,
 		Step.ENEMY_INFO, Step.DONE]
-# Pasos que piden hacer algo y aun así señalan y dejan hacerlo mientras NOVA habla: lo que se pide
-# sigue directamente a lo que acaba de hacer el jugador (al elegir una torreta, Mejorar).
+# Pasos que piden hacer algo y aun así dejan hacerlo mientras NOVA habla: lo que se pide sigue
+# directamente a lo que acaba de hacer el jugador (al elegir una torreta, Mejorar).
 const NO_WAIT_STEPS: Array[Step] = [Step.UPGRADE_PRESS]
 # Paso al que lleva pasar cada mensaje informativo.
 const NEXT_AFTER_OK: Dictionary[Step, Step] = {
 	Step.STATION: Step.STATION_BASE,
 	Step.STATION_BASE: Step.STATION_HEALTH,
 	Step.STATION_HEALTH: Step.PREPARE,
-	Step.PREPARE: Step.CREDITS,
-	Step.CREDITS: Step.PLACE_TURRETS,
+	Step.PREPARE: Step.PLACE_TURRETS,
 	Step.ENEMY_INFO: Step.START_WAVE,
 	Step.DONE: Step.FREE,
 }
@@ -113,8 +111,6 @@ var _dim_alpha: float = 0.0
 # Segundos reales desde que empezó el tutorial: mueven el parpadeo y la flecha.
 var _time: float = 0.0
 var _confirming_skip: bool = false
-# Con la pausa abierta se esconden el recuadro y "Saltar", pero el oscurecido sigue (debajo de la pausa).
-var _paused: bool = false
 # La flecha de "sigue" toca (página escrita y algo que pasar); se ve si además se ve el recuadro.
 var _arrow_wanted: bool = false
 # Páginas del mensaje actual y la que se ve.
@@ -167,31 +163,26 @@ func stop() -> void:
 	_set_active(false)
 
 ## Si el paso actual deja hacer `action`. Sin tutorial en marcha o fuera de los pasos con foco todo vale.
-## En un paso con foco no se deja nada hasta que NOVA acaba de hablar (salvo en NO_WAIT_STEPS).
+## En un paso con foco no se deja nada hasta que NOVA acaba de hablar (salvo en NO_WAIT_STEPS); lo
+## señalado, en cambio, se ve desde que empieza.
 func allows(action: Action) -> bool:
 	if not _active or _step not in FOCUS_STEPS:
 		return true
 	return not _waiting_for_talk() and action in ALLOWED_ACTIONS.get(_step, [])
 
-## Con la pausa abierta (LevelUI) el recuadro y "Saltar" se esconden; el oscurecido se queda, debajo
-## de la pantalla de pausa.
-func set_paused(paused: bool) -> void:
-	_paused = paused
-	_refresh_children()
-
 # NOVA aún escribe o le quedan páginas.
 func _is_talking() -> bool:
 	return _step not in HIDDEN_STEPS and (_has_more_pages() or message_label.visible_ratio < 1.0)
 
-# Un paso que pide hacer algo no señala nada ni deja hacer nada hasta que NOVA acaba de hablar; los
-# informativos señalan desde el principio (habla de ello) y los de NO_WAIT_STEPS no esperan.
+# Un paso que pide hacer algo no deja hacerlo hasta que NOVA acaba de hablar (los de NO_WAIT_STEPS no
+# esperan).
 func _waiting_for_talk() -> bool:
 	return _step not in INFO_STEPS and _step not in NO_WAIT_STEPS and _is_talking()
 
 func _refresh_children() -> void:
-	box.visible = _active and not _paused and _step not in HIDDEN_STEPS
+	box.visible = _active and _step not in HIDDEN_STEPS
 	continue_arrow.visible = box.visible and _arrow_wanted
-	skip_button.visible = _active and not _paused
+	skip_button.visible = _active
 
 func _set_active(active: bool) -> void:
 	_active = active
@@ -474,11 +465,8 @@ func _focus_holes() -> Array[Hole]:
 	match _step:
 		Step.STATION_HEALTH:
 			holes.append(_control_hole(sidebar.station_header, true))
-		Step.CREDITS:
-			holes.append(_control_hole(sidebar.credits_header, true))
-			holes.append(_control_hole(sidebar.turret_buttons.get_child(0)
-					if sidebar.turrets_page.visible else sidebar.turrets_tab, true))
 		Step.PLACE_TURRETS:
+			holes.append(_control_hole(sidebar.credits_header, true))
 			holes.append(_control_hole(sidebar.turret_buttons.get_child(0)
 					if sidebar.turrets_page.visible else sidebar.turrets_tab, true))
 		Step.OPEN_WAVES:
@@ -504,6 +492,10 @@ func _focus_spotlights() -> Array[Spotlight]:
 		Step.PLACE_TURRETS:
 			for cell: Vector2i in _free_slots():
 				_add_slot_spotlight(spots, cell)
+			# Las ya colocadas siguen a la vista hasta que estén las 3.
+			for turret: Turret in _placed_turrets():
+				_add_slot_spotlight(spots, _level.grid.cell(turret.global_position))
+				_add_turret_spotlight(spots, turret, true)
 		Step.UPGRADE_PICK:
 			for turret: Turret in _placed_turrets():
 				_add_slot_spotlight(spots, _level.grid.cell(turret.global_position))
@@ -569,7 +561,8 @@ func _draw() -> void:
 	# Al salir de un paso con foco el oscurecido se desvanece entero, ya sin huecos.
 	var holes: Array[Hole] = []
 	var spots: Array[Spotlight] = []
-	if _step in FOCUS_STEPS and not _waiting_for_talk():
+	# Lo señalado se ve desde que NOVA empieza a hablar.
+	if _step in FOCUS_STEPS:
 		holes = _focus_holes()
 		spots = _focus_spotlights()
 	var rects: Array[Rect2] = []

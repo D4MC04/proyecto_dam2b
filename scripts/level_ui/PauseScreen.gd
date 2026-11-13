@@ -19,6 +19,9 @@ var _cursor_label: Label
 
 func _ready() -> void:
 	super()
+	# El oscurecido tapa toda la pantalla (también las barras), no solo el área de juego donde vive la pausa.
+	background.top_level = true
+	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_add_cursor()
 	title_label.add_theme_color_override("font_color", accent_color)
 	folded_tag.accent_color = accent_color

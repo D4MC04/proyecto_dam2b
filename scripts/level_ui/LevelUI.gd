@@ -142,6 +142,7 @@ func start_emergency(level: Level) -> void:
 func _set_powers_enabled(enabled: bool) -> void:
 	_powers_enabled = enabled
 	info_panel.meteor_button.get_parent().visible = enabled
+	info_panel.powers_header.visible = enabled
 
 ## Powers es nuevo en cada nivel o reinicio: los botones pasan a leer el nuevo. Va antes que setup.
 func setup_powers(powers: Powers) -> void:
@@ -332,10 +333,12 @@ func set_state(new_state: UiState) -> void:
 			_show_screen(screen))
 		return
 	_show_screen(_screens_by_state.get(new_state))
-	# Con la pausa el tutorial deja su oscurecido (por debajo de la pantalla de pausa, que tiene un
-	# z_index mayor) pero esconde el recuadro y "Saltar".
-	tutorial_hints.visible = true
-	tutorial_hints.set_paused(new_state == UiState.PAUSED)
+	# Con una pantalla abierta el tutorial no se ve: la pausa ya oscurece toda la pantalla igual.
+	tutorial_hints.visible = new_state == UiState.PLAYING
+	# La pausa deshabilita todo: las barras dejan de procesar (y de recibir el ratón) con el árbol en pausa.
+	var panels_mode: Node.ProcessMode = Node.PROCESS_MODE_PAUSABLE if new_state == UiState.PAUSED else Node.PROCESS_MODE_INHERIT
+	sidebar.process_mode = panels_mode
+	info_panel.process_mode = panels_mode
 	get_tree().paused = new_state != UiState.PLAYING
 
 ## Abre la pausa solo si se está jugando; en pausa, derrota o victoria no hace nada.
