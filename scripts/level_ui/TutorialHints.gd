@@ -164,7 +164,7 @@ func stop() -> void:
 
 ## Si el paso actual deja hacer `action`. Sin tutorial en marcha o fuera de los pasos con foco todo vale.
 ## En un paso con foco no se deja nada hasta que NOVA acaba de hablar (salvo en NO_WAIT_STEPS); lo
-## señalado, en cambio, se ve desde que empieza.
+## señalado, en cambio, se ve desde que empieza la última página.
 func allows(action: Action) -> bool:
 	if not _active or _step not in FOCUS_STEPS:
 		return true
@@ -561,8 +561,8 @@ func _draw() -> void:
 	# Al salir de un paso con foco el oscurecido se desvanece entero, ya sin huecos.
 	var holes: Array[Hole] = []
 	var spots: Array[Spotlight] = []
-	# Lo señalado se ve desde que NOVA empieza a hablar.
-	if _step in FOCUS_STEPS:
+	# Lo señalado se ve desde que empieza la última página del mensaje (antes, todo oscuro).
+	if _step in FOCUS_STEPS and not _has_more_pages():
 		holes = _focus_holes()
 		spots = _focus_spotlights()
 	var rects: Array[Rect2] = []

@@ -10,7 +10,7 @@
 [sub_resource type="Resource" id="Resource_yjrma"]
 script = ExtResource("1_53ows")
 enemy_data = ExtResource("2_sldy7")
-count = 8
+count = 10
 spacing = 0.4
 pause_after = 1.5
 
@@ -23,14 +23,14 @@ pause_after = 1.5
 [sub_resource type="Resource" id="Resource_qds5k"]
 script = ExtResource("1_53ows")
 enemy_data = ExtResource("4_1ydu4")
-count = 6
+count = 5
 spacing = 0.7
 pause_after = 1.5
 
 [sub_resource type="Resource" id="Resource_q12un"]
 script = ExtResource("1_53ows")
 enemy_data = ExtResource("5_xlkx5")
-count = 8
+count = 10
 spacing = 0.4
 pause_after = 1.5
 
@@ -43,7 +43,7 @@ pause_after = 1.5
 [sub_resource type="Resource" id="Resource_o5hjo"]
 script = ExtResource("1_53ows")
 enemy_data = ExtResource("4_1ydu4")
-count = 6
+count = 5
 spacing = 0.7
 pause_after = 1.5
 
