@@ -1,9 +1,9 @@
 extends SceneTree
-## Genera los mapas de los niveles a partir de resources/map_data/level_N.txt, y el de la vitrina de
-## la Navedex a partir de navedex.txt.
+## Genera los mapas de los niveles a partir de resources/map_data/level_N.txt, y los de la vitrina de
+## la Navedex a partir de navedex*.txt (navedex_cryo.txt -> scenes/maps/NavedexCryoMap.tscn).
 ##
-## Uso: godot --headless --path . -s scripts/tools/map_generator.gd -- [N | navedex ...]
-## Sin argumentos genera los 9 niveles y el de la Navedex.
+## Uso: godot --headless --path . -s scripts/tools/map_generator.gd -- [N | navedex | navedex_cryo ...]
+## Sin argumentos genera los 9 niveles y los de la Navedex.
 ##
 ## Los caminos no se dibujan: son pasillos de espacio libre que atraviesan un campo de asteroides
 ## que llena el resto del mapa. La orilla del pasillo va casi llena y dentro del campo no quedan
@@ -31,8 +31,8 @@ const LEVEL_COUNT: int = 9
 const DATA_PATH: String = "res://resources/map_data/level_%d.txt"
 const SCENE_PATH: String = "res://scenes/maps/levels/Level%d.tscn"
 const SHOWCASE_NAME: String = "navedex"
-const SHOWCASE_DATA_PATH: String = "res://resources/map_data/navedex.txt"
-const SHOWCASE_SCENE_PATH: String = "res://scenes/maps/NavedexMap.tscn"
+const SHOWCASE_DATA_PATH: String = "res://resources/map_data/%s.txt"
+const SHOWCASE_SCENE_PATH: String = "res://scenes/maps/%sMap.tscn"
 # Casilla de estación de un mapa sin estación: tan lejos que no tapa nada
 const NO_STATION: Vector2i = Vector2i(-1000, -1000)
 const MAP_SCRIPT: String = "res://scripts/level/Map.gd"
@@ -195,10 +195,12 @@ func _initialize() -> void:
 	if names.is_empty():
 		for n: int in range(1, LEVEL_COUNT + 1):
 			names.append(str(n))
-		names.append(SHOWCASE_NAME)
+		for file: String in DirAccess.get_files_at(DATA_PATH.get_base_dir()):
+			if file.begins_with(SHOWCASE_NAME):
+				names.append(file.get_basename())
 	for map_name: String in names:
-		if map_name == SHOWCASE_NAME:
-			_generate(SHOWCASE_DATA_PATH, SHOWCASE_SCENE_PATH)
+		if map_name.begins_with(SHOWCASE_NAME):
+			_generate(SHOWCASE_DATA_PATH % map_name, SHOWCASE_SCENE_PATH % map_name.to_pascal_case())
 		else:
 			_generate(DATA_PATH % map_name.to_int(), SCENE_PATH % map_name.to_int())
 	quit()

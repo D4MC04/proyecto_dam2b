@@ -1,0 +1,8 @@
+# Vitrina de la Navedex, Cryo: el camino baja y hace un codo hacia la izquierda; la torreta va dentro
+# de la curva, a 3 casillas de los dos tramos, para que su onda alcance a las naves de ambos.
+
+size = 28 16
+seed = 311
+rocks = grey ice
+path = 9,-2 9,11 -3,11
+slots = 6,8

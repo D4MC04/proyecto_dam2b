@@ -1,0 +1,8 @@
+# Vitrina de la Navedex, Amplificador: el Amplificador en el centro con tres torretas dentro de su aura
+# (Cañón doble, Minigun y Tesla) y un camino recto por debajo al que disparan.
+
+size = 28 16
+seed = 331
+rocks = grey brown
+path = 30,10 -3,10
+slots = 14,6 9,7 19,7 14,8
