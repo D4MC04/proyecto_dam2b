@@ -18,7 +18,7 @@ Tras colocar una torreta la selección se mantiene, así que se pueden colocar v
 
 ## Mejorar (fusión)
 
-Se selecciona una torreta colocada que tenga `TurretData.fusion` y se pulsa la flecha de mejora (-X€) en el recuadro `TurretActions` sobre la torreta (`TurretActions.upgrade_requested` -> `LevelUI` -> `LevelState.upgrade_requested` -> `BuildManager.upgrade_selected`, solo en `PLAYING`). Gasta `fusion.cost`, siempre 2 × el coste de la base (sin dinero el botón se ve apagado y no hace nada), quita la torreta vieja (`remove_child` + `queue_free`, para que `Grid` libere la casilla antes de registrar la nueva), instancia la fusionada en la misma casilla con `invested = vieja.invested + fusion.cost`, la registra en `Grid` y la inspecciona. La selección de la tienda no cambia. La fusionada no tiene `fusion`, así que no enseña el botón ni se vuelve a mejorar, y no sale en la tienda.
+Se selecciona una torreta colocada que tenga `TurretData.fusion` y se pulsa la flecha de mejora (-X€) en el recuadro `TurretActions` sobre la torreta (`TurretActions.upgrade_requested` -> `LevelUI` -> `LevelState.upgrade_requested` -> `BuildManager.upgrade_selected`, solo en `PLAYING`). Gasta `fusion.cost` (sin dinero el botón se ve apagado y no hace nada), quita la torreta vieja (`remove_child` + `queue_free`, para que `Grid` libere la casilla antes de registrar la nueva), instancia la fusionada en la misma casilla con `invested = vieja.invested + fusion.cost`, la registra en `Grid` y la inspecciona. La selección de la tienda no cambia. Cada torreta tiene tres niveles encadenados por `fusion`: nivel 1 (la de la tienda) → nivel 2 (`<x>_fusion.tres`) → nivel 3 (`<x>_level3.tres`). El nivel 2 cuesta 2 × el nivel 1 y el nivel 3 2 × el nivel 2 (4 × la base); si la torreta está disponible se puede subir a 2 y a 3 sin más condiciones. El nivel 3 no tiene `fusion`, así que no enseña el botón ni se vuelve a mejorar. Los niveles 2 y 3 no salen en la tienda. En la Navedex las flechas recorren las tres versiones. El logro de fusiones (`GameState.register_fusion`) solo cuenta el nivel 2.
 
 La fusionada es otro `TurretData` (`resources/turret_data/<x>_fusion.tres`) con sprites en `assets/sprites/turrets/<x>_fusion/` y ataque propio; el campo `fusion` de la base la enlaza:
 
@@ -34,11 +34,26 @@ La fusionada es otro `TurretData` (`resources/turret_data/<x>_fusion.tres`) con 
 | Aniquilador | Disintegrator | 900 | 60/130/280 por s | 128 | no se usa | Sube de nivel en la mitad de tiempo (`level_time` 0,75) |
 | Amplificador mayor | Amplificador | 800 | no ataca | aura 100 | no se usa | Las torretas de su aura ganan el efecto mayor |
 
+**Nivel 3 (provisional).** De momento cada `<x>_level3.tres` es una copia del nivel 2 (mismo ataque, números y sprites, sin `upgrade_frames`) con nombre "<nivel 2> III" y la misma descripción; cada torreta lo sustituirá por su propio diseño. Solo cambia el coste:
+
+| Nivel 1 | Nivel 2 | Nivel 3 |
+|---|---|---|
+| Cañón doble | 200 | 400 |
+| Minigun | 400 | 800 |
+| Cryo | 500 | 1000 |
+| Cañón pesado | 600 | 1200 |
+| Tesla | 700 | 1400 |
+| Orbitador | 700 | 1400 |
+| Rail | 1000 | 2000 |
+| Disintegrator | 900 | 1800 |
+| Amplificador | 800 | 1600 |
+| Minero | 600 | 1200 |
+
 ## Vender
 
 Al construir en una casilla libre, `BuildManager` emite `LevelState.turret_placed` (no al mejorar); la escucha el tutorial.
 
-`LevelState.sellable_turret` es la torreta colocada seleccionada. `inspect_placed` la fija junto con `inspected`; cualquier otro cambio de `inspected` la suelta. `BuildManager._try_place` suelta todo (`_deselect_all`) al pulsar la que ya está seleccionada, y cualquier clic sobre la interfaz también la suelta (`LevelUI._input`), menos en el recuadro de Mejorar y Vender; Mejorar la suelta después de mejorar. `LevelState.sell_selected_turret()` suma `Turret.get_sell_value()` (mitad de `Turret.invested`, redondeada hacia abajo; `invested` es el coste al colocar y suma `fusion.cost` al fusionar), hace `queue_free` de la torreta (al salir del árbol `Grid.register_turret` libera la casilla) y suelta la selección. Al vender sale un `+X€` flotante sobre la casilla (`FloatingText`, ver [enemigos.md](enemigos.md)). No cuenta en el resumen de partida. Solo vende en `PLAYING` (lo comprueba `LevelUI`).
+`LevelState.sellable_turret` es la torreta colocada seleccionada. `inspect_placed` la fija junto con `inspected`; cualquier otro cambio de `inspected` la suelta. `BuildManager._try_place` suelta todo (`_deselect_all`) al pulsar la que ya está seleccionada, y cualquier clic sobre la interfaz también la suelta (`LevelUI._input`), menos en el recuadro de Mejorar y Vender; Mejorar la suelta después de mejorar. `LevelState.sell_selected_turret()` suma `Turret.get_sell_value()` (mitad de `Turret.invested`, redondeada hacia abajo; `invested` es el coste al colocar y suma `fusion.cost` en cada mejora), hace `queue_free` de la torreta (al salir del árbol `Grid.register_turret` libera la casilla) y suelta la selección. Al vender sale un `+X€` flotante sobre la casilla (`FloatingText`, ver [enemigos.md](enemigos.md)). No cuenta en el resumen de partida. Solo vende en `PLAYING` (lo comprueba `LevelUI`).
 
 ## Escena y script
 
@@ -114,7 +129,7 @@ Las torretas de onda y de cadena no giran el cañón ni usan `_process`.
 
 ## Datos
 
-`TurretData` (`scripts/resources/TurretData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`, `orbit`. `min_range`: radio mínimo opcional; con más de 0 el alcance es un anillo entre él y `attack_range` (ver Objetivo). `overheat_shots`, `overheat_min_cooldown`, `overheat_time`, `overheat_cool_time`: sobrecalentamiento opcional (ver Disparo). `spin_up_time`: tubos rotativos opcionales (ver Tubos rotativos). `salvo_count`, `salvo_delay`: salva opcional (ver Tipos de ataque › Bala). `shoot_sound`: sonido del disparo. `amp_effect`: lo que gana dentro del aura de un Amplificador; `amplifier_level`: mayor que 0 en los Amplificadores (ver "Amplificador"). `money_amount`: mayor que 0 en los Mineros, el dinero que dan cada `attack_cooldown` s (ver "Minero"). `fusion`: el `TurretData` en el que se convierte al fusionarla con otra igual (null en las fusionadas). Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 8 torretas que atacan la tienen. La ficha pinta todas las torretas en cian `#40e0f0` (`TurretData.ACCENT_COLOR`, ver [ui.md](ui.md)).
+`TurretData` (`scripts/resources/TurretData.gd`): `name`, `cost`, `attack_cooldown`, `icon`, `sprite_frames`, `attack_range`, `muzzle_flash`, `muzzle_offset`, `cannon`, `turn_speed`, y uno de estos campos, que decide el tipo de ataque: `bullet_data`, `pulse`, `chain`, `beam`, `focus_beam`, `orbit`. `min_range`: radio mínimo opcional; con más de 0 el alcance es un anillo entre él y `attack_range` (ver Objetivo). `overheat_shots`, `overheat_min_cooldown`, `overheat_time`, `overheat_cool_time`: sobrecalentamiento opcional (ver Disparo). `spin_up_time`: tubos rotativos opcionales (ver Tubos rotativos). `salvo_count`, `salvo_delay`: salva opcional (ver Tipos de ataque › Bala). `shoot_sound`: sonido del disparo. `amp_effect`: lo que gana dentro del aura de un Amplificador; `amplifier_level`: mayor que 0 en los Amplificadores (ver "Amplificador"). `money_amount`: mayor que 0 en los Mineros, el dinero que dan cada `attack_cooldown` s (ver "Minero"). `fusion`: el `TurretData` del nivel siguiente al mejorarla (null solo en el nivel 3). Además `description`, una frase corta opcional que sale al final de la ficha (ver [ui.md](ui.md)); las 8 torretas que atacan la tienen. La ficha pinta todas las torretas en cian `#40e0f0` (`TurretData.ACCENT_COLOR`, ver [ui.md](ui.md)).
 
 Funciones para la ficha:
 
@@ -149,7 +164,7 @@ Recursos en `resources/turret_data/`:
 | `amplifier` | Amplificador | 400 | no se usa | aura 100 | no gira | Ninguno: amplifica a las torretas de alrededor |
 | `miner` | Minero | 300 | 5,0 (intervalo) | no tiene | no gira | Ninguno: +10€ cada 5 s de oleada (la Excavadora, +20€) |
 
-Balance de costes: de 100 € la torreta base (Cañón doble) a 500 € la más cara (Rail); las demás entre 200 y 400 salvo el Disintegrator (450). Los costes siguen el orden de desbloqueo (100, 200, 250, 300, 300, 350, 350, 400, 450 y 500 €) y cada mejora cuesta el doble que su base (la torreta fusionada suma 3 × la base). Las torretas destacan por su mecánica, no por tener más números que las anteriores. El DPS contra un único enemigo **no** se fija en un rango: se reparte según lo fácil que sea que la torreta golpee a varios a la vez.
+Balance de costes: de 100 € la torreta base (Cañón doble) a 500 € la más cara (Rail); las demás entre 200 y 400 salvo el Disintegrator (450). Los costes siguen el orden de desbloqueo (100, 200, 250, 300, 300, 350, 350, 400, 450 y 500 €) y cada mejora cuesta el doble que el nivel anterior (nivel 2: 2 × la base, nivel 3: 4 × la base; una de nivel 3 suma 7 × la base invertido). Las torretas destacan por su mecánica, no por tener más números que las anteriores. El DPS contra un único enemigo **no** se fija en un rango: se reparte según lo fácil que sea que la torreta golpee a varios a la vez.
 
 - **El DPS a un objetivo baja con el área.** Una torreta que pega a varios a la vez tiene que hacer poco daño a cada uno, y se aprovecha más cuanto más junto va el enemigo (las oleadas del final sacan 30-58 naves por varios caminos). La referencia es el Cañón doble (0,20 DPS/€ a un objetivo, sin área). Con área pequeña y fiable (Cañón pesado, Tesla, Orbitador) el DPS/€ a un objetivo ronda 0,04-0,09 y el efectivo con el nº de objetivos habituales queda en 0,15-0,20; con área enorme (Cryo) cae a 0,01 a un objetivo y 0,07 efectivo, porque ahí lo que se paga es el frenado y el pico de 20 enemigos de un pulso, no el daño. Igualar el DPS a un objetivo haría de la Cryo la mejor torreta del juego.
 - **El DPS solo no vale.** Se mira además la utilidad (la Cryo da +82 % de tiempo en alcance a todas las torretas que cubren la zona, pero no se acumula: con una por zona basta; el Orbitador pega a los camuflados; la Tesla no falla y alcanza a los camuflados al saltar; el Amplificador y el Minero no atacan), la situacionalidad (Minigun: el DPS depende de la rampa y la parada; Disintegrator: depende del tiempo sobre el mismo enemigo), el alcance y el posicionamiento.

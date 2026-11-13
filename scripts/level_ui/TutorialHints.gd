@@ -454,10 +454,10 @@ func _placed_turrets() -> Array[Turret]:
 			placed.append(turret)
 	return placed
 
-# Una torreta ya mejorada (sin mejora siguiente), o null.
+# Una torreta ya mejorada (que no es de nivel 1, las de la tienda), o null.
 func _upgraded_turret() -> Turret:
 	for turret: Turret in _placed_turrets():
-		if turret.data.fusion == null:
+		if turret.data not in _level.turrets:
 			return turret
 	return null
 
