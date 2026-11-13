@@ -107,6 +107,11 @@ theme_override_constants/h_separation = 12
 theme_override_constants/v_separation = 5
 columns = 2
 
+[node name="Spacer" type="Control" parent="Tablet/Content/Box"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+
 [node name="Carousel" type="HBoxContainer" parent="Tablet/Content/Box"]
 unique_name_in_owner = true
 layout_mode = 2
