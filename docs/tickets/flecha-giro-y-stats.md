@@ -11,8 +11,11 @@ Esfuerzo recomendado: medium
 La flecha para girar la silla es fea, el monitor de stats queda pegado a ella, y la pantalla de stats lleva textos de relleno que sobran.
 
 ## Qué hay que hacer
-- **Giro:** valorar quitar la flecha y girar al mover mucho el ratón hacia un lado. Solo si se puede garantizar que es intuitivo y que no gira sin querer (por ejemplo, al ir a pulsar algo cerca del borde). Si no se puede garantizar, quedarse con la flecha y hacerla más bonita. Decir en el informe qué se eligió y por qué.
-- **Si se queda la flecha:** darle margen al monitor de stats, que ahora tiene en cuenta la pared pero no la flecha y queda pegado a ella.
+- **Giro:** la flecha actual es fea. Antes de implementar, proponer al usuario estas opciones (con una captura o boceto) y hacer la que elija:
+  1. Sin flecha: girar al llevar el ratón al borde de la pantalla. Solo si se puede garantizar que es intuitivo y que no gira sin querer (por ejemplo, al ir a pulsar algo cerca del borde; el usuario teme justo eso).
+  2. Franjas laterales: la vista no ocupa toda la pantalla y deja a cada lado una franja fina, decorada (que no sea un hueco negro que rompa la inmersión), y la flecha va en esa franja.
+  3. Quedarse con la flecha y hacerla más bonita.
+- **Si la flecha sigue dentro de la vista:** darle margen al monitor de stats, que ahora tiene en cuenta la pared pero no la flecha y queda pegado a ella.
 - **Monitor de stats (`CombatScoreboard`):** quitar "SISTEMA EN ESPERA" (con su cursor) y "// REGISTRO DE COMBATE".
 
 ## Qué leer
