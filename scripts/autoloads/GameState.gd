@@ -228,8 +228,11 @@ func favorite_turret() -> String:
 	return best
 
 ## Anota que esta torreta se ha fusionado alguna vez.
+## Solo cuenta el nivel 2 (`<x>_fusion.tres`): subir a nivel 3 no suma al logro.
 func register_fusion(fused: TurretData) -> void:
 	var file: String = fused.resource_path.get_file()
+	if not file.ends_with("_fusion.tres"):
+		return
 	if file not in fused_turrets:
 		fused_turrets.append(file)
 	_check_achievements()

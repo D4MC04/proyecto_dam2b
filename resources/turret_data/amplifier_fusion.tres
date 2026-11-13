@@ -5,6 +5,7 @@
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/amplifier_fusion.tres" id="3"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/amplifier_fusion_cannon.tres" id="4"]
 [ext_resource type="Shape2D" path="res://resources/collision_shapes/amplifier.tres" id="5"]
+[ext_resource type="Resource" path="res://resources/turret_data/amplifier_level3.tres" id="level3"]
 
 [resource]
 script = ExtResource("1")
@@ -16,4 +17,5 @@ attack_range = ExtResource("5")
 cannon = ExtResource("4")
 amplifier_level = 2
 description = "TURRET_AMPLIFIER_FUSION_DESC"
+fusion = ExtResource("level3")
 metadata/_custom_type_script = "uid://dmo7ci57slbqu"

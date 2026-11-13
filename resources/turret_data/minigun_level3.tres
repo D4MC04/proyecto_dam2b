@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="TurretData" format=3]
+
+[ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="1"]
+[ext_resource type="Shape2D" path="res://resources/collision_shapes/minigun_level3.tres" id="2"]
+[ext_resource type="Resource" path="res://resources/bullet_data/minigun_level3_bullet.tres" id="3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/turrets/minigun_fusion/minigun_full_up.png" id="4"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/minigun_fusion.tres" id="5"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/minigun_fusion_flash.tres" id="6"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/minigun_fusion_cannon.tres" id="7"]
+[ext_resource type="AudioStream" path="res://assets/audio/effects/Turrets/Turret/DobleLaserShoot.wav" id="snd"]
+[ext_resource type="Resource" path="res://resources/amp_effects/minigun.tres" id="amp"]
+
+[resource]
+script = ExtResource("1")
+shoot_sound = ExtResource("snd")
+name = "TURRET_MINIGUN_LEVEL3_NAME"
+cost = 800
+attack_cooldown = 0.25
+icon = ExtResource("4")
+sprite_frames = ExtResource("5")
+attack_range = ExtResource("2")
+bullet_data = ExtResource("3")
+muzzle_flash = ExtResource("6")
+muzzle_offset = Vector2(0, -13)
+cannon = ExtResource("7")
+turn_speed = 270.0
+overheat_shots = 105
+overheat_min_cooldown = 0.035
+overheat_time = 1.5
+overheat_cool_time = 3.0
+spin_up_time = 0.275
+amp_effect = ExtResource("amp")
+description = "TURRET_MINIGUN_LEVEL3_DESC"
+metadata/_custom_type_script = "uid://dmo7ci57slbqu"
