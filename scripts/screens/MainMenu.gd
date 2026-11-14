@@ -31,6 +31,8 @@ const SCREEN_MARGIN: Vector2 = Vector2(40.0, 32.0)
 const ZOOM_TIME: float = 0.7
 # Parte del zoom a la consola de opciones desde la que aparece encima la consola de cerca.
 const CLOSE_UP_FADE_START: float = 0.85
+# Hueco entre la pantalla de la mesa (ya acercada) y el botón Volver de debajo.
+const SECTORS_BACK_GAP: float = 4.0
 
 var start_on_level_selection: bool = false
 
@@ -46,7 +48,8 @@ var start_on_level_selection: bool = false
 @onready var levels_panel: Control = $LevelSelectionScreen/LevelsPanel
 @onready var sector_radar: SectorRadar = %SectorRadar
 @onready var sector_card: SectorCard = %SectorCard
-@onready var sectors_subtitle: Label = %SectorsSubtitle
+# Volver de Sectores: va fuera de la pantalla de la mesa (no se ve desde la oficina) y solo sale de cerca.
+@onready var sectors_back_button: Button = $SectorsBackButton
 @onready var stats_panel: VBoxContainer = $StatsScreen
 @onready var stats_label: Label = %StatsLabel
 @onready var navedex: Navedex = $Navedex
@@ -92,6 +95,7 @@ func _ready() -> void:
 		panel_dim.modulate.a = 0.0
 		panel_dim.show()
 		_set_radar_zoom(1.0)
+		sectors_back_button.show()
 	else:
 		_move_sectors(true)
 	sector_radar.sector_selected.connect(_on_sector_selected)
@@ -275,9 +279,11 @@ func _open_sectors() -> void:
 	_refresh_sectors()
 	await _zoom_in(level_selection_panel, _set_radar_zoom)
 	_move_sectors(false)
+	_show_sectors_back()
 
 # Lo inverso: la pantalla vuelve a la mesa y la vista se aleja.
 func _close_sectors() -> void:
+	sectors_back_button.hide()
 	_move_sectors(true)
 	_zoom_out(_set_radar_zoom)
 
@@ -295,6 +301,15 @@ func _update_screen_rect() -> void:
 			Rect2(_screen_rect.position / VIEW_SIZE, _screen_rect.size / VIEW_SIZE), _screen_rect.size)
 	if _panel == level_selection_panel and not _zooming:
 		_set_radar_zoom(1.0)
+	# Volver, centrado debajo de la pantalla de la mesa (sin salirse de la vista).
+	sectors_back_button.position = Vector2(roundf(_screen_rect.get_center().x - sectors_back_button.size.x / 2.0),
+			minf(_screen_rect.end.y + SECTORS_BACK_GAP, VIEW_SIZE.y - sectors_back_button.size.y))
+
+# Volver aparece con un fundido al acabar de acercarse a la mesa.
+func _show_sectors_back() -> void:
+	sectors_back_button.modulate.a = 0.0
+	sectors_back_button.show()
+	create_tween().tween_property(sectors_back_button, "modulate:a", 1.0, FADE_TIME)
 
 # La pantalla de Sectores se pinta en RadarViewport (la enseña la mesa) o encima de la oficina.
 func _move_sectors(into_viewport: bool) -> void:
@@ -335,8 +350,6 @@ func _set_tablet_zoom(amount: float) -> void:
 func _refresh_sectors() -> void:
 	sector_radar.refresh()
 	_on_sector_selected(sector_radar.selected_index)
-	sectors_subtitle.text = tr("RADAR_SUBTITLE") % [sector_radar.get_secured_count(), SectorRadar.TOTAL_SECTORS,
-			SectorRadar.format_thousands(sector_radar.get_range_km())]
 
 func _on_sector_selected(index: int) -> void:
 	sector_card.show_level(index, sector_radar.get_level_state(index) if index >= 0 else SectorRadar.ContactState.LOCKED)

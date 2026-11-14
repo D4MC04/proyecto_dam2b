@@ -19,6 +19,9 @@ enum RadarShip { RAIDER, FANG, CRUSHER, SPECTER }
 @export_range(0.0, 1.0, 0.01) var radar_distance: float = 0.5
 ## Rumbo en grados: 0 = arriba, en el sentido de las agujas del reloj.
 @export_range(0.0, 360.0, 1.0) var radar_bearing: float = 0.0
+## Distancia que enseña la ficha, en millones de km ("20M KMs"). Solo es un dato: el radar no
+## la usa para colocar el contacto (eso es radar_distance).
+@export_range(0, 999, 1) var distance_mkm: int = 0
 @export var threat: Threat = Threat.LOW
 ## Nave del icono: la de su enemigo más peligroso.
 @export var radar_ship: RadarShip = RadarShip.RAIDER
