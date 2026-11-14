@@ -21,6 +21,8 @@ const CORNER_WIDTH: int = 2
 # Las esquinas salen un poco fuera del borde.
 const CORNER_OUTSET: int = 3
 const BUTTON_HEIGHT: int = 36
+# Hueco extra bajo el título y antes del botón (además de la separación entre filas).
+const SECTION_GAP: int = 10
 
 const SECURED_COLOR: Color = Color("#3cb860")
 const ACTIVE_COLOR: Color = Color("#ecb23c")
@@ -121,14 +123,13 @@ func _ready() -> void:
 	_title_label.add_theme_color_override("font_color", TITLE_COLOR)
 	_title_label.add_theme_font_size_override("font_size", TEXT_SIZE)
 	box.add_child(_title_label)
+	box.add_child(_make_gap())
 	for row: CardRow in [_status_row, _bearing_row, _distance_row, _threat_row, _best_row]:
 		box.add_child(row)
 	# En la fila RÉCORD, las estrellas van en lugar del texto.
 	_best_row.value_label.hide()
 	_best_row.add_child(_stars_display)
-	var gap: Control = Control.new()
-	gap.custom_minimum_size.y = 10
-	box.add_child(gap)
+	box.add_child(_make_gap())
 	_deploy_button.custom_minimum_size.y = BUTTON_HEIGHT
 	_deploy_button.clip_text = true
 	# Botón dibujado en la pantalla (solo el contorno), como la ficha.
@@ -167,7 +168,7 @@ func _refresh() -> void:
 	_title_label.text = "%s - %s" % [SectorRadar.get_sector_code(_index), tr(data.sector_name).to_upper()]
 	_set_value(_status_row, tr("CARD_SECURED") if completed else tr("CARD_ACTIVE"), SECURED_COLOR if completed else ACTIVE_COLOR)
 	_set_value(_bearing_row, "%d°" % (roundi(data.radar_bearing) % 360), VALUE_COLOR)
-	_set_value(_distance_row, tr("CARD_DISTANCE_VALUE") % data.distance_mkm, VALUE_COLOR)
+	_set_value(_distance_row, "%dM" % data.distance_mkm, VALUE_COLOR)
 	_set_value(_threat_row, tr(THREAT_KEYS[data.threat]), THREAT_COLORS[data.threat])
 	# Sin completar, las estrellas salen vacías.
 	_stars_display.stars = GameState.get_level_stars(_index + 1) if completed else 0
@@ -189,6 +190,11 @@ func _show_unknown() -> void:
 	_stars_display.stars = 0
 	_deploy_button.disabled = true
 	_deploy_button.text = tr("BTN_UNAVAILABLE")
+
+func _make_gap() -> Control:
+	var gap: Control = Control.new()
+	gap.custom_minimum_size.y = SECTION_GAP
+	return gap
 
 func _set_value(row: CardRow, text: String, color: Color) -> void:
 	row.value_label.text = text

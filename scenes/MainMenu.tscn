@@ -343,7 +343,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-offset_bottom = -16.0
 theme = ExtResource("13_theme")
 alignment = 1
 
@@ -380,15 +379,18 @@ layout_mode = 2
 size_flags_vertical = 4
 script = ExtResource("29_card")
 
-[node name="SectorsBackButton" type="Button" parent="." unique_id=555534078]
+[node name="SectorsEscHint" type="Label" parent="."]
 visible = false
-custom_minimum_size = Vector2(204, 36)
 layout_mode = 0
-offset_right = 204.0
-offset_bottom = 36.0
+offset_right = 300.0
+offset_bottom = 16.0
+mouse_filter = 2
 theme = ExtResource("13_theme")
-theme_override_font_sizes/font_size = 24
-text = "BTN_BACK"
+theme_override_colors/font_color = Color(0.3529412, 0.47843137, 0.5882353, 0.8)
+theme_override_font_sizes/font_size = 16
+text = "HINT_ESC_BACK"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="StatsScreen" type="VBoxContainer" parent="." unique_id=346163568]
 visible = false
@@ -535,7 +537,6 @@ render_target_update_mode = 4
 [connection signal="pressed" from="Office/Views/CenterView/ArchiveTablet" to="." method="_on_archive_tablet_pressed"]
 [connection signal="pressed" from="Office/Views/LeftView/CombatScoreboard" to="." method="_on_combat_scoreboard_pressed"]
 [connection signal="pressed" from="Office/Views/CenterView/OptionsConsole" to="." method="_on_options_console_pressed"]
-[connection signal="pressed" from="SectorsBackButton" to="." method="_close_panel"]
 [connection signal="pressed" from="StatsScreen/StatsPanel/Margin/Content/BackButton" to="." method="_close_panel"]
 [connection signal="back_pressed" from="Navedex" to="." method="_close_panel"]
 [connection signal="back_pressed" from="OptionsCloseUp" to="." method="_close_panel"]
