@@ -31,8 +31,8 @@ const SCREEN_MARGIN: Vector2 = Vector2(40.0, 32.0)
 const ZOOM_TIME: float = 0.7
 # Parte del zoom a la consola de opciones desde la que aparece encima la consola de cerca.
 const CLOSE_UP_FADE_START: float = 0.85
-# Hueco entre la pantalla de la mesa (ya acercada) y la pista "ESC para volver" de debajo.
-const SECTORS_HINT_GAP: float = 4.0
+# Hueco entre la ficha del sector y la pista "ESC para volver" de debajo.
+const SECTORS_HINT_MARGIN: float = 16.0
 
 var start_on_level_selection: bool = false
 
@@ -87,6 +87,7 @@ func _ready() -> void:
 	_fit_radar_viewport()
 	# item_rect_changed y no resized: el contenedor también lo mueve al centrarlo.
 	levels_panel.item_rect_changed.connect(_update_screen_rect)
+	sector_card.item_rect_changed.connect(_place_sectors_hint)
 	_update_screen_rect()
 	get_viewport().size_changed.connect(_fit_radar_viewport)
 	level_selection_panel.show()
@@ -302,12 +303,17 @@ func _update_screen_rect() -> void:
 			Rect2(_screen_rect.position / VIEW_SIZE, _screen_rect.size / VIEW_SIZE), _screen_rect.size)
 	if _panel == level_selection_panel and not _zooming:
 		_set_radar_zoom(1.0)
-	# La pista, centrada debajo de la pantalla de la mesa (sin salirse de la vista).
-	sectors_esc_hint.position = Vector2(roundf(_screen_rect.get_center().x - sectors_esc_hint.size.x / 2.0),
-			minf(_screen_rect.end.y + SECTORS_HINT_GAP, VIEW_SIZE.y - sectors_esc_hint.size.y))
+
+# La pista va centrada debajo de la ficha. La pantalla de Sectores ocupa la vista entera tanto en
+# RadarViewport como encima del menú, así que la posición de la ficha vale en los dos sitios.
+func _place_sectors_hint() -> void:
+	var card: Rect2 = Rect2(sector_card.get_global_rect().position, sector_card.size)
+	sectors_esc_hint.size.x = card.size.x
+	sectors_esc_hint.position = Vector2(card.position.x, roundf(card.end.y + SECTORS_HINT_MARGIN))
 
 # La pista aparece con un fundido al acabar de acercarse a la mesa.
 func _show_sectors_hint() -> void:
+	_place_sectors_hint()
 	sectors_esc_hint.modulate.a = 0.0
 	sectors_esc_hint.show()
 	create_tween().tween_property(sectors_esc_hint, "modulate:a", 1.0, FADE_TIME)
