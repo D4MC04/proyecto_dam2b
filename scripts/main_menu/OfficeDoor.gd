@@ -27,6 +27,8 @@ const PULSE_HEIGHT: int = 24
 @onready var access_light: TextureRect = $AccessLight
 @onready var lights: Control = $Lights
 
+# Mantiene la puerta entreabierta (p. ej. mientras está la confirmación de salir).
+var held: bool = false
 var _open: float = 0.0
 var _leaving: bool = false
 var _opened: bool = false
@@ -41,13 +43,13 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	super(delta)
-	var target: float = 1.0 if (_leaving or hovered) else 0.0
+	var target: float = 1.0 if (_leaving or hovered or held) else 0.0
 	_open = move_toward(_open, target, delta / OPEN_TIME)
 	var slide: int = roundi(_open * float(_door.slide))
 	leaf_left.position.x = -slide
 	leaf_right.position.x = slide
 	seam.visible = slide == 0
-	var lit: bool = hovered or _open > 0.0
+	var lit: bool = hovered or held or _open > 0.0
 	frame_glow.visible = lit
 	access_light.visible = lit
 	lights.queue_redraw()
@@ -75,7 +77,7 @@ func _draw_lights() -> void:
 			OfficePaint.rect(lights, Rect2i(r.position.x + 1, y + 8, r.size.x - 2, 8), OfficePaint.CYAN_LIGHT)
 	# Barra de estado de encima de la puerta: un tramo de luz la recorre (verde con la puerta activa).
 	var bar: Array = _door.bar
-	var lit: bool = hovered or _open > 0.0
+	var lit: bool = hovered or held or _open > 0.0
 	OfficePaint.rect(lights, Rect2i(bar[0], bar[1], bar[2], bar[3]), OfficePaint.GREEN_DARK if lit else OfficePaint.SCREEN_LINE)
 	var run: int = int(fmod(time * (120.0 if lit else 40.0), bar[2] + 24.0)) - 24
 	var a: int = maxi(0, run)

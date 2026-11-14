@@ -114,6 +114,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			_close_panel()
 		else:
 			quit_confirm.show()
+			exit_door.held = true
 		return
 	if _panel or quit_confirm.visible:
 		return
@@ -348,15 +349,14 @@ func _on_deploy_pressed() -> void:
 
 func _close_quit_confirm() -> void:
 	quit_confirm.hide()
+	exit_door.held = false
 
-# La puerta se entreabre y después se vuelve a la pantalla de inicio.
+# La puerta abre la misma confirmación que Escape.
 func _on_exit_door_pressed() -> void:
-	if _leaving or _panel:
+	if _leaving or _jumping or _zooming or _panel or quit_confirm.visible:
 		return
-	_leaving = true
-	exit_door.open_fully()
-	await exit_door.opened
-	_go_to_start_screen()
+	quit_confirm.show()
+	exit_door.held = true
 
 # "Salir" de la confirmación: vuelve a la pantalla de inicio sin esperar a la puerta.
 func _on_quit_button_pressed() -> void:
