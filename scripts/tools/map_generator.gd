@@ -1,9 +1,10 @@
 extends SceneTree
-## Genera los mapas de los niveles a partir de resources/map_data/level_N.txt, el de la vitrina de
-## la Navedex a partir de navedex.txt y el del nivel de emergencia a partir de emergency.txt.
+## Genera los mapas de los niveles a partir de resources/map_data/level_N.txt, los de la vitrina de
+## la Navedex a partir de navedex*.txt (navedex_cryo.txt -> scenes/maps/NavedexCryoMap.tscn) y el del
+## nivel de emergencia a partir de emergency.txt.
 ##
-## Uso: godot --headless --path . -s scripts/tools/map_generator.gd -- [N | navedex | emergency ...]
-## Sin argumentos genera los 9 niveles, el de la Navedex y el del nivel de emergencia.
+## Uso: godot --headless --path . -s scripts/tools/map_generator.gd -- [N | navedex | navedex_cryo | emergency ...]
+## Sin argumentos genera los 9 niveles, los de la Navedex y el del nivel de emergencia.
 ##
 ## Los caminos no se dibujan: son pasillos de espacio libre que atraviesan un campo de asteroides
 ## que llena el resto del mapa. La orilla del pasillo va casi llena y dentro del campo no quedan
@@ -31,8 +32,8 @@ const LEVEL_COUNT: int = 9
 const DATA_PATH: String = "res://resources/map_data/level_%d.txt"
 const SCENE_PATH: String = "res://scenes/maps/levels/Level%d.tscn"
 const SHOWCASE_NAME: String = "navedex"
-const SHOWCASE_DATA_PATH: String = "res://resources/map_data/navedex.txt"
-const SHOWCASE_SCENE_PATH: String = "res://scenes/maps/NavedexMap.tscn"
+const SHOWCASE_DATA_PATH: String = "res://resources/map_data/%s.txt"
+const SHOWCASE_SCENE_PATH: String = "res://scenes/maps/%sMap.tscn"
 # Casilla de estación de un mapa sin estación: tan lejos que no tapa nada
 const NO_STATION: Vector2i = Vector2i(-1000, -1000)
 const EMERGENCY_NAME: String = "emergency"
@@ -198,11 +199,13 @@ func _initialize() -> void:
 	if names.is_empty():
 		for n: int in range(1, LEVEL_COUNT + 1):
 			names.append(str(n))
-		names.append(SHOWCASE_NAME)
+		for file: String in DirAccess.get_files_at(DATA_PATH.get_base_dir()):
+			if file.begins_with(SHOWCASE_NAME):
+				names.append(file.get_basename())
 		names.append(EMERGENCY_NAME)
 	for map_name: String in names:
-		if map_name == SHOWCASE_NAME:
-			_generate(SHOWCASE_DATA_PATH, SHOWCASE_SCENE_PATH)
+		if map_name.begins_with(SHOWCASE_NAME):
+			_generate(SHOWCASE_DATA_PATH % map_name, SHOWCASE_SCENE_PATH % map_name.to_pascal_case())
 		elif map_name == EMERGENCY_NAME:
 			_generate(EMERGENCY_DATA_PATH, EMERGENCY_SCENE_PATH)
 		else:

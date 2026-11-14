@@ -52,7 +52,6 @@ var start_on_level_selection: bool = false
 @onready var stats_label: Label = %StatsLabel
 @onready var navedex: Navedex = $Navedex
 @onready var archive_tablet: ArchiveTablet = $Office/Views/CenterView/ArchiveTablet
-@onready var achievements_screen: AchievementsScreen = $AchievementsScreen
 @onready var options_console: OptionsConsole = $Office/Views/CenterView/OptionsConsole
 @onready var options_close_up: OptionsCloseUp = $OptionsCloseUp
 @onready var quit_confirm: Control = $QuitConfirm
@@ -201,9 +200,6 @@ func _on_archive_tablet_pressed() -> void:
 		return
 	archive_tablet.held = true
 	_zoom_in(navedex, _set_tablet_zoom)
-
-func _on_medal_case_pressed() -> void:
-	_open_panel(achievements_screen)
 
 func _on_options_console_pressed() -> void:
 	if _panel or _jumping or _leaving:
