@@ -1,7 +1,7 @@
 extends Control
 
 # Menú principal: la oficina del comandante. Tres vistas (izquierda, centro y derecha) que se
-# cambian girando la silla con las flechas de los bordes o las teclas; cada objeto de la oficina
+# cambian girando la silla con el ratón en los bordes (TurnEdges) o las teclas; cada objeto de la oficina
 # abre su panel holograma encima, con la oficina oscurecida detrás. Escape cierra el panel abierto
 # o, en la oficina, pregunta si volver a la pantalla de inicio. La pantalla de la mesa del radar enseña la pantalla
 # de Sectores (que, mientras está cerrada, se pinta en RadarViewport); al pulsarla, la vista se
@@ -39,8 +39,7 @@ var start_on_level_selection: bool = false
 @onready var radar_console: RadarConsole = $Office/Views/CenterView/RadarConsole
 @onready var radar_viewport: SubViewport = $RadarViewport
 @onready var space: Node2D = $Space
-@onready var turn_left_arrow: TurnArrow = $Office/TurnLeftArrow
-@onready var turn_right_arrow: TurnArrow = $Office/TurnRightArrow
+@onready var turn_edges: TurnEdges = $TurnEdges
 @onready var exit_door: OfficeDoor = $Office/Views/LeftView/ExitDoor
 @onready var panel_dim: ColorRect = $PanelDim
 @onready var level_selection_panel: VBoxContainer = $LevelSelectionScreen
@@ -74,7 +73,9 @@ var _screen_rect: Rect2 = Rect2(Vector2.ZERO, VIEW_SIZE)
 
 func _ready() -> void:
 	_set_pan(0.0)
-	_update_arrows()
+	turn_edges.can_turn = _can_turn
+	turn_edges.turn_requested.connect(_turn)
+	_update_edges()
 	var quit_button: Button = %QuitButton
 	quit_button.add_theme_stylebox_override(&"hover_pressed", quit_button.get_theme_stylebox(&"hover"))
 	quit_button.add_theme_color_override(&"font_hover_pressed_color", quit_button.get_theme_color(&"font_hover_color"))
@@ -136,7 +137,7 @@ func _turn(step: int) -> void:
 	if target == _view:
 		return
 	_view = target
-	_update_arrows()
+	_update_edges()
 	if _turn_tween:
 		_turn_tween.kill()
 	_turn_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
@@ -147,9 +148,14 @@ func _set_pan(offset: float) -> void:
 	views.position.x = roundf(offset)
 	space.position.x = roundf(offset)
 
-func _update_arrows() -> void:
-	turn_left_arrow.visible = _view != View.LEFT
-	turn_right_arrow.visible = _view != View.RIGHT
+# Solo se puede girar hacia los bordes que tienen una vista detrás.
+func _update_edges() -> void:
+	turn_edges.can_turn_left = _view != View.LEFT
+	turn_edges.can_turn_right = _view != View.RIGHT
+
+# Se puede girar si no hay panel, zoom, salto ni pregunta de salir.
+func _can_turn() -> bool:
+	return not (_panel or quit_confirm.visible or _zooming or _jumping or _leaving)
 
 # --- Paneles -------------------------------------------------------------------------------
 
