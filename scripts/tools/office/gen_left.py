@@ -191,7 +191,7 @@ def build_access(cv):
 
 
 # ---------------------------------------------------------------- pantalla de stats
-STATS = (524, 87, 400, 330)
+STATS = (524, 87, 376, 330)
 
 
 def build_stats(cv):
