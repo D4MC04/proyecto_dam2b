@@ -31,6 +31,8 @@ const SCREEN_MARGIN: Vector2 = Vector2(40.0, 32.0)
 const ZOOM_TIME: float = 0.7
 # Parte del zoom a la consola de opciones desde la que aparece encima la consola de cerca.
 const CLOSE_UP_FADE_START: float = 0.85
+# Hueco entre la ficha del sector y la pista "ESC para volver" de debajo.
+const SECTORS_HINT_MARGIN: float = 16.0
 
 var start_on_level_selection: bool = false
 
@@ -46,7 +48,9 @@ var start_on_level_selection: bool = false
 @onready var levels_panel: Control = $LevelSelectionScreen/LevelsPanel
 @onready var sector_radar: SectorRadar = %SectorRadar
 @onready var sector_card: SectorCard = %SectorCard
-@onready var sectors_subtitle: Label = %SectorsSubtitle
+# Pista "ESC para volver" de Sectores: va fuera de la pantalla de la mesa (no se ve desde la oficina)
+# y solo sale de cerca.
+@onready var sectors_esc_hint: Label = $SectorsEscHint
 @onready var stats_panel: VBoxContainer = $StatsScreen
 @onready var stats_label: Label = %StatsLabel
 @onready var navedex: Navedex = $Navedex
@@ -83,6 +87,7 @@ func _ready() -> void:
 	_fit_radar_viewport()
 	# item_rect_changed y no resized: el contenedor también lo mueve al centrarlo.
 	levels_panel.item_rect_changed.connect(_update_screen_rect)
+	sector_card.item_rect_changed.connect(_place_sectors_hint)
 	_update_screen_rect()
 	get_viewport().size_changed.connect(_fit_radar_viewport)
 	level_selection_panel.show()
@@ -92,6 +97,7 @@ func _ready() -> void:
 		panel_dim.modulate.a = 0.0
 		panel_dim.show()
 		_set_radar_zoom(1.0)
+		sectors_esc_hint.show()
 	else:
 		_move_sectors(true)
 	sector_radar.sector_selected.connect(_on_sector_selected)
@@ -275,9 +281,11 @@ func _open_sectors() -> void:
 	_refresh_sectors()
 	await _zoom_in(level_selection_panel, _set_radar_zoom)
 	_move_sectors(false)
+	_show_sectors_hint()
 
 # Lo inverso: la pantalla vuelve a la mesa y la vista se aleja.
 func _close_sectors() -> void:
+	sectors_esc_hint.hide()
 	_move_sectors(true)
 	_zoom_out(_set_radar_zoom)
 
@@ -295,6 +303,20 @@ func _update_screen_rect() -> void:
 			Rect2(_screen_rect.position / VIEW_SIZE, _screen_rect.size / VIEW_SIZE), _screen_rect.size)
 	if _panel == level_selection_panel and not _zooming:
 		_set_radar_zoom(1.0)
+
+# La pista va centrada debajo de la ficha. La pantalla de Sectores ocupa la vista entera tanto en
+# RadarViewport como encima del menú, así que la posición de la ficha vale en los dos sitios.
+func _place_sectors_hint() -> void:
+	var card: Rect2 = Rect2(sector_card.get_global_rect().position, sector_card.size)
+	sectors_esc_hint.size.x = card.size.x
+	sectors_esc_hint.position = Vector2(card.position.x, roundf(card.end.y + SECTORS_HINT_MARGIN))
+
+# La pista aparece con un fundido al acabar de acercarse a la mesa.
+func _show_sectors_hint() -> void:
+	_place_sectors_hint()
+	sectors_esc_hint.modulate.a = 0.0
+	sectors_esc_hint.show()
+	create_tween().tween_property(sectors_esc_hint, "modulate:a", 1.0, FADE_TIME)
 
 # La pantalla de Sectores se pinta en RadarViewport (la enseña la mesa) o encima de la oficina.
 func _move_sectors(into_viewport: bool) -> void:
@@ -335,8 +357,6 @@ func _set_tablet_zoom(amount: float) -> void:
 func _refresh_sectors() -> void:
 	sector_radar.refresh()
 	_on_sector_selected(sector_radar.selected_index)
-	sectors_subtitle.text = tr("RADAR_SUBTITLE") % [sector_radar.get_secured_count(), SectorRadar.TOTAL_SECTORS,
-			SectorRadar.format_thousands(sector_radar.get_range_km())]
 
 func _on_sector_selected(index: int) -> void:
 	sector_card.show_level(index, sector_radar.get_level_state(index) if index >= 0 else SectorRadar.ContactState.LOCKED)
