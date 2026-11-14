@@ -1,0 +1,8 @@
+# Vitrina de la Navedex, Rail: el camino llega en recta hacia la torreta y gira hacia abajo 4 casillas
+# antes; la torreta apunta a lo largo del tramo recto y el haz atraviesa la fila entera.
+
+size = 28 16
+seed = 317
+rocks = grey brown
+path = 30,8 10,8 10,17
+slots = 6,8

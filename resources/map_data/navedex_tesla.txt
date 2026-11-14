@@ -1,0 +1,8 @@
+# Vitrina de la Navedex, Tesla: el camino hace zigzag a su alrededor, con tramos cerca para que la cadena salte entre ellos.
+# La torreta va en el centro (14,8). Datos de scripts/tools/map_generator.gd.
+
+size = 28 16
+seed = 431
+rocks = dark grey
+path = -3,6 9,6 9,10 19,10 19,6 31,6
+slots = 14,8
