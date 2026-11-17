@@ -20,6 +20,7 @@ func _ready() -> void:
 	add_child(center)
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var box: VBoxContainer = VBoxContainer.new()
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_theme_constant_override(&"separation", 0)
 	center.add_child(box)
 	for label: Label in [_title, _subtitle]:
