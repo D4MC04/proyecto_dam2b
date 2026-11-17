@@ -7,7 +7,7 @@ extends OfficeObject
 # el contorno de la mesa, no en toda su caja.
 #
 # Al abrir Sectores, MainMenu acerca la oficina y llama a set_zoom(): el trapecio se endereza hasta
-# quedar encima de la pantalla de Sectores.
+# quedar encima de la pantalla de Sectores (al final aparece encima la mesa de cerca, SectorsCloseUp).
 
 @onready var screen: ColorRect = $Screen
 
@@ -41,12 +41,11 @@ func get_screen_center() -> Vector2:
 func get_screen_width() -> float:
 	return lerpf(_table.tr, _table.br, 0.5) - lerpf(_table.tl, _table.bl, 0.5)
 
-## Lo que enseña la pantalla (la pantalla de Sectores): qué parte (en UV) y su tamaño en píxeles.
-func set_screen_texture(texture: Texture2D, crop: Rect2, pixels: Vector2) -> void:
+## Lo que enseña la pantalla (la pantalla de Sectores): qué parte (en UV).
+func set_screen_texture(texture: Texture2D, crop: Rect2) -> void:
 	var material: ShaderMaterial = screen.material as ShaderMaterial
 	material.set_shader_parameter(&"screen_texture", texture)
 	material.set_shader_parameter(&"crop", Vector4(crop.position.x, crop.position.y, crop.size.x, crop.size.y))
-	material.set_shader_parameter(&"screen_px", pixels)
 
 ## Zoom de 0 (la mesa) a 1 (pantalla enderezada en `flat`, en coordenadas de la vista).
 func set_zoom(amount: float, flat: Rect2) -> void:
@@ -59,8 +58,6 @@ func set_zoom(amount: float, flat: Rect2) -> void:
 		"br": lerpf(_table.br, flat.end.x, amount),
 	}
 	_apply_quad()
-	# El marco de la pantalla aparece al acercarse: al final se ve la pantalla entera, con su marco.
-	(screen.material as ShaderMaterial).set_shader_parameter(&"frame_alpha", smoothstep(0.3, 1.0, amount))
 
 # Coloca `Screen` en la caja del trapecio actual y le pasa al shader los extremos.
 func _apply_quad() -> void:
