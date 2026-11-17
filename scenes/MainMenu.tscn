@@ -40,6 +40,7 @@
 [ext_resource type="Script" path="res://scripts/main_menu/TurnEdges.gd" id="49_turn_edges"]
 [ext_resource type="Script" path="res://scripts/main_menu/IntroDialog.gd" id="50_intro"]
 [ext_resource type="Texture2D" path="res://assets/ui/guide_portrait.png" id="51_portrait"]
+[ext_resource type="Script" path="res://scripts/main_menu/OfficeTutorial.gd" id="52_office_tutorial"]
 
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_radar"]
@@ -628,6 +629,107 @@ offset_bottom = -16.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
+
+[node name="OfficeTutorial" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("13_theme")
+script = ExtResource("52_office_tutorial")
+
+[node name="Box" type="PanelContainer" parent="OfficeTutorial"]
+custom_minimum_size = Vector2(528, 93)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -264.0
+offset_top = 12.0
+offset_right = 264.0
+offset_bottom = 105.0
+grow_horizontal = 2
+mouse_filter = 2
+script = ExtResource("20_frame")
+decorated = false
+
+[node name="Margin" type="MarginContainer" parent="OfficeTutorial/Box"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="Row" type="HBoxContainer" parent="OfficeTutorial/Box/Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="PortraitFrame" type="PanelContainer" parent="OfficeTutorial/Box/Margin/Row"]
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_intro_portrait")
+
+[node name="Portrait" type="TextureRect" parent="OfficeTutorial/Box/Margin/Row/PortraitFrame"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("51_portrait")
+expand_mode = 1
+
+[node name="Column" type="VBoxContainer" parent="OfficeTutorial/Box/Margin/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="SpeakerLabel" type="Label" parent="OfficeTutorial/Box/Margin/Row/Column"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92549, 0.698039, 0.235294, 1)
+theme_override_font_sizes/font_size = 32
+text = "NOVA"
+
+[node name="MessageLabel" type="Label" parent="OfficeTutorial/Box/Margin/Row/Column"]
+custom_minimum_size = Vector2(418, 37)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.8, 0.901961, 1, 1)
+theme_override_constants/line_spacing = -1
+theme_override_font_sizes/font_size = 24
+autowrap_mode = 3
+max_lines_visible = 2
+
+[node name="ContinueArrow" type="Control" parent="OfficeTutorial"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = 242.0
+offset_top = 91.0
+offset_right = 252.0
+offset_bottom = 101.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="SkipButton" type="Button" parent="OfficeTutorial"]
+custom_minimum_size = Vector2(132, 36)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = 276.0
+offset_top = 12.0
+offset_right = 408.0
+offset_bottom = 48.0
+grow_horizontal = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 24
+text = "TUTORIAL_SKIP"
 
 [node name="RadarViewport" type="SubViewport" parent="."]
 transparent_bg = true

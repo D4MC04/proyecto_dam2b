@@ -59,6 +59,7 @@ var start_on_level_selection: bool = false
 @onready var options_close_up: OptionsCloseUp = $OptionsCloseUp
 @onready var quit_confirm: Control = $QuitConfirm
 @onready var intro_dialog: IntroDialog = $IntroDialog
+@onready var office_tutorial: OfficeTutorial = $OfficeTutorial
 
 var _view: View = View.CENTER
 var _turn_tween: Tween
@@ -113,6 +114,9 @@ func _ready() -> void:
 		turn_edges.hide()
 		await get_tree().create_timer(EMERGENCY_DELAY).timeout
 		open_emergency()
+	# La primera vez en la oficina después del nivel de emergencia, NOVA la enseña.
+	elif not GameState.office_tutorial_done and not start_on_level_selection:
+		office_tutorial.start(GameState.tutorial_won, radar_console, options_console)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _jumping or _leaving or _zooming:
@@ -127,7 +131,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			quit_confirm.show()
 			exit_door.held = true
 		return
-	if _panel or quit_confirm.visible:
+	if not _can_turn():
 		return
 	var key: InputEventKey = event as InputEventKey
 	if key == null or not key.pressed or key.echo:
@@ -152,6 +156,7 @@ func _turn(step: int) -> void:
 		_turn_tween.kill()
 	_turn_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	_turn_tween.tween_method(_set_pan, views.position.x, (View.CENTER - _view) * VIEW_WIDTH, TURN_TIME)
+	_turn_tween.finished.connect(func() -> void: office_tutorial.on_turned(_view == View.CENTER))
 
 # Desplaza las vistas y el espacio de detrás del ventanal, en píxeles enteros.
 func _set_pan(offset: float) -> void:
@@ -163,8 +168,11 @@ func _update_edges() -> void:
 	turn_edges.can_turn_left = _view != View.LEFT
 	turn_edges.can_turn_right = _view != View.RIGHT
 
-# Se puede girar si no hay panel, zoom, salto ni pregunta de salir.
+# Se puede girar si no hay panel, zoom, salto ni pregunta de salir. Con el tutorial de la oficina, solo
+# cuando NOVA pide girar.
 func _can_turn() -> bool:
+	if office_tutorial.is_running() and not office_tutorial.allows_turn():
+		return false
 	return not (_panel or quit_confirm.visible or _zooming or _jumping or _leaving)
 
 # --- Paneles -------------------------------------------------------------------------------
