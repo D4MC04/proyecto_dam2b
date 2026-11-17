@@ -14,6 +14,8 @@ uniform float cell_size = 4.0;
 uniform bool reverse_order = false;
 // Ancho del frente brillante, en la misma escala que progress.
 uniform float edge_width = 0.08;
+// Opacidad de todo lo pintado (el shader sobrescribe COLOR, así que modulate no vale): para el fundido.
+uniform float opacity : hint_range(0.0, 1.0) = 1.0;
 uniform vec4 fill_color : source_color = vec4(0.024, 0.043, 0.078, 1.0);
 uniform vec4 edge_color : source_color = vec4(0.251, 0.878, 0.941, 1.0);
 uniform vec4 core_color : source_color = vec4(0.745, 0.98, 1.0, 1.0);
@@ -43,4 +45,5 @@ void fragment() {
 	} else {
 		COLOR = fill_color;
 	}
+	COLOR.a *= opacity;
 }

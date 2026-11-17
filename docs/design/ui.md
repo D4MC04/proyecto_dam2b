@@ -141,7 +141,7 @@ Tres `PowerButton` (`scripts/level_ui/PowerButton.gd`) en `InfoPanel/Content/Pow
 - **Tiempo real:** el texto, el fundido, el parpadeo y la flecha no siguen la velocidad ×2 (tweens con `set_ignore_time_scale()` y `_process` con el `delta` deshecho).
 - **Entre peticiones se juega libre:** en los pasos sin foco no hay oscurecido ni bloqueo, y en `FIRST_WAVE` y `FREE` no se ve el recuadro.
 - Pasos (`Step`):
-  1. `STATION`: NOVA se presenta y cuenta que les atacan; todo oscuro, sin nada señalado. Informativo.
+  1. `STATION`: NOVA recibe al comandante en dos páginas (llegas, hay que darse prisa) antes de explicar nada; todo oscuro, sin nada señalado. Informativo.
   2. `STATION_BASE`: la estación del mapa ("si sus naves alcanzan la estación..."). Informativo.
   3. `STATION_HEALTH`: su vida en la barra (`Sidebar.station_header`). Informativo.
   4. `PREPARE`: "hay que preparar las defensas"; sin nada señalado. Informativo.
