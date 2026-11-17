@@ -34,7 +34,7 @@ const COVER_TIME: float = 0.7
 const HOLD_TIME: float = 0.15
 const UNCOVER_TIME: float = 0.6
 # Partida nueva (aún sin nivel de emergencia): más pausa en negro y fundido en vez de destapado, para entrar al espacio de la llamada.
-const NEW_GAME_HOLD_TIME: float = 0.6
+const NEW_GAME_HOLD_TIME: float = 3.0
 const NEW_GAME_FADE_TIME: float = 1.2
 
 @onready var title_block: VBoxContainer = $TitleBlock
