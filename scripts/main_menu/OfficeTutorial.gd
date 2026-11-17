@@ -2,9 +2,10 @@ class_name OfficeTutorial
 extends Control
 ## Tutorial de la oficina: la última fase del tutorial de una partida nueva. Sale la primera vez que se
 ## llega a la oficina después del nivel de emergencia (ganado, saltado o abandonado). NOVA, con el mismo
-## recuadro y el mismo foco que en el nivel de emergencia (se oscurece todo menos lo que señala), pide
-## girar la silla y mirar las dos vistas de los lados (allí no dice nada), enseña la mesa de Sectores y la
-## consola de opciones y deja lo demás para explorar. No se salta. Hecho, no vuelve a salir en la ranura.
+## recuadro y el mismo foco que en el nivel de emergencia (mientras habla se oscurece todo menos su
+## recuadro y lo que señala), pide girar la silla y mirar las dos vistas de los lados (allí calla y se
+## puede tocar todo), enseña la mesa de Sectores y la consola de opciones y deja lo demás para explorar.
+## No se salta. Hecho, no vuelve a salir en la ranura; si se sale a medias, vuelve a empezar.
 
 enum Step { WELCOME, TURN, TURN_OTHER, RADAR, OPTIONS, DONE }
 
@@ -28,8 +29,6 @@ const NEXT_STEP: Dictionary[Step, Step] = {
 }
 # Pasos que esperan a que el jugador mire las dos vistas de los lados; solo en ellos se puede girar.
 const TURN_STEPS: Array[Step] = [Step.TURN, Step.TURN_OTHER]
-# Pasos con foco: todo oscuro menos lo señalado (los bordes de girar, la mesa o la consola).
-const FOCUS_STEPS: Array[Step] = [Step.TURN, Step.TURN_OTHER, Step.RADAR, Step.OPTIONS]
 # Ancho del hueco de cada borde de girar: estrecho, para que se vea que hay que llevar el ratón al borde.
 const TURN_FOCUS_WIDTH: float = 24.0
 # Segundos que se ve la oficina antes de que NOVA empiece a hablar.
@@ -66,7 +65,7 @@ var _radar: OfficeObject
 var _options: OfficeObject
 # Vistas de los lados ya vistas: izquierda y derecha.
 var _seen: Array[bool] = [false, false]
-# El jugador mira una vista de los lados: NOVA calla (sin recuadro ni oscurecido).
+# El jugador mira una vista de los lados: NOVA calla (sin recuadro ni oscurecido) y la oficina responde.
 var _away: bool = false
 var _typing: Tween
 var _box_tween: Tween
@@ -118,7 +117,7 @@ func on_turned(side: int) -> void:
 		# En los lados NOVA calla: se esconde el recuadro y el oscurecido.
 		_seen[0 if side < 0 else 1] = true
 		if not _away:
-			_away = true
+			_set_away(true)
 			if _typing:
 				_typing.kill()
 			continue_arrow.hide()
@@ -127,7 +126,7 @@ func on_turned(side: int) -> void:
 		return
 	if not _away:
 		return
-	_away = false
+	_set_away(false)
 	_fade_box(1.0)
 	_enter(Step.RADAR if _seen[0] and _seen[1] else Step.TURN_OTHER)
 
@@ -137,6 +136,13 @@ func _set_open(open: bool) -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP if open else Control.MOUSE_FILTER_IGNORE
 	set_process(open)
 	set_process_input(open)
+
+# En los lados se deja el ratón y las teclas a la oficina: se puede mirar y tocar todo (la puerta y
+# Escape incluidos; si se vuelve al inicio, el tutorial vuelve a salir al entrar en la ranura).
+func _set_away(away: bool) -> void:
+	_away = away
+	mouse_filter = Control.MOUSE_FILTER_IGNORE if away else Control.MOUSE_FILTER_STOP
+	set_process_input(not away)
 
 func _process(delta: float) -> void:
 	_time += delta
@@ -151,7 +157,7 @@ func _enter(step: Step) -> void:
 	var key: String = WELCOME_WON_TEXT if step == Step.WELCOME and _won else TEXTS[step]
 	_pages = tr(key).split(PAGE_BREAK, false)
 	_page = 0
-	_fade_dim(step in FOCUS_STEPS)
+	_fade_dim(true)
 	_type_page()
 
 # La página actual aparece letra a letra.
@@ -237,8 +243,8 @@ func _fade_dim(on: bool) -> void:
 func _blink_on() -> bool:
 	return fmod(_time, HIGHLIGHT_BLINK_TIME * 2.0) < HIGHLIGHT_BLINK_TIME
 
-# Todo oscuro menos lo señalado, con su borde ámbar parpadeando. Al salir de un paso con foco el
-# oscurecido se desvanece entero, ya sin huecos.
+# Mientras habla NOVA, todo oscuro menos su recuadro (hijo, encima) y lo señalado, con su borde ámbar
+# parpadeando. Al acabar, el oscurecido se desvanece entero, ya sin huecos.
 func _draw() -> void:
 	if _dim_alpha <= 0.0:
 		return
