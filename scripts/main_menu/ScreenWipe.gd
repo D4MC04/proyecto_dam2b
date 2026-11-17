@@ -38,8 +38,10 @@ func uncover(origin: Vector2, duration: float) -> void:
 ## Destapa la pantalla (tapada del todo) con un fundido, sin el tramado, y se libera.
 func fade_out(duration: float) -> void:
 	_material.set_shader_parameter(&"progress", 1.0)
+	_material.set_shader_parameter(&"opacity", 1.0)
 	var tween: Tween = create_tween()
-	tween.tween_property(_rect, "modulate:a", 0.0, duration)
+	tween.tween_method(func(value: float) -> void: _material.set_shader_parameter(&"opacity", value),
+			1.0, 0.0, duration)
 	await tween.finished
 	queue_free()
 

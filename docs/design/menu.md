@@ -31,7 +31,7 @@ El botón de borrar es un `Button` de 36x36 con la variación `DangerButton`, ce
 
 `scripts/main_menu/ScreenWipe.gd` (clase `ScreenWipe`, `CanvasLayer` en la capa 100) con el shader `resources/shaders/screen_wipe.gdshader` sobre un `ColorRect` a pantalla completa que para el ratón. Se añade a la raíz del árbol, no a la escena, para sobrevivir al cambio de escena.
 
-- `fade_out(duration)`: con la pantalla ya tapada, la destapa con un fundido del `ColorRect` (sin tramado) y se libera. Lo usa la entrada a una partida nueva.
+- `fade_out(duration)`: con la pantalla ya tapada, la destapa con un fundido de la opacidad del shader (`opacity`, porque el shader sobrescribe `COLOR` y `modulate` no vale; sin tramado) y se libera. Lo usa la entrada a una partida nueva.
 - `cover(origin, duration)`: tapa la pantalla en celdas de 4x4 px que avanzan desde `origin` hacia fuera. Cada celda se tapa según su distancia a `origin` (80 %) y una matriz de Bayer 4x4 (20 %), así que el frente sale tramado. Las celdas tapadas son `#060b14`; el frente, `#40e0f0` con su borde exterior en `#befaff`.
 - `uncover(origin, duration)`: lo contrario, destapando primero lo más cercano a `origin`; al acabar se libera.
 
