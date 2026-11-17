@@ -156,7 +156,7 @@ func _turn(step: int) -> void:
 		_turn_tween.kill()
 	_turn_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	_turn_tween.tween_method(_set_pan, views.position.x, (View.CENTER - _view) * VIEW_WIDTH, TURN_TIME)
-	_turn_tween.finished.connect(func() -> void: office_tutorial.on_turned(_view == View.CENTER))
+	_turn_tween.finished.connect(func() -> void: office_tutorial.on_turned(_view - View.CENTER))
 
 # Desplaza las vistas y el espacio de detrás del ventanal, en píxeles enteros.
 func _set_pan(offset: float) -> void:

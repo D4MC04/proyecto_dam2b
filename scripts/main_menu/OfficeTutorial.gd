@@ -3,16 +3,16 @@ extends Control
 ## Tutorial de la oficina: la última fase del tutorial de una partida nueva. Sale la primera vez que se
 ## llega a la oficina después del nivel de emergencia (ganado, saltado o abandonado). NOVA, con el mismo
 ## recuadro y el mismo foco que en el nivel de emergencia (se oscurece todo menos lo que señala), pide
-## girar la silla y volver, enseña la mesa de Sectores y la consola de opciones y deja lo demás para
-## explorar. "Saltar" o Escape lo acaban. Hecho o saltado, no vuelve a salir en la ranura.
+## girar la silla y mirar las dos vistas de los lados (allí no dice nada), enseña la mesa de Sectores y la
+## consola de opciones y deja lo demás para explorar. No se salta. Hecho, no vuelve a salir en la ranura.
 
-enum Step { WELCOME, TURN, TURN_BACK, RADAR, OPTIONS, DONE }
+enum Step { WELCOME, TURN, TURN_OTHER, RADAR, OPTIONS, DONE }
 
 # Una clave de textos.csv por paso; un `|` en el texto corta página.
 const TEXTS: Dictionary[Step, String] = {
 	Step.WELCOME: "OFFICE_TUTORIAL_WELCOME",
 	Step.TURN: "OFFICE_TUTORIAL_TURN",
-	Step.TURN_BACK: "OFFICE_TUTORIAL_TURN_BACK",
+	Step.TURN_OTHER: "OFFICE_TUTORIAL_TURN_OTHER",
 	Step.RADAR: "OFFICE_TUTORIAL_RADAR",
 	Step.OPTIONS: "OFFICE_TUTORIAL_OPTIONS",
 	Step.DONE: "OFFICE_TUTORIAL_DONE",
@@ -26,10 +26,12 @@ const NEXT_STEP: Dictionary[Step, Step] = {
 	Step.RADAR: Step.OPTIONS,
 	Step.OPTIONS: Step.DONE,
 }
-# Pasos que esperan a que el jugador gire la silla; solo en ellos se puede girar.
-const TURN_STEPS: Array[Step] = [Step.TURN, Step.TURN_BACK]
+# Pasos que esperan a que el jugador mire las dos vistas de los lados; solo en ellos se puede girar.
+const TURN_STEPS: Array[Step] = [Step.TURN, Step.TURN_OTHER]
 # Pasos con foco: todo oscuro menos lo señalado (los bordes de girar, la mesa o la consola).
-const FOCUS_STEPS: Array[Step] = [Step.TURN, Step.RADAR, Step.OPTIONS]
+const FOCUS_STEPS: Array[Step] = [Step.TURN, Step.TURN_OTHER, Step.RADAR, Step.OPTIONS]
+# Ancho del hueco de cada borde de girar: estrecho, para que se vea que hay que llevar el ratón al borde.
+const TURN_FOCUS_WIDTH: float = 24.0
 # Segundos que se ve la oficina antes de que NOVA empiece a hablar.
 const START_DELAY: float = 0.5
 # Segundos por carácter del texto que va apareciendo, como si hablara.
@@ -52,7 +54,6 @@ const ARROW_BOB_TIME: float = 0.8
 @onready var box: Control = $Box
 @onready var message_label: Label = $Box/Margin/Row/Column/MessageLabel
 @onready var continue_arrow: Control = $ContinueArrow
-@onready var skip_button: Button = $SkipButton
 
 var _running: bool = false
 # El recuadro ya está a la vista y NOVA habla (tras START_DELAY).
@@ -63,6 +64,10 @@ var _page: int = 0
 var _won: bool = false
 var _radar: OfficeObject
 var _options: OfficeObject
+# Vistas de los lados ya vistas: izquierda y derecha.
+var _seen: Array[bool] = [false, false]
+# El jugador mira una vista de los lados: NOVA calla (sin recuadro ni oscurecido).
+var _away: bool = false
 var _typing: Tween
 var _box_tween: Tween
 var _dim_tween: Tween
@@ -71,7 +76,6 @@ var _time: float = 0.0
 
 func _ready() -> void:
 	continue_arrow.draw.connect(_draw_continue_arrow)
-	skip_button.pressed.connect(_finish)
 	_set_open(false)
 
 ## Empieza el tutorial. `won`: si se ganó el nivel de emergencia (NOVA felicita). `radar` y `options`
@@ -82,11 +86,12 @@ func start(won: bool, radar: OfficeObject, options: OfficeObject) -> void:
 	_options = options
 	_running = true
 	_talking = false
+	_seen = [false, false]
+	_away = false
 	_set_open(true)
 	continue_arrow.hide()
 	message_label.text = ""
 	box.modulate.a = 0.0
-	skip_button.modulate.a = 0.0
 	await get_tree().create_timer(START_DELAY).timeout
 	if not _running:
 		return
@@ -98,18 +103,33 @@ func start(won: bool, radar: OfficeObject, options: OfficeObject) -> void:
 func is_running() -> bool:
 	return _running
 
-## Se puede girar la silla: NOVA ha acabado de pedirlo (pasos de girar, ya escrito).
+## Se puede girar la silla en los pasos de girar: en el primero, cuando NOVA ha acabado de pedirlo; en
+## los lados y al pedir el otro lado, siempre (para no frenar al que ya va hacia allí).
 func allows_turn() -> bool:
-	return _talking and _step in TURN_STEPS and _talk_done()
+	if not _talking or _step not in TURN_STEPS:
+		return false
+	return _away or _step == Step.TURN_OTHER or _talk_done()
 
-## MainMenu avisa al acabar cada giro de la silla: `centered` si se ha quedado en la vista central.
-func on_turned(centered: bool) -> void:
-	if not _talking:
+## MainMenu avisa al acabar cada giro de la silla: `side` -1 (vista izquierda), 0 (centro) o 1 (derecha).
+func on_turned(side: int) -> void:
+	if not _talking or _step not in TURN_STEPS:
 		return
-	if _step == Step.TURN and not centered:
-		_enter(Step.TURN_BACK)
-	elif _step == Step.TURN_BACK and centered:
-		_enter(Step.RADAR)
+	if side != 0:
+		# En los lados NOVA calla: se esconde el recuadro y el oscurecido.
+		_seen[0 if side < 0 else 1] = true
+		if not _away:
+			_away = true
+			if _typing:
+				_typing.kill()
+			continue_arrow.hide()
+			_fade_box(0.0)
+			_fade_dim(false)
+		return
+	if not _away:
+		return
+	_away = false
+	_fade_box(1.0)
+	_enter(Step.RADAR if _seen[0] and _seen[1] else Step.TURN_OTHER)
 
 func _set_open(open: bool) -> void:
 	visible = open
@@ -158,7 +178,7 @@ func _talk_done() -> bool:
 
 # Un clic, Intro o Espacio: completa el texto, pasa de página o de paso. Los de girar esperan al giro.
 func _advance() -> void:
-	if not _talking:
+	if not _talking or _away:
 		return
 	if message_label.visible_ratio < 1.0:
 		_typing.kill()
@@ -171,7 +191,7 @@ func _advance() -> void:
 	elif NEXT_STEP.has(_step):
 		_enter(NEXT_STEP[_step])
 
-# Acaba (al pasar la despedida, con "Saltar" o con Escape): queda hecho en la ranura.
+# Acaba al pasar la despedida: queda hecho en la ranura.
 func _finish() -> void:
 	if not _running:
 		return
@@ -181,8 +201,6 @@ func _finish() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_process_input(false)
 	continue_arrow.hide()
-	if _typing:
-		_typing.kill()
 	_fade_dim(false)
 	_fade_box(0.0)
 	await _box_tween.finished
@@ -191,16 +209,13 @@ func _finish() -> void:
 func _input(event: InputEvent) -> void:
 	if not _running:
 		return
+	# No se salta: Escape no hace nada (ni abre "¿Volver al inicio?").
 	if event.is_action_pressed(&"ui_cancel"):
 		get_viewport().set_input_as_handled()
-		_finish()
 		return
 	var click: InputEventMouseButton = event as InputEventMouseButton
 	var is_click: bool = click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT
 	if not is_click and not event.is_action_pressed(&"ui_accept"):
-		return
-	# El clic en "Saltar" es para el botón.
-	if is_click and skip_button.get_global_rect().has_point(skip_button.get_global_mouse_position()):
 		return
 	get_viewport().set_input_as_handled()
 	_advance()
@@ -210,9 +225,8 @@ func _input(event: InputEvent) -> void:
 func _fade_box(target: float) -> void:
 	if _box_tween:
 		_box_tween.kill()
-	_box_tween = create_tween().set_parallel()
+	_box_tween = create_tween()
 	_box_tween.tween_property(box, "modulate:a", target, FADE_TIME)
-	_box_tween.tween_property(skip_button, "modulate:a", target, FADE_TIME)
 
 func _fade_dim(on: bool) -> void:
 	if _dim_tween:
@@ -230,7 +244,7 @@ func _draw() -> void:
 		return
 	var dim: Color = Color(0.0, 0.0, 0.0, _dim_alpha)
 	match _step if _talking else Step.DONE:
-		Step.TURN:
+		Step.TURN, Step.TURN_OTHER:
 			_draw_turn_focus(dim)
 		Step.RADAR:
 			_draw_object_focus(_radar, dim)
@@ -239,12 +253,19 @@ func _draw() -> void:
 		_:
 			draw_rect(Rect2(Vector2.ZERO, size), dim)
 
-# Girar la silla: los bordes por los que se gira (tan anchos como su brillo, TurnEdges.GLOW_WIDTH).
+# Girar la silla: una franja estrecha en cada borde que lleva a una vista aún sin ver.
 func _draw_turn_focus(dim: Color) -> void:
-	var edge: float = TurnEdges.GLOW_WIDTH
-	draw_rect(Rect2(edge, 0.0, size.x - edge * 2.0, size.y), dim)
-	if _blink_on():
+	var edge: float = TURN_FOCUS_WIDTH
+	var left: bool = not _seen[0]
+	var right: bool = not _seen[1]
+	var x0: float = edge if left else 0.0
+	var x1: float = size.x - edge if right else size.x
+	draw_rect(Rect2(x0, 0.0, x1 - x0, size.y), dim)
+	if not _blink_on():
+		return
+	if left:
 		draw_rect(Rect2(0.5, 0.5, edge - 1.0, size.y - 1.0), HIGHLIGHT_COLOR, false, 1.0)
+	if right:
 		draw_rect(Rect2(size.x - edge + 0.5, 0.5, edge - 1.0, size.y - 1.0), HIGHLIGHT_COLOR, false, 1.0)
 
 # Un objeto de la consola: hueco con la forma de su trapecio inclinado (arriba y abajo horizontales).

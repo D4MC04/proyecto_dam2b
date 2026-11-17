@@ -58,6 +58,14 @@ var _rows: Array[Control] = []
 var _pending_delete: int = 0
 
 func _ready() -> void:
+	# Solo para probar (en depuración): con `-- --office-tutorial` se va directo a la oficina con su
+	# tutorial (como tras ganar el nivel de emergencia), sin ranura, así que no se guarda nada.
+	if OS.is_debug_build() and OS.get_cmdline_user_args().has("--office-tutorial"):
+		GameState.tutorial_done = true
+		GameState.tutorial_won = true
+		GameState.office_tutorial_done = false
+		_open_main_menu.call_deferred()
+		return
 	_build_slots()
 	_fix_danger_pressed(%ConfirmDeleteButton)
 	$ConfirmLayer/Dim.gui_input.connect(_on_dim_gui_input)

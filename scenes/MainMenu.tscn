@@ -648,9 +648,9 @@ anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -264.0
-offset_top = 12.0
+offset_top = 95.0
 offset_right = 264.0
-offset_bottom = 105.0
+offset_bottom = 188.0
 grow_horizontal = 2
 mouse_filter = 2
 script = ExtResource("20_frame")
@@ -710,26 +710,11 @@ anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = 242.0
-offset_top = 91.0
+offset_top = 174.0
 offset_right = 252.0
-offset_bottom = 101.0
+offset_bottom = 184.0
 grow_horizontal = 2
 mouse_filter = 2
-
-[node name="SkipButton" type="Button" parent="OfficeTutorial"]
-custom_minimum_size = Vector2(132, 36)
-layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = 276.0
-offset_top = 12.0
-offset_right = 408.0
-offset_bottom = 48.0
-grow_horizontal = 2
-focus_mode = 0
-theme_override_font_sizes/font_size = 24
-text = "TUTORIAL_SKIP"
 
 [node name="RadarViewport" type="SubViewport" parent="."]
 transparent_bg = true

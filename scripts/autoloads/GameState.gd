@@ -61,7 +61,7 @@ var current_level: int = 1
 var tutorial_done: bool = false
 # Cómo acabó el nivel de emergencia: true si se ganó (salió su pantalla de victoria); false si se saltó o se abandonó.
 var tutorial_won: bool = false
-# El tutorial de la oficina (al llegar a ella después del nivel de emergencia) ya se ha hecho o saltado.
+# El tutorial de la oficina (al llegar a ella después del nivel de emergencia) ya se ha hecho.
 var office_tutorial_done: bool = false
 # Enemigos que ya han salido en una partida, por nombre de archivo del EnemyData.
 var seen_enemies: Array[String] = []
@@ -209,7 +209,7 @@ func complete_tutorial(won: bool) -> void:
 	tutorial_won = won
 	_save()
 
-## El tutorial de la oficina se ha hecho o saltado: no vuelve a salir.
+## El tutorial de la oficina se ha hecho: no vuelve a salir.
 func complete_office_tutorial() -> void:
 	office_tutorial_done = true
 	_save()

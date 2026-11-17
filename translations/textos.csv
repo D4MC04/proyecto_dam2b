@@ -189,8 +189,8 @@ TUTORIAL_UPGRADE_PRESS,"Pulsa ""Mejorar"" para convertirlo en un Cañón Cuádru
 TUTORIAL_DONE,"¡Así se hace! Vienen dos oleadas más. Aguanta, comandante, seguro que resistiremos.","That's it! Two more waves incoming. Hold on, commander, and we'll make it."
 OFFICE_TUTORIAL_WELCOME_WON,"¡Lo lograste, comandante! La estación sigue en pie gracias a ti.|Ya estás de vuelta en tu oficina. Te enseño cómo funciona.","You did it, commander! The station is still standing thanks to you.|You're back in your office. Let me show you how it works."
 OFFICE_TUTORIAL_WELCOME,"Comandante, aquí NOVA. Ya estás de vuelta en tu oficina.|Te enseño cómo funciona, será solo un momento.","Commander, NOVA here. You're back in your office.|Let me show you how it works, it'll only take a moment."
-OFFICE_TUTORIAL_TURN,Lleva el ratón a un borde para girar la silla. Echa un vistazo alrededor.,Move the mouse to an edge to turn your chair. Take a look around.
-OFFICE_TUTORIAL_TURN_BACK,"Bien. Cuando quieras, vuelve al centro: ahí está lo importante.","Good. Whenever you're ready, turn back to the center: that's where it matters."
+OFFICE_TUTORIAL_TURN,Lleva el ratón al borde de la pantalla para girar la silla. Mira a los dos lados.,Move the mouse to the edge of the screen to turn your chair. Look at both sides.
+OFFICE_TUTORIAL_TURN_OTHER,"Te falta el otro lado, comandante. Échale un vistazo también.","You still have the other side, commander. Take a look there too."
 OFFICE_TUTORIAL_RADAR,"En la mesa de Sectores eliges a qué sector saltar para defenderlo.","On the Sectors table you choose which sector to jump to and defend."
 OFFICE_TUTORIAL_OPTIONS,"En esta consola ajustas el sonido, el idioma y la pantalla.","On this console you adjust sound, language and display."
 OFFICE_TUTORIAL_DONE,"Lo demás, explóralo tú. La mesa de Sectores te espera, comandante.","The rest is yours to explore. The Sectors table awaits, commander."
