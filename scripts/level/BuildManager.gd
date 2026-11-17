@@ -57,7 +57,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _try_place(mouse_pos: Vector2) -> void:
 
-	var cell: Vector2i = grid.cell(mouse_pos)
+	var cell: Vector2i = grid.slot_at(mouse_pos)
 	var data: TurretData = state.selected_turret
 	if grid.turrets.has(cell):
 		# Clic en una torreta ya colocada: se selecciona (ficha, vender y mejorar);
@@ -136,7 +136,7 @@ func _update_preview(mouse_pos: Vector2) -> void:
 	if data == null:
 		_hide_preview()
 		return
-	var cell: Vector2i = grid.cell(mouse_pos)
+	var cell: Vector2i = grid.slot_at(mouse_pos)
 	# La vista previa solo se enseña en casillas libres.
 	if not grid.can_build(cell):
 		_hide_preview()
