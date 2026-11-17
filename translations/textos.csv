@@ -170,7 +170,11 @@ SLOT_EMPTY,RANURA VACÍA,EMPTY SLOT
 SLOT_SECTOR,SECTOR %02d,SECTOR %02d
 SLOT_SAVED,GUARDADO,SAVED
 SLOT_PLAYED,JUGADO,PLAYED
-TUTORIAL_STATION,"¡Comandante, por fin has llegado! Aquí NOVA, desde la sala de control. Nos atacan y no aguantaremos mucho solos.","Commander, you made it! NOVA here, from the control room. We are under attack and won't last long on our own."
+INTRO_CALL_1,"¡Comandante, ¿me recibes? Aquí NOVA, desde la sala de control!","Commander, do you read me? NOVA here, from the control room!"
+INTRO_CALL_2,Una flota enemiga se acerca cada vez más a la estación.,An enemy fleet is getting closer and closer to the station.
+INTRO_CALL_3,"No aguantaremos solos. Tú y tu escuadrón sois nuestra única esperanza.","We can't hold out alone. You and your squadron are our only hope."
+INTRO_CALL_4,"¡Salta ya, comandante! ¡Te necesitamos aquí!","Jump now, commander! We need you here!"
+TUTORIAL_STATION,"¡Comandante, has llegado! Gracias por responder tan rápido.|Todavía estamos a tiempo, pero no podemos perder ni un segundo.","Commander, you made it! Thanks for answering so fast.|We're still in time, but we can't waste a second."
 TUTORIAL_STATION_BASE,"Si sus naves alcanzan la estación, sufriremos graves daños.","If their ships reach the station, we'll take heavy damage."
 TUTORIAL_STATION_HEALTH,Puedes comprobar su estado desde la barra de la derecha.,You can check its status in the right-hand bar.
 TUTORIAL_PREPARE,Debemos preparar nuestras defensas cuanto antes.,We must get our defenses ready as soon as possible.
@@ -183,6 +187,13 @@ TUTORIAL_UPGRADE_PICK,¡Primera oleada neutralizada! Con el botín podemos refor
 TUTORIAL_UPGRADE_GIFT,"Andamos cortos de créditos... Desvío fondos de reserva para la mejora, pero que no se repita. Selecciona uno de tus cañones.","We're short on credits... I'm diverting reserve funds for the upgrade, but don't make me do it again. Select one of your cannons."
 TUTORIAL_UPGRADE_PRESS,"Pulsa ""Mejorar"" para convertirlo en un Cañón Cuádruple.",Press Upgrade and we'll turn it into a Quad Cannon.
 TUTORIAL_DONE,"¡Así se hace! Vienen dos oleadas más. Aguanta, comandante, seguro que resistiremos.","That's it! Two more waves incoming. Hold on, commander, and we'll make it."
+OFFICE_TUTORIAL_WELCOME_WON,"¡Lo lograste, comandante! La estación sigue en pie gracias a ti.|Ya estás de vuelta en tu oficina. Te enseño cómo funciona.","You did it, commander! The station is still standing thanks to you.|You're back in your office. Let me show you how it works."
+OFFICE_TUTORIAL_WELCOME,"Comandante, aquí NOVA. Ya estás de vuelta en tu oficina.|Te enseño cómo funciona, será solo un momento.","Commander, NOVA here. You're back in your office.|Let me show you how it works, it'll only take a moment."
+OFFICE_TUTORIAL_TURN,Lleva el ratón al borde de la pantalla para girar la silla. Mira a uno de los lados.,Move the mouse to the edge of the screen to turn your chair. Look to one side.
+OFFICE_TUTORIAL_TURN_OTHER,"Te queda el otro lado por ver, comandante. Échale un vistazo.","There's still the other side to see, commander. Take a look."
+OFFICE_TUTORIAL_RADAR,"En la mesa de Sectores eliges a qué sector saltar para defenderlo.","On the Sectors table you choose which sector to jump to and defend."
+OFFICE_TUTORIAL_OPTIONS,"En esta consola ajustas el sonido, el idioma y la pantalla.","On this console you adjust sound, language and display."
+OFFICE_TUTORIAL_DONE,"Lo demás, explóralo tú. La mesa de Sectores te espera, comandante.","The rest is yours to explore. The Sectors table awaits, commander."
 HUD_EMERGENCY,SECTOR 0,SECTOR 0
 ACH_FIRST_WIN_NAME,Primera victoria,First victory
 ACH_FIRST_WIN_DESC,Gana un sector,Win a sector
@@ -256,16 +267,13 @@ STAT_TOP_TURRET,TORRETA,TURRET
 STAT_TOP_KILLS,SUS BAJAS,ITS KILLS
 OPT_LANGUAGE,Idioma,Language
 RADAR_SECTOR_CODE,SEC-%02d,SEC-%02d
-NUMBER_THOUSANDS_SEP,.,","
 CARD_STATUS,ESTADO,STATUS
 CARD_BEARING,RUMBO,BEARING
-CARD_DISTANCE,DISTANCIA,DISTANCE
-CARD_WAVES,OLEADAS,WAVES
+CARD_DISTANCE,DISTANCIA (KMs),DISTANCE (KMs)
 CARD_THREAT,AMENAZA,THREAT
-CARD_BEST,MEJOR,BEST
+CARD_BEST,RÉCORD,RECORD
 CARD_SECURED,ASEGURADO,SECURED
 CARD_ACTIVE,SEÑAL ACTIVA,ACTIVE SIGNAL
-CARD_KM,%s km,%s km
 THREAT_LOW,BAJA,LOW
 THREAT_MEDIUM,MEDIA,MEDIUM
 THREAT_HIGH,ALTA,HIGH
@@ -274,7 +282,7 @@ BTN_DEPLOY,» DESPLEGAR «,» DEPLOY «
 BTN_REPLAY,REPETIR,REPLAY
 CARD_NO_DATA,SIN DATOS,NO DATA
 BTN_UNAVAILABLE,NO DISPONIBLE,UNAVAILABLE
-RADAR_SUBTITLE,Asegurados %d/%d - Alcance del radar: %s km,Secured %d/%d - Radar range: %s km
+HINT_ESC_BACK,ESC para volver,ESC to go back
 SECTOR_1_NAME,Órbita Baja,Low Orbit
 SECTOR_2_NAME,Campo Helado,Frozen Field
 SECTOR_3_NAME,Cinturón Kepler,Kepler Belt
@@ -285,5 +293,3 @@ SECTOR_7_NAME,Deriva Tóxica,Toxic Drift
 SECTOR_8_NAME,Nido Exterior,Outer Nest
 SECTOR_9_NAME,Frontera Muerta,Dead Frontier
 QUIT_CONFIRM_TITLE,¿VOLVER AL INICIO?,BACK TO THE TITLE?
-OFFICE_COMBAT_LOG,// REGISTRO DE COMBATE,// COMBAT LOG
-OFFICE_STANDBY,SISTEMA EN ESPERA,SYSTEM ON STANDBY

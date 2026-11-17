@@ -14,6 +14,8 @@ var _level_scene: PackedScene
 var _transitioning: bool = false
 # El nivel es el nivel de emergencia (el nivel de prueba del tutorial), no un sector.
 var _is_emergency: bool = false
+# El nivel de emergencia se ha ganado (salió su pantalla de victoria): NOVA felicita en la oficina.
+var _emergency_won: bool = false
 
 func _ready() -> void:
 	_level_scene = load(level.scene_file_path)
@@ -67,6 +69,7 @@ func _setup_level() -> void:
 	ui.setup_powers(level.get_node(^"Powers"))
 	ui.setup(level.game_state, level.turrets, level_number, level.spawner, has_next_level, level.base)
 	_is_emergency = level_data == GameData.emergency_level
+	_emergency_won = false
 	if _is_emergency:
 		ui.start_emergency(level)
 
@@ -84,7 +87,9 @@ func _on_level_won() -> void:
 	GameState.record_level_stars(number, stars)
 	ui.show_victory_stars(stars)
 	# El nivel de emergencia sale con su pantalla de victoria, pero no cuenta como victoria ni da logros.
-	if not _is_emergency:
+	if _is_emergency:
+		_emergency_won = true
+	else:
 		GameState.register_win(number, level.base.health == level.base.max_health)
 	ui.show_run_stats(level.get_run_stats())
 	ui.set_state(LevelUI.UiState.WON)
@@ -126,7 +131,7 @@ func _restart_level() -> void:
 # Del nivel de emergencia se vuelve a la oficina; de un sector, a la selección de nivel.
 func _quit_to_menu() -> void:
 	if _is_emergency:
-		GameState.complete_tutorial()
+		GameState.complete_tutorial(_emergency_won)
 	var menu: Node = load(MAIN_MENU_PATH).instantiate()
 	menu.start_on_level_selection = not _is_emergency
 	var tree: SceneTree = get_tree()

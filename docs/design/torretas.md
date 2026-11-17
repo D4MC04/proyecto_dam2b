@@ -6,6 +6,8 @@
 
 En `_unhandled_input`:
 
+La casilla bajo el ratón se busca con `Grid.slot_at(punto)`: cuenta como hueco si el punto cae dentro del asteroide dibujado (círculo de `Grid.SLOT_CLICK_RADIUS` = 15 px alrededor del centro de la casilla; el tile es de 32x32 centrado en ella), no solo en su casilla de 16x16. Si dos asteroides se tocan gana el de centro más cercano. Fuera de todo asteroide devuelve la casilla normal.
+
 - **Mover el ratón**: si hay torreta seleccionada y la casilla bajo el cursor es construible, muestra una vista previa en el centro de la casilla: el icono de la torreta al 60 % de opacidad y su rango dibujado en blanco al 15 % (el Amplificador, su aura en ámbar, ver "Amplificador"). Si no, la oculta.
 - **Clic izquierdo**: si hay torreta seleccionada, `grid.can_build(cell)` y `state.spend_money(data.cost)`, instancia la torreta como hija de `BuildManager`, la coloca en el centro de la casilla y la registra en `Grid`.
 - **Clic izquierdo sobre una torreta ya colocada** (se mira antes que lo de colocar): siempre `state.inspect_placed(turret)` (no fusiona por clic); la ficha enseña la torreta y sale encima de ella el recuadro `TurretActions` con vender y, si tiene `fusion`, mejorar (ver abajo).

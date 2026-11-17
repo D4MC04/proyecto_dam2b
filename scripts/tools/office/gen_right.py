@@ -208,6 +208,93 @@ ACH = [("first_win", "A"), ("flawless", "A"), ("all_levels", "A"), ("wins", "A")
        ("seen", "C"), ("turrets", "C"), ("fusions", "A"), ("powers", "C"), ("perfect_waves", "C")]
 ICON_DIR = os.path.join(ROOT, "assets", "ui", "achievements")
 PLATE = {OUT[:3], M1[:3], M0[:3]}  # colores de la placa de metal del icono, que se quita
+# Medallas cuyo símbolo no sale bien del icono tal cual: se dibuja aquí, a escala 1 (luego ×3).
+# Las letras son los colores del icono (SYMBOL_COLORS); en el juego se pintan del metal de la fase.
+MEDAL_SYMBOL = {
+    # Escudo más pequeño que el del icono, para que deje margen con el canto.
+    "flawless": ["ffffff",
+                 "fggfff",
+                 "fgffff",
+                 "ffffff",
+                 "ffffff",
+                 ".ffff.",
+                 "..ff.."],
+    # Bandera con el palo más corto, para que no toque el canto por la izquierda.
+    "all_levels": ["dd.....",
+                   "deeeee.",
+                   "deeeeee",
+                   "deeeee.",
+                   "dd.....",
+                   "d......"],
+    # Copa como la del icono, un poco más pequeña.
+    "wins": ["ddddddd",
+             "d.dde.e",
+             "d.dde.e",
+             ".ddeee.",
+             "..dee..",
+             "...e...",
+             ".ddeee."],
+    # Marca con el palo largo más corto, para que no llegue al canto de la derecha.
+    "perfect_waves": [".....gf",
+                      "....gf.",
+                      "gg.gf..",
+                      "fggf...",
+                      ".ff....",
+                      "..f...."],
+}
+SYMBOL_COLORS = {"d": A3, "e": A2, "f": C2, "g": C3, "h": R2, "i": R3}
+
+
+def mirror(half):
+    """Filas simétricas, de ancho par, a partir de su mitad izquierda."""
+    return [row + row[::-1] for row in half]
+
+
+# Medallas cuyo símbolo se dibuja ya a su tamaño (sin el ×3), para que salga simétrico.
+MEDAL_DRAWN = {
+    # Calavera: cráneo redondo, cuencas grandes, nariz de punta y cinco dientes iguales. De ancho par,
+    # para que quede centrada en el disco.
+    "kills": mirror(["......hhhh",
+                     "....hhhhhh",
+                     "...hhhhhhh",
+                     "..hhhhhhhh",
+                     ".hhhhhhhhh",
+                     ".hhhhhhhhh",
+                     "hhhhhhhhhh",
+                     "hhh.....hh",
+                     "hh......hh",
+                     "hh......hh",
+                     "hhh....hhh",
+                     ".hhhhhhhhh",
+                     "..hhhhhhh.",
+                     "..hhhhhh..",
+                     "...hhhhhhh",
+                     "...hhhhhhh",
+                     "...hh.hh.h",
+                     "...hh.hh.h"]),
+    # Rayo de trazo grueso y más pequeño que el del icono ampliado, con margen en el disco.
+    "powers": ["....ddddddd.",
+               "....deeeeee.",
+               "...deeeeee..",
+               "...deeeeee..",
+               "..deeeeee...",
+               "..deeeeee...",
+               ".deeeeee....",
+               ".deeeeee....",
+               "deeeeeeeeeee",
+               "deeeeeeeeee.",
+               "....eeeeee..",
+               "...eeeee....",
+               "...eeee.....",
+               "..eeee......",
+               "..eee.......",
+               ".eee........",
+               ".ee.........",
+               "ee..........",
+               "e..........."],
+}
+# Desplazamiento (x, y) del símbolo en el disco, para centrarlo a la vista y no solo por su caja.
+MEDAL_NUDGE = {"first_win": (0, -1), "fusions": (0, -2), "perfect_waves": (-1, 0)}
 
 
 def scale3x(img):
@@ -236,16 +323,23 @@ def scale3x(img):
 
 
 def symbol(ach_id):
-    """El símbolo del icono del logro, sin la placa, ampliado ×3 y con contorno de 1 px."""
-    from PIL import Image
-    im = Image.open(os.path.join(ICON_DIR, ach_id + ".png")).convert("RGBA")
-    px = im.load()
-    pts = [(x, y) for y in range(im.height) for x in range(im.width) if px[x, y][3] >= 128 and px[x, y][:3] not in PLATE]
-    x0, x1 = min(p[0] for p in pts), max(p[0] for p in pts)
-    y0, y1 = min(p[1] for p in pts), max(p[1] for p in pts)
-    keep = set(pts)
-    img = [[px[x, y][:3] + (255,) if (x, y) in keep else None for x in range(x0, x1 + 1)] for y in range(y0, y1 + 1)]
-    big = scale3x(img)
+    """El símbolo del icono del logro (o el de MEDAL_SYMBOL), sin la placa, ampliado ×3 (salvo los de
+    MEDAL_DRAWN, que ya están a su tamaño) y con contorno de 1 px."""
+    if ach_id in MEDAL_DRAWN:
+        big = [[SYMBOL_COLORS[ch] if ch != "." else None for ch in row] for row in MEDAL_DRAWN[ach_id]]
+    elif ach_id in MEDAL_SYMBOL:
+        img = [[SYMBOL_COLORS[ch] if ch != "." else None for ch in row] for row in MEDAL_SYMBOL[ach_id]]
+    else:
+        from PIL import Image
+        im = Image.open(os.path.join(ICON_DIR, ach_id + ".png")).convert("RGBA")
+        px = im.load()
+        pts = [(x, y) for y in range(im.height) for x in range(im.width) if px[x, y][3] >= 128 and px[x, y][:3] not in PLATE]
+        x0, x1 = min(p[0] for p in pts), max(p[0] for p in pts)
+        y0, y1 = min(p[1] for p in pts), max(p[1] for p in pts)
+        keep = set(pts)
+        img = [[px[x, y][:3] + (255,) if (x, y) in keep else None for x in range(x0, x1 + 1)] for y in range(y0, y1 + 1)]
+    if ach_id not in MEDAL_DRAWN:
+        big = scale3x(img)
     h, w = len(big) + 2, len(big[0]) + 2
     out = [[None] * w for _ in range(h)]
     for y, row in enumerate(big):
@@ -294,7 +388,8 @@ def build_medal(ach_id, fam):
     cv.px[enamel & (r > 14.6) & (lit < -0.2)] = D3
     sym = symbol(ach_id)
     sh, sw = len(sym), len(sym[0])
-    sx, sy = cx - sw // 2, DISC_CY - sh // 2
+    nx, ny = MEDAL_NUDGE.get(ach_id, (0, 0))
+    sx, sy = cx - sw // 2 + nx, DISC_CY - sh // 2 + ny
     for y, row in enumerate(sym):
         for x, col in enumerate(row):
             if col is not None:

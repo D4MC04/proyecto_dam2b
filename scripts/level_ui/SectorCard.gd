@@ -2,7 +2,7 @@ extends MarginContainer
 class_name SectorCard
 
 # Ficha del sector seleccionado en el radar, estilo HUD con esquinas: "SEC-0N · nombre", estado,
-# rumbo, distancia, oleadas, amenaza, mejor marca de estrellas y el botón DESPLEGAR / REPETIR.
+# rumbo, distancia, amenaza, récord de estrellas y el botón DESPLEGAR / REPETIR.
 # Ancho fijo (custom_minimum_size) y textos recortados, para que no se mueva con textos más largos
 # ni al cambiar de idioma.
 
@@ -21,6 +21,8 @@ const CORNER_WIDTH: int = 2
 # Las esquinas salen un poco fuera del borde.
 const CORNER_OUTSET: int = 3
 const BUTTON_HEIGHT: int = 36
+# Hueco extra bajo el título y antes del botón (además de la separación entre filas).
+const SECTION_GAP: int = 10
 
 const SECURED_COLOR: Color = Color("#3cb860")
 const ACTIVE_COLOR: Color = Color("#ecb23c")
@@ -60,7 +62,7 @@ class CardRow extends HBoxContainer:
 		for x: int in range(0, int(size.x), 3):
 			draw_rect(Rect2(x, y, 1, 1), SectorCard.ROW_LINE_COLOR)
 
-# Estrellas de la mejor marca en pixel art (la forma de VictoryScreen.STAR_SHAPE).
+# Estrellas del récord en pixel art (la forma de VictoryScreen.STAR_SHAPE).
 class StarsDisplay extends Control:
 	var stars: int = 0:
 		set(value):
@@ -100,7 +102,6 @@ var _title_label: Label = Label.new()
 var _status_row: CardRow = CardRow.new("CARD_STATUS")
 var _bearing_row: CardRow = CardRow.new("CARD_BEARING")
 var _distance_row: CardRow = CardRow.new("CARD_DISTANCE")
-var _waves_row: CardRow = CardRow.new("CARD_WAVES")
 var _threat_row: CardRow = CardRow.new("CARD_THREAT")
 var _best_row: CardRow = CardRow.new("CARD_BEST")
 var _stars_display: StarsDisplay = StarsDisplay.new()
@@ -122,14 +123,13 @@ func _ready() -> void:
 	_title_label.add_theme_color_override("font_color", TITLE_COLOR)
 	_title_label.add_theme_font_size_override("font_size", TEXT_SIZE)
 	box.add_child(_title_label)
-	for row: CardRow in [_status_row, _bearing_row, _distance_row, _waves_row, _threat_row, _best_row]:
+	box.add_child(_make_gap())
+	for row: CardRow in [_status_row, _bearing_row, _distance_row, _threat_row, _best_row]:
 		box.add_child(row)
-	# En la fila MEJOR, las estrellas van en lugar del texto.
+	# En la fila RÉCORD, las estrellas van en lugar del texto.
 	_best_row.value_label.hide()
 	_best_row.add_child(_stars_display)
-	var gap: Control = Control.new()
-	gap.custom_minimum_size.y = 10
-	box.add_child(gap)
+	box.add_child(_make_gap())
 	_deploy_button.custom_minimum_size.y = BUTTON_HEIGHT
 	_deploy_button.clip_text = true
 	# Botón dibujado en la pantalla (solo el contorno), como la ficha.
@@ -158,7 +158,7 @@ func _refresh() -> void:
 	_deploy_button.disabled = not has_level
 	if not has_level:
 		_title_label.text = ""
-		for row: CardRow in [_status_row, _bearing_row, _distance_row, _waves_row, _threat_row]:
+		for row: CardRow in [_status_row, _bearing_row, _distance_row, _threat_row]:
 			row.value_label.text = "-"
 		_stars_display.stars = 0
 		_deploy_button.text = ""
@@ -167,9 +167,8 @@ func _refresh() -> void:
 	var completed: bool = _state == SectorRadar.ContactState.COMPLETED
 	_title_label.text = "%s - %s" % [SectorRadar.get_sector_code(_index), tr(data.sector_name).to_upper()]
 	_set_value(_status_row, tr("CARD_SECURED") if completed else tr("CARD_ACTIVE"), SECURED_COLOR if completed else ACTIVE_COLOR)
-	_set_value(_bearing_row, "%03d°" % (roundi(data.radar_bearing) % 360), VALUE_COLOR)
-	_set_value(_distance_row, tr("CARD_KM") % SectorRadar.format_thousands(SectorRadar.get_distance_km(data)), VALUE_COLOR)
-	_set_value(_waves_row, str(data.waves.size()), VALUE_COLOR)
+	_set_value(_bearing_row, "%d°" % (roundi(data.radar_bearing) % 360), VALUE_COLOR)
+	_set_value(_distance_row, "%dM" % data.distance_mkm, VALUE_COLOR)
 	_set_value(_threat_row, tr(THREAT_KEYS[data.threat]), THREAT_COLORS[data.threat])
 	# Sin completar, las estrellas salen vacías.
 	_stars_display.stars = GameState.get_level_stars(_index + 1) if completed else 0
@@ -185,12 +184,17 @@ func _refresh() -> void:
 func _show_unknown() -> void:
 	_title_label.text = "%s - ???" % SectorRadar.get_sector_code(_index)
 	_set_value(_status_row, tr("CARD_NO_DATA"), UNKNOWN_COLOR)
-	for row: CardRow in [_bearing_row, _distance_row, _waves_row]:
+	for row: CardRow in [_bearing_row, _distance_row]:
 		_set_value(row, "???", VALUE_COLOR)
 	_set_value(_threat_row, "???", UNKNOWN_COLOR)
 	_stars_display.stars = 0
 	_deploy_button.disabled = true
 	_deploy_button.text = tr("BTN_UNAVAILABLE")
+
+func _make_gap() -> Control:
+	var gap: Control = Control.new()
+	gap.custom_minimum_size.y = SECTION_GAP
+	return gap
 
 func _set_value(row: CardRow, text: String, color: Color) -> void:
 	row.value_label.text = text

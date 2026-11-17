@@ -1,7 +1,7 @@
 extends Control
 
 # Menú principal: la oficina del comandante. Tres vistas (izquierda, centro y derecha) que se
-# cambian girando la silla con las flechas de los bordes o las teclas; cada objeto de la oficina
+# cambian girando la silla con el ratón en los bordes (TurnEdges) o las teclas; cada objeto de la oficina
 # abre su panel holograma encima, con la oficina oscurecida detrás. Escape cierra el panel abierto
 # o, en la oficina, pregunta si volver a la pantalla de inicio. La pantalla de la mesa del radar enseña la pantalla
 # de Sectores (que, mientras está cerrada, se pinta en RadarViewport); al pulsarla, la vista se
@@ -18,8 +18,8 @@ const START_COVER_TIME: float = 0.7
 const START_UNCOVER_TIME: float = 0.6
 const WARP_TIME: float = 0.5
 const FLASH_TIME: float = 0.1
-# Segundos que se ve la oficina (mientras la destapa la pantalla de inicio) antes de saltar al nivel de emergencia.
-const EMERGENCY_DELAY: float = 0.8
+# Segundos que se ve el espacio (mientras lo destapa con un fundido la pantalla de inicio) antes de la llamada de socorro.
+const EMERGENCY_DELAY: float = 1.6
 # Giro de la silla: duración del paso a la vista de al lado y ancho de cada vista.
 const TURN_TIME: float = 0.45
 const VIEW_WIDTH: float = 960.0
@@ -31,6 +31,8 @@ const SCREEN_MARGIN: Vector2 = Vector2(40.0, 32.0)
 const ZOOM_TIME: float = 0.7
 # Parte del zoom a la consola de opciones desde la que aparece encima la consola de cerca.
 const CLOSE_UP_FADE_START: float = 0.85
+# Hueco entre la ficha del sector y la pista "ESC para volver" de debajo.
+const SECTORS_HINT_MARGIN: float = 16.0
 
 var start_on_level_selection: bool = false
 
@@ -39,15 +41,16 @@ var start_on_level_selection: bool = false
 @onready var radar_console: RadarConsole = $Office/Views/CenterView/RadarConsole
 @onready var radar_viewport: SubViewport = $RadarViewport
 @onready var space: Node2D = $Space
-@onready var turn_left_arrow: TurnArrow = $Office/TurnLeftArrow
-@onready var turn_right_arrow: TurnArrow = $Office/TurnRightArrow
+@onready var turn_edges: TurnEdges = $TurnEdges
 @onready var exit_door: OfficeDoor = $Office/Views/LeftView/ExitDoor
 @onready var panel_dim: ColorRect = $PanelDim
 @onready var level_selection_panel: VBoxContainer = $LevelSelectionScreen
 @onready var levels_panel: Control = $LevelSelectionScreen/LevelsPanel
 @onready var sector_radar: SectorRadar = %SectorRadar
 @onready var sector_card: SectorCard = %SectorCard
-@onready var sectors_subtitle: Label = %SectorsSubtitle
+# Pista "ESC para volver" de Sectores: va fuera de la pantalla de la mesa (no se ve desde la oficina)
+# y solo sale de cerca.
+@onready var sectors_esc_hint: Label = $SectorsEscHint
 @onready var stats_panel: VBoxContainer = $StatsScreen
 @onready var stats_label: Label = %StatsLabel
 @onready var navedex: Navedex = $Navedex
@@ -55,6 +58,8 @@ var start_on_level_selection: bool = false
 @onready var options_console: OptionsConsole = $Office/Views/CenterView/OptionsConsole
 @onready var options_close_up: OptionsCloseUp = $OptionsCloseUp
 @onready var quit_confirm: Control = $QuitConfirm
+@onready var intro_dialog: IntroDialog = $IntroDialog
+@onready var office_tutorial: OfficeTutorial = $OfficeTutorial
 
 var _view: View = View.CENTER
 var _turn_tween: Tween
@@ -74,7 +79,9 @@ var _screen_rect: Rect2 = Rect2(Vector2.ZERO, VIEW_SIZE)
 
 func _ready() -> void:
 	_set_pan(0.0)
-	_update_arrows()
+	turn_edges.can_turn = _can_turn
+	turn_edges.turn_requested.connect(_turn)
+	_update_edges()
 	var quit_button: Button = %QuitButton
 	quit_button.add_theme_stylebox_override(&"hover_pressed", quit_button.get_theme_stylebox(&"hover"))
 	quit_button.add_theme_color_override(&"font_hover_pressed_color", quit_button.get_theme_color(&"font_hover_color"))
@@ -82,6 +89,7 @@ func _ready() -> void:
 	_fit_radar_viewport()
 	# item_rect_changed y no resized: el contenedor también lo mueve al centrarlo.
 	levels_panel.item_rect_changed.connect(_update_screen_rect)
+	sector_card.item_rect_changed.connect(_place_sectors_hint)
 	_update_screen_rect()
 	get_viewport().size_changed.connect(_fit_radar_viewport)
 	level_selection_panel.show()
@@ -91,6 +99,7 @@ func _ready() -> void:
 		panel_dim.modulate.a = 0.0
 		panel_dim.show()
 		_set_radar_zoom(1.0)
+		sectors_esc_hint.show()
 	else:
 		_move_sectors(true)
 	sector_radar.sector_selected.connect(_on_sector_selected)
@@ -98,10 +107,16 @@ func _ready() -> void:
 	sector_card.deploy_pressed.connect(_on_deploy_pressed)
 	GameState.progress_reset.connect(_refresh_sectors)
 	_refresh_sectors()
-	# Una partida que aún no ha pasado por el nivel de emergencia empieza por él.
+	# Una partida que aún no ha pasado por el nivel de emergencia empieza por él, sin pisar la oficina:
+	# hasta el salto solo se ve el espacio.
 	if not GameState.tutorial_done and not start_on_level_selection:
+		$Office.hide()
+		turn_edges.hide()
 		await get_tree().create_timer(EMERGENCY_DELAY).timeout
 		open_emergency()
+	# La primera vez en la oficina después del nivel de emergencia, NOVA la enseña.
+	elif not GameState.office_tutorial_done and not start_on_level_selection:
+		office_tutorial.start(GameState.tutorial_won, radar_console, options_console)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _jumping or _leaving or _zooming:
@@ -114,8 +129,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			_close_panel()
 		else:
 			quit_confirm.show()
+			exit_door.held = true
 		return
-	if _panel or quit_confirm.visible:
+	if not _can_turn():
 		return
 	var key: InputEventKey = event as InputEventKey
 	if key == null or not key.pressed or key.echo:
@@ -135,20 +151,29 @@ func _turn(step: int) -> void:
 	if target == _view:
 		return
 	_view = target
-	_update_arrows()
+	_update_edges()
 	if _turn_tween:
 		_turn_tween.kill()
 	_turn_tween = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	_turn_tween.tween_method(_set_pan, views.position.x, (View.CENTER - _view) * VIEW_WIDTH, TURN_TIME)
+	_turn_tween.finished.connect(func() -> void: office_tutorial.on_turned(_view - View.CENTER))
 
 # Desplaza las vistas y el espacio de detrás del ventanal, en píxeles enteros.
 func _set_pan(offset: float) -> void:
 	views.position.x = roundf(offset)
 	space.position.x = roundf(offset)
 
-func _update_arrows() -> void:
-	turn_left_arrow.visible = _view != View.LEFT
-	turn_right_arrow.visible = _view != View.RIGHT
+# Solo se puede girar hacia los bordes que tienen una vista detrás.
+func _update_edges() -> void:
+	turn_edges.can_turn_left = _view != View.LEFT
+	turn_edges.can_turn_right = _view != View.RIGHT
+
+# Se puede girar si no hay panel, zoom, salto ni pregunta de salir. Con el tutorial de la oficina, solo
+# cuando NOVA pide girar.
+func _can_turn() -> bool:
+	if office_tutorial.is_running() and not office_tutorial.allows_turn():
+		return false
+	return not (_panel or quit_confirm.visible or _zooming or _jumping or _leaving)
 
 # --- Paneles -------------------------------------------------------------------------------
 
@@ -268,9 +293,11 @@ func _open_sectors() -> void:
 	_refresh_sectors()
 	await _zoom_in(level_selection_panel, _set_radar_zoom)
 	_move_sectors(false)
+	_show_sectors_hint()
 
 # Lo inverso: la pantalla vuelve a la mesa y la vista se aleja.
 func _close_sectors() -> void:
+	sectors_esc_hint.hide()
 	_move_sectors(true)
 	_zoom_out(_set_radar_zoom)
 
@@ -288,6 +315,20 @@ func _update_screen_rect() -> void:
 			Rect2(_screen_rect.position / VIEW_SIZE, _screen_rect.size / VIEW_SIZE), _screen_rect.size)
 	if _panel == level_selection_panel and not _zooming:
 		_set_radar_zoom(1.0)
+
+# La pista va centrada debajo de la ficha. La pantalla de Sectores ocupa la vista entera tanto en
+# RadarViewport como encima del menú, así que la posición de la ficha vale en los dos sitios.
+func _place_sectors_hint() -> void:
+	var card: Rect2 = Rect2(sector_card.get_global_rect().position, sector_card.size)
+	sectors_esc_hint.size.x = card.size.x
+	sectors_esc_hint.position = Vector2(card.position.x, roundf(card.end.y + SECTORS_HINT_MARGIN))
+
+# La pista aparece con un fundido al acabar de acercarse a la mesa.
+func _show_sectors_hint() -> void:
+	_place_sectors_hint()
+	sectors_esc_hint.modulate.a = 0.0
+	sectors_esc_hint.show()
+	create_tween().tween_property(sectors_esc_hint, "modulate:a", 1.0, FADE_TIME)
 
 # La pantalla de Sectores se pinta en RadarViewport (la enseña la mesa) o encima de la oficina.
 func _move_sectors(into_viewport: bool) -> void:
@@ -328,8 +369,6 @@ func _set_tablet_zoom(amount: float) -> void:
 func _refresh_sectors() -> void:
 	sector_radar.refresh()
 	_on_sector_selected(sector_radar.selected_index)
-	sectors_subtitle.text = tr("RADAR_SUBTITLE") % [sector_radar.get_secured_count(), SectorRadar.TOTAL_SECTORS,
-			SectorRadar.format_thousands(sector_radar.get_range_km())]
 
 func _on_sector_selected(index: int) -> void:
 	sector_card.show_level(index, sector_radar.get_level_state(index) if index >= 0 else SectorRadar.ContactState.LOCKED)
@@ -348,15 +387,14 @@ func _on_deploy_pressed() -> void:
 
 func _close_quit_confirm() -> void:
 	quit_confirm.hide()
+	exit_door.held = false
 
-# La puerta se entreabre y después se vuelve a la pantalla de inicio.
+# La puerta abre la misma confirmación que Escape.
 func _on_exit_door_pressed() -> void:
-	if _leaving or _panel:
+	if _leaving or _jumping or _zooming or _panel or quit_confirm.visible:
 		return
-	_leaving = true
-	exit_door.open_fully()
-	await exit_door.opened
-	_go_to_start_screen()
+	quit_confirm.show()
+	exit_door.held = true
 
 # "Salir" de la confirmación: vuelve a la pantalla de inicio sin esperar a la puerta.
 func _on_quit_button_pressed() -> void:
@@ -381,7 +419,13 @@ func _go_to_start_screen() -> void:
 # --- Salto al hiperespacio -----------------------------------------------------------------
 
 ## Lanza el nivel de emergencia (el nivel de prueba del tutorial) con el salto al hiperespacio de siempre.
+## Antes suena la llamada de socorro de NOVA (IntroDialog); mientras, el menú no responde (_jumping).
 func open_emergency() -> void:
+	if _jumping:
+		return
+	_jumping = true
+	await intro_dialog.play()
+	_jumping = false
 	_open_level(GameData.emergency_level)
 
 func _open_level(data: LevelData) -> void:

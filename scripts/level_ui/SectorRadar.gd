@@ -18,13 +18,11 @@ enum ContactState { LOCKED, PENDING, COMPLETED, UNKNOWN }
 ## Sectores totales de la campaña: si GameData.levels tiene menos, el último (el del jefe) sale
 ## como contacto UNKNOWN de prueba, arriba en el centro, cuando se ha ganado el último nivel.
 const TOTAL_SECTORS: int = 10
-const BOSS_DISTANCE: float = 0.72
+const BOSS_DISTANCE: float = 0.84
 const BOSS_BEARING: float = 0.0
 const BOSS_COLOR: Color = Color("#e65a4f")
 const BOSS_MARK_SIZE: int = 32
 
-## Radio del radar en km (los textos de los anillos y la distancia de la ficha).
-const RADIUS_KM: int = 4000
 const RING_COUNT: int = 4
 # Hueco entre el borde del control y el borde del radar.
 const EDGE_MARGIN: float = 4.0
@@ -184,33 +182,6 @@ func get_level_state(index: int) -> ContactState:
 		return ContactState.COMPLETED
 	return ContactState.PENDING
 
-## Distancia en km de un nivel, redondeada a decenas.
-static func get_distance_km(data: LevelData) -> int:
-	return roundi(data.radar_distance * RADIUS_KM / 10.0) * 10
-
-## Número con separador de miles según el idioma (NUMBER_THOUSANDS_SEP): 4000 -> "4.000".
-static func format_thousands(value: int) -> String:
-	var digits: String = str(absi(value))
-	var groups: PackedStringArray = PackedStringArray()
-	while digits.length() > 3:
-		groups.insert(0, digits.right(3))
-		digits = digits.left(-3)
-	groups.insert(0, digits)
-	var separator: String = String(TranslationServer.translate("NUMBER_THOUSANDS_SEP"))
-	return ("-" if value < 0 else "") + separator.join(groups)
-
-## Sectores asegurados (completados), para el subtítulo.
-func get_secured_count() -> int:
-	var count: int = 0
-	for contact: Contact in _contacts:
-		if contact.state == ContactState.COMPLETED:
-			count += 1
-	return count
-
-## Alcance actual del radar en km, redondeado a centenas.
-func get_range_km() -> int:
-	return roundi(_range * RADIUS_KM / 100.0) * 100
-
 static func get_sector_code(index: int) -> String:
 	return String(TranslationServer.translate("RADAR_SECTOR_CODE")) % (index + 1)
 
@@ -299,7 +270,6 @@ func _draw() -> void:
 	_draw_grid(center, radius)
 	_draw_sweep(center, radius)
 	_draw_fog(center, radius, range_radius)
-	_draw_ring_labels(center, radius, range_radius)
 	_draw_dashed_circle(center, range_radius, ACCENT_COLOR, _time * RANGE_DASH_SPEED)
 	_draw_route(center)
 	draw_arc(center, radius, 0.0, TAU, 128, ACCENT_COLOR, 2.0)
@@ -351,22 +321,6 @@ func _draw_fog(center: Vector2, radius: float, range_radius: float) -> void:
 		var color: Color = NOISE_COLOR
 		color.a = _rng.randf() * NOISE_ALPHA
 		draw_rect(Rect2(point.floor(), Vector2(2, 2)), color)
-
-# Textos de km de cada anillo: a la derecha, justo encima del eje (ningún contacto va ahí).
-@warning_ignore("integer_division")
-func _draw_ring_labels(center: Vector2, radius: float, range_radius: float) -> void:
-	var font: Font = get_theme_default_font()
-	for ring: int in range(1, RING_COUNT + 1):
-		var ring_radius: float = roundf(radius * ring / RING_COUNT)
-		# Fuera del alcance no se ve nada, tampoco los km.
-		if ring_radius > range_radius + 2.0:
-			continue
-		var color: Color = ACCENT_COLOR
-		color.a = 0.6
-		var text: String = format_thousands(RADIUS_KM * ring / RING_COUNT)
-		var width: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE).x
-		draw_string(font, Vector2(center.x + ring_radius - 4.0 - width, center.y - 4.0), text,
-				HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE, color)
 
 # Ruta discontinua animada desde la estación hasta el contacto seleccionado.
 func _draw_route(center: Vector2) -> void:

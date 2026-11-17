@@ -59,6 +59,10 @@ const LEGACY_ACHIEVEMENTS: Dictionary = {
 var current_level: int = 1
 # El nivel de emergencia (el nivel de prueba con el tutorial) ya se ha hecho, saltado o abandonado.
 var tutorial_done: bool = false
+# Cómo acabó el nivel de emergencia: true si se ganó (salió su pantalla de victoria); false si se saltó o se abandonó.
+var tutorial_won: bool = false
+# El tutorial de la oficina (al llegar a ella después del nivel de emergencia) ya se ha hecho.
+var office_tutorial_done: bool = false
 # Enemigos que ya han salido en una partida, por nombre de archivo del EnemyData.
 var seen_enemies: Array[String] = []
 # Contadores acumulados entre partidas: wins, kills, turrets, powers, perfect_waves, spent y built_<torreta>.
@@ -96,6 +100,13 @@ func load_slot(slot: int) -> void:
 	var done: Variant = file.get_value(SECTION, "tutorial_done", false)
 	if typeof(done) == TYPE_BOOL:
 		tutorial_done = done
+	var won: Variant = file.get_value(SECTION, "tutorial_won", false)
+	if typeof(won) == TYPE_BOOL:
+		tutorial_won = won
+	# Las partidas de antes del tutorial de la oficina no lo tienen: si ya pasaron el nivel de emergencia, ya conocen la oficina.
+	var office_done: Variant = file.get_value(SECTION, "office_tutorial_done", tutorial_done)
+	if typeof(office_done) == TYPE_BOOL:
+		office_tutorial_done = office_done
 	var seen: Variant = file.get_value(SECTION, "seen_enemies", [])
 	if typeof(seen) == TYPE_ARRAY:
 		for key: Variant in seen:
@@ -192,9 +203,15 @@ func record_level_stars(number: int, stars: int) -> void:
 	level_stars[number] = clampi(stars, 1, MAX_STARS)
 	_save()
 
-## El nivel de emergencia se ha acabado, saltado o abandonado: no vuelve a salir.
-func complete_tutorial() -> void:
+## El nivel de emergencia se ha acabado, saltado o abandonado: no vuelve a salir. `won`: si se ganó.
+func complete_tutorial(won: bool) -> void:
 	tutorial_done = true
+	tutorial_won = won
+	_save()
+
+## El tutorial de la oficina se ha hecho: no vuelve a salir.
+func complete_office_tutorial() -> void:
+	office_tutorial_done = true
 	_save()
 
 func has_seen_enemy(data: EnemyData) -> bool:
@@ -417,6 +434,8 @@ func reset_progress() -> void:
 func _set_defaults() -> void:
 	current_level = 1
 	tutorial_done = false
+	tutorial_won = false
+	office_tutorial_done = false
 	seen_enemies.clear()
 	stats.clear()
 	fused_turrets.clear()
@@ -450,6 +469,8 @@ func _save() -> void:
 	var file: ConfigFile = ConfigFile.new()
 	file.set_value(SECTION, "current_level", current_level)
 	file.set_value(SECTION, "tutorial_done", tutorial_done)
+	file.set_value(SECTION, "tutorial_won", tutorial_won)
+	file.set_value(SECTION, "office_tutorial_done", office_tutorial_done)
 	file.set_value(SECTION, "seen_enemies", seen_enemies)
 	file.set_value(SECTION, "stats", stats)
 	file.set_value(SECTION, "fused_turrets", fused_turrets)

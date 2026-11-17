@@ -22,7 +22,6 @@
 [ext_resource type="Script" path="res://scripts/main_menu/OfficeDoor.gd" id="32_door"]
 [ext_resource type="Script" path="res://scripts/main_menu/CombatScoreboard.gd" id="33_scoreboard"]
 [ext_resource type="Script" path="res://scripts/main_menu/OptionsConsole.gd" id="34_maintenance"]
-[ext_resource type="Script" path="res://scripts/main_menu/TurnArrow.gd" id="35_arrow"]
 [ext_resource type="Script" path="res://scripts/main_menu/OfficeLights.gd" id="37_lights"]
 [ext_resource type="Texture2D" path="res://assets/sprites/office/left_static.png" id="38_left_room"]
 [ext_resource type="Texture2D" path="res://assets/sprites/office/center_static.png" id="39_center_room"]
@@ -38,10 +37,27 @@
 [ext_resource type="Script" path="res://scripts/level_ui/SectorRadar.gd" id="28_radar"]
 [ext_resource type="Script" path="res://scripts/level_ui/SectorCard.gd" id="29_card"]
 [ext_resource type="Script" path="res://scripts/main_menu/OptionsCloseUp.gd" id="48_options_close"]
+[ext_resource type="Script" path="res://scripts/main_menu/TurnEdges.gd" id="49_turn_edges"]
+[ext_resource type="Script" path="res://scripts/main_menu/IntroDialog.gd" id="50_intro"]
+[ext_resource type="Texture2D" path="res://assets/ui/guide_portrait.png" id="51_portrait"]
+[ext_resource type="Script" path="res://scripts/main_menu/OfficeTutorial.gd" id="52_office_tutorial"]
 
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_radar"]
 shader = ExtResource("41_radar_shader")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_intro_portrait"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0.054902, 0.0862745, 0.14902, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.109804, 0.454902, 0.588235, 1)
+anti_aliasing = false
 
 [node name="MainMenu" type="Control" unique_id=576679633]
 texture_filter = 1
@@ -233,7 +249,7 @@ layout_mode = 3
 anchors_preset = 0
 offset_left = 524.0
 offset_top = 87.0
-offset_right = 924.0
+offset_right = 900.0
 offset_bottom = 417.0
 script = ExtResource("33_scoreboard")
 
@@ -315,24 +331,15 @@ offset_right = 735.0
 offset_bottom = 506.0
 script = ExtResource("31_medals")
 
-[node name="TurnLeftArrow" type="Control" parent="Office"]
-layout_mode = 3
-anchors_preset = 0
-offset_left = 16.0
-offset_top = 248.0
-offset_right = 38.0
-offset_bottom = 292.0
-script = ExtResource("35_arrow")
-
-[node name="TurnRightArrow" type="Control" parent="Office"]
-layout_mode = 3
-anchors_preset = 0
-offset_left = 922.0
-offset_top = 248.0
-offset_right = 944.0
-offset_bottom = 292.0
-script = ExtResource("35_arrow")
-direction = 1
+[node name="TurnEdges" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("49_turn_edges")
 
 [node name="PanelDim" type="ColorRect" parent="."]
 visible = false
@@ -370,13 +377,6 @@ theme_override_constants/margin_bottom = 6
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="SectorsSubtitle" type="Label" parent="LevelSelectionScreen/LevelsPanel/Margin/Content"]
-unique_name_in_owner = true
-auto_translate_mode = 2
-layout_mode = 2
-theme_override_colors/font_color = Color(0.6, 0.72, 0.78, 1)
-theme_override_font_sizes/font_size = 16
-
 [node name="SectorsRow" type="HBoxContainer" parent="LevelSelectionScreen/LevelsPanel/Margin/Content"]
 layout_mode = 2
 size_flags_horizontal = 4
@@ -395,13 +395,18 @@ layout_mode = 2
 size_flags_vertical = 4
 script = ExtResource("29_card")
 
-[node name="VolverButton" type="Button" parent="LevelSelectionScreen/LevelsPanel/Margin/Content" unique_id=555534078]
-custom_minimum_size = Vector2(204, 36)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_type_variation = &"ScreenButton"
-theme_override_font_sizes/font_size = 24
-text = "BTN_BACK"
+[node name="SectorsEscHint" type="Label" parent="."]
+visible = false
+layout_mode = 0
+offset_right = 300.0
+offset_bottom = 16.0
+mouse_filter = 2
+theme = ExtResource("13_theme")
+theme_override_colors/font_color = Color(0.3529412, 0.47843137, 0.5882353, 0.8)
+theme_override_font_sizes/font_size = 16
+text = "HINT_ESC_BACK"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="StatsScreen" type="VBoxContainer" parent="." unique_id=346163568]
 visible = false
@@ -535,6 +540,182 @@ theme_override_font_sizes/font_size = 24
 text = "BTN_CANCEL"
 
 
+[node name="IntroDialog" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("13_theme")
+script = ExtResource("50_intro")
+
+[node name="Box" type="PanelContainer" parent="IntroDialog"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(528, 93)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -264.0
+offset_top = -105.0
+offset_right = 264.0
+offset_bottom = -12.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("20_frame")
+decorated = false
+
+[node name="Margin" type="MarginContainer" parent="IntroDialog/Box"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="Row" type="HBoxContainer" parent="IntroDialog/Box/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="PortraitFrame" type="PanelContainer" parent="IntroDialog/Box/Margin/Row"]
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_intro_portrait")
+
+[node name="Portrait" type="TextureRect" parent="IntroDialog/Box/Margin/Row/PortraitFrame"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+texture = ExtResource("51_portrait")
+expand_mode = 1
+
+[node name="Column" type="VBoxContainer" parent="IntroDialog/Box/Margin/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="SpeakerLabel" type="Label" parent="IntroDialog/Box/Margin/Row/Column"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92549, 0.698039, 0.235294, 1)
+theme_override_font_sizes/font_size = 32
+text = "NOVA"
+
+[node name="MessageLabel" type="Label" parent="IntroDialog/Box/Margin/Row/Column"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(418, 37)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.8, 0.901961, 1, 1)
+theme_override_constants/line_spacing = -1
+theme_override_font_sizes/font_size = 24
+autowrap_mode = 3
+max_lines_visible = 2
+
+[node name="ContinueArrow" type="Control" parent="IntroDialog"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = 242.0
+offset_top = -26.0
+offset_right = 252.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="OfficeTutorial" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("13_theme")
+script = ExtResource("52_office_tutorial")
+
+[node name="Box" type="PanelContainer" parent="OfficeTutorial"]
+custom_minimum_size = Vector2(528, 93)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -264.0
+offset_top = 95.0
+offset_right = 264.0
+offset_bottom = 188.0
+grow_horizontal = 2
+mouse_filter = 2
+script = ExtResource("20_frame")
+decorated = false
+
+[node name="Margin" type="MarginContainer" parent="OfficeTutorial/Box"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="Row" type="HBoxContainer" parent="OfficeTutorial/Box/Margin"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="PortraitFrame" type="PanelContainer" parent="OfficeTutorial/Box/Margin/Row"]
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_intro_portrait")
+
+[node name="Portrait" type="TextureRect" parent="OfficeTutorial/Box/Margin/Row/PortraitFrame"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("51_portrait")
+expand_mode = 1
+
+[node name="Column" type="VBoxContainer" parent="OfficeTutorial/Box/Margin/Row"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="SpeakerLabel" type="Label" parent="OfficeTutorial/Box/Margin/Row/Column"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92549, 0.698039, 0.235294, 1)
+theme_override_font_sizes/font_size = 32
+text = "NOVA"
+
+[node name="MessageLabel" type="Label" parent="OfficeTutorial/Box/Margin/Row/Column"]
+custom_minimum_size = Vector2(418, 37)
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.8, 0.901961, 1, 1)
+theme_override_constants/line_spacing = -1
+theme_override_font_sizes/font_size = 24
+autowrap_mode = 3
+max_lines_visible = 2
+
+[node name="ContinueArrow" type="Control" parent="OfficeTutorial"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = 242.0
+offset_top = 174.0
+offset_right = 252.0
+offset_bottom = 184.0
+grow_horizontal = 2
+mouse_filter = 2
+
 [node name="RadarViewport" type="SubViewport" parent="."]
 transparent_bg = true
 canvas_item_default_texture_filter = 0
@@ -548,9 +729,6 @@ render_target_update_mode = 4
 [connection signal="pressed" from="Office/Views/CenterView/ArchiveTablet" to="." method="_on_archive_tablet_pressed"]
 [connection signal="pressed" from="Office/Views/LeftView/CombatScoreboard" to="." method="_on_combat_scoreboard_pressed"]
 [connection signal="pressed" from="Office/Views/CenterView/OptionsConsole" to="." method="_on_options_console_pressed"]
-[connection signal="pressed" from="Office/TurnLeftArrow" to="." method="_turn" binds= [-1]]
-[connection signal="pressed" from="Office/TurnRightArrow" to="." method="_turn" binds= [1]]
-[connection signal="pressed" from="LevelSelectionScreen/LevelsPanel/Margin/Content/VolverButton" to="." method="_close_panel"]
 [connection signal="pressed" from="StatsScreen/StatsPanel/Margin/Content/BackButton" to="." method="_close_panel"]
 [connection signal="back_pressed" from="Navedex" to="." method="_close_panel"]
 [connection signal="back_pressed" from="OptionsCloseUp" to="." method="_close_panel"]
