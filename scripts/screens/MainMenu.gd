@@ -31,6 +31,9 @@ const SCREEN_MARGIN: Vector2 = Vector2(40.0, 32.0)
 const ZOOM_TIME: float = 0.7
 # Parte del zoom a un objeto desde la que aparece encima de cerca (la mesa, la consola o la Navedex).
 const CLOSE_UP_FADE_START: float = 0.85
+# Lo mismo con la mesa del radar: empieza antes para que la mesa de la oficina pase a la de cerca poco
+# a poco, sin salto al final.
+const SECTORS_FADE_START: float = 0.7
 # Hueco entre la ficha del sector y la pista "ESC para volver" de debajo.
 const SECTORS_HINT_MARGIN: float = 16.0
 
@@ -306,16 +309,24 @@ func _close_sectors() -> void:
 	_move_sectors(true)
 	_zoom_out(_set_radar_zoom)
 
-# Zoom de 0 a 1: la oficina se acerca tal cual (como a la consola de opciones) hasta que la mesa ocupa
-# justo el sitio de la mesa de cerca. La mesa está tumbada y se ve chafada, así que al acercarse la vista
-# también se inclina hacia ella (se estira más en vertical) y acaba con la forma de la mesa de cerca;
-# desde CLOSE_UP_FADE_START la mesa de cerca aparece encima y la sustituye sin que se vea doble.
+# Zoom de 0 a 1: la oficina se acerca tal cual (como a la consola de opciones) hasta que la pantalla
+# de la mesa ocupa justo la de la mesa de cerca (_screen_rect), así que lo que enseñan las dos acaba en
+# el mismo sitio. La mesa está tumbada y se ve chafada, así que al acercarse la vista también se inclina
+# hacia ella (se estira más en vertical); desde SECTORS_FADE_START la mesa de cerca aparece encima poco
+# a poco y la sustituye. La mesa de cerca va pegada a la oficina (se acerca con ella y llega a su sitio
+# justo al final), así que no se queda quieta encima mientras la oficina se mueve debajo.
 func _set_radar_zoom(amount: float) -> void:
-	var table: Rect2 = radar_console.get_table_rect()
-	var body: Rect2 = sectors_close_up.get_body_rect()
-	_zoom_office(table.get_center(), body.size / table.size, body.get_center(), amount)
-	sectors_close_up.modulate.a = smoothstep(CLOSE_UP_FADE_START, 1.0, amount)
-	sectors_close_up.visible = amount > CLOSE_UP_FADE_START
+	var table_screen: Rect2 = radar_console.get_screen_rect()
+	var focus: Vector2 = table_screen.get_center()
+	var final_scale: Vector2 = _screen_rect.size / table_screen.size
+	_zoom_office(focus, final_scale, _screen_rect.get_center(), amount)
+	# Transformación de la oficina ahora, deshaciendo la del final (con la que la mesa de cerca está en su sitio).
+	var zoom: Vector2 = Vector2.ONE.lerp(final_scale, amount)
+	var final_offset: Vector2 = _screen_rect.get_center() - focus * final_scale
+	sectors_close_up.scale = zoom / final_scale
+	sectors_close_up.position = final_offset * amount - zoom * final_offset / final_scale
+	sectors_close_up.modulate.a = smoothstep(SECTORS_FADE_START, 1.0, amount)
+	sectors_close_up.visible = amount > SECTORS_FADE_START
 
 # La mesa enseña solo el contenido de Sectores (con un margen), para que se lea mejor.
 func _update_screen_rect() -> void:
