@@ -6,7 +6,7 @@ extends OfficeObject
 # de verdad (la textura de RadarViewport, que le pasa MainMenu), chafada en el trapecio. Se pulsa en
 # el contorno de la mesa, no en toda su caja.
 #
-# Al abrir Sectores, MainMenu acerca la oficina tal cual hacia la pantalla (get_screen_rect()) y al final
+# Al abrir Sectores, MainMenu acerca la oficina tal cual hacia la mesa (get_table_rect()) y al final
 # aparece encima la mesa de cerca (SectorsCloseUp).
 
 @onready var screen: ColorRect = $Screen
@@ -30,12 +30,13 @@ func _has_point(point: Vector2) -> bool:
 func hover_quad() -> PackedVector2Array:
 	return _outline
 
-## Pantalla de la mesa en coordenadas de la vista: de arriba abajo y, a lo ancho, lo que ocupa su fila
-## del medio (el trapecio es más estrecho arriba). MainMenu se acerca a ella.
-func get_screen_rect() -> Rect2:
-	var left: float = lerpf(_table.tl, _table.bl, 0.5)
-	var right: float = lerpf(_table.tr, _table.br, 0.5)
-	return Rect2(left, _table.top, right - left, _table.bot - _table.top + 1.0)
+## Caja de la mesa entera (su contorno), en coordenadas de la vista: MainMenu se acerca a ella.
+func get_table_rect() -> Rect2:
+	var points: Array = OfficeLayout.CENTER.table_out
+	var rect: Rect2 = Rect2(Vector2(points[0][0], points[0][1]), Vector2.ZERO)
+	for point: Array in points:
+		rect = rect.expand(Vector2(point[0], point[1]))
+	return rect
 
 ## Lo que enseña la pantalla (la pantalla de Sectores): qué parte (en UV).
 func set_screen_texture(texture: Texture2D, crop: Rect2) -> void:
