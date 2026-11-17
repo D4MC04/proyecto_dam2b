@@ -278,7 +278,6 @@ layout_mode = 2
 size_flags_horizontal = 4
 focus_mode = 0
 theme_override_font_sizes/font_size = 16
-toggle_mode = true
 text = "×1"
 
 [node name="WaveFooter" type="MarginContainer" parent="Content"]
