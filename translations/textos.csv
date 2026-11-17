@@ -170,7 +170,11 @@ SLOT_EMPTY,RANURA VACÍA,EMPTY SLOT
 SLOT_SECTOR,SECTOR %02d,SECTOR %02d
 SLOT_SAVED,GUARDADO,SAVED
 SLOT_PLAYED,JUGADO,PLAYED
-TUTORIAL_STATION,"¡Comandante, por fin has llegado! Aquí NOVA, desde la sala de control. Nos atacan y no aguantaremos mucho solos.","Commander, you made it! NOVA here, from the control room. We are under attack and won't last long on our own."
+INTRO_CALL_1,"¡Comandante, ¿me recibes? Aquí NOVA, desde la sala de control!","Commander, do you read me? NOVA here, from the control room!"
+INTRO_CALL_2,Una flota enemiga se acerca cada vez más a la estación.,An enemy fleet is getting closer and closer to the station.
+INTRO_CALL_3,"No aguantaremos solos. Tú y tu escuadrón sois nuestra única esperanza.","We can't hold out alone. You and your squadron are our only hope."
+INTRO_CALL_4,"¡Salta ya, comandante! ¡Te necesitamos aquí!","Jump now, commander! We need you here!"
+TUTORIAL_STATION,"¡Comandante, has llegado! Gracias por responder tan rápido.|Todavía estamos a tiempo, pero no podemos perder ni un segundo.","Commander, you made it! Thanks for answering so fast.|We're still in time, but we can't waste a second."
 TUTORIAL_STATION_BASE,"Si sus naves alcanzan la estación, sufriremos graves daños.","If their ships reach the station, we'll take heavy damage."
 TUTORIAL_STATION_HEALTH,Puedes comprobar su estado desde la barra de la derecha.,You can check its status in the right-hand bar.
 TUTORIAL_PREPARE,Debemos preparar nuestras defensas cuanto antes.,We must get our defenses ready as soon as possible.

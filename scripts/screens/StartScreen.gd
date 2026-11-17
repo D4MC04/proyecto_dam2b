@@ -33,6 +33,9 @@ const ENTER_FLASH_TIME: float = 0.07
 const COVER_TIME: float = 0.7
 const HOLD_TIME: float = 0.15
 const UNCOVER_TIME: float = 0.6
+# Partida nueva (aún sin nivel de emergencia): más pausa en negro y fundido en vez de destapado, para entrar al espacio de la llamada.
+const NEW_GAME_HOLD_TIME: float = 0.6
+const NEW_GAME_FADE_TIME: float = 1.2
 
 @onready var title_block: VBoxContainer = $TitleBlock
 @onready var press_key_label: Label = $PressKeyLabel
@@ -287,9 +290,13 @@ func _enter_slot(card: SlotCard) -> void:
 	# Tapa y destapa desde el centro de la pantalla.
 	var center: Vector2 = get_viewport_rect().size / 2.0
 	await wipe.cover(center, COVER_TIME)
-	await get_tree().create_timer(HOLD_TIME).timeout
+	var is_new_game: bool = not GameState.tutorial_done
+	await get_tree().create_timer(NEW_GAME_HOLD_TIME if is_new_game else HOLD_TIME).timeout
 	_open_main_menu()
-	wipe.uncover(center, UNCOVER_TIME)
+	if is_new_game:
+		wipe.fade_out(NEW_GAME_FADE_TIME)
+	else:
+		wipe.uncover(center, UNCOVER_TIME)
 
 func _open_main_menu() -> void:
 	var menu: Node = MAIN_MENU.instantiate()
