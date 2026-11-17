@@ -76,6 +76,10 @@ func set_screen(rect: Rect2, texture: Texture2D, view_size: Vector2) -> void:
 			rect.size.x / view_size.x, rect.size.y / view_size.y))
 	queue_redraw()
 
+## Mesa entera (con el bisel) en la vista, para que MainMenu sepa adónde acercarse.
+func get_body_rect() -> Rect2:
+	return Rect2(_body)
+
 func _draw() -> void:
 	for i: int in PROFILE.size():
 		var ring: Rect2i = _body.grow(-i * PIXEL)

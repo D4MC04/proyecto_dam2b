@@ -275,21 +275,22 @@ func _tween_zoom(target: float, step: Callable) -> void:
 	await _zoom_tween.finished
 
 # Acerca la oficina y el espacio de detrás: con `amount` 1, el punto `focus` de la vista queda en
-# `target` (en píxeles del menú) con la escala `final_scale`.
-func _zoom_office(focus: Vector2, final_scale: float, target: Vector2, amount: float) -> void:
-	var zoom: float = lerpf(1.0, final_scale, amount)
+# `target` (en píxeles del menú) con la escala `final_scale` (distinta en x e y si al acercarse la
+# vista se inclina hacia el objeto).
+func _zoom_office(focus: Vector2, final_scale: Vector2, target: Vector2, amount: float) -> void:
+	var zoom: Vector2 = Vector2.ONE.lerp(final_scale, amount)
 	var offset: Vector2 = (target - focus * final_scale) * amount
-	office.scale = Vector2(zoom, zoom)
+	office.scale = zoom
 	office.position = offset
-	space.scale = Vector2(zoom, zoom)
+	space.scale = zoom
 	space.position = offset
 
 # --- Mesa del radar ------------------------------------------------------------------------
 
-# La vista se acerca a la mesa y su pantalla se endereza hasta ocupar _screen_rect; al final aparece
-# encima, con un fundido, la mesa de cerca (SectorsCloseUp), con su pantalla en el mismo sitio (enseña
-# RadarViewport, así que la pantalla de Sectores ya se ve dentro). Al acabar, la pantalla de Sectores
-# sale de RadarViewport y queda encima, igual (sin salto).
+# La vista se acerca a la mesa (la oficina tal cual, sin enderezar nada) y al final aparece encima,
+# con un fundido, la mesa de cerca (SectorsCloseUp), que enseña RadarViewport, así que la pantalla de
+# Sectores ya se ve dentro. Al acabar, la pantalla de Sectores sale de RadarViewport y queda encima de
+# la mesa de cerca, igual (sin salto).
 func _open_sectors() -> void:
 	if _panel or _jumping or _leaving:
 		return
@@ -305,13 +306,14 @@ func _close_sectors() -> void:
 	_move_sectors(true)
 	_zoom_out(_set_radar_zoom)
 
-# Zoom de 0 (la oficina normal) a 1 (la pantalla de la mesa ocupa _screen_rect, centrada, y encima
-# está la mesa de cerca, que aparece desde CLOSE_UP_FADE_START como la consola de opciones de cerca).
+# Zoom de 0 a 1: la oficina se acerca tal cual (como a la consola de opciones) hasta que la mesa ocupa
+# justo el sitio de la mesa de cerca. La mesa está tumbada y se ve chafada, así que al acercarse la vista
+# también se inclina hacia ella (se estira más en vertical) y acaba con la forma de la mesa de cerca;
+# desde CLOSE_UP_FADE_START la mesa de cerca aparece encima y la sustituye sin que se vea doble.
 func _set_radar_zoom(amount: float) -> void:
-	var center: Vector2 = radar_console.get_screen_center()
-	var final_scale: float = _screen_rect.size.x / radar_console.get_screen_width()
-	_zoom_office(center, final_scale, _screen_rect.get_center(), amount)
-	radar_console.set_zoom(amount, Rect2(center - _screen_rect.size / final_scale / 2.0, _screen_rect.size / final_scale))
+	var table: Rect2 = radar_console.get_table_rect()
+	var body: Rect2 = sectors_close_up.get_body_rect()
+	_zoom_office(table.get_center(), body.size / table.size, body.get_center(), amount)
 	sectors_close_up.modulate.a = smoothstep(CLOSE_UP_FADE_START, 1.0, amount)
 	sectors_close_up.visible = amount > CLOSE_UP_FADE_START
 
@@ -357,7 +359,7 @@ func _fit_radar_viewport() -> void:
 func _set_options_zoom(amount: float) -> void:
 	var console: Rect2 = options_console.get_rect()
 	var body: Rect2 = options_close_up.get_body_rect()
-	_zoom_office(console.get_center(), body.size.y / console.size.y, body.get_center(), amount)
+	_zoom_office(console.get_center(), Vector2.ONE * (body.size.y / console.size.y), body.get_center(), amount)
 	options_close_up.modulate.a = smoothstep(CLOSE_UP_FADE_START, 1.0, amount)
 	options_close_up.visible = amount > CLOSE_UP_FADE_START
 
@@ -367,7 +369,7 @@ func _set_options_zoom(amount: float) -> void:
 # Navedex, que aparece encima al final con el mismo fundido que la consola de opciones.
 func _set_tablet_zoom(amount: float) -> void:
 	var tablet_rect: Rect2 = archive_tablet.get_lifted_rect()
-	_zoom_office(tablet_rect.get_center(), float(Navedex.SCALE), VIEW_SIZE / 2.0, amount)
+	_zoom_office(tablet_rect.get_center(), Vector2.ONE * Navedex.SCALE, VIEW_SIZE / 2.0, amount)
 	navedex.modulate.a = smoothstep(CLOSE_UP_FADE_START, 1.0, amount)
 	navedex.visible = amount > CLOSE_UP_FADE_START
 
