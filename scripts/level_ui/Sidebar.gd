@@ -8,8 +8,8 @@ signal inspect_requested(data: Resource)
 signal next_wave_requested
 ## Petición de cambiar el modo AUTO; no guarda el estado.
 signal auto_waves_toggled(enabled: bool)
-## Petición de cambiar la velocidad ×1 / ×2; no guarda el estado.
-signal fast_speed_toggled(enabled: bool)
+## Petición de pasar a la siguiente velocidad (×1 → ×2 → ×4 → ×1), con su valor; no guarda el estado.
+signal speed_change_requested(speed: float)
 
 ## Estado de la oleada que enseña el pie; lo decide LevelUI.
 enum WaveStatus { READY, IN_PROGRESS, COMPLETE }
@@ -80,6 +80,8 @@ const STATUS_COLORS: Dictionary[WaveStatus, Color] = {
 @onready var next_wave_button: Button = %NextWaveButton
 @onready var auto_wave_button: Button = %AutoWaveButton
 @onready var speed_button: Button = %SpeedButton
+# Velocidad que enseña el botón (la guarda LevelUI; esto es solo su reflejo).
+var _speed: float = LevelUI.NORMAL_SPEED
 
 ## Lo pone LevelUI; con el tutorial en marcha decide qué controles responden.
 var tutorial_hints: TutorialHints
@@ -118,7 +120,7 @@ func _ready() -> void:
 	station_bar.add_theme_stylebox_override("background", _station_style(TAB_BG_COLOR, TAB_BORDER_COLOR))
 	next_wave_button.pressed.connect(_on_next_wave_pressed)
 	auto_wave_button.toggled.connect(_on_auto_toggled)
-	speed_button.toggled.connect(_on_speed_toggled)
+	speed_button.pressed.connect(press_speed)
 	prev_wave_arrow.pressed.connect(_on_wave_arrow_pressed.bind(-1))
 	next_wave_arrow.pressed.connect(_on_wave_arrow_pressed.bind(1))
 
@@ -259,10 +261,11 @@ func set_next_wave_available(available: bool, inviting: bool) -> void:
 func show_auto_waves(enabled: bool) -> void:
 	auto_wave_button.set_pressed_no_signal(enabled)
 
-## Refleja la velocidad de LevelUI (×1 / ×2) sin volver a emitir fast_speed_toggled.
-func show_fast_speed(enabled: bool) -> void:
-	speed_button.set_pressed_no_signal(enabled)
-	speed_button.text = "×2" if enabled else "×1"
+## Refleja la velocidad de LevelUI (×1, ×2 o ×4) sin volver a emitir speed_change_requested.
+func show_speed(speed: float) -> void:
+	_speed = speed
+	speed_button.set_pressed_no_signal(speed > LevelUI.NORMAL_SPEED)
+	speed_button.text = "×%d" % roundi(speed)
 
 func _on_button_selection_changed(data: TurretData, on: bool) -> void:
 	turret_selected.emit(data if on else null)
@@ -294,11 +297,14 @@ func _on_auto_toggled(enabled: bool) -> void:
 		return
 	auto_waves_toggled.emit(enabled)
 
-func _on_speed_toggled(enabled: bool) -> void:
+## Pide la siguiente velocidad: lo usan el botón y el atajo de teclado.
+func press_speed() -> void:
+	# El botón se redibuja con la velocidad que sigue vigente (lo hace show_speed al aplicarse la nueva).
+	speed_button.set_pressed_no_signal(_speed > LevelUI.NORMAL_SPEED)
 	if tutorial_hints != null and not tutorial_hints.allows(TutorialHints.Action.TOGGLE_SPEED):
-		speed_button.set_pressed_no_signal(not enabled)
 		return
-	fast_speed_toggled.emit(enabled)
+	var next_index: int = (LevelUI.SPEEDS.find(_speed) + 1) % LevelUI.SPEEDS.size()
+	speed_change_requested.emit(LevelUI.SPEEDS[next_index])
 
 func _on_wave_arrow_pressed(step: int) -> void:
 	if tutorial_hints == null or tutorial_hints.allows(TutorialHints.Action.WAVE_ARROWS):

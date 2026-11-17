@@ -16,8 +16,11 @@ const SLOW_MOTION_HOLD_TIME: float = 0.2
 # Respiro de la victoria, en segundos de tiempo real: el juego sigue a velocidad normal (se ve
 # explotar al último enemigo) antes de pausarse y enseñar la pantalla.
 const VICTORY_BREATH_TIME: float = 0.6
-# Valor de Engine.time_scale con el botón ×2 activo.
+# Valores de Engine.time_scale que recorre el botón de velocidad (×1 → ×2 → ×4 → ×1).
+const NORMAL_SPEED: float = 1.0
 const FAST_SPEED: float = 2.0
+const FASTEST_SPEED: float = 4.0
+const SPEEDS: Array[float] = [NORMAL_SPEED, FAST_SPEED, FASTEST_SPEED]
 # Viñeta roja de vida baja: se enciende por debajo de esta fracción y late entre estas intensidades.
 const LOW_HEALTH_FRACTION: float = 0.25
 const VIGNETTE_MIN_INTENSITY: float = 0.25
@@ -58,8 +61,8 @@ var _spawner: Spawner
 var _powers: Powers
 # Secuencia en curso antes de enseñar la pantalla (cámara lenta de LOST o respiro de WON); null si no hay.
 var _screen_delay: Tween
-# Velocidad ×2 elegida con el botón; vuelve a false al perder, ganar, reiniciar o salir.
-var _fast_speed: bool = false
+# Velocidad elegida con el botón (×1, ×2 o ×4); vuelve a ×1 al perder, ganar, reiniciar o salir.
+var _speed: float = NORMAL_SPEED
 # Latido de la viñeta; null si está apagada.
 var _vignette_pulse: Tween
 # En el nivel de emergencia no hay poderes: ni se ven ni responden las teclas.
@@ -76,7 +79,7 @@ func _ready() -> void:
 	turret_actions.upgrade_requested.connect(_on_upgrade_requested)
 	sidebar.next_wave_requested.connect(_on_next_wave_requested)
 	sidebar.auto_waves_toggled.connect(_on_auto_waves_toggled)
-	sidebar.fast_speed_toggled.connect(_on_fast_speed_toggled)
+	sidebar.speed_change_requested.connect(_on_speed_change_requested)
 	info_panel.meteor_button.pressed.connect(_use_power.bind(Powers.Power.METEOR))
 	info_panel.freeze_button.pressed.connect(_use_power.bind(Powers.Power.FREEZE))
 	info_panel.orbital_button.pressed.connect(_use_power.bind(Powers.Power.ORBITAL))
@@ -275,15 +278,15 @@ func _on_auto_waves_toggled(enabled: bool) -> void:
 	if is_instance_valid(_spawner):
 		_spawner.auto_waves = enabled
 
-# El botón ×2 solo cambia la velocidad jugando; set_state sigue siendo quien escribe Engine.time_scale.
-func _on_fast_speed_toggled(enabled: bool) -> void:
-	_set_fast_speed(enabled)
+# El botón de velocidad solo cambia la velocidad jugando; set_state sigue siendo quien escribe Engine.time_scale.
+func _on_speed_change_requested(speed: float) -> void:
+	_set_speed(speed)
 	if _ui_state == UiState.PLAYING:
 		set_state(UiState.PLAYING)
 
-func _set_fast_speed(enabled: bool) -> void:
-	_fast_speed = enabled
-	sidebar.show_fast_speed(enabled)
+func _set_speed(speed: float) -> void:
+	_speed = speed
+	sidebar.show_speed(speed)
 
 ## Pasa el resumen de la partida a las pantallas de derrota y victoria. Game lo llama antes de
 ## set_state(LOST) o set_state(WON).
@@ -307,8 +310,8 @@ func set_state(new_state: UiState) -> void:
 		_screen_delay = null
 	# La derrota y la victoria devuelven la velocidad a ×1; la pausa la conserva para volver a ella.
 	if new_state == UiState.LOST or new_state == UiState.WON:
-		_set_fast_speed(false)
-	Engine.time_scale = FAST_SPEED if _fast_speed and new_state == UiState.PLAYING else 1.0
+		_set_speed(NORMAL_SPEED)
+	Engine.time_scale = _speed if new_state == UiState.PLAYING else NORMAL_SPEED
 	# Con cualquier pantalla abierta (o en camino, durante la cámara lenta o el respiro) no se puede
 	# seleccionar torreta.
 	sidebar.set_selection_locked(new_state != UiState.PLAYING)
@@ -383,7 +386,7 @@ func _handle_shortcut(event: InputEvent) -> bool:
 	elif event.is_action_pressed("toggle_auto"):
 		sidebar.auto_wave_button.button_pressed = not sidebar.auto_wave_button.button_pressed
 	elif event.is_action_pressed("toggle_speed"):
-		sidebar.speed_button.button_pressed = not sidebar.speed_button.button_pressed
+		sidebar.press_speed()
 	elif event.is_action_pressed("power_meteor"):
 		_use_power(Powers.Power.METEOR)
 	elif event.is_action_pressed("power_freeze"):
@@ -410,6 +413,6 @@ func _on_option_chosen(option: OverlayScreen.Option) -> void:
 
 # Quita la pausa y la pantalla antes de avisar a Game.
 func _request_action(action: Action) -> void:
-	_set_fast_speed(false)
+	_set_speed(NORMAL_SPEED)
 	set_state(UiState.PLAYING)
 	action_requested.emit(action)
