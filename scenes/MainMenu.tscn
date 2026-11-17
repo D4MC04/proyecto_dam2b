@@ -41,9 +41,13 @@
 [ext_resource type="Script" path="res://scripts/main_menu/IntroDialog.gd" id="50_intro"]
 [ext_resource type="Texture2D" path="res://assets/ui/guide_portrait.png" id="51_portrait"]
 [ext_resource type="Script" path="res://scripts/main_menu/OfficeTutorial.gd" id="52_office_tutorial"]
+[ext_resource type="Script" path="res://scripts/main_menu/SectorsCloseUp.gd" id="53_sectors_close"]
 
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_radar"]
+shader = ExtResource("41_radar_shader")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_sectors_screen"]
 shader = ExtResource("41_radar_shader")
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_intro_portrait"]
@@ -350,6 +354,22 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.6)
+
+[node name="SectorsCloseUp" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("53_sectors_close")
+
+[node name="Screen" type="ColorRect" parent="SectorsCloseUp"]
+material = SubResource("ShaderMaterial_sectors_screen")
+layout_mode = 0
+mouse_filter = 2
 
 [node name="LevelSelectionScreen" type="VBoxContainer" parent="." unique_id=2135136794]
 visible = false

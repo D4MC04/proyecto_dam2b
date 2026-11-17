@@ -5,8 +5,9 @@ extends Control
 # abre su panel holograma encima, con la oficina oscurecida detrás. Escape cierra el panel abierto
 # o, en la oficina, pregunta si volver a la pantalla de inicio. La pantalla de la mesa del radar enseña la pantalla
 # de Sectores (que, mientras está cerrada, se pinta en RadarViewport); al pulsarla, la vista se
-# acerca hasta que esa pantalla queda encima de la de Sectores, con su borde a la vista. La consola
-# de opciones se acerca igual y al final aparece encima de cerca (OptionsCloseUp), donde se tocan.
+# acerca a la mesa y al final aparece encima la mesa de cerca (SectorsCloseUp), con la pantalla de
+# Sectores dentro. La consola de opciones se acerca igual y al final aparece encima de cerca (OptionsCloseUp),
+# donde se tocan.
 
 enum View { LEFT, CENTER, RIGHT }
 
@@ -24,12 +25,11 @@ const EMERGENCY_DELAY: float = 1.6
 const TURN_TIME: float = 0.45
 const VIEW_WIDTH: float = 960.0
 const VIEW_SIZE: Vector2 = Vector2(960.0, 540.0)
-# Margen alrededor del contenido de Sectores en la pantalla de la mesa (ahí va su marco, y a los
-# lados se ve la oficina al final del zoom).
+# Margen alrededor del contenido de Sectores en la pantalla de la mesa.
 const SCREEN_MARGIN: Vector2 = Vector2(40.0, 32.0)
-# Acercamiento a un objeto de la oficina (la mesa del radar o la consola de opciones) y alejamiento.
+# Acercamiento a un objeto de la oficina (la mesa del radar, la tablet o la consola de opciones) y alejamiento.
 const ZOOM_TIME: float = 0.7
-# Parte del zoom a la consola de opciones desde la que aparece encima la consola de cerca.
+# Parte del zoom a un objeto desde la que aparece encima de cerca (la mesa, la consola o la Navedex).
 const CLOSE_UP_FADE_START: float = 0.85
 # Hueco entre la ficha del sector y la pista "ESC para volver" de debajo.
 const SECTORS_HINT_MARGIN: float = 16.0
@@ -44,6 +44,7 @@ var start_on_level_selection: bool = false
 @onready var turn_edges: TurnEdges = $TurnEdges
 @onready var exit_door: OfficeDoor = $Office/Views/LeftView/ExitDoor
 @onready var panel_dim: ColorRect = $PanelDim
+@onready var sectors_close_up: SectorsCloseUp = $SectorsCloseUp
 @onready var level_selection_panel: VBoxContainer = $LevelSelectionScreen
 @onready var levels_panel: Control = $LevelSelectionScreen/LevelsPanel
 @onready var sector_radar: SectorRadar = %SectorRadar
@@ -274,19 +275,22 @@ func _tween_zoom(target: float, step: Callable) -> void:
 	await _zoom_tween.finished
 
 # Acerca la oficina y el espacio de detrás: con `amount` 1, el punto `focus` de la vista queda en
-# `target` (en píxeles del menú) con la escala `final_scale`.
-func _zoom_office(focus: Vector2, final_scale: float, target: Vector2, amount: float) -> void:
-	var zoom: float = lerpf(1.0, final_scale, amount)
+# `target` (en píxeles del menú) con la escala `final_scale` (distinta en x e y si al acercarse la
+# vista se inclina hacia el objeto).
+func _zoom_office(focus: Vector2, final_scale: Vector2, target: Vector2, amount: float) -> void:
+	var zoom: Vector2 = Vector2.ONE.lerp(final_scale, amount)
 	var offset: Vector2 = (target - focus * final_scale) * amount
-	office.scale = Vector2(zoom, zoom)
+	office.scale = zoom
 	office.position = offset
-	space.scale = Vector2(zoom, zoom)
+	space.scale = zoom
 	space.position = offset
 
 # --- Mesa del radar ------------------------------------------------------------------------
 
-# La vista se acerca a la mesa y su pantalla se endereza hasta llenar la vista; entonces la pantalla
-# de Sectores sale de RadarViewport y queda encima, igual.
+# La vista se acerca a la mesa (la oficina tal cual, sin enderezar nada) y al final aparece encima,
+# con un fundido, la mesa de cerca (SectorsCloseUp), que enseña RadarViewport, así que la pantalla de
+# Sectores ya se ve dentro. Al acabar, la pantalla de Sectores sale de RadarViewport y queda encima de
+# la mesa de cerca, igual (sin salto).
 func _open_sectors() -> void:
 	if _panel or _jumping or _leaving:
 		return
@@ -295,24 +299,30 @@ func _open_sectors() -> void:
 	_move_sectors(false)
 	_show_sectors_hint()
 
-# Lo inverso: la pantalla vuelve a la mesa y la vista se aleja.
+# Lo inverso: la pantalla vuelve a RadarViewport (la mesa de cerca la sigue enseñando), la mesa de
+# cerca se funde y la vista se aleja.
 func _close_sectors() -> void:
 	sectors_esc_hint.hide()
 	_move_sectors(true)
 	_zoom_out(_set_radar_zoom)
 
-# Zoom de 0 (la oficina normal) a 1 (la pantalla de la mesa ocupa _screen_rect, centrada).
+# Zoom de 0 a 1: la oficina se acerca tal cual (como a la consola de opciones) hasta que la mesa ocupa
+# justo el sitio de la mesa de cerca. La mesa está tumbada y se ve chafada, así que al acercarse la vista
+# también se inclina hacia ella (se estira más en vertical) y acaba con la forma de la mesa de cerca;
+# desde CLOSE_UP_FADE_START la mesa de cerca aparece encima y la sustituye sin que se vea doble.
 func _set_radar_zoom(amount: float) -> void:
-	var center: Vector2 = radar_console.get_screen_center()
-	var final_scale: float = _screen_rect.size.x / radar_console.get_screen_width()
-	_zoom_office(center, final_scale, _screen_rect.get_center(), amount)
-	radar_console.set_zoom(amount, Rect2(center - _screen_rect.size / final_scale / 2.0, _screen_rect.size / final_scale))
+	var table: Rect2 = radar_console.get_table_rect()
+	var body: Rect2 = sectors_close_up.get_body_rect()
+	_zoom_office(table.get_center(), body.size / table.size, body.get_center(), amount)
+	sectors_close_up.modulate.a = smoothstep(CLOSE_UP_FADE_START, 1.0, amount)
+	sectors_close_up.visible = amount > CLOSE_UP_FADE_START
 
 # La mesa enseña solo el contenido de Sectores (con un margen), para que se lea mejor.
 func _update_screen_rect() -> void:
 	_screen_rect = levels_panel.get_rect().grow_individual(SCREEN_MARGIN.x, SCREEN_MARGIN.y, SCREEN_MARGIN.x, SCREEN_MARGIN.y) 			.intersection(Rect2(Vector2.ZERO, VIEW_SIZE))
 	radar_console.set_screen_texture(radar_viewport.get_texture(),
-			Rect2(_screen_rect.position / VIEW_SIZE, _screen_rect.size / VIEW_SIZE), _screen_rect.size)
+			Rect2(_screen_rect.position / VIEW_SIZE, _screen_rect.size / VIEW_SIZE))
+	sectors_close_up.set_screen(_screen_rect, radar_viewport.get_texture(), VIEW_SIZE)
 	if _panel == level_selection_panel and not _zooming:
 		_set_radar_zoom(1.0)
 
@@ -349,7 +359,7 @@ func _fit_radar_viewport() -> void:
 func _set_options_zoom(amount: float) -> void:
 	var console: Rect2 = options_console.get_rect()
 	var body: Rect2 = options_close_up.get_body_rect()
-	_zoom_office(console.get_center(), body.size.y / console.size.y, body.get_center(), amount)
+	_zoom_office(console.get_center(), Vector2.ONE * (body.size.y / console.size.y), body.get_center(), amount)
 	options_close_up.modulate.a = smoothstep(CLOSE_UP_FADE_START, 1.0, amount)
 	options_close_up.visible = amount > CLOSE_UP_FADE_START
 
@@ -359,7 +369,7 @@ func _set_options_zoom(amount: float) -> void:
 # Navedex, que aparece encima al final con el mismo fundido que la consola de opciones.
 func _set_tablet_zoom(amount: float) -> void:
 	var tablet_rect: Rect2 = archive_tablet.get_lifted_rect()
-	_zoom_office(tablet_rect.get_center(), float(Navedex.SCALE), VIEW_SIZE / 2.0, amount)
+	_zoom_office(tablet_rect.get_center(), Vector2.ONE * Navedex.SCALE, VIEW_SIZE / 2.0, amount)
 	navedex.modulate.a = smoothstep(CLOSE_UP_FADE_START, 1.0, amount)
 	navedex.visible = amount > CLOSE_UP_FADE_START
 
