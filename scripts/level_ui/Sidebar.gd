@@ -264,7 +264,7 @@ func show_auto_waves(enabled: bool) -> void:
 ## Refleja la velocidad de LevelUI (×1, ×2 o ×4) sin volver a emitir speed_change_requested.
 func show_speed(speed: float) -> void:
 	_speed = speed
-	speed_button.set_pressed_no_signal(speed > LevelUI.NORMAL_SPEED)
+	_style_speed_button(speed > LevelUI.NORMAL_SPEED)
 	speed_button.text = "×%d" % roundi(speed)
 
 func _on_button_selection_changed(data: TurretData, on: bool) -> void:
@@ -299,8 +299,6 @@ func _on_auto_toggled(enabled: bool) -> void:
 
 ## Pide la siguiente velocidad: lo usan el botón y el atajo de teclado.
 func press_speed() -> void:
-	# El botón se redibuja con la velocidad que sigue vigente (lo hace show_speed al aplicarse la nueva).
-	speed_button.set_pressed_no_signal(_speed > LevelUI.NORMAL_SPEED)
 	if tutorial_hints != null and not tutorial_hints.allows(TutorialHints.Action.TOGGLE_SPEED):
 		return
 	var next_index: int = (LevelUI.SPEEDS.find(_speed) + 1) % LevelUI.SPEEDS.size()
@@ -320,15 +318,15 @@ func _style_wave_controls() -> void:
 
 	var auto_on: ClippedBoxStyle = ClippedBoxStyle.create(AUTO_ON_BG_COLOR, AUTO_ON_BORDER_COLOR)
 	# AUTO y ×2 comparten estilo: apagado gris azulado, encendido ámbar.
-	for toggle: Button in [auto_wave_button, speed_button]:
-		toggle.add_theme_stylebox_override("normal", ClippedBoxStyle.create(TAB_BG_COLOR, TAB_BORDER_COLOR))
-		toggle.add_theme_stylebox_override("hover", ClippedBoxStyle.create(CONTROL_HOVER_BG_COLOR, AUTO_HOVER_BORDER_COLOR))
-		toggle.add_theme_stylebox_override("pressed", auto_on)
-		toggle.add_theme_stylebox_override("hover_pressed", ClippedBoxStyle.create(AUTO_ON_BG_COLOR, AUTO_ON_HOVER_BORDER_COLOR))
-		toggle.add_theme_color_override("font_color", CONTROL_ICON_DIM_COLOR)
-		toggle.add_theme_color_override("font_hover_color", Color(1, 1, 1, 0.6))
-		toggle.add_theme_color_override("font_pressed_color", Color.WHITE)
-		toggle.add_theme_color_override("font_hover_pressed_color", Color.WHITE)
+	auto_wave_button.add_theme_stylebox_override("normal", ClippedBoxStyle.create(TAB_BG_COLOR, TAB_BORDER_COLOR))
+	auto_wave_button.add_theme_stylebox_override("hover", ClippedBoxStyle.create(CONTROL_HOVER_BG_COLOR, AUTO_HOVER_BORDER_COLOR))
+	auto_wave_button.add_theme_stylebox_override("pressed", auto_on)
+	auto_wave_button.add_theme_stylebox_override("hover_pressed", ClippedBoxStyle.create(AUTO_ON_BG_COLOR, AUTO_ON_HOVER_BORDER_COLOR))
+	auto_wave_button.add_theme_color_override("font_color", CONTROL_ICON_DIM_COLOR)
+	auto_wave_button.add_theme_color_override("font_hover_color", Color(1, 1, 1, 0.6))
+	auto_wave_button.add_theme_color_override("font_pressed_color", Color.WHITE)
+	auto_wave_button.add_theme_color_override("font_hover_pressed_color", Color.WHITE)
+	_style_speed_button(false)
 	for arrow: Button in [prev_wave_arrow, next_wave_arrow]:
 		arrow.add_theme_stylebox_override("normal", ClippedBoxStyle.create(TAB_BG_COLOR, NEXT_BORDER_COLOR))
 		arrow.add_theme_stylebox_override("hover", ClippedBoxStyle.create(CONTROL_HOVER_BG_COLOR, TAB_ACTIVE_BORDER_COLOR))
@@ -337,6 +335,20 @@ func _style_wave_controls() -> void:
 		arrow.add_theme_color_override("font_disabled_color", CONTROL_ICON_DIM_COLOR)
 	for button: Button in [next_wave_button, auto_wave_button, speed_button, prev_wave_arrow, next_wave_arrow]:
 		button.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+
+# El botón de velocidad no es toggle: pulsado, pasa de ×1 a ×2 a ×4 y ya no hay un estado "pulsado" propio.
+# Todos sus estilos (también el de mantener pulsado) son del estado actual, para que no parpadee entre ×2, ×4 y ×1.
+func _style_speed_button(fast: bool) -> void:
+	var normal: ClippedBoxStyle = ClippedBoxStyle.create(AUTO_ON_BG_COLOR if fast else TAB_BG_COLOR, AUTO_ON_BORDER_COLOR if fast else TAB_BORDER_COLOR)
+	var hover: ClippedBoxStyle = ClippedBoxStyle.create(AUTO_ON_BG_COLOR if fast else CONTROL_HOVER_BG_COLOR, AUTO_ON_HOVER_BORDER_COLOR if fast else AUTO_HOVER_BORDER_COLOR)
+	var font: Color = Color.WHITE if fast else CONTROL_ICON_DIM_COLOR
+	var font_hover: Color = Color.WHITE if fast else Color(1, 1, 1, 0.6)
+	speed_button.add_theme_stylebox_override("normal", normal)
+	speed_button.add_theme_stylebox_override("hover", hover)
+	speed_button.add_theme_stylebox_override("pressed", hover)
+	speed_button.add_theme_color_override("font_color", font)
+	speed_button.add_theme_color_override("font_hover_color", font_hover)
+	speed_button.add_theme_color_override("font_pressed_color", font_hover)
 
 func _style_tab(tab: Button) -> void:
 	var normal: ClippedBoxStyle = ClippedBoxStyle.create(TAB_BG_COLOR, TAB_BORDER_COLOR)
