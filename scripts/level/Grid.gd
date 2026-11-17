@@ -31,6 +31,26 @@ func register_turret(c: Vector2i, t: Turret) -> void:
 func cell(p: Vector2) -> Vector2i:
 	return logic_map.local_to_map(logic_map.to_local(p))
 
+## Radio de clic del asteroide de un hueco: el dibujo (32x32, centrado en la casilla) mide ~15 px de radio.
+const SLOT_CLICK_RADIUS: float = 15.0
+
+## Hueco cuyo asteroide está bajo el punto global p; si dos se tocan, el de centro más cercano.
+## Si no hay ninguno devuelve la casilla de p (que no será un hueco).
+func slot_at(p: Vector2) -> Vector2i:
+	var origin: Vector2i = cell(p)
+	var best: Vector2i = origin
+	var best_dist: float = SLOT_CLICK_RADIUS
+	for dx: int in range(-1, 2):
+		for dy: int in range(-1, 2):
+			var c: Vector2i = origin + Vector2i(dx, dy)
+			if not slot_cells.has(c):
+				continue
+			var dist: float = center(c).distance_to(p)
+			if dist <= best_dist:
+				best = c
+				best_dist = dist
+	return best
+
 func center(c: Vector2i) -> Vector2:
 	return logic_map.to_global(logic_map.map_to_local(c))
 
