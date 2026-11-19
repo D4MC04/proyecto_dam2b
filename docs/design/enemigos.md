@@ -121,3 +121,7 @@ Sprites: `assets/sprites/enemies/divisora/` (`divisora_0..2.png` de 32x32, `divi
 - Grupo `enemies`: lo consultan `Beam` y `Chain` para buscar objetivos.
 - Las torretas lo detectan por el `Area2D` y leen `get_remaining_distance()` (longitud del camino - `progress`), `hp` y `global_position`.
 - `FocusBeam` modifica directamente `sprite.modulate` y llama a `_rest_color()`.
+
+## Plan de naves
+
+Las naves de arriba se van a rediseñar por nichos (10 base y 10 con mecánica, con nombres en inglés): ver [naves-plan.md](naves-plan.md), provisional hasta que estén todas hechas.
