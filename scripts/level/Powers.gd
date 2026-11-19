@@ -40,7 +40,8 @@ const FREEZE_FLAKE_FALL: float = 140.0
 # Ataque orbital: el rayo cae en el borde izquierdo (ORBITAL_FALL_TIME), barre la fila elegida hasta el
 # borde derecho durante ORBITAL_TIME y se va hacia arriba en ORBITAL_EXIT_TIME.
 const ORBITAL_TIME: float = 2.0
-const ORBITAL_DPS: float = 400.0
+# Golpe fijo que recibe una vez cada enemigo que toca el rayo.
+const ORBITAL_DAMAGE: float = 300.0
 const ORBITAL_HALF_WIDTH: float = 6.0
 const ORBITAL_HALF_HEIGHT: float = 16.0
 const ORBITAL_FALL_TIME: float = 0.15
@@ -102,6 +103,8 @@ var _aimed_power: int = -1
 var _orbital_row: float = 0.0
 var _orbital_elapsed: float = ORBITAL_END_TIME
 var _orbital_shake_left: float = 0.0
+# Enemigos ya golpeados en este ataque.
+var _orbital_hit: Array[Enemy] = []
 var _orbital_spark_left: float = 0.0
 # x global del próximo tramo de estela quemada.
 var _orbital_scorch_x: float = 0.0
@@ -128,8 +131,9 @@ func _process(delta: float) -> void:
 		if was_sweeping and _orbital_elapsed >= ORBITAL_FALL_TIME:
 			for enemy: Enemy in get_tree().get_nodes_in_group(&"enemies"):
 				var offset: Vector2 = (enemy.global_position - beam).abs()
-				if enemy.hp > 0 and offset.x <= ORBITAL_HALF_WIDTH and offset.y <= ORBITAL_HALF_HEIGHT:
-					enemy.take_damage(ORBITAL_DPS * delta)
+				if enemy.hp > 0 and enemy not in _orbital_hit and offset.x <= ORBITAL_HALF_WIDTH and offset.y <= ORBITAL_HALF_HEIGHT:
+					_orbital_hit.append(enemy)
+					enemy.take_damage(ORBITAL_DAMAGE)
 			_burn_row(beam, delta)
 			if _orbital_elapsed >= ORBITAL_SWEEP_END:
 				Effect.spawn(self, ORBITAL_FLASH_FRAMES, beam)
@@ -355,6 +359,7 @@ func _fire_orbital(row_y: float) -> void:
 	set_process(true)
 	_orbital_row = row_y
 	_orbital_elapsed = 0.0
+	_orbital_hit.clear()
 	_orbital_spark_left = 0.0
 	_orbital_scorch_x = Level.GAME_AREA_RECT.position.x
 	power_used.emit(Power.ORBITAL)

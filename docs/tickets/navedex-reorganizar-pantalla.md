@@ -2,7 +2,7 @@
 
 Creador: Renzo
 Responsable: Renzo
-Estado: aceptada
+Estado: propuesta
 Prioridad: media
 Modelo recomendado: opus
 Esfuerzo recomendado: medium
@@ -20,6 +20,14 @@ La vitrina de arriba está bien, pero el resto de la pantalla de la tablet no co
   - Reparto del espacio (`Spacer`): que no quede el hueco vacío entre stats y carrusel.
 - Que funcione igual en las dos pestañas (en naves la vitrina crece con el hueco que sobra) y con naves no vistas ("???", sin descripción ni stats).
 - Los botones físicos de abajo (NAVES, TORRETAS, Volver) y el dibujo del terminal (`_draw`) se quedan como están.
+
+## Boceto elegido (A, lista en una columna)
+Ya se enseñaron los bocetos y Renzo eligió este; no hace falta volver a enseñarlos.
+- Nombre entre `PrevButton`/`NextButton` como ahora. Debajo, `VersionRow` (solo en torretas; en naves se oculta y su hueco va a la vitrina): `VersionPips`, un cuadrado de 6 px por versión (cian `OfficePaint.CYAN` el que se ve, `OfficePaint.SCREEN_LINE` el resto), y `FusionLabel` ("MEJORA: ...") al lado.
+- `StatRows` pasa a `VBoxContainer` (separación 2): los 8 stats en una columna a todo el ancho, con su barra debajo y el fondo alterno por stat (`StatRow.create(entry, index)`).
+- Se quita `Spacer`. En torretas `StatRows` es `SIZE_EXPAND_FILL` y cada fila `SIZE_EXPAND | SIZE_SHRINK_CENTER`, así se reparten el hueco por igual hasta el carrusel. En naves `StatRows` es `SIZE_FILL` y la vitrina crece.
+- Encima del carrusel, una línea de 1 px color `SCREEN_LINE` (`CarouselLine`).
+- Pendiente: medir que cabe con la torreta que más ocupa (8 stats + descripción larga) en los 372 px de alto de `Content`; si no cabe, bajar separaciones o poner la barra dentro de la fila.
 
 ## Qué leer
 Solo esto; `/work` no lee nada más de docs/design.
