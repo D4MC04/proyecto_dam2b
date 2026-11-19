@@ -60,5 +60,5 @@ func _process(_delta: float) -> void:
 func _fade_to(alpha: float) -> void:
 	if _tween != null and _tween.is_valid():
 		_tween.kill()
-	_tween = create_tween()
+	_tween = create_tween().set_ignore_time_scale()
 	_tween.tween_property(self, "modulate:a", alpha, FADE_TIME)
