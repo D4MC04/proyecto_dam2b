@@ -46,7 +46,7 @@ Cada frame: `progress += speed * _slow * delta`. Cuando `progress_ratio >= 1.0` 
 
 ### Animación
 
-Según la dirección del último movimiento sobre su camino (posición local, así que el temblor del mapa no la cambia) reproduce `right`, `left`, `down` o `up`. Si `data.rotate_sprite` es `true`, además gira el sprite en pasos de 90° (el sprite base mira hacia arriba) y suma `rotation_offset`.
+Según la dirección del último movimiento sobre su camino (posición local, así que el temblor del mapa no la cambia) reproduce `right`, `left`, `down` o `up`. Si `data.rotate_sprite` es `true`, además gira el sprite hacia esa dirección (el sprite base mira hacia arriba), así que en las curvas del camino gira poco a poco, y suma `rotation_offset`.
 
 ### Camuflaje
 
