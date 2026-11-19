@@ -122,12 +122,6 @@ Sprites: `assets/sprites/enemies/divisora/` (`divisora_0..2.png` de 32x32, `divi
 - Las torretas lo detectan por el `Area2D` y leen `get_remaining_distance()` (longitud del camino - `progress`), `hp` y `global_position`.
 - `FocusBeam` modifica directamente `sprite.modulate` y llama a `_rest_color()`.
 
-## Nichos
+## Plan de naves
 
-Reparto de papeles de las naves de ahora (análisis de noviembre de 2026):
-
-- **Rápidas**: solo las de los niveles 1-2 (Darts 90, Wasp 100, Nave normal 75), todas con poca vida. Del nivel 3 al 9 todas las nuevas van a 55 px/s o menos, y los Darts no salen en las oleadas de los niveles 5 a 8. No hay ninguna rápida y dura.
-- **Tanques**: muchos (Acorazado, Ariete, Nodriza, Divisora). El Ariete y el Acorazado solo se distinguen en los números.
-- **Apoyo**: Reparadora. **Evasión**: Espectro. **Contra torretas**: Saboteadora (EMP).
-- **Sin cubrir**: ninguna nave cambia de velocidad durante su vida, resiste la ralentización, depende del tipo de golpe (todas reciben el daño entero, así que golpes pequeños y grandes valen igual), castiga concentrar el fuego en una ni amenaza el dinero. Todas castigan igual al llegar: con vida de la estación.
-- **Botín**: la Wasp da 10 € cuando por la fórmula le tocan unos 30.
+Las naves de arriba se van a rediseñar por nichos (10 base y 10 con mecánica, con nombres en inglés): ver [naves-plan.md](naves-plan.md), provisional hasta que estén todas hechas.
