@@ -131,7 +131,9 @@ func _process(delta: float) -> void:
 		if was_sweeping and _orbital_elapsed >= ORBITAL_FALL_TIME:
 			for enemy: Enemy in get_tree().get_nodes_in_group(&"enemies"):
 				var offset: Vector2 = (enemy.global_position - beam).abs()
-				if enemy.hp > 0 and enemy not in _orbital_hit and offset.x <= ORBITAL_HALF_WIDTH and offset.y <= ORBITAL_HALF_HEIGHT:
+				# Cuenta el cuerpo de la nave: basta con que toque el rayo.
+				var reach: float = enemy.effect_scale() * Enemy.EFFECT_SIZE / 2.0
+				if enemy.hp > 0 and enemy not in _orbital_hit and offset.x <= ORBITAL_HALF_WIDTH + reach and offset.y <= ORBITAL_HALF_HEIGHT + reach:
 					_orbital_hit.append(enemy)
 					enemy.take_damage(ORBITAL_DAMAGE)
 			_burn_row(beam, delta)
