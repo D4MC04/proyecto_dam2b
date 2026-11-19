@@ -4,5 +4,7 @@
 size = 28 16
 seed = 317
 rocks = grey brown
+# Radio corto: las naves siguen en la recta del haz hasta cerca de la torreta
+radius = 3
 path = 30,8 10,8 10,17
 slots = 6,8

@@ -23,7 +23,7 @@ extends SceneTree
 ##                               (sin estación, acaba en su última casilla). Cada esquina se
 ##                               redondea con un arco tangente a sus dos tramos; un punto puede
 ##                               llevar su propio radio de giro (en casillas) con ":", p. ej. 11,10:2
-##   radius = 3                  radio de giro de las esquinas, en casillas (opcional; 3 si falta).
+##   radius = 5                  radio de giro de las esquinas, en casillas (opcional; 5 si falta).
 ##                               Se acorta solo si el tramo no da para tanto: hasta la mitad de un
 ##                               tramo entre dos esquinas o el tramo entero en el primero y el último
 ##   slots = 7,6 12,6 ...        casillas de torreta (un asteroide con plataforma en cada una)
@@ -71,9 +71,16 @@ const LOGIC_SLOT: Vector2i = Vector2i(2, 0)
 const STATION_RADIUS: int = 3
 # Los caminos acaban a esta distancia (px) del centro de la estación: justo dentro de su borde
 const STATION_REACH: float = 40.0
-# Radio de giro (casillas) de las esquinas si el .txt no da otro. Con 3 o menos, en un giro de 90° el
-# pasillo curvo no ocupa ninguna casilla que antes, con la esquina en ángulo recto, quedaba fuera de él
-const DEFAULT_TURN_RADIUS: float = 3.0
+# Radio de giro (casillas) de las esquinas si el .txt no da otro (se acorta si el tramo no da para tanto)
+const DEFAULT_TURN_RADIUS: float = 5.0
+# Distancia (casillas) a la que el pasillo aparta lo que hay a los lados: es pasillo toda casilla que
+# tenga algún punto a esta distancia o menos de la curva. En un tramo recto sale el camino y una casilla a
+# cada lado; en una curva, el pasillo se abre lo justo para que las rocas queden igual de lejos que en
+# las rectas (con 1x1 de roca desplazada, a 24 px o más del centro del camino)
+const CORRIDOR_CLEARANCE: float = 1.45
+# Distancia mínima (casillas) del centro de una casilla de torreta a la curva del camino: la de una
+# casilla de torreta junto a la orilla de un tramo recto, para que la torreta no tape las naves
+const SLOT_CLEARANCE: float = 2.0
 # Separación (px) entre los puntos precalculados de cada curva: las naves giran poco a poco
 const CURVE_BAKE_INTERVAL: float = 2.0
 # Paso (px) con el que se recorre la curva para apuntar las casillas por las que pasa
@@ -202,6 +209,8 @@ var _rng: RandomNumberGenerator
 var _map_size: Vector2i = DEFAULT_MAP_SIZE
 var _density: FastNoiseLite
 var _distance: Dictionary[Vector2i, int] = {}
+# Distancia (casillas) del centro de cada casilla cercana a la curva de camino más próxima
+var _center_distance: Dictionary[Vector2i, float] = {}
 # Casillas con algo puesto. _solid, las que tapa algo que se ve bien (todo menos piedrecitas)
 var _blocked: Dictionary[Vector2i, bool] = {}
 var _solid: Dictionary[Vector2i, bool] = {}
@@ -522,13 +531,16 @@ func _chebyshev(a: Vector2i, b: Vector2i) -> int:
 	return maxi(absi(a.x - b.x), absi(a.y - b.y))
 
 
-## Distancia (en casillas) del centro de cada casilla cercana (del mapa y de alrededor) a la curva de
-## camino más próxima, redondeada al entero más cercano y las mitades hacia abajo: junto a un tramo recto
-## sale lo mismo que contando casillas (1 la de al lado, 2 la siguiente…) y en una curva el pasillo
-## sigue su forma. Las partes del camino tapadas por la estación no cuentan. Las casillas a más de
-## DISTANCE_WINDOW no se apuntan.
+## Distancia de cada casilla cercana (del mapa y de alrededor) a la curva de camino más próxima, en
+## pasos: 0 si la curva la cruza, 1 si algún punto de la casilla está a CORRIDOR_CLEARANCE casillas o menos
+## de la curva (pasillo), 2 si está a una casilla más (orilla)… Junto a un tramo recto sale lo mismo que
+## contando casillas (1 la de al lado, 2 la siguiente…); en una curva el pasillo sigue su forma y se abre
+## para dejar el mismo hueco. Las partes del camino tapadas por la estación no cuentan. Las casillas a más
+## de DISTANCE_WINDOW no se apuntan. En _center_distance queda la distancia (casillas) del centro de cada
+## casilla a la curva, para las casillas de torreta.
 func _distance_to_path(curves: Array[Curve2D], station: Vector2i) -> Dictionary[Vector2i, int]:
 	var nearest: Dictionary[Vector2i, float] = {}
+	_center_distance = {}
 	var area: Rect2i = _decor_rect().grow(3)
 	for curve: Curve2D in curves:
 		for point: Vector2 in curve.get_baked_points():
@@ -542,20 +554,26 @@ func _distance_to_path(curves: Array[Curve2D], station: Vector2i) -> Dictionary[
 					var other: Vector2i = cell + Vector2i(dx, dy)
 					if not area.has_point(other):
 						continue
-					var length: float = Vector2(other).distance_to(spot)
+					var offset: Vector2 = (spot - Vector2(other)).abs()
+					# Del punto más cercano de la casilla (un cuadrado de lado 1) a la curva
+					var length: float = (offset - Vector2(0.5, 0.5)).max(Vector2.ZERO).length()
 					if length < nearest.get(other, INF):
 						nearest[other] = length
+					var center_length: float = offset.length()
+					if center_length < _center_distance.get(other, INF):
+						_center_distance[other] = center_length
 	var distance: Dictionary[Vector2i, int] = {}
 	for cell: Vector2i in nearest:
-		distance[cell] = maxi(ceili(nearest[cell] - 0.5 - 0.001), 0)
+		distance[cell] = maxi(ceili(nearest[cell] + 1.0 - CORRIDOR_CLEARANCE - 0.001), 0)
 	return distance
 
 
-## Avisa de las casillas de torreta que han quedado dentro del pasillo.
+## Avisa de las casillas de torreta que quedan demasiado cerca del camino.
 func _check_slots(slots: Array[Vector2i]) -> void:
 	for cell: Vector2i in slots:
-		if _is_corridor(cell):
-			push_error("Casilla de torreta %s dentro del pasillo" % cell)
+		var length: float = _center_distance.get(cell, INF)
+		if length < SLOT_CLEARANCE - 0.001:
+			push_error("Casilla de torreta %s a %.2f casillas del camino (mínimo %.1f)" % [cell, length, SLOT_CLEARANCE])
 
 
 func _decor_rect() -> Rect2i:
@@ -662,6 +680,8 @@ func _jitter(cell: Vector2i) -> int:
 		if shift.x != 0 and _is_corridor(cell + Vector2i(signi(shift.x), 0)):
 			continue
 		if shift.y != 0 and _is_corridor(cell + Vector2i(0, signi(shift.y))):
+			continue
+		if shift.x != 0 and shift.y != 0 and _is_corridor(cell + shift.sign()):
 			continue
 		options.append(i)
 	return options[_rng.randi_range(0, options.size() - 1)]
