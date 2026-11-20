@@ -93,29 +93,51 @@ const EMERGENCY_TURRET: String = "res://resources/turret_data/turret.tres"
 
 ## Nivel 2, escrito a mano en dientes de sierra (presentación, picos y respiros, final duro). Por oleada: multiplicador de vida
 ## y grupos [nave, cuántas, separación, camino, pausa después]; pausa negativa = el siguiente grupo sale antes de que acabe este
-## (solape entre caminos). La suma de recompensas sigue la del generador (230 × 1,13^(K-1)): 230, 260, 290, 330, 375, 420, 480, 540, 610, 690.
-## Picos: 5, 8 y 10 (final). Respiros: 3, 6 y 9.
+## (solape entre caminos). La suma de recompensas sigue la del generador (230 × 1,13^(K-1), ±10 %).
+## La 1 va entera por el camino 0 (el de la izquierda) y la 2 se reparte entre los dos. Grupos cortos (2-6) y mezclados; un
+## "escolta" es Darts + una Nave normal + Darts seguidos por el mismo camino. Picos: 5, 8 y 10 (final). Respiros: 3, 6 y 9
+## (naves más separadas, no menos vida).
 const LEVEL_2: Array[Dictionary] = [
-	{"health": 0.8, "groups": [["dart_rojo", 6, 0.8, 0, 2.5], ["nave_normal", 6, 1.4, 0, 2.5], ["dart_verde", 6, 0.8, 0, 2.5],
-			["nave_normal", 4, 1.4, 0, 2.5], ["dart_hielo", 4, 0.8, 0, 0.0]]},
-	{"health": 0.8, "groups": [["nave_normal", 4, 1.3, 0, -3.1], ["dart_rojo", 6, 0.7, 1, 2.5], ["nave_normal", 4, 1.3, 1, -3.1],
-			["dart_verde", 6, 0.7, 0, 2.5], ["nave_normal", 2, 1.3, 0, -0.5], ["nave_normal", 2, 1.3, 1, 2.0], ["dart_hielo", 4, 0.7, 0, 0.0]]},
-	{"health": 0.8, "groups": [["dart_rojo", 10, 0.6, 0, 2.0], ["wasp", 8, 0.8, 1, 2.0], ["dart_verde", 10, 0.6, 1, 2.0],
-			["wasp", 8, 0.8, 0, 2.0], ["dart_hielo", 6, 0.6, 0, 0.0]]},
-	{"health": 1.1, "groups": [["nave_normal", 6, 1.0, 0, 1.5], ["nave_normal", 6, 1.0, 1, 1.5], ["dart_morado", 8, 0.5, 0, 1.5],
-			["nave_normal", 6, 1.0, 1, 1.5], ["dart_rojo", 4, 0.5, 0, 0.0]]},
-	{"health": 1.5, "groups": [["nave_normal", 8, 0.9, 0, -5.3], ["nave_normal", 8, 0.9, 1, 2.0], ["wasp", 8, 0.6, 0, -3.2],
-			["nave_normal", 3, 0.9, 1, 2.0], ["dart_verde", 2, 0.5, 0, 0.0]]},
-	{"health": 1.3, "groups": [["wasp", 10, 0.9, 0, 2.5], ["dart_hielo", 10, 0.7, 1, 2.5], ["nave_normal", 6, 1.3, 0, 2.5],
-			["wasp", 10, 0.9, 1, 2.5], ["nave_normal", 4, 1.3, 1, 2.5], ["dart_morado", 4, 0.7, 0, 0.0]]},
-	{"health": 1.8, "groups": [["nave_normal", 8, 0.9, 0, -5.3], ["wasp", 8, 0.7, 1, 1.5], ["dart_rojo", 10, 0.5, 0, 1.5],
-			["nave_normal", 8, 0.9, 1, -5.3], ["wasp", 6, 0.7, 0, 1.5], ["nave_normal", 3, 0.9, 1, 1.5], ["dart_verde", 1, 0.5, 0, 0.0]]},
-	{"health": 2.3, "groups": [["nave_normal", 12, 0.5, 0, -4.5], ["nave_normal", 12, 0.5, 1, 2.0], ["wasp", 8, 0.5, 0, -2.5],
-			["nave_normal", 6, 0.8, 1, 1.5], ["dart_rojo", 2, 0.4, 0, 0.0]]},
-	{"health": 2.0, "groups": [["wasp", 12, 0.6, 0, 2.0], ["dart_hielo", 12, 0.5, 1, 2.0], ["nave_normal", 10, 1.0, 0, 2.0],
-			["wasp", 12, 0.6, 1, 2.0], ["nave_normal", 8, 1.0, 1, 2.0], ["dart_verde", 8, 0.5, 0, 0.0]]},
-	{"health": 3.0, "groups": [["nave_normal", 14, 0.55, 0, -6.15], ["nave_normal", 14, 0.55, 1, 2.0], ["wasp", 14, 0.4, 0, -4.2],
-			["wasp", 8, 0.4, 1, 1.5], ["nave_normal", 3, 0.6, 0, 1.5], ["dart_rojo", 1, 0.4, 1, 0.0]]},
+	{"health": 0.6, "groups": [["dart_rojo", 4, 1.0, 0, 2.5], ["nave_normal", 2, 1.8, 0, 2.5], ["dart_verde", 4, 1.0, 0, 2.5],
+			["nave_normal", 3, 1.8, 0, 2.5], ["wasp", 3, 1.2, 0, 2.5], ["nave_normal", 3, 1.8, 0, 2.5], ["dart_hielo", 4, 1.0, 0, 2.5],
+			["nave_normal", 2, 1.8, 0, 0.0]]},
+	{"health": 0.7, "groups": [["nave_normal", 3, 1.6, 0, -1.2], ["dart_rojo", 4, 0.9, 1, 2.0], ["nave_normal", 3, 1.6, 1, -1.2],
+			["wasp", 3, 1.1, 0, 2.0], ["dart_verde", 4, 0.9, 0, 2.0], ["nave_normal", 3, 1.6, 1, 2.0],
+			["dart_morado", 2, 0.5, 0, 0.5], ["nave_normal", 1, 0.0, 0, 0.5], ["dart_morado", 2, 0.5, 0, 2.0], ["wasp", 2, 1.1, 1, 0.0]]},
+	{"health": 0.8, "groups": [["dart_rojo", 6, 0.7, 0, -1.5], ["wasp", 4, 0.9, 1, 2.0], ["dart_verde", 6, 0.7, 1, -1.5],
+			["wasp", 4, 0.9, 0, 2.0], ["nave_normal", 2, 1.5, 0, 2.0], ["dart_hielo", 6, 0.7, 1, -1.5], ["wasp", 4, 0.9, 0, 2.0],
+			["dart_morado", 6, 0.7, 0, -1.5], ["wasp", 2, 0.9, 1, 0.0]]},
+	{"health": 1.1, "groups": [["nave_normal", 3, 1.4, 0, -1.4], ["dart_rojo", 5, 0.7, 1, 2.0], ["wasp", 4, 0.9, 0, -1.5],
+			["nave_normal", 3, 1.4, 1, 2.0], ["dart_verde", 2, 0.5, 0, 0.5], ["nave_normal", 1, 0.0, 0, 0.5], ["dart_verde", 2, 0.5, 0, -1.0],
+			["wasp", 4, 0.9, 1, 2.0], ["nave_normal", 4, 1.3, 0, -2.0], ["dart_hielo", 5, 0.6, 1, 2.0], ["nave_normal", 1, 0.0, 1, 0.0]]},
+	{"health": 1.3, "groups": [["nave_normal", 4, 1.1, 0, -2.3], ["nave_normal", 4, 1.1, 1, 1.5], ["wasp", 5, 0.7, 0, -2.0],
+			["dart_rojo", 3, 0.4, 1, 0.4], ["nave_normal", 1, 0.0, 1, 0.4], ["dart_rojo", 3, 0.4, 1, 1.5], ["nave_normal", 3, 1.0, 0, -1.0],
+			["wasp", 4, 0.7, 1, 1.5], ["dart_verde", 3, 0.4, 0, 0.4], ["nave_normal", 1, 0.0, 0, 0.4], ["dart_verde", 3, 0.4, 0, -1.0],
+			["nave_normal", 2, 1.0, 1, 0.0]]},
+	{"health": 1.6, "groups": [["dart_rojo", 6, 0.6, 0, -1.0], ["wasp", 5, 0.8, 1, 1.0], ["nave_normal", 3, 1.4, 0, -1.0],
+			["dart_hielo", 6, 0.6, 1, 1.0], ["wasp", 5, 0.8, 0, -1.0], ["dart_morado", 2, 0.5, 1, 0.5], ["nave_normal", 1, 0.0, 1, 0.5],
+			["dart_morado", 2, 0.5, 1, 1.0], ["wasp", 4, 0.8, 0, -1.0], ["nave_normal", 3, 1.4, 1, 1.0], ["dart_verde", 6, 0.6, 0, -1.0],
+			["wasp", 4, 0.8, 1, 1.0], ["nave_normal", 2, 1.4, 0, 0.0]]},
+	{"health": 1.8, "groups": [["wasp", 4, 0.6, 0, -1.0], ["nave_normal", 4, 1.0, 1, 1.2], ["dart_rojo", 2, 0.4, 0, 0.4],
+			["nave_normal", 1, 0.0, 0, 0.4], ["dart_rojo", 2, 0.4, 0, -0.5], ["dart_verde", 5, 0.5, 1, 1.2], ["nave_normal", 4, 1.0, 0, -2.0],
+			["wasp", 5, 0.6, 1, 1.2], ["dart_hielo", 2, 0.4, 1, 0.4], ["nave_normal", 1, 0.0, 1, 0.4], ["dart_hielo", 2, 0.4, 1, -0.5],
+			["nave_normal", 3, 1.0, 0, 1.2], ["wasp", 4, 0.6, 1, -1.0], ["nave_normal", 4, 1.0, 0, 1.2], ["dart_morado", 5, 0.5, 1, 0.0]]},
+	{"health": 2.3, "groups": [["nave_normal", 4, 0.9, 0, -2.2], ["nave_normal", 4, 0.9, 1, 1.0], ["wasp", 5, 0.5, 0, -1.5],
+			["dart_rojo", 3, 0.4, 1, 0.4], ["nave_normal", 1, 0.0, 1, 0.4], ["dart_rojo", 3, 0.4, 1, -0.5], ["nave_normal", 5, 0.9, 0, 1.0],
+			["dart_verde", 6, 0.4, 1, -1.5], ["wasp", 5, 0.5, 0, 1.0], ["dart_hielo", 3, 0.4, 0, 0.4], ["nave_normal", 1, 0.0, 0, 0.4],
+			["dart_hielo", 3, 0.4, 0, -0.5], ["nave_normal", 4, 0.9, 1, 1.0], ["wasp", 4, 0.5, 0, -1.0], ["dart_morado", 2, 0.4, 1, 0.4],
+			["nave_normal", 1, 0.0, 1, 0.4], ["dart_morado", 2, 0.4, 1, 0.0]]},
+	{"health": 2.4, "groups": [["dart_rojo", 6, 0.5, 0, -1.0], ["wasp", 6, 0.6, 1, 1.0], ["nave_normal", 3, 1.2, 0, -1.0],
+			["dart_verde", 6, 0.5, 1, 1.0], ["wasp", 6, 0.6, 0, -1.0], ["dart_morado", 2, 0.5, 1, 0.5], ["nave_normal", 1, 0.0, 1, 0.5],
+			["dart_morado", 2, 0.5, 1, 1.0], ["nave_normal", 3, 1.2, 0, -1.0], ["wasp", 5, 0.6, 1, 1.0], ["dart_hielo", 6, 0.5, 0, -1.0],
+			["dart_rojo", 2, 0.5, 0, 0.5], ["nave_normal", 1, 0.0, 0, 0.5], ["dart_rojo", 2, 0.5, 0, 1.0], ["wasp", 6, 0.6, 1, -1.0],
+			["nave_normal", 4, 1.2, 0, 1.0], ["dart_verde", 6, 0.5, 1, -1.0], ["nave_normal", 2, 1.2, 1, 0.0]]},
+	{"health": 3.2, "groups": [["nave_normal", 5, 0.8, 0, -2.4], ["nave_normal", 5, 0.8, 1, 0.8], ["dart_rojo", 3, 0.4, 0, 0.4],
+			["nave_normal", 1, 0.0, 0, 0.4], ["dart_rojo", 3, 0.4, 0, -0.3], ["wasp", 6, 0.45, 1, 0.8], ["nave_normal", 4, 0.8, 0, -1.6],
+			["dart_verde", 3, 0.4, 1, 0.4], ["nave_normal", 1, 0.0, 1, 0.4], ["dart_verde", 3, 0.4, 1, -0.3], ["wasp", 6, 0.45, 0, 0.8],
+			["nave_normal", 4, 0.8, 1, -1.6], ["dart_hielo", 5, 0.4, 0, 0.8], ["dart_morado", 3, 0.4, 1, 0.4], ["nave_normal", 1, 0.0, 1, 0.4],
+			["dart_morado", 3, 0.4, 1, -0.3], ["nave_normal", 5, 0.8, 0, 0.8], ["wasp", 5, 0.45, 1, -1.0], ["dart_rojo", 2, 0.4, 0, 0.4],
+			["nave_normal", 1, 0.0, 0, 0.4], ["dart_rojo", 2, 0.4, 0, 0.0]]},
 ]
 const LEVEL_2_NUMBER: int = 2
 
