@@ -3,6 +3,7 @@ extends SceneTree
 ##
 ## Uso: godot --headless --path . -s scripts/tools/make_waves.gd [-- emergency]
 ## Con "emergency" solo genera el nivel de emergencia (el nivel de prueba del tutorial); sin argumentos, todo.
+## El nivel 2 no sale del generador: sus oleadas se escriben a mano en LEVEL_2.
 ##
 ## Escribe resources/wave_data/level_N.tres (oleada 1) y level_N_K.tres (oleada K). Si el archivo
 ## ya existe se carga y se rellena, así conserva su uid. Después pone la lista de oleadas en
@@ -90,6 +91,34 @@ const EMERGENCY_MAP: String = "res://scenes/maps/levels/Emergency.tscn"
 const EMERGENCY_MONEY: int = 300
 const EMERGENCY_TURRET: String = "res://resources/turret_data/turret.tres"
 
+## Nivel 2, escrito a mano en dientes de sierra (presentación, picos y respiros, final duro). Por oleada: multiplicador de vida
+## y grupos [nave, cuántas, separación, camino, pausa después]; pausa negativa = el siguiente grupo sale antes de que acabe este
+## (solape entre caminos). La suma de recompensas sigue la del generador (230 × 1,13^(K-1)): 230, 260, 290, 330, 375, 420, 480, 540, 610, 690.
+## Picos: 5, 8 y 10 (final). Respiros: 3, 6 y 9.
+const LEVEL_2: Array[Dictionary] = [
+	{"health": 0.8, "groups": [["dart_rojo", 6, 0.8, 0, 2.5], ["nave_normal", 6, 1.4, 0, 2.5], ["dart_verde", 6, 0.8, 0, 2.5],
+			["nave_normal", 4, 1.4, 0, 2.5], ["dart_hielo", 4, 0.8, 0, 0.0]]},
+	{"health": 0.8, "groups": [["nave_normal", 4, 1.3, 0, -3.1], ["dart_rojo", 6, 0.7, 1, 2.5], ["nave_normal", 4, 1.3, 1, -3.1],
+			["dart_verde", 6, 0.7, 0, 2.5], ["nave_normal", 2, 1.3, 0, -0.5], ["nave_normal", 2, 1.3, 1, 2.0], ["dart_hielo", 4, 0.7, 0, 0.0]]},
+	{"health": 0.8, "groups": [["dart_rojo", 10, 0.6, 0, 2.0], ["wasp", 8, 0.8, 1, 2.0], ["dart_verde", 10, 0.6, 1, 2.0],
+			["wasp", 8, 0.8, 0, 2.0], ["dart_hielo", 6, 0.6, 0, 0.0]]},
+	{"health": 1.1, "groups": [["nave_normal", 6, 1.0, 0, 1.5], ["nave_normal", 6, 1.0, 1, 1.5], ["dart_morado", 8, 0.5, 0, 1.5],
+			["nave_normal", 6, 1.0, 1, 1.5], ["dart_rojo", 4, 0.5, 0, 0.0]]},
+	{"health": 1.5, "groups": [["nave_normal", 8, 0.9, 0, -5.3], ["nave_normal", 8, 0.9, 1, 2.0], ["wasp", 8, 0.6, 0, -3.2],
+			["nave_normal", 3, 0.9, 1, 2.0], ["dart_verde", 2, 0.5, 0, 0.0]]},
+	{"health": 1.3, "groups": [["wasp", 10, 0.9, 0, 2.5], ["dart_hielo", 10, 0.7, 1, 2.5], ["nave_normal", 6, 1.3, 0, 2.5],
+			["wasp", 10, 0.9, 1, 2.5], ["nave_normal", 4, 1.3, 1, 2.5], ["dart_morado", 4, 0.7, 0, 0.0]]},
+	{"health": 1.8, "groups": [["nave_normal", 8, 0.9, 0, -5.3], ["wasp", 8, 0.7, 1, 1.5], ["dart_rojo", 10, 0.5, 0, 1.5],
+			["nave_normal", 8, 0.9, 1, -5.3], ["wasp", 6, 0.7, 0, 1.5], ["nave_normal", 3, 0.9, 1, 1.5], ["dart_verde", 1, 0.5, 0, 0.0]]},
+	{"health": 2.3, "groups": [["nave_normal", 12, 0.5, 0, -4.5], ["nave_normal", 12, 0.5, 1, 2.0], ["wasp", 8, 0.5, 0, -2.5],
+			["nave_normal", 6, 0.8, 1, 1.5], ["dart_rojo", 2, 0.4, 0, 0.0]]},
+	{"health": 2.0, "groups": [["wasp", 12, 0.6, 0, 2.0], ["dart_hielo", 12, 0.5, 1, 2.0], ["nave_normal", 10, 1.0, 0, 2.0],
+			["wasp", 12, 0.6, 1, 2.0], ["nave_normal", 8, 1.0, 1, 2.0], ["dart_verde", 8, 0.5, 0, 0.0]]},
+	{"health": 3.0, "groups": [["nave_normal", 14, 0.55, 0, -6.15], ["nave_normal", 14, 0.55, 1, 2.0], ["wasp", 14, 0.4, 0, -4.2],
+			["wasp", 8, 0.4, 1, 1.5], ["nave_normal", 3, 0.6, 0, 1.5], ["dart_rojo", 1, 0.4, 1, 0.0]]},
+]
+const LEVEL_2_NUMBER: int = 2
+
 var _enemies: Dictionary[String, EnemyData] = {}
 
 
@@ -97,7 +126,7 @@ func _initialize() -> void:
 	if not EMERGENCY_NAME in OS.get_cmdline_user_args():
 		for i: int in LEVELS.size():
 			var level_number: int = i + 1
-			var waves: Array[WaveData] = _make_level(level_number, LEVELS[i])
+			var waves: Array[WaveData] = _make_level_2() if level_number == LEVEL_2_NUMBER else _make_level(level_number, LEVELS[i])
 			_save_level(level_number, waves)
 	_make_emergency()
 	quit()
@@ -136,6 +165,31 @@ func _make_emergency() -> void:
 		level.turrets = turrets
 	level.waves = waves
 	_save(level, level_path)
+
+
+# Oleadas del nivel 2 a partir de la tabla LEVEL_2.
+func _make_level_2() -> Array[WaveData]:
+	var waves: Array[WaveData] = []
+	for k: int in LEVEL_2.size():
+		var path: String = _wave_path(LEVEL_2_NUMBER, k)
+		var wave: WaveData = load(path) if ResourceLoader.exists(path) else WaveData.new()
+		var groups: Array[SpawnGroup] = []
+		var reward: int = 0
+		for row: Array in LEVEL_2[k]["groups"]:
+			var group: SpawnGroup = SpawnGroup.new()
+			group.enemy_data = _enemy(row[0])
+			group.count = row[1]
+			group.spacing = row[2]
+			group.path_index = row[3]
+			group.pause_after = row[4]
+			groups.append(group)
+			reward += group.enemy_data.reward * group.count
+		wave.groups = groups
+		wave.health_multiplier = LEVEL_2[k]["health"]
+		_save(wave, path)
+		waves.append(load(path) as WaveData)
+		print("Nivel 2, oleada %d: %d naves, %d €, vida x%.2f" % [k + 1, wave.get_entries().size(), reward, wave.health_multiplier])
+	return waves
 
 
 func _make_level(level_number: int, table: Dictionary) -> Array[WaveData]:
