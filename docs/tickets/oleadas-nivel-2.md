@@ -4,27 +4,23 @@ Creador: Renzo
 Responsable: Renzo
 Estado: aceptada
 Prioridad: media
-Modelo recomendado: sonnet
+Modelo recomendado: opus
 Esfuerzo recomendado: high
 
 ## Por qué
 El nivel 2 es demasiado fácil: el generador sube todas las oleadas igual (ratio "construyendo" de 0,78 a 0,73, ver niveles.md › "Dificultad frente a dinero") y no hay ninguna oleada que ponga a prueba ni ninguna de respiro. Otros tower defense (Kingdom Rush, Plants vs Zombies) hacen las oleadas a mano en dientes de sierra: presentan la nave nueva sola, aprietan, dan un respiro y vuelven a apretar más alto, con una oleada final claramente más dura. Es el primer nivel de una serie: luego se hará lo mismo con el 3, el 4, etc.
 
 ## Qué hay que hacer
-- En `scripts/tools/make_waves.gd`, que el nivel 2 salga de una tabla escrita a mano (como `EMERGENCY`), no de `LEVELS`: por oleada, `health` y grupos `[nave, cuántas, separación, camino, pausa después]` (pausa negativa = solapa con el siguiente grupo, para usar los dos caminos a la vez). El resto de niveles sigue con el generador.
-- **No cambiar el dinero:** ni `starting_money`, ni recompensas, ni torretas, ni `PERFECT_WAVE_BONUS`. La suma de `reward` de cada oleada debe quedar cerca de la actual (230 × 1,13^(K-1): 230, 260, 294, 332, 375, 424, 479, 541, 611, 691), ±10 %.
-- Forma de las 10 oleadas (las naves son las de ahora: Nave normal la protagonista; Darts y Wasps de apoyo):
-  1. y 2. **Presentación**: la Nave normal sola por un camino, sin prisas, con algún grupo de Darts.
-  3. **Respiro**: Darts y Wasps, para ahorrar y comprar la primera Minigun.
-  4. Sube: Naves normales por los dos caminos, una detrás de otra.
-  5. **Primer pico**: Naves normales por los dos caminos a la vez (solapadas), para obligar a cubrir los dos.
-  6. **Respiro**.
-  7. Sube, mezclando todo.
-  8. **Pico fuerte**: un grupo compacto de Naves normales (separación corta).
-  9. **Respiro corto**.
-  10. **Final**: la más dura con diferencia, por los dos caminos a la vez.
-- Vida (`health`) también en dientes de sierra: baja algo en los respiros y llega a cerca de ×3 en la última (ahora ×2,5).
-- Regenerar las oleadas del nivel 2 (`level_2*.tres`, conservando sus uid) y actualizar la estimación del nivel 2 en la tabla de "Dificultad frente a dinero" si cambia.
+**Se parte de la rama `claude/oleadas-nivel-2-45cb2c`** (commit `34af0c9`): ya tiene la tabla `LEVEL_2` en `make_waves.gd`, las oleadas regeneradas y el dinero cuadrado. Renzo la probó y no le convence; hay que rehacerla con esto:
+
+- **No cambiar el dinero:** ni `starting_money`, ni recompensas, ni torretas, ni `PERFECT_WAVE_BONUS`. La suma de `reward` de cada oleada sigue cerca de la de ahora (230, 260, 294, 332, 375, 424, 479, 541, 611, 691), ±10 %.
+- **Oleada 1:** toda por el camino de la izquierda (`path_index` 0, el que sube por la columna 5).
+- **Oleada 2:** repartida entre los dos caminos.
+- **Más fácil al principio:** las primeras oleadas tienen que poder pasarse con lo que da el dinero inicial (500 €) sin apurar. Bajar `health` y separar más las naves al principio.
+- **Que no salgan en fila iguales al final:** ahora las últimas oleadas son filas largas de la misma nave (12-14 Naves normales seguidas). Mezclar dentro de cada oleada: grupos más cortos (3-6), tipos alternados, naves rápidas (Darts/Wasps) intercaladas con las lentas y algún grupo "escolta" (una Nave normal con Darts alrededor), como en Kingdom Rush o Bloons, donde las oleadas mezclan tipos y ritmos en vez de una fila larga.
+- Mantener la forma en dientes de sierra (presentación, respiros en 3, 6 y 9, picos en 5 y 8, final la más dura), pero con una subida que se pueda pasar.
+- **Probar mucho y que sea pasable:** además del `probador`, hacer una comprobación numérica por oleada (vida total con `health` frente al daño que se puede montar con el dinero acumulado, ver niveles.md › "Dificultad frente a dinero"), apuntar la tabla en el resumen y ajustar hasta que todas las oleadas sean pasables jugando normal y ninguna dé un salto brusco. Actualizar la fila del nivel 2 de esa tabla en niveles.md.
+- Regenerar `level_2*.tres` conservando sus uid. El resto de niveles no cambia.
 
 ## Qué leer
 - docs/design/niveles.md › "Datos de nivel", "Generador de oleadas" y "Dificultad frente a dinero"
