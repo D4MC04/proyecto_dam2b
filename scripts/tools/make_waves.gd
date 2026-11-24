@@ -1,9 +1,10 @@
 extends SceneTree
-## Genera las oleadas de todos los niveles a partir de la tabla LEVELS y las enlaza en su nivel.
+## Escribe las oleadas de los niveles hechos a mano (HAND_LEVELS) y las enlaza en su nivel.
 ##
 ## Uso: godot --headless --path . -s scripts/tools/make_waves.gd [-- emergency]
-## Con "emergency" solo genera el nivel de emergencia (el nivel de prueba del tutorial); sin argumentos, todo.
-## El nivel 2 no sale del generador: sus oleadas se escriben a mano en LEVEL_2.
+## Con "emergency" solo genera el nivel de emergencia (el nivel de prueba del tutorial); sin argumentos, los niveles a mano y el de emergencia.
+## Solo reescribe los niveles de HAND_LEVELS (1, 2 y 3: tablas a mano LEVEL_1, LEVEL_2 y LEVEL_3). El generador (LEVELS, niveles 4-9)
+## sigue aquí de base pero no se lanza: los .tres de esos niveles no se tocan.
 ##
 ## Escribe resources/wave_data/level_N.tres (oleada 1) y level_N_K.tres (oleada K). Si el archivo
 ## ya existe se carga y se rellena, así conserva su uid. Después pone la lista de oleadas en
@@ -47,7 +48,7 @@ const MAX_GROUP: int = 6
 ## elevada a esto (más de 1: sube poco al principio y mucho al final).
 const HEALTH_CURVE: float = 1.4
 
-## Por nivel: oleadas, caminos del mapa, presupuesto de la primera oleada, crecimiento por oleada,
+## (Las entradas de los niveles 1-3 no se leen: salen de LEVEL_1-3.) Por nivel: oleadas, caminos del mapa, presupuesto de la primera oleada, crecimiento por oleada,
 ## separación inicial entre naves (s), multiplicador de vida de la primera y de la última oleada
 ## (`health`, la recompensa no cambia con él), naves nuevas del nivel, naves de niveles anteriores
 ## (de las más fáciles a las más duras: se van sumando por ese orden) y si sale la Nodriza.
@@ -91,6 +92,20 @@ const EMERGENCY_MAP: String = "res://scenes/maps/levels/Emergency.tscn"
 const EMERGENCY_MONEY: int = 300
 const EMERGENCY_TURRET: String = "res://resources/turret_data/turret.tres"
 
+## Nivel 1, copiado tal cual de sus .tres (mismo formato que LEVEL_2). Las oleadas 1-5 son grupos de 5 Darts de cada color, Wasps y
+## Naves normales sin separar ni camino propios (valores por defecto de SpawnGroup); de la 6 a la 10 cada tramo es su propio grupo.
+const LEVEL_1: Array[Dictionary] = [
+	{"health": 1.0, "groups": [["dart_rojo", 5, 0.5, 0, 2.5], ["dart_morado", 5, 0.5, 0, 2.5], ["dart_verde", 5, 0.5, 0, 2.5], ["dart_hielo", 5, 0.5, 0, 0.0]]},
+	{"health": 1.0, "groups": [["dart_rojo", 5, 0.5, 0, 2.5], ["dart_morado", 5, 0.5, 0, 2.5], ["dart_verde", 5, 0.5, 0, 2.5], ["dart_hielo", 5, 0.5, 0, 2.5], ["wasp", 5, 0.5, 0, 0.0]]},
+	{"health": 1.0, "groups": [["nave_normal", 3, 0.5, 0, 2.5], ["wasp", 5, 0.5, 0, 0.0]]},
+	{"health": 1.0, "groups": [["nave_normal", 3, 0.5, 0, 2.5], ["dart_rojo", 5, 0.5, 0, 2.5], ["dart_morado", 5, 0.5, 0, 2.5], ["dart_verde", 5, 0.5, 0, 2.5], ["dart_hielo", 5, 0.5, 0, 2.5], ["wasp", 5, 0.5, 0, 0.0]]},
+	{"health": 1.0, "groups": [["nave_normal", 3, 0.5, 0, 2.5], ["wasp", 5, 0.5, 0, 2.5], ["dart_rojo", 5, 0.5, 0, 2.5], ["dart_morado", 5, 0.5, 0, 2.5], ["nave_normal", 3, 0.5, 0, 2.5], ["dart_verde", 5, 0.5, 0, 2.5], ["dart_hielo", 5, 0.5, 0, 0.0]]},
+	{"health": 1.85, "groups": [["dart_rojo", 1, 0.5, 0, 0.4], ["dart_verde", 1, 0.5, 0, 0.3], ["dart_hielo", 2, 0.4, 0, 0.4], ["dart_rojo", 1, 0.5, 0, 0.4], ["dart_hielo", 1, 0.5, 0, 1.5], ["wasp", 5, 0.63, 0, 1.58], ["dart_verde", 1, 0.5, 0, 0.4], ["dart_morado", 1, 0.5, 0, 3.0]]},
+	{"health": 2.06, "groups": [["wasp", 5, 0.57, 0, 1.42], ["dart_rojo", 1, 0.5, 0, 0.3], ["dart_morado", 1, 0.5, 0, 0.4], ["dart_hielo", 1, 0.5, 0, 0.3], ["dart_verde", 1, 0.5, 0, 0.4], ["dart_hielo", 1, 0.5, 0, 0.3], ["dart_morado", 1, 0.5, 0, 1.4], ["wasp", 3, 0.6, 0, 3.0]]},
+	{"health": 2.3, "groups": [["wasp", 6, 0.52, 0, 1.3], ["dart_hielo", 1, 0.5, 0, 0.3], ["dart_verde", 1, 0.5, 0, 0.3], ["dart_rojo", 1, 0.5, 0, 0.3], ["dart_morado", 1, 0.5, 0, 0.3], ["dart_hielo", 1, 0.5, 0, 0.3], ["dart_rojo", 1, 0.5, 0, 1.3], ["wasp", 3, 0.55, 0, 3.0]]},
+	{"health": 2.54, "groups": [["dart_hielo", 1, 0.5, 0, 0.3], ["dart_morado", 1, 0.5, 0, 0.3], ["dart_verde", 1, 0.5, 0, 0.2], ["dart_morado", 2, 0.3, 0, 0.3], ["dart_rojo", 1, 0.5, 0, 1.2], ["wasp", 6, 0.46, 0, 1.2], ["dart_rojo", 1, 0.5, 0, 0.3], ["dart_hielo", 2, 0.3, 0, 0.3], ["dart_rojo", 1, 0.5, 0, 0.2], ["dart_verde", 1, 0.5, 0, 0.3], ["dart_morado", 1, 0.5, 0, 1.2], ["wasp", 1, 0.5, 0, 3.0]]},
+	{"health": 2.8, "groups": [["dart_morado", 4, 0.27, 0, 0.19], ["dart_hielo", 1, 0.5, 0, 0.3], ["dart_rojo", 1, 0.5, 0, 1.1], ["wasp", 6, 0.42, 0, 1.1], ["dart_verde", 1, 0.5, 0, 0.2], ["dart_rojo", 1, 0.5, 0, 0.3], ["dart_verde", 1, 0.5, 0, 0.2], ["dart_morado", 1, 0.5, 0, 0.3], ["dart_hielo", 2, 0.2, 0, 1.1], ["wasp", 2, 0.4, 0, 3.0]]},
+]
 ## Nivel 2, escrito a mano en dientes de sierra (presentación, picos y respiros, final duro). Por oleada: multiplicador de vida
 ## y grupos [nave, cuántas, separación, camino, pausa después]; pausa negativa = el siguiente grupo sale antes de que acabe este
 ## (solape entre caminos). La suma de recompensas sigue la del generador (230 × 1,13^(K-1), ±10 %).
@@ -139,17 +154,58 @@ const LEVEL_2: Array[Dictionary] = [
 			["dart_morado", 3, 0.4, 1, -0.3], ["nave_normal", 5, 0.8, 0, 0.8], ["wasp", 5, 0.45, 1, -1.0], ["dart_rojo", 2, 0.4, 0, 0.4],
 			["nave_normal", 1, 0.0, 0, 0.4], ["dart_rojo", 2, 0.4, 0, 0.0]]},
 ]
-const LEVEL_2_NUMBER: int = 2
+## Nivel 3, escrito a mano como el 2 (mismo formato). La Nave agresiva es la protagonista; Darts, Wasps y Naves normales la
+## acompañan. La suma de recompensas sigue la del generador (330 × 1,125^(K-1), ±5 %). Camino 0 = rama de arriba, 1 = la de abajo
+## (entran juntas arriba a la derecha). La 1 va entera por el camino 0 y presenta Naves agresivas sueltas entre naves fáciles;
+## la 2 se reparte entre los dos. Escoltas con una Nave agresiva en medio. Picos: 5, 8 y 10 (Naves agresivas por las dos ramas a
+## la vez). Respiros: 3, 6 y 9 (naves más separadas, no menos vida).
+const LEVEL_3: Array[Dictionary] = [
+	{"health": 0.95, "groups": [["dart_rojo", 4, 1.0, 0, 2.5], ["wasp", 3, 1.2, 0, 2.5], ["nave_agresiva", 1, 0.0, 0, 3.0],
+			["dart_verde", 4, 1.0, 0, 2.5], ["nave_normal", 3, 1.6, 0, 2.5], ["nave_agresiva", 1, 0.0, 0, 3.0], ["wasp", 3, 1.2, 0, 2.5],
+			["dart_hielo", 3, 1.0, 0, 2.5], ["nave_agresiva", 1, 0.0, 0, 3.0], ["nave_normal", 2, 1.6, 0, 0.0]]},
+	{"health": 1.05, "groups": [["nave_agresiva", 1, 0.0, 0, 1.0], ["dart_rojo", 4, 0.9, 1, 2.0], ["nave_normal", 3, 1.6, 1, -1.5],
+			["wasp", 3, 1.1, 0, 2.0], ["dart_verde", 2, 0.5, 0, 0.5], ["nave_agresiva", 1, 0.0, 0, 0.5], ["dart_verde", 2, 0.5, 0, 2.0],
+			["nave_normal", 3, 1.6, 1, 2.0], ["wasp", 3, 1.1, 0, -1.0], ["nave_agresiva", 1, 0.0, 1, 2.0], ["dart_morado", 4, 0.9, 0, 0.0]]},
+	{"health": 1.5, "groups": [["dart_rojo", 5, 0.8, 0, 2.0], ["nave_agresiva", 2, 2.2, 1, 2.5], ["wasp", 4, 1.0, 0, 2.0],
+			["nave_normal", 3, 1.5, 1, 2.5], ["dart_verde", 5, 0.8, 0, 2.0], ["nave_agresiva", 2, 2.2, 0, 2.5], ["wasp", 4, 1.0, 1, 2.0],
+			["dart_hielo", 5, 0.8, 0, 0.0]]},
+	{"health": 1.7, "groups": [["nave_agresiva", 2, 2.0, 0, -2.0], ["dart_rojo", 5, 0.7, 1, 2.0], ["wasp", 4, 0.9, 0, -1.5],
+			["nave_normal", 3, 1.3, 1, 2.0], ["dart_verde", 2, 0.5, 0, 0.5], ["nave_agresiva", 1, 0.0, 0, 0.5], ["dart_verde", 2, 0.5, 0, -1.0],
+			["wasp", 4, 0.9, 1, 2.0], ["nave_agresiva", 2, 2.0, 1, -2.0], ["wasp", 3, 0.9, 0, 2.0], ["nave_normal", 2, 1.3, 0, 0.0]]},
+	{"health": 2.1, "groups": [["nave_agresiva", 3, 1.6, 0, -3.2], ["nave_agresiva", 3, 1.6, 1, 1.5], ["wasp", 5, 0.7, 0, -2.0],
+			["dart_rojo", 3, 0.4, 1, 0.4], ["nave_normal", 1, 0.0, 1, 0.4], ["dart_rojo", 3, 0.4, 1, 1.5], ["nave_normal", 3, 1.0, 0, -1.0],
+			["wasp", 4, 0.7, 1, 1.5], ["dart_verde", 3, 0.4, 0, 0.4], ["nave_normal", 1, 0.0, 0, 0.4], ["dart_verde", 3, 0.4, 0, 0.0]]},
+	{"health": 2.6, "groups": [["dart_rojo", 6, 0.6, 0, -1.0], ["wasp", 5, 0.8, 1, 1.2], ["nave_agresiva", 2, 1.8, 0, 1.5],
+			["nave_normal", 3, 1.3, 1, 1.2], ["dart_hielo", 6, 0.6, 0, -1.0], ["wasp", 5, 0.8, 1, 1.2], ["dart_morado", 2, 0.5, 1, 0.5],
+			["nave_agresiva", 1, 0.0, 1, 0.5], ["dart_morado", 2, 0.5, 1, 1.5], ["nave_agresiva", 2, 1.8, 0, 1.5], ["nave_normal", 3, 1.3, 1, 1.2],
+			["dart_verde", 6, 0.6, 0, -1.0], ["wasp", 4, 0.8, 1, 0.0]]},
+	{"health": 2.7, "groups": [["wasp", 4, 0.6, 0, -1.0], ["nave_agresiva", 3, 1.4, 1, 1.2], ["dart_rojo", 2, 0.4, 0, 0.4],
+			["nave_agresiva", 1, 0.0, 0, 0.4], ["dart_rojo", 2, 0.4, 0, -0.5], ["dart_verde", 5, 0.5, 1, 1.2], ["nave_normal", 4, 1.0, 0, -2.0],
+			["wasp", 5, 0.6, 1, 1.2], ["nave_agresiva", 3, 1.4, 0, -1.5], ["dart_hielo", 2, 0.4, 1, 0.4], ["nave_normal", 1, 0.0, 1, 0.4],
+			["dart_hielo", 2, 0.4, 1, 1.2], ["nave_normal", 3, 1.0, 0, -1.0], ["wasp", 5, 0.6, 1, 0.0]]},
+	{"health": 3.0, "groups": [["nave_agresiva", 3, 1.3, 0, -2.6], ["nave_agresiva", 3, 1.3, 1, 1.0], ["wasp", 5, 0.5, 0, -1.5],
+			["dart_rojo", 3, 0.4, 1, 0.4], ["nave_agresiva", 1, 0.0, 1, 0.4], ["dart_rojo", 3, 0.4, 1, -0.5], ["nave_normal", 4, 0.9, 1, 1.0],
+			["dart_verde", 6, 0.4, 0, -1.5], ["wasp", 5, 0.5, 1, 1.0], ["nave_agresiva", 2, 1.3, 0, -1.3], ["nave_agresiva", 2, 1.3, 1, 0.0]]},
+	{"health": 3.4, "groups": [["dart_rojo", 6, 0.5, 0, -1.0], ["wasp", 6, 0.6, 1, 0.8], ["nave_agresiva", 3, 1.5, 0, 1.0],
+			["nave_normal", 4, 1.1, 1, -1.0], ["dart_verde", 6, 0.5, 0, 0.8], ["dart_morado", 2, 0.5, 1, 0.5], ["nave_agresiva", 1, 0.0, 1, 0.5],
+			["dart_morado", 2, 0.5, 1, 0.8], ["wasp", 6, 0.6, 0, -1.0], ["nave_agresiva", 3, 1.5, 1, 1.0], ["nave_normal", 4, 1.1, 0, -1.0],
+			["dart_hielo", 6, 0.5, 1, 0.8], ["nave_agresiva", 2, 1.5, 0, 1.0], ["wasp", 4, 0.6, 1, 0.0]]},
+	{"health": 4.0, "groups": [["nave_agresiva", 4, 1.1, 0, -3.3], ["nave_agresiva", 4, 1.1, 1, 0.8], ["dart_rojo", 3, 0.4, 0, 0.4],
+			["nave_agresiva", 1, 0.0, 0, 0.4], ["dart_rojo", 3, 0.4, 0, -0.3], ["wasp", 6, 0.45, 1, 0.8], ["nave_normal", 4, 0.8, 0, -1.6],
+			["dart_verde", 3, 0.4, 1, 0.4], ["nave_agresiva", 1, 0.0, 1, 0.4], ["dart_verde", 3, 0.4, 1, 0.8], ["wasp", 6, 0.45, 0, -1.0],
+			["nave_agresiva", 3, 1.1, 1, -2.2], ["nave_normal", 4, 0.8, 0, 0.0]]},
+]
+## Niveles con las oleadas escritas a mano: nivel → tabla.
+const HAND_LEVELS: Dictionary[int, Array] = {1: LEVEL_1, 2: LEVEL_2, 3: LEVEL_3}
 
 var _enemies: Dictionary[String, EnemyData] = {}
 
 
 func _initialize() -> void:
 	if not EMERGENCY_NAME in OS.get_cmdline_user_args():
-		for i: int in LEVELS.size():
-			var level_number: int = i + 1
-			var waves: Array[WaveData] = _make_level_2() if level_number == LEVEL_2_NUMBER else _make_level(level_number, LEVELS[i])
-			_save_level(level_number, waves)
+		# Solo los niveles a mano: los de LEVELS (el generador) no se escriben hasta pasarlos a HAND_LEVELS.
+		for level_number: int in HAND_LEVELS:
+			_save_level(level_number, _make_hand_level(level_number))
 	_make_emergency()
 	quit()
 
@@ -189,15 +245,16 @@ func _make_emergency() -> void:
 	_save(level, level_path)
 
 
-# Oleadas del nivel 2 a partir de la tabla LEVEL_2.
-func _make_level_2() -> Array[WaveData]:
+# Oleadas de un nivel escrito a mano, a partir de su tabla de HAND_LEVELS.
+func _make_hand_level(level_number: int) -> Array[WaveData]:
+	var table: Array = HAND_LEVELS[level_number]
 	var waves: Array[WaveData] = []
-	for k: int in LEVEL_2.size():
-		var path: String = _wave_path(LEVEL_2_NUMBER, k)
+	for k: int in table.size():
+		var path: String = _wave_path(level_number, k)
 		var wave: WaveData = load(path) if ResourceLoader.exists(path) else WaveData.new()
 		var groups: Array[SpawnGroup] = []
 		var reward: int = 0
-		for row: Array in LEVEL_2[k]["groups"]:
+		for row: Array in table[k]["groups"]:
 			var group: SpawnGroup = SpawnGroup.new()
 			group.enemy_data = _enemy(row[0])
 			group.count = row[1]
@@ -207,10 +264,10 @@ func _make_level_2() -> Array[WaveData]:
 			groups.append(group)
 			reward += group.enemy_data.reward * group.count
 		wave.groups = groups
-		wave.health_multiplier = LEVEL_2[k]["health"]
+		wave.health_multiplier = table[k]["health"]
 		_save(wave, path)
 		waves.append(load(path) as WaveData)
-		print("Nivel 2, oleada %d: %d naves, %d €, vida x%.2f" % [k + 1, wave.get_entries().size(), reward, wave.health_multiplier])
+		print("Nivel %d, oleada %d: %d naves, %d €, vida x%.2f" % [level_number, k + 1, wave.get_entries().size(), reward, wave.health_multiplier])
 	return waves
 
 
