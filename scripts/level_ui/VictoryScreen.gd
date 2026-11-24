@@ -38,8 +38,7 @@ const STAR_SCAN_SPEED: float = 10.0
 # Parpadeo suave del holograma: cuánto baja su brillo y a qué ritmo.
 const STAR_FLICKER_DEPTH: float = 0.08
 const STAR_FLICKER_RATE: float = 9.0
-# Salto de una estrella al encenderse, en píxeles, y duración total del encendido.
-const STAR_JUMP_PX: float = 8.0
+# Duración total del encendido de una estrella.
 const STAR_LIGHT_TIME: float = 0.4
 # Tramo inicial del encendido en que la estrella se ve toda blanca.
 const STAR_FLASH_PORTION: float = 0.25
@@ -105,16 +104,13 @@ func _draw_stars() -> void:
 	_draw_star(2, Vector2(left + side_width + STAR_GAP * 2 + center_width + side_width / 2.0, STAR_SIDE_DROP), STAR_RADIUS)
 
 # Una estrella con su punta de arriba en `top_center`: apagada si no se ha ganado, blanca al empezar
-# a encenderse y después un holograma ámbar, con un salto al encenderse.
+# a encenderse y después un holograma ámbar.
 func _draw_star(index: int, top_center: Vector2, radius: float) -> void:
 	var earned: bool = index < _stars
 	var progress: float = _star_light[index] if earned else 0.0
 	var flash: bool = earned and progress > 0.0 and progress < STAR_FLASH_PORTION
 	var lit: bool = earned and progress >= STAR_FLASH_PORTION
-	var jump: float = 0.0
-	if earned and progress > 0.0 and progress < 1.0:
-		jump = roundf(sin(progress * PI) * STAR_JUMP_PX)
-	var center_point: Vector2 = Vector2(roundf(top_center.x), roundf(top_center.y + radius - jump))
+	var center_point: Vector2 = Vector2(roundf(top_center.x), roundf(top_center.y + radius))
 	# Vértices de la estrella: punta, vértice de dentro, punta...
 	var points: PackedVector2Array = PackedVector2Array()
 	for point: int in 5:
