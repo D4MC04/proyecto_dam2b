@@ -115,36 +115,36 @@ TURRET_TURRET_FUSION_NAME,Cañón cuádruple,Quad Cannon
 TURRET_TURRET_FUSION_DESC,Cuatro cañones y una ráfaga muy rápida. Fusión de dos Cañones dobles.,Four barrels and a very fast burst. Fusion of two Twin Cannons.
 TURRET_TURRET_LEVEL3_NAME,Cañón cuádruple III,Quad Cannon III
 TURRET_TURRET_LEVEL3_DESC,Cuatro cañones y una ráfaga muy rápida. Fusión de dos Cañones dobles.,Four barrels and a very fast burst. Fusion of two Twin Cannons.
-ENEMY_ACORAZADO_NAME,Acorazado,Dreadnought
-ENEMY_ACORAZADO_DESC,Blindaje pesado. Muy lento y difícil de abatir.,Heavy armor. Very slow and hard to bring down.
-ENEMY_ARIETE_NAME,Ariete,Ram
-ENEMY_ARIETE_DESC,Nave de embestida con casco reforzado.,Ramming ship with a reinforced hull.
-ENEMY_DART_HIELO_NAME,Dart de hielo,Ice Dart
-ENEMY_DART_HIELO_DESC,Caza ligero de casco azul. Frágil y veloz.,Light fighter with a blue hull. Fragile and fast.
-ENEMY_DART_MORADO_NAME,Dart morado,Purple Dart
-ENEMY_DART_MORADO_DESC,Caza ligero de casco morado. Frágil y veloz.,Light fighter with a purple hull. Fragile and fast.
-ENEMY_DART_ROJO_NAME,Dart rojo,Red Dart
-ENEMY_DART_ROJO_DESC,"Caza ligero y rápido. Frágil, pero llega en enjambres.","Fast light fighter. Fragile, but comes in swarms."
-ENEMY_DART_VERDE_NAME,Dart verde,Green Dart
-ENEMY_DART_VERDE_DESC,Caza ligero de casco verde. Frágil y veloz.,Light fighter with a green hull. Fragile and fast.
+ENEMY_ACORAZADO_NAME,Juggernaut,Juggernaut
+ENEMY_ACORAZADO_DESC,El tanque: muy lento y con muchísimo blindaje.,The tank: very slow and heavily armored.
+ENEMY_ARIETE_NAME,Ram,Ram
+ENEMY_ARIETE_DESC,"Lenta, pero si llega a la estación le hace un daño enorme.","Slow, but if it reaches the station it does huge damage."
+ENEMY_CRUISER_NAME,Cruiser,Cruiser
+ENEMY_CRUISER_DESC,Nave de combate pesada. Aguanta el doble que un Corsair a la misma velocidad.,Heavy combat ship. Takes twice what a Corsair can at the same speed.
+ENEMY_DART_ROJO_NAME,Dart,Dart
+ENEMY_DART_ROJO_DESC,"Caza de enjambre: frágil y rápido, llega en grupos grandes.","Swarm fighter: fragile and fast, comes in big groups."
 ENEMY_DIVISORA_NAME,Divisora,Splitter
 ENEMY_DIVISORA_DESC,Nodriza pequeña de tres módulos. Al caer se parte y cada módulo sigue solo.,Small three-module mothership. When destroyed it breaks apart and each module carries on alone.
 ENEMY_ESPECTRO_NAME,Espectro,Specter
 ENEMY_ESPECTRO_DESC,"Caza furtivo que se camufla a ratos: mientras tanto las torretas no lo apuntan, pero los ataques de área sí le dan.","Stealth fighter that cloaks from time to time: while cloaked turrets can't target it, but area attacks still hit it."
 ENEMY_FRAGMENTO_DIVISORA_NAME,Fragmento de Divisora,Splitter Fragment
 ENEMY_FRAGMENTO_DIVISORA_DESC,Módulo suelto de una Divisora. Sigue adelante con su propio motor.,Loose module of a Splitter. Keeps going with its own engine.
-ENEMY_NAVE_AGRESIVA_NAME,Nave agresiva,Aggressive Ship
-ENEMY_NAVE_AGRESIVA_DESC,Nave de combate más blindada y rápida que la normal.,Combat ship with more armor and speed than the normal one.
-ENEMY_NAVE_NORMAL_NAME,Nave normal,Normal Ship
-ENEMY_NAVE_NORMAL_DESC,Nave de transporte lenta y resistente.,"Slow, sturdy transport ship."
-ENEMY_NODRIZA_NAME,Nodriza,Mothership
-ENEMY_NODRIZA_DESC,Gran nave nodriza. Aguanta muchísimo y paga bien.,Huge mothership. Takes a beating and pays well.
+ENEMY_NAVE_AGRESIVA_NAME,Frigate,Frigate
+ENEMY_NAVE_AGRESIVA_DESC,Un Corsair mejorado: más blindaje y más motor.,An upgraded Corsair: more armor and more engine.
+ENEMY_NAVE_NORMAL_NAME,Corsair,Corsair
+ENEMY_NAVE_NORMAL_DESC,"La nave de combate estándar. Ni rápida ni lenta, ni frágil ni dura.","The standard combat ship. Neither fast nor slow, neither fragile nor tough."
+ENEMY_NODRIZA_NAME,Mothership,Mothership
+ENEMY_NODRIZA_DESC,Nave enorme que solo sale en los sectores más duros. Aguanta muchísimo y hace mucho daño a la estación.,Huge ship that only shows up in the hardest sectors. Takes a beating and hits the station hard.
 ENEMY_REPARADORA_NAME,Reparadora,Repairer
 ENEMY_REPARADORA_DESC,Nave de apoyo. Cada 3 s repara a las naves cercanas.,Support ship. Every 3 s it repairs nearby ships.
 ENEMY_SABOTEADORA_NAME,Saboteadora,Saboteur
 ENEMY_SABOTEADORA_DESC,Nave de guerra electrónica. Sus pulsos EMP apagan las torretas cercanas.,Electronic warfare ship. Its EMP pulses shut down nearby turrets.
+ENEMY_STREAK_NAME,Streak,Streak
+ENEMY_STREAK_DESC,"La nave más rápida. Va sola o en pareja, no en enjambre.","The fastest ship. Flies alone or in pairs, never in swarms."
+ENEMY_VANGUARD_NAME,Vanguard,Vanguard
+ENEMY_VANGUARD_DESC,Rápida y dura a la vez: abre paso en los sectores más peligrosos.,Fast and tough at once: it leads the way in the most dangerous sectors.
 ENEMY_WASP_NAME,Wasp,Wasp
-ENEMY_WASP_DESC,Insecto mecánico ágil con más blindaje que un Dart.,Agile mechanical insect with more armor than a Dart.
+ENEMY_WASP_DESC,Rápida y algo más dura que un Dart.,"Fast, and a bit tougher than a Dart."
 AWARD_PERFECT,PERFECTA,PERFECT
 HUD_LEVEL_N,SECTOR %d,SECTOR %d
 HUD_WAVE_N_OF,OLEADA %d/%d,WAVE %d/%d
@@ -172,7 +172,7 @@ SLOT_SAVED,GUARDADO,SAVED
 SLOT_PLAYED,JUGADO,PLAYED
 INTRO_CALL_1,"¡Comandante, ¿me recibes? Aquí NOVA, desde la sala de control!","Commander, do you read me? NOVA here, from the control room!"
 INTRO_CALL_2,Una flota enemiga se acerca cada vez más a la estación.,An enemy fleet is getting closer and closer to the station.
-INTRO_CALL_3,"No aguantaremos solos. Tú y tu escuadrón sois nuestra única esperanza.","We can't hold out alone. You and your squadron are our only hope."
+INTRO_CALL_3,No aguantaremos solos. Tú y tu escuadrón sois nuestra única esperanza.,We can't hold out alone. You and your squadron are our only hope.
 INTRO_CALL_4,"¡Salta ya, comandante! ¡Te necesitamos aquí!","Jump now, commander! We need you here!"
 TUTORIAL_STATION,"¡Comandante, has llegado! Gracias por responder tan rápido.|Todavía estamos a tiempo, pero no podemos perder ni un segundo.","Commander, you made it! Thanks for answering so fast.|We're still in time, but we can't waste a second."
 TUTORIAL_STATION_BASE,"Si sus naves alcanzan la estación, sufriremos graves daños.","If their ships reach the station, we'll take heavy damage."
@@ -191,7 +191,7 @@ OFFICE_TUTORIAL_WELCOME_WON,"¡Lo lograste, comandante! La estación sigue en pi
 OFFICE_TUTORIAL_WELCOME,"Comandante, aquí NOVA. Ya estás de vuelta en tu oficina.|Te enseño cómo funciona, será solo un momento.","Commander, NOVA here. You're back in your office.|Let me show you how it works, it'll only take a moment."
 OFFICE_TUTORIAL_TURN,Lleva el ratón al borde de la pantalla para girar la silla. Mira a uno de los lados.,Move the mouse to the edge of the screen to turn your chair. Look to one side.
 OFFICE_TUTORIAL_TURN_OTHER,"Te queda el otro lado por ver, comandante. Échale un vistazo.","There's still the other side to see, commander. Take a look."
-OFFICE_TUTORIAL_RADAR,"En la mesa de Sectores eliges a qué sector saltar para defenderlo.","On the Sectors table you choose which sector to jump to and defend."
+OFFICE_TUTORIAL_RADAR,En la mesa de Sectores eliges a qué sector saltar para defenderlo.,On the Sectors table you choose which sector to jump to and defend.
 OFFICE_TUTORIAL_OPTIONS,"En esta consola ajustas el sonido, el idioma y la pantalla.","On this console you adjust sound, language and display."
 OFFICE_TUTORIAL_DONE,"Lo demás, explóralo tú. La mesa de Sectores te espera, comandante.","The rest is yours to explore. The Sectors table awaits, commander."
 HUD_EMERGENCY,SECTOR 0,SECTOR 0

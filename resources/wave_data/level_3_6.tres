@@ -2,46 +2,40 @@
 
 [ext_resource type="Script" uid="uid://dclc5suu1kxn3" path="res://scripts/resources/SpawnGroup.gd" id="1_mhi64"]
 [ext_resource type="Resource" uid="uid://ddbvifh0ad88b" path="res://resources/enemy_data/nave_agresiva.tres" id="2_b3nog"]
-[ext_resource type="Resource" uid="uid://d2xfg8qmcw3va" path="res://resources/enemy_data/nave_normal.tres" id="3_symko"]
 [ext_resource type="Resource" uid="uid://bfiipacu4434d" path="res://resources/enemy_data/wasp.tres" id="4_df3j3"]
+[ext_resource type="Resource" path="res://resources/enemy_data/streak.tres" id="4_mhi64"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="5_037im"]
 
-[sub_resource type="Resource" id="Resource_group1"]
+[sub_resource type="Resource" id="Resource_mhi64"]
 script = ExtResource("1_mhi64")
 enemy_data = ExtResource("2_b3nog")
-count = 4
-spacing = 0.8
-pause_after = 0.5
-path_index = 1
-
-[sub_resource type="Resource" id="Resource_group2"]
-script = ExtResource("1_mhi64")
-enemy_data = ExtResource("4_df3j3")
-count = 5
-spacing = 0.55
-pause_after = 0.6
-
-[sub_resource type="Resource" id="Resource_group3"]
-script = ExtResource("1_mhi64")
-enemy_data = ExtResource("2_b3nog")
-count = 4
-spacing = 0.8
-pause_after = 0.4
-path_index = 1
-
-[sub_resource type="Resource" id="Resource_group4"]
-script = ExtResource("1_mhi64")
-enemy_data = ExtResource("3_symko")
 count = 6
 spacing = 0.48
-pause_after = 0.5
+pause_after = 0.47
 
-[sub_resource type="Resource" id="Resource_group5"]
+[sub_resource type="Resource" id="Resource_b3nog"]
+script = ExtResource("1_mhi64")
+enemy_data = ExtResource("4_df3j3")
+count = 6
+spacing = 0.34
+pause_after = 0.74
+path_index = 1
+
+[sub_resource type="Resource" id="Resource_symko"]
 script = ExtResource("1_mhi64")
 enemy_data = ExtResource("2_b3nog")
+count = 6
+spacing = 0.48
+pause_after = 0.47
+
+[sub_resource type="Resource" id="Resource_df3j3"]
+script = ExtResource("1_mhi64")
+enemy_data = ExtResource("4_mhi64")
+count = 3
+spacing = 0.34
 path_index = 1
 
 [resource]
 script = ExtResource("5_037im")
-health_multiplier = 2.01
-groups = Array[ExtResource("1_mhi64")]([SubResource("Resource_group1"), SubResource("Resource_group2"), SubResource("Resource_group3"), SubResource("Resource_group4"), SubResource("Resource_group5")])
+health_multiplier = 0.86
+groups = Array[ExtResource("1_mhi64")]([SubResource("Resource_mhi64"), SubResource("Resource_b3nog"), SubResource("Resource_symko"), SubResource("Resource_df3j3")])

@@ -2,78 +2,72 @@
 
 [ext_resource type="Script" uid="uid://dclc5suu1kxn3" path="res://scripts/resources/SpawnGroup.gd" id="1_28ir3"]
 [ext_resource type="Resource" path="res://resources/enemy_data/reparadora.tres" id="2_yoa0h"]
-[ext_resource type="Resource" uid="uid://ddbvifh0ad88b" path="res://resources/enemy_data/nave_agresiva.tres" id="3_bqtlh"]
-[ext_resource type="Resource" uid="uid://do4ht7x2audbo" path="res://resources/enemy_data/acorazado.tres" id="4_qmd8j"]
+[ext_resource type="Resource" uid="uid://d2xfg8qmcw3va" path="res://resources/enemy_data/nave_normal.tres" id="3_28ir3"]
+[ext_resource type="Resource" path="res://resources/enemy_data/streak.tres" id="4_yoa0h"]
 [ext_resource type="Resource" uid="uid://dgfq6h7o6qtu8" path="res://resources/enemy_data/ariete.tres" id="5_t1l6l"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="6_vxfe1"]
 
-[sub_resource type="Resource" id="Resource_group1"]
+[sub_resource type="Resource" id="Resource_28ir3"]
 script = ExtResource("1_28ir3")
 enemy_data = ExtResource("2_yoa0h")
-count = 5
-spacing = 0.45
-pause_after = -0.2
+count = 6
+spacing = 0.25
+pause_after = 0.1
 path_index = 2
 
-[sub_resource type="Resource" id="Resource_group2"]
+[sub_resource type="Resource" id="Resource_yoa0h"]
 script = ExtResource("1_28ir3")
-enemy_data = ExtResource("3_bqtlh")
-count = 4
-pause_after = -0.1
-
-[sub_resource type="Resource" id="Resource_group3"]
-script = ExtResource("1_28ir3")
-enemy_data = ExtResource("2_yoa0h")
-count = 5
-spacing = 0.45
-pause_after = -0.2
+enemy_data = ExtResource("3_28ir3")
+count = 6
+spacing = 0.21
+pause_after = 0.23
 path_index = 1
 
-[sub_resource type="Resource" id="Resource_group4"]
+[sub_resource type="Resource" id="Resource_bqtlh"]
 script = ExtResource("1_28ir3")
-enemy_data = ExtResource("4_qmd8j")
-count = 2
-spacing = 0.7
-pause_after = 0.4
+enemy_data = ExtResource("2_yoa0h")
+count = 6
+spacing = 0.25
+pause_after = 0.1
+
+[sub_resource type="Resource" id="Resource_qmd8j"]
+script = ExtResource("1_28ir3")
+enemy_data = ExtResource("4_yoa0h")
+count = 6
+spacing = 0.21
+pause_after = 0.23
 path_index = 2
 
-[sub_resource type="Resource" id="Resource_group5"]
+[sub_resource type="Resource" id="Resource_t1l6l"]
 script = ExtResource("1_28ir3")
 enemy_data = ExtResource("2_yoa0h")
-count = 5
-spacing = 0.45
-pause_after = -0.2
+count = 6
+spacing = 0.25
+pause_after = 0.1
+
+[sub_resource type="Resource" id="Resource_vxfe1"]
+script = ExtResource("1_28ir3")
+enemy_data = ExtResource("3_28ir3")
+count = 6
+spacing = 0.21
+pause_after = 0.23
 path_index = 1
 
-[sub_resource type="Resource" id="Resource_group6"]
+[sub_resource type="Resource" id="Resource_lrfsl"]
+script = ExtResource("1_28ir3")
+enemy_data = ExtResource("2_yoa0h")
+count = 6
+spacing = 0.25
+pause_after = 0.1
+path_index = 2
+
+[sub_resource type="Resource" id="Resource_eamvw"]
 script = ExtResource("1_28ir3")
 enemy_data = ExtResource("5_t1l6l")
 count = 2
-spacing = 0.7
-pause_after = 0.4
-
-[sub_resource type="Resource" id="Resource_group7"]
-script = ExtResource("1_28ir3")
-enemy_data = ExtResource("2_yoa0h")
-count = 5
-spacing = 0.48
-pause_after = -0.32
-path_index = 2
-
-[sub_resource type="Resource" id="Resource_group8"]
-script = ExtResource("1_28ir3")
-enemy_data = ExtResource("3_bqtlh")
-count = 4
-pause_after = 0.0
-
-[sub_resource type="Resource" id="Resource_group9"]
-script = ExtResource("1_28ir3")
-enemy_data = ExtResource("2_yoa0h")
-count = 5
 spacing = 0.45
-path_index = 1
 
 [resource]
 script = ExtResource("6_vxfe1")
-health_multiplier = 3.87
-groups = Array[ExtResource("1_28ir3")]([SubResource("Resource_group1"), SubResource("Resource_group2"), SubResource("Resource_group3"), SubResource("Resource_group4"), SubResource("Resource_group5"), SubResource("Resource_group6"), SubResource("Resource_group7"), SubResource("Resource_group8"), SubResource("Resource_group9")])
+health_multiplier = 1.56
+groups = Array[ExtResource("1_28ir3")]([SubResource("Resource_28ir3"), SubResource("Resource_yoa0h"), SubResource("Resource_bqtlh"), SubResource("Resource_qmd8j"), SubResource("Resource_t1l6l"), SubResource("Resource_vxfe1"), SubResource("Resource_lrfsl"), SubResource("Resource_eamvw")])

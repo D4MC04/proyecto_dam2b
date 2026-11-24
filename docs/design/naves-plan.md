@@ -1,6 +1,6 @@
 # Plan de naves (provisional)
 
-Lista de las 20 naves a las que queremos llegar: 10 base (sin mecánica, se distinguen por sus números) y 10 con mecánica. Es provisional: cada ticket la implementa y, al terminar, pasa su nave a [enemigos.md](enemigos.md). Cuando estén todas, este archivo se borra.
+Lista de las 20 naves a las que queremos llegar: 10 base (sin mecánica, se distinguen por sus números; ya hechas, ver [enemigos.md](enemigos.md)) y 10 con mecánica. Es provisional: cada ticket la implementa y, al terminar, pasa su nave a [enemigos.md](enemigos.md). Cuando estén todas, este archivo se borra.
 
 ## Reglas
 
@@ -9,21 +9,6 @@ Lista de las 20 naves a las que queremos llegar: 10 base (sin mecánica, se dist
 - **Botín** ≈ vida / 5 × √(velocidad) × factor por habilidad (1,2-1,5), redondeado a 5. Es más o menos el 40 % del de antes. Como `make_waves.gd` reparte un presupuesto en botín, al bajar el botín se bajan los presupuestos en la misma proporción para que salgan las mismas naves.
 - **Nichos con escalones**: dentro de un nicho puede haber versiones mejores que otras (la Frigate es un Corsair mejor). Las frágiles no lo compensan todo con velocidad: parte va en que salen muchas.
 - No hay naves pensadas para contrarrestar una torreta concreta, ni torretas para una nave concreta: las respuestas tienen que salir solas de cómo funciona cada cosa.
-
-## Naves base
-
-| Nave | Antes | Vida | Velocidad | Daño a la estación | Botín | Papel |
-|---|---|---|---|---|---|---|
-| Dart | Dart (los 4 colores, iguales) | 25 | 1,5 (90) | 5 | 5 | Enjambre: frágil, rápida, en grupos grandes |
-| Wasp | Wasp | 50 | 1,25 (75) | 10 | 10 | Rápida algo más dura |
-| Streak | nueva | 50 | 1,75 (105) | 10 | 15 | La más rápida; sola o en parejas, no en enjambre |
-| Vanguard | nueva | 150 | 1,5 (90) | 15 | 35 | Rápida y dura: la amenaza rápida de los niveles altos |
-| Corsair | Nave normal | 100 | 1,0 (60) | 15 | 20 | El estándar, la referencia |
-| Frigate | Nave agresiva | 125 | 1,25 (75) | 15 | 30 | Un Corsair mejorado |
-| Cruiser | nueva | 200 | 1,0 (60) | 20 | 40 | Estándar pesado, entre la Frigate y la Ram |
-| Ram | Ariete | 250 | 0,75 (45) | 50 | 45 | Lo que la define es el daño enorme a la estación |
-| Juggernaut | Acorazado | 500 | 0,5 (30) | 25 | 70 | El tanque |
-| Mothership | Nodriza | 750 | 0,75 (45) | 50 | 130 | Miniboss: sin aviso de jefe; como mucho una por oleada, en las últimas oleadas de los niveles altos |
 
 ## Naves con mecánica
 
@@ -53,6 +38,5 @@ Lista de las 20 naves a las que queremos llegar: 10 base (sin mecánica, se dist
 
 ## Tickets
 
-- `naves-base-rediseno`: tabla de naves base (stats, nombres, las 3 nuevas, botín, presupuestos y Mothership miniboss).
 - `mejora-specter`, `mejora-payload`, `mejora-mender`, `mejora-cluster`: cambiar las que ya existen.
 - `nave-magpie`, `nave-lure`, `nave-tug`, `nave-wildfire`, `nave-damper`, `nave-shell`: las nuevas con mecánica.

@@ -7,10 +7,10 @@
 [resource]
 script = ExtResource("1_data")
 name = "ENEMY_ARIETE_NAME"
-hp = 240.0
-speed = 40
-reward = 95
-base_damage = 20
+hp = 250.0
+speed = 45
+reward = 45
+base_damage = 50
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 rotate_sprite = true

@@ -23,11 +23,11 @@ const WAVE_DIR: String = "res://resources/wave_data/"
 const LEVEL_DIR: String = "res://resources/level_data/"
 const ENEMY_DIR: String = "res://resources/enemy_data/"
 
-## "dart" es un Dart de color al azar.
-const DART: String = "dart"
-const DART_COLORS: Array[String] = ["dart_rojo", "dart_verde", "dart_morado", "dart_hielo"]
-## El jefe: solo sale, uno, al final de la última oleada de los niveles que lo tienen en `boss`.
-const BOSS: String = "nodriza"
+const DART: String = "dart_rojo"
+## Miniboss: como mucho una por oleada, desde la oleada `mothership_from` de la tabla (0 = nunca).
+const MOTHERSHIP: String = "nodriza"
+## En qué parte de la oleada sale la Mothership (fracción de sus grupos), entre las demás naves.
+const MOTHERSHIP_SPOT: float = 0.6
 
 ## Cada oleada multiplica la separación entre naves por esto, sin bajar de MIN_GAP.
 const GAP_SHRINK: float = 0.91
@@ -50,27 +50,34 @@ const HEALTH_CURVE: float = 1.4
 ## Por nivel: oleadas, caminos del mapa, presupuesto de la primera oleada, crecimiento por oleada,
 ## separación inicial entre naves (s), multiplicador de vida de la primera y de la última oleada
 ## (`health`, la recompensa no cambia con él), naves nuevas del nivel, naves de niveles anteriores
-## (de las más fáciles a las más duras: se van sumando por ese orden) y si sale la Nodriza.
+## (de las más fáciles a las más duras: se van sumando por ese orden) y desde qué oleada sale la
+## Mothership (`mothership_from`, 0 = nunca).
 const LEVELS: Array[Dictionary] = [
 	{"waves": 10, "paths": 1, "budget": 150.0, "growth": 1.13, "gap": 1.0, "health": Vector2(1.1, 2.8),
-		"new": [DART, "wasp"], "old": [], "boss": false},
-	{"waves": 10, "paths": 2, "budget": 230.0, "growth": 1.13, "gap": 0.95, "health": Vector2(1.2, 2.5),
-		"new": ["nave_normal"], "old": [DART, "wasp"], "boss": false},
-	{"waves": 10, "paths": 2, "budget": 330.0, "growth": 1.125, "gap": 0.9, "health": Vector2(1.4, 2.8),
-		"new": ["nave_agresiva"], "old": [DART, "wasp", "nave_normal"], "boss": false},
-	{"waves": 10, "paths": 2, "budget": 440.0, "growth": 1.125, "gap": 0.85, "health": Vector2(1.4, 3.0),
-		"new": ["acorazado"], "old": [DART, "wasp", "nave_normal", "nave_agresiva"], "boss": false},
-	{"waves": 10, "paths": 2, "budget": 560.0, "growth": 1.12, "gap": 0.8, "health": Vector2(1.5, 3.5),
-		"new": ["ariete", "divisora"], "old": ["wasp", "nave_normal", "nave_agresiva", "acorazado"], "boss": false},
-	{"waves": 10, "paths": 3, "budget": 680.0, "growth": 1.12, "gap": 0.75, "health": Vector2(2.0, 4.2),
-		"new": ["reparadora"], "old": ["wasp", "nave_normal", "nave_agresiva", "acorazado", "ariete", "divisora"], "boss": true},
-	{"waves": 10, "paths": 4, "budget": 800.0, "growth": 1.12, "gap": 0.7, "health": Vector2(2.3, 4.9),
-		"new": ["espectro"], "old": ["wasp", "nave_agresiva", "acorazado", "ariete", "divisora", "reparadora"], "boss": false},
-	{"waves": 10, "paths": 4, "budget": 920.0, "growth": 1.12, "gap": 0.65, "health": Vector2(2.4, 5.3),
-		"new": ["saboteadora"], "old": ["wasp", "nave_agresiva", "acorazado", "ariete", "divisora", "reparadora", "espectro"], "boss": false},
-	{"waves": 10, "paths": 8, "budget": 1050.0, "growth": 1.12, "gap": 0.6, "health": Vector2(2.6, 5.5),
+		"new": [DART, "wasp"], "old": [], "mothership_from": 0},
+	{"waves": 10, "paths": 2, "budget": 270.0, "growth": 1.13, "gap": 0.95, "health": Vector2(1.2, 2.5),
+		"new": ["nave_normal", "streak"], "old": [DART, "wasp"], "mothership_from": 0},
+	{"waves": 10, "paths": 2, "budget": 230.0, "growth": 1.125, "gap": 0.9, "health": Vector2(0.6, 1.2),
+		"new": ["nave_agresiva"], "old": [DART, "wasp", "streak", "nave_normal"], "mothership_from": 0},
+	{"waves": 10, "paths": 2, "budget": 270.0, "growth": 1.125, "gap": 0.85, "health": Vector2(0.45, 1.0),
+		"new": ["acorazado", "cruiser"], "old": [DART, "wasp", "streak", "nave_normal", "nave_agresiva"], "mothership_from": 0},
+	{"waves": 10, "paths": 2, "budget": 300.0, "growth": 1.12, "gap": 0.8, "health": Vector2(0.4, 0.95),
+		"new": ["ariete", "divisora"], "old": ["wasp", "streak", "nave_normal", "nave_agresiva", "cruiser", "acorazado"],
+		"mothership_from": 0},
+	{"waves": 10, "paths": 3, "budget": 410.0, "growth": 1.12, "gap": 0.75, "health": Vector2(0.8, 1.7),
+		"new": ["reparadora"], "old": ["wasp", "streak", "nave_normal", "nave_agresiva", "cruiser", "acorazado", "ariete", "divisora"],
+		"mothership_from": 0},
+	{"waves": 10, "paths": 4, "budget": 370.0, "growth": 1.12, "gap": 0.7, "health": Vector2(0.9, 1.9),
+		"new": ["espectro"], "old": ["wasp", "streak", "nave_agresiva", "cruiser", "acorazado", "ariete", "divisora", "reparadora"],
+		"mothership_from": 0},
+	{"waves": 10, "paths": 4, "budget": 460.0, "growth": 1.12, "gap": 0.65, "health": Vector2(0.7, 1.6),
+		"new": ["saboteadora", "vanguard"],
+		"old": ["wasp", "streak", "nave_agresiva", "cruiser", "acorazado", "ariete", "divisora", "reparadora", "espectro"],
+		"mothership_from": 9},
+	{"waves": 10, "paths": 8, "budget": 550.0, "growth": 1.12, "gap": 0.6, "health": Vector2(1.25, 2.7),
 		"new": ["espectro", "saboteadora", "divisora", "reparadora"],
-		"old": [DART, "wasp", "nave_normal", "nave_agresiva", "acorazado", "ariete"], "boss": true},
+		"old": [DART, "wasp", "streak", "nave_normal", "nave_agresiva", "cruiser", "vanguard", "ariete", "acorazado"],
+		"mothership_from": 8},
 ]
 
 ## Nivel de emergencia (nivel de prueba del tutorial): sus oleadas no salen del presupuesto, se escriben grupo a
@@ -78,10 +85,10 @@ const LEVELS: Array[Dictionary] = [
 ## La 1 da 200 € (lo justo para mejorar un Cañón doble), la 2 da 400 € (las otras dos mejoras) y la 3
 ## aprieta, pero se pasa con dos Cañones dobles y uno mejorado.
 const EMERGENCY: Array[Dictionary] = [
-	{"health": 0.7, "groups": [["dart_rojo", 5, 0.6], ["wasp", 8, 0.7], ["dart_verde", 5, 0.6], ["wasp", 7, 0.7]]},
-	{"health": 0.8, "groups": [["dart_rojo", 10, 0.5], ["wasp", 5, 0.6], ["nave_normal", 5, 0.9], ["dart_morado", 10, 0.5],
-			["wasp", 5, 0.6], ["nave_normal", 5, 0.9], ["dart_hielo", 10, 0.5]]},
-	{"health": 0.8, "groups": [["dart_rojo", 10, 0.4], ["wasp", 10, 0.5], ["nave_normal", 5, 0.7], ["dart_verde", 10, 0.4],
+	{"health": 0.7, "groups": [[DART, 5, 0.6], ["wasp", 8, 0.7], [DART, 5, 0.6], ["wasp", 7, 0.7]]},
+	{"health": 0.8, "groups": [[DART, 10, 0.5], ["wasp", 5, 0.6], ["nave_normal", 5, 0.9], [DART, 10, 0.5],
+			["wasp", 5, 0.6], ["nave_normal", 5, 0.9], [DART, 10, 0.5]]},
+	{"health": 0.8, "groups": [[DART, 10, 0.4], ["wasp", 10, 0.5], ["nave_normal", 5, 0.7], [DART, 10, 0.4],
 			["wasp", 10, 0.5], ["nave_normal", 5, 0.7]]},
 ]
 ## Segundos entre la última nave de un grupo del nivel de emergencia y la primera del siguiente.
@@ -93,51 +100,51 @@ const EMERGENCY_TURRET: String = "res://resources/turret_data/turret.tres"
 
 ## Nivel 2, escrito a mano en dientes de sierra (presentación, picos y respiros, final duro). Por oleada: multiplicador de vida
 ## y grupos [nave, cuántas, separación, camino, pausa después]; pausa negativa = el siguiente grupo sale antes de que acabe este
-## (solape entre caminos). La suma de recompensas sigue la del generador (230 × 1,13^(K-1), ±10 %).
+## (solape entre caminos). Desde la 2, la primera pareja de cada oleada es de Streaks (290 a 815 € por oleada).
 ## La 1 va entera por el camino 0 (el de la izquierda) y la 2 se reparte entre los dos. Grupos cortos (2-6) y mezclados; un
 ## "escolta" es Darts + una Nave normal + Darts seguidos por el mismo camino. Picos: 5, 8 y 10 (final). Respiros: 3, 6 y 9
 ## (naves más separadas, no menos vida).
 const LEVEL_2: Array[Dictionary] = [
-	{"health": 0.6, "groups": [["dart_rojo", 4, 1.0, 0, 2.5], ["nave_normal", 2, 1.8, 0, 2.5], ["dart_verde", 4, 1.0, 0, 2.5],
-			["nave_normal", 3, 1.8, 0, 2.5], ["wasp", 3, 1.2, 0, 2.5], ["nave_normal", 3, 1.8, 0, 2.5], ["dart_hielo", 4, 1.0, 0, 2.5],
+	{"health": 0.6, "groups": [[DART, 4, 1.0, 0, 2.5], ["nave_normal", 2, 1.8, 0, 2.5], [DART, 4, 1.0, 0, 2.5],
+			["nave_normal", 3, 1.8, 0, 2.5], ["wasp", 3, 1.2, 0, 2.5], ["nave_normal", 3, 1.8, 0, 2.5], [DART, 4, 1.0, 0, 2.5],
 			["nave_normal", 2, 1.8, 0, 0.0]]},
-	{"health": 0.7, "groups": [["nave_normal", 3, 1.6, 0, -1.2], ["dart_rojo", 4, 0.9, 1, 2.0], ["nave_normal", 3, 1.6, 1, -1.2],
-			["wasp", 3, 1.1, 0, 2.0], ["dart_verde", 4, 0.9, 0, 2.0], ["nave_normal", 3, 1.6, 1, 2.0],
-			["dart_morado", 2, 0.5, 0, 0.5], ["nave_normal", 1, 0.0, 0, 0.5], ["dart_morado", 2, 0.5, 0, 2.0], ["wasp", 2, 1.1, 1, 0.0]]},
-	{"health": 0.8, "groups": [["dart_rojo", 6, 0.7, 0, -1.5], ["wasp", 4, 0.9, 1, 2.0], ["dart_verde", 6, 0.7, 1, -1.5],
-			["wasp", 4, 0.9, 0, 2.0], ["nave_normal", 2, 1.5, 0, 2.0], ["dart_hielo", 6, 0.7, 1, -1.5], ["wasp", 4, 0.9, 0, 2.0],
-			["dart_morado", 6, 0.7, 0, -1.5], ["wasp", 2, 0.9, 1, 0.0]]},
-	{"health": 1.1, "groups": [["nave_normal", 3, 1.4, 0, -1.4], ["dart_rojo", 5, 0.7, 1, 2.0], ["wasp", 4, 0.9, 0, -1.5],
-			["nave_normal", 3, 1.4, 1, 2.0], ["dart_verde", 2, 0.5, 0, 0.5], ["nave_normal", 1, 0.0, 0, 0.5], ["dart_verde", 2, 0.5, 0, -1.0],
-			["wasp", 4, 0.9, 1, 2.0], ["nave_normal", 4, 1.3, 0, -2.0], ["dart_hielo", 5, 0.6, 1, 2.0], ["nave_normal", 1, 0.0, 1, 0.0]]},
-	{"health": 1.3, "groups": [["nave_normal", 4, 1.1, 0, -2.3], ["nave_normal", 4, 1.1, 1, 1.5], ["wasp", 5, 0.7, 0, -2.0],
-			["dart_rojo", 3, 0.4, 1, 0.4], ["nave_normal", 1, 0.0, 1, 0.4], ["dart_rojo", 3, 0.4, 1, 1.5], ["nave_normal", 3, 1.0, 0, -1.0],
-			["wasp", 4, 0.7, 1, 1.5], ["dart_verde", 3, 0.4, 0, 0.4], ["nave_normal", 1, 0.0, 0, 0.4], ["dart_verde", 3, 0.4, 0, -1.0],
+	{"health": 0.7, "groups": [["nave_normal", 3, 1.6, 0, -1.2], [DART, 4, 0.9, 1, 2.0], ["nave_normal", 3, 1.6, 1, -1.2],
+			["streak", 2, 1.0, 0, 2.0], [DART, 4, 0.9, 0, 2.0], ["nave_normal", 3, 1.6, 1, 2.0],
+			[DART, 2, 0.5, 0, 0.5], ["nave_normal", 1, 0.0, 0, 0.5], [DART, 2, 0.5, 0, 2.0], ["wasp", 2, 1.1, 1, 0.0]]},
+	{"health": 0.8, "groups": [[DART, 6, 0.7, 0, -1.5], ["streak", 2, 1.0, 1, 2.0], [DART, 6, 0.7, 1, -1.5],
+			["wasp", 4, 0.9, 0, 2.0], ["nave_normal", 2, 1.5, 0, 2.0], [DART, 6, 0.7, 1, -1.5], ["wasp", 4, 0.9, 0, 2.0],
+			[DART, 6, 0.7, 0, -1.5], ["wasp", 2, 0.9, 1, 0.0]]},
+	{"health": 1.1, "groups": [["nave_normal", 3, 1.4, 0, -1.4], [DART, 5, 0.7, 1, 2.0], ["streak", 2, 1.0, 0, -1.5],
+			["nave_normal", 3, 1.4, 1, 2.0], [DART, 2, 0.5, 0, 0.5], ["nave_normal", 1, 0.0, 0, 0.5], [DART, 2, 0.5, 0, -1.0],
+			["wasp", 4, 0.9, 1, 2.0], ["nave_normal", 4, 1.3, 0, -2.0], [DART, 5, 0.6, 1, 2.0], ["nave_normal", 1, 0.0, 1, 0.0]]},
+	{"health": 1.3, "groups": [["nave_normal", 4, 1.1, 0, -2.3], ["nave_normal", 4, 1.1, 1, 1.5], ["streak", 2, 1.0, 0, -2.0],
+			[DART, 3, 0.4, 1, 0.4], ["nave_normal", 1, 0.0, 1, 0.4], [DART, 3, 0.4, 1, 1.5], ["nave_normal", 3, 1.0, 0, -1.0],
+			["wasp", 4, 0.7, 1, 1.5], [DART, 3, 0.4, 0, 0.4], ["nave_normal", 1, 0.0, 0, 0.4], [DART, 3, 0.4, 0, -1.0],
 			["nave_normal", 2, 1.0, 1, 0.0]]},
-	{"health": 1.6, "groups": [["dart_rojo", 6, 0.6, 0, -1.0], ["wasp", 5, 0.8, 1, 1.0], ["nave_normal", 3, 1.4, 0, -1.0],
-			["dart_hielo", 6, 0.6, 1, 1.0], ["wasp", 5, 0.8, 0, -1.0], ["dart_morado", 2, 0.5, 1, 0.5], ["nave_normal", 1, 0.0, 1, 0.5],
-			["dart_morado", 2, 0.5, 1, 1.0], ["wasp", 4, 0.8, 0, -1.0], ["nave_normal", 3, 1.4, 1, 1.0], ["dart_verde", 6, 0.6, 0, -1.0],
+	{"health": 1.6, "groups": [[DART, 6, 0.6, 0, -1.0], ["streak", 2, 1.0, 1, 1.0], ["nave_normal", 3, 1.4, 0, -1.0],
+			[DART, 6, 0.6, 1, 1.0], ["wasp", 5, 0.8, 0, -1.0], [DART, 2, 0.5, 1, 0.5], ["nave_normal", 1, 0.0, 1, 0.5],
+			[DART, 2, 0.5, 1, 1.0], ["wasp", 4, 0.8, 0, -1.0], ["nave_normal", 3, 1.4, 1, 1.0], [DART, 6, 0.6, 0, -1.0],
 			["wasp", 4, 0.8, 1, 1.0], ["nave_normal", 2, 1.4, 0, 0.0]]},
-	{"health": 1.8, "groups": [["wasp", 4, 0.6, 0, -1.0], ["nave_normal", 4, 1.0, 1, 1.2], ["dart_rojo", 2, 0.4, 0, 0.4],
-			["nave_normal", 1, 0.0, 0, 0.4], ["dart_rojo", 2, 0.4, 0, -0.5], ["dart_verde", 5, 0.5, 1, 1.2], ["nave_normal", 4, 1.0, 0, -2.0],
-			["wasp", 5, 0.6, 1, 1.2], ["dart_hielo", 2, 0.4, 1, 0.4], ["nave_normal", 1, 0.0, 1, 0.4], ["dart_hielo", 2, 0.4, 1, -0.5],
-			["nave_normal", 3, 1.0, 0, 1.2], ["wasp", 4, 0.6, 1, -1.0], ["nave_normal", 4, 1.0, 0, 1.2], ["dart_morado", 5, 0.5, 1, 0.0]]},
-	{"health": 2.3, "groups": [["nave_normal", 4, 0.9, 0, -2.2], ["nave_normal", 4, 0.9, 1, 1.0], ["wasp", 5, 0.5, 0, -1.5],
-			["dart_rojo", 3, 0.4, 1, 0.4], ["nave_normal", 1, 0.0, 1, 0.4], ["dart_rojo", 3, 0.4, 1, -0.5], ["nave_normal", 5, 0.9, 0, 1.0],
-			["dart_verde", 6, 0.4, 1, -1.5], ["wasp", 5, 0.5, 0, 1.0], ["dart_hielo", 3, 0.4, 0, 0.4], ["nave_normal", 1, 0.0, 0, 0.4],
-			["dart_hielo", 3, 0.4, 0, -0.5], ["nave_normal", 4, 0.9, 1, 1.0], ["wasp", 4, 0.5, 0, -1.0], ["dart_morado", 2, 0.4, 1, 0.4],
-			["nave_normal", 1, 0.0, 1, 0.4], ["dart_morado", 2, 0.4, 1, 0.0]]},
-	{"health": 2.4, "groups": [["dart_rojo", 6, 0.5, 0, -1.0], ["wasp", 6, 0.6, 1, 1.0], ["nave_normal", 3, 1.2, 0, -1.0],
-			["dart_verde", 6, 0.5, 1, 1.0], ["wasp", 6, 0.6, 0, -1.0], ["dart_morado", 2, 0.5, 1, 0.5], ["nave_normal", 1, 0.0, 1, 0.5],
-			["dart_morado", 2, 0.5, 1, 1.0], ["nave_normal", 3, 1.2, 0, -1.0], ["wasp", 5, 0.6, 1, 1.0], ["dart_hielo", 6, 0.5, 0, -1.0],
-			["dart_rojo", 2, 0.5, 0, 0.5], ["nave_normal", 1, 0.0, 0, 0.5], ["dart_rojo", 2, 0.5, 0, 1.0], ["wasp", 6, 0.6, 1, -1.0],
-			["nave_normal", 4, 1.2, 0, 1.0], ["dart_verde", 6, 0.5, 1, -1.0], ["nave_normal", 2, 1.2, 1, 0.0]]},
-	{"health": 3.2, "groups": [["nave_normal", 5, 0.8, 0, -2.4], ["nave_normal", 5, 0.8, 1, 0.8], ["dart_rojo", 3, 0.4, 0, 0.4],
-			["nave_normal", 1, 0.0, 0, 0.4], ["dart_rojo", 3, 0.4, 0, -0.3], ["wasp", 6, 0.45, 1, 0.8], ["nave_normal", 4, 0.8, 0, -1.6],
-			["dart_verde", 3, 0.4, 1, 0.4], ["nave_normal", 1, 0.0, 1, 0.4], ["dart_verde", 3, 0.4, 1, -0.3], ["wasp", 6, 0.45, 0, 0.8],
-			["nave_normal", 4, 0.8, 1, -1.6], ["dart_hielo", 5, 0.4, 0, 0.8], ["dart_morado", 3, 0.4, 1, 0.4], ["nave_normal", 1, 0.0, 1, 0.4],
-			["dart_morado", 3, 0.4, 1, -0.3], ["nave_normal", 5, 0.8, 0, 0.8], ["wasp", 5, 0.45, 1, -1.0], ["dart_rojo", 2, 0.4, 0, 0.4],
-			["nave_normal", 1, 0.0, 0, 0.4], ["dart_rojo", 2, 0.4, 0, 0.0]]},
+	{"health": 1.8, "groups": [["streak", 2, 1.0, 0, -1.0], ["nave_normal", 4, 1.0, 1, 1.2], [DART, 2, 0.4, 0, 0.4],
+			["nave_normal", 1, 0.0, 0, 0.4], [DART, 2, 0.4, 0, -0.5], [DART, 5, 0.5, 1, 1.2], ["nave_normal", 4, 1.0, 0, -2.0],
+			["wasp", 5, 0.6, 1, 1.2], [DART, 2, 0.4, 1, 0.4], ["nave_normal", 1, 0.0, 1, 0.4], [DART, 2, 0.4, 1, -0.5],
+			["nave_normal", 3, 1.0, 0, 1.2], ["wasp", 4, 0.6, 1, -1.0], ["nave_normal", 4, 1.0, 0, 1.2], [DART, 5, 0.5, 1, 0.0]]},
+	{"health": 2.3, "groups": [["nave_normal", 4, 0.9, 0, -2.2], ["nave_normal", 4, 0.9, 1, 1.0], ["streak", 2, 1.0, 0, -1.5],
+			[DART, 3, 0.4, 1, 0.4], ["nave_normal", 1, 0.0, 1, 0.4], [DART, 3, 0.4, 1, -0.5], ["nave_normal", 5, 0.9, 0, 1.0],
+			[DART, 6, 0.4, 1, -1.5], ["wasp", 5, 0.5, 0, 1.0], [DART, 3, 0.4, 0, 0.4], ["nave_normal", 1, 0.0, 0, 0.4],
+			[DART, 3, 0.4, 0, -0.5], ["nave_normal", 4, 0.9, 1, 1.0], ["wasp", 4, 0.5, 0, -1.0], [DART, 2, 0.4, 1, 0.4],
+			["nave_normal", 1, 0.0, 1, 0.4], [DART, 2, 0.4, 1, 0.0]]},
+	{"health": 2.4, "groups": [[DART, 6, 0.5, 0, -1.0], ["streak", 2, 1.0, 1, 1.0], ["nave_normal", 3, 1.2, 0, -1.0],
+			[DART, 6, 0.5, 1, 1.0], ["wasp", 6, 0.6, 0, -1.0], [DART, 2, 0.5, 1, 0.5], ["nave_normal", 1, 0.0, 1, 0.5],
+			[DART, 2, 0.5, 1, 1.0], ["nave_normal", 3, 1.2, 0, -1.0], ["wasp", 5, 0.6, 1, 1.0], [DART, 6, 0.5, 0, -1.0],
+			[DART, 2, 0.5, 0, 0.5], ["nave_normal", 1, 0.0, 0, 0.5], [DART, 2, 0.5, 0, 1.0], ["wasp", 6, 0.6, 1, -1.0],
+			["nave_normal", 4, 1.2, 0, 1.0], [DART, 6, 0.5, 1, -1.0], ["nave_normal", 2, 1.2, 1, 0.0]]},
+	{"health": 3.2, "groups": [["nave_normal", 5, 0.8, 0, -2.4], ["nave_normal", 5, 0.8, 1, 0.8], [DART, 3, 0.4, 0, 0.4],
+			["nave_normal", 1, 0.0, 0, 0.4], [DART, 3, 0.4, 0, -0.3], ["streak", 2, 1.0, 1, 0.8], ["nave_normal", 4, 0.8, 0, -1.6],
+			[DART, 3, 0.4, 1, 0.4], ["nave_normal", 1, 0.0, 1, 0.4], [DART, 3, 0.4, 1, -0.3], ["wasp", 6, 0.45, 0, 0.8],
+			["nave_normal", 4, 0.8, 1, -1.6], [DART, 5, 0.4, 0, 0.8], [DART, 3, 0.4, 1, 0.4], ["nave_normal", 1, 0.0, 1, 0.4],
+			[DART, 3, 0.4, 1, -0.3], ["nave_normal", 5, 0.8, 0, 0.8], ["wasp", 5, 0.45, 1, -1.0], [DART, 2, 0.4, 0, 0.4],
+			["nave_normal", 1, 0.0, 0, 0.4], [DART, 2, 0.4, 0, 0.0]]},
 ]
 const LEVEL_2_NUMBER: int = 2
 
@@ -223,8 +230,8 @@ func _make_level(level_number: int, table: Dictionary) -> Array[WaveData]:
 		var wave: WaveData = load(path) if ResourceLoader.exists(path) else WaveData.new()
 		var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 		rng.seed = level_number * 1000 + k
-		var is_last: bool = k == count - 1
-		wave.groups = _make_groups(table, k, min_ships, is_last and table["boss"], rng)
+		var from: int = table["mothership_from"]
+		wave.groups = _make_groups(table, k, min_ships, from > 0 and k + 1 >= from, rng)
 		var entries: Array[SpawnEntry] = wave.get_entries()
 		min_ships = entries.size() + 1
 		# Redondeado a centésimas, para que el .tres no guarde 1.1500000000000001.
@@ -244,7 +251,8 @@ func _health(table: Dictionary, k: int) -> float:
 
 
 # Saca naves hasta gastar el presupuesto y llegar a `min_ships` (una más que la oleada anterior).
-func _make_groups(table: Dictionary, k: int, min_ships: int, with_boss: bool, rng: RandomNumberGenerator) -> Array[SpawnGroup]:
+# Con `with_mothership`, una Mothership (que cuenta en el presupuesto) sale entre los grupos.
+func _make_groups(table: Dictionary, k: int, min_ships: int, with_mothership: bool, rng: RandomNumberGenerator) -> Array[SpawnGroup]:
 	var budget: float = table["budget"] * pow(table["growth"], k)
 	var paths: int = table["paths"]
 	var gap: float = maxf(table["gap"] * pow(GAP_SHRINK, k), MIN_GAP)
@@ -253,8 +261,8 @@ func _make_groups(table: Dictionary, k: int, min_ships: int, with_boss: bool, rn
 	var new_ships: Array = table["new"]
 	var all_ships: Array = new_ships + _unlocked_old(table["old"], k)
 	var groups: Array[Array] = []
-	var spent: float = 0.0
-	var count: int = 0
+	var spent: float = _cost(_enemy(MOTHERSHIP)) if with_mothership else 0.0
+	var count: int = 1 if with_mothership else 0
 	var last_key: String = ""
 	while spent < budget or count < min_ships:
 		# Los grupos pares son de naves nuevas, para que sean las protagonistas del nivel.
@@ -266,25 +274,27 @@ func _make_groups(table: Dictionary, k: int, min_ships: int, with_boss: bool, rn
 		size = clampi(maxi(ceili((budget - spent) / cost), min_ships - count), 1, size)
 		var group: Array[EnemyData] = []
 		for n: int in size:
-			group.append(_enemy(key, rng))
+			group.append(_enemy(key))
 			spent += cost
 			count += 1
 		groups.append(group)
+	if with_mothership:
+		var mothership: Array[EnemyData] = [_enemy(MOTHERSHIP)]
+		groups.insert(ceili(groups.size() * MOTHERSHIP_SPOT), mothership)
 	var result: Array[SpawnGroup] = []
 	var path_bag: Array[int] = []
 	var last_path: int = -1
 	# La primera nave sale en 0: la espera inicial la pone el Spawner (WAVE_START_DELAY).
 	var start: float = 0.0
-	# Segundo de la última nave del grupo anterior y de la última de todas (con solapes no coinciden).
+	# Segundo de la última nave del grupo anterior.
 	var end: float = 0.0
-	var last_time: float = 0.0
 	var wait: float = lerpf(1.0, MIN_OVERLAP_WAIT, float(k) / (table["waves"] - 1)) if paths > 1 else 1.0
 	for group: Array in groups:
 		var path: int = _next_path(path_bag, paths, last_path, rng)
 		last_path = path
 		var time: float = start
 		var n: int = 0
-		# Un SpawnGroup por tramo de naves iguales: los Darts de un grupo pueden ser de varios colores.
+		# Un SpawnGroup por tramo de naves iguales.
 		while n < group.size():
 			var run: int = 1
 			while n + run < group.size() and group[n + run] == group[n]:
@@ -295,11 +305,7 @@ func _make_groups(table: Dictionary, k: int, min_ships: int, with_boss: bool, rn
 			end = _add_group(result, group[n], run, spacing, path, time, end)
 			time = end
 			n += run
-		last_time = maxf(last_time, end)
 		start += (time - start) * wait + gap * GROUP_PAUSE
-	if with_boss:
-		# La Nodriza sale la última, cuando ya han salido todas las demás.
-		_add_group(result, _enemy(BOSS), 1, 0.5, _next_path(path_bag, paths, last_path, rng), last_time + gap * GROUP_PAUSE, end)
 	return result
 
 
@@ -368,9 +374,7 @@ func _spacing(data: EnemyData) -> float:
 	return clampf(_cost(data) / 35.0, 0.6, 2.0)
 
 
-func _enemy(key: String, rng: RandomNumberGenerator = null) -> EnemyData:
-	if key == DART:
-		key = DART_COLORS[rng.randi() % DART_COLORS.size()] if rng != null else DART_COLORS[0]
+func _enemy(key: String) -> EnemyData:
 	if not _enemies.has(key):
 		_enemies[key] = load(ENEMY_DIR + key + ".tres")
 	return _enemies[key]

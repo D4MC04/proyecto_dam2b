@@ -12,31 +12,38 @@ El `Spawner` lo añade como hijo de un `Path2D` del mapa y llama a `setup(enemy_
 
 ## Datos
 
-`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `base_damage` (vida que quita a la estación al llegar al final, 10 por defecto), `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados), `cloak_interval` y `cloak_time` (camuflaje, ver Camuflaje; 0 = no se camufla), `death_sound` (`AudioStream`, ver Daño y muerte), `heal_aura` (solo la Reparadora, ver Curación), `emp_interval`, `emp_radius` y `emp_disable_time` (pulso EMP, ver Habilidades; `emp_interval` 0 = sin pulso), `split_into` (ver Partirse al morir) y `description` (frase corta para la ficha, ya rellena en todos). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da VIDA, VELOCIDAD (px/s), BOTÍN (la recompensa, con €) y DAÑO (`base_damage`); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
+`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `base_damage` (vida que quita a la estación al llegar al final, 10 por defecto), `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados), `is_boss` (jefe, ver abajo), `cloak_interval` y `cloak_time` (camuflaje, ver Camuflaje; 0 = no se camufla), `death_sound` (`AudioStream`, ver Daño y muerte), `heal_aura` (solo la Reparadora, ver Curación), `emp_interval`, `emp_radius` y `emp_disable_time` (pulso EMP, ver Habilidades; `emp_interval` 0 = sin pulso), `split_into` (ver Partirse al morir) y `description` (frase corta para la ficha, ya rellena en todos). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da VIDA, VELOCIDAD (px/s), BOTÍN (la recompensa, con €) y DAÑO (`base_damage`); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
 
-Recursos en `resources/enemy_data/`:
+Recursos en `resources/enemy_data/` (los archivos conservan el nombre de antes; los nombres en inglés van en `translations/textos.csv`, igual en `es` y `en`). Velocidad como multiplicador de 60 px/s:
 
-| Archivo | Nombre | Vida | Velocidad | Recompensa | Daño a la estación | Radio de colisión | Primer nivel en que sale |
-|---|---|---|---|---|---|---|---|
-| `dart_hielo` | Dart de hielo | 25 | 90 | 15 | 5 | 8 | 1 |
-| `dart_morado` | Dart morado | 25 | 90 | 15 | 5 | 8 | 1 |
-| `dart_rojo` | Dart rojo | 25 | 90 | 15 | 5 | 8 | 1 |
-| `dart_verde` | Dart verde | 25 | 90 | 15 | 5 | 8 | 1 |
-| `wasp` | Wasp | 50 | 100 | 10 | 10 | 9 | 1 |
-| `nave_normal` | Nave normal | 100 | 75 | 15 | 15 | 12 | 2 |
-| `nave_agresiva` | Nave agresiva | 110 | 48 | 50 | 10 | 12 | 3 |
-| `acorazado` | Acorazado | 420 | 25 | 135 | 20 | 14 | 4 |
-| `ariete` | Ariete | 240 | 40 | 95 | 20 | 13 | 5 |
-| `nodriza` | Nodriza | 600 | 40 | 250 | 40 | 14 | 6 |
-| `reparadora` | Reparadora | 90 | 38 | 45 | 5 | 12 | 6 |
-| `espectro` | Espectro | 80 | 55 | 55 | 10 | 12 | 7 |
-| `divisora` | Divisora | 120 | 35 | 45 | 15 | 13 | 5 |
-| `fragmento_divisora_izquierdo`, `_central`, `_derecho` | Fragmento de Divisora | 25 | 50 | 10 | 5 | 7 | 5 (al partirse la Divisora) |
-| `saboteadora` | Saboteadora | 110 | 30 | 55 | 10 | 13 | 8 |
+| Archivo | Nombre | Vida | Velocidad | Botín | Daño a la estación | Radio de colisión | Primer nivel en que sale | Papel |
+|---|---|---|---|---|---|---|---|---|
+| `dart_rojo` | Dart | 25 | 1,5 (90) | 5 | 5 | 8 | 1 | Enjambre: frágil, rápida, en grupos grandes |
+| `wasp` | Wasp | 50 | 1,25 (75) | 10 | 10 | 9 | 1 | Rápida algo más dura |
+| `streak` | Streak | 50 | 1,75 (105) | 15 | 10 | 8 | 2 | La más rápida; sola o en parejas |
+| `vanguard` | Vanguard | 150 | 1,5 (90) | 35 | 15 | 12 | 8 | Rápida y dura: la amenaza rápida de los niveles altos |
+| `nave_normal` | Corsair | 100 | 1,0 (60) | 20 | 15 | 12 | 2 | El estándar, la referencia |
+| `nave_agresiva` | Frigate | 125 | 1,25 (75) | 30 | 15 | 12 | 3 | Un Corsair mejorado |
+| `cruiser` | Cruiser | 200 | 1,0 (60) | 40 | 20 | 13 | 4 | Estándar pesado, entre la Frigate y la Ram |
+| `ariete` | Ram | 250 | 0,75 (45) | 45 | 50 | 13 | 5 | Daño enorme a la estación |
+| `acorazado` | Juggernaut | 500 | 0,5 (30) | 70 | 25 | 14 | 4 | El tanque |
+| `nodriza` | Mothership | 750 | 0,75 (45) | 130 | 50 | 14 | 8 | Miniboss (ver abajo) |
+| `reparadora` | Reparadora | 90 | 38 | 25 | 5 | 12 | 6 | Con mecánica |
+| `espectro` | Espectro | 80 | 55 | 20 | 10 | 12 | 7 | Con mecánica |
+| `divisora` | Divisora | 120 | 35 | 20 | 15 | 13 | 5 | Con mecánica |
+| `fragmento_divisora_izquierdo`, `_central`, `_derecho` | Fragmento de Divisora | 25 | 50 | 5 | 5 | 7 | 5 (al partirse la Divisora) | Trozos |
+| `saboteadora` | Saboteadora | 110 | 30 | 25 | 10 | 13 | 8 | Con mecánica |
 
-Los cuatro Dart tienen los mismos valores; solo cambia el sprite.
+Las naves con mecánica (velocidad en px/s) solo tienen ya el botín nuevo; su vida, velocidad y nombre en inglés los cambian sus tickets (ver [naves-plan.md](naves-plan.md)).
 
-Balance de recompensas: `reward` ≈ 0,4 × vida × √(velocidad / 40) × un factor por habilidad (Reparadora ×1,3, Espectro ×1,4, Saboteadora ×1,5), redondeado a 5. La Divisora y sus tres fragmentos suman 75 €.
+- **Naves base**: 10 naves sin mecánica que se distinguen por sus números, por nichos con escalones (rápidas: Dart, Wasp, Streak y Vanguard; estándar: Corsair, Frigate y Cruiser; pesadas: Ram, Juggernaut y Mothership). Vida en saltos de 25 y velocidad en saltos de 0,25. Solo hay un Dart (antes había cuatro de colores).
+- **Mothership**: miniboss, sin aviso de jefe (`is_boss` apagado). Como mucho una por oleada, entre las demás naves, en las oleadas 9 y 10 del nivel 8 y de la 8 a la 10 del nivel 9 (ver [niveles.md](niveles.md)).
+- **Botín**: `reward` ≈ vida / 5 × √(velocidad / 60) × un factor por habilidad (1,2-1,5), redondeado a 5 (el 40 % de lo que daban antes, más o menos). La Divisora y sus tres trozos suman 35 €.
+- **Jefes**: `is_boss` marca a un jefe: su oleada empieza con el `BossAlert` (con su nombre), su portal tiembla más y al morir el `Spawner` emite `boss_died` (sacude el mapa). Ahora mismo no lo tiene ninguna nave.
+
+### Sprites de las naves base
+
+Dart, Wasp, Streak, Vanguard, Corsair, Frigate, Cruiser y Juggernaut no se dibujan a mano: los genera `scripts/tools/make_base_ships.gd` (`godot --headless --path . -s scripts/tools/make_base_ships.gd`), que también escribe sus `SpriteFrames`. Ram, Mothership y las naves con mecánica tienen su propio dibujo. Ver [art.md](art.md).
 
 ## Comportamiento
 
@@ -54,7 +61,7 @@ Si `data.cloak_interval > 0`, `setup()` arranca un tween en bucle: visible `cloa
 
 Mientras está camuflado las torretas no lo eligen: `Turret._best_enemy()` lo salta y `_get_target()` suelta al objetivo que se camufla. Los ataques de área sí le dan: la onda del Cryo (sale aunque en rango solo haya naves camufladas), el meteorito, el haz del Rail, la explosión del Cañón pesado y los saltos del rayo Tesla.
 
-El sprite (`assets/sprites/enemies/espectro/espectro_0` a `_2`, 32x32, mirando hacia arriba, `rotate_sprite = true`) lo genera `scripts/tools/make_espectro.gd` (`godot --headless --path . -s scripts/tools/make_espectro.gd`): caza furtivo en forma de manta raya que ocupa los 32 px de ancho: alas anchas en flecha con costuras de panel, dos aletas delanteras, cabina pequeña, dos motores grises con llama y luces tenues (rojas en la punta de las alas, violeta en las alas); morado oscuro y casi negro, con la mitad derecha en sombra. Los frames cambian las llamas y la luz violeta. Usa la colisión de la Nave agresiva (radio 12). Sale en las tres oleadas del nivel 7.
+El sprite (`assets/sprites/enemies/espectro/espectro_0` a `_2`, 32x32, mirando hacia arriba, `rotate_sprite = true`) lo genera `scripts/tools/make_espectro.gd` (`godot --headless --path . -s scripts/tools/make_espectro.gd`): caza furtivo en forma de manta raya que ocupa los 32 px de ancho: alas anchas en flecha con costuras de panel, dos aletas delanteras, cabina pequeña, dos motores grises con llama y luces tenues (rojas en la punta de las alas, violeta en las alas); morado oscuro y casi negro, con la mitad derecha en sombra. Los frames cambian las llamas y la luz violeta. Usa la colisión de la Frigate (`nave_agresiva`, radio 12). Sale en las tres oleadas del nivel 7.
 
 ### Daño y muerte
 
@@ -63,7 +70,7 @@ El sprite (`assets/sprites/enemies/espectro/espectro_0` a `_2`, 32x32, mirando h
 - Con la opción `show_damage_numbers` de `Settings` (apagada por defecto), `take_damage()` suma el daño realmente hecho y, pasados `DAMAGE_TEXT_WINDOW` (0,25 s) desde el primer golpe, o al morir, lo enseña con `FloatingText` (blanco, `UiFormat.number`) sobre la nave; los golpes seguidos salen agrupados en un solo número.
 - `die()` emite `died(data.reward)`, reproduce `data.death_sound` en el bus `SFX` y libera el nodo. El `AudioStreamPlayer` se crea como hijo del padre (el `Path2D`) porque el enemigo se libera enseguida, y se libera solo al terminar (`finished`). Si llega a la estación (`reached_end`) no suena.
 - Decidido: las naves no suenan al morir (el usuario lo pidió: sonaba demasiado fuerte y tapaba el resto). Las `resources/enemy_data/*.tres` no asignan `death_sound`, así que `_play_death_sound()` no hace nada. El campo `death_sound` de `EnemyData` y el código siguen por si se quiere volver a poner.
-- Los audios de `assets/audio/effects/SpaceShips/` (`.ogg` los largos, `.wav` los cortos) se quedan en `assets/` sin usar (los 4 `dart_*` compartían `DartShip.wav`).
+- Los audios de `assets/audio/effects/SpaceShips/` (`.ogg` los largos, `.wav` los cortos) se quedan en `assets/` sin usar (los antiguos 4 Dart compartían `DartShip.wav`).
 
 ### Partirse al morir
 

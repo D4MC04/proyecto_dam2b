@@ -14,6 +14,8 @@ const INSPECT_TAG: String = "TAG_ENEMY"
 @export var sprite_frames: SpriteFrames
 @export var collision_shape: Shape2D
 @export var rotate_sprite: bool = false
+# Jefe: su oleada empieza con el aviso de jefe, su portal tiembla más y al morir sacude el mapa.
+@export var is_boss: bool = false
 # Giro extra en grados para sprites que no miran hacia arriba.
 @export var rotation_offset: float = 0.0
 # Sonido al matarlo (no suena si llega a la estación).
