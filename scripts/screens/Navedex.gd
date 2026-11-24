@@ -10,8 +10,8 @@ signal back_pressed
 
 const ENEMY_DIR: String = "res://resources/enemy_data/"
 const ENEMY_FILES: Array[String] = [
-	"dart_verde", "dart_rojo", "dart_morado", "dart_hielo", "wasp", "nave_normal",
-	"nave_agresiva", "ariete", "acorazado", "nodriza", "reparadora",
+	"dart_rojo", "wasp", "streak", "vanguard", "nave_normal", "nave_agresiva", "cruiser",
+	"ariete", "acorazado", "nodriza", "reparadora",
 	"espectro", "divisora", "fragmento_divisora_central",
 	"saboteadora",
 ]

@@ -1,37 +1,33 @@
 [gd_resource type="Resource" script_class="WaveData" format=3 uid="uid://5hge2mvmeyue"]
 
 [ext_resource type="Script" uid="uid://dclc5suu1kxn3" path="res://scripts/resources/SpawnGroup.gd" id="1_o3hiw"]
-[ext_resource type="Resource" uid="uid://cqrl6wryh28bv" path="res://resources/enemy_data/dart_morado.tres" id="2_pcggv"]
-[ext_resource type="Resource" uid="uid://bcvbohxs6cxsf" path="res://resources/enemy_data/dart_verde.tres" id="4_lpouh"]
-[ext_resource type="Resource" uid="uid://c7yydx2yg6klq" path="res://resources/enemy_data/dart_hielo.tres" id="5_bq55e"]
 [ext_resource type="Resource" uid="uid://bakq6nmr73sl0" path="res://resources/enemy_data/dart_rojo.tres" id="5_k34kx"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="7_2ciy8"]
 
-[sub_resource type="Resource" id="Resource_group1"]
+[sub_resource type="Resource" id="Resource_kvgil"]
 script = ExtResource("1_o3hiw")
 enemy_data = ExtResource("5_k34kx")
 count = 5
 pause_after = 2.5
 
-[sub_resource type="Resource" id="Resource_group2"]
+[sub_resource type="Resource" id="Resource_sg247"]
 script = ExtResource("1_o3hiw")
-enemy_data = ExtResource("2_pcggv")
+enemy_data = ExtResource("5_k34kx")
 count = 5
 pause_after = 2.5
 
-[sub_resource type="Resource" id="Resource_group3"]
+[sub_resource type="Resource" id="Resource_vygj4"]
 script = ExtResource("1_o3hiw")
-enemy_data = ExtResource("4_lpouh")
+enemy_data = ExtResource("5_k34kx")
 count = 5
 pause_after = 2.5
 
-[sub_resource type="Resource" id="Resource_f2c8l"]
+[sub_resource type="Resource" id="Resource_bq55e"]
 script = ExtResource("1_o3hiw")
-enemy_data = ExtResource("5_bq55e")
+enemy_data = ExtResource("5_k34kx")
 count = 5
 pause_after = 0.0
-metadata/_custom_type_script = "uid://dclc5suu1kxn3"
 
 [resource]
 script = ExtResource("7_2ciy8")
-groups = Array[ExtResource("1_o3hiw")]([SubResource("Resource_group1"), SubResource("Resource_group2"), SubResource("Resource_group3"), SubResource("Resource_f2c8l")])
+groups = Array[ExtResource("1_o3hiw")]([SubResource("Resource_kvgil"), SubResource("Resource_sg247"), SubResource("Resource_vygj4"), SubResource("Resource_bq55e")])

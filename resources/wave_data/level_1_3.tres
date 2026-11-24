@@ -5,20 +5,18 @@
 [ext_resource type="Resource" uid="uid://d2xfg8qmcw3va" path="res://resources/enemy_data/nave_normal.tres" id="2_iihy1"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="3_iihy1"]
 
-[sub_resource type="Resource" id="Resource_gq3wp"]
+[sub_resource type="Resource" id="Resource_3amxn"]
 script = ExtResource("1_q180v")
 enemy_data = ExtResource("2_iihy1")
 count = 3
 pause_after = 2.5
-metadata/_custom_type_script = "uid://dclc5suu1kxn3"
 
-[sub_resource type="Resource" id="Resource_e1bp0"]
+[sub_resource type="Resource" id="Resource_iihy1"]
 script = ExtResource("1_q180v")
 enemy_data = ExtResource("2_3amxn")
 count = 5
 pause_after = 0.0
-metadata/_custom_type_script = "uid://dclc5suu1kxn3"
 
 [resource]
 script = ExtResource("3_iihy1")
-groups = Array[ExtResource("1_q180v")]([SubResource("Resource_gq3wp"), SubResource("Resource_e1bp0")])
+groups = Array[ExtResource("1_q180v")]([SubResource("Resource_3amxn"), SubResource("Resource_iihy1")])

@@ -7,10 +7,10 @@
 [resource]
 script = ExtResource("1_data")
 name = "ENEMY_NODRIZA_NAME"
-hp = 600.0
-speed = 40
-reward = 250
-base_damage = 40
+hp = 750.0
+speed = 45
+reward = 130
+base_damage = 50
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 rotate_sprite = true

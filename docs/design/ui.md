@@ -162,14 +162,14 @@ Tres `PowerButton` (`scripts/level_ui/PowerButton.gd`) en `InfoPanel/Content/Pow
 
 ## BossAlert
 
-`scripts/level_ui/BossAlert.gd` (clase `BossAlert`), `Control` a pantalla completa dentro de `GameArea` (declarado antes que las pantallas, ignora el ratón, oculto hasta que se usa). `LevelUI._on_wave_started` llama a `show_alert("Nodriza")` cuando `Spawner.wave_has_boss(index)` es true (la oleada tiene algún grupo con la Nodriza). Dura 2 s en tiempo real, sin pausar el juego ni tapar las barras. Todo se pinta en `_draw`, sin antialiasing:
+`scripts/level_ui/BossAlert.gd` (clase `BossAlert`), `Control` a pantalla completa dentro de `GameArea` (declarado antes que las pantallas, ignora el ratón, oculto hasta que se usa). `LevelUI._on_wave_started` llama a `show_alert(nombre)` cuando `Spawner.get_wave_boss(index)` devuelve un jefe (la oleada tiene algún grupo con una nave con `EnemyData.is_boss`; ahora mismo ninguna, la Mothership es miniboss sin aviso). Dura 2 s en tiempo real, sin pausar el juego ni tapar las barras. Todo se pinta en `_draw`, sin antialiasing:
 
 - Tinte rojo `#f0323c` sobre el área (hasta 35 % de opacidad) que late 4 veces, y borde rojo de 12 px que late con él.
 - Franja de lado a lado del área, centrada en vertical, de 120 px (`#7a0f18`), con rayas diagonales rojas y negras de 14 px arriba y abajo.
-- En el centro, "ALERTA" a 48 px y debajo "NODRIZA ACERCÁNDOSE" a 32 px (Monogram), en un `CenterContainer`.
+- En el centro, "ALERTA" a 48 px y debajo "<JEFE> ACERCÁNDOSE" a 32 px (Monogram), en un `CenterContainer`.
 - Sin sonido (se quitó la sirena a petición del usuario).
 
-El `Portal` de un camino que saca la Nodriza tiembla con más fuerza (`Portal.BOSS_SHAKE`, 3 px frente a 1).
+El `Portal` de un camino que saca un jefe tiembla con más fuerza (`Portal.BOSS_SHAKE`, 3 px frente a 1).
 
 ## WaveAnnouncer
 

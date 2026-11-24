@@ -2,88 +2,59 @@
 
 [ext_resource type="Script" uid="uid://dclc5suu1kxn3" path="res://scripts/resources/SpawnGroup.gd" id="1_61x1h"]
 [ext_resource type="Resource" path="res://resources/enemy_data/saboteadora.tres" id="2_hx8fa"]
+[ext_resource type="Resource" path="res://resources/enemy_data/vanguard.tres" id="2_yqung"]
+[ext_resource type="Resource" uid="uid://ddbvifh0ad88b" path="res://resources/enemy_data/nave_agresiva.tres" id="3_ikfom"]
 [ext_resource type="Resource" uid="uid://bfiipacu4434d" path="res://resources/enemy_data/wasp.tres" id="3_yqung"]
 [ext_resource type="Resource" uid="uid://do4ht7x2audbo" path="res://resources/enemy_data/acorazado.tres" id="4_ikfom"]
-[ext_resource type="Resource" path="res://resources/enemy_data/divisora.tres" id="5_ikfom"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="5_q4iie"]
-[ext_resource type="Resource" uid="uid://dgfq6h7o6qtu8" path="res://resources/enemy_data/ariete.tres" id="6_q4iie"]
 
-[sub_resource type="Resource" id="Resource_group1"]
+[sub_resource type="Resource" id="Resource_yqung"]
 script = ExtResource("1_61x1h")
-enemy_data = ExtResource("2_hx8fa")
-count = 3
-spacing = 0.65
-pause_after = 0.5
-
-[sub_resource type="Resource" id="Resource_group2"]
-script = ExtResource("1_61x1h")
-enemy_data = ExtResource("3_yqung")
+enemy_data = ExtResource("2_yqung")
 count = 5
-spacing = 0.4
-pause_after = 0.4
+spacing = 0.41
+pause_after = 0.38
+path_index = 1
+
+[sub_resource type="Resource" id="Resource_ikfom"]
+script = ExtResource("1_61x1h")
+enemy_data = ExtResource("3_ikfom")
+count = 6
+spacing = 0.35
+pause_after = 0.33
 path_index = 2
 
-[sub_resource type="Resource" id="Resource_group3"]
+[sub_resource type="Resource" id="Resource_q4iie"]
 script = ExtResource("1_61x1h")
 enemy_data = ExtResource("2_hx8fa")
-count = 3
-spacing = 0.65
-pause_after = 0.5
-path_index = 3
+count = 6
+spacing = 0.29
+pause_after = 0.45
 
-[sub_resource type="Resource" id="Resource_group4"]
+[sub_resource type="Resource" id="Resource_q71fp"]
 script = ExtResource("1_61x1h")
 enemy_data = ExtResource("4_ikfom")
-pause_after = 1.0
-path_index = 1
-
-[sub_resource type="Resource" id="Resource_group5"]
-script = ExtResource("1_61x1h")
-enemy_data = ExtResource("2_hx8fa")
 count = 3
-spacing = 0.65
-pause_after = 0.5
+spacing = 0.81
+pause_after = 0.38
 path_index = 3
 
-[sub_resource type="Resource" id="Resource_group6"]
+[sub_resource type="Resource" id="Resource_dugfs"]
 script = ExtResource("1_61x1h")
-enemy_data = ExtResource("5_ikfom")
-count = 2
-spacing = 0.8
-pause_after = 0.7
-
-[sub_resource type="Resource" id="Resource_group7"]
-script = ExtResource("1_61x1h")
-enemy_data = ExtResource("2_hx8fa")
-count = 3
-spacing = 0.65
-pause_after = 0.5
-path_index = 2
-
-[sub_resource type="Resource" id="Resource_group8"]
-script = ExtResource("1_61x1h")
-enemy_data = ExtResource("6_q4iie")
-count = 2
-spacing = 0.8
-pause_after = 0.7
+enemy_data = ExtResource("2_yqung")
+count = 5
+spacing = 0.41
+pause_after = 0.38
 path_index = 1
 
-[sub_resource type="Resource" id="Resource_group9"]
-script = ExtResource("1_61x1h")
-enemy_data = ExtResource("2_hx8fa")
-count = 3
-spacing = 0.65
-pause_after = 0.5
-path_index = 3
-
-[sub_resource type="Resource" id="Resource_group10"]
+[sub_resource type="Resource" id="Resource_scsxk"]
 script = ExtResource("1_61x1h")
 enemy_data = ExtResource("3_yqung")
 count = 5
-spacing = 0.4
+spacing = 0.24
 path_index = 2
 
 [resource]
 script = ExtResource("5_q4iie")
-health_multiplier = 3.67
-groups = Array[ExtResource("1_61x1h")]([SubResource("Resource_group1"), SubResource("Resource_group2"), SubResource("Resource_group3"), SubResource("Resource_group4"), SubResource("Resource_group5"), SubResource("Resource_group6"), SubResource("Resource_group7"), SubResource("Resource_group8"), SubResource("Resource_group9"), SubResource("Resource_group10")])
+health_multiplier = 1.1
+groups = Array[ExtResource("1_61x1h")]([SubResource("Resource_yqung"), SubResource("Resource_ikfom"), SubResource("Resource_q4iie"), SubResource("Resource_q71fp"), SubResource("Resource_dugfs"), SubResource("Resource_scsxk")])

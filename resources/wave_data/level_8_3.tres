@@ -1,104 +1,50 @@
 [gd_resource type="Resource" script_class="WaveData" format=3 uid="uid://drotk6ermj12g"]
 
 [ext_resource type="Script" uid="uid://dclc5suu1kxn3" path="res://scripts/resources/SpawnGroup.gd" id="1_e5brt"]
-[ext_resource type="Resource" uid="uid://ddbvifh0ad88b" path="res://resources/enemy_data/nave_agresiva.tres" id="4_m441h"]
-[ext_resource type="Resource" uid="uid://do4ht7x2audbo" path="res://resources/enemy_data/acorazado.tres" id="8_wldan"]
+[ext_resource type="Resource" path="res://resources/enemy_data/vanguard.tres" id="3_m441h"]
+[ext_resource type="Resource" uid="uid://bfiipacu4434d" path="res://resources/enemy_data/wasp.tres" id="4_ujmt0"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="10_kwvie"]
 [ext_resource type="Resource" path="res://resources/enemy_data/saboteadora.tres" id="saboteadora"]
 
-[sub_resource type="Resource" id="Resource_group1"]
+[sub_resource type="Resource" id="Resource_m441h"]
 script = ExtResource("1_e5brt")
 enemy_data = ExtResource("saboteadora")
-count = 2
-spacing = 0.8
-pause_after = 1.3
-path_index = 1
+count = 5
+spacing = 0.38
+pause_after = 1.11
+path_index = 3
 
-[sub_resource type="Resource" id="Resource_group2"]
+[sub_resource type="Resource" id="Resource_ujmt0"]
 script = ExtResource("1_e5brt")
-enemy_data = ExtResource("8_wldan")
-pause_after = 1.3
-
-[sub_resource type="Resource" id="Resource_group3"]
-script = ExtResource("1_e5brt")
-enemy_data = ExtResource("saboteadora")
-count = 2
-spacing = 0.9
-pause_after = 1.2
+enemy_data = ExtResource("3_m441h")
+count = 4
+spacing = 0.54
+pause_after = 1.09
 path_index = 2
 
-[sub_resource type="Resource" id="Resource_group4"]
+[sub_resource type="Resource" id="Resource_qviyg"]
 script = ExtResource("1_e5brt")
-enemy_data = ExtResource("4_m441h")
-count = 3
-spacing = 0.75
+enemy_data = ExtResource("saboteadora")
+count = 5
+spacing = 0.38
+pause_after = 1.11
+path_index = 1
+
+[sub_resource type="Resource" id="Resource_0dw6s"]
+script = ExtResource("1_e5brt")
+enemy_data = ExtResource("4_ujmt0")
+count = 6
+spacing = 0.32
 pause_after = 1.1
+
+[sub_resource type="Resource" id="Resource_nwdsy"]
+script = ExtResource("1_e5brt")
+enemy_data = ExtResource("3_m441h")
+count = 4
+spacing = 0.54
 path_index = 3
-
-[sub_resource type="Resource" id="Resource_group5"]
-script = ExtResource("1_e5brt")
-enemy_data = ExtResource("saboteadora")
-count = 2
-spacing = 0.9
-pause_after = 1.2
-path_index = 1
-
-[sub_resource type="Resource" id="Resource_group6"]
-script = ExtResource("1_e5brt")
-enemy_data = ExtResource("8_wldan")
-pause_after = 1.3
-
-[sub_resource type="Resource" id="Resource_group7"]
-script = ExtResource("1_e5brt")
-enemy_data = ExtResource("saboteadora")
-count = 2
-spacing = 0.9
-pause_after = 1.2
-path_index = 2
-
-[sub_resource type="Resource" id="Resource_group8"]
-script = ExtResource("1_e5brt")
-enemy_data = ExtResource("4_m441h")
-count = 3
-spacing = 0.75
-pause_after = 1.1
-path_index = 3
-
-[sub_resource type="Resource" id="Resource_group9"]
-script = ExtResource("1_e5brt")
-enemy_data = ExtResource("saboteadora")
-count = 2
-spacing = 0.9
-pause_after = 1.2
-path_index = 1
-
-[sub_resource type="Resource" id="Resource_group10"]
-script = ExtResource("1_e5brt")
-enemy_data = ExtResource("8_wldan")
-pause_after = 1.3
-path_index = 3
-
-[sub_resource type="Resource" id="Resource_group11"]
-script = ExtResource("1_e5brt")
-enemy_data = ExtResource("saboteadora")
-count = 2
-spacing = 0.9
-pause_after = 1.2
-path_index = 2
-
-[sub_resource type="Resource" id="Resource_group12"]
-script = ExtResource("1_e5brt")
-enemy_data = ExtResource("8_wldan")
-pause_after = 1.3
-
-[sub_resource type="Resource" id="Resource_group13"]
-script = ExtResource("1_e5brt")
-enemy_data = ExtResource("saboteadora")
-count = 2
-spacing = 0.9
-path_index = 2
 
 [resource]
 script = ExtResource("10_kwvie")
-health_multiplier = 2.75
-groups = Array[ExtResource("1_e5brt")]([SubResource("Resource_group1"), SubResource("Resource_group2"), SubResource("Resource_group3"), SubResource("Resource_group4"), SubResource("Resource_group5"), SubResource("Resource_group6"), SubResource("Resource_group7"), SubResource("Resource_group8"), SubResource("Resource_group9"), SubResource("Resource_group10"), SubResource("Resource_group11"), SubResource("Resource_group12"), SubResource("Resource_group13")])
+health_multiplier = 0.81
+groups = Array[ExtResource("1_e5brt")]([SubResource("Resource_m441h"), SubResource("Resource_ujmt0"), SubResource("Resource_qviyg"), SubResource("Resource_0dw6s"), SubResource("Resource_nwdsy")])
