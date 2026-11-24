@@ -92,12 +92,49 @@ const SLOT_CLEARANCE: float = 2.0
 const SLOT_CENTER: float = 3.0
 # Un tramo del camino va por una curva si su dirección se sale del eje más que esta pendiente (~3°)
 const BEND_SLOPE: float = 0.05
-# Orilla de las curvas: una roca pequeña en cada casilla por la que pasa la línea a BEND_EDGE_OFFSET px
-# del centro del camino (a la que quedan las rocas de la orilla de un tramo recto), con el desplazamiento
-# que más la acerque a esa línea, para que la curva del pasillo se vea con su forma. Ninguna queda (su
-# centro) a menos de BEND_EDGE_MIN px del camino
-const BEND_EDGE_OFFSET: float = 33.0
+# Orilla de las curvas (ver _place_bend_edges): piezas variadas cuyo borde sigue la curva. Ningún píxel
+# opaco queda a menos de BEND_EDGE_CLEARANCE px del centro del camino (medido al centro del píxel: el
+# borde, a 24 px, como en la orilla de un tramo recto) ni ninguna pieza con su centro a menos de
+# BEND_EDGE_MIN px. Cada pieza se pone donde lo más cercano queda a como mucho BEND_EDGE_TOLERANCE px
+# más (las pequeñas, con el centro a esa holgura de BEND_EDGE_MIN), para que la curva se lea
+const BEND_EDGE_CLEARANCE: float = 24.5
 const BEND_EDGE_MIN: float = 31.0
+const BEND_EDGE_TOLERANCE: float = 5.0
+# Si no cabe nada así, se prueba con una roca pequeña con más holgura y más adelante, para que no
+# queden huecos grandes (las pequeñas solo pueden ir en su casilla, con poco desplazamiento)
+const BEND_EDGE_WIDE_TOLERANCE: float = 8.0
+const BEND_EDGE_WIDE_AHEAD: float = 16.0
+# Si no cabe nada en un punto de la línea de la orilla, se prueba este trecho (px) más allá
+const BEND_EDGE_STEP: float = 4.0
+# Una pieza puede empezar desde BEND_EDGE_BEHIND px antes hasta BEND_EDGE_AHEAD px después de donde
+# acabó la anterior más el hueco (las piezas van por casillas y no siempre cabe una justo ahí)
+const BEND_EDGE_BEHIND: float = 4.0
+const BEND_EDGE_AHEAD: float = 12.0
+# Las rocas de 2x2 y 3x3 tienen, tras la alternativa sin desplazar, estas otras desplazadas 4 px
+# (ver art.md). Solo las usa la orilla de las curvas, para que su borde siga la curva
+const LARGE_JITTER_COUNT: int = 8
+# Tipos de pieza de la orilla de las curvas y su peso: por fuera, de todo; por dentro, solo rocas de
+# 2x2 y pequeñas (y la de 3x3 de la punta, si cabe). Si el elegido no cabe, se prueba el siguiente de
+# EDGE_FALLBACK
+enum EdgeKind { LARGE, MEDIUM, SMALL, PEBBLE, SCRAP }
+const EDGE_OUTER_WEIGHTS: Dictionary[EdgeKind, float] = {
+	EdgeKind.LARGE: 0.22, EdgeKind.MEDIUM: 0.42, EdgeKind.SMALL: 0.26, EdgeKind.PEBBLE: 0.04, EdgeKind.SCRAP: 0.06,
+}
+const EDGE_INNER_WEIGHTS: Dictionary[EdgeKind, float] = {
+	EdgeKind.MEDIUM: 0.55, EdgeKind.SMALL: 0.45,
+}
+# Como mucho tantas piezas de 1x1 seguidas en la orilla de una curva: luego va una roca de 2x2 o, si no
+# cabe, un hueco de al menos EDGE_GROUP_GAP px, así que las pequeñas van en grupos y no en fila
+const EDGE_SMALL_STREAK: int = 2
+const EDGE_GROUP_GAP: float = 8.0
+# Una curva es cerrada (la punta de una U) si gira más que esto (rad)
+const EDGE_TIGHT_TURN: float = 2.5
+const EDGE_FALLBACK: Dictionary[EdgeKind, EdgeKind] = {
+	EdgeKind.LARGE: EdgeKind.MEDIUM, EdgeKind.MEDIUM: EdgeKind.SMALL, EdgeKind.PEBBLE: EdgeKind.SMALL, EdgeKind.SCRAP: EdgeKind.SMALL,
+}
+# Hueco (px) entre dos piezas seguidas de la orilla: casi siempre poco (grupos apretados) y a veces
+# un hueco pequeño. Cada entrada: probabilidad acumulada, hueco mínimo y máximo
+const EDGE_GAPS: Array[Vector3] = [Vector3(0.6, 0.0, 2.0), Vector3(0.9, 2.0, 5.0), Vector3(1.0, 8.0, 12.0)]
 # Puntos precalculados (a cada lado) con los que se mira si un punto del camino está en una curva: así
 # también cuenta la cima de un arco, donde la dirección vuelve a ir por el eje
 const BEND_REACH: int = 3
@@ -218,6 +255,24 @@ class LevelLayout:
 	var rocks: PackedStringArray = ["grey"]
 
 
+## Dibujo de una pieza puesta con una alternativa: centros de los píxeles opacos de su contorno y
+## centro del dibujo, en px desde la esquina de arriba a la izquierda de su primera casilla.
+class PieceShape:
+	var outline: PackedVector2Array = PackedVector2Array()
+	var center: Vector2 = Vector2.ZERO
+
+
+## Sitio para una pieza de la orilla de una curva. back y front: dónde empieza y acaba a lo largo de
+## la línea de la orilla (px desde el punto en el que se busca, en el sentido en el que se avanza).
+class EdgeFit:
+	var piece: Piece
+	var top_left: Vector2i
+	var alternative: int = 0
+	var score: float = INF
+	var back: float = 0.0
+	var front: float = 0.0
+
+
 # Catálogo de piezas
 var _families: Dictionary[String, RockFamily] = {}
 var _pebbles: Array[Piece] = []
@@ -225,6 +280,9 @@ var _scrap: Array[Piece] = []
 var _wrecks: Array[Piece] = []
 var _landmarks: Array[Piece] = []
 var _beacon: Piece
+# Dibujo de cada pieza con cada alternativa ("fuente:atlas:alternativa"), para la orilla de las curvas
+var _shapes: Dictionary[String, PieceShape] = {}
+var _textures: Dictionary[String, Image] = {}
 
 # Estado del nivel que se está generando
 var _rng: RandomNumberGenerator
@@ -235,6 +293,10 @@ var _distance: Dictionary[Vector2i, int] = {}
 # punto más próximo está en una curva (un arco de esquina o un tramo en diagonal) y no en un tramo recto
 var _center_distance: Dictionary[Vector2i, float] = {}
 var _near_bend: Dictionary[Vector2i, bool] = {}
+# Puntos de todos los caminos por casilla, para medir rápido la distancia al camino más cercano, y
+# distancia (px) ya medida del centro de cada píxel
+var _path_buckets: Dictionary[Vector2i, PackedVector2Array] = {}
+var _pixel_distance: Dictionary[Vector2i, float] = {}
 # Casillas de torreta mal puestas en el mapa que se está generando (ver _check_slots); con alguna no se guarda
 var _slot_errors: int = 0
 # Casillas con algo puesto. _solid, las que tapa algo que se ve bien (todo menos piedrecitas)
@@ -618,7 +680,7 @@ func _is_bend(a: Vector2, b: Vector2) -> bool:
 ##   más lejos de él (en una franja entre dos pasillos, la del medio; en el campo, a SLOT_CENTER), salvo
 ##   que esa casilla esté fuera del borde del mapa o toque una curva.
 ## Junto a una curva sí puede ir (dentro de las esquinas cubre los dos tramos): su asteroide hace de
-## orilla en lugar de las rocas pequeñas de _place_bend_edges(), que no se ponen en sus casillas.
+## orilla en lugar de las piezas de _place_bend_edges(), que no se ponen en sus casillas.
 ## En las vitrinas de la Navedex, con la casilla puesta a mano para cada escena, solo se mira la distancia.
 func _check_slots(slots: Array[Vector2i], showcase: bool) -> void:
 	for cell: Vector2i in slots:
@@ -730,20 +792,24 @@ func _fits(top_left: Vector2i, size: Vector2i) -> bool:
 ## Pone la pieza tapando las casillas que empiezan en top_left y devuelve su rectángulo.
 ## Las piezas de lado impar se anclan en su casilla central; las de lado par usan la alternativa
 ## ALIGNED, desplazada media casilla, anclada en la primera casilla de ese lado. Las de 1x1 del
-## atlas de rocas se desplazan unos píxeles al azar (ver JITTER).
-func _put(layer: TileMapLayer, top_left: Vector2i, piece: Piece) -> Rect2i:
+## atlas de rocas se desplazan unos píxeles al azar (ver JITTER), salvo que se pase la alternativa.
+func _put(layer: TileMapLayer, top_left: Vector2i, piece: Piece, alternative: int = -1) -> Rect2i:
 	var anchor: Vector2i = top_left + (piece.size - Vector2i.ONE) / 2
-	var alternative: int = 0
-	if piece.size.x % 2 == 0 or piece.size.y % 2 == 0:
-		alternative = ALIGNED
-	elif piece.size == Vector2i.ONE and piece.source == ROCKS:
-		alternative = _jitter(top_left)
+	if alternative < 0:
+		alternative = _base_alternative(piece)
+		if piece.size == Vector2i.ONE and piece.source == ROCKS:
+			alternative = _jitter(top_left)
 	layer.set_cell(anchor, piece.source, piece.atlas, alternative)
 	var rect: Rect2i = Rect2i(top_left, piece.size)
 	_block(rect)
 	if not _pebbles.has(piece):
 		_make_solid(rect)
 	return rect
+
+
+## Alternativa sin desplazar: la de media casilla (ALIGNED) si tiene algún lado par; si no, la 0.
+func _base_alternative(piece: Piece) -> int:
+	return ALIGNED if piece.size.x % 2 == 0 or piece.size.y % 2 == 0 else 0
 
 
 ## Alternativa de JITTER al azar, sin las que acercan la pieza al pasillo.
@@ -874,56 +940,307 @@ func _place_lights(layer: TileMapLayer, path_cells: Dictionary[Vector2i, int], s
 		layer.set_cell(cell, ANIMATED, lights[int(position_along / 2.0) % 2])
 
 
-## Rocas pequeñas que dibujan la orilla de cada curva del camino, a los dos lados (ver BEND_EDGE_OFFSET).
+## Orilla de cada curva del camino, a los dos lados: piezas variadas (rocas de 2x2, de 3x3 por fuera,
+## pequeñas, piedrecitas y algo de chatarra) cuyo borde sigue la curva a BEND_EDGE_CLEARANCE px del
+## camino, así que la curva se ve con su forma y con el mismo margen que un tramo recto. Un tramo de
+## curva que comparten varios caminos se hace una sola vez.
 func _place_bend_edges(layer: TileMapLayer, curves: Array[Curve2D]) -> void:
-	# Puntos de todos los caminos por casilla, para medir rápido la distancia al camino más cercano
-	var buckets: Dictionary[Vector2i, PackedVector2Array] = {}
+	_path_buckets = {}
+	_pixel_distance = {}
 	for curve: Curve2D in curves:
 		for point: Vector2 in curve.get_baked_points():
 			var cell: Vector2i = _cell_at(point)
-			if not buckets.has(cell):
-				buckets[cell] = PackedVector2Array()
-			buckets[cell].append(point)
-	var chosen: Dictionary[Vector2i, int] = {}
-	var seen: Dictionary[Vector2i, bool] = {}
+			if not _path_buckets.has(cell):
+				_path_buckets[cell] = PackedVector2Array()
+			_path_buckets[cell].append(point)
+	var done: Dictionary[Vector2i, bool] = {}
 	for curve: Curve2D in curves:
 		var points: PackedVector2Array = curve.get_baked_points()
+		var first: int = -1
 		for i: int in range(1, points.size() - 1):
-			var before: Vector2 = points[maxi(i - BEND_REACH, 0)]
-			var after: Vector2 = points[mini(i + BEND_REACH, points.size() - 1)]
-			if not _is_bend(before, points[i]) and not _is_bend(points[i], after):
-				continue
-			var tangent: Vector2 = (points[i + 1] - points[i - 1]).normalized()
-			for side: Vector2 in [Vector2(-tangent.y, tangent.x), Vector2(tangent.y, -tangent.x)]:
-				var cell: Vector2i = _cell_at(points[i] + side * BEND_EDGE_OFFSET)
-				if seen.has(cell):
-					continue
-				seen[cell] = true
-				if _blocked.has(cell) or not _decor_rect().has_point(cell):
-					continue
-				# El desplazamiento que deja la roca más cerca de la línea, sin acercarla al camino
-				var best_error: float = INF
-				for j: int in JITTER.size():
-					var length: float = _path_distance(_cell_center(cell) + Vector2(JITTER[j]), buckets)
-					if length >= BEND_EDGE_MIN and absf(length - BEND_EDGE_OFFSET) < best_error:
-						best_error = absf(length - BEND_EDGE_OFFSET)
-						chosen[cell] = j
-	for cell: Vector2i in chosen:
-		var piece: Piece = _choose(_families[_mix(_family_at(cell))].small)
-		layer.set_cell(cell, piece.source, piece.atlas, chosen[cell])
-		_block(Rect2i(cell, Vector2i.ONE))
-		_make_solid(Rect2i(cell, Vector2i.ONE))
+			var bend: bool = _is_bend(points[maxi(i - BEND_REACH, 0)], points[i]) or _is_bend(points[i], points[mini(i + BEND_REACH, points.size() - 1)])
+			if bend and first < 0:
+				first = i
+			if first >= 0 and (not bend or i == points.size() - 2):
+				_place_bend_run(layer, points, first, i if bend else i - 1, done)
+				first = -1
 
 
-## Distancia (px) de un punto al camino más cercano, con los puntos de los caminos por casilla.
-func _path_distance(point: Vector2, buckets: Dictionary[Vector2i, PackedVector2Array]) -> float:
+## Las dos orillas del tramo de curva de los puntos first a last, si no se han hecho ya con otro camino
+## (si más de la mitad de sus puntos caen en casillas de un tramo ya hecho).
+func _place_bend_run(layer: TileMapLayer, points: PackedVector2Array, first: int, last: int, done: Dictionary[Vector2i, bool]) -> void:
+	var shared: int = 0
+	var turn: float = 0.0
+	for i: int in range(first, last + 1):
+		if done.has(_cell_at(points[i])):
+			shared += 1
+		turn += _tangent(points, i).cross(_tangent(points, i + 1))
+	if shared * 2 > last - first + 1:
+		return
+	for i: int in range(first, last + 1):
+		done[_cell_at(points[i])] = true
+	for side: float in [1.0, -1.0]:
+		var line: PackedVector2Array = PackedVector2Array()
+		var normals: PackedVector2Array = PackedVector2Array()
+		for i: int in range(first, last + 1):
+			var tangent: Vector2 = _tangent(points, i)
+			var normal: Vector2 = Vector2(-tangent.y, tangent.x) * side
+			line.append(points[i] + normal * BEND_EDGE_CLEARANCE)
+			normals.append(normal)
+		# El centro de la curva queda hacia donde gira el camino: ese es el lado de dentro
+		var inner: bool = side * turn > 0.0
+		_place_edge_side(layer, line, normals, inner, inner and absf(turn) > EDGE_TIGHT_TURN)
+
+
+## Dirección del camino en el punto i.
+func _tangent(points: PackedVector2Array, i: int) -> Vector2:
+	return (points[mini(i + 1, points.size() - 1)] - points[maxi(i - 1, 0)]).normalized()
+
+
+## Una orilla de un tramo de curva, a lo largo de line (los puntos a BEND_EDGE_CLEARANCE px del
+## camino; normals, hacia fuera de él). Empieza por el medio y sigue hacia los dos extremos. En el lado
+## de dentro de una curva cerrada (tight, la punta de la franja de una U) empieza con la roca más
+## grande que quepa, para que la punta acabe redondeada y no en una cadena de piedras. Las casillas
+## de la línea que quedan libres (los huecos entre piezas) se reservan.
+func _place_edge_side(layer: TileMapLayer, line: PackedVector2Array, normals: PackedVector2Array, inner: bool, tight: bool) -> void:
+	if line.size() < 3:
+		return
+	var lengths: PackedFloat32Array = PackedFloat32Array([0.0])
+	for k: int in range(1, line.size()):
+		lengths.append(lengths[k - 1] + line[k].distance_to(line[k - 1]))
+	var middle: int = int(line.size() / 2.0)
+	var forward: float = lengths[middle]
+	var backward: float = lengths[middle]
+	var fit: EdgeFit = _edge_fit(line, normals, middle, 0.0, EdgeKind.LARGE if tight else _edge_kind(inner))
+	if fit != null:
+		_put(layer, fit.top_left, fit.piece, fit.alternative)
+		forward += fit.front + _edge_gap()
+		backward += fit.back - _edge_gap()
+	_walk_edge(layer, line, normals, lengths, forward, 1.0, inner)
+	_walk_edge(layer, line, normals, lengths, backward, -1.0, inner)
+	# Los huecos entre piezas se quedan como huecos: el campo no los llena de piedras
+	for k: int in line.size():
+		var cell: Vector2i = _cell_at(line[k] + normals[k] * TILE_SIZE / 2.0)
+		if _is_free(cell):
+			_block(Rect2i(cell, Vector2i.ONE))
+
+
+## Pone piezas a lo largo de la línea de la orilla desde position (px a lo largo de ella), hacia
+## delante (direction 1) o hacia atrás (-1), hasta salirse. Tras EDGE_SMALL_STREAK piezas de 1x1
+## seguidas solo pone una roca de 2x2 o, si no cabe, deja un hueco (ver EDGE_GROUP_GAP), para que no
+## se forme una fila de piedras.
+func _walk_edge(layer: TileMapLayer, line: PackedVector2Array, normals: PackedVector2Array, lengths: PackedFloat32Array, position: float, direction: float, inner: bool) -> void:
+	var small_streak: int = 0
+	var skipped: float = 0.0
+	while position >= 0.0 and position <= lengths[lengths.size() - 1]:
+		var k: int = _line_index(lengths, position)
+		var kind: EdgeKind = _edge_kind(inner)
+		var grouped: bool = small_streak >= EDGE_SMALL_STREAK
+		if grouped:
+			kind = EdgeKind.MEDIUM
+		var fit: EdgeFit = _edge_fit(line, normals, k, direction, kind, not grouped)
+		if fit == null:
+			position += direction * BEND_EDGE_STEP
+			skipped += BEND_EDGE_STEP
+			if skipped >= EDGE_GROUP_GAP:
+				small_streak = 0
+			continue
+		_put(layer, fit.top_left, fit.piece, fit.alternative)
+		small_streak = small_streak + 1 if fit.piece.size == Vector2i.ONE else 0
+		skipped = 0.0
+		position = lengths[k] + direction * maxf(fit.front + _edge_gap(), BEND_EDGE_STEP)
+
+
+## Punto de la línea más cercano a position (px a lo largo de ella).
+func _line_index(lengths: PackedFloat32Array, position: float) -> int:
+	var best: int = 0
+	for k: int in lengths.size():
+		if absf(lengths[k] - position) < absf(lengths[best] - position):
+			best = k
+	return best
+
+
+## Tipo de pieza al azar para la orilla de una curva, por el lado de dentro o el de fuera.
+func _edge_kind(inner: bool) -> EdgeKind:
+	var weights: Dictionary[EdgeKind, float] = EDGE_INNER_WEIGHTS if inner else EDGE_OUTER_WEIGHTS
+	var roll: float = _rng.randf()
+	for kind: EdgeKind in weights:
+		roll -= weights[kind]
+		if roll < 0.0:
+			return kind
+	return EdgeKind.SMALL
+
+
+## Hueco al azar entre dos piezas seguidas de la orilla de una curva (ver EDGE_GAPS).
+func _edge_gap() -> float:
+	var roll: float = _rng.randf()
+	for gap: Vector3 in EDGE_GAPS:
+		if roll < gap.x:
+			return _rng.randf_range(gap.y, gap.z)
+	return 0.0
+
+
+## Piezas del tipo kind para la orilla, de la familia de la zona o de su pareja.
+func _edge_pieces(kind: EdgeKind, family: String) -> Array[Piece]:
+	match kind:
+		EdgeKind.LARGE:
+			return _large_pieces(_mix(family))
+		EdgeKind.MEDIUM:
+			return _families[_mix(family)].medium
+		EdgeKind.SMALL:
+			return _families[_mix(family)].small
+		EdgeKind.PEBBLE:
+			return _pebbles
+	return _scrap
+
+
+## El mejor sitio junto al punto k de la línea de la orilla para una pieza del tipo kind (o, si no cabe
+## ninguna, del siguiente de EDGE_FALLBACK, y al final una pequeña con BEND_EDGE_WIDE_TOLERANCE), o null.
+## Sin allow_small no llega a probar las pequeñas. Con direction 1 o -1 la pieza empieza en el punto
+## y sigue en ese sentido; con 0, queda centrada en él.
+func _edge_fit(line: PackedVector2Array, normals: PackedVector2Array, k: int, direction: float, kind: EdgeKind, allow_small: bool = true) -> EdgeFit:
+	var tangent: Vector2 = (line[mini(k + 1, line.size() - 1)] - line[maxi(k - 1, 0)]).normalized()
+	if direction < 0.0:
+		tangent = -tangent
+	var family: String = _family_at(_cell_at(line[k]))
+	var tolerance: float = BEND_EDGE_TOLERANCE
+	var ahead: float = BEND_EDGE_AHEAD
+	while true:
+		if kind == EdgeKind.SMALL and not allow_small:
+			return null
+		var best: EdgeFit = null
+		for piece: Piece in _edge_pieces(kind, family):
+			var size: Vector2 = Vector2(piece.size * TILE_SIZE)
+			# Casilla de arriba a la izquierda si la pieza tocara la línea con su centro hacia fuera
+			var guess: Vector2i = _cell_at(line[k] + normals[k] * size.x / 2.0 - size / 2.0 + Vector2.ONE * TILE_SIZE / 2.0)
+			for dy: int in range(-1, 2):
+				for dx: int in range(-1, 2):
+					var top_left: Vector2i = guess + Vector2i(dx, dy)
+					if not _edge_cells_free(top_left, piece.size):
+						continue
+					for alternative: int in _edge_alternatives(piece):
+						var fit: EdgeFit = _score_edge(piece, top_left, alternative, line[k], tangent, direction, tolerance, ahead)
+						if fit != null and (best == null or fit.score < best.score):
+							best = fit
+		if best == null and kind == EdgeKind.SMALL and tolerance == BEND_EDGE_TOLERANCE:
+			tolerance = BEND_EDGE_WIDE_TOLERANCE
+			ahead = BEND_EDGE_WIDE_AHEAD
+			continue
+		if best != null or not EDGE_FALLBACK.has(kind):
+			return best
+		kind = EDGE_FALLBACK[kind]
+	return null
+
+
+## Las casillas de la pieza están dentro de la decoración y libres; pueden ser del pasillo (lo que
+## cuenta es lo opaco, ver _score_edge).
+func _edge_cells_free(top_left: Vector2i, size: Vector2i) -> bool:
+	for y: int in size.y:
+		for x: int in size.x:
+			var cell: Vector2i = top_left + Vector2i(x, y)
+			if _blocked.has(cell) or not _decor_rect().has_point(cell):
+				return false
+	return true
+
+
+## Alternativas con las que puede ir la pieza: sin desplazar o con cualquiera de sus desplazamientos
+## (JITTER en las de 1x1 del atlas de rocas, LARGE_JITTER_COUNT en las rocas de 2x2 y 3x3).
+func _edge_alternatives(piece: Piece) -> Array[int]:
+	var alternatives: Array[int] = []
+	if piece.size == Vector2i.ONE:
+		alternatives.assign(range(JITTER.size()) if piece.source == ROCKS else [0])
+	else:
+		alternatives.assign(range(_base_alternative(piece), _base_alternative(piece) + LARGE_JITTER_COUNT + 1))
+	return alternatives
+
+
+## Sitio para la pieza en top_left con esa alternativa junto al punto spot de la línea de la orilla, o
+## null si algo opaco queda a menos de BEND_EDGE_CLEARANCE del camino o su centro a menos de
+## BEND_EDGE_MIN, si queda a más de tolerance de eso (no seguiría la curva) o si empieza lejos del
+## punto (de BEND_EDGE_BEHIND antes a ahead después; si se busca centrada, centrada). Cuanto más pegada a la línea y al punto, mejor (menos score).
+func _score_edge(piece: Piece, top_left: Vector2i, alternative: int, spot: Vector2, tangent: Vector2, direction: float, tolerance: float, ahead: float) -> EdgeFit:
+	var shape: PieceShape = _shape(piece, alternative)
+	var corner: Vector2 = Vector2(top_left * TILE_SIZE)
+	var center_gap: float = _distance_at_pixel(corner + shape.center) - BEND_EDGE_MIN
+	if center_gap < 0.0:
+		return null
+	var clearance: float = INF
+	var back: float = INF
+	var front: float = -INF
+	for offset: Vector2 in shape.outline:
+		var pixel: Vector2 = corner + offset
+		clearance = minf(clearance, _distance_at_pixel(pixel))
+		if clearance < BEND_EDGE_CLEARANCE:
+			return null
+		var along: float = (pixel - spot).dot(tangent)
+		back = minf(back, along)
+		front = maxf(front, along)
+	# Las pequeñas se miden por el centro, como en la orilla de un tramo recto
+	var error: float = center_gap if piece.size == Vector2i.ONE else clearance - BEND_EDGE_CLEARANCE
+	var shift: float = back if direction != 0.0 else (back + front) / 2.0
+	if error > tolerance or shift < -BEND_EDGE_BEHIND or shift > ahead:
+		return null
+	var fit: EdgeFit = EdgeFit.new()
+	fit.piece = piece
+	fit.top_left = top_left
+	fit.alternative = alternative
+	fit.score = error + absf(shift) * 0.5
+	fit.back = back
+	fit.front = front
+	return fit
+
+
+## Dibujo de la pieza con esa alternativa, sacado de su textura (en las animadas, el de todos sus
+## fotogramas juntos).
+func _shape(piece: Piece, alternative: int) -> PieceShape:
+	var key: String = "%d:%s:%d" % [piece.source, piece.atlas, alternative]
+	if _shapes.has(key):
+		return _shapes[key]
+	var source: TileSetAtlasSource = (load(SPACE_TILESET) as TileSet).get_source(piece.source)
+	var path: String = source.texture.resource_path
+	if not _textures.has(path):
+		_textures[path] = Image.load_from_file(ProjectSettings.globalize_path(path))
+	var image: Image = _textures[path]
+	var region: Rect2i = source.get_tile_texture_region(piece.atlas)
+	var opaque: Dictionary[Vector2i, bool] = {}
+	for frame: int in source.get_tile_animation_frames_count(piece.atlas):
+		var frame_region: Rect2i = source.get_tile_texture_region(piece.atlas, frame)
+		for y: int in region.size.y:
+			for x: int in region.size.x:
+				if image.get_pixel(frame_region.position.x + x, frame_region.position.y + y).a > 0.0:
+					opaque[Vector2i(x, y)] = true
+	var origin: Vector2i = source.get_tile_data(piece.atlas, alternative).texture_origin
+	var anchor: Vector2i = (piece.size - Vector2i.ONE) / 2
+	var shape: PieceShape = PieceShape.new()
+	# Se dibuja centrada en su casilla de anclaje, movida -texture_origin
+	shape.center = Vector2(anchor * TILE_SIZE) + Vector2.ONE * TILE_SIZE / 2.0 - Vector2(origin)
+	var corner: Vector2 = shape.center - Vector2(region.size) / 2.0
+	for pixel: Vector2i in opaque:
+		for side: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+			if not opaque.has(pixel + side):
+				shape.outline.append(corner + Vector2(pixel) + Vector2(0.5, 0.5))
+				break
+	_shapes[key] = shape
+	return shape
+
+
+## Distancia (px) de un punto (el centro de un píxel) al camino más cercano, medida una vez por píxel.
+func _distance_at_pixel(point: Vector2) -> float:
+	var key: Vector2i = Vector2i(point.floor())
+	if not _pixel_distance.has(key):
+		_pixel_distance[key] = _path_distance(point)
+	return _pixel_distance[key]
+
+
+## Distancia (px) de un punto al camino más cercano; exacta hasta 48 px (3 casillas), y más si no.
+func _path_distance(point: Vector2) -> float:
 	var center: Vector2i = _cell_at(point)
 	var best: float = INF
 	for dy: int in range(-3, 4):
 		for dx: int in range(-3, 4):
-			for other: Vector2 in buckets.get(center + Vector2i(dx, dy), PackedVector2Array()):
-				best = minf(best, point.distance_to(other))
-	return best
+			for other: Vector2 in _path_buckets.get(center + Vector2i(dx, dy), PackedVector2Array()):
+				best = minf(best, point.distance_squared_to(other))
+	return sqrt(best)
 
 
 ## Unas pocas piezas especiales dentro del campo, lejos del pasillo, del borde y unas de otras, con
