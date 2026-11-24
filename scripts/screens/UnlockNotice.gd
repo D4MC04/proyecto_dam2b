@@ -39,8 +39,15 @@ func is_open() -> bool:
 	return visible
 
 ## Enseña los avisos uno tras otro; emite `finished` al cerrar el último. Con la lista vacía no hace nada.
+## Si ya hay avisos en pantalla, los nuevos se añaden al final de la cola.
 func show_unlocks(items: Array[UnlockInfo]) -> void:
-	if items.is_empty() or visible:
+	if items.is_empty():
+		return
+	if visible:
+		_items.append_array(items)
+		counter_label.text = "%d / %d" % [_index + 1, _items.size()]
+		counter_label.visible = true
+		next_button.text = tr(NEXT_KEY)
 		return
 	_items = items
 	_index = 0
