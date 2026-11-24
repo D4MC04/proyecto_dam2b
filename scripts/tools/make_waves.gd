@@ -1,9 +1,10 @@
 extends SceneTree
-## Genera las oleadas de todos los niveles a partir de la tabla LEVELS y las enlaza en su nivel.
+## Escribe las oleadas de los niveles hechos a mano (HAND_LEVELS) y las enlaza en su nivel.
 ##
 ## Uso: godot --headless --path . -s scripts/tools/make_waves.gd [-- emergency]
-## Con "emergency" solo genera el nivel de emergencia (el nivel de prueba del tutorial); sin argumentos, todo.
-## Los niveles 2 y 3 no salen del generador: sus oleadas se escriben a mano en LEVEL_2 y LEVEL_3 (ver HAND_LEVELS).
+## Con "emergency" solo genera el nivel de emergencia (el nivel de prueba del tutorial); sin argumentos, los niveles a mano y el de emergencia.
+## Solo reescribe los niveles de HAND_LEVELS (1, 2 y 3: tablas a mano LEVEL_1, LEVEL_2 y LEVEL_3). El generador (LEVELS, niveles 4-9)
+## sigue aquí de base pero no se lanza: los .tres de esos niveles no se tocan.
 ##
 ## Escribe resources/wave_data/level_N.tres (oleada 1) y level_N_K.tres (oleada K). Si el archivo
 ## ya existe se carga y se rellena, así conserva su uid. Después pone la lista de oleadas en
@@ -47,7 +48,7 @@ const MAX_GROUP: int = 6
 ## elevada a esto (más de 1: sube poco al principio y mucho al final).
 const HEALTH_CURVE: float = 1.4
 
-## Por nivel: oleadas, caminos del mapa, presupuesto de la primera oleada, crecimiento por oleada,
+## (Las entradas de los niveles 1-3 no se leen: salen de LEVEL_1-3.) Por nivel: oleadas, caminos del mapa, presupuesto de la primera oleada, crecimiento por oleada,
 ## separación inicial entre naves (s), multiplicador de vida de la primera y de la última oleada
 ## (`health`, la recompensa no cambia con él), naves nuevas del nivel, naves de niveles anteriores
 ## (de las más fáciles a las más duras: se van sumando por ese orden) y si sale la Nodriza.
@@ -91,6 +92,20 @@ const EMERGENCY_MAP: String = "res://scenes/maps/levels/Emergency.tscn"
 const EMERGENCY_MONEY: int = 300
 const EMERGENCY_TURRET: String = "res://resources/turret_data/turret.tres"
 
+## Nivel 1, copiado tal cual de sus .tres (mismo formato que LEVEL_2). Las oleadas 1-5 son grupos de 5 Darts de cada color, Wasps y
+## Naves normales sin separar ni camino propios (valores por defecto de SpawnGroup); de la 6 a la 10 cada tramo es su propio grupo.
+const LEVEL_1: Array[Dictionary] = [
+	{"health": 1.0, "groups": [["dart_rojo", 5, 0.5, 0, 2.5], ["dart_morado", 5, 0.5, 0, 2.5], ["dart_verde", 5, 0.5, 0, 2.5], ["dart_hielo", 5, 0.5, 0, 0.0]]},
+	{"health": 1.0, "groups": [["dart_rojo", 5, 0.5, 0, 2.5], ["dart_morado", 5, 0.5, 0, 2.5], ["dart_verde", 5, 0.5, 0, 2.5], ["dart_hielo", 5, 0.5, 0, 2.5], ["wasp", 5, 0.5, 0, 0.0]]},
+	{"health": 1.0, "groups": [["nave_normal", 3, 0.5, 0, 2.5], ["wasp", 5, 0.5, 0, 0.0]]},
+	{"health": 1.0, "groups": [["nave_normal", 3, 0.5, 0, 2.5], ["dart_rojo", 5, 0.5, 0, 2.5], ["dart_morado", 5, 0.5, 0, 2.5], ["dart_verde", 5, 0.5, 0, 2.5], ["dart_hielo", 5, 0.5, 0, 2.5], ["wasp", 5, 0.5, 0, 0.0]]},
+	{"health": 1.0, "groups": [["nave_normal", 3, 0.5, 0, 2.5], ["wasp", 5, 0.5, 0, 2.5], ["dart_rojo", 5, 0.5, 0, 2.5], ["dart_morado", 5, 0.5, 0, 2.5], ["nave_normal", 3, 0.5, 0, 2.5], ["dart_verde", 5, 0.5, 0, 2.5], ["dart_hielo", 5, 0.5, 0, 0.0]]},
+	{"health": 1.85, "groups": [["dart_rojo", 1, 0.5, 0, 0.4], ["dart_verde", 1, 0.5, 0, 0.3], ["dart_hielo", 2, 0.4, 0, 0.4], ["dart_rojo", 1, 0.5, 0, 0.4], ["dart_hielo", 1, 0.5, 0, 1.5], ["wasp", 5, 0.63, 0, 1.58], ["dart_verde", 1, 0.5, 0, 0.4], ["dart_morado", 1, 0.5, 0, 3.0]]},
+	{"health": 2.06, "groups": [["wasp", 5, 0.57, 0, 1.42], ["dart_rojo", 1, 0.5, 0, 0.3], ["dart_morado", 1, 0.5, 0, 0.4], ["dart_hielo", 1, 0.5, 0, 0.3], ["dart_verde", 1, 0.5, 0, 0.4], ["dart_hielo", 1, 0.5, 0, 0.3], ["dart_morado", 1, 0.5, 0, 1.4], ["wasp", 3, 0.6, 0, 3.0]]},
+	{"health": 2.3, "groups": [["wasp", 6, 0.52, 0, 1.3], ["dart_hielo", 1, 0.5, 0, 0.3], ["dart_verde", 1, 0.5, 0, 0.3], ["dart_rojo", 1, 0.5, 0, 0.3], ["dart_morado", 1, 0.5, 0, 0.3], ["dart_hielo", 1, 0.5, 0, 0.3], ["dart_rojo", 1, 0.5, 0, 1.3], ["wasp", 3, 0.55, 0, 3.0]]},
+	{"health": 2.54, "groups": [["dart_hielo", 1, 0.5, 0, 0.3], ["dart_morado", 1, 0.5, 0, 0.3], ["dart_verde", 1, 0.5, 0, 0.2], ["dart_morado", 2, 0.3, 0, 0.3], ["dart_rojo", 1, 0.5, 0, 1.2], ["wasp", 6, 0.46, 0, 1.2], ["dart_rojo", 1, 0.5, 0, 0.3], ["dart_hielo", 2, 0.3, 0, 0.3], ["dart_rojo", 1, 0.5, 0, 0.2], ["dart_verde", 1, 0.5, 0, 0.3], ["dart_morado", 1, 0.5, 0, 1.2], ["wasp", 1, 0.5, 0, 3.0]]},
+	{"health": 2.8, "groups": [["dart_morado", 4, 0.27, 0, 0.19], ["dart_hielo", 1, 0.5, 0, 0.3], ["dart_rojo", 1, 0.5, 0, 1.1], ["wasp", 6, 0.42, 0, 1.1], ["dart_verde", 1, 0.5, 0, 0.2], ["dart_rojo", 1, 0.5, 0, 0.3], ["dart_verde", 1, 0.5, 0, 0.2], ["dart_morado", 1, 0.5, 0, 0.3], ["dart_hielo", 2, 0.2, 0, 1.1], ["wasp", 2, 0.4, 0, 3.0]]},
+]
 ## Nivel 2, escrito a mano en dientes de sierra (presentación, picos y respiros, final duro). Por oleada: multiplicador de vida
 ## y grupos [nave, cuántas, separación, camino, pausa después]; pausa negativa = el siguiente grupo sale antes de que acabe este
 ## (solape entre caminos). La suma de recompensas sigue la del generador (230 × 1,13^(K-1), ±10 %).
@@ -181,17 +196,16 @@ const LEVEL_3: Array[Dictionary] = [
 			["nave_agresiva", 3, 1.1, 1, -2.2], ["nave_normal", 4, 0.8, 0, 0.0]]},
 ]
 ## Niveles con las oleadas escritas a mano: nivel → tabla.
-const HAND_LEVELS: Dictionary[int, Array] = {2: LEVEL_2, 3: LEVEL_3}
+const HAND_LEVELS: Dictionary[int, Array] = {1: LEVEL_1, 2: LEVEL_2, 3: LEVEL_3}
 
 var _enemies: Dictionary[String, EnemyData] = {}
 
 
 func _initialize() -> void:
 	if not EMERGENCY_NAME in OS.get_cmdline_user_args():
-		for i: int in LEVELS.size():
-			var level_number: int = i + 1
-			var waves: Array[WaveData] = _make_hand_level(level_number) if HAND_LEVELS.has(level_number) else _make_level(level_number, LEVELS[i])
-			_save_level(level_number, waves)
+		# Solo los niveles a mano: los de LEVELS (el generador) no se escriben hasta pasarlos a HAND_LEVELS.
+		for level_number: int in HAND_LEVELS:
+			_save_level(level_number, _make_hand_level(level_number))
 	_make_emergency()
 	quit()
 
