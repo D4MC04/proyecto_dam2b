@@ -413,7 +413,8 @@ func _show_toast(id: String, phase: int) -> void:
 	label.add_theme_color_override("font_outline_color", Color.BLACK)
 	label.add_theme_constant_override("outline_size", 4)
 	_toasts.add_child(label)
-	var tween: Tween = create_tween()
+	# Aviso de interfaz: tiempo real, no sigue el ×2 ni el ×4.
+	var tween: Tween = create_tween().set_ignore_time_scale()
 	tween.tween_interval(TOAST_TIME)
 	tween.tween_property(label, "modulate:a", 0.0, 0.5)
 	tween.tween_callback(label.queue_free)
