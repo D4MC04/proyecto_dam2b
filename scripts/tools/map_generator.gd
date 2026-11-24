@@ -616,9 +616,9 @@ func _is_bend(a: Vector2, b: Vector2) -> bool:
 ## - a menos de SLOT_CLEARANCE del camino (la torreta taparía las naves): error;
 ## - sin centrar en su franja de roca: a menos de SLOT_CENTER del camino teniendo al lado una casilla
 ##   más lejos de él (en una franja entre dos pasillos, la del medio; en el campo, a SLOT_CENTER), salvo
-##   que esa casilla esté fuera del borde del mapa o toque una curva;
-## - tocando con su asteroide (la casilla y las 8 de alrededor) la orilla de una curva: deformaría la
-##   curva del pasillo, así que va más adentro, junto a los tramos rectos.
+##   que esa casilla esté fuera del borde del mapa o toque una curva.
+## Junto a una curva sí puede ir (dentro de las esquinas cubre los dos tramos): su asteroide hace de
+## orilla en lugar de las rocas pequeñas de _place_bend_edges(), que no se ponen en sus casillas.
 ## En las vitrinas de la Navedex, con la casilla puesta a mano para cada escena, solo se mira la distancia.
 func _check_slots(slots: Array[Vector2i], showcase: bool) -> void:
 	for cell: Vector2i in slots:
@@ -637,10 +637,6 @@ func _check_slots(slots: Array[Vector2i], showcase: bool) -> void:
 				push_error("Casilla de torreta %s sin centrar en su franja (más lejos del camino en %s)" % [cell, next])
 				_slot_errors += 1
 				break
-		var bend: Vector2i = _bend_touched(cell)
-		if bend != NO_CELL:
-			push_error("Casilla de torreta %s pegada a una curva (en %s)" % [cell, bend])
-			_slot_errors += 1
 
 
 ## Casilla de la orilla de una curva (o del pasillo junto a ella) que tocaría el asteroide de una casilla
