@@ -167,7 +167,7 @@ func set_station_health(current: int, maximum: int) -> void:
 		fill.bg_color = STATION_DANGER_COLOR
 		fill.border_color = STATION_DANGER_COLOR
 		station_value_label.add_theme_color_override("font_color", STATION_DANGER_COLOR)
-		_station_hit_tween = create_tween().set_parallel()
+		_station_hit_tween = create_tween().set_parallel().set_ignore_time_scale()
 		_station_hit_tween.tween_property(fill, "bg_color", color, STATION_HIT_TIME)
 		_station_hit_tween.tween_property(fill, "border_color", color, STATION_HIT_TIME)
 		_station_hit_tween.tween_method(func(c: Color) -> void: station_value_label.add_theme_color_override("font_color", c), STATION_DANGER_COLOR, label_color, STATION_HIT_TIME)
@@ -249,7 +249,7 @@ func set_next_wave_available(available: bool, inviting: bool) -> void:
 	if pulse == (_next_pulse != null):
 		return
 	if pulse:
-		_next_pulse = create_tween().set_loops()
+		_next_pulse = create_tween().set_loops().set_ignore_time_scale()
 		_next_pulse.tween_property(_next_normal_style, "border_color", NEXT_GLOW_COLOR, NEXT_PULSE_TIME)
 		_next_pulse.tween_property(_next_normal_style, "border_color", NEXT_BORDER_COLOR, NEXT_PULSE_TIME)
 	else:

@@ -76,6 +76,12 @@ func _ready() -> void:
 	icon_rect.resized.connect(_center_sprites)
 	_center_sprites()
 
+# Los sprites animados siguen Engine.time_scale: se compensa para que el ×2 y el ×4 no aceleren el icono.
+func _process(_delta: float) -> void:
+	var speed: float = 1.0 / maxf(Engine.time_scale, 0.01)
+	base_sprite.speed_scale = speed
+	cannon_sprite.speed_scale = speed
+
 func setup(turret_data: TurretData, money: int, locked: bool = false) -> void:
 	data = turret_data
 	_locked = locked
