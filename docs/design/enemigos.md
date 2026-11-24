@@ -43,7 +43,7 @@ Las naves con mecánica (velocidad en px/s) solo tienen ya el botín nuevo; su v
 
 ### Sprites de las naves base
 
-Dart, Wasp, Streak, Vanguard, Corsair, Frigate, Cruiser y Juggernaut no se dibujan a mano: los genera `scripts/tools/make_base_ships.gd` (`godot --headless --path . -s scripts/tools/make_base_ships.gd`), que también escribe sus `SpriteFrames`. Ram, Mothership y las naves con mecánica tienen su propio dibujo. Ver [art.md](art.md).
+Las 10 naves base no se dibujan a mano: las genera `scripts/tools/make_base_ships.gd` (`godot --headless --path . -s scripts/tools/make_base_ships.gd`), que también escribe sus `SpriteFrames`. Las naves con mecánica tienen su propio dibujo. Ver [art.md](art.md).
 
 ## Comportamiento
 
