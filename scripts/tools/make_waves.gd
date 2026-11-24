@@ -3,7 +3,7 @@ extends SceneTree
 ##
 ## Uso: godot --headless --path . -s scripts/tools/make_waves.gd [-- emergency]
 ## Con "emergency" solo genera el nivel de emergencia (el nivel de prueba del tutorial); sin argumentos, los niveles a mano y el de emergencia.
-## Solo reescribe los niveles de HAND_LEVELS (1, 2 y 3: tablas a mano LEVEL_1, LEVEL_2 y LEVEL_3). El generador (LEVELS, niveles 4-9)
+## Solo reescribe los niveles de HAND_LEVELS (1-4: tablas a mano LEVEL_1 a LEVEL_4). El generador (LEVELS, niveles 5-9)
 ## sigue aquí de base pero no se lanza: los .tres de esos niveles no se tocan.
 ##
 ## Escribe resources/wave_data/level_N.tres (oleada 1) y level_N_K.tres (oleada K). Si el archivo
@@ -48,7 +48,7 @@ const MAX_GROUP: int = 6
 ## elevada a esto (más de 1: sube poco al principio y mucho al final).
 const HEALTH_CURVE: float = 1.4
 
-## (Las entradas de los niveles 1-3 no se leen: salen de LEVEL_1-3.) Por nivel: oleadas, caminos del mapa, presupuesto de la primera oleada, crecimiento por oleada,
+## (Las entradas de los niveles 1-4 no se leen: salen de LEVEL_1-4.) Por nivel: oleadas, caminos del mapa, presupuesto de la primera oleada, crecimiento por oleada,
 ## separación inicial entre naves (s), multiplicador de vida de la primera y de la última oleada
 ## (`health`, la recompensa no cambia con él), naves nuevas del nivel, naves de niveles anteriores
 ## (de las más fáciles a las más duras: se van sumando por ese orden) y si sale la Nodriza.
@@ -195,8 +195,45 @@ const LEVEL_3: Array[Dictionary] = [
 			["dart_verde", 3, 0.4, 1, 0.4], ["nave_agresiva", 1, 0.0, 1, 0.4], ["dart_verde", 3, 0.4, 1, 0.8], ["wasp", 6, 0.45, 0, -1.0],
 			["nave_agresiva", 3, 1.1, 1, -2.2], ["nave_normal", 4, 0.8, 0, 0.0]]},
 ]
+## Nivel 4, escrito a mano como el 2 y el 3 (mismo formato). El Acorazado es el protagonista; Darts, Wasps, Naves normales y
+## Naves agresivas lo acompañan. La suma de recompensas sigue la del generador (440 × 1,125^(K-1), ±5 %). Camino 0 = el que baja
+## por la izquierda, 1 = el de la derecha (se juntan abajo en el centro y suben juntos). La 1 va entera por el camino 0 y presenta
+## Acorazados sueltos entre naves fáciles; la 2 se reparte entre los dos. Escoltas con una Nave agresiva o un Acorazado en medio.
+## Picos: 5, 8 y 10 (Acorazados por los dos caminos a la vez). Respiros: 3, 6 y 9 (naves más separadas, no menos vida).
+const LEVEL_4: Array[Dictionary] = [
+	{"health": 0.9, "groups": [["dart_rojo", 4, 1.0, 0, 2.5], ["wasp", 3, 1.2, 0, 2.5], ["acorazado", 1, 0.0, 0, 3.5],
+			["dart_verde", 4, 1.0, 0, 2.5], ["nave_normal", 3, 1.6, 0, 2.5], ["acorazado", 1, 0.0, 0, 3.5], ["wasp", 3, 1.2, 0, 2.5],
+			["dart_hielo", 3, 1.0, 0, 2.5], ["nave_normal", 1, 0.0, 0, 0.0]]},
+	{"health": 0.95, "groups": [["acorazado", 1, 0.0, 0, 1.0], ["dart_rojo", 4, 0.9, 1, 2.0], ["nave_normal", 3, 1.6, 1, -1.5],
+			["wasp", 3, 1.1, 0, 2.0], ["dart_verde", 2, 0.5, 0, 0.5], ["nave_agresiva", 1, 0.0, 0, 0.5], ["dart_verde", 2, 0.5, 0, 2.0],
+			["acorazado", 1, 0.0, 1, 2.0], ["wasp", 3, 1.1, 0, -1.0], ["nave_normal", 2, 1.6, 1, 0.0]]},
+	{"health": 1.25, "groups": [["acorazado", 1, 0.0, 0, 2.5], ["dart_rojo", 5, 0.8, 1, 2.0], ["nave_agresiva", 2, 2.2, 0, 2.5],
+			["wasp", 4, 1.0, 1, 2.0], ["acorazado", 1, 0.0, 1, 2.5], ["nave_normal", 3, 1.5, 0, 2.0], ["dart_verde", 5, 0.8, 1, 2.0],
+			["wasp", 4, 1.0, 0, 2.0], ["dart_hielo", 3, 0.8, 0, 0.0]]},
+	{"health": 1.4, "groups": [["acorazado", 2, 3.0, 0, -3.0], ["dart_rojo", 5, 0.7, 1, 2.0], ["wasp", 4, 0.9, 0, -1.5],
+			["nave_agresiva", 2, 2.0, 1, 2.0], ["dart_verde", 2, 0.5, 0, 0.5], ["acorazado", 1, 0.0, 0, 0.5], ["dart_verde", 2, 0.5, 0, -1.0],
+			["wasp", 3, 0.9, 1, 2.0], ["nave_normal", 1, 0.0, 1, 0.0]]},
+	{"health": 1.5, "groups": [["acorazado", 2, 2.5, 0, -2.5], ["acorazado", 2, 2.5, 1, 1.5], ["wasp", 5, 0.7, 0, -2.0],
+			["dart_rojo", 3, 0.4, 1, 0.4], ["nave_agresiva", 1, 0.0, 1, 0.4], ["dart_rojo", 3, 0.4, 1, 1.5], ["nave_normal", 2, 1.0, 0, 0.0]]},
+	{"health": 2.1, "groups": [["dart_rojo", 6, 0.6, 0, -1.0], ["wasp", 5, 0.8, 1, 1.0], ["acorazado", 1, 0.0, 0, 1.5],
+			["nave_agresiva", 2, 1.8, 1, 1.2], ["dart_hielo", 6, 0.6, 0, -1.0], ["wasp", 5, 0.8, 1, 1.0], ["acorazado", 1, 0.0, 1, 1.5],
+			["nave_normal", 3, 1.3, 0, 1.0], ["dart_morado", 2, 0.5, 1, 0.5], ["nave_agresiva", 1, 0.0, 1, 0.5], ["dart_morado", 2, 0.5, 1, 1.5],
+			["acorazado", 1, 0.0, 0, 1.5], ["dart_verde", 6, 0.6, 0, 0.0]]},
+	{"health": 2.4, "groups": [["wasp", 4, 0.6, 0, -1.0], ["acorazado", 2, 2.2, 1, 1.2], ["dart_rojo", 2, 0.4, 0, 0.4],
+			["nave_agresiva", 1, 0.0, 0, 0.4], ["dart_rojo", 2, 0.4, 0, -0.5], ["dart_verde", 5, 0.5, 1, 1.2], ["acorazado", 2, 2.2, 0, -2.0],
+			["wasp", 5, 0.6, 1, 1.2], ["nave_agresiva", 2, 1.4, 1, -1.5], ["nave_normal", 3, 1.0, 0, 1.2], ["wasp", 3, 0.6, 1, 0.0]]},
+	{"health": 2.6, "groups": [["acorazado", 3, 2.4, 0, -4.8], ["acorazado", 3, 2.4, 1, 1.5], ["wasp", 5, 0.5, 0, -1.0],
+			["dart_rojo", 3, 0.4, 1, 0.4], ["nave_agresiva", 1, 0.0, 1, 0.4], ["dart_rojo", 3, 0.4, 1, -0.5], ["nave_normal", 4, 0.9, 0, 0.0]]},
+	{"health": 3.1, "groups": [["dart_rojo", 6, 0.5, 0, -1.0], ["wasp", 6, 0.6, 1, 0.8], ["acorazado", 2, 2.5, 0, 1.0],
+			["nave_agresiva", 2, 1.5, 1, -1.0], ["dart_verde", 6, 0.5, 0, 0.8], ["dart_morado", 2, 0.5, 1, 0.5], ["acorazado", 1, 0.0, 1, 0.5],
+			["dart_morado", 2, 0.5, 1, 1.0], ["wasp", 6, 0.6, 0, -1.0], ["nave_agresiva", 2, 1.5, 1, 1.0], ["acorazado", 2, 2.5, 0, -1.0],
+			["dart_hielo", 6, 0.5, 1, 0.8], ["nave_normal", 2, 1.1, 0, 0.0]]},
+	{"health": 3.6, "groups": [["acorazado", 3, 1.8, 0, -3.6], ["acorazado", 3, 1.8, 1, 0.8], ["dart_rojo", 3, 0.4, 0, 0.4],
+			["nave_agresiva", 1, 0.0, 0, 0.4], ["dart_rojo", 3, 0.4, 0, -0.3], ["wasp", 6, 0.45, 1, 0.8], ["nave_agresiva", 2, 1.1, 0, -1.5],
+			["dart_verde", 3, 0.4, 1, 0.4], ["acorazado", 1, 0.0, 1, 0.4], ["dart_verde", 3, 0.4, 1, 0.8], ["nave_normal", 4, 0.8, 0, 0.0]]},
+]
 ## Niveles con las oleadas escritas a mano: nivel → tabla.
-const HAND_LEVELS: Dictionary[int, Array] = {1: LEVEL_1, 2: LEVEL_2, 3: LEVEL_3}
+const HAND_LEVELS: Dictionary[int, Array] = {1: LEVEL_1, 2: LEVEL_2, 3: LEVEL_3, 4: LEVEL_4}
 
 var _enemies: Dictionary[String, EnemyData] = {}
 
