@@ -61,6 +61,7 @@ var start_on_level_selection: bool = false
 @onready var quit_confirm: Control = $QuitConfirm
 @onready var intro_dialog: IntroDialog = $IntroDialog
 @onready var office_tutorial: OfficeTutorial = $OfficeTutorial
+@onready var unlock_notice: UnlockNotice = $UnlockNotice
 
 var _view: View = View.CENTER
 var _turn_tween: Tween
@@ -118,6 +119,9 @@ func _ready() -> void:
 	# La primera vez en la oficina después del nivel de emergencia, NOVA la enseña.
 	elif not GameState.office_tutorial_done and not start_on_level_selection:
 		office_tutorial.start(GameState.tutorial_won, radar_console, options_console)
+	# Si no hay llamada ni tutorial en marcha, se enseñan los desbloqueos pendientes (con tutorial, esperan en la cola).
+	else:
+		unlock_notice.show_unlocks(GameState.take_unlocks())
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _jumping or _leaving or _zooming:
@@ -174,7 +178,7 @@ func _update_edges() -> void:
 func _can_turn() -> bool:
 	if office_tutorial.is_running() and not office_tutorial.allows_turn():
 		return false
-	return not (_panel or quit_confirm.visible or _zooming or _jumping or _leaving)
+	return not (_panel or quit_confirm.visible or _zooming or _jumping or _leaving or unlock_notice.is_open())
 
 # --- Paneles -------------------------------------------------------------------------------
 
