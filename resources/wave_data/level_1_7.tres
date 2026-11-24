@@ -8,52 +8,47 @@
 [sub_resource type="Resource" id="Resource_l0r6j"]
 script = ExtResource("1_fwxox")
 enemy_data = ExtResource("2_r0cxu")
-count = 6
-spacing = 0.34
+count = 5
+spacing = 0.57
 pause_after = 1.42
 
 [sub_resource type="Resource" id="Resource_5lqsr"]
 script = ExtResource("1_fwxox")
 enemy_data = ExtResource("6_txeyb")
-count = 6
-spacing = 0.34
-pause_after = 1.42
+pause_after = 0.3
 
 [sub_resource type="Resource" id="Resource_unqfl"]
 script = ExtResource("1_fwxox")
-enemy_data = ExtResource("2_r0cxu")
-count = 6
-spacing = 0.34
-pause_after = 1.42
+enemy_data = ExtResource("6_txeyb")
+pause_after = 0.4
 
 [sub_resource type="Resource" id="Resource_fwxox"]
 script = ExtResource("1_fwxox")
 enemy_data = ExtResource("6_txeyb")
-count = 6
-spacing = 0.34
-pause_after = 1.42
+pause_after = 0.3
 
 [sub_resource type="Resource" id="Resource_r0cxu"]
 script = ExtResource("1_fwxox")
-enemy_data = ExtResource("2_r0cxu")
-count = 6
-spacing = 0.34
-pause_after = 1.42
+enemy_data = ExtResource("6_txeyb")
+pause_after = 0.4
 
 [sub_resource type="Resource" id="Resource_juexp"]
 script = ExtResource("1_fwxox")
 enemy_data = ExtResource("6_txeyb")
-count = 6
-spacing = 0.34
-pause_after = 1.42
+pause_after = 0.3
 
 [sub_resource type="Resource" id="Resource_vnoos"]
 script = ExtResource("1_fwxox")
+enemy_data = ExtResource("6_txeyb")
+pause_after = 1.4
+
+[sub_resource type="Resource" id="Resource_ta0lt"]
+script = ExtResource("1_fwxox")
 enemy_data = ExtResource("2_r0cxu")
-count = 5
-spacing = 0.34
+count = 3
+spacing = 0.6
 
 [resource]
 script = ExtResource("7_b38ok")
 health_multiplier = 2.06
-groups = Array[ExtResource("1_fwxox")]([SubResource("Resource_l0r6j"), SubResource("Resource_5lqsr"), SubResource("Resource_unqfl"), SubResource("Resource_fwxox"), SubResource("Resource_r0cxu"), SubResource("Resource_juexp"), SubResource("Resource_vnoos")])
+groups = Array[ExtResource("1_fwxox")]([SubResource("Resource_l0r6j"), SubResource("Resource_5lqsr"), SubResource("Resource_unqfl"), SubResource("Resource_fwxox"), SubResource("Resource_r0cxu"), SubResource("Resource_juexp"), SubResource("Resource_vnoos"), SubResource("Resource_ta0lt")])

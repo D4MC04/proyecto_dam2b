@@ -8,52 +8,47 @@
 [sub_resource type="Resource" id="Resource_vxnik"]
 script = ExtResource("1_irywg")
 enemy_data = ExtResource("6_330rj")
-count = 6
-spacing = 0.37
-pause_after = 1.56
+pause_after = 0.4
 
 [sub_resource type="Resource" id="Resource_ixy4f"]
 script = ExtResource("1_irywg")
-enemy_data = ExtResource("5_wisad")
-count = 6
-spacing = 0.37
-pause_after = 1.56
+enemy_data = ExtResource("6_330rj")
+pause_after = 0.3
 
 [sub_resource type="Resource" id="Resource_ui6ts"]
 script = ExtResource("1_irywg")
 enemy_data = ExtResource("6_330rj")
-count = 6
-spacing = 0.37
-pause_after = 1.56
+count = 2
+spacing = 0.4
+pause_after = 0.4
 
 [sub_resource type="Resource" id="Resource_irywg"]
 script = ExtResource("1_irywg")
-enemy_data = ExtResource("5_wisad")
-count = 6
-spacing = 0.37
-pause_after = 1.56
+enemy_data = ExtResource("6_330rj")
+pause_after = 0.4
 
 [sub_resource type="Resource" id="Resource_nlmbg"]
 script = ExtResource("1_irywg")
 enemy_data = ExtResource("6_330rj")
-count = 6
-spacing = 0.37
-pause_after = 1.56
+pause_after = 1.5
 
 [sub_resource type="Resource" id="Resource_gkx7p"]
 script = ExtResource("1_irywg")
 enemy_data = ExtResource("5_wisad")
-count = 6
-spacing = 0.37
-pause_after = 1.56
+count = 5
+spacing = 0.63
+pause_after = 1.58
 
 [sub_resource type="Resource" id="Resource_21je6"]
 script = ExtResource("1_irywg")
 enemy_data = ExtResource("6_330rj")
-count = 2
-spacing = 0.37
+pause_after = 0.4
+
+[sub_resource type="Resource" id="Resource_wisad"]
+script = ExtResource("1_irywg")
+enemy_data = ExtResource("6_330rj")
 
 [resource]
 script = ExtResource("7_j4use")
 health_multiplier = 1.85
-groups = Array[ExtResource("1_irywg")]([SubResource("Resource_vxnik"), SubResource("Resource_ixy4f"), SubResource("Resource_ui6ts"), SubResource("Resource_irywg"), SubResource("Resource_nlmbg"), SubResource("Resource_gkx7p"), SubResource("Resource_21je6")])
+groups = Array[ExtResource("1_irywg")]([SubResource("Resource_vxnik"), SubResource("Resource_ixy4f"), SubResource("Resource_ui6ts"), SubResource("Resource_irywg"), SubResource("Resource_nlmbg"), SubResource("Resource_gkx7p"), SubResource("Resource_21je6"), SubResource("Resource_wisad")])

@@ -1,51 +1,47 @@
 [gd_resource type="Resource" script_class="WaveData" format=3 uid="uid://fdnmfx2e2w4i"]
 
 [ext_resource type="Script" uid="uid://dclc5suu1kxn3" path="res://scripts/resources/SpawnGroup.gd" id="1_m18l7"]
+[ext_resource type="Resource" uid="uid://d2xfg8qmcw3va" path="res://resources/enemy_data/nave_normal.tres" id="2_sf12i"]
 [ext_resource type="Resource" uid="uid://bakq6nmr73sl0" path="res://resources/enemy_data/dart_rojo.tres" id="5_f7gpf"]
 [ext_resource type="Resource" uid="uid://bfiipacu4434d" path="res://resources/enemy_data/wasp.tres" id="6_a0rm8"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="7_cbsvt"]
 
-[sub_resource type="Resource" id="Resource_nrmwn"]
-script = ExtResource("1_m18l7")
-enemy_data = ExtResource("5_f7gpf")
-count = 6
-spacing = 0.45
-pause_after = 1.88
-
 [sub_resource type="Resource" id="Resource_sf12i"]
 script = ExtResource("1_m18l7")
-enemy_data = ExtResource("6_a0rm8")
-count = 6
-spacing = 0.45
-pause_after = 1.88
+enemy_data = ExtResource("2_sf12i")
+count = 3
+pause_after = 2.5
 
 [sub_resource type="Resource" id="Resource_e07xp"]
 script = ExtResource("1_m18l7")
 enemy_data = ExtResource("5_f7gpf")
-count = 6
-spacing = 0.45
-pause_after = 1.88
+count = 5
+pause_after = 2.5
 
 [sub_resource type="Resource" id="Resource_m18l7"]
 script = ExtResource("1_m18l7")
-enemy_data = ExtResource("6_a0rm8")
-count = 6
-spacing = 0.45
-pause_after = 1.88
+enemy_data = ExtResource("5_f7gpf")
+count = 5
+pause_after = 2.5
 
 [sub_resource type="Resource" id="Resource_jy0am"]
 script = ExtResource("1_m18l7")
 enemy_data = ExtResource("5_f7gpf")
-count = 6
-spacing = 0.45
-pause_after = 1.88
+count = 5
+pause_after = 2.5
 
 [sub_resource type="Resource" id="Resource_6r3p5"]
 script = ExtResource("1_m18l7")
+enemy_data = ExtResource("5_f7gpf")
+count = 5
+pause_after = 2.5
+
+[sub_resource type="Resource" id="Resource_wxoa5"]
+script = ExtResource("1_m18l7")
 enemy_data = ExtResource("6_a0rm8")
-spacing = 0.45
+count = 5
+pause_after = 0.0
 
 [resource]
 script = ExtResource("7_cbsvt")
-health_multiplier = 1.47
-groups = Array[ExtResource("1_m18l7")]([SubResource("Resource_nrmwn"), SubResource("Resource_sf12i"), SubResource("Resource_e07xp"), SubResource("Resource_m18l7"), SubResource("Resource_jy0am"), SubResource("Resource_6r3p5")])
+groups = Array[ExtResource("1_m18l7")]([SubResource("Resource_sf12i"), SubResource("Resource_e07xp"), SubResource("Resource_m18l7"), SubResource("Resource_jy0am"), SubResource("Resource_6r3p5"), SubResource("Resource_wxoa5")])

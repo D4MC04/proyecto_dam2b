@@ -8,79 +8,61 @@
 [sub_resource type="Resource" id="Resource_7lmsk"]
 script = ExtResource("1_ylfie")
 enemy_data = ExtResource("6_3385q")
-count = 6
-spacing = 0.26
-pause_after = 1.07
+count = 4
+spacing = 0.27
+pause_after = 0.19
 
 [sub_resource type="Resource" id="Resource_w6ry5"]
 script = ExtResource("1_ylfie")
-enemy_data = ExtResource("5_4f5yb")
-count = 6
-spacing = 0.26
-pause_after = 1.07
+enemy_data = ExtResource("6_3385q")
+pause_after = 0.3
 
 [sub_resource type="Resource" id="Resource_qyrfs"]
 script = ExtResource("1_ylfie")
 enemy_data = ExtResource("6_3385q")
-count = 6
-spacing = 0.26
-pause_after = 1.07
+pause_after = 1.1
 
 [sub_resource type="Resource" id="Resource_ylfie"]
 script = ExtResource("1_ylfie")
 enemy_data = ExtResource("5_4f5yb")
 count = 6
-spacing = 0.26
-pause_after = 1.07
+spacing = 0.42
+pause_after = 1.1
 
 [sub_resource type="Resource" id="Resource_wjt01"]
 script = ExtResource("1_ylfie")
 enemy_data = ExtResource("6_3385q")
-count = 6
-spacing = 0.26
-pause_after = 1.07
+pause_after = 0.2
 
 [sub_resource type="Resource" id="Resource_f3h7s"]
 script = ExtResource("1_ylfie")
-enemy_data = ExtResource("5_4f5yb")
-count = 6
-spacing = 0.26
-pause_after = 1.07
+enemy_data = ExtResource("6_3385q")
+pause_after = 0.3
 
 [sub_resource type="Resource" id="Resource_bwa0v"]
 script = ExtResource("1_ylfie")
 enemy_data = ExtResource("6_3385q")
-count = 6
-spacing = 0.26
-pause_after = 1.07
+pause_after = 0.2
 
 [sub_resource type="Resource" id="Resource_4f5yb"]
 script = ExtResource("1_ylfie")
-enemy_data = ExtResource("5_4f5yb")
-count = 6
-spacing = 0.26
-pause_after = 1.07
+enemy_data = ExtResource("6_3385q")
+pause_after = 0.3
 
 [sub_resource type="Resource" id="Resource_3385q"]
 script = ExtResource("1_ylfie")
 enemy_data = ExtResource("6_3385q")
-count = 6
-spacing = 0.26
-pause_after = 1.07
+count = 2
+spacing = 0.2
+pause_after = 1.1
 
 [sub_resource type="Resource" id="Resource_gf7ro"]
 script = ExtResource("1_ylfie")
 enemy_data = ExtResource("5_4f5yb")
-count = 6
-spacing = 0.26
-pause_after = 1.07
-
-[sub_resource type="Resource" id="Resource_n1je3"]
-script = ExtResource("1_ylfie")
-enemy_data = ExtResource("6_3385q")
-spacing = 0.26
+count = 2
+spacing = 0.4
 
 [resource]
 script = ExtResource("7_gf7ro")
 health_multiplier = 2.8
-groups = Array[ExtResource("1_ylfie")]([SubResource("Resource_7lmsk"), SubResource("Resource_w6ry5"), SubResource("Resource_qyrfs"), SubResource("Resource_ylfie"), SubResource("Resource_wjt01"), SubResource("Resource_f3h7s"), SubResource("Resource_bwa0v"), SubResource("Resource_4f5yb"), SubResource("Resource_3385q"), SubResource("Resource_gf7ro"), SubResource("Resource_n1je3")])
+groups = Array[ExtResource("1_ylfie")]([SubResource("Resource_7lmsk"), SubResource("Resource_w6ry5"), SubResource("Resource_qyrfs"), SubResource("Resource_ylfie"), SubResource("Resource_wjt01"), SubResource("Resource_f3h7s"), SubResource("Resource_bwa0v"), SubResource("Resource_4f5yb"), SubResource("Resource_3385q"), SubResource("Resource_gf7ro")])
