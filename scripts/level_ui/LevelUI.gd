@@ -4,7 +4,7 @@ class_name LevelUI
 # Estado de la UI: decide qué pantalla se ve y si el árbol está en pausa.
 enum UiState { PLAYING, PAUSED, LOST, WON }
 # Peticiones que la UI pasa a Game.
-enum Action { RESTART, QUIT, NEXT_LEVEL }
+enum Action { RESTART, QUIT }
 
 signal action_requested(action: Action)
 
@@ -27,7 +27,7 @@ const VIGNETTE_MIN_INTENSITY: float = 0.25
 const VIGNETTE_MAX_INTENSITY: float = 0.8
 const VIGNETTE_PULSE_TIME: float = 0.5
 # Texto de la opción de salir de la pausa: normal y en el nivel de emergencia, donde salir es saltarlo.
-const QUIT_TEXT: String = "BTN_QUIT"
+const QUIT_TEXT: String = "BTN_MENU"
 const SKIP_TEXT: String = "TUTORIAL_SKIP"
 # Acción del tutorial que corresponde a cada poder.
 const POWER_ACTIONS: Dictionary[Powers.Power, TutorialHints.Action] = {
@@ -98,8 +98,7 @@ func _update_fps_label() -> void:
 func _process(_delta: float) -> void:
 	fps_label.text = "%d FPS" % Engine.get_frames_per_second()
 
-func setup(state: LevelState, turrets: Array[TurretData], level_number: int, spawner: Spawner, has_next_level: bool, base: Base) -> void:
-	victory_screen.set_option_visible(OverlayScreen.Option.NEXT_LEVEL, has_next_level)
+func setup(state: LevelState, turrets: Array[TurretData], level_number: int, spawner: Spawner, base: Base) -> void:
 	level_indicator.set_level_number(level_number)
 	_connect_spawner(spawner)
 	# La base es nueva en cada nivel o reinicio, así que no hay conexión anterior que quitar.
@@ -293,7 +292,6 @@ func _set_speed(speed: float) -> void:
 ## set_state(LOST) o set_state(WON).
 func show_run_stats(stats: RunStats) -> void:
 	game_over_screen.show_run_stats(stats)
-	victory_screen.show_run_stats(stats)
 
 ## Estrellas ganadas en esta victoria, para la pantalla de victoria. Game lo llama antes de set_state(WON).
 func show_victory_stars(stars: int) -> void:
@@ -406,8 +404,6 @@ func _on_option_chosen(option: OverlayScreen.Option) -> void:
 			_request_action(Action.RESTART)
 		OverlayScreen.Option.QUIT:
 			_request_action(Action.QUIT)
-		OverlayScreen.Option.NEXT_LEVEL:
-			_request_action(Action.NEXT_LEVEL)
 		OverlayScreen.Option.SETTINGS:
 			# Las opciones las abre PauseScreen dentro de la propia pausa: LevelUI sigue en PAUSED.
 			pass

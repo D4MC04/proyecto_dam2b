@@ -34,8 +34,6 @@ const CLOSE_UP_FADE_START: float = 0.85
 # Hueco entre la ficha del sector y la pista "ESC para volver" de debajo.
 const SECTORS_HINT_MARGIN: float = 16.0
 
-var start_on_level_selection: bool = false
-
 @onready var office: Control = $Office
 @onready var views: Control = $Office/Views
 @onready var radar_console: RadarConsole = $Office/Views/CenterView/RadarConsole
@@ -95,15 +93,7 @@ func _ready() -> void:
 	_update_screen_rect()
 	get_viewport().size_changed.connect(_fit_radar_viewport)
 	level_selection_panel.show()
-	if start_on_level_selection:
-		# Sin animación: la oficina queda ya acercada detrás.
-		_panel = level_selection_panel
-		panel_dim.modulate.a = 0.0
-		panel_dim.show()
-		_set_radar_zoom(1.0)
-		sectors_esc_hint.show()
-	else:
-		_move_sectors(true)
+	_move_sectors(true)
 	sector_radar.sector_selected.connect(_on_sector_selected)
 	sector_radar.sector_launched.connect(_on_sector_launched)
 	sector_card.deploy_pressed.connect(_on_deploy_pressed)
@@ -111,13 +101,13 @@ func _ready() -> void:
 	_refresh_sectors()
 	# Una partida que aún no ha pasado por el nivel de emergencia empieza por él, sin pisar la oficina:
 	# hasta el salto solo se ve el espacio.
-	if not GameState.tutorial_done and not start_on_level_selection:
+	if not GameState.tutorial_done:
 		$Office.hide()
 		turn_edges.hide()
 		await get_tree().create_timer(EMERGENCY_DELAY).timeout
 		open_emergency()
 	# La primera vez en la oficina después del nivel de emergencia, NOVA la enseña.
-	elif not GameState.office_tutorial_done and not start_on_level_selection:
+	elif not GameState.office_tutorial_done:
 		office_tutorial.start(GameState.tutorial_won, radar_console, options_console)
 	# Si no hay llamada ni tutorial en marcha, se enseñan los desbloqueos pendientes (con tutorial, esperan en la cola).
 	else:

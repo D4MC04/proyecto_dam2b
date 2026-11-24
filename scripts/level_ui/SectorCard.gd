@@ -33,6 +33,16 @@ const DEPLOY_HOVER_COLOR: Color = Color("#ffe082")
 const REPLAY_COLOR: Color = Color("#3cb860")
 const REPLAY_HOVER_COLOR: Color = Color("#7ee89a")
 
+# Forma de las estrellas del récord: cada '#' es un píxel de STAR_PIXEL px.
+const STAR_SHAPE: Array[String] = [
+	"....#....",
+	"...###...",
+	"#########",
+	".#######.",
+	"..#####..",
+	".###.###.",
+	".##...##.",
+]
 const STAR_PIXEL: int = 2
 const STAR_GAP: int = 4
 const STAR_COLOR: Color = Color("#ecb23c")
@@ -62,7 +72,7 @@ class CardRow extends HBoxContainer:
 		for x: int in range(0, int(size.x), 3):
 			draw_rect(Rect2(x, y, 1, 1), SectorCard.ROW_LINE_COLOR)
 
-# Estrellas del récord en pixel art (la forma de VictoryScreen.STAR_SHAPE).
+# Estrellas del récord en pixel art (la forma de SectorCard.STAR_SHAPE).
 class StarsDisplay extends Control:
 	var stars: int = 0:
 		set(value):
@@ -70,7 +80,7 @@ class StarsDisplay extends Control:
 			queue_redraw()
 
 	func _init() -> void:
-		var shape: Array[String] = VictoryScreen.STAR_SHAPE
+		var shape: Array[String] = SectorCard.STAR_SHAPE
 		var star_width: int = shape[0].length() * SectorCard.STAR_PIXEL
 		custom_minimum_size = Vector2(
 				GameState.MAX_STARS * star_width + (GameState.MAX_STARS - 1) * SectorCard.STAR_GAP,
@@ -78,7 +88,7 @@ class StarsDisplay extends Control:
 		size_flags_vertical = Control.SIZE_SHRINK_CENTER
 
 	func _draw() -> void:
-		var shape: Array[String] = VictoryScreen.STAR_SHAPE
+		var shape: Array[String] = SectorCard.STAR_SHAPE
 		var star_width: int = shape[0].length() * SectorCard.STAR_PIXEL
 		for index: int in GameState.MAX_STARS:
 			var filled: bool = index < stars

@@ -29,6 +29,9 @@ const AUTO_WAVE_DELAY: float = 1.5
 ## Segundos entre el arranque de una oleada y su tiempo 0 (las entradas cuentan desde ahí).
 const WAVE_START_DELAY: float = 2.5
 
+## Último enemigo que llegó a la estación (null si ninguno).
+var last_leaker: EnemyData
+
 ## Con AUTO activo, la siguiente oleada empieza sola cuando el nivel queda limpio.
 var auto_waves: bool = false:
 	set(value):
@@ -216,6 +219,7 @@ func _split(data: EnemyData, path: Path2D, progress: float, sprite_rotation: flo
 func _on_enemy_reached_end(damage: int, enemy: Enemy) -> void:
 	if not _alive.erase(enemy):
 		return
+	last_leaker = enemy.data
 	enemy_reached_end.emit(damage)
 	_check_cleared()
 

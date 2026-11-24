@@ -5,7 +5,7 @@ class_name OverlayScreen
 # cambian el título y añaden sus OverlayOptionButton a Options; la base conecta todos.
 # Quién la muestra lo decide LevelUI.set_state(): esta escena no toca su visibilidad.
 
-enum Option { RESUME, RESTART, QUIT, NEXT_LEVEL, SETTINGS }
+enum Option { RESUME, RESTART, QUIT, SETTINGS }
 
 signal option_chosen(option: Option)
 
@@ -41,11 +41,4 @@ func set_option_text(option: Option, text_key: String) -> void:
 		var button: OverlayOptionButton = child as OverlayOptionButton
 		if button and button.option == option:
 			button.text = text_key
-
-# Muestra u oculta el botón de una opción (p. ej. "Siguiente nivel" en el último nivel).
-func set_option_visible(option: Option, option_visible: bool) -> void:
-	for child: Node in options.get_children():
-		var button: OverlayOptionButton = child as OverlayOptionButton
-		if button and button.option == option:
-			button.visible = option_visible
 

@@ -1,91 +1,40 @@
 extends PanelContainer
 class_name RunSummary
-## Resumen de una partida (oleada alcanzada, enemigos destruidos y dinero gastado) con las filas
-## de la ficha. No sabe en qué pantalla está: lo usan la derrota y la victoria, cada una con su acento.
-## show_stats() pinta los valores finales de golpe; count_up() los hace contar desde 0 (la victoria).
+## Resumen de una derrota: oleada alcanzada y último enemigo que llegó a la estación, con las filas
+## de la ficha (sin iconos). No sabe en qué pantalla está: el acento lo pone quien lo usa.
 
 const BG_COLOR: Color = Color("#0a0f1a")
-# Las filas son más anchas que en la ficha: algo más de aire alrededor del icono y el valor.
+# Las filas son más anchas que en la ficha: algo más de aire alrededor del nombre y el valor.
 const ROW_H_MARGIN: int = 6
 const ROW_V_MARGIN: int = 3
 const ROW_FONT_SIZE: int = 24
-const ROW_ICON_BOX: int = 12
-const ROW_ICON_TOP: int = 5
-# Hueco entre icono, nombre y valor: el de la ficha (StatRow.SEPARATION) a ×1,5.
+# Hueco entre nombre y valor: el de la ficha (StatRow.SEPARATION) a ×1,5.
 const ROW_SEPARATION: int = 6
 
-## Color del rótulo y del borde.
+## Color del borde.
 @export var accent_color: Color = Color("#40e0f0"):
 	set(value):
 		accent_color = value
 		if is_node_ready():
 			_refresh_style()
 
-@onready var caption: Label = %Caption
 @onready var rows: VBoxContainer = %Rows
-
-var _stats: RunStats
-# Etiquetas de valor de las filas que cuentan; las rellena show_stats().
-var _kills_label: Label
-var _cost_label: Label
-# Conteo en curso de count_up(); null si no hay.
-var _count: Tween
 
 func _ready() -> void:
 	_refresh_style()
 
-## Pinta las filas (más la mejor torreta si ha matado) a partir de `stats`; sustituye las anteriores.
+## Pinta las filas (la causa solo si consta) a partir de `stats`; sustituye las anteriores.
 func show_stats(stats: RunStats) -> void:
-	_stop_count()
-	_stats = stats
 	for row: Node in rows.get_children():
 		rows.remove_child(row)
 		row.queue_free()
 	var entries: Array[StatEntry] = [
-		StatEntry.new("wave", "STAT_WAVE", "%d/%d" % [stats.wave_reached, stats.wave_total]),
-		StatEntry.new("kills", "STAT_KILLS", UiFormat.abbreviate(stats.enemies_destroyed)),
-		StatEntry.new("cost", "STAT_SPENT", UiFormat.money(stats.money_spent)),
+		StatEntry.new("", "STAT_WAVE", "%d/%d" % [stats.wave_reached, stats.wave_total]),
 	]
-	if stats.top_turret_kills > 0:
-		entries.append(StatEntry.new("targets", "STAT_TOP_TURRET", tr(stats.top_turret_name).to_upper()))
-		entries.append(StatEntry.new("kills", "STAT_TOP_KILLS", UiFormat.abbreviate(stats.top_turret_kills)))
+	if not stats.killer_name.is_empty():
+		entries.append(StatEntry.new("", "STAT_CAUSE", tr(stats.killer_name).to_upper()))
 	for i: int in entries.size():
-		rows.add_child(StatRow.create(entries[i], i, ROW_H_MARGIN, ROW_V_MARGIN, ROW_FONT_SIZE, ROW_ICON_BOX, ROW_ICON_TOP, ROW_SEPARATION))
-	_kills_label = StatRow.get_value_label(rows.get_child(1) as PanelContainer)
-	_cost_label = StatRow.get_value_label(rows.get_child(2) as PanelContainer)
-
-## Pone enemigos destruidos y dinero gastado a 0 y, tras `delay` segundos, los hace contar hasta
-## su valor en `duration` segundos, frenando al final. La oleada no cuenta. Va en tiempo real.
-## Necesita un show_stats() antes; sin él no hace nada.
-func count_up(duration: float, delay: float = 0.0) -> void:
-	_stop_count()
-	if _stats == null:
-		return
-	_show_counted(0.0)
-	_count = create_tween().set_ignore_time_scale()
-	_count.tween_interval(delay)
-	_count.tween_method(_show_counted, 0.0, 1.0, duration).set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
-	_count.tween_callback(func() -> void: _count = null)
-
-## Corta el conteo en curso y deja los valores finales.
-func finish_count() -> void:
-	_stop_count()
-	if _stats != null:
-		_show_counted(1.0)
-
-func is_counting() -> bool:
-	return _count != null
-
-func _stop_count() -> void:
-	if _count != null:
-		_count.kill()
-		_count = null
-
-# Valores de las filas que cuentan al `progress` (0..1) del conteo. Con UiFormat en cada paso
-# el texto tiene el formato del valor final.
-func _show_counted(progress: float) -> void:
-	_kills_label.text = UiFormat.abbreviate(roundi(_stats.enemies_destroyed * progress))
-	_cost_label.text = UiFormat.money(roundi(_stats.money_spent * progress))
+		rows.add_child(StatRow.create(entries[i], i, ROW_H_MARGIN, ROW_V_MARGIN, ROW_FONT_SIZE, 8, StatRow.ICON_TOP, ROW_SEPARATION))
 
 func _refresh_style() -> void:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
@@ -95,4 +44,3 @@ func _refresh_style() -> void:
 	style.anti_aliasing = false
 	style.set_content_margin_all(3)
 	add_theme_stylebox_override("panel", style)
-	caption.add_theme_color_override("font_color", accent_color)
