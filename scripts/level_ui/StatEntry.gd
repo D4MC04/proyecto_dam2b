@@ -16,8 +16,9 @@ var icon: Texture2D
 var label: String
 var value: String
 
-## `icon_name` es el nombre del PNG en assets/ui/stat_icons/, sin extensión.
+## `icon_name` es el nombre del PNG en assets/ui/stat_icons/, sin extensión; vacío, la fila no lleva icono.
 func _init(icon_name: String, stat_label: String, stat_value: String) -> void:
-	icon = load(ICON_DIR + icon_name + ".png")
+	if not icon_name.is_empty():
+		icon = load(ICON_DIR + icon_name + ".png")
 	label = tr(stat_label)
 	value = stat_value

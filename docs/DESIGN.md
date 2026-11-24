@@ -16,7 +16,7 @@ Turret defense 2D hecho en Godot 4.7 con GDScript. El jugador elige un nivel, co
 1. `StartScreen`: título, "pulsa cualquier tecla" y elección de una de las 3 ranuras de guardado (o borrarla). Al elegir una pasa a `MainMenu` con un efecto de entrada.
 2. `MainMenu`: la oficina del comandante, con tres vistas que se cambian girando la silla; cada objeto de la oficina abre un panel (selección de sector, Navedex, logros, estadísticas, opciones) y la puerta sale del juego.
 3. `Game`: contiene un `Level` (mapa, enemigos, torretas) y un `LevelUI` en tres columnas: barra izquierda de 128 px, área de juego de 704x540 px con el mapa centrado en los dos ejes (y la pausa, la derrota y la victoria) y barra derecha de 128 px.
-4. Desde pausa o derrota se reinicia el nivel o se vuelve a la oficina; la derrota llega tras una cámara lenta y un glitch, con la oleada alcanzada y qué destruyó la estación. Al limpiar la última oleada, tras un breve respiro, entra la victoria deslizando, con las estrellas y "Menú" (a la oficina: entre sectores se pasa siempre por ella).
+4. Desde pausa o derrota se reinicia el nivel o se vuelve a la oficina; la derrota llega tras una cámara lenta y un glitch, con la oleada alcanzada y qué destruyó la estación. Al limpiar la última oleada, tras un breve respiro, entra la victoria deslizando, con las estrellas y "Oficina" (a la oficina: entre sectores se pasa siempre por ella).
 
 ## Sistemas principales
 
