@@ -13,4 +13,4 @@ Arregla lo que el usuario vio al probar: $ARGUMENTS
 4. Guarda con `/commit` (sigue `.claude/skills/commit/SKILL.md`; ya lanza el `probador`). Si se para por errores, arréglalos y repite.
 5. Reabre Godot en la carpeta de este chat como el paso 6 de `.claude/skills/work/SKILL.md`.
 
-Termina con qué has cambiado en 1-2 líneas, los pasos para volver a probarlo y: "Si ya va, `/ship`. Si no, otro `/fix`."
+Termina con qué has cambiado en 1-2 líneas, los pasos para volver a probarlo y: "Si ya va, `/merge`. Si no, otro `/fix`."

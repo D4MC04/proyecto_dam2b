@@ -26,9 +26,9 @@
 
 ## Flujo de tickets
 - Guía para el usuario: docs/CLAUDE-CODE.md. Formato de ticket: docs/tickets/_plantilla.md.
-- Comandos: `/ideas` (Claude propone tickets), `/add` (tickets con las ideas del usuario), `/board` (estado, choques y tandas), `/accept` (acepta y arranca tickets), `/work nombre` (implementa), `/fix` (arregla lo que falla al probar), `/check` (revisa sin tocar nada), `/commit` (revisa lo pendiente, prueba y commitea en la rama), `/ship` (commitea lo pendiente, abre el PR y lo fusiona en main con squash), `/hub` (abre el chat central o le hace el relevo).
+- Comandos: `/ideas` (Claude propone tickets), `/add` (tickets con las ideas del usuario), `/board` (estado, choques y tandas), `/accept` (acepta y arranca tickets), `/work nombre` (implementa), `/fix` (arregla lo que falla al probar), `/check` (revisa sin tocar nada), `/commit` (revisa lo pendiente, prueba y commitea en la rama), `/merge` (commitea lo pendiente, abre el PR y lo fusiona en main con squash), `/hub` (abre el chat central o le hace el relevo).
 - Solo se implementan tickets con `Estado: aceptada`, cada uno en su rama `ticket/nombre` desde main. Nunca trabajar en main, salvo el commit del `Estado:` al aceptar.
-- Solo se commitea con `/commit` y solo se sube con `/ship` (o dentro de `/work` y `/ship`, que los usan). Frases como "commitea", "sube", "va bien" o "listo" no commitean ni suben nada: recordar al usuario el comando.
+- Solo se commitea con `/commit` y solo se sube con `/merge` (o dentro de `/work` y `/merge`, que los usan). Frases como "commitea", "sube", "va bien" o "listo" no commitean ni suben nada: recordar al usuario el comando.
 - **Aceptar** (casillas o "acepto X") es la orden de empezar: seguir `.claude/skills/accept/SKILL.md`. Cada ticket va en su propio chat con worktree, no como subagente.
 - **Chat central** (`/hub`): carpeta principal, rama `main`, en Opus con esfuerzo high (necesita al menos el modelo y el esfuerzo de los tickets que lanza). Reparte tickets, recibe los avisos de subida y deja `main` local al día para que el usuario nunca haga `git pull` a mano. No implementa tickets.
 - Para probar, usar el agente `probador`.
@@ -37,7 +37,7 @@
   - Pregunta qué tickets quedan o cuáles se pueden hacer a la vez → `/board`.
   - Quiere arreglar o añadir algo concreto → `/add`. Pide ideas → `/ideas`.
   - Ticket aceptado → `/work nombre`, con el modelo y el esfuerzo que pone el ticket.
-  - Tras `/work` → probar a mano en Godot; si falla, `/fix qué falla`; si va bien, `/ship`.
+  - Tras `/work` → probar a mano en Godot; si falla, `/fix qué falla`; si va bien, `/merge`.
   - Ticket ya en main → decir que su chat, su worktree y su rama ya se borraron.
   - Otro ticket o tema distinto al del chat → chat nuevo. Chat central de más de ~60k → `/hub` (relevo).
   - Tarea mecánica en Opus → bajar a Sonnet o Haiku. Sonnet atascado dos veces → subir a Opus.
@@ -52,6 +52,6 @@
 
 ## Antes de dar algo por terminado
 - Comprobar con el agente `probador` que el proyecto carga sin errores en headless. Busca Godot en la variable de entorno `GODOT`, que cada uno pone en su `.claude/settings.local.json` (ver docs/CLAUDE-CODE.md).
-- Commitear solo con `/commit` y subir solo con `/ship` (salvo el cambio de `Estado:` al aceptar).
+- Commitear solo con `/commit` y subir solo con `/merge` (salvo el cambio de `Estado:` al aceptar).
 - Al acabar una tarea (y tras cada cambio que haya que volver a probar), abrir yo el editor de Godot (`$GODOT`) en la carpeta donde están los cambios (el worktree del ticket) con `--path <carpeta> -e`, en segundo plano. Si ya había uno abierto en esa carpeta, cerrarlo antes. El usuario no tiene que cambiar de rama ni copiar rutas: solo pulsa F5 y juega.
 - Dar al usuario unos pasos breves para comprobar a mano que funciona en el juego: qué nivel jugar, qué hacer y qué debería verse.

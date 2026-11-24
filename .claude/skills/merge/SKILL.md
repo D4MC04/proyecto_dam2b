@@ -1,5 +1,5 @@
 ---
-name: ship
+name: merge
 description: Lleva la rama del ticket a main sin revisión manual: commitea lo pendiente, trae main y resuelve conflictos, sube la rama, abre el PR y lo fusiona con squash. Con "todo", desde el chat central, lo hace con todos los worktrees.
 disable-model-invocation: true
 argument-hint: "[todo]"

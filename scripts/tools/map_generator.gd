@@ -25,7 +25,8 @@ extends SceneTree
 ##                               llevar su propio radio de giro (en casillas) con ":", p. ej. 11,10:2
 ##   radius = 5                  radio de giro de las esquinas, en casillas (opcional; 5 si falta).
 ##                               Se acorta solo si el tramo no da para tanto: hasta la mitad de un
-##                               tramo entre dos esquinas o el tramo entero en el primero y el último
+##                               tramo entre dos esquinas, el tramo entero en el último y el primero
+##                               menos 3 casillas, que quedan en recto para la entrada
 ##   slots = 7,6 12,6 ...        casillas de torreta (un asteroide con plataforma en cada una)
 ##   rocks = grey brown ice      familias de roca del nivel (grey, brown, dark, ore, ice, crystal,
 ##                               lava); la primera es la principal y cierra el borde del mapa
@@ -41,6 +42,8 @@ const SHOWCASE_DATA_PATH: String = "res://resources/map_data/%s.txt"
 const SHOWCASE_SCENE_PATH: String = "res://scenes/maps/%sMap.tscn"
 # Casilla de estación de un mapa sin estación: tan lejos que no tapa nada
 const NO_STATION: Vector2i = Vector2i(-1000, -1000)
+# Ninguna casilla (lo que devuelve una búsqueda que no encuentra nada)
+const NO_CELL: Vector2i = Vector2i(-1000, -1000)
 const EMERGENCY_NAME: String = "emergency"
 const EMERGENCY_DATA_PATH: String = "res://resources/map_data/emergency.txt"
 const EMERGENCY_SCENE_PATH: String = "res://scenes/maps/levels/Emergency.tscn"
@@ -73,6 +76,9 @@ const STATION_RADIUS: int = 3
 const STATION_REACH: float = 40.0
 # Radio de giro (casillas) de las esquinas si el .txt no da otro (se acorta si el tramo no da para tanto)
 const DEFAULT_TURN_RADIUS: float = 5.0
+# Casillas del principio de cada camino que quedan en recto antes de la primera curva: ahí están la boca
+# del pasillo y el portal de las naves (Spawner.PORTAL_OFFSET, 40 px)
+const ENTRY_STRAIGHT: float = 3.0
 # Distancia (casillas) a la que el pasillo aparta lo que hay a los lados: es pasillo toda casilla que
 # tenga algún punto a esta distancia o menos de la curva. En un tramo recto sale el camino y una casilla a
 # cada lado; en una curva, el pasillo se abre lo justo para que las rocas queden igual de lejos que en
@@ -229,6 +235,8 @@ var _distance: Dictionary[Vector2i, int] = {}
 # punto más próximo está en una curva (un arco de esquina o un tramo en diagonal) y no en un tramo recto
 var _center_distance: Dictionary[Vector2i, float] = {}
 var _near_bend: Dictionary[Vector2i, bool] = {}
+# Casillas de torreta mal puestas en el mapa que se está generando (ver _check_slots); con alguna no se guarda
+var _slot_errors: int = 0
 # Casillas con algo puesto. _solid, las que tapa algo que se ve bien (todo menos piedrecitas)
 var _blocked: Dictionary[Vector2i, bool] = {}
 var _solid: Dictionary[Vector2i, bool] = {}
@@ -309,7 +317,12 @@ func _generate(data_path: String, scene_path: String) -> void:
 		return
 	layout.showcase = data_path.get_file().begins_with(SHOWCASE_NAME)
 	var old_uid: int = _read_scene_uid(scene_path)
+	_slot_errors = 0
 	var map: Node2D = _build_map(layout)
+	if _slot_errors > 0:
+		map.free()
+		push_error("%s no se guarda: %d casillas de torreta mal puestas" % [scene_path, _slot_errors])
+		return
 	var packed: PackedScene = PackedScene.new()
 	packed.pack(map)
 	map.free()
@@ -612,30 +625,33 @@ func _check_slots(slots: Array[Vector2i], showcase: bool) -> void:
 		var length: float = _center_distance.get(cell, INF)
 		if length < SLOT_CLEARANCE - 0.001:
 			push_error("Casilla de torreta %s a %.2f casillas del camino (mínimo %.1f)" % [cell, length, SLOT_CLEARANCE])
+			_slot_errors += 1
 		if showcase:
 			continue
 		for side: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
 			var next: Vector2i = cell + side
 			# Al lado del borde del mapa o de una curva no se puede ir más allá
-			if not Rect2i(Vector2i.ONE, _map_size - Vector2i(2, 2)).has_point(next) or _bend_touched(next) != NO_STATION:
+			if not Rect2i(Vector2i.ONE, _map_size - Vector2i(2, 2)).has_point(next) or _bend_touched(next) != NO_CELL:
 				continue
 			if minf(_center_distance.get(next, INF), SLOT_CENTER) > minf(length, SLOT_CENTER) + 0.01:
 				push_error("Casilla de torreta %s sin centrar en su franja (más lejos del camino en %s)" % [cell, next])
+				_slot_errors += 1
 				break
 		var bend: Vector2i = _bend_touched(cell)
-		if bend != NO_STATION:
+		if bend != NO_CELL:
 			push_error("Casilla de torreta %s pegada a una curva (en %s)" % [cell, bend])
+			_slot_errors += 1
 
 
 ## Casilla de la orilla de una curva (o del pasillo junto a ella) que tocaría el asteroide de una casilla
-## de torreta puesta aquí (la casilla y las 8 de alrededor), o NO_STATION si no toca ninguna.
+## de torreta puesta aquí (la casilla y las 8 de alrededor), o NO_CELL si no toca ninguna.
 func _bend_touched(cell: Vector2i) -> Vector2i:
 	for dy: int in range(-1, 2):
 		for dx: int in range(-1, 2):
 			var near: Vector2i = cell + Vector2i(dx, dy)
 			if _distance.get(near, 99) <= SHORE_DISTANCE and _near_bend.get(near, false):
 				return near
-	return NO_STATION
+	return NO_CELL
 
 
 func _decor_rect() -> Rect2i:
@@ -1153,7 +1169,8 @@ func _corner_key(points: PackedVector2Array, j: int) -> String:
 
 
 ## Distancia (px) de la esquina j a donde empieza y acaba su arco con ese radio (casillas), recortada
-## para que quepa: hasta la mitad de un tramo entre dos esquinas y el tramo entero en el primero y el último.
+## para que quepa: hasta la mitad de un tramo entre dos esquinas, el tramo entero en el último y, en el
+## primero, el tramo menos ENTRY_STRAIGHT casillas, que quedan en recto para la boca y el portal.
 func _corner_reach(points: PackedVector2Array, j: int, radius: float) -> float:
 	var into: Vector2 = points[j] - points[j - 1]
 	var out: Vector2 = points[j + 1] - points[j]
@@ -1161,6 +1178,6 @@ func _corner_reach(points: PackedVector2Array, j: int, radius: float) -> float:
 	if angle > PI - 0.01:
 		push_error("Esquina que da la vuelta del todo en %s" % (points[j] / TILE_SIZE).floor())
 		return 0.0
-	var room_in: float = into.length() if j == 1 else into.length() / 2.0
+	var room_in: float = maxf(into.length() - ENTRY_STRAIGHT * TILE_SIZE, 0.0) if j == 1 else into.length() / 2.0
 	var room_out: float = out.length() if j == points.size() - 2 else out.length() / 2.0
 	return minf(radius * TILE_SIZE * tan(angle / 2.0), minf(room_in, room_out))
