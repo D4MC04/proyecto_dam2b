@@ -16,4 +16,4 @@ Implementa el ticket `docs/tickets/$ARGUMENTS.md`.
 7. No subas nada. Termina con:
    - Qué has cambiado, en 2-3 líneas claras.
    - Que Godot ya está abierto con los cambios (pulsar F5) y los pasos para probarlo (qué nivel, qué hacer, qué debería verse). Nada de rutas ni ramas: el usuario solo juega.
-   - "Si te vale, escribe `/ship`: lo subo, abro el PR y lo fusiono en main. Si no, escribe `/fix` y qué falla."
+   - "Si te vale, escribe `/merge`: lo subo, abro el PR y lo fusiono en main. Si no, escribe `/fix` y qué falla."
