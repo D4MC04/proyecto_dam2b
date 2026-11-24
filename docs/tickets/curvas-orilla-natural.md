@@ -2,7 +2,7 @@
 
 Creador: David
 Responsable: David
-Estado: propuesta
+Estado: aceptada
 Prioridad: media
 Modelo recomendado: opus
 Esfuerzo recomendado: high
