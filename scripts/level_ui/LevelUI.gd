@@ -27,7 +27,7 @@ const VIGNETTE_MIN_INTENSITY: float = 0.25
 const VIGNETTE_MAX_INTENSITY: float = 0.8
 const VIGNETTE_PULSE_TIME: float = 0.5
 # Texto de la opción de salir de la pausa: normal y en el nivel de emergencia, donde salir es saltarlo.
-const QUIT_TEXT: String = "BTN_QUIT"
+const QUIT_TEXT: String = "BTN_MENU"
 const SKIP_TEXT: String = "TUTORIAL_SKIP"
 # Acción del tutorial que corresponde a cada poder.
 const POWER_ACTIONS: Dictionary[Powers.Power, TutorialHints.Action] = {

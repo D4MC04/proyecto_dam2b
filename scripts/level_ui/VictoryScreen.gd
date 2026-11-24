@@ -14,29 +14,18 @@ const SLIDE_TIME: float = 0.35
 const SLIDE_SETTLE_TIME: float = 0.08
 const SLIDE_OVERSHOOT_PX: float = 2.0
 
-# Estrellas bajo el título: pixel art de STAR_SHAPE ('#' es la silueta). El contorno, las luces y
-# las sombras se sacan de la silueta en _build_star(). La del centro es mayor y va más arriba.
-const STAR_SHAPE: Array[String] = [
-	"......###......",
-	".....#####.....",
-	".....#####.....",
-	"###############",
-	"###############",
-	".#############.",
-	"..###########..",
-	"...#########...",
-	"...#########...",
-	"..####...####..",
-	"..###.....###..",
-	".###.......###.",
-	".##.........##.",
-]
-const STAR_PIXEL: int = 4
-const STAR_CENTER_PIXEL: int = 5
-const STAR_GAP: int = 12
-# Cuánto más abajo van las estrellas de los lados que la del centro, y hueco arriba para el salto.
+# Estrellas bajo el título: gemas facetadas de cinco puntas, hechas con polígonos de vértices enteros
+# (sin antialiasing). La del centro es mayor y va más arriba que las de los lados. Cada punta se
+# parte en dos caras que reciben la luz (arriba a la izquierda) de forma distinta.
+const STAR_RADIUS: float = 29.0
+const STAR_CENTER_RADIUS: float = 36.0
+# Radio de los vértices de dentro respecto al de las puntas.
+const STAR_INNER_RATIO: float = 0.45
+const STAR_GAP: int = 14
+# Cuánto más abajo van las estrellas de los lados que la del centro.
 const STAR_SIDE_DROP: int = 8
-const STAR_TOP_MARGIN: int = 8
+# Grosor del borde claro de las encendidas y del trazo de las apagadas.
+const STAR_RIM_WIDTH: float = 2.0
 # Salto de una estrella al encenderse, en píxeles, y duración total del encendido.
 const STAR_JUMP_PX: float = 8.0
 const STAR_LIGHT_TIME: float = 0.4
@@ -45,23 +34,18 @@ const STAR_FLASH_PORTION: float = 0.25
 # Pausa antes de la primera estrella (tras llegar el marco) y entre una y la siguiente.
 const STAR_FIRST_DELAY: float = 0.2
 const STAR_STEP_DELAY: float = 0.25
-
-# Colores de cada tipo de píxel: encendida, apagada y destello.
-const STAR_LIT_COLORS: Dictionary = {
-	"o": Color("#6e440c"),
-	"h": Color("#ffe082"),
-	"f": Color("#ecb23c"),
-	"s": Color("#b87a1c"),
-	"w": Color("#fff4c8"),
-}
-const STAR_EMPTY_COLORS: Dictionary = {
-	"o": Color("#4a3410"),
-	"h": Color("#2e2108"),
-	"f": Color("#241907"),
-	"s": Color("#1c1405"),
-	"w": Color("#2e2108"),
-}
+# Dirección de la luz (hacia donde mira la cara más iluminada) y umbrales de cara clara y oscura.
+const STAR_LIGHT_DIR: Vector2 = Vector2(-0.6, -0.8)
+const STAR_BRIGHT_THRESHOLD: float = 0.35
+const STAR_DARK_THRESHOLD: float = -0.35
+# Colores de la gema encendida (rampa ámbar de art.md), el destello y la apagada (como la ficha).
+const STAR_BRIGHT_COLOR: Color = Color("#ffe082")
+const STAR_MID_COLOR: Color = Color("#ecb23c")
+const STAR_DARK_COLOR: Color = Color("#b87a1c")
+const STAR_RIM_COLOR: Color = Color("#fff4c8")
 const STAR_FLASH_COLOR: Color = Color("#fff4c8")
+const STAR_EMPTY_FILL_COLORS: Array[Color] = [Color("#0b2132"), Color("#122c42")]
+const STAR_EMPTY_RIM_COLOR: Color = Color("#3a5a78")
 
 @onready var stars_row: Control = %StarsRow
 @onready var center: CenterContainer = $Center
@@ -72,13 +56,15 @@ var _intro: Tween
 var _stars: int = 0
 # Progreso del encendido de cada estrella (0 apagada, 1 encendida del todo).
 var _star_light: Array[float] = []
-# Tipo de cada píxel de la silueta ('.', 'o', 'h', 'f', 's' o 'w'), por filas.
-var _star_cells: Array[String] = []
 
 func _ready() -> void:
 	super()
 	title_label.add_theme_color_override("font_color", accent_color)
-	_star_cells = _build_star()
+	# La fila mide lo que la estrella central más el hueco que el título deja bajo sus letras, para que
+	# la estrella quede igual de separada del título que del botón.
+	var font: Font = title_label.get_theme_font("font")
+	var title_gap: float = font.get_descent(title_label.get_theme_font_size("font_size"))
+	stars_row.custom_minimum_size.y = _star_height(STAR_CENTER_RADIUS) + roundf(title_gap)
 	_star_light.resize(GameState.MAX_STARS)
 	_star_light.fill(0.0)
 	stars_row.draw.connect(_draw_stars)
@@ -92,69 +78,71 @@ func set_stars(stars: int) -> void:
 	_stars = stars
 	_set_all_lit()
 
-# Saca de la silueta el tipo de cada píxel: contorno donde toca el vacío, luz arriba a la izquierda,
-# sombra abajo a la derecha y un par de brillos.
-func _build_star() -> Array[String]:
-	var height: int = STAR_SHAPE.size()
-	var width: int = STAR_SHAPE[0].length()
-	var cells: Array[String] = []
-	for y: int in height:
-		var line: String = ""
-		for x: int in width:
-			line += _star_cell(x, y, width, height)
-		cells.append(line)
-	return cells
+# Alto y ancho de una estrella de radio `radius`.
+func _star_height(radius: float) -> float:
+	return roundf(radius * (1.0 + cos(deg_to_rad(36.0))))
 
-func _star_cell(x: int, y: int, width: int, height: int) -> String:
-	if not _is_star_pixel(x, y):
-		return "."
-	for neighbour: Vector2i in [Vector2i(x - 1, y), Vector2i(x + 1, y), Vector2i(x, y - 1), Vector2i(x, y + 1)]:
-		if not _is_star_pixel(neighbour.x, neighbour.y):
-			return "o"
-	# Brillos fijos en la zona de luz.
-	if (x == 6 and y == 2) or (x == 3 and y == 4):
-		return "w"
-	var light: int = (x - int(width / 2.0)) + (y - int(height / 2.0))
-	if light <= -3:
-		return "h"
-	if light >= 4:
-		return "s"
-	return "f"
-
-func _is_star_pixel(x: int, y: int) -> bool:
-	return y >= 0 and y < STAR_SHAPE.size() and x >= 0 and x < STAR_SHAPE[y].length() and STAR_SHAPE[y][x] == "#"
+func _star_width(radius: float) -> float:
+	return roundf(2.0 * radius * sin(deg_to_rad(72.0)))
 
 # Pinta las tres estrellas centradas: la del centro, mayor y más arriba.
 func _draw_stars() -> void:
-	var side_width: int = STAR_SHAPE[0].length() * STAR_PIXEL
-	var center_width: int = STAR_SHAPE[0].length() * STAR_CENTER_PIXEL
-	var total_width: int = side_width * 2 + center_width + STAR_GAP * 2
+	var side_width: float = _star_width(STAR_RADIUS)
+	var center_width: float = _star_width(STAR_CENTER_RADIUS)
+	var total_width: float = side_width * 2.0 + center_width + STAR_GAP * 2
 	var left: float = roundf((stars_row.size.x - total_width) / 2.0)
-	var center_height: int = STAR_SHAPE.size() * STAR_CENTER_PIXEL
-	# La fila mide lo justo para la estrella central y su salto; se centra en vertical.
-	var top: float = roundf((stars_row.size.y - center_height - STAR_TOP_MARGIN) / 2.0) + STAR_TOP_MARGIN
-	var x_offsets: Array[float] = [left, left + side_width + STAR_GAP, left + side_width + STAR_GAP * 2 + center_width]
-	_draw_star(0, Vector2(x_offsets[0], top + STAR_SIDE_DROP), STAR_PIXEL)
-	_draw_star(1, Vector2(x_offsets[1], top), STAR_CENTER_PIXEL)
-	_draw_star(2, Vector2(x_offsets[2], top + STAR_SIDE_DROP), STAR_PIXEL)
+	_draw_star(0, Vector2(left + side_width / 2.0, STAR_SIDE_DROP), STAR_RADIUS)
+	_draw_star(1, Vector2(left + side_width + STAR_GAP + center_width / 2.0, 0.0), STAR_CENTER_RADIUS)
+	_draw_star(2, Vector2(left + side_width + STAR_GAP * 2 + center_width + side_width / 2.0, STAR_SIDE_DROP), STAR_RADIUS)
 
-# Una estrella: apagada si no se ha ganado, blanca al empezar a encenderse y después ámbar con salto.
-func _draw_star(index: int, origin: Vector2, pixel: int) -> void:
+# Una estrella con su punta de arriba en `top_center`: apagada si no se ha ganado, blanca al empezar
+# a encenderse y después una gema ámbar con salto.
+func _draw_star(index: int, top_center: Vector2, radius: float) -> void:
 	var earned: bool = index < _stars
 	var progress: float = _star_light[index] if earned else 0.0
 	var flash: bool = earned and progress > 0.0 and progress < STAR_FLASH_PORTION
-	var palette: Dictionary = STAR_LIT_COLORS if earned and progress >= STAR_FLASH_PORTION else STAR_EMPTY_COLORS
+	var lit: bool = earned and progress >= STAR_FLASH_PORTION
 	var jump: float = 0.0
 	if earned and progress > 0.0 and progress < 1.0:
 		jump = roundf(sin(progress * PI) * STAR_JUMP_PX)
-	origin.y -= jump
-	for row: int in _star_cells.size():
-		for column: int in _star_cells[row].length():
-			var kind: String = _star_cells[row][column]
-			if kind == ".":
-				continue
-			var color: Color = STAR_FLASH_COLOR if flash else (palette[kind] as Color)
-			stars_row.draw_rect(Rect2(origin + Vector2(column, row) * pixel, Vector2.ONE * pixel), color)
+	var center_point: Vector2 = Vector2(roundf(top_center.x), roundf(top_center.y + radius - jump))
+	var outer: Array[Vector2] = []
+	var inner: Array[Vector2] = []
+	for point: int in 5:
+		var outer_angle: float = deg_to_rad(-90.0 + 72.0 * point)
+		var inner_angle: float = outer_angle + deg_to_rad(36.0)
+		outer.append(center_point + (Vector2.from_angle(outer_angle) * radius).round())
+		inner.append(center_point + (Vector2.from_angle(inner_angle) * radius * STAR_INNER_RATIO).round())
+	# Cada punta tiene dos caras: la de su lado izquierdo (hasta el vértice de dentro anterior) y
+	# la de su lado derecho (hasta el siguiente).
+	for point: int in 5:
+		var previous_inner: int = posmod(point - 1, 5)
+		_draw_facet(center_point, outer[point], inner[previous_inner], inner[previous_inner] - center_point, lit, flash, point * 2)
+		_draw_facet(center_point, outer[point], inner[point], inner[point] - center_point, lit, flash, point * 2 + 1)
+	var outline: PackedVector2Array = PackedVector2Array()
+	for point: int in 5:
+		outline.append(outer[point])
+		outline.append(inner[point])
+	outline.append(outer[0])
+	var rim: Color = STAR_FLASH_COLOR if flash else (STAR_RIM_COLOR if lit else STAR_EMPTY_RIM_COLOR)
+	stars_row.draw_polyline(outline, rim, STAR_RIM_WIDTH)
+
+# Una cara triangular. La luz la decide hacia dónde se inclina (`tilt`: dirección del vértice de dentro).
+func _draw_facet(center_point: Vector2, outer_point: Vector2, inner_point: Vector2, tilt: Vector2, lit: bool, flash: bool, facet_index: int) -> void:
+	var color: Color
+	if flash:
+		color = STAR_FLASH_COLOR
+	elif lit:
+		var shade: float = tilt.normalized().dot(STAR_LIGHT_DIR.normalized())
+		if shade >= STAR_BRIGHT_THRESHOLD:
+			color = STAR_BRIGHT_COLOR
+		elif shade >= STAR_DARK_THRESHOLD:
+			color = STAR_MID_COLOR
+		else:
+			color = STAR_DARK_COLOR
+	else:
+		color = STAR_EMPTY_FILL_COLORS[facet_index % 2]
+	stars_row.draw_colored_polygon(PackedVector2Array([center_point, outer_point, inner_point]), color)
 
 func _on_visibility_changed() -> void:
 	# Cada vez que se abre, la entrada empieza de cero; al cerrarse se deja en su sitio.
