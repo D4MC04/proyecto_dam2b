@@ -36,7 +36,7 @@ Las dos barras son una tablet: un marco de metal y, dentro, una pantalla oscura.
 
 Funciones de `LevelUI`:
 
-- `setup(state, turrets, level_number, spawner, has_next_level, base)`: oculta la opción `NEXT_LEVEL` de `VictoryScreen` si `has_next_level` es false (`LevelUI` no lee `GameData`; se lo dice `Game`), pasa el número de nivel al `LevelIndicator`, prepara la pestaña Oleadas (ver más abajo), conecta la vida de la base (ver "Vida de la estación"), conecta `state.money_changed` a `sidebar.set_money`, `state.selected_turret_changed` a `sidebar.show_selected` y `state.inspected_changed` a `info_panel.show_inspected`, crea los botones de torreta, muestra el dinero inicial y pide a la ficha que enseñe `state.inspected` (null en un `LevelState` nuevo, así que al empezar o reiniciar vuelve al escáner). Si había un `LevelState` anterior, desconecta las tres.
+- `setup(state, turrets, level_number, spawner, base)`: pasa el número de nivel al `LevelIndicator`, prepara la pestaña Oleadas (ver más abajo), conecta la vida de la base (ver "Vida de la estación"), conecta `state.money_changed` a `sidebar.set_money`, `state.selected_turret_changed` a `sidebar.show_selected` y `state.inspected_changed` a `info_panel.show_inspected`, crea los botones de torreta, muestra el dinero inicial y pide a la ficha que enseñe `state.inspected` (null en un `LevelState` nuevo, así que al empezar o reiniciar vuelve al escáner). Si había un `LevelState` anterior, desconecta las tres.
 - `_on_turret_selected(data)`: recibe `Sidebar.turret_selected` y escribe `selected_turret` en el `LevelState`. Es el único camino de la barra lateral a la selección.
 - `_input(event)`: cualquier clic sobre un control de la interfaz (barras, ficha, pantallas) suelta la torreta colocada (`sellable_turret = null`, diferido), menos dentro del recuadro de Mejorar y Vender (`turret_actions`): sus botones actúan al soltar el clic y necesitan la torreta. `_on_upgrade_requested` la suelta después de mejorar; al vender desaparece. Los clics sobre el mapa los atiende `BuildManager`. Las barras no emiten nada ni leen el `LevelState`.
 - `_on_inspect_requested(data)`: recibe `Sidebar.inspect_requested` y escribe `inspected` en el `LevelState`. Es el único camino a lo inspeccionado.
@@ -56,7 +56,7 @@ La relación estado → pantalla está solo en el diccionario `_screens_by_state
 - Acción `ui_cancel` (Escape): en `PLAYING` pasa a `PAUSED` y en `PAUSED` vuelve a `PLAYING`. En `LOST` y `WON` (también durante la cámara lenta y el respiro) no hace nada (ni marca el evento como gestionado).
 - **Atajos de teclado** (solo en `PLAYING`; en pausa, derrota y victoria `_handle_shortcut` ni se llama). Acciones del Input Map en `project.godot`: `select_turret_1`…`select_turret_7` (teclas 1-7), `next_wave` (Espacio), `toggle_auto` (A), `toggle_speed` (F), `power_meteor` (Q), `power_freeze` (E) y `power_orbital` (R), por tecla física. `LevelUI._unhandled_input` las traduce a los mismos botones que el ratón: 1-7 llaman a `Sidebar.press_turret_button(i)` (emite `pressed` del i-ésimo `TurretButton` en el orden de la rejilla, así que sin dinero o con selección bloqueada no hacen nada); Espacio emite `pressed` de `NextWaveButton` (el `Spawner` solo lanza si la anterior acabó); A y F invierten `button_pressed` de `AutoWaveButton` y `SpeedButton`; Q, E y R llaman a `_use_power` como los botones de poder. No se escribe la tecla en los botones (salvo en los de poder, ver "Poderes").
 - Bloqueo de la selección: `set_state` es lo único que lo decide. Llama a `sidebar.set_selection_locked(new_state != PLAYING)`, así que con pausa (plegada o no), derrota (desde que empieza la cámara lenta) o victoria (desde que empieza el respiro) no se puede seleccionar torreta.
-- `show_run_stats(stats: RunStats)`: pasa el resumen de partida a `GameOverScreen` y a `VictoryScreen`. Lo llama `Game` antes de `set_state(LOST)` o `set_state(WON)`; la UI no lee el `Level` ni el `LevelState` para el resumen.
+- `show_run_stats(stats: RunStats)`: pasa el resumen de la derrota a `GameOverScreen`. Lo llama `Game` antes de `set_state(LOST)`; la UI no lee el `Level` ni el `LevelState` para el resumen. La victoria no tiene resumen.
 
 **Secuencias de derrota y victoria.** `set_state(LOST)` y `set_state(WON)` no congelan el juego de golpe. Las dos usan el mismo tween (`_screen_delay`):
 
@@ -67,9 +67,9 @@ La relación estado → pantalla está solo en el diccionario `_screens_by_state
 Cada llamada a `set_state` mata la secuencia en curso (si la hay) y pone `Engine.time_scale` a 1 antes de nada (salvo en `PLAYING`, donde lo pone a la velocidad elegida `_speed`: ×1, ×2 o ×4), así que cualquier cambio de estado durante la cámara lenta o el respiro lo cancela. Las escrituras de `time_scale` y `paused` del tween están en lambdas dentro de `set_state`.
 - **Velocidad ×1 / ×2 / ×4.** `_speed` (float, empieza en `NORMAL_SPEED` = 1) la cambia `_on_speed_change_requested`, que si se está jugando vuelve a llamar a `set_state(PLAYING)` para que `time_scale` se aplique en el único sitio que lo escribe. Las constantes son `NORMAL_SPEED` (1), `FAST_SPEED` (2) y `FASTEST_SPEED` (4), y `SPEEDS` es el ciclo. La pausa la conserva (en pausa `time_scale` es 1 y al reanudar vuelve a la elegida); `LOST`, `WON` y cualquier acción de `_request_action` (reiniciar, salir, siguiente nivel) la ponen a ×1 con `_set_speed(NORMAL_SPEED)`, que también devuelve el botón a "×1". Por eso la cámara lenta y el respiro empiezan siempre desde ×1.
   - **La interfaz no sigue la velocidad.** El ×2 y el ×4 solo aceleran la partida (naves, torretas, oleadas, recargas de poderes, temblor, portales). Las animaciones de la interfaz del nivel van en tiempo real: los tweens llevan `set_ignore_time_scale()` (fundido de `LevelIndicator`, golpe en la vida de la estación y parpadeo de INICIAR en `Sidebar`, además de `BossAlert`, `WaveAnnouncer`, `RunSummary` y `VictoryScreen`) y `TutorialHints` y `ScannerDisplay` deshacen el `delta` en su `_process` (`delta / Engine.time_scale`). El aviso de logro de `GameState` también lleva `set_ignore_time_scale()`. `TurretButton` compensa `speed_scale` de sus dos `AnimatedSprite2D` (`1 / Engine.time_scale`). `GameOverScreen`, `PauseScreen` y `SectorRadar` (esta última solo en el menú principal) corren con `time_scale` ya en 1.
-- `_on_option_chosen(option)`: `RESUME` pasa a `PLAYING`. `RESTART`, `QUIT` y `NEXT_LEVEL` pasan a `PLAYING` (quitan pantalla y pausa) y después emiten `action_requested`.
+- `_on_option_chosen(option)`: `RESUME` pasa a `PLAYING`. `RESTART` y `QUIT` pasan a `PLAYING` (quitan pantalla y pausa) y después emiten `action_requested`.
 
-Señal: `action_requested(action: Action)`, con el enum `Action { RESTART, QUIT, NEXT_LEVEL }`. Es la única señal de `LevelUI` hacia `Game`.
+Señal: `action_requested(action: Action)`, con el enum `Action { RESTART, QUIT }`. Es la única señal de `LevelUI` hacia `Game`.
 
 ## InfoPanel (ficha)
 
@@ -315,7 +315,7 @@ Cuatro `@export` en la base, que cada escena heredada fija en su `.tscn`:
 | Derrota | rojo `#ff3c5a` | `#ffaabe` | rojo muy oscuro `#1a0509` | 0,6 |
 | Victoria | ámbar `#ecb23c` | `#ffe082` | negro | 0,45 |
 
-`_ready` aplica el acento y su tono claro al marco y a los botones, el oscurecido al fondo, y conecta el `pressed` de cada `OverlayOptionButton` de `Options`. Enum `Option { RESUME, RESTART, QUIT, NEXT_LEVEL, SETTINGS }` y una sola señal, `option_chosen(option)`.
+`_ready` aplica el acento y su tono claro al marco y a los botones, el oscurecido al fondo, y conecta el `pressed` de cada `OverlayOptionButton` de `Options`. Enum `Option { RESUME, RESTART, QUIT, SETTINGS }` y una sola señal, `option_chosen(option)`.
 
 La pantalla no toca su visibilidad: la decide `LevelUI.set_state()`. Una pantalla con comportamiento propio extiende `OverlayScreen` con un script (como `PauseScreen` y `GameOverScreen`).
 
@@ -358,21 +358,15 @@ No dibuja nada propio en `_draw`. Miden 204x36 (texto a 24) con 9 px de separaci
 
 ## RunSummary
 
-`scenes/level_ui/RunSummary.tscn` + `scripts/level_ui/RunSummary.gd` (clase `RunSummary`). Resumen de partida reutilizable; no sabe en qué pantalla está. `PanelContainer` de 204 px de ancho (lo mismo que los botones), fondo `#0a0f1a`, borde de 1 px en el acento mezclado al 50 % y 3 px de margen. Dentro, el rótulo "RESUMEN" a 24 px en el acento y las filas. Las filas (`StatRow.create` con `font_size` 24, hueco de icono de 12, márgenes de 6 y 3 y separación de 6, la de la ficha a ×1,5) también van a 24 px.
+`scenes/level_ui/RunSummary.tscn` + `scripts/level_ui/RunSummary.gd` (clase `RunSummary`). Resumen de la derrota; no sabe en qué pantalla está (solo lo usa `GameOverScreen`). `PanelContainer` de 204 px de ancho (lo mismo que los botones), fondo `#0a0f1a`, borde de 1 px en el acento mezclado al 50 % y 3 px de margen. Dentro, el rótulo "RESUMEN" a 24 px en el acento y las filas. Las filas (`StatRow.create` con `font_size` 24, hueco de icono de 12, márgenes de 6 y 3 y separación de 6, la de la ficha a ×1,5) también van a 24 px.
 
-- `@export var accent_color`: color del rótulo y del borde. La derrota lo pone en rojo y la victoria en ámbar.
-- `show_stats(stats: RunStats)`: sustituye las filas por tres `StatRow` con los valores finales de golpe (así los enseña la derrota). Corta un conteo en curso:
+- `@export var accent_color`: color del rótulo y del borde (la derrota lo pone en rojo).
+- `show_stats(stats: RunStats)`: sustituye las filas por las de los valores finales:
 
 | Icono | Nombre | Valor |
 |---|---|---|
 | `wave.png` | OLEADA | `"X/Y"` (oleada alcanzada / total) |
-| `kills.png` | BAJAS (enemigos destruidos) | `UiFormat.abbreviate` |
-| `cost.png` | GASTADO (dinero gastado) | `UiFormat.money` |
-
-- `count_up(duration, delay = 0.0)`: opcional, después de `show_stats`. Pone enemigos destruidos y dinero gastado a 0 y, tras `delay` segundos, los hace contar hasta su valor en `duration` segundos (tween de tiempo real, curva cuártica que frena al final). Cada paso pasa por `UiFormat.abbreviate` o `UiFormat.money`, así que el texto tiene el formato del valor final y las filas (de ancho fijo) no saltan. La oleada no cuenta. `finish_count()` corta el conteo y deja los valores finales; `is_counting()` dice si hay uno en curso. Lo usa la victoria.
-- `StatRow.get_value_label(row)` da la etiqueta del valor de una fila para cambiar su texto sin rehacerla.
-
-Si alguna torreta ha matado, añade dos filas: TORRETA (nombre de la mejor, en mayúsculas) y SUS BAJAS.
+| `station.png` | CAUSA | nombre del último enemigo que llegó a la estación, en mayúsculas (la fila no sale si no consta) |
 
 `RunStats` está en [niveles.md](niveles.md).
 
@@ -380,14 +374,12 @@ Si alguna torreta ha matado, añade dos filas: TORRETA (nombre de la mejor, en m
 
 `scenes/level_ui/VictoryScreen.tscn` (heredada de `OverlayScreen.tscn`) + `scripts/level_ui/VictoryScreen.gd` (clase `VictoryScreen`, extiende `OverlayScreen`). Pantalla de celebración, contraparte de la derrota. Corre con el árbol en pausa (hereda `process_mode` ALWAYS de `LevelUI`), así que sus tweens y su `delta` son tiempo real.
 
-- **Aspecto:** título "SECTOR" / "ASEGURADO" (dos líneas, sin tildes ni Ñ) en el ámbar del acento `#ecb23c`. Oscurecido negro al 45 %, más ligero que la derrota para que se vea el mapa ganado. Entre el título y las opciones va `RunSummary` (`%RunSummary`) con el acento ámbar. No conecta botones a mano: lo hace la base.
+- **Aspecto:** título "SECTOR" / "ASEGURADO" (dos líneas, sin tildes ni Ñ) en el ámbar del acento `#ecb23c`. Oscurecido negro al 45 %, más ligero que la derrota para que se vea el mapa ganado. Entre el título y las opciones van las estrellas (sin resumen de partida: las estrellas ya dicen cómo ha ido). No conecta botones a mano: lo hace la base.
 - **Entrada:** cada vez que se abre (`visibility_changed`), el nodo `Center` (que centra el marco) se coloca justo encima del área de juego (con los corchetes del marco, `OverlayFrame.OUTSIDE_MARGIN`, también fuera) y baja hasta su sitio en `SLIDE_TIME` (0,35 s): curva cúbica que frena hasta pasarse `SLIDE_OVERSHOOT_PX` (2 px) y vuelve a su sitio en los últimos `SLIDE_SETTLE_TIME` (0,08 s). La posición se redondea a píxeles enteros en cada paso. A la vez, el oscurecido se funde de 0 a su opacidad en `DIM_FADE_TIME` (0,2 s, con el `modulate` de `Background`).
-- **Conteo:** al abrirse llama a `run_summary.count_up(COUNT_TIME, SLIDE_TIME)`: los números se ven a 0 mientras baja el marco y cuentan en `COUNT_TIME` (0,8 s) cuando llega. La oleada sale directamente ("Y/Y").
-- **Saltar:** clic izquierdo en el oscurecido, el marco o el resumen (no en los botones) durante la entrada o el conteo: lo corta todo y deja el marco en su sitio, el oscurecido entero y los valores finales. Las opciones se pueden pulsar desde el principio. Al cerrarse la pantalla también se deja en su estado final.
+- **Saltar:** clic izquierdo en el oscurecido o el marco (no en los botones) durante la entrada: la corta y deja el marco en su sitio y el oscurecido entero. Las opciones se pueden pulsar desde el principio. Al cerrarse la pantalla también se deja en su estado final.
 - **Destellos:** tres destellos de cuatro puntas junto al título (a la izquierda y arriba a la derecha de "SECTOR" y a la derecha de "ASEGURADO"), pintados sobre el título con su señal `draw` y colocados según el ancho de cada línea. Son píxeles enteros con `draw_rect`, sin antialiasing: cruz de 1 px en `#ecb23c`, centro de 3x3 en cruz en `#ffe082` y, al tamaño máximo de 4 o más, cuatro píxeles en diagonal en `#96641e`. El largo de las puntas sube y baja en pasos de 1 px con un seno de ritmo y fase propios (máximos de 5, 3 y 4 px). No se reutiliza `_draw_sparkle` del menú porque usa polígonos y un halo suave.
-- `show_run_stats(stats)`: pasa el `RunStats` al `RunSummary`.
 
-Opciones "Siguiente sector" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción que "Salir": lleva a la selección de nivel). `OverlayScreen.set_option_visible(option, visible)` oculta el botón de una opción y `set_option_text(option, text_key)` le cambia el texto; `LevelUI.setup` lo usa para quitar "Siguiente sector" cuando es el último nivel o el nivel no está en la lista.
+Una sola opción, "Menú" (`QUIT`, la misma opción que "Salir": lleva a la oficina). No hay "Siguiente sector": entre sectores se pasa siempre por la oficina. `OverlayScreen.set_option_text(option, text_key)` cambia el texto del botón de una opción.
 
 ## Comunicación con el resto
 
@@ -412,12 +404,11 @@ Opciones "Siguiente sector" (`NEXT_LEVEL`) y "Menú" (`QUIT`, la misma opción q
 | `MeteorButton`, `FreezeButton` | `pressed` | `LevelUI._use_power` (`Powers.use`, solo en `PLAYING`) |
 | `Sidebar` | `speed_change_requested` | `LevelUI._on_speed_change_requested` (cambia `_speed` y reaplica `time_scale`) |
 | `PauseMenu`, `GameOverScreen`, `VictoryScreen` | `option_chosen` | `LevelUI._on_option_chosen` (`RESUME` lo resuelve ella) |
-| `LevelUI` | `action_requested` | `Game._on_action_requested` (reiniciar, volver al menú o pasar al siguiente nivel) |
+| `LevelUI` | `action_requested` | `Game._on_action_requested` (reiniciar o volver al menú) |
 | `LevelUI` | llamada directa | `Sidebar.set_selection_locked` (en cada `set_state`) |
 | `LevelUI` | llamada directa | `Sidebar.set_wave_status` (pie "OL. X/Y" y estado, desde `_refresh_wave_controls`) |
-| `LevelUI` | llamada directa | `GameOverScreen.show_run_stats` y `VictoryScreen.show_run_stats` (desde `show_run_stats`) |
+| `LevelUI` | llamada directa | `GameOverScreen.show_run_stats` (desde `show_run_stats`) |
 | `GameOverScreen` | llamada directa | `RunSummary.show_stats` |
-| `VictoryScreen` | llamada directa | `RunSummary.show_stats`, `count_up` y `finish_count` |
-| `Game` | llamada directa | `LevelUI.show_run_stats(level.get_run_stats())` y después `LevelUI.set_state(LOST)` en la derrota o `set_state(WON)` en la victoria |
+| `Game` | llamada directa | `LevelUI.show_run_stats(level.get_run_stats())` y después `LevelUI.set_state(LOST)` en la derrota, o `LevelUI.set_state(WON)` en la victoria (sin resumen) |
 
 - **`_process` dormido:** las pantallas que animan (`GameOverScreen`, `PauseScreen`, `VictoryScreen`, `ScannerDisplay`, `SectorRadar`) solo procesan mientras se ven (`visibility_changed` → `set_process`). `Powers` duerme hasta que se usa un poder y vuelve a dormir al acabar recargas y rayo; `HeatGlow` duerme sin calor ni chispas y lo despierta el setter de `heat`/`overheated`.

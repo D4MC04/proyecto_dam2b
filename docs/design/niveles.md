@@ -23,7 +23,7 @@
 
 Conexiones hechas en `_ready`:
 
-- `spawner.enemy_died(reward)` llama a `game_state.register_enemy_destroyed`, que cuenta el enemigo y suma la recompensa.
+- `spawner.enemy_died(reward)` llama a `game_state.add_money`, que suma la recompensa.
 - `spawner.all_waves_cleared` llama a `_win`, que llama a `build_manager.stop_building()` y emite `won`.
 - `spawner.wave_cleared` llama a `_on_wave_cleared`: menos en la última oleada, si no llegó ningún enemigo a la estación (`_leaks_this_wave`, que `wave_started` pone a 0 y `enemy_reached_end` incrementa) suma `PERFECT_WAVE_BONUS` y enseña "PERFECTA +25€" como `FloatingText` sobre la estación durante 4 s.
 - `build_manager.state = game_state`.
@@ -36,9 +36,9 @@ Detrás del mapa, `Level.tscn` tiene dos nodos de decoración con los scripts de
 
 Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de la UI: `BuildManager` no coloca torretas ni enseña la vista previa (ver [torretas.md](torretas.md)). Durante la cámara lenta de la derrota y el respiro de la victoria el juego sigue corriendo. Durante la cámara lenta los enemigos siguen moviéndose y las torretas disparando; los que mueran aún cuentan y dan dinero, pero el resultado no cambia.
 
-`get_run_stats() -> RunStats` construye el resumen de la partida: oleada alcanzada (`spawner.get_wave_index() + 1`, 0 si no se lanzó ninguna), total de oleadas (`spawner.waves.size()`), enemigos destruidos y dinero gastado (de `LevelState`). Lo usa `Game` al perder.
+`get_run_stats() -> RunStats` construye el resumen de la derrota: oleada alcanzada (`spawner.get_wave_index() + 1`, 0 si no se lanzó ninguna), total de oleadas (`spawner.waves.size()`) y el nombre (clave) del enemigo que acabó con la estación. Ese enemigo es `Spawner.last_leaker` (el último que llegó al final del camino), que `_lose` copia en `_killer` en cuanto la estación se destruye, para que los que lleguen durante la explosión no lo cambien. Lo usa `Game` al perder; la victoria no tiene resumen.
 
-**`RunStats`** (`scripts/level/RunStats.gd`, `RefCounted`): objeto de datos con `wave_reached`, `wave_total`, `enemies_destroyed` y `money_spent`, todos `int`, más `top_turret_name` y `top_turret_kills` (la torreta con más bajas, vivas y vendidas; vacío/0 si ninguna mató). Se crea con `RunStats.new(reached, total, destroyed, spent)`. Lo pinta `RunSummary` (ver [ui.md](ui.md)).
+**`RunStats`** (`scripts/level/RunStats.gd`, `RefCounted`): objeto de datos con `wave_reached` y `wave_total` (`int`) y `killer_name` (clave de traducción del último enemigo que llegó a la estación; vacío si no consta). Se crea con `RunStats.new(reached, total, killer)`. Lo pinta `RunSummary` (ver [ui.md](ui.md)).
 
 ## Poderes
 
@@ -60,9 +60,8 @@ Tras perder o ganar, el nivel deja de construir por su cuenta, sin depender de l
 
 - `money` empieza en 0 y `Level.setup` lo fija con `LevelData.starting_money`.
 - `add_money(amount)` suma y emite `money_changed(money)`.
-- `spend_money(amount)` devuelve `false` si no alcanza; si alcanza resta, suma `amount` a `money_spent`, emite `money_changed` y devuelve `true`.
+- `spend_money(amount)` devuelve `false` si no alcanza; si alcanza resta, emite `money_changed` y devuelve `true`.
 - `PERFECT_WAVE_BONUS` (25): premio por limpiar una oleada sin que llegue ningún enemigo a la estación. Lo aplica `Level._on_wave_cleared` (ver "Escena Level").
-- Contadores de la partida: `enemies_destroyed` y `money_spent`, que empiezan en 0. `register_enemy_destroyed(reward)` suma 1 a `enemies_destroyed` y llama a `add_money(reward)`. No hace falta reiniciarlos: al reiniciar se crea un `LevelState` nuevo.
 - `selected_turret: TurretData` es la torreta que se colocará al hacer clic y la única fuente de la selección. Su setter emite `selected_turret_changed(data)` solo si el valor cambia. Lo escribe `LevelUI` cuando la barra lateral lo pide y `BuildManager` (a `null`) al cancelar con clic derecho.
 - `inspected: Resource` es lo que enseña la ficha (de momento un `TurretData`; es `Resource` para que valga también para enemigos) y la única fuente de lo inspeccionado. Su setter emite `inspected_changed(data)` solo si el valor cambia. Empieza en null y solo lo escribe `LevelUI`; deseleccionar no lo toca. Al reiniciar se crea un `LevelState` nuevo, así que vuelve a null.
 

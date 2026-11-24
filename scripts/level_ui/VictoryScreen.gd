@@ -2,8 +2,8 @@ extends OverlayScreen
 class_name VictoryScreen
 
 # Pantalla de victoria ("sector asegurado"): el marco entra deslizando desde arriba mientras se
-# funde el oscurecido; al llegar, los números del resumen cuentan hacia arriba. Un clic en el área
-# de juego (fuera de los botones) salta la entrada y el conteo. Junto al título, destellos ámbar.
+# funde el oscurecido. Un clic en el área de juego (fuera de los botones) salta la entrada. Bajo el
+# título van las estrellas y junto a él, destellos ámbar.
 # Corre con el árbol en pausa (hereda process_mode ALWAYS de LevelUI), así que va en tiempo real.
 
 # Duración del fundido del oscurecido, a la vez que la entrada.
@@ -13,8 +13,6 @@ const DIM_FADE_TIME: float = 0.2
 const SLIDE_TIME: float = 0.35
 const SLIDE_SETTLE_TIME: float = 0.08
 const SLIDE_OVERSHOOT_PX: float = 2.0
-# Duración del conteo de los números, que empieza al llegar el marco.
-const COUNT_TIME: float = 0.8
 
 # Destellos de cuatro puntas alrededor del título, en la rampa ámbar de art.md.
 const SPARKLE_ARM_COLOR: Color = Color("#ecb23c")
@@ -42,7 +40,6 @@ const STAR_PIXEL: int = 2
 const STAR_GAP: int = 8
 const STAR_EMPTY_COLOR: Color = Color("#3c2a0c")
 
-@onready var run_summary: RunSummary = %RunSummary
 @onready var stars_row: Control = %StarsRow
 @onready var center: CenterContainer = $Center
 
@@ -55,18 +52,13 @@ var _stars: int = 0
 func _ready() -> void:
 	super()
 	title_label.add_theme_color_override("font_color", accent_color)
-	run_summary.accent_color = accent_color
 	title_label.draw.connect(_draw_sparkles)
 	stars_row.draw.connect(_draw_stars)
-	# El oscurecido cubre el área de juego; el marco y el resumen paran los clics que caen encima.
-	for area: Control in [background, frame, run_summary]:
+	# El oscurecido cubre el área de juego; el marco para los clics que caen encima.
+	for area: Control in [background, frame]:
 		area.gui_input.connect(_on_area_gui_input)
 	visibility_changed.connect(_on_visibility_changed)
 	set_process(is_visible_in_tree())
-
-## Enseña el resumen de la partida. Se llama antes de mostrar la pantalla.
-func show_run_stats(stats: RunStats) -> void:
-	run_summary.show_stats(stats)
 
 ## Estrellas ganadas en esta victoria. Se llama antes de mostrar la pantalla.
 func set_stars(stars: int) -> void:
@@ -89,7 +81,7 @@ func _draw_stars() -> void:
 func _on_visibility_changed() -> void:
 	# Solo hay que animar mientras se ve.
 	set_process(is_visible_in_tree())
-	# Cada vez que se abre, la entrada y el conteo empiezan de cero; al cerrarse se deja en su sitio.
+	# Cada vez que se abre, la entrada empieza de cero; al cerrarse se deja en su sitio.
 	if is_visible_in_tree():
 		_start_intro()
 	else:
@@ -111,16 +103,14 @@ func _start_intro() -> void:
 	_intro.tween_method(_set_slide, SLIDE_OVERSHOOT_PX, 0.0, SLIDE_SETTLE_TIME) \
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	_intro.tween_callback(func() -> void: _intro = null)
-	run_summary.count_up(COUNT_TIME, SLIDE_TIME)
 
-# Corta la entrada y el conteo y deja el panel en su estado final.
+# Corta la entrada y deja el panel en su estado final.
 func _finish_intro() -> void:
 	if _intro != null:
 		_intro.kill()
 		_intro = null
 	background.modulate.a = 1.0
 	_set_slide(0.0)
-	run_summary.finish_count()
 
 # Desplazamiento vertical del marco respecto a su sitio, en píxeles enteros para que no tiemble.
 func _set_slide(offset_y: float) -> void:
@@ -130,7 +120,7 @@ func _on_area_gui_input(event: InputEvent) -> void:
 	var click: InputEventMouseButton = event as InputEventMouseButton
 	if click == null or not click.pressed or click.button_index != MOUSE_BUTTON_LEFT:
 		return
-	if _intro != null or run_summary.is_counting():
+	if _intro != null:
 		_finish_intro()
 		accept_event()
 

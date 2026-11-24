@@ -32,7 +32,7 @@ size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 24
 text = "BTN_OPTIONS"
 script = ExtResource("2_option")
-option = 4
+option = 3
 
 [node name="RestartButton" type="Button" parent="Center/Frame/Margin/Box/Options" unique_id=43701199]
 custom_minimum_size = Vector2(204, 36)

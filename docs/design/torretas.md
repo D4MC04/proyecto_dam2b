@@ -318,4 +318,4 @@ Al mejorar, `BuildManager.upgrade_selected()` llama a `Turret.play_upgrade()`: s
 
 ## Bajas y daño por torreta
 
-`Turret.kills` y `Turret.damage_dealt` cuentan lo que ha hecho cada torreta. Todos sus ataques (`Bullet.source`, `Beam`, `Chain`, `Pulse`, `FocusBeam`) llaman a `Enemy.take_damage(amount, source)`, que avisa con `Turret.register_damage(dealt, killed)` (el daño es lo que de verdad quitó, sin pasarse de la vida que quedaba). Los poderes no pasan torreta y no cuentan. La fusión hereda ambos contadores. Al vender, `LevelState` guarda la mejor torreta vendida (`retired_top_name`/`retired_top_kills`) para que siga contando en el resumen.
+`Turret.kills` y `Turret.damage_dealt` cuentan lo que ha hecho cada torreta. Todos sus ataques (`Bullet.source`, `Beam`, `Chain`, `Pulse`, `FocusBeam`) llaman a `Enemy.take_damage(amount, source)`, que avisa con `Turret.register_damage(dealt, killed)` (el daño es lo que de verdad quitó, sin pasarse de la vida que quedaba). Los poderes no pasan torreta y no cuentan. La fusión hereda ambos contadores.

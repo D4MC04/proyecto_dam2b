@@ -3,7 +3,6 @@
 [ext_resource type="PackedScene" uid="uid://cys8covu6ahy6" path="res://scenes/level_ui/OverlayScreen.tscn" id="1_overlay"]
 [ext_resource type="Script" uid="uid://dls3jq2gexy0j" path="res://scripts/level_ui/OverlayOptionButton.gd" id="2_option"]
 [ext_resource type="Script" path="res://scripts/level_ui/VictoryScreen.gd" id="3_script"]
-[ext_resource type="PackedScene" path="res://scenes/level_ui/RunSummary.tscn" id="4_summary"]
 
 [node name="VictoryScreen" instance=ExtResource("1_overlay")]
 script = ExtResource("3_script")
@@ -19,20 +18,6 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 18)
 layout_mode = 2
 mouse_filter = 2
-
-[node name="RunSummary" parent="Center/Frame/Margin/Box" index="2" instance=ExtResource("4_summary")]
-unique_name_in_owner = true
-layout_mode = 2
-
-[node name="NextLevelButton" type="Button" parent="Center/Frame/Margin/Box/Options" unique_id=718204551]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(204, 36)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
-text = "BTN_NEXT_LEVEL"
-script = ExtResource("2_option")
-option = 3
 
 [node name="MenuButton" type="Button" parent="Center/Frame/Margin/Box/Options" unique_id=1204773902]
 custom_minimum_size = Vector2(204, 36)

@@ -33,11 +33,11 @@ En `_ready`:
 3. Llama a `_setup_level()`:
    - `level.setup(level_data)`
    - conecta `level.lost` a `_on_level_lost` y `level.won` a `_on_level_won`
-   - `ui.setup_powers(...)` con el `Powers` del nivel y después `ui.setup(level.game_state, level.turrets, level_number, level.spawner, has_next_level)` (`has_next_level` es true si el nivel está en `GameData.levels` y no es el último), que conecta la UI con el `LevelState` y el `Spawner` del nivel (ver [ui.md](ui.md)).
+   - `ui.setup_powers(...)` con el `Powers` del nivel y después `ui.setup(level.game_state, level.turrets, level_number, level.spawner, level.base)`, que conecta la UI con el `LevelState` y el `Spawner` del nivel (ver [ui.md](ui.md)).
 
 ### Acciones de la UI
 
-`_on_action_requested(action)` decide con un `match` sobre `LevelUI.Action`: `RESTART` llama a `_restart_level()`, `QUIT` a `_quit_to_menu()` y `NEXT_LEVEL` a `_next_level()`. Cuando llega la señal, `LevelUI` ya ha pasado a `PLAYING`, así que no hay pantalla ni pausa.
+`_on_action_requested(action)` decide con un `match` sobre `LevelUI.Action`: `RESTART` llama a `_restart_level()`, y `QUIT` a `_quit_to_menu()`. Cuando llega la señal, `LevelUI` ya ha pasado a `PLAYING`, así que no hay pantalla ni pausa.
 
 ### Pérdida de foco
 
@@ -45,11 +45,11 @@ En `_ready`:
 
 ### Derrota
 
-Cuando la estación se destruye, `Level` deja de construir y ya no puede ganar, espera a que acabe su explosión y emite `lost` (una sola vez por partida). `_on_level_lost()` pasa el resumen a la UI con `ui.show_run_stats(level.get_run_stats())` y después llama a `ui.set_state(LevelUI.UiState.LOST)`. La UI frena el juego con una cámara lenta de algo más de 1 s, vuelve a velocidad normal, pausa el árbol y muestra la pantalla de derrota con un glitch de entrada (ver [ui.md](ui.md)). "Reintentar" usa `RESTART` y "Menú" usa `QUIT`; las dos pasan antes a `PLAYING`, que deja `Engine.time_scale` en 1.
+Cuando la estación se destruye, `Level` deja de construir y ya no puede ganar, espera a que acabe su explosión y emite `lost` (una sola vez por partida). `_on_level_lost()` pasa el resumen (oleada alcanzada y qué destruyó la estación) a la UI con `ui.show_run_stats(level.get_run_stats())` y después llama a `ui.set_state(LevelUI.UiState.LOST)`. La UI frena el juego con una cámara lenta de algo más de 1 s, vuelve a velocidad normal, pausa el árbol y muestra la pantalla de derrota con un glitch de entrada (ver [ui.md](ui.md)). "Reintentar" usa `RESTART` y "Menú" usa `QUIT`; las dos pasan antes a `PLAYING`, que deja `Engine.time_scale` en 1.
 
 ### Victoria
 
-`Level` emite `won` al limpiar la última oleada (y solo si no ha emitido `lost`) y `Game` pasa a la UI el resumen de la partida (`ui.show_run_stats(level.get_run_stats())`) y después llama a `ui.set_state(LevelUI.UiState.WON)`. La UI no congela el juego al momento: durante un respiro de 0,6 s sigue a velocidad normal (se ve explotar al último enemigo), sin selección de torreta ni Escape, y después pausa el árbol y muestra `VictoryScreen`, que entra deslizando y cuenta los números del resumen (ver [ui.md](ui.md)). "Siguiente sector" ejecuta `_next_level()`: cambia `level_data` al siguiente de `GameData.levels` y llama a `_restart_level()`, así que no se cambia de escena y la cabecera, las oleadas, la tienda, el dinero y la ficha se rehacen para el nivel nuevo. "Menú" usa `QUIT`. `_on_level_won` llama antes a `GameState.complete_level(número del nivel)`: si era el más alto desbloqueado y no es el último, sube `current_level` y guarda; si no, no hace nada. Así "Siguiente sector" ya está desbloqueado. Al subir `current_level`, `complete_level` apunta en `GameState.pending_unlocks` la torreta nueva (`GameData.turret_order[número]`, si existe) y el sector nuevo, para que la oficina los enseñe (ver [menu.md](menu.md) › "Aviso de desbloqueos"); repetir un sector ya ganado no apunta nada. Después calcula `GameState.stars_for_health(base.health, base.max_health)`, lo guarda con `GameState.record_level_stars(número, estrellas)` y lo pasa a la pantalla de victoria con `ui.show_victory_stars(estrellas)`, que pinta tres estrellas pixel bajo el título (ámbar las ganadas, oscuras las que faltan): 3 estrellas si la estación no perdió vida, 2 si le queda más de la mitad, 1 si gana con menos; solo se guarda si mejora la marca del nivel (nunca baja). `GameState.get_level_stars(número)` devuelve la mejor marca (0 si no se ha ganado); la usará la selección de nivel.
+`Level` emite `won` al limpiar la última oleada (y solo si no ha emitido `lost`) y `Game` llama a `ui.set_state(LevelUI.UiState.WON)`; la victoria no lleva resumen, solo las estrellas. La UI no congela el juego al momento: durante un respiro de 0,6 s sigue a velocidad normal (se ve explotar al último enemigo), sin selección de torreta ni Escape, y después pausa el árbol y muestra `VictoryScreen`, que entra deslizando (ver [ui.md](ui.md)). La victoria no ofrece "Siguiente sector": "Menú" usa `QUIT` y lleva a la oficina. `_on_level_won` llama antes a `GameState.complete_level(número del nivel)`: si era el más alto desbloqueado y no es el último, sube `current_level` y guarda; si no, no hace nada. Así el sector nuevo ya está desbloqueado al volver a la oficina. Al subir `current_level`, `complete_level` apunta en `GameState.pending_unlocks` la torreta nueva (`GameData.turret_order[número]`, si existe) y el sector nuevo, para que la oficina los enseñe (ver [menu.md](menu.md) › "Aviso de desbloqueos"); repetir un sector ya ganado no apunta nada. Después calcula `GameState.stars_for_health(base.health, base.max_health)`, lo guarda con `GameState.record_level_stars(número, estrellas)` y lo pasa a la pantalla de victoria con `ui.show_victory_stars(estrellas)`, que pinta tres estrellas pixel bajo el título (ámbar las ganadas, oscuras las que faltan): 3 estrellas si la estación no perdió vida, 2 si le queda más de la mitad, 1 si gana con menos; solo se guarda si mejora la marca del nivel (nunca baja). `GameState.get_level_stars(número)` devuelve la mejor marca (0 si no se ha ganado); la usará la selección de nivel.
 
 ### Reinicio
 
@@ -57,7 +57,7 @@ Cuando la estación se destruye, `Level` deja de construir y ya no puede ganar, 
 
 ### Salir al menú
 
-`_quit_to_menu()` instancia `scenes/MainMenu.tscn` con `start_on_level_selection = true`, lo añade a la raíz, lo marca como `current_scene` y libera la escena `Game`.
+`_quit_to_menu()` instancia `scenes/MainMenu.tscn` (se vuelve siempre a la oficina, también del nivel de emergencia), lo añade a la raíz, lo marca como `current_scene` y libera la escena `Game`.
 
 ## Cambio de escena
 
