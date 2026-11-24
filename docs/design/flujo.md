@@ -66,3 +66,15 @@ Cuando la estación se destruye, `Level` deja de construir y ya no puede ganar, 
 ## Enemigos vistos
 
 `Spawner._spawn_enemy` llama a `GameState.mark_enemy_seen(data)`, que guarda en la ranura activa (clave `seen_enemies`) el nombre de archivo del `EnemyData` la primera vez que sale. `reset_progress` los borra. Los usa el Navedex (ver [menu.md](menu.md)).
+
+## Rendimiento
+
+`Settings` (con `process_mode` ALWAYS) fija `Engine.max_fps` en cada fotograma según la pausa del árbol y el foco de la ventana (`NOTIFICATION_APPLICATION_FOCUS_OUT`/`IN`):
+
+| Estado | Tope |
+|---|---|
+| Normal (menús y jugando) | La frecuencia de la pantalla dividida entre el entero que la deja más cerca de 60 sin bajar de 60: 60 Hz → 60, 144 Hz → 72, 165 Hz → 82. Si la pantalla no da su frecuencia, 60 |
+| Árbol en pausa (pausa, derrota, victoria) o ventana sin foco | 30 |
+| En pausa y sin foco | 10 |
+
+El tope vale con VSync o sin él, así que apagar VSync no dispara los FPS. Al ser un divisor exacto de la frecuencia, con VSync cada fotograma dura los mismos refrescos y no hay tirones. La frecuencia se lee una vez al arrancar. Medido en un portátil de 144 Hz: los FPS bajan de ~110-144 a 72 jugando y a 30 en pausa, y la CPU del juego, a casi la mitad. El gasto se va casi todo en dibujar cada fotograma, así que es lo que más cuenta; el renderer de compatibilidad no ahorraba nada y no se usa.
