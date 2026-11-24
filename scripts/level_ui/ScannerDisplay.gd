@@ -40,7 +40,8 @@ func _ready() -> void:
 			_frames.append(ImageTexture.create_from_image(_paint_frame(360.0 * i / FRAME_COUNT)))
 
 func _process(delta: float) -> void:
-	_time += delta
+	# delta sigue Engine.time_scale: se deshace para que el ×2 y el ×4 no aceleren el radar.
+	_time += delta / maxf(Engine.time_scale, 0.01)
 	var frame: int = int(_time / FRAME_TIME) % FRAME_COUNT
 	if frame != _frame:
 		_frame = frame
