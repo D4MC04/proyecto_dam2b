@@ -38,17 +38,28 @@ const STAR_SCAN_SPEED: float = 10.0
 # Parpadeo suave del holograma: cuánto baja su brillo y a qué ritmo.
 const STAR_FLICKER_DEPTH: float = 0.08
 const STAR_FLICKER_RATE: float = 9.0
-# Duración total del encendido de una estrella.
-const STAR_LIGHT_TIME: float = 0.4
-# Tramo inicial del encendido en que la estrella se ve toda blanca.
-const STAR_FLASH_PORTION: float = 0.25
+# Encendido de una estrella, como si el holograma se proyectara: sale de arriba abajo línea a línea
+# (con un frente brillante), parpadea y se descuadra un poco hasta estabilizarse. Duración total,
+# parte de ella que tarda el barrido y momento (0..1) desde el que ya no parpadea.
+const STAR_LIGHT_TIME: float = 0.7
+const STAR_REVEAL_PORTION: float = 0.6
+const STAR_STABLE_AT: float = 0.85
+# Pasos de parpadeo durante el encendido, probabilidad de que un paso se apague y brillo de esos pasos.
+const STAR_FLICKER_STEPS: int = 28
+const STAR_FLICKER_OFF_CHANCE: float = 0.4
+const STAR_FLICKER_DIM: float = 0.25
+# Desplazamiento máximo en píxeles de las líneas descuadradas al empezar (baja hasta 0).
+const STAR_GLITCH_PX: float = 4.0
+# Probabilidad de que una línea se descuadre en un momento dado.
+const STAR_GLITCH_CHANCE: float = 0.25
 # Pausa antes de la primera estrella (tras llegar el marco) y entre una y la siguiente.
 const STAR_FIRST_DELAY: float = 0.2
-const STAR_STEP_DELAY: float = 0.25
+const STAR_STEP_DELAY: float = 0.35
 # Colores: holograma ámbar (rampa de art.md), destello y contorno apagado (como la ficha).
 const STAR_HOLO_COLOR: Color = Color("#ecb23c")
 const STAR_RIM_COLOR: Color = Color("#ffe082")
-const STAR_FLASH_COLOR: Color = Color("#fff4c8")
+# Frente brillante del barrido de encendido.
+const STAR_FRONT_COLOR: Color = Color("#fff4c8")
 const STAR_EMPTY_COLOR: Color = Color("#3a5a78")
 const STAR_EMPTY_BODY_ALPHA: float = 0.10
 
@@ -103,13 +114,10 @@ func _draw_stars() -> void:
 	_draw_star(1, Vector2(left + side_width + STAR_GAP + center_width / 2.0, 0.0), STAR_CENTER_RADIUS)
 	_draw_star(2, Vector2(left + side_width + STAR_GAP * 2 + center_width + side_width / 2.0, STAR_SIDE_DROP), STAR_RADIUS)
 
-# Una estrella con su punta de arriba en `top_center`: apagada si no se ha ganado, blanca al empezar
-# a encenderse y después un holograma ámbar.
+# Una estrella con su punta de arriba en `top_center`: apagada si no se ha ganado; si se ha ganado,
+# el holograma se proyecta (`_star_light`, 0..1) y queda encendido.
 func _draw_star(index: int, top_center: Vector2, radius: float) -> void:
-	var earned: bool = index < _stars
-	var progress: float = _star_light[index] if earned else 0.0
-	var flash: bool = earned and progress > 0.0 and progress < STAR_FLASH_PORTION
-	var lit: bool = earned and progress >= STAR_FLASH_PORTION
+	var progress: float = _star_light[index] if index < _stars else 0.0
 	var center_point: Vector2 = Vector2(roundf(top_center.x), roundf(top_center.y + radius))
 	# Vértices de la estrella: punta, vértice de dentro, punta...
 	var points: PackedVector2Array = PackedVector2Array()
@@ -118,49 +126,91 @@ func _draw_star(index: int, top_center: Vector2, radius: float) -> void:
 		var inner_angle: float = outer_angle + deg_to_rad(36.0)
 		points.append(center_point + (Vector2.from_angle(outer_angle) * radius).round())
 		points.append(center_point + (Vector2.from_angle(inner_angle) * radius * STAR_INNER_RATIO).round())
-	var outline: PackedVector2Array = points.duplicate()
-	outline.append(points[0])
-	if not (lit or flash):
-		var empty_body: Color = STAR_EMPTY_COLOR
-		empty_body.a = STAR_EMPTY_BODY_ALPHA
-		stars_row.draw_colored_polygon(points, empty_body)
-		stars_row.draw_polyline(outline, STAR_EMPTY_COLOR, STAR_RIM_WIDTH)
+	# El hueco apagado se ve siempre debajo: el holograma se enciende sobre él.
+	var empty_body: Color = STAR_EMPTY_COLOR
+	empty_body.a = STAR_EMPTY_BODY_ALPHA
+	stars_row.draw_colored_polygon(points, empty_body)
+	_draw_outline(points, STAR_EMPTY_COLOR, STAR_RIM_WIDTH, INF)
+	if progress <= 0.0:
 		return
-	var main_color: Color = STAR_FLASH_COLOR if flash else STAR_HOLO_COLOR
-	var rim_color: Color = STAR_FLASH_COLOR if flash else STAR_RIM_COLOR
-	var brightness: float = 1.0 - STAR_FLICKER_DEPTH * (0.5 + 0.5 * sin(_time * STAR_FLICKER_RATE + index * 2.0))
-	var body: Color = main_color
-	body.a = STAR_BODY_ALPHA * brightness
-	stars_row.draw_colored_polygon(points, body)
-	var scan: Color = main_color
-	scan.a = STAR_SCAN_ALPHA * brightness
-	_draw_scanlines(points, scan)
-	var glow: Color = main_color
-	glow.a = STAR_GLOW_ALPHA * brightness
-	stars_row.draw_polyline(outline, glow, STAR_GLOW_WIDTH)
-	stars_row.draw_polyline(outline, rim_color, STAR_RIM_WIDTH)
-
-# Rellena la estrella con líneas horizontales cada STAR_SCAN_STEP px que suben con el tiempo. Cada línea
-# va entre los pares de cruces con el contorno (la estrella no es convexa).
-func _draw_scanlines(points: PackedVector2Array, color: Color) -> void:
-	var min_y: float = points[0].y
-	var max_y: float = points[0].y
+	var top: float = points[0].y
+	var bottom: float = points[0].y
 	for point: Vector2 in points:
-		min_y = minf(min_y, point.y)
-		max_y = maxf(max_y, point.y)
+		bottom = maxf(bottom, point.y)
+	var powering: bool = progress < 1.0
+	var reveal: float = clampf(progress / STAR_REVEAL_PORTION, 0.0, 1.0)
+	var limit_y: float = top + (bottom - top) * reveal if reveal < 1.0 else INF
+	var brightness: float = 1.0 - STAR_FLICKER_DEPTH * (0.5 + 0.5 * sin(_time * STAR_FLICKER_RATE + index * 2.0))
+	var glitch: float = 0.0
+	if progress < STAR_STABLE_AT:
+		var step: int = int(progress * STAR_FLICKER_STEPS)
+		if _noise(step, index) < STAR_FLICKER_OFF_CHANCE:
+			brightness *= STAR_FLICKER_DIM
+		glitch = (1.0 - progress / STAR_STABLE_AT) * STAR_GLITCH_PX
+	if not powering or reveal >= 1.0:
+		var body: Color = STAR_HOLO_COLOR
+		body.a = STAR_BODY_ALPHA * brightness
+		stars_row.draw_colored_polygon(points, body)
+	var scan: Color = STAR_HOLO_COLOR
+	scan.a = STAR_SCAN_ALPHA * brightness
+	_draw_scanlines(points, scan, top, limit_y, glitch, index)
+	var glow: Color = STAR_HOLO_COLOR
+	glow.a = STAR_GLOW_ALPHA * brightness
+	_draw_outline(points, glow, STAR_GLOW_WIDTH, limit_y)
+	var rim: Color = STAR_RIM_COLOR
+	rim.a = brightness
+	_draw_outline(points, rim, STAR_RIM_WIDTH, limit_y)
+	# Frente del barrido: una línea brillante por donde va la proyección.
+	if limit_y < INF:
+		var front: Color = STAR_FRONT_COLOR
+		front.a = 0.9
+		var front_xs: Array[float] = _crossings(points, limit_y)
+		for k: int in range(0, front_xs.size() - 1, 2):
+			var from_x: float = roundf(front_xs[k])
+			stars_row.draw_rect(Rect2(from_x, roundf(limit_y) - 1.0, roundf(front_xs[k + 1]) - from_x, STAR_SCAN_THICKNESS), front)
+
+# Ruido determinista en 0..1 a partir de dos enteros (para el parpadeo y las líneas descuadradas).
+func _noise(a: int, b: int) -> float:
+	return fposmod(sin(a * 12.9898 + b * 78.233) * 43758.5453, 1.0)
+
+# Cruces de una línea horizontal en `y` con el contorno de la estrella (las x, ordenadas). Van de dos
+# en dos: dentro entre el primero y el segundo, fuera entre el segundo y el tercero... (no es convexa).
+func _crossings(points: PackedVector2Array, y: float) -> Array[float]:
+	var xs: Array[float] = []
+	for i: int in points.size():
+		var a: Vector2 = points[i]
+		var b: Vector2 = points[(i + 1) % points.size()]
+		if (a.y <= y) != (b.y <= y):
+			xs.append(a.x + (y - a.y) / (b.y - a.y) * (b.x - a.x))
+	xs.sort()
+	return xs
+
+# Contorno cerrado de la estrella, solo por encima de `limit_y` (INF: entero).
+func _draw_outline(points: PackedVector2Array, color: Color, width: float, limit_y: float) -> void:
+	for i: int in points.size():
+		var a: Vector2 = points[i]
+		var b: Vector2 = points[(i + 1) % points.size()]
+		if a.y > limit_y and b.y > limit_y:
+			continue
+		if a.y > limit_y:
+			a = a.lerp(b, (limit_y - a.y) / (b.y - a.y)).round()
+		elif b.y > limit_y:
+			b = b.lerp(a, (limit_y - b.y) / (a.y - b.y)).round()
+		stars_row.draw_line(a, b, color, width)
+
+# Rellena la estrella con líneas horizontales cada STAR_SCAN_STEP px que suben con el tiempo, solo por
+# encima de `limit_y`. Al encenderse, algunas líneas se desplazan de lado `glitch` px como mucho.
+func _draw_scanlines(points: PackedVector2Array, color: Color, top: float, limit_y: float, glitch: float, seed_value: int) -> void:
 	var shift: int = int(fposmod(-_time * STAR_SCAN_SPEED, float(STAR_SCAN_STEP)))
-	var y: int = int(min_y) + shift
-	while y < max_y:
-		var crossings: Array[float] = []
-		for i: int in points.size():
-			var a: Vector2 = points[i]
-			var b: Vector2 = points[(i + 1) % points.size()]
-			if (a.y <= y) != (b.y <= y):
-				crossings.append(a.x + (y - a.y) / (b.y - a.y) * (b.x - a.x))
-		crossings.sort()
-		for k: int in range(0, crossings.size() - 1, 2):
-			var from_x: float = roundf(crossings[k])
-			stars_row.draw_rect(Rect2(from_x, y, roundf(crossings[k + 1]) - from_x, STAR_SCAN_THICKNESS), color)
+	var y: int = int(top) + shift
+	while y < limit_y and y < top + 200.0:
+		var xs: Array[float] = _crossings(points, y)
+		var offset_x: float = 0.0
+		if glitch > 0.0 and _noise(y, seed_value + int(_time * 20.0)) < STAR_GLITCH_CHANCE:
+			offset_x = roundf((_noise(y + 1, seed_value) * 2.0 - 1.0) * glitch)
+		for k: int in range(0, xs.size() - 1, 2):
+			var from_x: float = roundf(xs[k]) + offset_x
+			stars_row.draw_rect(Rect2(from_x, y, roundf(xs[k + 1]) + offset_x - from_x, STAR_SCAN_THICKNESS), color)
 		y += STAR_SCAN_STEP
 
 func _on_visibility_changed() -> void:
