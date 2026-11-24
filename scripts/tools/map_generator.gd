@@ -81,6 +81,20 @@ const CORRIDOR_CLEARANCE: float = 1.45
 # Distancia mínima (casillas) del centro de una casilla de torreta a la curva del camino: la de una
 # casilla de torreta junto a la orilla de un tramo recto, para que la torreta no tape las naves
 const SLOT_CLEARANCE: float = 2.0
+# Las casillas de torreta van centradas en su franja de roca, sin pasar de esta distancia (casillas)
+# del camino: en una franja de 3 casillas entre dos pasillos, la del medio; en el campo, a 3 del camino
+const SLOT_CENTER: float = 3.0
+# Un tramo del camino va por una curva si su dirección se sale del eje más que esta pendiente (~3°)
+const BEND_SLOPE: float = 0.05
+# Orilla de las curvas: una roca pequeña en cada casilla por la que pasa la línea a BEND_EDGE_OFFSET px
+# del centro del camino (a la que quedan las rocas de la orilla de un tramo recto), con el desplazamiento
+# que más la acerque a esa línea, para que la curva del pasillo se vea con su forma. Ninguna queda (su
+# centro) a menos de BEND_EDGE_MIN px del camino
+const BEND_EDGE_OFFSET: float = 33.0
+const BEND_EDGE_MIN: float = 31.0
+# Puntos precalculados (a cada lado) con los que se mira si un punto del camino está en una curva: así
+# también cuenta la cima de un arco, donde la dirección vuelve a ir por el eje
+const BEND_REACH: int = 3
 # Separación (px) entre los puntos precalculados de cada curva: las naves giran poco a poco
 const CURVE_BAKE_INTERVAL: float = 2.0
 # Paso (px) con el que se recorre la curva para apuntar las casillas por las que pasa
@@ -192,6 +206,8 @@ class LevelLayout:
 	# Radio de giro (casillas) de cada punto de cada camino; negativo: el del mapa (turn_radius)
 	var radii: Array[PackedFloat32Array] = []
 	var turn_radius: float = DEFAULT_TURN_RADIUS
+	# Vitrina de la Navedex: sus casillas de torreta se ponen a mano para cada escena
+	var showcase: bool = false
 	var slots: Array[Vector2i] = []
 	var rocks: PackedStringArray = ["grey"]
 
@@ -209,8 +225,10 @@ var _rng: RandomNumberGenerator
 var _map_size: Vector2i = DEFAULT_MAP_SIZE
 var _density: FastNoiseLite
 var _distance: Dictionary[Vector2i, int] = {}
-# Distancia (casillas) del centro de cada casilla cercana a la curva de camino más próxima
+# Distancia (casillas) del centro de cada casilla cercana a la curva de camino más próxima, y si ese
+# punto más próximo está en una curva (un arco de esquina o un tramo en diagonal) y no en un tramo recto
 var _center_distance: Dictionary[Vector2i, float] = {}
+var _near_bend: Dictionary[Vector2i, bool] = {}
 # Casillas con algo puesto. _solid, las que tapa algo que se ve bien (todo menos piedrecitas)
 var _blocked: Dictionary[Vector2i, bool] = {}
 var _solid: Dictionary[Vector2i, bool] = {}
@@ -289,6 +307,7 @@ func _generate(data_path: String, scene_path: String) -> void:
 	if layout == null:
 		push_error("No se puede leer %s" % data_path)
 		return
+	layout.showcase = data_path.get_file().begins_with(SHOWCASE_NAME)
 	var old_uid: int = _read_scene_uid(scene_path)
 	var map: Node2D = _build_map(layout)
 	var packed: PackedScene = PackedScene.new()
@@ -412,7 +431,7 @@ func _build_map(layout: LevelLayout) -> Node2D:
 	for curve: Curve2D in curves:
 		_rasterize(curve, layout.station, path_cells)
 	_distance = _distance_to_path(curves, layout.station)
-	_check_slots(layout.slots)
+	_check_slots(layout.slots, layout.showcase)
 	_blocked = {}
 	_solid = {}
 	if has_station:
@@ -422,6 +441,7 @@ func _build_map(layout: LevelLayout) -> Node2D:
 	if has_station:
 		_place_entrances(scenery, _find_entrances(curves))
 	_place_lights(lights, path_cells, layout.station)
+	_place_bend_edges(scenery, curves)
 	_place_landmarks(scenery)
 	_place_wrecks(scenery)
 	_place_large(scenery)
@@ -541,9 +561,13 @@ func _chebyshev(a: Vector2i, b: Vector2i) -> int:
 func _distance_to_path(curves: Array[Curve2D], station: Vector2i) -> Dictionary[Vector2i, int]:
 	var nearest: Dictionary[Vector2i, float] = {}
 	_center_distance = {}
+	_near_bend = {}
 	var area: Rect2i = _decor_rect().grow(3)
 	for curve: Curve2D in curves:
-		for point: Vector2 in curve.get_baked_points():
+		var points: PackedVector2Array = curve.get_baked_points()
+		for i: int in points.size():
+			var point: Vector2 = points[i]
+			var bend: bool = _is_bend(points[maxi(i - BEND_REACH, 0)], point) or _is_bend(point, points[mini(i + BEND_REACH, points.size() - 1)])
 			var cell: Vector2i = _cell_at(point)
 			if _chebyshev(cell, station) <= STATION_RADIUS - 1:
 				continue
@@ -562,18 +586,56 @@ func _distance_to_path(curves: Array[Curve2D], station: Vector2i) -> Dictionary[
 					var center_length: float = offset.length()
 					if center_length < _center_distance.get(other, INF):
 						_center_distance[other] = center_length
+						_near_bend[other] = bend
 	var distance: Dictionary[Vector2i, int] = {}
 	for cell: Vector2i in nearest:
 		distance[cell] = maxi(ceili(nearest[cell] + 1.0 - CORRIDOR_CLEARANCE - 0.001), 0)
 	return distance
 
 
-## Avisa de las casillas de torreta que quedan demasiado cerca del camino.
-func _check_slots(slots: Array[Vector2i]) -> void:
+## Si el tramo de a a b se sale de los ejes (es parte de una curva o un tramo en diagonal).
+func _is_bend(a: Vector2, b: Vector2) -> bool:
+	var along: Vector2 = b - a
+	return absf(along.x) > BEND_SLOPE * along.length() and absf(along.y) > BEND_SLOPE * along.length()
+
+
+## Avisa de las casillas de torreta mal puestas:
+## - a menos de SLOT_CLEARANCE del camino (la torreta taparía las naves): error;
+## - sin centrar en su franja de roca: a menos de SLOT_CENTER del camino teniendo al lado una casilla
+##   más lejos de él (en una franja entre dos pasillos, la del medio; en el campo, a SLOT_CENTER), salvo
+##   que esa casilla esté fuera del borde del mapa o toque una curva;
+## - tocando con su asteroide (la casilla y las 8 de alrededor) la orilla de una curva: deformaría la
+##   curva del pasillo, así que va más adentro, junto a los tramos rectos.
+## En las vitrinas de la Navedex, con la casilla puesta a mano para cada escena, solo se mira la distancia.
+func _check_slots(slots: Array[Vector2i], showcase: bool) -> void:
 	for cell: Vector2i in slots:
 		var length: float = _center_distance.get(cell, INF)
 		if length < SLOT_CLEARANCE - 0.001:
 			push_error("Casilla de torreta %s a %.2f casillas del camino (mínimo %.1f)" % [cell, length, SLOT_CLEARANCE])
+		if showcase:
+			continue
+		for side: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+			var next: Vector2i = cell + side
+			# Al lado del borde del mapa o de una curva no se puede ir más allá
+			if not Rect2i(Vector2i.ONE, _map_size - Vector2i(2, 2)).has_point(next) or _bend_touched(next) != NO_STATION:
+				continue
+			if minf(_center_distance.get(next, INF), SLOT_CENTER) > minf(length, SLOT_CENTER) + 0.01:
+				push_error("Casilla de torreta %s sin centrar en su franja (más lejos del camino en %s)" % [cell, next])
+				break
+		var bend: Vector2i = _bend_touched(cell)
+		if bend != NO_STATION:
+			push_error("Casilla de torreta %s pegada a una curva (en %s)" % [cell, bend])
+
+
+## Casilla de la orilla de una curva (o del pasillo junto a ella) que tocaría el asteroide de una casilla
+## de torreta puesta aquí (la casilla y las 8 de alrededor), o NO_STATION si no toca ninguna.
+func _bend_touched(cell: Vector2i) -> Vector2i:
+	for dy: int in range(-1, 2):
+		for dx: int in range(-1, 2):
+			var near: Vector2i = cell + Vector2i(dx, dy)
+			if _distance.get(near, 99) <= SHORE_DISTANCE and _near_bend.get(near, false):
+				return near
+	return NO_STATION
 
 
 func _decor_rect() -> Rect2i:
@@ -798,6 +860,58 @@ func _place_lights(layer: TileMapLayer, path_cells: Dictionary[Vector2i, int], s
 			continue
 		var lights: Array[Vector2i] = LIGHTS_HORIZONTAL if orientation == 1 else LIGHTS_VERTICAL
 		layer.set_cell(cell, ANIMATED, lights[int(position_along / 2.0) % 2])
+
+
+## Rocas pequeñas que dibujan la orilla de cada curva del camino, a los dos lados (ver BEND_EDGE_OFFSET).
+func _place_bend_edges(layer: TileMapLayer, curves: Array[Curve2D]) -> void:
+	# Puntos de todos los caminos por casilla, para medir rápido la distancia al camino más cercano
+	var buckets: Dictionary[Vector2i, PackedVector2Array] = {}
+	for curve: Curve2D in curves:
+		for point: Vector2 in curve.get_baked_points():
+			var cell: Vector2i = _cell_at(point)
+			if not buckets.has(cell):
+				buckets[cell] = PackedVector2Array()
+			buckets[cell].append(point)
+	var chosen: Dictionary[Vector2i, int] = {}
+	var seen: Dictionary[Vector2i, bool] = {}
+	for curve: Curve2D in curves:
+		var points: PackedVector2Array = curve.get_baked_points()
+		for i: int in range(1, points.size() - 1):
+			var before: Vector2 = points[maxi(i - BEND_REACH, 0)]
+			var after: Vector2 = points[mini(i + BEND_REACH, points.size() - 1)]
+			if not _is_bend(before, points[i]) and not _is_bend(points[i], after):
+				continue
+			var tangent: Vector2 = (points[i + 1] - points[i - 1]).normalized()
+			for side: Vector2 in [Vector2(-tangent.y, tangent.x), Vector2(tangent.y, -tangent.x)]:
+				var cell: Vector2i = _cell_at(points[i] + side * BEND_EDGE_OFFSET)
+				if seen.has(cell):
+					continue
+				seen[cell] = true
+				if _blocked.has(cell) or not _decor_rect().has_point(cell):
+					continue
+				# El desplazamiento que deja la roca más cerca de la línea, sin acercarla al camino
+				var best_error: float = INF
+				for j: int in JITTER.size():
+					var length: float = _path_distance(_cell_center(cell) + Vector2(JITTER[j]), buckets)
+					if length >= BEND_EDGE_MIN and absf(length - BEND_EDGE_OFFSET) < best_error:
+						best_error = absf(length - BEND_EDGE_OFFSET)
+						chosen[cell] = j
+	for cell: Vector2i in chosen:
+		var piece: Piece = _choose(_families[_mix(_family_at(cell))].small)
+		layer.set_cell(cell, piece.source, piece.atlas, chosen[cell])
+		_block(Rect2i(cell, Vector2i.ONE))
+		_make_solid(Rect2i(cell, Vector2i.ONE))
+
+
+## Distancia (px) de un punto al camino más cercano, con los puntos de los caminos por casilla.
+func _path_distance(point: Vector2, buckets: Dictionary[Vector2i, PackedVector2Array]) -> float:
+	var center: Vector2i = _cell_at(point)
+	var best: float = INF
+	for dy: int in range(-3, 4):
+		for dx: int in range(-3, 4):
+			for other: Vector2 in buckets.get(center + Vector2i(dx, dy), PackedVector2Array()):
+				best = minf(best, point.distance_to(other))
+	return best
 
 
 ## Unas pocas piezas especiales dentro del campo, lejos del pasillo, del borde y unas de otras, con
