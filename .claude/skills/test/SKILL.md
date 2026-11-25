@@ -1,6 +1,6 @@
 ---
 name: test
-description: Abre Godot para probar a mano, a la primera y delante de todo - el editor y el juego ya colocados en el punto donde se prueba lo cambiado en este chat. Usar tras /work y /fix, y cuando el usuario pida "abre godot" (o parecido) en un chat de ticket.
+description: Abre Godot para probar a mano, a la primera y delante de todo - el editor y el juego ya colocados en el punto donde se prueba lo cambiado en este chat. Usar tras /work y /fix.
 argument-hint: "[qué probar u otros argumentos de prueba]"
 ---
 

@@ -30,7 +30,7 @@ git remote set-url origin https://tu-cuenta@github.com/D4MC04/proyecto_dam2b.git
 | `/accept [nombres]` | Acepta tickets (con casillas si no dices cuáles) y abre un chat por ticket con `/work` |
 | `/work nombre` | Implementa el ticket en su rama, lo prueba y te da pasos para probarlo en Godot |
 | `/fix qué falla` | Arregla lo que viste mal al probar, en la misma rama, y reabre Godot con `/test` |
-| `/test [qué probar]` | Abre Godot delante de todo: el editor y el juego ya en el punto de prueba del cambio (un nivel, una oleada, con dinero de sobra, la oficina...). Cierra antes el de la carpeta del chat. También vale decir "abre godot" |
+| `/test [qué probar]` | Abre Godot delante de todo: el editor y el juego ya en el punto de prueba del cambio (un nivel, una oleada, con dinero de sobra, la oficina...). Cierra antes el de la carpeta del chat |
 | `/check` | Revisa la rama sin tocar nada y te explica qué cambia |
 | `/commit` | Revisa lo que no está commiteado, lo prueba y, si sale bien, hace un commit en la rama explicando el cambio. No sube nada |
 | `/merge` | Lo lleva todo a main sin que revises nada: commitea lo pendiente, trae `main` y resuelve conflictos, sube la rama, abre el PR y lo fusiona (squash) |
