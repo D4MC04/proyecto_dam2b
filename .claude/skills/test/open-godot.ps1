@@ -99,10 +99,8 @@ $old = @(Get-FolderGodot)
 foreach ($process in $old) { Stop-Process -Id $process.ProcessId -Force -ErrorAction SilentlyContinue }
 if ($old.Count -gt 0) { Start-Sleep -Seconds 1; Write-Output "Cerrados $($old.Count) Godot de esta carpeta" }
 
-# 2. Carpeta sin importar (worktree nuevo): importar antes, para que editor y juego no importen a la vez.
-if (-not (Test-Path (Join-Path $Path ".godot"))) {
-	Start-Process -FilePath $godot -ArgumentList "--headless","--path","`"$Path`"","--import" -Wait -WindowStyle Hidden
-}
+# 2. Importar siempre antes de abrir (sprites y recursos cambiados se ven nuevos; si no cambió nada, apenas tarda).
+Start-Process -FilePath $godot -ArgumentList "--headless","--path","`"$Path`"","--import" -Wait -WindowStyle Hidden
 
 # 3. Solo el juego (sin editor), con la escena indicada si hay.
 $sceneArg = if ($Scene.Trim()) { "$Scene " } else { "" }
