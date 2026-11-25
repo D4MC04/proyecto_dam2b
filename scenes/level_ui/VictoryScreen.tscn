@@ -5,6 +5,9 @@
 [ext_resource type="Script" path="res://scripts/level_ui/VictoryScreen.gd" id="3_script"]
 [ext_resource type="Script" uid="uid://cu5uq2sgohj00" path="res://scripts/level_ui/OverlayFrame.gd" id="4_frame"]
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_kind"]
+content_margin_bottom = 3.0
+
 [node name="VictoryScreen" instance=ExtResource("1_overlay")]
 script = ExtResource("3_script")
 accent_color = Color(0.9254902, 0.69803923, 0.23529412, 1)
@@ -26,7 +29,7 @@ visible = false
 custom_minimum_size = Vector2(420, 0)
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 18
+theme_override_constants/separation = 15
 
 [node name="KindLabel" type="Label" parent="Center/Frame/Margin/Box/UnlockPage"]
 unique_name_in_owner = true
@@ -34,6 +37,7 @@ layout_mode = 2
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 40
+theme_override_styles/normal = SubResource("StyleBoxEmpty_kind")
 horizontal_alignment = 1
 
 [node name="IconCenter" type="CenterContainer" parent="Center/Frame/Margin/Box/UnlockPage"]
@@ -75,7 +79,7 @@ visible = false
 [node name="NameBox" type="VBoxContainer" parent="Center/Frame/Margin/Box/UnlockPage"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 0
+theme_override_constants/separation = 4
 
 [node name="NameLabel" type="Label" parent="Center/Frame/Margin/Box/UnlockPage/NameBox"]
 unique_name_in_owner = true
