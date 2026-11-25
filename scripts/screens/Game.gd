@@ -60,6 +60,8 @@ func _fade_white(from_alpha: float, to_alpha: float, layer: CanvasLayer = null) 
 
 func _setup_level() -> void:
 	level.setup(level_data)
+	# Solo en depuración con argumentos de prueba: dinero y oleada de partida (antes de preparar la UI).
+	DevLaunch.apply_to_level(level, level_data)
 	level.lost.connect(_on_level_lost)
 	level.won.connect(_on_level_won)
 	# Posición del nivel en la lista + 1; 0 si no está (no se muestra número)

@@ -29,7 +29,8 @@ git remote set-url origin https://tu-cuenta@github.com/D4MC04/proyecto_dam2b.git
 | `/board` | Tablero: lista los tickets, dice cuáles chocan (tocan los mismos archivos) y en qué tandas hacerlos |
 | `/accept [nombres]` | Acepta tickets (con casillas si no dices cuáles) y abre un chat por ticket con `/work` |
 | `/work nombre` | Implementa el ticket en su rama, lo prueba y te da pasos para probarlo en Godot |
-| `/fix qué falla` | Arregla lo que viste mal al probar, en la misma rama, y reabre Godot |
+| `/fix qué falla` | Arregla lo que viste mal al probar, en la misma rama, y reabre Godot con `/test` |
+| `/test [qué probar]` | Abre Godot delante de todo: el editor y el juego ya en el punto de prueba del cambio (un nivel, una oleada, con dinero de sobra, la oficina...). Cierra antes el de la carpeta del chat. También vale decir "abre godot" |
 | `/check` | Revisa la rama sin tocar nada y te explica qué cambia |
 | `/commit` | Revisa lo que no está commiteado, lo prueba y, si sale bien, hace un commit en la rama explicando el cambio. No sube nada |
 | `/merge` | Lo lleva todo a main sin que revises nada: commitea lo pendiente, trae `main` y resuelve conflictos, sube la rama, abre el PR y lo fusiona (squash) |
@@ -40,8 +41,8 @@ git remote set-url origin https://tu-cuenta@github.com/D4MC04/proyecto_dam2b.git
 |---|---|---|
 | 1 | `/add` con lo que quieres arreglar, o `/ideas` si quieres propuestas | Escribe los tickets en `docs/tickets/` con `Estado: propuesta` |
 | 2 | Marcas las casillas de los que aceptas (o `/accept nombre`). `/board` te los lista por prioridad cuando quieras. Borras los que no quieras | Cambia `Estado:` a `aceptada` y abre un chat por ticket (ver abajo) |
-| 3 | `/work nombre` (si no lo lanzó ya `/accept`) | Crea la rama `ticket/nombre`, lee solo lo que pone "Qué leer" del ticket, implementa, actualiza docs, borra el ticket, hace `/commit`, abre Godot y te da pasos para probar |
-| 4 | Pruebas en Godot (solo F5) | Si algo falla, `/fix qué falla` en el chat de ese ticket: lo arregla, hace `/commit` y reabre Godot |
+| 3 | `/work nombre` (si no lo lanzó ya `/accept`) | Crea la rama `ticket/nombre`, lee solo lo que pone "Qué leer" del ticket, implementa, actualiza docs, borra el ticket, hace `/commit`, abre Godot con `/test` en el punto de prueba y te da pasos para probar |
+| 4 | Pruebas en el juego que ya está abierto (si lo cerraste, `/test`) | Si algo falla, `/fix qué falla` en el chat de ese ticket: lo arregla, hace `/commit` y reabre Godot con `/test` |
 | 5 | `/merge` | Commitea lo pendiente, trae `main`, resuelve conflictos, sube la rama, abre el PR y lo fusiona en main con squash (un commit por ticket). Te da el enlace del PR |
 | 6 | — (no haces `git pull`) | Deja tu `main` local al día y borra la rama. En chats con worktree lo hace el chat central, que además archiva el chat del ticket (se puede recuperar desde Archivados) y quita su worktree. Si Godot está abierto en esa carpeta, ciérralo |
 
@@ -61,7 +62,7 @@ Si cambias algo a mano (en Godot o en el código), escribe `/commit` para guarda
 Los tickets siguen el formato de `docs/tickets/_plantilla.md`. Puedes escribir tú uno a mano y lanzar `/work` igual.
 
 ## Qué modelo usar
-Se cambia en el selector de modelo de la app. Algunos comandos fijan el suyo y lo usan aunque el chat esté en otro: `/ideas` y `/check` van en Opus; `/board`, `/accept` y el `probador`, en Haiku; `/hub` y el chat central que abre van en Opus con esfuerzo high. `/add`, `/work`, `/fix`, `/commit` y `/merge` usan el del chat.
+Se cambia en el selector de modelo de la app. Algunos comandos fijan el suyo y lo usan aunque el chat esté en otro: `/ideas` y `/check` van en Opus; `/board`, `/accept` y el `probador`, en Haiku; `/hub` y el chat central que abre van en Opus con esfuerzo high. `/add`, `/work`, `/fix`, `/test`, `/commit` y `/merge` usan el del chat.
 
 | Modelo | Cuándo |
 |---|---|

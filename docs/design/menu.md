@@ -35,6 +35,15 @@ El botón de borrar es un `Button` de 36x36 con la variación `DangerButton`, ce
 - `cover(origin, duration)`: tapa la pantalla en celdas de 4x4 px que avanzan desde `origin` hacia fuera. Cada celda se tapa según su distancia a `origin` (80 %) y una matriz de Bayer 4x4 (20 %), así que el frente sale tramado. Las celdas tapadas son `#060b14`; el frente, `#40e0f0` con su borde exterior en `#befaff`.
 - `uncover(origin, duration)`: lo contrario, destapando primero lo más cercano a `origin`; al acabar se libera.
 
+### Argumentos de arranque de prueba
+
+Solo en depuración (`OS.is_debug_build()`), para que el comando `/test` abra el juego ya en el punto de prueba. Van tras `--` (`Godot.exe --path <carpeta> -- --level=3 --wave=5`) y los lee `scripts/screens/DevLaunch.gd` (clase `DevLaunch`, estática). Si hay alguno, `StartScreen._ready` se salta el título y las ranuras: no se carga ranura, así que no se guarda nada.
+
+- `--level=N`: nivel N (1 = primer sector) ya empezado, sin salto al hiperespacio. `--level=emergency`: el nivel de emergencia (al salir, oficina con su tutorial).
+- `--wave=N` y `--money=N` (con `--level`): `Game._setup_level` llama a `DevLaunch.apply_to_level`, que da por jugadas las oleadas anteriores a la N (`Spawner.skip_waves`) y pone ese dinero inicial. Se repiten al reiniciar ese nivel; no se aplican a otros niveles.
+- `--office`: la oficina sin tutoriales. `--office-tutorial`: la oficina con su tutorial.
+- `--progress=N`: `GameState.current_level`.
+
 ## Escena y script
 
 `scenes/MainMenu.tscn` + `scripts/screens/MainMenu.gd`. Se llega desde la pantalla de inicio, al elegir ranura, o al salir de un nivel (ver [flujo.md](flujo.md)). Es la **oficina del comandante**: el jugador está sentado ante la consola del centro de operaciones, mirando al ventanal por el que se ve el espacio, y gira la silla para ver las paredes de los lados. Cada botón del menú es un objeto de la oficina.
@@ -172,7 +181,7 @@ Aspecto: negro al 70 % y un panel holograma (`OverlayFrame`) con el tipo (24 px)
   6. `DONE`: sin nada señalado, "lo demás, explóralo tú"; con un clic se cierra y la oficina queda libre. Logros, vitrina, stats y archivo no se explican.
 - **Bloqueo:** no se salta. Mientras habla NOVA (en la vista central), el control a pantalla completa para el ratón (los objetos no se marcan ni se pulsan) y se come los clics, Intro y Espacio, que completan el texto o pasan de página o de paso. La silla solo gira en `TURN` (cuando NOVA ha acabado de escribir; hasta entonces `TurnEdges` no brilla) y `TURN_OTHER` (`allows_turn()`, que mira `MainMenu._can_turn()`). `MainMenu._turn` avisa con `on_turned(side)` (-1, 0 o 1) al acabar cada giro.
 - Al acabar, `GameState.complete_office_tutorial()` lo guarda y no vuelve a salir en esa ranura. Hasta entonces no se guarda nada: si se sale a medias (por la puerta, con Escape o cerrando el juego), al volver a entrar en la ranura empieza de nuevo (felicitando otra vez si se ganó, porque `tutorial_won` sí está guardado).
-- **Para probarlo:** en depuración, lanzar el juego con `-- --office-tutorial` (`StartScreen._ready`) va directo a la oficina con el tutorial, como tras ganar el nivel de emergencia, sin ranura (no se guarda nada).
+- **Para probarlo:** en depuración, lanzar el juego con `-- --office-tutorial` va directo a la oficina con el tutorial, como tras ganar el nivel de emergencia, sin ranura (no se guarda nada). Es uno de los argumentos de prueba de `DevLaunch` (ver "Argumentos de arranque de prueba").
 
 ## Salto al hiperespacio
 
