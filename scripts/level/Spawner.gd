@@ -82,6 +82,10 @@ func start_next_wave() -> bool:
 	wave_started.emit(_wave_index, waves.size())
 	return true
 
+## Solo para pruebas (DevLaunch): da por jugadas las `count` primeras oleadas, dejando al menos una.
+func skip_waves(count: int) -> void:
+	_wave_index = clampi(count, 0, waves.size() - 1) - 1
+
 ## El jefe de la oleada `index`, o null si no trae ninguno.
 func get_wave_boss(index: int) -> EnemyData:
 	for group: SpawnGroup in waves[index].groups:

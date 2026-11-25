@@ -7,6 +7,7 @@ extends Control
 enum Phase { TITLE, SLOTS, CONFIRM, ENTERING }
 
 const MAIN_MENU: PackedScene = preload("res://scenes/MainMenu.tscn")
+const GAME: PackedScene = preload("res://scenes/Game.tscn")
 # Fila de arriba del bloque del título; al salir las ranuras sube TITLE_RISE px mientras se desvanece.
 const TITLE_Y: float = 168.0
 const TITLE_RISE: float = 16.0
@@ -58,13 +59,10 @@ var _rows: Array[Control] = []
 var _pending_delete: int = 0
 
 func _ready() -> void:
-	# Solo para probar (en depuración): con `-- --office-tutorial` se va directo a la oficina con su
-	# tutorial (como tras ganar el nivel de emergencia), sin ranura, así que no se guarda nada.
-	if OS.is_debug_build() and OS.get_cmdline_user_args().has("--office-tutorial"):
-		GameState.tutorial_done = true
-		GameState.tutorial_won = true
-		GameState.office_tutorial_done = false
-		_open_main_menu.call_deferred()
+	# Solo para probar (en depuración): con argumentos de prueba (ver DevLaunch) se va directo a la
+	# oficina o a un nivel, sin ranura, así que no se guarda nada.
+	if DevLaunch.is_active():
+		_open_scene.call_deferred(DevLaunch.make_start_scene(MAIN_MENU, GAME))
 		return
 	_build_slots()
 	_fix_danger_pressed(%ConfirmDeleteButton)
@@ -307,8 +305,10 @@ func _enter_slot(card: SlotCard) -> void:
 		wipe.uncover(center, UNCOVER_TIME)
 
 func _open_main_menu() -> void:
-	var menu: Node = MAIN_MENU.instantiate()
+	_open_scene(MAIN_MENU.instantiate())
+
+func _open_scene(scene: Node) -> void:
 	var tree: SceneTree = get_tree()
-	tree.root.add_child(menu)
-	tree.current_scene = menu
+	tree.root.add_child(scene)
+	tree.current_scene = scene
 	queue_free()

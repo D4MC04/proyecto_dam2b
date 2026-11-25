@@ -20,3 +20,7 @@ trailer/
 
 # Archivos temporales que deja el editor de Godot
 *.tmp
+
+# Escenas y scripts de prueba de /test (se borran antes de /merge)
+scenes/dev_preview/
+scripts/dev_preview/
