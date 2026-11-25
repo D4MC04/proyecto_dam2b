@@ -13,6 +13,9 @@ var title: String = ""
 ## Frase ya traducida.
 var text: String = ""
 var icon: Texture2D
+## Animación en reposo en vez del icono (una torreta: base y, si tiene, cañón encima). null si no hay.
+var sprite_frames: SpriteFrames
+var cannon_frames: SpriteFrames
 ## Tinte del icono (los sprites del radar son monocromos y se tiñen).
 var icon_tint: Color = Color.WHITE
 ## Color del marco y de la etiqueta de tipo.
@@ -25,6 +28,8 @@ static func from_turret(data: TurretData) -> UnlockInfo:
 	info.title = data.get_inspect_name()
 	info.text = data.get_inspect_description()
 	info.icon = data.get_inspect_icon()
+	info.sprite_frames = data.sprite_frames
+	info.cannon_frames = data.cannon
 	info.accent = data.get_inspect_accent()
 	return info
 
@@ -39,7 +44,19 @@ static func from_sector(number: int) -> UnlockInfo:
 	info.text = TranslationServer.translate("UNLOCK_SECTOR_TEXT")
 	var path: String = SectorRadar.SHIP_DIR + "radar_%s.png" % SectorRadar.SHIP_FILES[level.radar_ship]
 	if ResourceLoader.exists(path):
-		info.icon = load(path) as Texture2D
+		info.icon = _crop_to_content(load(path) as Texture2D)
 	info.accent = SECTOR_COLOR
 	info.icon_tint = SECTOR_COLOR
 	return info
+
+# Recorta los bordes transparentes, para que el dibujo (y no la imagen) quede centrado.
+static func _crop_to_content(texture: Texture2D) -> Texture2D:
+	if texture == null:
+		return null
+	var used: Rect2i = texture.get_image().get_used_rect()
+	if used.size == Vector2i.ZERO or used.size == Vector2i(texture.get_size()):
+		return texture
+	var atlas: AtlasTexture = AtlasTexture.new()
+	atlas.atlas = texture
+	atlas.region = Rect2(used)
+	return atlas

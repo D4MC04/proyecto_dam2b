@@ -68,7 +68,7 @@ const STAR_EMPTY_BODY_ALPHA: float = 0.10
 # Páginas de desbloqueo: cada una entra con este fundido. El icono se amplía en enteros hasta caber en
 # ICON_BOX px de lado.
 const PAGE_FADE_TIME: float = 0.2
-const ICON_BOX: int = 96
+const ICON_BOX: int = 64
 # Texto del botón mientras queda algo por ver y al final.
 const NEXT_KEY: String = "BTN_NEXT"
 const LAST_KEY: String = "BTN_MENU"
@@ -79,6 +79,8 @@ const LAST_KEY: String = "BTN_MENU"
 @onready var kind_label: Label = %KindLabel
 @onready var icon_frame: OverlayFrame = %IconFrame
 @onready var icon_rect: TextureRect = %IconRect
+@onready var base_sprite: AnimatedSprite2D = %BaseSprite
+@onready var cannon_sprite: AnimatedSprite2D = %CannonSprite
 @onready var name_label: Label = %NameLabel
 @onready var text_label: Label = %TextLabel
 
@@ -156,7 +158,10 @@ func _show_page(page: int) -> void:
 	name_label.text = info.title
 	text_label.text = info.text
 	text_label.visible = not info.text.is_empty()
-	_set_icon(info.icon)
+	if info.sprite_frames != null:
+		_set_animated_icon(info.sprite_frames, info.cannon_frames)
+	else:
+		_set_icon(info.icon)
 	icon_rect.modulate = info.icon_tint
 	unlock_page.modulate.a = 0.0
 	_page_fade = create_tween().set_ignore_time_scale()
@@ -164,6 +169,8 @@ func _show_page(page: int) -> void:
 
 # Icono en píxeles: se amplía en enteros (sin emborronar) hasta caber en ICON_BOX.
 func _set_icon(texture: Texture2D) -> void:
+	_stop_sprite(base_sprite)
+	_stop_sprite(cannon_sprite)
 	icon_rect.texture = texture
 	if texture == null:
 		icon_rect.custom_minimum_size = Vector2.ONE * ICON_BOX
@@ -171,6 +178,39 @@ func _set_icon(texture: Texture2D) -> void:
 	var side: int = maxi(texture.get_width(), texture.get_height())
 	var factor: int = maxi(1, ICON_BOX / maxi(side, 1))
 	icon_rect.custom_minimum_size = Vector2(texture.get_size()) * factor
+
+# Torreta en reposo, como en el mapa: base y cañón en bucle, ampliados en enteros hasta caber en ICON_BOX
+# y centrados en el hueco del icono.
+func _set_animated_icon(frames: SpriteFrames, cannon: SpriteFrames) -> void:
+	icon_rect.texture = null
+	var frame_size: Vector2 = Vector2.ONE * ICON_BOX
+	var animation: StringName = _idle_animation(frames)
+	if animation != &"" and frames.get_frame_count(animation) > 0:
+		frame_size = frames.get_frame_texture(animation, 0).get_size()
+	var factor: int = maxi(1, ICON_BOX / maxi(int(maxf(frame_size.x, frame_size.y)), 1))
+	icon_rect.custom_minimum_size = frame_size * factor
+	for pair: Array in [[base_sprite, frames], [cannon_sprite, cannon]]:
+		var sprite: AnimatedSprite2D = pair[0]
+		sprite.sprite_frames = pair[1]
+		sprite.scale = Vector2.ONE * factor
+		sprite.position = (icon_rect.custom_minimum_size / 2.0).floor()
+		var idle: StringName = _idle_animation(sprite.sprite_frames)
+		sprite.visible = idle != &""
+		if sprite.visible:
+			sprite.play(idle)
+
+# Animación en reposo de unos frames ("default" o "spin"); vacía si no hay.
+func _idle_animation(frames: SpriteFrames) -> StringName:
+	if frames == null:
+		return &""
+	for animation: StringName in [&"default", &"spin"]:
+		if frames.has_animation(animation):
+			return animation
+	return &""
+
+func _stop_sprite(sprite: AnimatedSprite2D) -> void:
+	sprite.stop()
+	sprite.visible = false
 
 # Alto y ancho de una estrella de radio `radius`.
 func _star_height(radius: float) -> float:

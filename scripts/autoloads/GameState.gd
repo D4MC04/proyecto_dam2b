@@ -191,6 +191,19 @@ func complete_level(number: int) -> Array[UnlockInfo]:
 	unlocks.append(UnlockInfo.from_sector(current_level))
 	return unlocks
 
+## Torretas que se pueden usar en el nivel `data`: las suyas más las ya desbloqueadas con el progreso, que
+## son permanentes (con `current_level` K se tienen las K + 1 primeras de `GameData.turret_order`). El nivel
+## de emergencia solo usa las suyas.
+func available_turrets(data: LevelData) -> Array[TurretData]:
+	var result: Array[TurretData] = data.turrets.duplicate()
+	if data == GameData.emergency_level:
+		return result
+	for index: int in mini(current_level + 1, GameData.turret_order.size()):
+		var turret: TurretData = GameData.turret_order[index]
+		if turret not in result:
+			result.append(turret)
+	return result
+
 ## Lo que desbloquea ganar el nivel de emergencia (el sector 0): la segunda torreta, que ya sale en el
 ## nivel 1. Solo la primera vez (antes de darlo por hecho con `complete_tutorial`).
 func complete_emergency() -> Array[UnlockInfo]:
