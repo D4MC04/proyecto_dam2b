@@ -12,15 +12,13 @@
 [sub_resource type="Resource" id="Resource_ocntt"]
 script = ExtResource("1_iagk8")
 enemy_data = ExtResource("2_edw2k")
-count = 2
-spacing = 2.0
-pause_after = -2.0
+spacing = 0.0
+pause_after = 0.0
 
 [sub_resource type="Resource" id="Resource_gw52l"]
 script = ExtResource("1_iagk8")
 enemy_data = ExtResource("2_edw2k")
-count = 2
-spacing = 2.0
+spacing = 0.0
 pause_after = 0.8
 path_index = 1
 
@@ -115,19 +113,47 @@ path_index = 1
 [sub_resource type="Resource" id="Resource_b2rrs"]
 script = ExtResource("1_iagk8")
 enemy_data = ExtResource("5_gw52l")
-count = 3
-spacing = 0.35
-pause_after = -0.7
+count = 6
+spacing = 0.3
+pause_after = -1.5
 
 [sub_resource type="Resource" id="Resource_e6vja"]
 script = ExtResource("1_iagk8")
 enemy_data = ExtResource("5_gw52l")
-count = 3
-spacing = 0.35
+count = 6
+spacing = 0.3
+pause_after = 0.5
+path_index = 1
+
+[sub_resource type="Resource" id="Resource_ks753"]
+script = ExtResource("1_iagk8")
+enemy_data = ExtResource("3_ocntt")
+count = 6
+spacing = 0.3
+pause_after = -1.5
+
+[sub_resource type="Resource" id="Resource_jjbmi"]
+script = ExtResource("1_iagk8")
+enemy_data = ExtResource("3_ocntt")
+count = 6
+spacing = 0.3
+pause_after = 0.5
+path_index = 1
+
+[sub_resource type="Resource" id="Resource_4rmg4"]
+script = ExtResource("1_iagk8")
+enemy_data = ExtResource("5_gw52l")
+spacing = 0.0
+pause_after = 0.0
+
+[sub_resource type="Resource" id="Resource_vdna4"]
+script = ExtResource("1_iagk8")
+enemy_data = ExtResource("5_gw52l")
+spacing = 0.0
 pause_after = 0.0
 path_index = 1
 
 [resource]
 script = ExtResource("6_dlmqn")
-health_multiplier = 5.2
-groups = Array[ExtResource("1_iagk8")]([SubResource("Resource_ocntt"), SubResource("Resource_gw52l"), SubResource("Resource_wja3k"), SubResource("Resource_dlmqn"), SubResource("Resource_e1e7c"), SubResource("Resource_4xtme"), SubResource("Resource_481ir"), SubResource("Resource_ej04e"), SubResource("Resource_btbme"), SubResource("Resource_q4cp3"), SubResource("Resource_65rmb"), SubResource("Resource_4cks6"), SubResource("Resource_ph5wo"), SubResource("Resource_ymx66"), SubResource("Resource_b2rrs"), SubResource("Resource_e6vja")])
+health_multiplier = 4.6
+groups = Array[ExtResource("1_iagk8")]([SubResource("Resource_ocntt"), SubResource("Resource_gw52l"), SubResource("Resource_wja3k"), SubResource("Resource_dlmqn"), SubResource("Resource_e1e7c"), SubResource("Resource_4xtme"), SubResource("Resource_481ir"), SubResource("Resource_ej04e"), SubResource("Resource_btbme"), SubResource("Resource_q4cp3"), SubResource("Resource_65rmb"), SubResource("Resource_4cks6"), SubResource("Resource_ph5wo"), SubResource("Resource_ymx66"), SubResource("Resource_b2rrs"), SubResource("Resource_e6vja"), SubResource("Resource_ks753"), SubResource("Resource_jjbmi"), SubResource("Resource_4rmg4"), SubResource("Resource_vdna4")])

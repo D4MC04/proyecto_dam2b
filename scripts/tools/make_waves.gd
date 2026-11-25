@@ -206,9 +206,10 @@ const LEVEL_3: Array[Dictionary] = [
 ## Darts, Wasps, Streaks, Corsairs y Frigates los acompañan. La suma de recompensas sigue el presupuesto del nivel 4 en LEVELS
 ## (270 × 1,125^(K-1), ±5 %). Camino 0 = el que baja por la izquierda, 1 = el de la derecha (se juntan abajo en el centro y suben
 ## juntos). La 1 va entera por el camino 0 y presenta Acorazados sueltos entre naves fáciles; la 2 se reparte entre los dos.
-## Escoltas con una Frigate o un Acorazado en medio. Picos: 5, 8 y 10 (Acorazados por los dos caminos a la vez). Respiros: 3, 6 y
-## 9 (naves más separadas, no menos vida). La dificultad sube poco a poco hasta la 10; en la 10 un enjambre final por los dos
-## caminos sale 20 s tarde para alcanzar a los Acorazados cerca del cruce.
+## Escoltas con una Frigate o un Acorazado en medio. Picos: 5, 8 y 10 (un Acorazado por cada camino a la vez y enjambres
+## apretados de Darts y Wasps por los dos, para el Cañón pesado). Respiros: 3, 6 y 9 (naves más separadas, no menos vida). Desde la
+## 5 hay pocos Acorazados y muchos enjambres: la dificultad sale del número de naves más que de la vida. En la 10 un enjambre final
+## por los dos caminos sale 20 s tarde para alcanzar a los Acorazados cerca del cruce.
 const LEVEL_4: Array[Dictionary] = [
 	{"health": 1.0, "groups": [[DART, 4, 1.0, 0, 2.5], ["wasp", 3, 1.2, 0, 2.5], ["acorazado", 1, 0.0, 0, 3.5],
 			[DART, 4, 1.0, 0, 2.5], ["nave_normal", 3, 1.6, 0, 2.5], ["acorazado", 1, 0.0, 0, 0.0]]},
@@ -220,27 +221,31 @@ const LEVEL_4: Array[Dictionary] = [
 	{"health": 1.5, "groups": [["acorazado", 2, 3.0, 0, -3.0], [DART, 5, 0.7, 1, 2.0], ["wasp", 4, 0.9, 0, -1.5],
 			["cruiser", 2, 1.6, 1, 2.0], [DART, 2, 0.5, 0, 0.5], ["acorazado", 1, 0.0, 0, 0.5], [DART, 2, 0.5, 0, -1.0],
 			[DART, 2, 0.5, 1, 0.0]]},
-	{"health": 1.8, "groups": [["acorazado", 2, 2.5, 0, -2.5], ["acorazado", 2, 2.5, 1, 1.5], ["wasp", 5, 0.7, 0, -2.0],
-			[DART, 3, 0.4, 1, 0.4], ["nave_agresiva", 1, 0.0, 1, 0.4], [DART, 3, 0.4, 1, 1.5], ["cruiser", 1, 0.0, 0, 0.0]]},
-	{"health": 2.6, "groups": [[DART, 6, 0.6, 0, -1.0], ["wasp", 5, 0.8, 1, 1.0], ["acorazado", 1, 0.0, 0, 1.5],
+	{"health": 2.05, "groups": [["acorazado", 1, 0.0, 0, 0.0], ["acorazado", 1, 0.0, 1, 1.5], [DART, 6, 0.3, 0, -1.5],
+			[DART, 6, 0.3, 1, 1.5], ["wasp", 5, 0.6, 0, 0.5], [DART, 3, 0.4, 0, 0.4], ["nave_agresiva", 1, 0.0, 0, 0.4],
+			[DART, 3, 0.4, 0, -2.8], ["cruiser", 2, 1.4, 1, 0.5], ["streak", 3, 0.5, 1, 0.0]]},
+	{"health": 2.65, "groups": [[DART, 6, 0.6, 0, -1.0], ["wasp", 5, 0.8, 1, 1.0], ["acorazado", 1, 0.0, 0, 1.5],
 			["cruiser", 2, 1.6, 1, 1.2], [DART, 6, 0.6, 0, -1.0], ["streak", 3, 0.7, 1, 1.0], ["acorazado", 1, 0.0, 1, 1.5],
 			["nave_normal", 2, 1.3, 0, 1.0], [DART, 2, 0.5, 1, 0.5], ["nave_agresiva", 1, 0.0, 1, 0.5], [DART, 2, 0.5, 1, 1.5],
 			["wasp", 2, 0.8, 0, 0.0]]},
-	{"health": 3.4, "groups": [["wasp", 4, 0.6, 0, -1.0], ["acorazado", 2, 2.2, 1, 1.2], [DART, 2, 0.4, 0, 0.4],
-			["nave_agresiva", 1, 0.0, 0, 0.4], [DART, 2, 0.4, 0, -0.5], [DART, 5, 0.5, 1, 1.2], ["acorazado", 1, 0.0, 0, 1.0],
-			["streak", 5, 0.5, 1, -2.4], [DART, 6, 0.4, 0, 1.0], ["cruiser", 2, 1.4, 1, -1.5], ["nave_normal", 2, 1.0, 0, 0.0]]},
-	{"health": 4.0, "groups": [["acorazado", 2, 2.4, 0, -2.4], ["acorazado", 2, 2.4, 1, 1.5], ["wasp", 5, 0.5, 0, -1.0],
-			[DART, 3, 0.4, 1, 0.4], ["nave_agresiva", 1, 0.0, 1, 0.4], [DART, 3, 0.4, 1, -0.5], ["cruiser", 2, 1.2, 0, 1.0],
-			["wasp", 5, 0.45, 0, -1.8], ["wasp", 5, 0.45, 1, 0.8], [DART, 6, 0.35, 0, -1.75], [DART, 6, 0.35, 1, 0.0]]},
-	{"health": 4.2, "groups": [[DART, 6, 0.5, 0, -1.0], ["wasp", 6, 0.6, 1, 0.5], ["acorazado", 2, 2.5, 0, 0.6],
-			["cruiser", 2, 1.5, 1, -1.0], [DART, 6, 0.5, 0, 0.5], [DART, 2, 0.5, 1, 0.5], ["acorazado", 1, 0.0, 1, 0.5],
-			[DART, 2, 0.5, 1, 0.6], ["wasp", 6, 0.6, 0, -1.0], ["nave_agresiva", 2, 1.5, 1, 0.6], ["acorazado", 1, 0.0, 0, -1.0],
-			[DART, 6, 0.5, 1, 0.5], ["nave_normal", 2, 1.1, 0, 0.0]]},
-	{"health": 5.2, "groups": [["acorazado", 2, 2.0, 0, -2.0], ["acorazado", 2, 2.0, 1, 0.8], [DART, 3, 0.4, 0, 0.4],
+	{"health": 3.2, "groups": [["wasp", 5, 0.6, 0, -1.0], ["acorazado", 1, 0.0, 1, 1.2], [DART, 2, 0.4, 0, 0.4],
+			["nave_agresiva", 1, 0.0, 0, 0.4], [DART, 2, 0.4, 0, -0.5], [DART, 6, 0.5, 1, 1.2], ["cruiser", 2, 1.4, 0, -1.4],
+			["streak", 5, 0.5, 1, 1.0], [DART, 6, 0.3, 0, -1.5], [DART, 6, 0.3, 1, 1.0], ["wasp", 6, 0.4, 0, -1.0],
+			["nave_agresiva", 2, 1.2, 1, 0.5], [DART, 2, 0.4, 0, 0.0]]},
+	{"health": 3.8, "groups": [["acorazado", 1, 0.0, 0, 0.0], ["acorazado", 1, 0.0, 1, 1.0], [DART, 6, 0.3, 0, -1.5],
+			[DART, 6, 0.3, 1, 0.6], ["wasp", 6, 0.35, 0, -1.75], ["wasp", 6, 0.35, 1, 1.0], [DART, 3, 0.4, 1, 0.4],
+			["nave_agresiva", 1, 0.0, 1, 0.4], [DART, 3, 0.4, 1, -1.0], ["cruiser", 2, 1.2, 0, -0.6], ["streak", 3, 0.4, 1, 0.6],
+			[DART, 6, 0.3, 0, -1.5], [DART, 6, 0.3, 1, 0.6], ["nave_normal", 2, 0.8, 0, 0.5], [DART, 2, 0.4, 0, 0.0]]},
+	{"health": 3.9, "groups": [[DART, 6, 0.5, 0, -1.0], ["wasp", 6, 0.6, 1, 0.6], ["acorazado", 1, 0.0, 0, 0.8],
+			["cruiser", 2, 1.5, 1, -1.0], [DART, 6, 0.5, 0, 0.6], [DART, 2, 0.5, 1, 0.5], ["acorazado", 1, 0.0, 1, 0.5],
+			[DART, 2, 0.5, 1, 0.6], ["wasp", 6, 0.6, 0, -1.0], ["nave_agresiva", 2, 1.5, 1, 0.6], ["streak", 4, 0.5, 0, -1.0],
+			[DART, 6, 0.5, 1, 0.6], ["nave_normal", 3, 1.0, 0, -1.5], ["cruiser", 1, 0.0, 1, 0.6], ["wasp", 2, 0.6, 1, 0.0]]},
+	{"health": 4.6, "groups": [["acorazado", 1, 0.0, 0, 0.0], ["acorazado", 1, 0.0, 1, 0.8], [DART, 3, 0.4, 0, 0.4],
 			["nave_agresiva", 1, 0.0, 0, 0.4], [DART, 3, 0.4, 0, -0.3], ["wasp", 6, 0.45, 1, 0.8], ["cruiser", 2, 1.1, 0, -1.1],
 			[DART, 3, 0.4, 1, 0.4], ["nave_agresiva", 1, 0.0, 1, 0.4], [DART, 3, 0.4, 1, 0.8], ["nave_normal", 3, 0.8, 0, -1.6],
-			["nave_normal", 3, 0.8, 1, 20.0], [DART, 6, 0.3, 0, -1.5], [DART, 6, 0.3, 1, 0.5], ["wasp", 3, 0.35, 0, -0.7],
-			["wasp", 3, 0.35, 1, 0.0]]},
+			["nave_normal", 3, 0.8, 1, 20.0], [DART, 6, 0.3, 0, -1.5], [DART, 6, 0.3, 1, 0.5], ["wasp", 6, 0.3, 0, -1.5],
+			["wasp", 6, 0.3, 1, 0.5], [DART, 6, 0.3, 0, -1.5], [DART, 6, 0.3, 1, 0.5], ["wasp", 1, 0.0, 0, 0.0],
+			["wasp", 1, 0.0, 1, 0.0]]},
 ]
 ## Niveles con las oleadas escritas a mano: nivel → tabla.
 const HAND_LEVELS: Dictionary[int, Array] = {1: LEVEL_1, 2: LEVEL_2, 3: LEVEL_3, 4: LEVEL_4}

@@ -98,5 +98,5 @@ pause_after = 0.0
 
 [resource]
 script = ExtResource("7_lgbi6")
-health_multiplier = 2.6
+health_multiplier = 2.65
 groups = Array[ExtResource("1_l78e2")]([SubResource("Resource_n00ip"), SubResource("Resource_nc73y"), SubResource("Resource_rn7vq"), SubResource("Resource_ineuc"), SubResource("Resource_lgbi6"), SubResource("Resource_36wq0"), SubResource("Resource_sbaga"), SubResource("Resource_n2ce0"), SubResource("Resource_0iffb"), SubResource("Resource_eru82"), SubResource("Resource_nqkfv"), SubResource("Resource_3cedb")])
