@@ -177,7 +177,7 @@ El `Portal` de un camino que saca un jefe tiembla con más fuerza (`Portal.BOSS_
 
 ## LevelIndicator
 
-`scenes/level_ui/LevelIndicator.tscn` + `scripts/level_ui/LevelIndicator.gd` (clase `LevelIndicator`). `MarginContainer` (sin marco ni fondo) anclado arriba en el centro de `GameArea` (3 px de margen superior) con el `Label` "SECTOR N" a 32 px (el doble del texto normal), en `#cce6ff` sin contorno, y debajo "OLEADA X/Y" a 16 px (`set_wave`, que llama `LevelUI._refresh_wave_controls` con el mismo número que el pie de la barra: antes de empezar, 1/Y). `mouse_filter = IGNORE` en el contenedor y en el `Label`; el área de desvanecido se ajusta sola a su tamaño.
+`scenes/level_ui/LevelIndicator.tscn` + `scripts/level_ui/LevelIndicator.gd` (clase `LevelIndicator`). `MarginContainer` (sin marco ni fondo) anclado arriba en el centro de `GameArea` (3 px de margen superior) con el `Label` "SECTOR N" a 32 px (el doble del texto normal), en `#cce6ff` sin contorno y debajo el nombre del sector (`LevelData.sector_name`, traducido) a 16 px (`set_sector_name`; el nivel de emergencia pone "Zona de Instrucción", `HUD_EMERGENCY_NAME`). `mouse_filter = IGNORE` en el contenedor y en el `Label`; el área de desvanecido se ajusta sola a su tamaño.
 
 - Número: `Game` lo calcula como la posición de `level_data` en `GameData.levels` más 1 y lo pasa por `LevelUI.setup`. Si el nivel no está en la lista (0), el indicador se oculta. El nivel de emergencia pone en su lugar "SECTOR 0" con `set_title(text)` (`HUD_EMERGENCY`).
 - Se ve con opacidad 0,7. Si el cursor o algún nodo del grupo `enemies` está dentro de su rectángulo (con 4 px de margen), baja a 0,15 con un tween de 0,15 s; al salir, vuelve a 0,7. Se comprueba en `_process`, que sigue activo con el juego en pausa.

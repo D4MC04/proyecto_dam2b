@@ -7,13 +7,13 @@ const FADE_TIME: float = 0.15
 const DETECT_MARGIN: float = 4.0
 
 @onready var level_label: Label = %LevelLabel
-@onready var wave_label: Label = %WaveLabel
+@onready var name_label: Label = %NameLabel
 
 var _is_hidden: bool = false
 var _tween: Tween
-# Último nivel y oleada mostrados, para repintarlos al cambiar de idioma.
+# Último nivel y clave del nombre mostrados, para repintarlos al cambiar de idioma.
 var _level_number: int = 0
-var _wave: Vector2i = Vector2i.ZERO
+var _name_key: String = ""
 
 func _ready() -> void:
 	modulate.a = NORMAL_ALPHA
@@ -23,8 +23,7 @@ func _notification(what: int) -> void:
 		return
 	if _level_number > 0:
 		set_level_number(_level_number)
-	if _wave.y > 0:
-		set_wave(_wave.x, _wave.y)
+	name_label.text = tr(_name_key) if _name_key != "" else ""
 
 # Si number no es válido (nivel fuera de la lista) no se muestra nada.
 func set_level_number(number: int) -> void:
@@ -33,14 +32,16 @@ func set_level_number(number: int) -> void:
 	level_label.text = tr("HUD_LEVEL_N") % number if number > 0 else ""
 
 ## Pone un rótulo en vez de "SECTOR N" (el nivel de emergencia no está en GameData.levels: sale "SECTOR 0").
-func set_title(text: String) -> void:
+func set_title(text: String, name_key: String = "") -> void:
 	visible = true
 	_level_number = 0
 	level_label.text = text
+	set_sector_name(name_key)
 
-func set_wave(number: int, total: int) -> void:
-	_wave = Vector2i(number, total)
-	wave_label.text = tr("HUD_WAVE_N_OF") % [number, total]
+## Nombre del sector (clave de traducción) bajo el rótulo; vacío no muestra nada.
+func set_sector_name(name_key: String) -> void:
+	_name_key = name_key
+	name_label.text = tr(name_key) if name_key != "" else ""
 
 func _process(_delta: float) -> void:
 	if not visible:

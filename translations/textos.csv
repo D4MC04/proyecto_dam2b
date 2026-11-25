@@ -10,7 +10,6 @@ This cannot be undone."
 BTN_DELETE,Borrar,Delete
 BTN_CANCEL,Cancelar,Cancel
 HUD_LEVEL,SECTOR,SECTOR
-HUD_WAVE,OLEADA,WAVE
 TUTORIAL_SKIP,Saltar,Skip
 DEFEAT_TITLE,"SEÑAL
 PERDIDA","SIGNAL
@@ -145,7 +144,6 @@ ENEMY_WASP_NAME,Wasp,Wasp
 ENEMY_WASP_DESC,Rápida y algo más dura que un Dart.,"Fast, and a bit tougher than a Dart."
 AWARD_PERFECT,PERFECTA,PERFECT
 HUD_LEVEL_N,SECTOR %d,SECTOR %d
-HUD_WAVE_N_OF,OLEADA %d/%d,WAVE %d/%d
 HUD_WAVE_N,OLEADA %d,WAVE %d
 HUD_WAVE_LAST,ÚLTIMA OLEADA,FINAL WAVE
 HUD_WAVE_SHORT,OL. %d/%d,WV. %d/%d
@@ -193,6 +191,7 @@ OFFICE_TUTORIAL_RADAR,En la mesa de Sectores eliges a qué sector saltar para de
 OFFICE_TUTORIAL_OPTIONS,"En esta consola ajustas el sonido, el idioma y la pantalla.","On this console you adjust sound, language and display."
 OFFICE_TUTORIAL_DONE,"Lo demás, explóralo tú. La mesa de Sectores te espera, comandante.","The rest is yours to explore. The Sectors table awaits, commander."
 HUD_EMERGENCY,SECTOR 0,SECTOR 0
+HUD_EMERGENCY_NAME,Zona de Instrucción,Training Zone
 ACH_FIRST_WIN_NAME,Primera victoria,First victory
 ACH_FIRST_WIN_DESC,Gana un sector,Win a sector
 ACH_FLAWLESS_NAME,Intacto,Flawless
