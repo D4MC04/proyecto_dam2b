@@ -53,5 +53,5 @@
 ## Antes de dar algo por terminado
 - Comprobar con el agente `probador` que el proyecto carga sin errores en headless. Busca Godot en la variable de entorno `GODOT`, que cada uno pone en su `.claude/settings.local.json` (ver docs/CLAUDE-CODE.md).
 - Commitear solo con `/commit` y subir solo con `/merge` (salvo el cambio de `Estado:` al aceptar).
-- Al acabar una tarea (y tras cada cambio que haya que volver a probar), abrir yo Godot con `/test` (`.claude/skills/test/SKILL.md`): cierra el de la carpeta de los cambios (el worktree del ticket) y abre el editor y el juego ya en el punto de prueba, delante de todo. Decir que está abierto solo si `/test` lo confirma. El usuario no tiene que cambiar de rama ni copiar rutas: solo juega.
+- Al acabar una tarea (y tras cada cambio que haya que volver a probar), abrir yo Godot con `/test` (`.claude/skills/test/SKILL.md`): cierra el de la carpeta de los cambios (el worktree del ticket) y abre solo el juego (sin editor) ya en el punto de prueba, delante de todo. Decir que está abierto solo si `/test` lo confirma. El usuario no tiene que cambiar de rama ni copiar rutas: solo juega.
 - Dar al usuario unos pasos breves para comprobar a mano que funciona en el juego: qué nivel jugar, qué hacer y qué debería verse.

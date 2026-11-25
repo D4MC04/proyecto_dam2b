@@ -1,6 +1,6 @@
 ---
 name: test
-description: Abre Godot para probar a mano, a la primera y delante de todo - el editor y el juego ya colocados en el punto donde se prueba lo cambiado en este chat. Usar tras /work y /fix.
+description: Abre Godot para probar a mano, a la primera y delante de todo - solo el juego (sin editor) ya colocado en el punto donde se prueba lo cambiado en este chat. Usar tras /work y /fix.
 argument-hint: "[qué probar u otros argumentos de prueba]"
 ---
 
@@ -21,8 +21,8 @@ Abre Godot para probar lo de este chat. Nota del usuario (puede estar vacía): $
    ```
    powershell -NoProfile -ExecutionPolicy Bypass -File .claude/skills/test/open-godot.ps1 -Path "<carpeta de este chat>" -GameArgs "<argumentos>"
    ```
-   Sin argumentos de prueba, quita `-GameArgs`. Si solo hace falta el editor (por ejemplo, algo que se ve en una escena), añade `-NoGame`. El script cierra solo el Godot de esa carpeta (no los de otras), lanza editor y juego desacoplados (no mueren al acabar la llamada), espera a que tengan ventana, reintenta una vez si no sale y los trae al frente (el juego delante del editor).
+   Sin argumentos de prueba, quita `-GameArgs`. Si lo que se prueba se ve en una escena concreta (por ejemplo una de `scenes/dev_preview/`), añade `-Scene res://scenes/...tscn` para abrirla como juego. Nunca se abre el editor. El script cierra solo el Godot de esa carpeta (no los de otras), lanza el juego desacoplado (no muere al acabar la llamada), espera a que tenga ventana, reintenta una vez si no sale y lo trae al frente.
 
-3. **Comprobar.** Lee lo que imprime: `EDITOR OK` y `JUEGO OK` es que están abiertos y delante. Si sale `NO SALE` o `NO DELANTE`, dilo tal cual al usuario (por ejemplo: "El editor no ha salido: el proceso se cerró solo" o "Está abierto pero detrás: búscalo en la barra de tareas"). Nunca digas que Godot está abierto si el script no lo confirma.
+3. **Comprobar.** Lee lo que imprime: `JUEGO OK` es que está abierto y delante. Si sale `NO SALE` o `NO DELANTE`, dilo tal cual al usuario (por ejemplo: "El juego no ha salido: el proceso se cerró solo" o "Está abierto pero detrás: búscalo en la barra de tareas"). Nunca digas que Godot está abierto si el script no lo confirma.
 
-Termina con, en pocas líneas: qué se ha abierto y dónde está el juego (por ejemplo "nivel 3, oleada 5, con 99999 de dinero"), qué hacer ahí y qué debería verse. Si el usuario cierra el juego, puede volver a lanzarlo con F5 desde el editor (sin argumentos: empieza en la pantalla de inicio) o escribir `/test` otra vez.
+Termina con, en pocas líneas: qué se ha abierto y dónde está el juego (por ejemplo "nivel 3, oleada 5, con 99999 de dinero"), qué hacer ahí y qué debería verse. Si el usuario cierra el juego, puede volver a lanzarlo escribiendo `/test` otra vez.
