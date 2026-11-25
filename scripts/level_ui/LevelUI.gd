@@ -98,8 +98,9 @@ func _update_fps_label() -> void:
 func _process(_delta: float) -> void:
 	fps_label.text = "%d FPS" % Engine.get_frames_per_second()
 
-func setup(state: LevelState, turrets: Array[TurretData], level_number: int, spawner: Spawner, base: Base) -> void:
+func setup(state: LevelState, turrets: Array[TurretData], level_number: int, sector_name: String, spawner: Spawner, base: Base) -> void:
 	level_indicator.set_level_number(level_number)
+	level_indicator.set_sector_name(sector_name)
 	_connect_spawner(spawner)
 	# La base es nueva en cada nivel o reinicio, así que no hay conexión anterior que quitar.
 	base.health_changed.connect(sidebar.set_station_health)
@@ -140,7 +141,7 @@ func setup(state: LevelState, turrets: Array[TurretData], level_number: int, spa
 ## Monta el nivel de emergencia (el nivel de prueba) sobre lo que dejó setup: rótulo "SECTOR 0", sin poderes
 ## y con el tutorial de NOVA. Game lo llama justo después de setup.
 func start_emergency(level: Level) -> void:
-	level_indicator.set_title(tr("HUD_EMERGENCY"))
+	level_indicator.set_title(tr("HUD_EMERGENCY"), "HUD_EMERGENCY_NAME")
 	_set_powers_enabled(false)
 	# En la pausa, "Salir" es "Saltar": sale del nivel de emergencia y lo da por hecho (Game._quit_to_menu).
 	pause_menu.set_option_text(OverlayScreen.Option.QUIT, SKIP_TEXT)
@@ -262,13 +263,10 @@ func _refresh_wave_controls() -> void:
 	var total: int = _spawner.waves.size()
 	if not _spawner.is_clear():
 		sidebar.set_wave_status(Sidebar.WaveStatus.IN_PROGRESS, index + 1, total)
-		level_indicator.set_wave(index + 1, total)
 	elif _spawner.has_waves_left():
 		sidebar.set_wave_status(Sidebar.WaveStatus.READY, index + 2, total)
-		level_indicator.set_wave(index + 2, total)
 	else:
 		sidebar.set_wave_status(Sidebar.WaveStatus.COMPLETE, index + 1, total)
-		level_indicator.set_wave(index + 1, total)
 
 func _on_next_wave_requested() -> void:
 	if is_instance_valid(_spawner):
