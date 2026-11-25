@@ -99,9 +99,52 @@ script = ExtResource("1_07lpj")
 enemy_data = ExtResource("4_adpi2")
 count = 2
 spacing = 0.4
+pause_after = 1.0
+
+[sub_resource type="Resource" id="Resource_wwlgb"]
+script = ExtResource("1_07lpj")
+enemy_data = ExtResource("2_evopl")
+count = 2
+spacing = 1.4
+pause_after = -1.4
+
+[sub_resource type="Resource" id="Resource_5j3h1"]
+script = ExtResource("1_07lpj")
+enemy_data = ExtResource("2_evopl")
+count = 2
+spacing = 1.4
+pause_after = 1.0
+path_index = 1
+
+[sub_resource type="Resource" id="Resource_ngnnm"]
+script = ExtResource("1_07lpj")
+enemy_data = ExtResource("3_ov3oj")
+count = 6
+spacing = 0.4
+pause_after = -2.0
+
+[sub_resource type="Resource" id="Resource_44aa4"]
+script = ExtResource("1_07lpj")
+enemy_data = ExtResource("3_ov3oj")
+count = 6
+spacing = 0.4
+pause_after = 1.0
+path_index = 1
+
+[sub_resource type="Resource" id="Resource_v5l5o"]
+script = ExtResource("1_07lpj")
+enemy_data = ExtResource("5_ggnft")
+spacing = 0.0
+pause_after = 0.5
+
+[sub_resource type="Resource" id="Resource_8kwll"]
+script = ExtResource("1_07lpj")
+enemy_data = ExtResource("6_agwo8")
+count = 2
 pause_after = 0.0
+path_index = 1
 
 [resource]
 script = ExtResource("8_muijq")
 health_multiplier = 3.2
-groups = Array[ExtResource("1_07lpj")]([SubResource("Resource_07lpj"), SubResource("Resource_adpi2"), SubResource("Resource_ggnft"), SubResource("Resource_agwo8"), SubResource("Resource_qyfto"), SubResource("Resource_0y2kh"), SubResource("Resource_uuucd"), SubResource("Resource_muijq"), SubResource("Resource_vu3ar"), SubResource("Resource_roc61"), SubResource("Resource_ovu6b"), SubResource("Resource_ick1n"), SubResource("Resource_je0hj")])
+groups = Array[ExtResource("1_07lpj")]([SubResource("Resource_07lpj"), SubResource("Resource_adpi2"), SubResource("Resource_ggnft"), SubResource("Resource_agwo8"), SubResource("Resource_qyfto"), SubResource("Resource_0y2kh"), SubResource("Resource_uuucd"), SubResource("Resource_muijq"), SubResource("Resource_vu3ar"), SubResource("Resource_roc61"), SubResource("Resource_ovu6b"), SubResource("Resource_ick1n"), SubResource("Resource_je0hj"), SubResource("Resource_wwlgb"), SubResource("Resource_5j3h1"), SubResource("Resource_ngnnm"), SubResource("Resource_44aa4"), SubResource("Resource_v5l5o"), SubResource("Resource_8kwll")])
