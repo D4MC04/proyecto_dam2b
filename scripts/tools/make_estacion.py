@@ -372,18 +372,23 @@ def station_frame(phase: int, frame: int) -> Image.Image:
 
 # --- Restos y explosión ---------------------------------------------------
 
-# Trozos del anillo que quedan tras la explosión: (ángulo inicial, final, empuje en px)
-FRAGMENTS = [(-60, 25, 6.0), (40, 100, 5.0), (120, 215, 7.0), (230, 285, 5.5)]
-WRECK_ROT = 30.0
+# Trozos del anillo que quedan tras la explosión: (ángulo local inicial, final, empuje en px).
+# Se parten por las brechas de la fase 3 (110, 165 y 290) y por una grieta nueva en 20.
+FRAGMENTS = [(-62, 15, 6.0), (25, 103, 5.0), (117, 161, 7.0), (169, 281, 5.5)]
+# La explosión sigue girando al ritmo de las fases: su fotograma i va girado i pasos, y los
+# restos se quedan en el giro del último. En el juego, Base gira el nodo al ángulo en que
+# iba el anillo al destruirse, así que no salta.
+STEP = 360.0 / FRAMES
+WRECK_ROT = (EXPLOSION_FRAMES - 1) * STEP
 
 
-def wreck_pixel(x: int, y: int, push: float) -> tuple:
+def wreck_pixel(x: int, y: int, push: float, rot: float) -> tuple:
 	for start, end, drift in FRAGMENTS:
-		mid = (start + end) / 2 + WRECK_ROT
+		mid = (start + end) / 2 + rot
 		ox, oy = polar(drift * push, mid)
 		dx, dy = x + 0.5 - ox, y + 0.5 - oy
 		r = math.hypot(dx, dy)
-		local = (math.degrees(math.atan2(dy, dx)) - WRECK_ROT) % 360.0
+		local = (math.degrees(math.atan2(dy, dx)) - rot) % 360.0
 		inside = start <= ang_diff(local, 0) <= end if start < 0 else start <= local <= end
 		if not inside:
 			continue
@@ -398,7 +403,7 @@ def wreck_pixel(x: int, y: int, push: float) -> tuple:
 				return FIRE[1]
 			return color
 		# Mástil y media placa solar quemada que quedan en algunos trozos
-		for a in (45, 135):
+		for a in (45, 225):
 			if start <= ang_diff(a, 0) <= end or start <= a <= end:
 				ru, v, front = _corner_frame(r, local, a)
 				if not front or ru < RING_OUT - 0.5:
@@ -418,12 +423,12 @@ def wreck_pixel(x: int, y: int, push: float) -> tuple:
 	return None
 
 
-def wreck_frame(push: float = 1.0) -> Image.Image:
+def wreck_frame(push: float = 1.0, rot: float = WRECK_ROT) -> Image.Image:
 	img = Image.new("RGBA", (SIZE, SIZE), TRANSPARENT)
 	px = img.load()
 	for y in range(SIZE):
 		for x in range(SIZE):
-			color = wreck_pixel(x, y, push)
+			color = wreck_pixel(x, y, push, rot)
 			if color is not None:
 				px[x, y] = color
 	outline(img)
@@ -461,7 +466,7 @@ def explosion_frames() -> list:
 	# 2-6: bola de fuego que crece y se enfría mientras los trozos salen despedidos
 	sizes = [(22, 1.0), (32, 0.85), (37, 0.6), (38, 0.4), (36, 0.3)]
 	for i, (rad, heat) in enumerate(sizes):
-		img = wreck_frame(push=min(1.0, (i + 1) / 4.0))
+		img = wreck_frame(push=min(1.0, (i + 1) / 4.0), rot=(i + 2) * STEP)
 		fireball(img, rad, heat, 40 + i)
 		for k in range(14):
 			sx, sy = polar(rad + 2 + noise(k, i, 41) * 8, noise(k, 0, 42) * 360)
@@ -470,7 +475,7 @@ def explosion_frames() -> list:
 		frames.append(img)
 	# 7-9: humo que se disipa sobre los restos
 	for i, alpha in enumerate((170, 100, 40)):
-		img = wreck_frame()
+		img = wreck_frame(rot=(i + 7) * STEP)
 		fireball(img, 38 + i * 2, 0.0, 50 + i, alpha)
 		frames.append(img)
 	return frames

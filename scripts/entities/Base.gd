@@ -33,6 +33,8 @@ func take_damage(amount: int) -> void:
 		if _tween:
 			_tween.kill()
 		shield.hide()
+		# La explosión empieza con el anillo en el giro 0: se gira el nodo al ángulo en que iba
+		rotation = TAU * frame / sprite_frames.get_frame_count(animation)
 		play("explosion")
 		animation_finished.connect(func() -> void: play("destruida"), CONNECT_ONE_SHOT)
 		destroyed.emit()
