@@ -5,11 +5,6 @@
 [ext_resource type="PackedScene" path="res://scenes/MenuBackground.tscn" id="3_background"]
 [ext_resource type="Script" uid="uid://bnok54y84qsmr" path="res://scripts/main_menu/Starfield.gd" id="4_stars"]
 [ext_resource type="Texture2D" uid="uid://7sb0q5toos63" path="res://assets/sprites/backgrounds/menu/menu_planet.png" id="5_planet"]
-[ext_resource type="Script" uid="uid://mb67t4tqyohq" path="res://scripts/main_menu/Comets.gd" id="6_comets"]
-[ext_resource type="Script" uid="uid://dd6xsyc7ng8u7" path="res://scripts/main_menu/Asteroids.gd" id="7_asteroids"]
-[ext_resource type="Script" uid="uid://pdd67yive1em" path="res://scripts/main_menu/Satellites.gd" id="8_satellites"]
-[ext_resource type="Script" uid="uid://d2ksqjroaxlx6" path="res://scripts/main_menu/Outpost.gd" id="9_outpost"]
-[ext_resource type="Script" uid="uid://da11cc2tt2ny8" path="res://scripts/main_menu/Skirmish.gd" id="10_skirmish"]
 [ext_resource type="Texture2D" uid="uid://bykflanuslq17" path="res://assets/sprites/backgrounds/menu/menu_vignette.png" id="11_vignette"]
 [ext_resource type="Script" uid="uid://cu5uq2sgohj00" path="res://scripts/level_ui/OverlayFrame.gd" id="12_frame"]
 [ext_resource type="PackedScene" path="res://scenes/level_ui/ScreenHeader.tscn" id="13_header"]
@@ -42,25 +37,6 @@ script = ExtResource("4_stars")
 [node name="RingedPlanet" type="Sprite2D" parent="."]
 position = Vector2(820, 446)
 texture = ExtResource("5_planet")
-
-[node name="Comets" type="Node2D" parent="."]
-script = ExtResource("6_comets")
-
-[node name="Asteroids" type="Node2D" parent="."]
-script = ExtResource("7_asteroids")
-
-[node name="Satellites" type="Node2D" parent="."]
-script = ExtResource("8_satellites")
-
-[node name="Outpost" type="Node2D" parent="."]
-modulate = Color(0.62, 0.66, 0.74, 1)
-position = Vector2(120, 286)
-scale = Vector2(0.5, 0.5)
-script = ExtResource("9_outpost")
-
-[node name="Skirmish" type="Node2D" parent="." node_paths=PackedStringArray("outpost")]
-script = ExtResource("10_skirmish")
-outpost = NodePath("../Outpost")
 
 [node name="Vignette" type="Sprite2D" parent="."]
 texture = ExtResource("11_vignette")
