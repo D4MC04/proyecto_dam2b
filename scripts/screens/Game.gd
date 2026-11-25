@@ -81,12 +81,13 @@ func _on_level_lost() -> void:
 	ui.set_state(LevelUI.UiState.LOST)
 
 func _on_level_won() -> void:
-	# Si no está en la lista, find devuelve -1 y el número es 0: no desbloquea nada.
+	# Si no está en la lista (el nivel de emergencia), find devuelve -1 y el número es 0.
 	var number: int = GameData.levels.find(level_data) + 1
-	GameState.complete_level(number)
+	# Lo que se desbloquea se enseña en la propia pantalla de victoria, después de las estrellas.
+	var unlocks: Array[UnlockInfo] = GameState.complete_emergency() if _is_emergency else GameState.complete_level(number)
 	var stars: int = GameState.stars_for_health(level.base.health, level.base.max_health)
 	GameState.record_level_stars(number, stars)
-	ui.show_victory_stars(stars)
+	ui.show_victory(stars, unlocks)
 	# El nivel de emergencia sale con su pantalla de victoria, pero no cuenta como victoria ni da logros.
 	if _is_emergency:
 		_emergency_won = true

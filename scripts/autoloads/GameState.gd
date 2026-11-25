@@ -63,9 +63,6 @@ var tutorial_done: bool = false
 var tutorial_won: bool = false
 # El tutorial de la oficina (al llegar a ella después del nivel de emergencia) ya se ha hecho.
 var office_tutorial_done: bool = false
-# Desbloqueos por enseñar al volver a la oficina, por orden ("turret:<archivo>", "sector:<número>": ver
-# UnlockInfo). Se llena donde se desbloquea algo, se vacía al enseñarlos (take_unlocks) y se guarda en la ranura.
-var pending_unlocks: Array[String] = []
 # Enemigos que ya han salido en una partida, por nombre de archivo del EnemyData.
 var seen_enemies: Array[String] = []
 # Contadores acumulados entre partidas: wins, kills, turrets, powers, perfect_waves, spent y built_<torreta>.
@@ -110,7 +107,6 @@ func load_slot(slot: int) -> void:
 	var office_done: Variant = file.get_value(SECTION, "office_tutorial_done", tutorial_done)
 	if typeof(office_done) == TYPE_BOOL:
 		office_tutorial_done = office_done
-	_load_list(file, "pending_unlocks", pending_unlocks)
 	var seen: Variant = file.get_value(SECTION, "seen_enemies", [])
 	if typeof(seen) == TYPE_ARRAY:
 		for key: Variant in seen:
@@ -181,33 +177,32 @@ func is_unlocked(i: int) -> bool:
 	# Para volver a la progresión normal: `return i < current_level`.
 	return true
 
-# Se llama al ganar el nivel número `number` (desde 1): si era el más alto desbloqueado, abre el siguiente.
-func complete_level(number: int) -> void:
+## Se llama al ganar el nivel número `number` (desde 1): si era el más alto desbloqueado, abre el siguiente.
+## Devuelve lo que se desbloquea, en orden, para enseñarlo en la victoria; vacío si no hay nada nuevo.
+func complete_level(number: int) -> Array[UnlockInfo]:
+	var unlocks: Array[UnlockInfo] = []
 	if number != current_level or number >= GameData.levels.size():
-		return
+		return unlocks
 	current_level += 1
-	# La torreta N sale en el nivel N: al abrir el nivel `current_level` sale la torreta de ese número.
-	if number < GameData.turret_order.size():
-		queue_unlock(UnlockInfo.turret_id(GameData.turret_order[number]))
-	queue_unlock(UnlockInfo.sector_id(current_level))
 	_save()
+	# Los desbloqueos van un sector por delante: ganar el nivel N da la torreta N + 2 (índice N + 1), que
+	# sale desde el nivel N + 1.
+	_add_turret_unlock(unlocks, number + 1)
+	unlocks.append(UnlockInfo.from_sector(current_level))
+	return unlocks
 
-## Apunta un desbloqueo para enseñarlo en la oficina (no repite uno que ya espera). No guarda.
-func queue_unlock(id: String) -> void:
-	if id not in pending_unlocks:
-		pending_unlocks.append(id)
+## Lo que desbloquea ganar el nivel de emergencia (el sector 0): la segunda torreta, que ya sale en el
+## nivel 1. Solo la primera vez (antes de darlo por hecho con `complete_tutorial`).
+func complete_emergency() -> Array[UnlockInfo]:
+	var unlocks: Array[UnlockInfo] = []
+	if not tutorial_done:
+		_add_turret_unlock(unlocks, 1)
+	return unlocks
 
-## Los desbloqueos pendientes, en orden, listos para enseñar. Los saca de la cola y guarda: cada uno se ve una sola vez.
-func take_unlocks() -> Array[UnlockInfo]:
-	var items: Array[UnlockInfo] = []
-	for id: String in pending_unlocks:
-		var info: UnlockInfo = UnlockInfo.from_id(id)
-		if info != null:
-			items.append(info)
-	if not pending_unlocks.is_empty():
-		pending_unlocks.clear()
-		_save()
-	return items
+# Añade la torreta de índice `index` de `GameData.turret_order`, si existe.
+func _add_turret_unlock(unlocks: Array[UnlockInfo], index: int) -> void:
+	if index < GameData.turret_order.size():
+		unlocks.append(UnlockInfo.from_turret(GameData.turret_order[index]))
 
 ## Estrellas que da ganar con la estación a `health` de `max_health`: 3 sin daño, 2 con más de la mitad, 1 si no.
 func stars_for_health(health: int, max_health: int) -> int:
@@ -462,7 +457,6 @@ func _set_defaults() -> void:
 	tutorial_done = false
 	tutorial_won = false
 	office_tutorial_done = false
-	pending_unlocks.clear()
 	seen_enemies.clear()
 	stats.clear()
 	fused_turrets.clear()
@@ -498,7 +492,6 @@ func _save() -> void:
 	file.set_value(SECTION, "tutorial_done", tutorial_done)
 	file.set_value(SECTION, "tutorial_won", tutorial_won)
 	file.set_value(SECTION, "office_tutorial_done", office_tutorial_done)
-	file.set_value(SECTION, "pending_unlocks", pending_unlocks)
 	file.set_value(SECTION, "seen_enemies", seen_enemies)
 	file.set_value(SECTION, "stats", stats)
 	file.set_value(SECTION, "fused_turrets", fused_turrets)
