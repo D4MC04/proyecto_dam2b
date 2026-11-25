@@ -175,5 +175,5 @@ path_index = 1
 
 [resource]
 script = ExtResource("5_cupsp")
-health_multiplier = 4.5
+health_multiplier = 4.8
 groups = Array[ExtResource("1_n0nfo")]([SubResource("Resource_cupsp"), SubResource("Resource_g3ch0"), SubResource("Resource_kxgem"), SubResource("Resource_d36di"), SubResource("Resource_3la4r"), SubResource("Resource_bfx5b"), SubResource("Resource_nsjyp"), SubResource("Resource_vw2y2"), SubResource("Resource_tg6q7"), SubResource("Resource_3h2r0"), SubResource("Resource_53r47"), SubResource("Resource_qiihn"), SubResource("Resource_3g2dy"), SubResource("Resource_87soj"), SubResource("Resource_wyl0m"), SubResource("Resource_eecax"), SubResource("Resource_wuduu"), SubResource("Resource_rtu0c"), SubResource("Resource_l5iyj"), SubResource("Resource_0tdkm"), SubResource("Resource_6s0uo"), SubResource("Resource_0pifo"), SubResource("Resource_tj6tu")])
