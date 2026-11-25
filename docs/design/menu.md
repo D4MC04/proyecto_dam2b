@@ -2,7 +2,7 @@
 
 ## Pantalla de inicio
 
-`scenes/StartScreen.tscn` + `scripts/screens/StartScreen.gd`. Es la escena inicial del proyecto (`run/main_scene`). De fondo, el mismo espacio que el menú: los nodos `Background`, `MenuBackground`, `StarField`, `RingedPlanet`, `Comets`, `Asteroids`, `Satellites`, `Outpost`, `Skirmish` y `Vignette`, con las mismas escenas y scripts (ver "Fondo" y "Decoración"), pero con `RingedPlanet` en (820, 446), `Outpost` en (120, 286) y las franjas por defecto de `Skirmish`: en el menú están movidos para verse por el ventanal. Encima va la interfaz, en fases (`Phase { TITLE, SLOTS, CONFIRM, ENTERING }`):
+`scenes/StartScreen.tscn` + `scripts/screens/StartScreen.gd`. Es la escena inicial del proyecto (`run/main_scene`). De fondo, el mismo espacio que el menú: los nodos `Background`, `MenuBackground`, `StarField`, `RingedPlanet` y `Vignette`, con las mismas escenas y scripts (ver "Fondo" y "Decoración"), pero con `RingedPlanet` en (820, 446) (en el menú está movido para verse por el ventanal). Encima va la interfaz, en fases (`Phase { TITLE, SLOTS, CONFIRM, ENTERING }`):
 
 - **Título:** `TitleBlock`, "ASTRO ARTILLERY" (72 px) y "TOWER DEFENSE" (24 px, `#40e0f0`) como en el menú, entra con un fundido de 0,6 s con su fila de arriba en y = 168. Debajo, en y = 352, `PressKeyLabel` "PULSA CUALQUIER TECLA" (24 px, `#befaff`) parpadea a golpes: 0,6 s encendido de cada segundo. Cualquier tecla, clic (izquierdo, derecho o central) o botón de mando lo hace parpadear rápido 6 veces (cada 0,05 s) y desaparecer, y a la vez el título se desvanece subiendo 16 px (0,35 s).
 - **Salir del juego:** Escape en el título cierra el juego directamente (`get_tree().quit()`), sin confirmación.
@@ -55,7 +55,7 @@ Nodos, de fondo a frente:
   - `MenuBackground`: el fondo propio del menú (ver "Fondo").
   - `StarField`: estrellas que parpadean (ver "Decoración").
   - `RingedPlanet`: el gigante gaseoso con anillos (ver "Fondo"). Va detrás de `StarField` para que ninguna estrella se pinte encima.
-  - `Comets`, `Asteroids`, `Satellites`, `Planets`, `Outpost`, `Skirmish`: decoración (ver "Decoración").
+  - `Planets`: decoración (ver "Decoración").
   - `Vignette`: `Sprite2D` con `menu_vignette.png`, que oscurece los bordes en tramado.
 - `Office` (ver "Oficina"): `Views`, con las tres vistas una al lado de otra (`LeftView` en x = -960, `CenterView` en 0 y `RightView` en 960). Encima de `Office` (sin escalar con ella), `TurnEdges`, el brillo de los bordes para girar la silla (ver "Comportamiento").
 - `PanelDim` (oculto al empezar): `ColorRect` negro al 60 % que oscurece la oficina y para el ratón mientras hay un panel abierto.
@@ -114,7 +114,6 @@ Tres vistas de 960x540: izquierda (puerta y stats), centro (ventanal y centro de
 
 - `Nebula`: `Parallax2D` a -2 px/s, repetida en horizontal cada 960 px, con `menu_nebula.png`: nubes verde azuladas y una banda de estrellas ondulada que cruza la pantalla, con una franja de polvo oscuro rota por dentro. Las estrellas van pintadas en la imagen, más juntas en la banda.
 - `RingedPlanet` (nodo de `MainMenu`, no de esta escena, para quedar delante de `StarField`): gigante gaseoso ámbar con dos anillos (`menu_planet.png`), en (820, 138), en la hoja derecha del ventanal, iluminado desde arriba a la izquierda y con la sombra de los anillos sobre el planeta.
-- `Comet`: el cometa de los niveles (`Comet.gd`), cruzando toda la pantalla (`width` = 990) por detrás del planeta.
 
 Las tres imágenes (`assets/sprites/backgrounds/menu/`) no se dibujan a mano: las genera `scripts/tools/make_menu_background.gd` (`godot --headless --path . -s scripts/tools/make_menu_background.gd`). Paletas, forma de la banda, tamaño y anillos del planeta y viñeta son constantes del script: para retocarlos se cambian y se vuelve a lanzar.
 
@@ -125,12 +124,7 @@ Todos son `Node2D` que dibujan o crean sprites por código, con posiciones y tie
 | Nodo | Script | Qué hace |
 |---|---|---|
 | `StarField` | `scripts/main_menu/Starfield.gd` | 77 estrellas de 1 px en tres brillos (un 30 % parpadea) y 6 destellos de cuatro puntas en blanco, cian, morado o naranja. `warp(duration)` los estira en líneas de 1 px (sin antialiasing, mismos colores) desde el centro hacia fuera |
-| `Comets` | `scripts/main_menu/Comets.gd` | Cada 1,5 a 4 s cruza un cometa en diagonal suave por la franja superior o inferior, a 220 px/s, con estela |
-| `Asteroids` | `scripts/main_menu/Asteroids.gd` | Hasta 2 asteroides a la vez cruzan de un borde al opuesto a 60 px/s, con estela; aparece uno cada 3 a 7 s |
-| `Satellites` | `scripts/main_menu/Satellites.gd` | Un satélite cada vez, a 20-30 px/s y girando despacio; el siguiente sale entre 8 y 15 s después de irse el anterior |
 | `Planets` | instancias de `scenes/SpaceBody.tscn` | Solo un asteroide oculto: el único planeta del menú es `RingedPlanet` |
-| `Outpost` | `scripts/main_menu/Outpost.gd` (clase `Outpost`) | En (110, 172), en la hoja izquierda del ventanal, a ×0,5 y con el tono de las naves de `Skirmish` (`modulate` opaco), como parte del fondo. La estación del jugador (`estacion.tres`, animación `fase_0`) con tres torretas alrededor (Cañón doble, Minigun y otro Cañón doble), con los sprites de base y cañón de sus `TurretData`. `fire_at(target)` gira hacia `target` el cañón más cercano, le pone su animación de disparo si la tiene (si tiene `spin`, los tubos arrancan a ×4 y frenan hasta pararse en 1 s) y devuelve la posición de la boca |
-| `Skirmish` | `scripts/main_menu/Skirmish.gd` | Cada 6-12 s cruza un grupo de 2-4 naves enemigas en V (mismo sprite, ×0,5, oscurecidas con `SHIP_TINT` pero opacas, para que no transparenten lo que tengan detrás, 60 px/s, siempre en horizontal y giradas hacia donde avanzan igual que `Enemy._update_animation`) por una de sus franjas (`lanes`, en fracción del alto): por defecto las de arriba y abajo (0,05-0,2 y 0,8-0,95), lejos de los botones; en el menú, 0,06-0,2 y 0,28-0,42, dentro del ventanal (que acaba en y = 262). Cada 1,5-4 s un disparo (línea cian de 1 px) apuntando a una nave: si tiene `outpost`, sale de la boca de una torreta del puesto (`Outpost.fire_at`); si no, desde fuera de la pantalla por arriba o abajo; siempre hace un impacto (`minigun_impact`) y el 40 % de las veces la nave se destruye |
 
 `scripts/main_menu/SpaceBody.gd` (clase `SpaceBody`) es un `AnimatedSprite2D` con `@tool` que construye su `SpriteFrames` a partir de `sheet`, una tira horizontal de frames cuadrados (lado = alto de la imagen), a la velocidad `fps`. Lo usan los planetas del menú y los asteroides.
 
@@ -315,3 +309,7 @@ Para añadir un idioma: una columna nueva en el CSV, su `.translation` en `proje
 
 - El fundido está escrito dos veces: en `MainMenu._fade_panel` (paneles de la oficina) y en `OptionsMenu._fade`.
 - VSync no tiene efecto si el juego se ejecuta incrustado en el editor de Godot; hay que ejecutarlo en su propia ventana.
+
+## Archivado
+
+El fondo es deliberadamente limpio: sin estación, naves, satélite, estrellas fugaces ni asteroides que crucen. `Asteroids.gd` está guardado en `scripts/main_menu/archive/` para volver a ponerlo (sus assets, `asteroide_*.png` y `SpaceBody`, siguen en su sitio). `Comets.gd` y `Satellites.gd` siguen en `scripts/main_menu/` porque `Level.tscn` los usa (ver [niveles.md](niveles.md)); `Comet.gd` y `cometa.png` también, por `SpaceBackground`. `Outpost.gd` y `Skirmish.gd` se borraron.

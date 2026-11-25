@@ -5,15 +5,10 @@
 [ext_resource type="PackedScene" uid="uid://ds51ueya6tle1" path="res://scenes/SpaceBody.tscn" id="9_body"]
 [ext_resource type="Texture2D" uid="uid://7udnrdhnrwfo" path="res://assets/sprites/planets/asteroide_1.png" id="12_asteroide1"]
 [ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="13_theme"]
-[ext_resource type="Script" uid="uid://mb67t4tqyohq" path="res://scripts/main_menu/Comets.gd" id="14_comets"]
-[ext_resource type="Script" uid="uid://dd6xsyc7ng8u7" path="res://scripts/main_menu/Asteroids.gd" id="17_asteroids"]
-[ext_resource type="Script" uid="uid://pdd67yive1em" path="res://scripts/main_menu/Satellites.gd" id="18_satellites"]
 [ext_resource type="Script" uid="uid://cu5uq2sgohj00" path="res://scripts/level_ui/OverlayFrame.gd" id="20_frame"]
 [ext_resource type="PackedScene" path="res://scenes/level_ui/ScreenHeader.tscn" id="21_header"]
 [ext_resource type="PackedScene" path="res://scenes/Navedex.tscn" id="22_navedex"]
-[ext_resource type="Script" uid="uid://da11cc2tt2ny8" path="res://scripts/main_menu/Skirmish.gd" id="23_skirmish"]
 [ext_resource type="PackedScene" path="res://scenes/MenuBackground.tscn" id="24_background"]
-[ext_resource type="Script" uid="uid://d2ksqjroaxlx6" path="res://scripts/main_menu/Outpost.gd" id="25_outpost"]
 [ext_resource type="Texture2D" uid="uid://bykflanuslq17" path="res://assets/sprites/backgrounds/menu/menu_vignette.png" id="26_vignette"]
 [ext_resource type="Texture2D" uid="uid://7sb0q5toos63" path="res://assets/sprites/backgrounds/menu/menu_planet.png" id="27_planet"]
 [ext_resource type="Script" path="res://scripts/main_menu/RadarConsole.gd" id="29_radar"]
@@ -95,15 +90,6 @@ script = ExtResource("2_stars")
 position = Vector2(820, 138)
 texture = ExtResource("27_planet")
 
-[node name="Comets" type="Node2D" parent="Space" unique_id=273898892]
-script = ExtResource("14_comets")
-
-[node name="Asteroids" type="Node2D" parent="Space" unique_id=413824944]
-script = ExtResource("17_asteroids")
-
-[node name="Satellites" type="Node2D" parent="Space" unique_id=840616863]
-script = ExtResource("18_satellites")
-
 [node name="Planets" type="Node2D" parent="Space" unique_id=1569682466]
 
 [node name="Asteroide1" parent="Space/Planets" unique_id=359384108 instance=ExtResource("9_body")]
@@ -113,17 +99,6 @@ scale = Vector2(0.355, 0.33500007)
 frame_progress = 0.39863676
 sheet = ExtResource("12_asteroide1")
 fps = 10.0
-
-[node name="Outpost" type="Node2D" parent="Space" unique_id=753478624]
-modulate = Color(0.62, 0.66, 0.74, 1)
-position = Vector2(110, 172)
-scale = Vector2(0.5, 0.5)
-script = ExtResource("25_outpost")
-
-[node name="Skirmish" type="Node2D" parent="Space" unique_id=1817480808 node_paths=PackedStringArray("outpost")]
-script = ExtResource("23_skirmish")
-outpost = NodePath("../Outpost")
-lanes = Array[Vector2]([Vector2(0.06, 0.2), Vector2(0.28, 0.42)])
 
 [node name="Vignette" type="Sprite2D" parent="Space" unique_id=1700312252]
 texture = ExtResource("26_vignette")
