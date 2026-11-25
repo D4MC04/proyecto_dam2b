@@ -5,10 +5,10 @@ disable-model-invocation: true
 argument-hint: "nombre-del-ticket"
 ---
 
-Implementa el ticket `docs/tickets/$ARGUMENTS.md`.
+Implementa el ticket `$ARGUMENTS`. Está en la carpeta de su creador: búscalo con `ls docs/tickets/*/$ARGUMENTS.md`.
 
-1. Lee el ticket. Si no existe o no pone `Estado: aceptada`, para y díselo al usuario (si en este chat ha dicho "acepto $ARGUMENTS", cambia tú el estado a `aceptada` y sigue). Di en una línea quién lo creó y quién es el responsable (`Creador:` y `Responsable:`). Si lo lanzó el usuario a mano en este chat (no `/accept` ni el chat central, que ya lo preguntan), pregunta con AskUserQuestion si quiere continuar sabiéndolo.
-2. Comprueba con `git status` que no hay cambios sin guardar de otra cosa. Si los hay, para y pregunta. Crea la rama `ticket/$ARGUMENTS` desde `main` (si ya existe, cámbiate a ella).
+1. Lee el ticket. Si no existe o no pone `Estado: aceptada`, para y díselo al usuario (si en este chat ha dicho "acepto $ARGUMENTS", cambia tú el estado a `aceptada` y sigue).
+2. Comprueba con `git status` que no hay cambios sin guardar de otra cosa. Si los hay, para y pregunta. Crea la rama `ticket/$ARGUMENTS` desde el `main` de GitHub: `git fetch origin && git checkout -b ticket/$ARGUMENTS origin/main` (si ya existe, cámbiate a ella). Desde `origin/main` y no desde la rama del chat: si lo lanzó el chat de otro ticket al subir, el worktree puede venir de la rama de ese otro.
 3. Comprueba que el ticket no contradice la sección "Decidido" de `docs/DESIGN.md`. Si contradice, para y avisa.
 4. Lee solo lo que pone "Qué leer" del ticket. Nunca un `docs/design/` entero (algunos son enormes): saca sus títulos con Grep (`^#`) y lee la sección con offset y limit. De los scripts, la función o el trozo indicado, no el archivo entero si es largo. Si el ticket no tiene "Qué leer", busca con Grep y lee solo trozos. Implementa siguiendo CLAUDE.md.
 5. Actualiza la sección afectada de `docs/design/` (y `docs/DESIGN.md` si cambia algo general), borra el archivo del ticket y guarda con `/commit` (sigue `.claude/skills/commit/SKILL.md`: ya lanza el `probador`, no lo lances aparte). Si se para por errores, arréglalos y repite `/commit`. Para lo que pida el usuario después, `/fix`.

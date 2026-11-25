@@ -1,9 +1,11 @@
 # Nivel de emergencia (nivel de prueba del tutorial): un camino en eses con tres curvas cerradas y una casilla de
-# torreta dentro de cada una, para que cada torreta alcance las dos pasadas y la curva.
+# torreta dentro de cada una, para que cada torreta alcance las dos pasadas y la curva. Los tramos verticales
+# van cada 6 casillas: entre dos pasillos queda una franja de roca de 3 y la torreta, en la del medio, queda a
+# 3 casillas (48 px) de las dos pasadas y de la curva, dentro del alcance del Cañón doble (60 px).
 # Datos de scripts/tools/map_generator.gd (formato en su cabecera).
 
 seed = 77
 rocks = grey brown
 station = 5 16
-path = 44,10 30,10 30,26 26,26 26,6 22,6 22,26 18,26 18,16 5,16
-slots = 28,22 24,10 20,22
+path = 44,10 36,10 36,26 30,26 30,6 24,6 24,26 18,26 18,16 5,16
+slots = 33,23 27,9 21,23

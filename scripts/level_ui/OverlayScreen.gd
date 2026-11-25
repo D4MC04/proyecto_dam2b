@@ -32,7 +32,11 @@ func _ready() -> void:
 		if button:
 			button.accent_color = accent_color
 			button.accent_light_color = accent_light_color
-			button.pressed.connect(option_chosen.emit.bind(button.option))
+			button.pressed.connect(_on_option_pressed.bind(button.option))
+
+# Pulsar una opción la elige. Una pantalla heredada puede quedarse el clic (p. ej. para pasar de página).
+func _on_option_pressed(option: Option) -> void:
+	option_chosen.emit(option)
 
 # Cambia el texto (clave de traducción) del botón de una opción (p. ej. "Salir" pasa a "Saltar" en el
 # nivel de emergencia).

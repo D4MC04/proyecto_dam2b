@@ -15,12 +15,13 @@
 [ext_resource type="Resource" uid="uid://c77xjuhi84tck" path="res://resources/wave_data/level_1_10.tres" id="15_3flve"]
 [ext_resource type="Resource" uid="uid://c8o7xttuhxo68" path="res://resources/wave_data/level_1_2.tres" id="wave_1_2"]
 [ext_resource type="Resource" uid="uid://dn7bxkkle6bma" path="res://resources/wave_data/level_1_3.tres" id="wave_1_3"]
+[ext_resource type="Resource" path="res://resources/turret_data/minigun.tres" id="minigun"]
 
 [resource]
 script = ExtResource("1_obkt0")
 map = ExtResource("1_jcob0")
 starting_money = 300
-turrets = Array[ExtResource("3_ismlj")]([ExtResource("4_jcob0")])
+turrets = Array[ExtResource("3_ismlj")]([ExtResource("4_jcob0"), ExtResource("minigun")])
 waves = Array[ExtResource("2_ujpww")]([ExtResource("8_ismlj"), ExtResource("wave_1_2"), ExtResource("wave_1_3"), ExtResource("11_rhpp2"), ExtResource("12_itr4j"), ExtResource("11_ibpya"), ExtResource("12_c0s30"), ExtResource("13_4r1fs"), ExtResource("14_1uuav"), ExtResource("15_3flve")])
 sector_name = "SECTOR_1_NAME"
 radar_distance = 0.28

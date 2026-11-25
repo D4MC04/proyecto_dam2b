@@ -1,7 +1,5 @@
 # Título corto del ticket
 
-Creador: nombre
-Responsable: nombre (vacío si nadie lo ha cogido)
 Estado: propuesta
 Prioridad: media
 Modelo recomendado: sonnet

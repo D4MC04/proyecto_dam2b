@@ -14,6 +14,5 @@ base_damage = 15
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 rotate_sprite = true
-rotation_offset = 180.0
 description = "ENEMY_NAVE_NORMAL_DESC"
 metadata/_custom_type_script = "uid://do62ihbnaitnl"

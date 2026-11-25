@@ -3,7 +3,9 @@ class_name VictoryScreen
 
 # Pantalla de victoria ("sector asegurado"): el marco entra deslizando desde arriba mientras se
 # funde el oscurecido. Un clic en el área de juego (fuera de los botones) salta la entrada. Bajo el
-# título van las estrellas, que se encienden una a una al llegar el marco.
+# título van las estrellas, que se encienden una a una al llegar el marco. Si la victoria desbloquea algo,
+# el botón dice "Siguiente" y, dentro del mismo marco, enseña cada desbloqueo (tipo, icono, nombre y
+# frase); en el último dice "Oficina" y ya lleva a la oficina.
 # Corre con el árbol en pausa (hereda process_mode ALWAYS de LevelUI), así que va en tiempo real.
 
 # Duración del fundido del oscurecido, a la vez que la entrada.
@@ -63,8 +65,25 @@ const STAR_FRONT_COLOR: Color = Color("#fff4c8")
 const STAR_EMPTY_COLOR: Color = Color("#3a5a78")
 const STAR_EMPTY_BODY_ALPHA: float = 0.10
 
+# Páginas de desbloqueo: cada una entra con este fundido. El icono se amplía en enteros hasta caber en
+# ICON_BOX px de lado.
+const PAGE_FADE_TIME: float = 0.2
+const ICON_BOX: int = 64
+# Texto del botón mientras queda algo por ver y al final.
+const NEXT_KEY: String = "BTN_NEXT"
+const LAST_KEY: String = "BTN_MENU"
+
 @onready var stars_row: Control = %StarsRow
 @onready var center: CenterContainer = $Center
+@onready var unlock_page: VBoxContainer = %UnlockPage
+@onready var kind_label: Label = %KindLabel
+@onready var icon_frame: OverlayFrame = %IconFrame
+@onready var icon_rect: TextureRect = %IconRect
+@onready var icon_sprite: Sprite2D = %IconSprite
+@onready var base_sprite: AnimatedSprite2D = %BaseSprite
+@onready var cannon_sprite: AnimatedSprite2D = %CannonSprite
+@onready var name_label: Label = %NameLabel
+@onready var text_label: Label = %TextLabel
 
 # Entrada en curso (deslizamiento y fundido); null si no hay.
 var _intro: Tween
@@ -74,6 +93,12 @@ var _stars: int = 0
 var _star_light: Array[float] = []
 # Tiempo en segundos desde que se abrió la pantalla; mueve el barrido y el parpadeo.
 var _time: float = 0.0
+# Desbloqueos de esta victoria, en orden.
+var _unlocks: Array[UnlockInfo] = []
+# Página que se ve: 0 la victoria con sus estrellas; desde 1, el desbloqueo `_page - 1`.
+var _page: int = 0
+# Fundido de entrada de la página de desbloqueo; null si no hay.
+var _page_fade: Tween
 
 func _ready() -> void:
 	super()
@@ -96,6 +121,120 @@ func _ready() -> void:
 func set_stars(stars: int) -> void:
 	_stars = stars
 	_set_all_lit()
+
+## Lo que desbloquea esta victoria, en orden (vacío si nada). Se llama antes de mostrar la pantalla.
+func set_unlocks(unlocks: Array[UnlockInfo]) -> void:
+	_unlocks = unlocks
+	_show_page(0)
+
+# "Siguiente" pasa a la página siguiente; en la última, el botón ya elige la opción (Oficina).
+func _on_option_pressed(option: Option) -> void:
+	if option == Option.QUIT and _page < _unlocks.size():
+		_finish_intro()
+		_show_page(_page + 1)
+		return
+	super(option)
+
+# Enseña la victoria (página 0) o un desbloqueo, sin cambiar el marco: solo cambia su contenido.
+func _show_page(page: int) -> void:
+	_page = page
+	var victory: bool = page == 0
+	title_label.visible = victory
+	stars_row.visible = victory
+	unlock_page.visible = not victory
+	set_option_text(Option.QUIT, NEXT_KEY if page < _unlocks.size() else LAST_KEY)
+	if _page_fade != null:
+		_page_fade.kill()
+		_page_fade = null
+	unlock_page.modulate.a = 1.0
+	if victory:
+		frame.custom_minimum_size.x = 0.0
+		return
+	# El marco no encoge al pasar de la victoria a los desbloqueos, y la frase reserva el alto de la más
+	# larga: todas las páginas de desbloqueo miden lo mismo y todo queda en el mismo sitio.
+	if page == 1:
+		frame.custom_minimum_size.x = maxf(frame.custom_minimum_size.x, frame.size.x)
+		_reserve_text_height(maxf(unlock_page.custom_minimum_size.x, frame.size.x - _frame_padding()))
+	var info: UnlockInfo = _unlocks[page - 1]
+	kind_label.text = tr(info.kind_key)
+	kind_label.add_theme_color_override(&"font_color", info.accent)
+	icon_frame.accent_color = info.accent
+	name_label.text = info.title
+	text_label.text = info.text
+	text_label.visible = not info.text.is_empty()
+	if info.sprite_frames != null:
+		_set_animated_icon(info.sprite_frames, info.cannon_frames)
+	else:
+		_set_icon(info.icon)
+	icon_rect.modulate = info.icon_tint
+	unlock_page.modulate.a = 0.0
+	_page_fade = create_tween().set_ignore_time_scale()
+	_page_fade.tween_property(unlock_page, "modulate:a", 1.0, PAGE_FADE_TIME)
+
+# Alto de la frase: el de la que más líneas ocupa con el ancho `width` (más el margen de su estilo).
+func _reserve_text_height(width: float) -> void:
+	var font: Font = text_label.get_theme_font(&"font")
+	var font_size: int = text_label.get_theme_font_size(&"font_size")
+	var line_height: float = font.get_height(font_size)
+	var lines: int = 1
+	for info: UnlockInfo in _unlocks:
+		var text_size: Vector2 = font.get_multiline_string_size(info.text, HORIZONTAL_ALIGNMENT_CENTER, width, font_size)
+		lines = maxi(lines, roundi(text_size.y / line_height))
+	var spacing: int = text_label.get_theme_constant(&"line_spacing")
+	var style: StyleBox = text_label.get_theme_stylebox(&"normal")
+	text_label.custom_minimum_size.y = lines * line_height + (lines - 1) * spacing + style.get_minimum_size().y
+
+# Ancho que el marco y sus márgenes quitan al contenido.
+func _frame_padding() -> float:
+	return frame.size.x - unlock_page.get_parent_control().size.x
+
+# Icono en píxeles: se amplía en enteros (sin emborronar) hasta caber en ICON_BOX y va centrado en el
+# hueco cuadrado del icono, en píxeles enteros.
+func _set_icon(texture: Texture2D) -> void:
+	_stop_sprite(base_sprite)
+	_stop_sprite(cannon_sprite)
+	icon_rect.custom_minimum_size = Vector2.ONE * ICON_BOX
+	icon_sprite.texture = texture
+	icon_sprite.visible = texture != null
+	if texture == null:
+		return
+	var side: int = maxi(texture.get_width(), texture.get_height())
+	var factor: int = maxi(1, ICON_BOX / maxi(side, 1))
+	icon_sprite.scale = Vector2.ONE * factor
+	icon_sprite.position = ((Vector2.ONE * ICON_BOX - Vector2(texture.get_size()) * factor) / 2.0).floor()
+
+# Torreta en reposo, como en el mapa: base y cañón en bucle, ampliados en enteros hasta caber en ICON_BOX
+# y centrados en el hueco del icono.
+func _set_animated_icon(frames: SpriteFrames, cannon: SpriteFrames) -> void:
+	icon_sprite.visible = false
+	var frame_size: Vector2 = Vector2.ONE * ICON_BOX
+	var animation: StringName = _idle_animation(frames)
+	if animation != &"" and frames.get_frame_count(animation) > 0:
+		frame_size = frames.get_frame_texture(animation, 0).get_size()
+	var factor: int = maxi(1, ICON_BOX / maxi(int(maxf(frame_size.x, frame_size.y)), 1))
+	icon_rect.custom_minimum_size = Vector2.ONE * ICON_BOX
+	for pair: Array in [[base_sprite, frames], [cannon_sprite, cannon]]:
+		var sprite: AnimatedSprite2D = pair[0]
+		sprite.sprite_frames = pair[1]
+		sprite.scale = Vector2.ONE * factor
+		sprite.position = (icon_rect.custom_minimum_size / 2.0).floor()
+		var idle: StringName = _idle_animation(sprite.sprite_frames)
+		sprite.visible = idle != &""
+		if sprite.visible:
+			sprite.play(idle)
+
+# Animación en reposo de unos frames ("default" o "spin"); vacía si no hay.
+func _idle_animation(frames: SpriteFrames) -> StringName:
+	if frames == null:
+		return &""
+	for animation: StringName in [&"default", &"spin"]:
+		if frames.has_animation(animation):
+			return animation
+	return &""
+
+func _stop_sprite(sprite: AnimatedSprite2D) -> void:
+	sprite.stop()
+	sprite.visible = false
 
 # Alto y ancho de una estrella de radio `radius`.
 func _star_height(radius: float) -> float:
