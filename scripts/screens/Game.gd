@@ -68,7 +68,7 @@ func _setup_level() -> void:
 	var level_number: int = GameData.levels.find(level_data) + 1
 	level.build_manager.tutorial_hints = ui.tutorial_hints
 	ui.setup_powers(level.get_node(^"Powers"))
-	ui.setup(level.game_state, level.turrets, level_number, level.spawner, level.base)
+	ui.setup(level.game_state, level.turrets, level_number, level_data.sector_name, level.spawner, level.base)
 	_is_emergency = level_data == GameData.emergency_level
 	_emergency_won = false
 	if _is_emergency:
