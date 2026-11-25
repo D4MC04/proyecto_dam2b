@@ -8,6 +8,8 @@ const LEGACY_PATH: String = "user://progress.cfg"
 const SECTION: String = "progress"
 # Estrellas máximas que da un nivel ganado.
 const MAX_STARS: int = 3
+## Fracción de vida por encima de la cual se ganan 2 estrellas (25 %).
+const TWO_STARS_HEALTH_FRACTION: float = 0.25
 
 signal progress_reset
 
@@ -217,11 +219,11 @@ func _add_turret_unlock(unlocks: Array[UnlockInfo], index: int) -> void:
 	if index < GameData.turret_order.size():
 		unlocks.append(UnlockInfo.from_turret(GameData.turret_order[index]))
 
-## Estrellas que da ganar con la estación a `health` de `max_health`: 3 sin daño, 2 con más de la mitad, 1 si no.
+## Estrellas que da ganar con la estación a `health` de `max_health`: 3 sin daño, 2 con más del 25 % de la vida, 1 si no.
 func stars_for_health(health: int, max_health: int) -> int:
 	if health >= max_health:
 		return MAX_STARS
-	if health * 2 > max_health:
+	if float(health) > float(max_health) * TWO_STARS_HEALTH_FRACTION:
 		return 2
 	return 1
 
