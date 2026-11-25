@@ -39,7 +39,11 @@ func take_damage(amount: int) -> void:
 		return
 	var phase: StringName = _phase_for(float(health) / max_health)
 	if phase != animation:
+		# Las fases comparten el giro: se sigue en el mismo fotograma para que el anillo no salte
+		var current_frame: int = frame
+		var current_progress: float = frame_progress
 		play(phase)
+		set_frame_and_progress(current_frame, current_progress)
 	_flash()
 	_hit_flash()
 

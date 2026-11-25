@@ -5,7 +5,7 @@ Uso (desde la raíz del proyecto):
 	python scripts/tools/make_estacion.py --preview D  # solo boceto y GIFs ampliados en D
 
 Diseño: núcleo fijo en el centro y, girando alrededor, un buje con 4 radios, el anillo
-y 4 módulos pegados por fuera del anillo. Cada píxel se calcula en coordenadas polares
+y 4 placas solares con mástil pegadas por fuera del anillo. Cada píxel se calcula en coordenadas polares
 del anillo (ángulo local = ángulo de pantalla - giro), así que todo lo que está en el
 anillo, incluido el daño de cada fase, gira junto. La luz viene siempre de arriba a la
 izquierda de la pantalla, no gira.
@@ -51,11 +51,10 @@ CORE_R = 9.5  # núcleo fijo
 HUB_IN, HUB_OUT = 10.5, 13.0  # buje que gira
 RING_IN, RING_OUT = 25.5, 33.0
 RING_MID, RING_HALF = (RING_IN + RING_OUT) / 2, (RING_OUT - RING_IN) / 2
-POD_IN, POD_OUT = 33.0, 40.0
-POD_HALF_ARC = 6.5
 SPOKE_HALF = 3.0
+PANEL_IN, PANEL_OUT, PANEL_HALF = 35.5, 46.0, 7.5  # placa solar del diseño A
 SPOKE_ANGLES = (0, 90, 180, 270)
-POD_ANGLES = (45, 135, 225, 315)
+PANEL_ANGLES = (45, 135, 225, 315)
 LIGHT = (-0.55, -0.65, 0.52)  # de arriba a la izquierda y hacia el espectador
 
 
@@ -90,35 +89,35 @@ DAMAGE = {
 	1: {
 		"scorch": [(200, 16), (20, 8)],
 		"breach": [],
-		"pods_dark": [225],
-		"pods_lost": [],
+		"panels_dark": [225],
+		"panels_lost": [],
 		"spokes_cut": [],
-		"fires": [(200, RING_MID + 1.5), (226, POD_IN + 2.5)],
+		"fires": [(200, RING_MID + 1.5), (226, PANEL_IN + 1.5)],
 		"core": "ok",
 	},
 	2: {
 		"scorch": [(110, 20), (320, 12)],
 		"breach": [(110, 6)],
-		"pods_dark": [],
-		"pods_lost": [135],
+		"panels_dark": [],
+		"panels_lost": [135],
 		"spokes_cut": [(90, 16.0, 21.5)],
-		"fires": [(102, RING_MID), (135, POD_IN + 0.5), (322, RING_OUT - 1.5)],
+		"fires": [(102, RING_MID), (135, RING_OUT + 1.0), (322, RING_OUT - 1.5)],
 		"core": "dim",
 	},
 	3: {
 		"scorch": [(290, 22), (45, 10), (160, 10)],
 		"breach": [(290, 8), (165, 3)],
-		"pods_dark": [45],
-		"pods_lost": [315],
+		"panels_dark": [45],
+		"panels_lost": [315],
 		"spokes_cut": [(270, 14.5, 22.5)],
-		"fires": [(281, RING_MID - 1), (300, RING_MID + 2), (48, POD_IN + 2.5), (160, RING_IN + 1.5)],
+		"fires": [(281, RING_MID - 1), (300, RING_MID + 2), (48, PANEL_IN + 3.5), (160, RING_IN + 1.5)],
 		"core": "alarm",
 	},
 }
 
 
 def damage_for(phase: int) -> dict:
-	total = {"scorch": [], "breach": [], "pods_dark": [], "pods_lost": [], "spokes_cut": [], "fires": [], "core": "ok"}
+	total = {"scorch": [], "breach": [], "panels_dark": [], "panels_lost": [], "spokes_cut": [], "fires": [], "core": "ok"}
 	for p in range(1, phase + 1):
 		for key, value in DAMAGE[p].items():
 			if key == "core":
@@ -126,7 +125,7 @@ def damage_for(phase: int) -> dict:
 			else:
 				total[key] += value
 	# Un módulo perdido ya no está oscuro
-	total["pods_dark"] = [a for a in total["pods_dark"] if a not in total["pods_lost"]]
+	total["panels_dark"] = [a for a in total["panels_dark"] if a not in total["panels_lost"]]
 	return total
 
 
@@ -230,43 +229,65 @@ def station_pixel(x: int, y: int, rot: float, frame: int, dmg: dict | None) -> t
 			color = FIRE[1] if noise(x, y, frame // 2) < 0.5 else FIRE[0]
 		return color
 
-	# Módulos (sustituyen a las aspas): pegados por fuera del anillo, giran con él
-	if POD_IN <= r <= POD_OUT:
-		for a in POD_ANGLES:
-			da = math.radians(ang_diff(local, a))
-			if math.cos(da) <= 0:
-				continue
-			v = r * math.sin(da)
-			u = r * math.cos(da) - (POD_IN + POD_OUT) / 2
-			half_u = (POD_OUT - POD_IN) / 2
-			# Rectángulo con esquinas redondeadas; el cuello que lo une al anillo es más estrecho
-			if r < POD_IN + 1.0:
-				inside = abs(v) <= 2.5
-			else:
-				cu = max(abs(u) - (half_u - 1.6), 0)
-				cv = max(abs(v) - (POD_HALF_ARC - 1.6), 0)
-				inside = abs(v) <= POD_HALF_ARC and abs(u) <= half_u and cu * cu + cv * cv <= 1.6 * 1.6
-			if not inside:
-				continue
-			if a in dmg["pods_lost"]:
-				if r < POD_IN + 1.0:
-					return FIRE[1] if noise(x, y, frame // 2) < 0.5 else SOOT[1]
-				return None
-			nu, nv = u / half_u, v / POD_HALF_ARC
-			# Normal: hacia fuera en u (radial) y en v (tangente)
-			tx, ty = -uy, ux
-			nx = ux * nu * 0.8 + tx * nv * 0.8
-			ny = uy * nu * 0.8 + ty * nv * 0.8
-			color = shade(nx, ny, 1.0, METAL)
-			if abs(v) <= POD_HALF_ARC - 2.4 and -1.2 <= u <= 0.6:
-				if a in dmg["pods_dark"]:
-					color = GLASS_DEAD
-				else:
-					color = shade(nx, ny, 1.0, GLASS)
-			elif a in dmg["pods_dark"] and noise(x, y, 3) < 0.55:
-				color = SOOT[min(METAL.index(color), 3)] if color in METAL else color
-			return color
-	return None
+	color = panel_pixel(x, y, r, local, ux, uy, frame, dmg)
+	return None if color is MISS else color
+
+
+MISS = object()  # el píxel no es de un panel
+
+
+def _corner_frame(r: float, local: float, a: float) -> tuple:
+	# Coordenadas del panel `a`: u radial, v a lo largo del anillo (en píxeles)
+	da = math.radians(ang_diff(local, a))
+	return r * math.cos(da), r * math.sin(da), math.cos(da) > 0
+
+
+def _soot(color: tuple, x: int, y: int) -> tuple:
+	if color in METAL and noise(x, y, 3) < 0.55:
+		return SOOT[METAL.index(color)]
+	return color
+
+
+def _stub(x: int, y: int, frame: int) -> tuple:
+	return FIRE[1] if noise(x, y, frame // 2) < 0.5 else SOOT[1]
+
+
+def panel_pixel(x: int, y: int, r: float, local: float, ux: float, uy: float, frame: int, dmg: dict):
+	tx, ty = -uy, ux
+	for a in PANEL_ANGLES:
+		ru, v, front = _corner_frame(r, local, a)
+		if not front:
+			continue
+		lost = a in dmg["panels_lost"]
+		dark = a in dmg["panels_dark"]
+		# Mástil desde el anillo y una placa solar grande, cruzada al radio, con celdas.
+		# Es lo único que sale del círculo de 80: llega a r = 46,5, dentro del frame de 96.
+		if r < RING_OUT - 0.5:
+			continue
+		mast = ru < PANEL_IN + 0.5 and abs(v) <= 2.0
+		panel = PANEL_IN <= ru <= PANEL_OUT and abs(v) <= PANEL_HALF
+		if not (mast or panel):
+			continue
+		if lost:
+			return _stub(x, y, frame) if ru < RING_OUT + 1.2 else None
+		if mast:
+			return shade(tx * v / 2.0, ty * v / 2.0, 1.0, METAL)
+		pu = ru - (PANEL_IN + PANEL_OUT) / 2
+		# Marco metálico, rejilla azul oscura y celdas con brillo hacia la luz
+		if abs(pu) > (PANEL_OUT - PANEL_IN) / 2 - 1.0 or abs(v) > PANEL_HALF - 1.0:
+			color = METAL[1] if (ux * pu + tx * v) * -0.7 + (uy * pu + ty * v) * -0.7 > 0 else METAL[0]
+			return _soot(color, x, y) if dark else color
+		grid = abs(pu) < 0.5 or any(abs(v - g) < 0.5 for g in (-2.5, 2.5))
+		if dark:
+			return SOOT[1] if grid else (GLASS_DEAD if noise(x, y, 4) < 0.7 else SOOT[0])
+		if grid:
+			return GLASS[0]
+		# Brillo: más claro en la parte de la placa que mira a la luz (arriba a la izquierda)
+		sx = ux * pu + tx * v
+		sy = uy * pu + ty * v
+		glow = -(sx + sy) / 7.0 + (noise(round(pu), round(v), int(a)) - 0.5) * 0.3
+		return GLASS[2] if glow > 0.55 else GLASS[1]
+	return MISS
 
 
 def _core_crack(dx: float, dy: float) -> bool:
@@ -376,12 +397,17 @@ def wreck_pixel(x: int, y: int, push: float) -> tuple:
 			if noise(x, y, 22) < 0.08:
 				return FIRE[1]
 			return color
-		# Muñón del módulo que queda en algunos trozos
-		for a in (45, 225):
+		# Mástil y media placa solar quemada que quedan en algunos trozos
+		for a in (45, 135):
 			if start <= ang_diff(a, 0) <= end or start <= a <= end:
-				da = math.radians(ang_diff(local, a))
-				if POD_IN <= r <= POD_OUT - 1.5 and abs(r * math.sin(da)) <= 4.0:
+				ru, v, front = _corner_frame(r, local, a)
+				if not front or ru < RING_OUT - 0.5:
+					continue
+				if ru < PANEL_IN + 0.5 and abs(v) <= 2.0:
 					return SOOT[2] if (ux + uy) < 0 else SOOT[1]
+				broken = 3.0 + (noise(round(ru), a, 25) - 0.5) * 4.0
+				if PANEL_IN <= ru <= PANEL_OUT - 2.0 and -PANEL_HALF <= v <= broken:
+					return GLASS_DEAD if noise(x, y, 26) < 0.6 else SOOT[0]
 	# Núcleo reventado en el centro (sin moverse)
 	dx, dy = x + 0.5 - C, y + 0.5 - C
 	r = math.hypot(dx, dy)
