@@ -1,9 +1,11 @@
 # Icono del juego
 
-Estado: aceptada
+Estado: propuesta
 Prioridad: media
 Modelo recomendado: opus
 Esfuerzo recomendado: medium
+
+Pospuesto hasta que estén cerrados los diseños de la torreta base y de la estación.
 
 ## Por qué
 El juego sigue usando `icon.svg`, el icono por defecto de Godot, en la ventana, la barra de tareas y el ejecutable.
