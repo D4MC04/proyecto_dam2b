@@ -26,7 +26,7 @@ visible = false
 custom_minimum_size = Vector2(420, 0)
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 18
 
 [node name="KindLabel" type="Label" parent="Center/Frame/Margin/Box/UnlockPage"]
 unique_name_in_owner = true
@@ -72,7 +72,12 @@ visible = false
 unique_name_in_owner = true
 visible = false
 
-[node name="NameLabel" type="Label" parent="Center/Frame/Margin/Box/UnlockPage"]
+[node name="NameBox" type="VBoxContainer" parent="Center/Frame/Margin/Box/UnlockPage"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 0
+
+[node name="NameLabel" type="Label" parent="Center/Frame/Margin/Box/UnlockPage/NameBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.74509805, 0.98039216, 1, 1)
@@ -81,7 +86,7 @@ theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 40
 horizontal_alignment = 1
 
-[node name="TextLabel" type="Label" parent="Center/Frame/Margin/Box/UnlockPage"]
+[node name="TextLabel" type="Label" parent="Center/Frame/Margin/Box/UnlockPage/NameBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(420, 0)
 layout_mode = 2
