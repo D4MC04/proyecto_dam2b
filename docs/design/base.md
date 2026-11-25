@@ -11,7 +11,7 @@ Animaciones de `estacion.tres`:
 
 | Animación | Frames | Velocidad | Bucle |
 |---|---|---|---|
-| `fase_0` a `fase_3` | 24 | 10 fps | sí |
+| `fase_0` a `fase_3` | 96 | 10 fps | sí |
 | `explosion` | 10 | 12 fps | no |
 | `destruida` | 1 | — | no |
 
@@ -25,7 +25,10 @@ Está instanciada como nodo `SpaceStation` en `scenes/maps/Map.tscn` y en los 9 
   - Si la vida llega a 0, oculta el escudo, reproduce `explosion`, emite `destroyed` y al terminar la explosión pasa a `destruida`.
   - Si no, elige la fase por fracción de vida (> 0,75 → `fase_0`; > 0,5 → `fase_1`; > 0,25 → `fase_2`; resto → `fase_3`) y cambia de animación solo si la fase cambia. Después el escudo parpadea 0,5 s con la textura `shield_debil.png` y vuelve a ocultarse, y el sprite destella en rojo 0,2 s (tween de `modulate` a blanco).
 - Cada golpe también lanza una explosión (`rocket_launcher_impact.tres`) encima de la estación, con escala de 1,25 a 2 según el daño.
-- El anillo y sus 4 radios giran despacio sin parar; las placas solares y el núcleo quedan quietos. No se gira el nodo: es la propia animación `fase_N` (24 fotogramas a 10 fps, 90° y el bucle se repite), así que sigue a `time_scale` y se detiene al pasar a `explosion`. La raíz `SpaceStation` tiene `process_mode = ALWAYS`: el giro sigue con la pausa, como el resto de animaciones constantes. Las tiras salen de `scripts/tools/make_estacion_giro.py` (GIF de referencia de 96x96 a x4 para `fase_0`, con su fondo azul oscuro pasado a transparente; el daño de cada fase se superpone fijo con los píxeles de las tiras antiguas, que tenían 8 fotogramas)
+- Diseño: núcleo azul fijo en el centro y, girando a su alrededor, un buje con 4 radios, el anillo (con luces amarillas) y 4 módulos con ventana azul pegados por fuera del anillo, entre radio y radio (sustituyen a las antiguas placas solares, que no se veían unidas a nada). Solo el núcleo queda quieto. La luz viene siempre de arriba a la izquierda, no gira.
+- Daño por fase, acumulado y dibujado en el propio anillo, así que gira con él: `fase_1` zonas quemadas, un módulo apagado y dos fuegos; `fase_2` además un trozo de anillo arrancado, un radio partido, un módulo perdido y el núcleo parpadeando; `fase_3` además otra brecha, otro radio partido, otro módulo perdido y el núcleo en rojo de alarma. Los fuegos sueltan humo que se queda atrás al girar. `explosion`: el núcleo se enciende, bola de fuego, los 4 trozos del anillo salen despedidos y queda humo; `destruida` son esos trozos quemados y el núcleo reventado.
+- El giro no rota el nodo: es la propia animación `fase_N` (96 fotogramas a 10 fps = una vuelta entera cada 9,6 s), así que sigue a `time_scale` y se detiene al pasar a `explosion`. La raíz `SpaceStation` tiene `process_mode = ALWAYS`: el giro sigue con la pausa, como el resto de animaciones constantes.
+- Todas las tiras y `estacion.tres` salen de `scripts/tools/make_estacion.py` (`python scripts/tools/make_estacion.py`; con `--preview carpeta` solo genera un boceto y GIFs x4). Dibuja cada píxel en coordenadas polares del anillo, con el daño de cada fase en la tabla `DAMAGE`.
 - Con la vida ya a 0, `take_damage` no hace nada.
 
 ## Comunicación con el resto

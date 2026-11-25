@@ -204,7 +204,7 @@ Estilo propio (torretas, enemigos nuevos, estación, tileset de espacio). Cada s
   - Niveles del Disintegrator: `l1`, `l2`, `l3`.
 - `_sheet`: tira horizontal de frames en una sola fila.
 - `_0`, `_1`, `_2`...: frames o variantes en archivos sueltos.
-- Estación: `estacion_fase_<n>_sheet.png` (fases de daño 0 a 3, 8 frames en bucle), `estacion_explosion_sheet.png` (10 frames) y `estacion_destruida.png` (1 frame).
+- Estación: `estacion_fase_<n>_sheet.png` (fases de daño 0 a 3, 96 frames en bucle: una vuelta del anillo; las genera `scripts/tools/make_estacion.py`), `estacion_explosion_sheet.png` (10 frames) y `estacion_destruida.png` (1 frame).
 - Enemigos nuevos: `<nombre>_<frame>.png`.
 - Los `SpriteFrames` que agrupan estos PNG están en `resources/sprite_frames/` con el nombre de la torreta o el enemigo.
 
