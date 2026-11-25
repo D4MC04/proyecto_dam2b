@@ -19,7 +19,7 @@
 
 ## Documentación
 - Diseño actual: @docs/DESIGN.md. El detalle por sistema está en docs/design/: leer solo el que toque.
-- Tickets en `docs/tickets/nombre.md`. Hacer solo el ticket indicado.
+- Tickets en `docs/tickets/<creador>/nombre.md`: una carpeta por creador, cuyo nombre sale de la variable de entorno `AUTHOR`. Se buscan por nombre con `docs/tickets/*/nombre.md`. Hacer solo el ticket indicado.
 - Antes de implementar, comprobar que no contradice la sección "Decidido" de DESIGN.md. Si contradice, parar y avisar.
 - Al terminar una tarea: actualizar el docs/design/ afectado (y DESIGN.md si cambia algo general) y borrar el archivo de la tarea.
 - No crear otros .md sin que se pida.
@@ -29,8 +29,8 @@
 - Comandos: `/ideas` (Claude propone tickets), `/add` (tickets con las ideas del usuario), `/board` (estado, choques y tandas), `/accept` (acepta y arranca tickets), `/work nombre` (implementa), `/fix` (arregla lo que falla al probar), `/test` (abre Godot en el punto de prueba), `/check` (revisa sin tocar nada), `/commit` (revisa lo pendiente, prueba y commitea en la rama), `/merge` (commitea lo pendiente, abre el PR y lo fusiona en main con squash), `/hub` (abre el chat central o le hace el relevo).
 - Solo se implementan tickets con `Estado: aceptada`, cada uno en su rama `ticket/nombre` desde main. Nunca trabajar en main, salvo el commit del `Estado:` al aceptar.
 - Solo se commitea con `/commit` y solo se sube con `/merge` (o dentro de `/work` y `/merge`, que los usan). Frases como "commitea", "sube", "va bien" o "listo" no commitean ni suben nada: recordar al usuario el comando.
-- **Aceptar** (casillas o "acepto X") es la orden de empezar: seguir `.claude/skills/accept/SKILL.md`. Cada ticket va en su propio chat con worktree, no como subagente.
-- **Chat central** (`/hub`): carpeta principal, rama `main`, en Opus con esfuerzo high (necesita al menos el modelo y el esfuerzo de los tickets que lanza). Reparte tickets, recibe los avisos de subida y deja `main` local al día para que el usuario nunca haga `git pull` a mano. No implementa tickets.
+- **Aceptar** (casillas o "acepto X") es la orden de empezar: seguir `.claude/skills/accept/SKILL.md`. Cada ticket va en su propio chat con worktree, no como subagente. Los que chocan con otro llevan `Espera a: otro` y los lanza el chat de ese otro al acabar su `/merge`.
+- **Chat central** (`/hub`): carpeta principal, rama `main`, en Opus con esfuerzo high (necesita al menos el modelo y el esfuerzo de los tickets que lanza). Reparte tickets, recibe los avisos de subida y deja `main` local al día para que el usuario nunca haga `git pull` a mano. No implementa tickets. Las órdenes de tickets (`/add`, `/accept`, "acepto X", "lanza X") son siempre continuación del chat central: los lanza con `start_session` `initiation` "user_asked", nunca con tarjetas ("offer" u "own_initiative"). Si la app no le deja, lo dice en una línea ("X ya se puede lanzar: escribe 'lanza X'").
 - Para probar, usar el agente `probador`.
 - Comandos `gh`: si existe la variable `GH_USER`, lanzarlos con la cuenta de este proyecto sin guardar el token: `GH_TOKEN="$(gh auth token --user "$GH_USER")" gh ...`.
 - Avisar al usuario de qué comando toca, al final de la respuesta, en una línea:

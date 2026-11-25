@@ -7,7 +7,7 @@ argument-hint: "[todo]"
 
 Lleva la rama actual a main. `main` de GitHub tiene que poder descargarse y abrirse sin errores. Nunca `--force` ni descartar cambios de nadie.
 
-Argumento (puede estar vacío): $ARGUMENTS. Si es "todo" y estás en la carpeta principal: haz los pasos 1-7 en cada worktree de `.claude/worktrees/` (con `git -C <carpeta>`), uno detrás de otro, y después la limpieza del chat central (ver `.claude/skills/hub/SKILL.md`) por cada uno. Si uno se para, sáltalo, sigue y al final di cuáles se pararon y por qué.
+Argumento (puede estar vacío): $ARGUMENTS. Si es "todo" y estás en la carpeta principal: haz los pasos 1-7 en cada worktree de `.claude/worktrees/` (con `git -C <carpeta>`), uno detrás de otro, y después, por cada uno, el primer punto del paso 8 (lanzar los que esperaban) y la limpieza del chat central (ver `.claude/skills/hub/SKILL.md`). Si uno se para, sáltalo, sigue y al final di cuáles se pararon y por qué.
 
 1. Si estás en `main`, para: no hay nada que subir.
 2. Si hay cambios sin commitear, sigue `.claude/skills/commit/SKILL.md`. Si se para, para tú también.
@@ -23,9 +23,10 @@ Argumento (puede estar vacío): $ARGUMENTS. Si es "todo" y estás en la carpeta 
    - Si no hay PR abierto para la rama (`gh pr view <rama>`), créalo: `gh pr create --base main --head <rama>` con título = qué cambia en el juego, y cuerpo = resumen para alguien que está aprendiendo + lista de commits de la rama.
    - `gh pr merge <rama> --squash` (sin `--delete-branch`: desde un worktree falla al cambiar a `main` en local y no llega a borrar la rama remota). Si GitHub dice que no se puede fusionar porque `main` avanzó, vuelve al paso 3 (como mucho 2 veces).
 7. Comprueba con `gh pr view <rama> --json state,url` que el estado es `MERGED`. Solo entonces borra la rama remota: `git push origin --delete <rama>` (si dice que ya no existe, sigue).
-8. Dejar lo local en solo `main`:
+8. Lanzar los tickets que esperaban a este y dejar lo local en solo `main`:
+   - Tickets en espera: `git grep -l "^Espera a: <nombre>$" origin/main -- docs/tickets/` (nombre = la rama sin `ticket/`). Por cada uno que siga en `Estado: aceptada`, lánzalo en su chat como en el paso 2 de `.claude/skills/accept/SKILL.md`: `start_session` con `initiation` "user_asked" (nunca tarjetas), `context` "fresh", worktree, el modelo y el esfuerzo del ticket, título = nombre y `prompt` `/work nombre`. Después sácalo de debajo de este chat con `detach_session`, para que no se archive con él. Si la app no te deja lanzarlo, apúntalo para el aviso. Sin `start_session`, di al usuario que lance `/work nombre` en un chat nuevo.
    - En la carpeta principal: `git checkout main` y haz la limpieza del chat central de `.claude/skills/hub/SKILL.md` (sin archivar ni quitar worktree si no hay).
    - Si entraste con `EnterWorktree`: sal con `ExitWorktree` (`remove`) y haz lo de arriba.
-   - En un chat con worktree abierto por el chat central: no puedes tocar la carpeta principal. Avisa al chat central con `SendMessage` a `central`: "Subido <rama> desde <carpeta del worktree>". Él limpia.
+   - En un chat con worktree abierto por el chat central: no puedes tocar la carpeta principal. Avisa al chat central con `SendMessage` a `central`: "Subido <rama> desde <carpeta del worktree>. Lanzados: X, Y" (o "Ninguno esperaba"; y "No se pudo lanzar: Z" si alguno falló). Él limpia.
 
-Termina con una línea: el enlace del PR fusionado, o en qué paso se paró y por qué.
+Termina con una línea: el enlace del PR fusionado y los tickets que lanzaste, o en qué paso se paró y por qué.
