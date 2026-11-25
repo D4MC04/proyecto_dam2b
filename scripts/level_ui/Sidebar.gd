@@ -30,6 +30,10 @@ const TAB_ICON_INACTIVE_COLOR: Color = Color(1, 1, 1, 0.45)
 
 const STATION_BAR_COLOR: Color = Color("#40e0f0")
 const STATION_DANGER_COLOR: Color = Color("#ff3c5a")
+const STATION_FRAME_COLOR: Color = Color("#1c7496")
+const STATION_BG_COLOR: Color = Color("#111e22")
+const STATION_DANGER_BG_COLOR: Color = Color("#2a1218")
+const STATION_DANGER_DIM_COLOR: Color = Color("#7a1e2e")
 # Por debajo de esta fracción de vida la barra de la estación pasa al color de peligro.
 const STATION_DANGER_FRACTION: float = 0.3
 # Duración del parpadeo de la barra al perder vida.
@@ -74,6 +78,8 @@ const STATUS_COLORS: Dictionary[WaveStatus, Color] = {
 @onready var station_header: Control = %StationHeader
 @onready var credits_header: Control = %CreditsHeader
 @onready var station_bar: ProgressBar = %StationBar
+@onready var station_label: Label = %StationLabel
+@onready var station_icon: TextureRect = %StationIcon
 @onready var station_value_label: Label = %StationValueLabel
 @onready var footer_wave_label: Label = %FooterWaveLabel
 @onready var footer_status_label: Label = %FooterStatusLabel
@@ -98,6 +104,10 @@ var _next_pulse: Tween
 # Vida anterior de la estación (-1 si aún no se ha puesto) para detectar golpes.
 var _station_health: int = -1
 var _station_hit_tween: Tween
+var _station_frame_style: StyleBoxFlat
+# Mezcla actual de peligro y la que corresponde sin golpe (0 normal, 1 peligro)
+var _station_alert: float = 0.0
+var _station_danger_base: float = 0.0
 # Último estado del pie (estado, oleada, total) para repintarlo al cambiar de idioma; vacío si aún no hay.
 var _footer_status: Array = []
 
@@ -117,7 +127,6 @@ func _ready() -> void:
 		_style_tab(tab)
 	turrets_tab.toggled.connect(_on_tab_toggled)
 	_style_wave_controls()
-	station_bar.add_theme_stylebox_override("background", _station_style(TAB_BG_COLOR, TAB_BORDER_COLOR))
 	next_wave_button.pressed.connect(_on_next_wave_pressed)
 	auto_wave_button.toggled.connect(_on_auto_toggled)
 	speed_button.pressed.connect(press_speed)
@@ -149,29 +158,40 @@ func set_money(amount: int) -> void:
 	for b: TurretButton in _buttons:
 		b.set_money(amount)
 
-## Enseña la vida de la estación; con menos del 30 % la barra cambia al color de peligro.
+## Enseña la vida de la estación; con menos del 30 % todo el recuadro pasa al color de peligro.
 func set_station_health(current: int, maximum: int) -> void:
 	station_bar.max_value = maximum
 	station_bar.value = current
 	station_value_label.text = str(current)
 	var danger: bool = current < maximum * STATION_DANGER_FRACTION
-	var color: Color = STATION_DANGER_COLOR if danger else STATION_BAR_COLOR
-	var label_color: Color = color if danger else NEXT_GLOW_COLOR
-	var fill: StyleBoxFlat = _station_style(color, color)
-	station_bar.add_theme_stylebox_override("fill", fill)
-	station_value_label.add_theme_color_override("font_color", label_color)
 	if _station_hit_tween:
 		_station_hit_tween.kill()
-	# Si la vida baja, barra y número parpadean en peligro y vuelven a su color
-	if _station_health >= 0 and current < _station_health:
-		fill.bg_color = STATION_DANGER_COLOR
-		fill.border_color = STATION_DANGER_COLOR
-		station_value_label.add_theme_color_override("font_color", STATION_DANGER_COLOR)
-		_station_hit_tween = create_tween().set_parallel().set_ignore_time_scale()
-		_station_hit_tween.tween_property(fill, "bg_color", color, STATION_HIT_TIME)
-		_station_hit_tween.tween_property(fill, "border_color", color, STATION_HIT_TIME)
-		_station_hit_tween.tween_method(func(c: Color) -> void: station_value_label.add_theme_color_override("font_color", c), STATION_DANGER_COLOR, label_color, STATION_HIT_TIME)
+	_station_danger_base = 1.0 if danger else 0.0
+	_set_station_alert(1.0 if _station_health >= 0 and current < _station_health else _station_danger_base)
+	# Si la vida baja, todo el recuadro parte del peligro y vuelve a su color
+	if _station_alert > _station_danger_base:
+		_station_hit_tween = create_tween().set_ignore_time_scale()
+		_station_hit_tween.tween_method(_set_station_alert, 1.0, _station_danger_base, STATION_HIT_TIME)
 	_station_health = current
+
+## Pinta todo el recuadro de la estación mezclando sus colores normales con los de peligro (0 = normal, 1 = peligro).
+func _set_station_alert(amount: float) -> void:
+	_station_alert = amount
+	var danger: Color = STATION_DANGER_COLOR
+	var frame: StyleBoxFlat = station_header.get_theme_stylebox("panel") as StyleBoxFlat
+	if _station_frame_style == null:
+		_station_frame_style = frame.duplicate() as StyleBoxFlat
+		station_header.add_theme_stylebox_override("panel", _station_frame_style)
+	_station_frame_style.border_color = STATION_FRAME_COLOR.lerp(danger, amount)
+	_station_frame_style.bg_color = STATION_BG_COLOR.lerp(STATION_DANGER_BG_COLOR, amount)
+	var fill: StyleBoxFlat = _station_style(STATION_BAR_COLOR.lerp(danger, amount), STATION_BAR_COLOR.lerp(danger, amount))
+	station_bar.add_theme_stylebox_override("fill", fill)
+	station_bar.add_theme_stylebox_override("background", _station_style(TAB_BG_COLOR.lerp(STATION_DANGER_BG_COLOR, amount), TAB_BORDER_COLOR.lerp(STATION_DANGER_DIM_COLOR, amount)))
+	station_label.add_theme_color_override("font_color", STATION_BAR_COLOR.lerp(danger, amount))
+	station_value_label.add_theme_color_override("font_color", NEXT_GLOW_COLOR.lerp(danger, amount))
+	# El icono es cian: se multiplica por danger / cian para que quede en el rojo de peligro
+	var tint: Color = Color(minf(danger.r / STATION_BAR_COLOR.r, 4.0), danger.g / STATION_BAR_COLOR.g, danger.b / STATION_BAR_COLOR.b)
+	station_icon.modulate = Color.WHITE.lerp(tint, amount)
 
 func _station_style(bg: Color, border: Color) -> StyleBoxFlat:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
