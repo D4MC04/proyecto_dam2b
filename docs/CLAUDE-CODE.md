@@ -1,17 +1,20 @@
 # Cómo trabajar con Claude Code en este proyecto
 
 ## Preparar tu equipo (una vez)
-El agente `probador` abre Godot en headless y necesita saber dónde está. Pon la ruta en tu `.claude/settings.local.json` (no se sube al repo, es solo tuyo):
+El agente `probador` abre Godot en headless y necesita saber dónde está, y los comandos de tickets necesitan saber quién eres. Ponlo en tu `.claude/settings.local.json` (no se sube al repo, es solo tuyo):
 
 ```json
 {
   "env": {
-    "GODOT": "C:/Users/tu-usuario/ruta/a/Godot.exe"
+    "GODOT": "C:/Users/tu-usuario/ruta/a/Godot.exe",
+    "AUTHOR": "tu-nombre"
   }
 }
 ```
 
 Si el archivo ya existe, añade solo el bloque `"env"`. Vale para los chats que abras después de guardarlo.
+
+`AUTHOR` es tu nombre (Renzo, David o Ezequiel), escrito siempre igual: es el nombre de tu carpeta de tickets. `/add` e `/ideas` guardan los tickets que creas en `docs/tickets/<tu nombre>/` (la crean si no existe) sin preguntarte quién eres. Si no lo pones, te lo preguntan una vez y te recuerdan cómo ponerlo.
 
 Si usas varias cuentas de GitHub en el equipo, añade también `"GH_USER": "tu-cuenta"` en ese `"env"`: `/merge` usará esa cuenta para los PR sin que tengas que cambiar la activa de `gh` (tienen que estar todas iniciadas con `gh auth login`). Y en el repo, para que commits y push vayan con esa cuenta:
 
@@ -26,7 +29,7 @@ git remote set-url origin https://tu-cuenta@github.com/D4MC04/proyecto_dam2b.git
 |---|---|
 | `/add idea 1; idea 2` | Convierte **tus** ideas (arreglos o cosas nuevas) en tickets |
 | `/ideas [tema]` | Claude **propone** 3-5 tickets (opcional: sobre un tema) |
-| `/board` | Tablero: lista los tickets, dice cuáles chocan (tocan los mismos archivos) y en qué tandas hacerlos |
+| `/board [all]` | Tablero: lista tus tickets (`all`, o "todos" con tus palabras, para los de todos; "los de Renzo" para los de alguien), dice cuáles chocan (tocan los mismos archivos) y en qué tandas hacerlos |
 | `/accept [nombres]` | Acepta tickets (con casillas si no dices cuáles) y abre un chat por ticket con `/work` |
 | `/work nombre` | Implementa el ticket en su rama, lo prueba y te da pasos para probarlo en Godot |
 | `/fix qué falla` | Arregla lo que viste mal al probar, en la misma rama, y reabre Godot con `/test` |
@@ -39,7 +42,7 @@ git remote set-url origin https://tu-cuenta@github.com/D4MC04/proyecto_dam2b.git
 ## El ciclo
 | Paso | Tú | Claude |
 |---|---|---|
-| 1 | `/add` con lo que quieres arreglar, o `/ideas` si quieres propuestas | Escribe los tickets en `docs/tickets/` con `Estado: propuesta` |
+| 1 | `/add` con lo que quieres arreglar, o `/ideas` si quieres propuestas | Escribe los tickets en `docs/tickets/<tu nombre>/` con `Estado: propuesta` |
 | 2 | Marcas las casillas de los que aceptas (o `/accept nombre`). `/board` te los lista por prioridad cuando quieras. Borras los que no quieras | Cambia `Estado:` a `aceptada` y abre un chat por ticket (ver abajo) |
 | 3 | `/work nombre` (si no lo lanzó ya `/accept`) | Crea la rama `ticket/nombre`, lee solo lo que pone "Qué leer" del ticket, implementa, actualiza docs, borra el ticket, hace `/commit`, abre Godot con `/test` en el punto de prueba y te da pasos para probar |
 | 4 | Pruebas en el juego que ya está abierto (si lo cerraste, `/test`) | Si algo falla, `/fix qué falla` en el chat de ese ticket: lo arregla, hace `/commit` y reabre Godot con `/test` |
@@ -50,7 +53,7 @@ Si cambias algo a mano (en Godot o en el código), escribe `/commit` para guarda
 
 **Conflictos en `/merge`**: se resuelven en la rama, así que `main` no se toca hasta que todo está resuelto y probado. Si los dos cambios se pueden sumar (textos, cosas distintas en la misma zona, escenas con cambios en nodos distintos o reordenadas por el editor), los combina solo. Si los dos cambiasteis la misma lógica o la misma propiedad del mismo nodo, o es una imagen o un audio, para, te enseña las dos versiones y te pregunta.
 
-**Varios tickets a la vez** (app de escritorio): al aceptar, Claude sube el cambio de `Estado:` a main (los worktrees salen de lo que hay en main) y abre un chat con worktree por cada ticket que no choque con otro, ya con `/work`. Los que chocan esperan a que el anterior esté en main. En la extensión de VS Code no se pueden abrir chats solos: lanza tú `/work` en cada chat.
+**Varios tickets a la vez** (app de escritorio): al aceptar, Claude sube el cambio de `Estado:` a main (los worktrees salen de lo que hay en main) y abre un chat con worktree por cada ticket que no choque con otro, ya con `/work`. Los que chocan quedan apuntados con `Espera a: otro` y, cuando ese otro hace `/merge`, su chat los lanza solo en chats nuevos, sin tarjetas ni preguntas. En la extensión de VS Code no se pueden abrir chats solos: lanza tú `/work` en cada chat.
 
 **`/hub`**: abre el chat central (Opus high, en la carpeta principal, sobre `main`) y borra el chat donde lo escribiste (la app te pide confirmar el borrado). El chat central reparte tickets, recibe los avisos de subida y mantiene `main` local actualizado; no implementa. Los chats de ticket van en worktree y no pueden tocar la carpeta principal, por eso lo hace él. Con `/merge todo`, sube él mismo todos los tickets listos.
 
@@ -59,7 +62,7 @@ Si cambias algo a mano (en Godot o en el código), escribe `/commit` para guarda
 - Mismo ticket y el chat va por menos de ~60k → sigue en él (lo que ya leyó le sirve).
 - El chat central pasa de ~60k (él te avisa) → `/hub` ahí mismo: abre un central nuevo con un resumen de 10 líneas de los tickets en marcha y cierra el viejo. Es el **relevo**.
 
-Los tickets siguen el formato de `docs/tickets/_plantilla.md`. Puedes escribir tú uno a mano y lanzar `/work` igual.
+Los tickets siguen el formato de `docs/tickets/_plantilla.md` y van en la carpeta de su creador (`docs/tickets/<nombre>/`). Puedes escribir tú uno a mano y lanzar `/work nombre` igual: lo encuentra en cualquier carpeta.
 
 ## Qué modelo usar
 Se cambia en el selector de modelo de la app. Algunos comandos fijan el suyo y lo usan aunque el chat esté en otro: `/ideas` y `/check` van en Opus; `/board`, `/accept` y el `probador`, en Haiku; `/hub` y el chat central que abre van en Opus con esfuerzo high. `/add`, `/work`, `/fix`, `/test`, `/commit` y `/merge` usan el del chat.
