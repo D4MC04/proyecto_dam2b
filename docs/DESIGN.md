@@ -16,7 +16,7 @@ Turret defense 2D hecho en Godot 4.7 con GDScript. El jugador elige un nivel, co
 1. `StartScreen`: título, "pulsa cualquier tecla" y elección de una de las 3 ranuras de guardado (o borrarla). Al elegir una pasa a `MainMenu` con un efecto de entrada.
 2. `MainMenu`: la oficina del comandante, con tres vistas que se cambian girando la silla; cada objeto de la oficina abre un panel (selección de sector, Navedex, logros, estadísticas, opciones) y la puerta sale del juego.
 3. `Game`: contiene un `Level` (mapa, enemigos, torretas) y un `LevelUI` en tres columnas: barra izquierda de 128 px, área de juego de 704x540 px con el mapa centrado en los dos ejes (y la pausa, la derrota y la victoria) y barra derecha de 128 px.
-4. Desde pausa o derrota se reinicia el nivel o se vuelve a la selección de nivel; la derrota llega tras una cámara lenta y un glitch, con un resumen de la partida. Al limpiar la última oleada, tras un breve respiro, entra la victoria deslizando, con un resumen que cuenta hacia arriba, "Siguiente nivel" (monta el siguiente nivel sin pasar por el menú; no sale en el último) y "Menú".
+4. Desde pausa o derrota se reinicia el nivel o se vuelve a la oficina; la derrota llega tras una cámara lenta y un glitch, con la oleada alcanzada y qué destruyó la estación. Al limpiar la última oleada, tras un breve respiro, entra la victoria deslizando, con las estrellas y "Oficina" (a la oficina: entre sectores se pasa siempre por ella).
 
 ## Sistemas principales
 
@@ -25,7 +25,7 @@ Turret defense 2D hecho en Godot 4.7 con GDScript. El jugador elige un nivel, co
 - [Enemigos](design/enemigos.md): movimiento por el camino, vida, ralentización, recompensa, curación de la Reparadora, camuflaje del Espectro, pulso EMP de la Saboteadora y los tipos definidos.
 - [Torretas](design/torretas.md): colocación, apuntado, los 6 tipos de ataque, las 8 torretas que atacan y las de apoyo: el Amplificador y el Minero (da dinero durante las oleadas).
 - [Base](design/base.md): la estación espacial que hay en los mapas, con vida y escudo.
-- [UI de nivel](design/ui.md): columnas, ficha de la barra izquierda, barra lateral de compra, menú de pausa, pantallas de derrota y victoria y resumen de partida.
+- [UI de nivel](design/ui.md): columnas, ficha de la barra izquierda, barra lateral de compra, menú de pausa, pantallas de derrota y victoria y resumen de la derrota.
 - [Menú principal](design/menu.md): pantalla de inicio con las ranuras de guardado, oficina del comandante, selección de nivel (radar de sectores), logros, opciones (audio, pantalla, juego e idioma, guardadas en disco), textos en español e inglés (`translations/textos.csv`), música y fondo animado.
 - [Arte](design/art.md): tamaños, paleta, contorno, luz y nombres de los sprites de `assets/`.
 

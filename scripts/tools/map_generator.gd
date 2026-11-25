@@ -18,9 +18,15 @@ extends SceneTree
 ##   seed = 7                    semilla de la decoración
 ##   station = 5 16              casilla del centro de la estación (opcional: sin ella el mapa no
 ##                               lleva estación ni script Map, como el de la Navedex)
-##   path = -2,4 11,4 11,10 ...  un camino por línea, con tramos horizontales o verticales;
+##   path = -2,4 11,4 11,10 ...  un camino por línea, con tramos rectos entre sus puntos;
 ##                               empieza fuera del mapa y acaba en el centro de la estación
-##                               (sin estación, acaba en su última casilla)
+##                               (sin estación, acaba en su última casilla). Cada esquina se
+##                               redondea con un arco tangente a sus dos tramos; un punto puede
+##                               llevar su propio radio de giro (en casillas) con ":", p. ej. 11,10:2
+##   radius = 5                  radio de giro de las esquinas, en casillas (opcional; 5 si falta).
+##                               Se acorta solo si el tramo no da para tanto: hasta la mitad de un
+##                               tramo entre dos esquinas, el tramo entero en el último y el primero
+##                               menos 3 casillas, que quedan en recto para la entrada
 ##   slots = 7,6 12,6 ...        casillas de torreta (un asteroide con plataforma en cada una)
 ##   rocks = grey brown ice      familias de roca del nivel (grey, brown, dark, ore, ice, crystal,
 ##                               lava); la primera es la principal y cierra el borde del mapa
@@ -36,6 +42,8 @@ const SHOWCASE_DATA_PATH: String = "res://resources/map_data/%s.txt"
 const SHOWCASE_SCENE_PATH: String = "res://scenes/maps/%sMap.tscn"
 # Casilla de estación de un mapa sin estación: tan lejos que no tapa nada
 const NO_STATION: Vector2i = Vector2i(-1000, -1000)
+# Ninguna casilla (lo que devuelve una búsqueda que no encuentra nada)
+const NO_CELL: Vector2i = Vector2i(-1000, -1000)
 const EMERGENCY_NAME: String = "emergency"
 const EMERGENCY_DATA_PATH: String = "res://resources/map_data/emergency.txt"
 const EMERGENCY_SCENE_PATH: String = "res://scenes/maps/levels/Emergency.tscn"
@@ -66,6 +74,77 @@ const LOGIC_SLOT: Vector2i = Vector2i(2, 0)
 const STATION_RADIUS: int = 3
 # Los caminos acaban a esta distancia (px) del centro de la estación: justo dentro de su borde
 const STATION_REACH: float = 40.0
+# Radio de giro (casillas) de las esquinas si el .txt no da otro (se acorta si el tramo no da para tanto)
+const DEFAULT_TURN_RADIUS: float = 5.0
+# Casillas del principio de cada camino que quedan en recto antes de la primera curva: ahí están la boca
+# del pasillo y el portal de las naves (Spawner.PORTAL_OFFSET, 40 px)
+const ENTRY_STRAIGHT: float = 3.0
+# Distancia (casillas) a la que el pasillo aparta lo que hay a los lados: es pasillo toda casilla que
+# tenga algún punto a esta distancia o menos de la curva. En un tramo recto sale el camino y una casilla a
+# cada lado; en una curva, el pasillo se abre lo justo para que las rocas queden igual de lejos que en
+# las rectas (con 1x1 de roca desplazada, a 24 px o más del centro del camino)
+const CORRIDOR_CLEARANCE: float = 1.45
+# Distancia mínima (casillas) del centro de una casilla de torreta a la curva del camino: la de una
+# casilla de torreta junto a la orilla de un tramo recto, para que la torreta no tape las naves
+const SLOT_CLEARANCE: float = 2.0
+# Las casillas de torreta van centradas en su franja de roca, sin pasar de esta distancia (casillas)
+# del camino: en una franja de 3 casillas entre dos pasillos, la del medio; en el campo, a 3 del camino
+const SLOT_CENTER: float = 3.0
+# Un tramo del camino va por una curva si su dirección se sale del eje más que esta pendiente (~3°)
+const BEND_SLOPE: float = 0.05
+# Orilla de las curvas (ver _place_bend_edges): piezas variadas cuyo borde sigue la curva. Ningún píxel
+# opaco queda a menos de BEND_EDGE_CLEARANCE px del centro del camino (medido al centro del píxel: el
+# borde, a 24 px, como en la orilla de un tramo recto) ni ninguna pieza con su centro a menos de
+# BEND_EDGE_MIN px. Cada pieza se pone donde lo más cercano queda a como mucho BEND_EDGE_TOLERANCE px
+# más (las pequeñas, con el centro a esa holgura de BEND_EDGE_MIN), para que la curva se lea
+const BEND_EDGE_CLEARANCE: float = 24.5
+const BEND_EDGE_MIN: float = 31.0
+const BEND_EDGE_TOLERANCE: float = 5.0
+# Si no cabe nada así, se prueba con una roca pequeña con más holgura y más adelante, para que no
+# queden huecos grandes (las pequeñas solo pueden ir en su casilla, con poco desplazamiento)
+const BEND_EDGE_WIDE_TOLERANCE: float = 8.0
+const BEND_EDGE_WIDE_AHEAD: float = 16.0
+# Si no cabe nada en un punto de la línea de la orilla, se prueba este trecho (px) más allá
+const BEND_EDGE_STEP: float = 4.0
+# Una pieza puede empezar desde BEND_EDGE_BEHIND px antes hasta BEND_EDGE_AHEAD px después de donde
+# acabó la anterior más el hueco (las piezas van por casillas y no siempre cabe una justo ahí)
+const BEND_EDGE_BEHIND: float = 4.0
+const BEND_EDGE_AHEAD: float = 12.0
+# Las rocas de 2x2 y 3x3 tienen, tras la alternativa sin desplazar, estas otras desplazadas 4 px
+# (ver art.md). Solo las usa la orilla de las curvas, para que su borde siga la curva
+const LARGE_JITTER_COUNT: int = 8
+# Tipos de pieza de la orilla de las curvas y su peso: por fuera, de todo; por dentro, solo rocas de
+# 2x2 y pequeñas (y la de 3x3 de la punta, si cabe). Si el elegido no cabe, se prueba el siguiente de
+# EDGE_FALLBACK
+enum EdgeKind { LARGE, MEDIUM, SMALL, PEBBLE, SCRAP }
+const EDGE_OUTER_WEIGHTS: Dictionary[EdgeKind, float] = {
+	EdgeKind.LARGE: 0.22, EdgeKind.MEDIUM: 0.42, EdgeKind.SMALL: 0.26, EdgeKind.PEBBLE: 0.04, EdgeKind.SCRAP: 0.06,
+}
+const EDGE_INNER_WEIGHTS: Dictionary[EdgeKind, float] = {
+	EdgeKind.MEDIUM: 0.55, EdgeKind.SMALL: 0.45,
+}
+# Como mucho tantas piezas de 1x1 seguidas en la orilla de una curva: luego va una roca de 2x2 o, si no
+# cabe, un hueco de al menos EDGE_GROUP_GAP px, así que las pequeñas van en grupos y no en fila
+const EDGE_SMALL_STREAK: int = 2
+const EDGE_GROUP_GAP: float = 8.0
+# Una curva es cerrada (la punta de una U) si gira más que esto (rad)
+const EDGE_TIGHT_TURN: float = 2.5
+const EDGE_FALLBACK: Dictionary[EdgeKind, EdgeKind] = {
+	EdgeKind.LARGE: EdgeKind.MEDIUM, EdgeKind.MEDIUM: EdgeKind.SMALL, EdgeKind.PEBBLE: EdgeKind.SMALL, EdgeKind.SCRAP: EdgeKind.SMALL,
+}
+# Hueco (px) entre dos piezas seguidas de la orilla: casi siempre poco (grupos apretados) y a veces
+# un hueco pequeño. Cada entrada: probabilidad acumulada, hueco mínimo y máximo
+const EDGE_GAPS: Array[Vector3] = [Vector3(0.6, 0.0, 2.0), Vector3(0.9, 2.0, 5.0), Vector3(1.0, 8.0, 12.0)]
+# Puntos precalculados (a cada lado) con los que se mira si un punto del camino está en una curva: así
+# también cuenta la cima de un arco, donde la dirección vuelve a ir por el eje
+const BEND_REACH: int = 3
+# Separación (px) entre los puntos precalculados de cada curva: las naves giran poco a poco
+const CURVE_BAKE_INTERVAL: float = 2.0
+# Paso (px) con el que se recorre la curva para apuntar las casillas por las que pasa
+const RASTER_STEP: float = 2.0
+# Solo se mide la distancia al camino de las casillas hasta esta distancia (en casillas); las demás
+# cuentan como lejanas (más allá de la orilla y de lo que espesa el campo no cambia nada)
+const DISTANCE_WINDOW: int = 6
 # La decoración llega una casilla más allá del mapa, a las franjas que quedan junto a las barras
 const DECOR_MARGIN: int = 1
 # El pasillo libre: el camino y una casilla a cada lado. La orilla es la casilla siguiente
@@ -167,8 +246,31 @@ class LevelLayout:
 	var random_seed: int = 0
 	var station: Vector2i = NO_STATION
 	var paths: Array[PackedVector2Array] = []
+	# Radio de giro (casillas) de cada punto de cada camino; negativo: el del mapa (turn_radius)
+	var radii: Array[PackedFloat32Array] = []
+	var turn_radius: float = DEFAULT_TURN_RADIUS
+	# Vitrina de la Navedex: sus casillas de torreta se ponen a mano para cada escena
+	var showcase: bool = false
 	var slots: Array[Vector2i] = []
 	var rocks: PackedStringArray = ["grey"]
+
+
+## Dibujo de una pieza puesta con una alternativa: centros de los píxeles opacos de su contorno y
+## centro del dibujo, en px desde la esquina de arriba a la izquierda de su primera casilla.
+class PieceShape:
+	var outline: PackedVector2Array = PackedVector2Array()
+	var center: Vector2 = Vector2.ZERO
+
+
+## Sitio para una pieza de la orilla de una curva. back y front: dónde empieza y acaba a lo largo de
+## la línea de la orilla (px desde el punto en el que se busca, en el sentido en el que se avanza).
+class EdgeFit:
+	var piece: Piece
+	var top_left: Vector2i
+	var alternative: int = 0
+	var score: float = INF
+	var back: float = 0.0
+	var front: float = 0.0
 
 
 # Catálogo de piezas
@@ -178,12 +280,25 @@ var _scrap: Array[Piece] = []
 var _wrecks: Array[Piece] = []
 var _landmarks: Array[Piece] = []
 var _beacon: Piece
+# Dibujo de cada pieza con cada alternativa ("fuente:atlas:alternativa"), para la orilla de las curvas
+var _shapes: Dictionary[String, PieceShape] = {}
+var _textures: Dictionary[String, Image] = {}
 
 # Estado del nivel que se está generando
 var _rng: RandomNumberGenerator
 var _map_size: Vector2i = DEFAULT_MAP_SIZE
 var _density: FastNoiseLite
 var _distance: Dictionary[Vector2i, int] = {}
+# Distancia (casillas) del centro de cada casilla cercana a la curva de camino más próxima, y si ese
+# punto más próximo está en una curva (un arco de esquina o un tramo en diagonal) y no en un tramo recto
+var _center_distance: Dictionary[Vector2i, float] = {}
+var _near_bend: Dictionary[Vector2i, bool] = {}
+# Puntos de todos los caminos por casilla, para medir rápido la distancia al camino más cercano, y
+# distancia (px) ya medida del centro de cada píxel
+var _path_buckets: Dictionary[Vector2i, PackedVector2Array] = {}
+var _pixel_distance: Dictionary[Vector2i, float] = {}
+# Casillas de torreta mal puestas en el mapa que se está generando (ver _check_slots); con alguna no se guarda
+var _slot_errors: int = 0
 # Casillas con algo puesto. _solid, las que tapa algo que se ve bien (todo menos piedrecitas)
 var _blocked: Dictionary[Vector2i, bool] = {}
 var _solid: Dictionary[Vector2i, bool] = {}
@@ -262,8 +377,14 @@ func _generate(data_path: String, scene_path: String) -> void:
 	if layout == null:
 		push_error("No se puede leer %s" % data_path)
 		return
+	layout.showcase = data_path.get_file().begins_with(SHOWCASE_NAME)
 	var old_uid: int = _read_scene_uid(scene_path)
+	_slot_errors = 0
 	var map: Node2D = _build_map(layout)
+	if _slot_errors > 0:
+		map.free()
+		push_error("%s no se guarda: %d casillas de torreta mal puestas" % [scene_path, _slot_errors])
+		return
 	var packed: PackedScene = PackedScene.new()
 	packed.pack(map)
 	map.free()
@@ -325,9 +446,15 @@ func _parse(text: String) -> LevelLayout:
 				layout.station = Vector2i(parts[0].to_int(), parts[1].to_int())
 			"path":
 				var points: PackedVector2Array = []
-				for cell: Vector2i in _parse_cells(value):
-					points.append(Vector2(cell))
+				var radii: PackedFloat32Array = []
+				for token: String in value.split(" ", false):
+					var cell: String = token.get_slice(":", 0)
+					points.append(Vector2(cell.get_slice(",", 0).to_int(), cell.get_slice(",", 1).to_int()))
+					radii.append(token.get_slice(":", 1).to_float() if token.contains(":") else -1.0)
 				layout.paths.append(points)
+				layout.radii.append(radii)
+			"radius":
+				layout.turn_radius = value.to_float()
 			"slots":
 				layout.slots.assign(_parse_cells(value))
 			"rocks":
@@ -374,10 +501,12 @@ func _build_map(layout: LevelLayout) -> Node2D:
 	logic.modulate = Color(1, 1, 1, 0.39215687)
 
 	# Casillas de camino (también las de fuera del mapa) y su orientación, para las luces
+	var curves: Array[Curve2D] = _make_curves(layout)
 	var path_cells: Dictionary[Vector2i, int] = {}
-	for points: PackedVector2Array in layout.paths:
-		_rasterize(points, layout.station, path_cells)
-	_distance = _distance_to_path(path_cells)
+	for curve: Curve2D in curves:
+		_rasterize(curve, layout.station, path_cells)
+	_distance = _distance_to_path(curves, layout.station)
+	_check_slots(layout.slots, layout.showcase)
 	_blocked = {}
 	_solid = {}
 	if has_station:
@@ -385,8 +514,9 @@ func _build_map(layout: LevelLayout) -> Node2D:
 
 	_place_turret_slots(turret_slots, layout.slots)
 	if has_station:
-		_place_entrances(scenery, _find_entrances(layout))
+		_place_entrances(scenery, _find_entrances(curves))
 	_place_lights(lights, path_cells, layout.station)
+	_place_bend_edges(scenery, curves)
 	_place_landmarks(scenery)
 	_place_wrecks(scenery)
 	_place_large(scenery)
@@ -402,7 +532,7 @@ func _build_map(layout: LevelLayout) -> Node2D:
 	for i: int in layout.paths.size():
 		var path: Path2D = Path2D.new()
 		path.name = str(i)
-		path.curve = _make_curve(layout.paths[i], layout.station)
+		path.curve = curves[i]
 		paths_node.add_child(path)
 		path.owner = map
 
@@ -466,49 +596,120 @@ func _cell_center(cell: Vector2i) -> Vector2:
 	return (Vector2(cell) + Vector2(0.5, 0.5)) * TILE_SIZE
 
 
-## Apunta las casillas de cada tramo. El valor guarda las orientaciones que pasan por la casilla:
-## 1 horizontal, 2 vertical (3 en esquinas y cruces). Las casillas tapadas por la estación no cuentan.
-func _rasterize(points: PackedVector2Array, station: Vector2i, cells: Dictionary[Vector2i, int]) -> void:
-	for i: int in points.size() - 1:
-		var from: Vector2i = Vector2i(points[i])
-		var to: Vector2i = Vector2i(points[i + 1])
-		if from.x != to.x and from.y != to.y:
-			push_error("Tramo en diagonal: %s -> %s" % [from, to])
-			continue
-		var step: Vector2i = (to - from).sign()
-		var orientation: int = 1 if step.y == 0 else 2
-		var cell: Vector2i = from
-		while true:
+## Casilla que contiene un punto (px).
+func _cell_at(point: Vector2) -> Vector2i:
+	return Vector2i((point / TILE_SIZE).floor())
+
+
+## Apunta las casillas por las que pasa la curva. El valor guarda lo que pasa por la casilla: 1 tramo
+## recto horizontal, 2 vertical, 3 curva, tramo en diagonal o varios a la vez (esquinas y cruces).
+## Las casillas tapadas por la estación no cuentan.
+func _rasterize(curve: Curve2D, station: Vector2i, cells: Dictionary[Vector2i, int]) -> void:
+	for i: int in curve.point_count - 1:
+		var from: Vector2 = curve.get_point_position(i)
+		var to: Vector2 = curve.get_point_position(i + 1)
+		var straight: bool = curve.get_point_out(i) == Vector2.ZERO and curve.get_point_in(i + 1) == Vector2.ZERO
+		var orientation: int = 3
+		if straight and is_equal_approx(from.y, to.y):
+			orientation = 1
+		elif straight and is_equal_approx(from.x, to.x):
+			orientation = 2
+		# Un arco mide menos del doble que su cuerda
+		var steps: int = ceili(from.distance_to(to) * 2.0 / RASTER_STEP) + 1
+		for s: int in steps + 1:
+			var cell: Vector2i = _cell_at(curve.sample(i, float(s) / steps))
 			if _chebyshev(cell, station) > STATION_RADIUS - 1:
 				cells[cell] = cells.get(cell, 0) | orientation
-			if cell == to:
-				break
-			cell += step
 
 
 func _chebyshev(a: Vector2i, b: Vector2i) -> int:
 	return maxi(absi(a.x - b.x), absi(a.y - b.y))
 
 
-## Distancia de Chebyshev de cada casilla (del mapa y de alrededor) al camino más cercano.
-func _distance_to_path(path_cells: Dictionary[Vector2i, int]) -> Dictionary[Vector2i, int]:
-	var distance: Dictionary[Vector2i, int] = {}
-	var queue: Array[Vector2i] = []
-	for cell: Vector2i in path_cells:
-		distance[cell] = 0
-		queue.append(cell)
-	var head: int = 0
+## Distancia de cada casilla cercana (del mapa y de alrededor) a la curva de camino más próxima, en
+## pasos: 0 si la curva la cruza, 1 si algún punto de la casilla está a CORRIDOR_CLEARANCE casillas o menos
+## de la curva (pasillo), 2 si está a una casilla más (orilla)… Junto a un tramo recto sale lo mismo que
+## contando casillas (1 la de al lado, 2 la siguiente…); en una curva el pasillo sigue su forma y se abre
+## para dejar el mismo hueco. Las partes del camino tapadas por la estación no cuentan. Las casillas a más
+## de DISTANCE_WINDOW no se apuntan. En _center_distance queda la distancia (casillas) del centro de cada
+## casilla a la curva, para las casillas de torreta.
+func _distance_to_path(curves: Array[Curve2D], station: Vector2i) -> Dictionary[Vector2i, int]:
+	var nearest: Dictionary[Vector2i, float] = {}
+	_center_distance = {}
+	_near_bend = {}
 	var area: Rect2i = _decor_rect().grow(3)
-	while head < queue.size():
-		var cell: Vector2i = queue[head]
-		head += 1
-		for dy: int in range(-1, 2):
-			for dx: int in range(-1, 2):
-				var next: Vector2i = cell + Vector2i(dx, dy)
-				if not distance.has(next) and area.has_point(next):
-					distance[next] = distance[cell] + 1
-					queue.append(next)
+	for curve: Curve2D in curves:
+		var points: PackedVector2Array = curve.get_baked_points()
+		for i: int in points.size():
+			var point: Vector2 = points[i]
+			var bend: bool = _is_bend(points[maxi(i - BEND_REACH, 0)], point) or _is_bend(point, points[mini(i + BEND_REACH, points.size() - 1)])
+			var cell: Vector2i = _cell_at(point)
+			if _chebyshev(cell, station) <= STATION_RADIUS - 1:
+				continue
+			# En casillas, con el centro de cada casilla en sus coordenadas enteras
+			var spot: Vector2 = point / TILE_SIZE - Vector2(0.5, 0.5)
+			for dy: int in range(-DISTANCE_WINDOW, DISTANCE_WINDOW + 1):
+				for dx: int in range(-DISTANCE_WINDOW, DISTANCE_WINDOW + 1):
+					var other: Vector2i = cell + Vector2i(dx, dy)
+					if not area.has_point(other):
+						continue
+					var offset: Vector2 = (spot - Vector2(other)).abs()
+					# Del punto más cercano de la casilla (un cuadrado de lado 1) a la curva
+					var length: float = (offset - Vector2(0.5, 0.5)).max(Vector2.ZERO).length()
+					if length < nearest.get(other, INF):
+						nearest[other] = length
+					var center_length: float = offset.length()
+					if center_length < _center_distance.get(other, INF):
+						_center_distance[other] = center_length
+						_near_bend[other] = bend
+	var distance: Dictionary[Vector2i, int] = {}
+	for cell: Vector2i in nearest:
+		distance[cell] = maxi(ceili(nearest[cell] + 1.0 - CORRIDOR_CLEARANCE - 0.001), 0)
 	return distance
+
+
+## Si el tramo de a a b se sale de los ejes (es parte de una curva o un tramo en diagonal).
+func _is_bend(a: Vector2, b: Vector2) -> bool:
+	var along: Vector2 = b - a
+	return absf(along.x) > BEND_SLOPE * along.length() and absf(along.y) > BEND_SLOPE * along.length()
+
+
+## Avisa de las casillas de torreta mal puestas:
+## - a menos de SLOT_CLEARANCE del camino (la torreta taparía las naves): error;
+## - sin centrar en su franja de roca: a menos de SLOT_CENTER del camino teniendo al lado una casilla
+##   más lejos de él (en una franja entre dos pasillos, la del medio; en el campo, a SLOT_CENTER), salvo
+##   que esa casilla esté fuera del borde del mapa o toque una curva.
+## Junto a una curva sí puede ir (dentro de las esquinas cubre los dos tramos): su asteroide hace de
+## orilla en lugar de las piezas de _place_bend_edges(), que no se ponen en sus casillas.
+## En las vitrinas de la Navedex, con la casilla puesta a mano para cada escena, solo se mira la distancia.
+func _check_slots(slots: Array[Vector2i], showcase: bool) -> void:
+	for cell: Vector2i in slots:
+		var length: float = _center_distance.get(cell, INF)
+		if length < SLOT_CLEARANCE - 0.001:
+			push_error("Casilla de torreta %s a %.2f casillas del camino (mínimo %.1f)" % [cell, length, SLOT_CLEARANCE])
+			_slot_errors += 1
+		if showcase:
+			continue
+		for side: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+			var next: Vector2i = cell + side
+			# Al lado del borde del mapa o de una curva no se puede ir más allá
+			if not Rect2i(Vector2i.ONE, _map_size - Vector2i(2, 2)).has_point(next) or _bend_touched(next) != NO_CELL:
+				continue
+			if minf(_center_distance.get(next, INF), SLOT_CENTER) > minf(length, SLOT_CENTER) + 0.01:
+				push_error("Casilla de torreta %s sin centrar en su franja (más lejos del camino en %s)" % [cell, next])
+				_slot_errors += 1
+				break
+
+
+## Casilla de la orilla de una curva (o del pasillo junto a ella) que tocaría el asteroide de una casilla
+## de torreta puesta aquí (la casilla y las 8 de alrededor), o NO_CELL si no toca ninguna.
+func _bend_touched(cell: Vector2i) -> Vector2i:
+	for dy: int in range(-1, 2):
+		for dx: int in range(-1, 2):
+			var near: Vector2i = cell + Vector2i(dx, dy)
+			if _distance.get(near, 99) <= SHORE_DISTANCE and _near_bend.get(near, false):
+				return near
+	return NO_CELL
 
 
 func _decor_rect() -> Rect2i:
@@ -591,20 +792,24 @@ func _fits(top_left: Vector2i, size: Vector2i) -> bool:
 ## Pone la pieza tapando las casillas que empiezan en top_left y devuelve su rectángulo.
 ## Las piezas de lado impar se anclan en su casilla central; las de lado par usan la alternativa
 ## ALIGNED, desplazada media casilla, anclada en la primera casilla de ese lado. Las de 1x1 del
-## atlas de rocas se desplazan unos píxeles al azar (ver JITTER).
-func _put(layer: TileMapLayer, top_left: Vector2i, piece: Piece) -> Rect2i:
+## atlas de rocas se desplazan unos píxeles al azar (ver JITTER), salvo que se pase la alternativa.
+func _put(layer: TileMapLayer, top_left: Vector2i, piece: Piece, alternative: int = -1) -> Rect2i:
 	var anchor: Vector2i = top_left + (piece.size - Vector2i.ONE) / 2
-	var alternative: int = 0
-	if piece.size.x % 2 == 0 or piece.size.y % 2 == 0:
-		alternative = ALIGNED
-	elif piece.size == Vector2i.ONE and piece.source == ROCKS:
-		alternative = _jitter(top_left)
+	if alternative < 0:
+		alternative = _base_alternative(piece)
+		if piece.size == Vector2i.ONE and piece.source == ROCKS:
+			alternative = _jitter(top_left)
 	layer.set_cell(anchor, piece.source, piece.atlas, alternative)
 	var rect: Rect2i = Rect2i(top_left, piece.size)
 	_block(rect)
 	if not _pebbles.has(piece):
 		_make_solid(rect)
 	return rect
+
+
+## Alternativa sin desplazar: la de media casilla (ALIGNED) si tiene algún lado par; si no, la 0.
+func _base_alternative(piece: Piece) -> int:
+	return ALIGNED if piece.size.x % 2 == 0 or piece.size.y % 2 == 0 else 0
 
 
 ## Alternativa de JITTER al azar, sin las que acercan la pieza al pasillo.
@@ -615,6 +820,8 @@ func _jitter(cell: Vector2i) -> int:
 		if shift.x != 0 and _is_corridor(cell + Vector2i(signi(shift.x), 0)):
 			continue
 		if shift.y != 0 and _is_corridor(cell + Vector2i(0, signi(shift.y))):
+			continue
+		if shift.x != 0 and shift.y != 0 and _is_corridor(cell + shift.sign()):
 			continue
 		options.append(i)
 	return options[_rng.randi_range(0, options.size() - 1)]
@@ -685,25 +892,23 @@ func _place_turret_slots(layer: TileMapLayer, cells: Array[Vector2i]) -> void:
 		_mark(cell, 1)
 
 
-## Primera casilla de cada camino dentro del mapa y su dirección de avance, sin repetir.
-func _find_entrances(layout: LevelLayout) -> Dictionary[Vector2i, Vector2i]:
+## Primera casilla de cada camino dentro del mapa y su dirección de avance (por el eje en el que más
+## avanza), sin repetir.
+func _find_entrances(curves: Array[Curve2D]) -> Dictionary[Vector2i, Vector2i]:
 	var entrances: Dictionary[Vector2i, Vector2i] = {}
 	var map_rect: Rect2i = Rect2i(Vector2i.ZERO, _map_size)
-	for points: PackedVector2Array in layout.paths:
-		var found: bool = false
+	for curve: Curve2D in curves:
+		var points: PackedVector2Array = curve.get_baked_points()
 		for i: int in points.size() - 1:
-			var to: Vector2i = Vector2i(points[i + 1])
-			var step: Vector2i = (to - Vector2i(points[i])).sign()
-			var cell: Vector2i = Vector2i(points[i])
-			while not found:
-				if map_rect.has_point(cell):
-					entrances[cell] = step
-					found = true
-				if cell == to:
-					break
-				cell += step
-			if found:
-				break
+			var cell: Vector2i = _cell_at(points[i])
+			if not map_rect.has_point(cell):
+				continue
+			var direction: Vector2 = points[i + 1] - points[i]
+			if absf(direction.x) >= absf(direction.y):
+				entrances[cell] = Vector2i(int(signf(direction.x)), 0)
+			else:
+				entrances[cell] = Vector2i(0, int(signf(direction.y)))
+			break
 	return entrances
 
 
@@ -733,6 +938,309 @@ func _place_lights(layer: TileMapLayer, path_cells: Dictionary[Vector2i, int], s
 			continue
 		var lights: Array[Vector2i] = LIGHTS_HORIZONTAL if orientation == 1 else LIGHTS_VERTICAL
 		layer.set_cell(cell, ANIMATED, lights[int(position_along / 2.0) % 2])
+
+
+## Orilla de cada curva del camino, a los dos lados: piezas variadas (rocas de 2x2, de 3x3 por fuera,
+## pequeñas, piedrecitas y algo de chatarra) cuyo borde sigue la curva a BEND_EDGE_CLEARANCE px del
+## camino, así que la curva se ve con su forma y con el mismo margen que un tramo recto. Un tramo de
+## curva que comparten varios caminos se hace una sola vez.
+func _place_bend_edges(layer: TileMapLayer, curves: Array[Curve2D]) -> void:
+	_path_buckets = {}
+	_pixel_distance = {}
+	for curve: Curve2D in curves:
+		for point: Vector2 in curve.get_baked_points():
+			var cell: Vector2i = _cell_at(point)
+			if not _path_buckets.has(cell):
+				_path_buckets[cell] = PackedVector2Array()
+			_path_buckets[cell].append(point)
+	var done: Dictionary[Vector2i, bool] = {}
+	for curve: Curve2D in curves:
+		var points: PackedVector2Array = curve.get_baked_points()
+		var first: int = -1
+		for i: int in range(1, points.size() - 1):
+			var bend: bool = _is_bend(points[maxi(i - BEND_REACH, 0)], points[i]) or _is_bend(points[i], points[mini(i + BEND_REACH, points.size() - 1)])
+			if bend and first < 0:
+				first = i
+			if first >= 0 and (not bend or i == points.size() - 2):
+				_place_bend_run(layer, points, first, i if bend else i - 1, done)
+				first = -1
+
+
+## Las dos orillas del tramo de curva de los puntos first a last, si no se han hecho ya con otro camino
+## (si más de la mitad de sus puntos caen en casillas de un tramo ya hecho).
+func _place_bend_run(layer: TileMapLayer, points: PackedVector2Array, first: int, last: int, done: Dictionary[Vector2i, bool]) -> void:
+	var shared: int = 0
+	var turn: float = 0.0
+	for i: int in range(first, last + 1):
+		if done.has(_cell_at(points[i])):
+			shared += 1
+		turn += _tangent(points, i).cross(_tangent(points, i + 1))
+	if shared * 2 > last - first + 1:
+		return
+	for i: int in range(first, last + 1):
+		done[_cell_at(points[i])] = true
+	for side: float in [1.0, -1.0]:
+		var line: PackedVector2Array = PackedVector2Array()
+		var normals: PackedVector2Array = PackedVector2Array()
+		for i: int in range(first, last + 1):
+			var tangent: Vector2 = _tangent(points, i)
+			var normal: Vector2 = Vector2(-tangent.y, tangent.x) * side
+			line.append(points[i] + normal * BEND_EDGE_CLEARANCE)
+			normals.append(normal)
+		# El centro de la curva queda hacia donde gira el camino: ese es el lado de dentro
+		var inner: bool = side * turn > 0.0
+		_place_edge_side(layer, line, normals, inner, inner and absf(turn) > EDGE_TIGHT_TURN)
+
+
+## Dirección del camino en el punto i.
+func _tangent(points: PackedVector2Array, i: int) -> Vector2:
+	return (points[mini(i + 1, points.size() - 1)] - points[maxi(i - 1, 0)]).normalized()
+
+
+## Una orilla de un tramo de curva, a lo largo de line (los puntos a BEND_EDGE_CLEARANCE px del
+## camino; normals, hacia fuera de él). Empieza por el medio y sigue hacia los dos extremos. En el lado
+## de dentro de una curva cerrada (tight, la punta de la franja de una U) empieza con la roca más
+## grande que quepa, para que la punta acabe redondeada y no en una cadena de piedras. Las casillas
+## de la línea que quedan libres (los huecos entre piezas) se reservan.
+func _place_edge_side(layer: TileMapLayer, line: PackedVector2Array, normals: PackedVector2Array, inner: bool, tight: bool) -> void:
+	if line.size() < 3:
+		return
+	var lengths: PackedFloat32Array = PackedFloat32Array([0.0])
+	for k: int in range(1, line.size()):
+		lengths.append(lengths[k - 1] + line[k].distance_to(line[k - 1]))
+	var middle: int = int(line.size() / 2.0)
+	var forward: float = lengths[middle]
+	var backward: float = lengths[middle]
+	var fit: EdgeFit = _edge_fit(line, normals, middle, 0.0, EdgeKind.LARGE if tight else _edge_kind(inner))
+	if fit != null:
+		_put(layer, fit.top_left, fit.piece, fit.alternative)
+		forward += fit.front + _edge_gap()
+		backward += fit.back - _edge_gap()
+	_walk_edge(layer, line, normals, lengths, forward, 1.0, inner)
+	_walk_edge(layer, line, normals, lengths, backward, -1.0, inner)
+	# Los huecos entre piezas se quedan como huecos: el campo no los llena de piedras
+	for k: int in line.size():
+		var cell: Vector2i = _cell_at(line[k] + normals[k] * TILE_SIZE / 2.0)
+		if _is_free(cell):
+			_block(Rect2i(cell, Vector2i.ONE))
+
+
+## Pone piezas a lo largo de la línea de la orilla desde position (px a lo largo de ella), hacia
+## delante (direction 1) o hacia atrás (-1), hasta salirse. Tras EDGE_SMALL_STREAK piezas de 1x1
+## seguidas solo pone una roca de 2x2 o, si no cabe, deja un hueco (ver EDGE_GROUP_GAP), para que no
+## se forme una fila de piedras.
+func _walk_edge(layer: TileMapLayer, line: PackedVector2Array, normals: PackedVector2Array, lengths: PackedFloat32Array, position: float, direction: float, inner: bool) -> void:
+	var small_streak: int = 0
+	var skipped: float = 0.0
+	while position >= 0.0 and position <= lengths[lengths.size() - 1]:
+		var k: int = _line_index(lengths, position)
+		var kind: EdgeKind = _edge_kind(inner)
+		var grouped: bool = small_streak >= EDGE_SMALL_STREAK
+		if grouped:
+			kind = EdgeKind.MEDIUM
+		var fit: EdgeFit = _edge_fit(line, normals, k, direction, kind, not grouped)
+		if fit == null:
+			position += direction * BEND_EDGE_STEP
+			skipped += BEND_EDGE_STEP
+			if skipped >= EDGE_GROUP_GAP:
+				small_streak = 0
+			continue
+		_put(layer, fit.top_left, fit.piece, fit.alternative)
+		small_streak = small_streak + 1 if fit.piece.size == Vector2i.ONE else 0
+		skipped = 0.0
+		position = lengths[k] + direction * maxf(fit.front + _edge_gap(), BEND_EDGE_STEP)
+
+
+## Punto de la línea más cercano a position (px a lo largo de ella).
+func _line_index(lengths: PackedFloat32Array, position: float) -> int:
+	var best: int = 0
+	for k: int in lengths.size():
+		if absf(lengths[k] - position) < absf(lengths[best] - position):
+			best = k
+	return best
+
+
+## Tipo de pieza al azar para la orilla de una curva, por el lado de dentro o el de fuera.
+func _edge_kind(inner: bool) -> EdgeKind:
+	var weights: Dictionary[EdgeKind, float] = EDGE_INNER_WEIGHTS if inner else EDGE_OUTER_WEIGHTS
+	var roll: float = _rng.randf()
+	for kind: EdgeKind in weights:
+		roll -= weights[kind]
+		if roll < 0.0:
+			return kind
+	return EdgeKind.SMALL
+
+
+## Hueco al azar entre dos piezas seguidas de la orilla de una curva (ver EDGE_GAPS).
+func _edge_gap() -> float:
+	var roll: float = _rng.randf()
+	for gap: Vector3 in EDGE_GAPS:
+		if roll < gap.x:
+			return _rng.randf_range(gap.y, gap.z)
+	return 0.0
+
+
+## Piezas del tipo kind para la orilla, de la familia de la zona o de su pareja.
+func _edge_pieces(kind: EdgeKind, family: String) -> Array[Piece]:
+	match kind:
+		EdgeKind.LARGE:
+			return _large_pieces(_mix(family))
+		EdgeKind.MEDIUM:
+			return _families[_mix(family)].medium
+		EdgeKind.SMALL:
+			return _families[_mix(family)].small
+		EdgeKind.PEBBLE:
+			return _pebbles
+	return _scrap
+
+
+## El mejor sitio junto al punto k de la línea de la orilla para una pieza del tipo kind (o, si no cabe
+## ninguna, del siguiente de EDGE_FALLBACK, y al final una pequeña con BEND_EDGE_WIDE_TOLERANCE), o null.
+## Sin allow_small no llega a probar las pequeñas. Con direction 1 o -1 la pieza empieza en el punto
+## y sigue en ese sentido; con 0, queda centrada en él.
+func _edge_fit(line: PackedVector2Array, normals: PackedVector2Array, k: int, direction: float, kind: EdgeKind, allow_small: bool = true) -> EdgeFit:
+	var tangent: Vector2 = (line[mini(k + 1, line.size() - 1)] - line[maxi(k - 1, 0)]).normalized()
+	if direction < 0.0:
+		tangent = -tangent
+	var family: String = _family_at(_cell_at(line[k]))
+	var tolerance: float = BEND_EDGE_TOLERANCE
+	var ahead: float = BEND_EDGE_AHEAD
+	while true:
+		if kind == EdgeKind.SMALL and not allow_small:
+			return null
+		var best: EdgeFit = null
+		for piece: Piece in _edge_pieces(kind, family):
+			var size: Vector2 = Vector2(piece.size * TILE_SIZE)
+			# Casilla de arriba a la izquierda si la pieza tocara la línea con su centro hacia fuera
+			var guess: Vector2i = _cell_at(line[k] + normals[k] * size.x / 2.0 - size / 2.0 + Vector2.ONE * TILE_SIZE / 2.0)
+			for dy: int in range(-1, 2):
+				for dx: int in range(-1, 2):
+					var top_left: Vector2i = guess + Vector2i(dx, dy)
+					if not _edge_cells_free(top_left, piece.size):
+						continue
+					for alternative: int in _edge_alternatives(piece):
+						var fit: EdgeFit = _score_edge(piece, top_left, alternative, line[k], tangent, direction, tolerance, ahead)
+						if fit != null and (best == null or fit.score < best.score):
+							best = fit
+		if best == null and kind == EdgeKind.SMALL and tolerance == BEND_EDGE_TOLERANCE:
+			tolerance = BEND_EDGE_WIDE_TOLERANCE
+			ahead = BEND_EDGE_WIDE_AHEAD
+			continue
+		if best != null or not EDGE_FALLBACK.has(kind):
+			return best
+		kind = EDGE_FALLBACK[kind]
+	return null
+
+
+## Las casillas de la pieza están dentro de la decoración y libres; pueden ser del pasillo (lo que
+## cuenta es lo opaco, ver _score_edge).
+func _edge_cells_free(top_left: Vector2i, size: Vector2i) -> bool:
+	for y: int in size.y:
+		for x: int in size.x:
+			var cell: Vector2i = top_left + Vector2i(x, y)
+			if _blocked.has(cell) or not _decor_rect().has_point(cell):
+				return false
+	return true
+
+
+## Alternativas con las que puede ir la pieza: sin desplazar o con cualquiera de sus desplazamientos
+## (JITTER en las de 1x1 del atlas de rocas, LARGE_JITTER_COUNT en las rocas de 2x2 y 3x3).
+func _edge_alternatives(piece: Piece) -> Array[int]:
+	var alternatives: Array[int] = []
+	if piece.size == Vector2i.ONE:
+		alternatives.assign(range(JITTER.size()) if piece.source == ROCKS else [0])
+	else:
+		alternatives.assign(range(_base_alternative(piece), _base_alternative(piece) + LARGE_JITTER_COUNT + 1))
+	return alternatives
+
+
+## Sitio para la pieza en top_left con esa alternativa junto al punto spot de la línea de la orilla, o
+## null si algo opaco queda a menos de BEND_EDGE_CLEARANCE del camino o su centro a menos de
+## BEND_EDGE_MIN, si queda a más de tolerance de eso (no seguiría la curva) o si empieza lejos del
+## punto (de BEND_EDGE_BEHIND antes a ahead después; si se busca centrada, centrada). Cuanto más pegada a la línea y al punto, mejor (menos score).
+func _score_edge(piece: Piece, top_left: Vector2i, alternative: int, spot: Vector2, tangent: Vector2, direction: float, tolerance: float, ahead: float) -> EdgeFit:
+	var shape: PieceShape = _shape(piece, alternative)
+	var corner: Vector2 = Vector2(top_left * TILE_SIZE)
+	var center_gap: float = _distance_at_pixel(corner + shape.center) - BEND_EDGE_MIN
+	if center_gap < 0.0:
+		return null
+	var clearance: float = INF
+	var back: float = INF
+	var front: float = -INF
+	for offset: Vector2 in shape.outline:
+		var pixel: Vector2 = corner + offset
+		clearance = minf(clearance, _distance_at_pixel(pixel))
+		if clearance < BEND_EDGE_CLEARANCE:
+			return null
+		var along: float = (pixel - spot).dot(tangent)
+		back = minf(back, along)
+		front = maxf(front, along)
+	# Las pequeñas se miden por el centro, como en la orilla de un tramo recto
+	var error: float = center_gap if piece.size == Vector2i.ONE else clearance - BEND_EDGE_CLEARANCE
+	var shift: float = back if direction != 0.0 else (back + front) / 2.0
+	if error > tolerance or shift < -BEND_EDGE_BEHIND or shift > ahead:
+		return null
+	var fit: EdgeFit = EdgeFit.new()
+	fit.piece = piece
+	fit.top_left = top_left
+	fit.alternative = alternative
+	fit.score = error + absf(shift) * 0.5
+	fit.back = back
+	fit.front = front
+	return fit
+
+
+## Dibujo de la pieza con esa alternativa, sacado de su textura (en las animadas, el de todos sus
+## fotogramas juntos).
+func _shape(piece: Piece, alternative: int) -> PieceShape:
+	var key: String = "%d:%s:%d" % [piece.source, piece.atlas, alternative]
+	if _shapes.has(key):
+		return _shapes[key]
+	var source: TileSetAtlasSource = (load(SPACE_TILESET) as TileSet).get_source(piece.source)
+	var path: String = source.texture.resource_path
+	if not _textures.has(path):
+		_textures[path] = Image.load_from_file(ProjectSettings.globalize_path(path))
+	var image: Image = _textures[path]
+	var region: Rect2i = source.get_tile_texture_region(piece.atlas)
+	var opaque: Dictionary[Vector2i, bool] = {}
+	for frame: int in source.get_tile_animation_frames_count(piece.atlas):
+		var frame_region: Rect2i = source.get_tile_texture_region(piece.atlas, frame)
+		for y: int in region.size.y:
+			for x: int in region.size.x:
+				if image.get_pixel(frame_region.position.x + x, frame_region.position.y + y).a > 0.0:
+					opaque[Vector2i(x, y)] = true
+	var origin: Vector2i = source.get_tile_data(piece.atlas, alternative).texture_origin
+	var anchor: Vector2i = (piece.size - Vector2i.ONE) / 2
+	var shape: PieceShape = PieceShape.new()
+	# Se dibuja centrada en su casilla de anclaje, movida -texture_origin
+	shape.center = Vector2(anchor * TILE_SIZE) + Vector2.ONE * TILE_SIZE / 2.0 - Vector2(origin)
+	var corner: Vector2 = shape.center - Vector2(region.size) / 2.0
+	for pixel: Vector2i in opaque:
+		for side: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+			if not opaque.has(pixel + side):
+				shape.outline.append(corner + Vector2(pixel) + Vector2(0.5, 0.5))
+				break
+	_shapes[key] = shape
+	return shape
+
+
+## Distancia (px) de un punto (el centro de un píxel) al camino más cercano, medida una vez por píxel.
+func _distance_at_pixel(point: Vector2) -> float:
+	var key: Vector2i = Vector2i(point.floor())
+	if not _pixel_distance.has(key):
+		_pixel_distance[key] = _path_distance(point)
+	return _pixel_distance[key]
+
+
+## Distancia (px) de un punto al camino más cercano; exacta hasta 48 px (3 casillas), y más si no.
+func _path_distance(point: Vector2) -> float:
+	var center: Vector2i = _cell_at(point)
+	var best: float = INF
+	for dy: int in range(-3, 4):
+		for dx: int in range(-3, 4):
+			for other: Vector2 in _path_buckets.get(center + Vector2i(dx, dy), PackedVector2Array()):
+				best = minf(best, point.distance_squared_to(other))
+	return sqrt(best)
 
 
 ## Unas pocas piezas especiales dentro del campo, lejos del pasillo, del borde y unas de otras, con
@@ -896,15 +1404,93 @@ func _fill_logic(layer: TileMapLayer, path_cells: Dictionary[Vector2i, int], lay
 			layer.set_cell(cell, 0, kind)
 
 
-## Puntos en el centro de las casillas; el último, en el borde de la estación.
-func _make_curve(points: PackedVector2Array, station: Vector2i) -> Curve2D:
-	var curve: Curve2D = Curve2D.new()
-	for i: int in points.size() - 1:
-		curve.add_point(_cell_center(Vector2i(points[i])))
-	if station == NO_STATION:
-		curve.add_point(_cell_center(Vector2i(points[points.size() - 1])))
-		return curve
-	var last: Vector2 = _cell_center(Vector2i(points[points.size() - 2]))
-	var target: Vector2 = _cell_center(station)
-	curve.add_point(target - (target - last).normalized() * STATION_REACH)
-	return curve
+## Curvas de los caminos: tramos rectos entre los puntos del .txt (del centro de sus casillas; el último,
+## en el borde de la estación) y, en cada esquina, un arco de circunferencia tangente a los dos tramos
+## (una Bézier cúbica), así que las naves giran poco a poco. Un mismo giro (mismo punto y mismas
+## direcciones de entrada y de salida) se hace igual en todos los caminos que lo tienen, con el menor
+## de sus radios: los caminos que comparten tramo pasan por los mismos puntos.
+func _make_curves(layout: LevelLayout) -> Array[Curve2D]:
+	var polylines: Array[PackedVector2Array] = []
+	var radii: Array[PackedFloat32Array] = []
+	for i: int in layout.paths.size():
+		var cells: PackedVector2Array = layout.paths[i]
+		var points: PackedVector2Array = []
+		var point_radii: PackedFloat32Array = []
+		for j: int in cells.size():
+			var point: Vector2 = _cell_center(Vector2i(cells[j]))
+			if j == cells.size() - 1 and layout.station != NO_STATION:
+				point -= (point - _cell_center(Vector2i(cells[j - 1]))).normalized() * STATION_REACH
+			if not points.is_empty() and point.is_equal_approx(points[points.size() - 1]):
+				continue
+			# Un punto en mitad de un tramo recto no es una esquina: se quita
+			if points.size() >= 2 and absf(_turn_angle(points[points.size() - 2], points[points.size() - 1], point)) < 0.001:
+				points.remove_at(points.size() - 1)
+				point_radii.remove_at(point_radii.size() - 1)
+			points.append(point)
+			var radius: float = layout.radii[i][j]
+			point_radii.append(radius if radius >= 0.0 else layout.turn_radius)
+		polylines.append(points)
+		radii.append(point_radii)
+
+	# Distancia (px) de cada esquina a los puntos donde empieza y acaba su arco
+	var reaches: Dictionary[String, float] = {}
+	for i: int in polylines.size():
+		var points: PackedVector2Array = polylines[i]
+		for j: int in range(1, points.size() - 1):
+			var key: String = _corner_key(points, j)
+			reaches[key] = minf(reaches.get(key, INF), _corner_reach(points, j, radii[i][j]))
+
+	var curves: Array[Curve2D] = []
+	for points: PackedVector2Array in polylines:
+		var curve: Curve2D = Curve2D.new()
+		curve.bake_interval = CURVE_BAKE_INTERVAL
+		curve.add_point(points[0])
+		for j: int in range(1, points.size() - 1):
+			var reach: float = reaches[_corner_key(points, j)]
+			if reach <= 0.0:
+				curve.add_point(points[j])
+				continue
+			var into: Vector2 = (points[j] - points[j - 1]).normalized()
+			var out: Vector2 = (points[j + 1] - points[j]).normalized()
+			var angle: float = absf(into.angle_to(out))
+			# Tirador de la Bézier que mejor imita un arco de ese ángulo y de radio reach / tan(angle / 2)
+			var handle: float = 4.0 / 3.0 * tan(angle / 4.0) * reach / tan(angle / 2.0)
+			var start: Vector2 = points[j] - into * reach
+			var last: int = curve.point_count - 1
+			if curve.get_point_position(last).is_equal_approx(start):
+				curve.set_point_out(last, into * handle)
+			else:
+				curve.add_point(start, Vector2.ZERO, into * handle)
+			curve.add_point(points[j] + out * reach, -out * handle)
+		var end: Vector2 = points[points.size() - 1]
+		if not curve.get_point_position(curve.point_count - 1).is_equal_approx(end):
+			curve.add_point(end)
+		curves.append(curve)
+	return curves
+
+
+## Ángulo (radianes, con signo) que gira el camino en b al ir de a a c.
+func _turn_angle(a: Vector2, b: Vector2, c: Vector2) -> float:
+	return (b - a).angle_to(c - b)
+
+
+## Identifica una esquina por su punto y sus direcciones de entrada y de salida.
+func _corner_key(points: PackedVector2Array, j: int) -> String:
+	var into: Vector2 = (points[j] - points[j - 1]).normalized().snapped(Vector2(0.001, 0.001))
+	var out: Vector2 = (points[j + 1] - points[j]).normalized().snapped(Vector2(0.001, 0.001))
+	return "%s %s %s" % [points[j].snapped(Vector2(0.01, 0.01)), into, out]
+
+
+## Distancia (px) de la esquina j a donde empieza y acaba su arco con ese radio (casillas), recortada
+## para que quepa: hasta la mitad de un tramo entre dos esquinas, el tramo entero en el último y, en el
+## primero, el tramo menos ENTRY_STRAIGHT casillas, que quedan en recto para la boca y el portal.
+func _corner_reach(points: PackedVector2Array, j: int, radius: float) -> float:
+	var into: Vector2 = points[j] - points[j - 1]
+	var out: Vector2 = points[j + 1] - points[j]
+	var angle: float = absf(into.angle_to(out))
+	if angle > PI - 0.01:
+		push_error("Esquina que da la vuelta del todo en %s" % (points[j] / TILE_SIZE).floor())
+		return 0.0
+	var room_in: float = maxf(into.length() - ENTRY_STRAIGHT * TILE_SIZE, 0.0) if j == 1 else into.length() / 2.0
+	var room_out: float = out.length() if j == points.size() - 2 else out.length() / 2.0
+	return minf(radius * TILE_SIZE * tan(angle / 2.0), minf(room_in, room_out))

@@ -34,7 +34,7 @@ const SCENES: Dictionary[String, Dictionary] = {
 	# Pasillo vertical a su derecha (navedex.txt): lo básico, un disparo tras otro, a grupos de tres naves
 	# con pausa entre grupo y grupo.
 	"turret": {"map": "navedex", "slot": Vector2i(6, 8), "view": Vector2(0.3, 0.5),
-		"enemy": "dart_verde", "speed": 25.0, "health": 4.0, "interval": 6.0, "group": 3},
+		"enemy": "dart_rojo", "speed": 25.0, "health": 4.0, "interval": 6.0, "group": 3},
 	# Pasillo vertical a su derecha: Acorazados lentos y duros seguidos, así que no le falta objetivo,
 	# acelera hasta el tope, se calienta y para.
 	"minigun": {"map": "navedex", "slot": Vector2i(6, 8), "view": Vector2(0.3, 0.5),
@@ -70,7 +70,7 @@ const SCENES: Dictionary[String, Dictionary] = {
 # Separación de las naves de un grupo, como en una oleada (px).
 const SHIP_GAP: float = 26.0
 # Nave secundaria de la Reparadora.
-const COMPANION_DATA: EnemyData = preload("res://resources/enemy_data/dart_verde.tres")
+const COMPANION_DATA: EnemyData = preload("res://resources/enemy_data/dart_rojo.tres")
 # Margen del camino al borde de la vitrina (píxeles del juego; deja sitio a la barra de vida).
 const PATH_MARGIN: float = 14.0
 # Torreta: dónde va en la vitrina (fracción del ancho y del alto) y su casilla en los mapas navedex_*.txt.

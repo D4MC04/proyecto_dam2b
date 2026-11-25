@@ -27,6 +27,8 @@ var _map_origin: Vector2
 var _finished: bool = false
 # Enemigos que han llegado a la estación en la oleada actual (para el bonus de oleada perfecta).
 var _leaks_this_wave: int = 0
+# Enemigo que dio el golpe que destruyó la estación; null hasta entonces.
+var _killer: EnemyData
 
 @onready var grid: Grid = $Grid
 @onready var spawner: Spawner = $Spawner
@@ -36,7 +38,7 @@ var _leaks_this_wave: int = 0
 func _ready() -> void:
 	build_manager.state = game_state
 	game_state.upgrade_requested.connect(build_manager.upgrade_selected)
-	spawner.enemy_died.connect(game_state.register_enemy_destroyed)
+	spawner.enemy_died.connect(game_state.add_money)
 	spawner.all_waves_cleared.connect(_win)
 	spawner.wave_started.connect(func(_index: int, _total: int) -> void:
 		_leaks_this_wave = 0
@@ -69,18 +71,10 @@ func setup(data: LevelData) -> void:
 	_map_origin = map.position
 	base.destroyed.connect(_lose)
 
-## Resumen de la partida hasta ahora: oleada alcanzada, total, enemigos destruidos y dinero gastado.
+## Resumen de la derrota: oleada alcanzada, total de oleadas y el enemigo que acabó con la estación.
 func get_run_stats() -> RunStats:
-	var stats: RunStats = RunStats.new(spawner.get_wave_index() + 1, spawner.waves.size(),
-			game_state.enemies_destroyed, game_state.money_spent)
-	stats.top_turret_name = game_state.retired_top_name
-	stats.top_turret_kills = game_state.retired_top_kills
-	for node: Node in get_tree().get_nodes_in_group(&"turrets"):
-		var turret: Turret = node as Turret
-		if turret != null and not turret.is_queued_for_deletion() and turret.kills > stats.top_turret_kills:
-			stats.top_turret_kills = turret.kills
-			stats.top_turret_name = turret.data.name
-	return stats
+	var killer_name: String = _killer.name if _killer != null else ""
+	return RunStats.new(spawner.get_wave_index() + 1, spawner.waves.size(), killer_name)
 
 # Desplaza el mapa para que su rectángulo útil quede centrado en el área de juego en los dos ejes.
 func _center_map() -> void:
@@ -121,6 +115,7 @@ func _lose() -> void:
 	if _finished:
 		return
 	_finished = true
+	_killer = spawner.last_leaker
 	# Durante la cámara lenta de la derrota el juego sigue corriendo: el nivel deja de construir ya.
 	build_manager.stop_building()
 	# Se pierde al acabar la explosión de la base: el game over pausa el juego y la cortaría

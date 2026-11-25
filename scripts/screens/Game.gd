@@ -60,14 +60,15 @@ func _fade_white(from_alpha: float, to_alpha: float, layer: CanvasLayer = null) 
 
 func _setup_level() -> void:
 	level.setup(level_data)
+	# Solo en depuración con argumentos de prueba: dinero y oleada de partida (antes de preparar la UI).
+	DevLaunch.apply_to_level(level, level_data)
 	level.lost.connect(_on_level_lost)
 	level.won.connect(_on_level_won)
 	# Posición del nivel en la lista + 1; 0 si no está (no se muestra número)
 	var level_number: int = GameData.levels.find(level_data) + 1
-	var has_next_level: bool = level_number > 0 and level_number < GameData.levels.size()
 	level.build_manager.tutorial_hints = ui.tutorial_hints
 	ui.setup_powers(level.get_node(^"Powers"))
-	ui.setup(level.game_state, level.turrets, level_number, level.spawner, has_next_level, level.base)
+	ui.setup(level.game_state, level.turrets, level_number, level.spawner, level.base)
 	_is_emergency = level_data == GameData.emergency_level
 	_emergency_won = false
 	if _is_emergency:
@@ -91,7 +92,6 @@ func _on_level_won() -> void:
 		_emergency_won = true
 	else:
 		GameState.register_win(number, level.base.health == level.base.max_health)
-	ui.show_run_stats(level.get_run_stats())
 	ui.set_state(LevelUI.UiState.WON)
 
 func _on_action_requested(action: LevelUI.Action) -> void:
@@ -100,16 +100,6 @@ func _on_action_requested(action: LevelUI.Action) -> void:
 			_restart_level()
 		LevelUI.Action.QUIT:
 			_quit_to_menu()
-		LevelUI.Action.NEXT_LEVEL:
-			_next_level()
-
-# Monta el siguiente nivel de la lista por el mismo camino que el reinicio.
-func _next_level() -> void:
-	var next_index: int = GameData.levels.find(level_data) + 1
-	if next_index <= 0 or next_index >= GameData.levels.size():
-		return
-	level_data = GameData.levels[next_index]
-	_restart_level()
 
 # Barrido a blanco, cambio de nivel con la pantalla tapada y fundido de vuelta.
 func _restart_level() -> void:
@@ -128,12 +118,11 @@ func _restart_level() -> void:
 	await _fade_white(1.0, 0.0, layer)
 
 # Salir del nivel de emergencia (ganado, perdido, desde la pausa o con "Saltar") lo da por hecho: no se repite.
-# Del nivel de emergencia se vuelve a la oficina; de un sector, a la selección de nivel.
+# Se vuelve siempre a la oficina, del nivel de emergencia y de cualquier sector.
 func _quit_to_menu() -> void:
 	if _is_emergency:
 		GameState.complete_tutorial(_emergency_won)
 	var menu: Node = load(MAIN_MENU_PATH).instantiate()
-	menu.start_on_level_selection = not _is_emergency
 	var tree: SceneTree = get_tree()
 	var old_scene: Node = tree.current_scene
 	tree.root.add_child(menu)

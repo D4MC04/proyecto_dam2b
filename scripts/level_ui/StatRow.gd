@@ -1,5 +1,5 @@
 class_name StatRow
-## Fila de un stat con el estilo de la ficha: icono de 8x8 y nombre a la izquierda, valor a la
+## Fila de un stat con el estilo de la ficha: icono de 8x8 (opcional) y nombre a la izquierda, valor a la
 ## derecha y fondo alterno según su posición. La usan InfoPanel y RunSummary.
 
 const LABEL_COLOR: Color = Color("#5a7a96")
@@ -32,19 +32,21 @@ static func create(entry: StatEntry, index: int, h_margin: int = 3, v_margin: in
 	box.add_theme_constant_override("separation", separation)
 	row.add_child(box)
 
-	# El icono va bajado ICON_TOP px dentro de la línea de texto para que su centro caiga
-	# a la altura del centro de las mayúsculas de Monogram.
-	var icon_margin: MarginContainer = MarginContainer.new()
-	icon_margin.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	icon_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon_margin.add_theme_constant_override("margin_top", icon_top)
-	box.add_child(icon_margin)
-	var icon: TextureRect = TextureRect.new()
-	icon.texture = entry.icon
-	icon.custom_minimum_size = Vector2(icon_box, icon_box)
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon_margin.add_child(icon)
+	# Sin icono (entry.icon null) la fila empieza directamente por el nombre.
+	if entry.icon != null:
+		# El icono va bajado ICON_TOP px dentro de la línea de texto para que su centro caiga
+		# a la altura del centro de las mayúsculas de Monogram.
+		var icon_margin: MarginContainer = MarginContainer.new()
+		icon_margin.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+		icon_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		icon_margin.add_theme_constant_override("margin_top", icon_top)
+		box.add_child(icon_margin)
+		var icon: TextureRect = TextureRect.new()
+		icon.texture = entry.icon
+		icon.custom_minimum_size = Vector2(icon_box, icon_box)
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		icon_margin.add_child(icon)
 
 	box.add_child(_make_label(entry.label, LABEL_COLOR, font_size))
 
@@ -54,10 +56,6 @@ static func create(entry: StatEntry, index: int, h_margin: int = 3, v_margin: in
 	value.clip_text = true
 	box.add_child(value)
 	return row
-
-## Etiqueta del valor de una fila hecha con create(), para cambiar su texto sin rehacerla.
-static func get_value_label(row: PanelContainer) -> Label:
-	return row.get_child(0).get_child(2) as Label
 
 static func _make_label(text: String, color: Color, font_size: int) -> Label:
 	var label: Label = Label.new()

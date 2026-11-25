@@ -116,8 +116,8 @@ func _update_animation() -> void:
 	else:
 		sprite.play("down" if direction.y > 0 else "up")
 	if data.rotate_sprite:
-		# El sprite base mira hacia arriba; se gira en pasos de 90°.
-		sprite.rotation = snappedf(direction.angle() + PI / 2, PI / 2) + deg_to_rad(data.rotation_offset)
+		# El sprite base mira hacia arriba; sigue la dirección del camino, así que en las curvas gira poco a poco.
+		sprite.rotation = direction.angle() + PI / 2 + deg_to_rad(data.rotation_offset)
 
 ## `source`: la torreta que hiere (null si es un poder u otra cosa); se apunta el daño y la baja.
 # `source` va sin tipo Turret a propósito: una bala sigue volando aunque su torreta se venda o se mejore,

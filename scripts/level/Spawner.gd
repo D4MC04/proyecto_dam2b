@@ -3,7 +3,7 @@ extends Node
 
 signal enemy_died(reward: int)
 signal enemy_reached_end(damage: int)
-## Se emite al morir la Nodriza (el jefe).
+## Se emite al morir un jefe (`EnemyData.is_boss`).
 signal boss_died
 ## Se emite al empezar cada oleada, con su índice (desde 0) y el total de oleadas.
 signal wave_started(index: int, total: int)
@@ -16,7 +16,6 @@ signal all_waves_cleared
 ## Se emite al cambiar `auto_waves`.
 signal auto_waves_changed(enabled: bool)
 
-const NODRIZA: EnemyData = preload("res://resources/enemy_data/nodriza.tres")
 const ENEMY_SCENE: PackedScene = preload("res://scenes/entities/Enemy.tscn")
 ## Al partirse: segundos que se ve agrietada, separación en px entre trozos al salir (de lado,
 ## según su dibujo), cuánto más se alejan y en cuántos segundos vuelven al camino.
@@ -29,6 +28,9 @@ const SPLIT_RETURN_TIME: float = 0.35
 const AUTO_WAVE_DELAY: float = 1.5
 ## Segundos entre el arranque de una oleada y su tiempo 0 (las entradas cuentan desde ahí).
 const WAVE_START_DELAY: float = 2.5
+
+## Último enemigo que llegó a la estación (null si ninguno).
+var last_leaker: EnemyData
 
 ## Con AUTO activo, la siguiente oleada empieza sola cuando el nivel queda limpio.
 var auto_waves: bool = false:
@@ -80,9 +82,16 @@ func start_next_wave() -> bool:
 	wave_started.emit(_wave_index, waves.size())
 	return true
 
-## La oleada `index` trae la Nodriza (el jefe).
-func wave_has_boss(index: int) -> bool:
-	return waves[index].groups.any(func(group: SpawnGroup) -> bool: return group.enemy_data == NODRIZA and group.count > 0)
+## Solo para pruebas (DevLaunch): da por jugadas las `count` primeras oleadas, dejando al menos una.
+func skip_waves(count: int) -> void:
+	_wave_index = clampi(count, 0, waves.size() - 1) - 1
+
+## El jefe de la oleada `index`, o null si no trae ninguno.
+func get_wave_boss(index: int) -> EnemyData:
+	for group: SpawnGroup in waves[index].groups:
+		if group.enemy_data.is_boss and group.count > 0:
+			return group.enemy_data
+	return null
 
 func can_start_next_wave() -> bool:
 	return is_clear() and has_waves_left()
@@ -155,8 +164,8 @@ func _open_portals() -> void:
 		portal.position = curve.sample_baked(PORTAL_OFFSET)
 		# La grieta (horizontal en Portal) queda atravesada al camino; girada en múltiplos de 90° para no deformar los píxeles.
 		var direction: Vector2 = curve.sample_baked(PORTAL_OFFSET + 1.0) - portal.position
-		# La Nodriza sale con un temblor más fuerte.
-		if _entries.any(func(e: SpawnEntry) -> bool: return e.path_index % paths.size() == index and e.enemy_data == NODRIZA):
+		# Los jefes salen con un temblor más fuerte.
+		if _entries.any(func(e: SpawnEntry) -> bool: return e.path_index % paths.size() == index and e.enemy_data.is_boss):
 			portal.shake_strength = Portal.BOSS_SHAKE
 		portal.rotation = snappedf(direction.angle() + PI / 2.0, PI / 2.0)
 		paths[index].add_child(portal)
@@ -176,7 +185,7 @@ func _on_enemy_died(reward: int, enemy: Enemy) -> void:
 		_pending_splits += 1
 		_crack(enemy)
 	enemy_died.emit(reward)
-	if enemy.data == NODRIZA:
+	if enemy.data.is_boss:
 		boss_died.emit()
 	_check_cleared()
 
@@ -214,6 +223,7 @@ func _split(data: EnemyData, path: Path2D, progress: float, sprite_rotation: flo
 func _on_enemy_reached_end(damage: int, enemy: Enemy) -> void:
 	if not _alive.erase(enemy):
 		return
+	last_leaker = enemy.data
 	enemy_reached_end.emit(damage)
 	_check_cleared()
 

@@ -18,6 +18,6 @@ Devuelve:
 - Lista de problemas encontrados (archivo:línea y por qué), o "sin problemas".
 - Resultado del probador.
 - Main: entra limpio, o los archivos en conflicto.
-- Siguiente paso: `/ship`, o qué arreglar antes.
+- Siguiente paso: `/merge`, o qué arreglar antes.
 
 No arregles nada sin preguntar.

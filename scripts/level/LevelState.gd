@@ -18,8 +18,6 @@ const PERFECT_WAVE_BONUS: int = 25
 # Lo fija Level.setup con LevelData.starting_money.
 var money: int = 0
 # Recuento de la partida para el resumen. Al reiniciar se crea un LevelState nuevo, así que vuelven a 0.
-var enemies_destroyed: int = 0
-var money_spent: int = 0
 ## Hay una oleada lanzada que aún no se ha limpiado. La pone Level con las señales del Spawner.
 var wave_in_progress: bool = false:
 	set(value):
@@ -68,7 +66,6 @@ func sell_selected_turret() -> void:
 	var value: int = sellable_turret.get_sell_value()
 	add_money(value)
 	FloatingText.spawn(sellable_turret.get_parent(), sellable_turret.global_position, "+" + UiFormat.money(value))
-	_note_retired(sellable_turret)
 	sellable_turret.play_sell()
 	sellable_turret.queue_free()
 	sellable_turret = null
@@ -81,21 +78,7 @@ func spend_money(amount: int) -> bool:
 	if money < amount:
 		return false
 	money -= amount
-	money_spent += amount
 	GameState.add_stat("spent", amount)
 	money_changed.emit(money)
 	return true
 
-## Mejor torreta vendida (se guarda al venderla para que cuente en el resumen).
-var retired_top_name: String = ""
-var retired_top_kills: int = 0
-
-func _note_retired(turret: Turret) -> void:
-	if turret.kills > retired_top_kills:
-		retired_top_kills = turret.kills
-		retired_top_name = turret.data.name
-
-## Un enemigo destruido: suma su recompensa y lo cuenta.
-func register_enemy_destroyed(reward: int) -> void:
-	enemies_destroyed += 1
-	add_money(reward)
