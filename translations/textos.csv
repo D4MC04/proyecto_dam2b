@@ -123,8 +123,8 @@ ENEMY_DART_ROJO_NAME,Dart,Dart
 ENEMY_DART_ROJO_DESC,"Caza de enjambre: frágil y rápido, llega en grupos grandes.","Swarm fighter: fragile and fast, comes in big groups."
 ENEMY_DIVISORA_NAME,Divisora,Splitter
 ENEMY_DIVISORA_DESC,Nodriza pequeña de tres módulos. Al caer se parte y cada módulo sigue solo.,Small three-module mothership. When destroyed it breaks apart and each module carries on alone.
-ENEMY_ESPECTRO_NAME,Espectro,Specter
-ENEMY_ESPECTRO_DESC,"Caza furtivo que se camufla a ratos: mientras tanto las torretas no lo apuntan, pero los ataques de área sí le dan.","Stealth fighter that cloaks from time to time: while cloaked turrets can't target it, but area attacks still hit it."
+ENEMY_ESPECTRO_NAME,Specter,Specter
+ENEMY_ESPECTRO_DESC,"Caza furtivo que va siempre camuflado: las torretas no lo apuntan hasta que algo le hace daño, y entonces se destapa unos segundos.","Stealth fighter that is always cloaked: turrets can't target it until something damages it, which reveals it for a few seconds."
 ENEMY_FRAGMENTO_DIVISORA_NAME,Fragmento de Divisora,Splitter Fragment
 ENEMY_FRAGMENTO_DIVISORA_DESC,Módulo suelto de una Divisora. Sigue adelante con su propio motor.,Loose module of a Splitter. Keeps going with its own engine.
 ENEMY_NAVE_AGRESIVA_NAME,Frigate,Frigate

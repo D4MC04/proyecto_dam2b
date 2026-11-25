@@ -268,7 +268,7 @@ func _build_ship(data: EnemyData) -> void:
 		# Silueta: la misma nave sin habilidades, en negro.
 		data = data.duplicate() as EnemyData
 		data.heal_aura = false
-		data.cloak_interval = 0.0
+		data.reveal_time = 0.0
 		data.emp_interval = 0.0
 		# El duplicado comparte el array con el original: se cambia por una copia vacía.
 		data.split_into = data.split_into.duplicate()

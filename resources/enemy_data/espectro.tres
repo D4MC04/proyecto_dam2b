@@ -7,14 +7,13 @@
 [resource]
 script = ExtResource("1_data")
 name = "ENEMY_ESPECTRO_NAME"
-hp = 80.0
-speed = 55
+hp = 75.0
+speed = 60
 reward = 20
 base_damage = 10
 description = "ENEMY_ESPECTRO_DESC"
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 rotate_sprite = true
-cloak_interval = 4.0
-cloak_time = 2.0
+reveal_time = 3.0
 metadata/_custom_type_script = "uid://do62ihbnaitnl"

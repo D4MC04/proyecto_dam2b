@@ -12,7 +12,7 @@ El `Spawner` lo añade como hijo de un `Path2D` del mapa y llama a `setup(enemy_
 
 ## Datos
 
-`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `base_damage` (vida que quita a la estación al llegar al final, 10 por defecto), `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados), `is_boss` (jefe, ver abajo), `cloak_interval` y `cloak_time` (camuflaje, ver Camuflaje; 0 = no se camufla), `death_sound` (`AudioStream`, ver Daño y muerte), `heal_aura` (solo la Reparadora, ver Curación), `emp_interval`, `emp_radius` y `emp_disable_time` (pulso EMP, ver Habilidades; `emp_interval` 0 = sin pulso), `split_into` (ver Partirse al morir) y `description` (frase corta para la ficha, ya rellena en todos). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da VIDA, VELOCIDAD (px/s), BOTÍN (la recompensa, con €) y DAÑO (`base_damage`); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
+`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `base_damage` (vida que quita a la estación al llegar al final, 10 por defecto), `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados), `is_boss` (jefe, ver abajo), `reveal_time` (camuflaje, ver Camuflaje; 0 = no se camufla), `death_sound` (`AudioStream`, ver Daño y muerte), `heal_aura` (solo la Reparadora, ver Curación), `emp_interval`, `emp_radius` y `emp_disable_time` (pulso EMP, ver Habilidades; `emp_interval` 0 = sin pulso), `split_into` (ver Partirse al morir) y `description` (frase corta para la ficha, ya rellena en todos). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da VIDA, VELOCIDAD (px/s), BOTÍN (la recompensa, con €) y DAÑO (`base_damage`); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
 
 Recursos en `resources/enemy_data/` (los archivos conservan el nombre de antes; los nombres en inglés van en `translations/textos.csv`, igual en `es` y `en`). Velocidad como multiplicador de 60 px/s:
 
@@ -29,7 +29,7 @@ Recursos en `resources/enemy_data/` (los archivos conservan el nombre de antes; 
 | `acorazado` | Juggernaut | 500 | 0,5 (30) | 70 | 25 | 14 | 4 | El tanque |
 | `nodriza` | Mothership | 750 | 0,75 (45) | 130 | 50 | 14 | 8 | Miniboss (ver abajo) |
 | `reparadora` | Reparadora | 90 | 38 | 25 | 5 | 12 | 6 | Con mecánica |
-| `espectro` | Espectro | 80 | 55 | 20 | 10 | 12 | 7 | Con mecánica |
+| `espectro` | Specter | 75 | 60 | 20 | 10 | 12 | 7 | Con mecánica |
 | `divisora` | Divisora | 120 | 35 | 20 | 15 | 13 | 5 | Con mecánica |
 | `fragmento_divisora_izquierdo`, `_central`, `_derecho` | Fragmento de Divisora | 25 | 50 | 5 | 5 | 7 | 5 (al partirse la Divisora) | Trozos |
 | `saboteadora` | Saboteadora | 110 | 30 | 25 | 10 | 13 | 8 | Con mecánica |
@@ -57,7 +57,7 @@ Según la dirección del último movimiento sobre su camino (posición local, as
 
 ### Camuflaje
 
-Si `data.cloak_interval > 0`, `setup()` arranca un tween en bucle: visible `cloak_interval` s y camuflado `cloak_time` s (el Espectro: 4 y 2). Al camuflarse pone `cloaked = true` y el sprite se disuelve en 0,3 s (`CLOAK_DISSOLVE_TIME`) con `resources/shaders/cloak_dissolve.gdshader`, un `ShaderMaterial` propio de cada Espectro: píxel a píxel de la punta a la cola, en franjas de interferencia (las filas pares van algo por detrás) y con un borde morado `#aa78ff` que avanza; los píxeles disueltos quedan al 20 % (`CLOAK_ALPHA`). La barra de vida baja al 20 % a la vez. Al reaparecer, la misma animación al revés. Todo va sobre la rejilla de píxeles de la textura, sin antialiasing, y no toca el `modulate` del sprite (destello y tinte de ralentización siguen igual).
+Si `data.reveal_time > 0` (la Specter: 3), `setup()` la deja camuflada desde que sale: `cloaked = true`, el sprite disuelto con `resources/shaders/cloak_dissolve.gdshader` (un `ShaderMaterial` propio de cada Specter) y la barra de vida al 20 %. Cualquier daño mientras sigue viva (`take_damage()`, también el de los ataques de área que le dan camuflada) la destapa: `cloaked = false` al momento y la animación de reaparecer; a los `reveal_time` s sin más daño se vuelve a camuflar. Cada golpe reinicia la cuenta (mata el tween y empieza otro desde donde iba la disolución). La animación dura 0,3 s (`CLOAK_DISSOLVE_TIME`): píxel a píxel de la punta a la cola, en franjas de interferencia (las filas pares van algo por detrás) y con un borde morado `#aa78ff` que avanza; los píxeles disueltos quedan al 20 % (`CLOAK_ALPHA`). La barra de vida baja y sube a la vez. En grupo, el área que les da a las demás la destapa; sola, hay que darle con algo de área. Todo va sobre la rejilla de píxeles de la textura, sin antialiasing, y no toca el `modulate` del sprite (destello y tinte de ralentización siguen igual).
 
 Mientras está camuflado las torretas no lo eligen: `Turret._best_enemy()` lo salta y `_get_target()` suelta al objetivo que se camufla. Los ataques de área sí le dan: la onda del Cryo (sale aunque en rango solo haya naves camufladas), el meteorito, el haz del Rail, la explosión del Cañón pesado y los saltos del rayo Tesla.
 
