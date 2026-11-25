@@ -507,6 +507,13 @@ func _build_map(layout: LevelLayout) -> Node2D:
 		_rasterize(curve, layout.station, path_cells)
 	_distance = _distance_to_path(curves, layout.station)
 	_check_slots(layout.slots, layout.showcase)
+	# Las esquinas de los cruces se redondean como el lado de dentro de una curva: el pasillo se abre
+	# hasta el arco de relleno (sin cambiar los caminos ni las casillas de torreta, ya comprobadas)
+	var fillets: Array[Curve2D] = _make_fillets(layout)
+	if not fillets.is_empty():
+		var shore_curves: Array[Curve2D] = curves.duplicate()
+		shore_curves.append_array(fillets)
+		_distance = _distance_to_path(shore_curves, layout.station)
 	_blocked = {}
 	_solid = {}
 	if has_station:
@@ -516,7 +523,7 @@ func _build_map(layout: LevelLayout) -> Node2D:
 	if has_station:
 		_place_entrances(scenery, _find_entrances(curves))
 	_place_lights(lights, path_cells, layout.station)
-	_place_bend_edges(scenery, curves)
+	_place_bend_edges(scenery, curves, fillets)
 	_place_landmarks(scenery)
 	_place_wrecks(scenery)
 	_place_large(scenery)
@@ -943,11 +950,14 @@ func _place_lights(layer: TileMapLayer, path_cells: Dictionary[Vector2i, int], s
 ## Orilla de cada curva del camino, a los dos lados: piezas variadas (rocas de 2x2, de 3x3 por fuera,
 ## pequeñas, piedrecitas y algo de chatarra) cuyo borde sigue la curva a BEND_EDGE_CLEARANCE px del
 ## camino, así que la curva se ve con su forma y con el mismo margen que un tramo recto. Un tramo de
-## curva que comparten varios caminos se hace una sola vez.
-func _place_bend_edges(layer: TileMapLayer, curves: Array[Curve2D]) -> void:
+## curva que comparten varios caminos se hace una sola vez. En los arcos de relleno de las esquinas de
+## los cruces (fillets, ver _make_fillets) solo se pone el lado de dentro: el de fuera es pasillo.
+func _place_bend_edges(layer: TileMapLayer, curves: Array[Curve2D], fillets: Array[Curve2D]) -> void:
 	_path_buckets = {}
 	_pixel_distance = {}
-	for curve: Curve2D in curves:
+	var all_curves: Array[Curve2D] = curves.duplicate()
+	all_curves.append_array(fillets)
+	for curve: Curve2D in all_curves:
 		for point: Vector2 in curve.get_baked_points():
 			var cell: Vector2i = _cell_at(point)
 			if not _path_buckets.has(cell):
@@ -964,11 +974,16 @@ func _place_bend_edges(layer: TileMapLayer, curves: Array[Curve2D]) -> void:
 			if first >= 0 and (not bend or i == points.size() - 2):
 				_place_bend_run(layer, points, first, i if bend else i - 1, done)
 				first = -1
+	for fillet: Curve2D in fillets:
+		var points: PackedVector2Array = fillet.get_baked_points()
+		var own: Dictionary[Vector2i, bool] = {}
+		_place_bend_run(layer, points, 0, points.size() - 1, own, true)
 
 
-## Las dos orillas del tramo de curva de los puntos first a last, si no se han hecho ya con otro camino
-## (si más de la mitad de sus puntos caen en casillas de un tramo ya hecho).
-func _place_bend_run(layer: TileMapLayer, points: PackedVector2Array, first: int, last: int, done: Dictionary[Vector2i, bool]) -> void:
+## Las dos orillas (o solo la de dentro, con inner_only) del tramo de curva de los puntos first a last,
+## si no se han hecho ya con otro camino (si más de la mitad de sus puntos caen en casillas de un tramo
+## ya hecho).
+func _place_bend_run(layer: TileMapLayer, points: PackedVector2Array, first: int, last: int, done: Dictionary[Vector2i, bool], inner_only: bool = false) -> void:
 	var shared: int = 0
 	var turn: float = 0.0
 	for i: int in range(first, last + 1):
@@ -989,6 +1004,8 @@ func _place_bend_run(layer: TileMapLayer, points: PackedVector2Array, first: int
 			normals.append(normal)
 		# El centro de la curva queda hacia donde gira el camino: ese es el lado de dentro
 		var inner: bool = side * turn > 0.0
+		if inner_only and not inner:
+			continue
 		_place_edge_side(layer, line, normals, inner, inner and absf(turn) > EDGE_TIGHT_TURN)
 
 
@@ -1494,3 +1511,68 @@ func _corner_reach(points: PackedVector2Array, j: int, radius: float) -> float:
 	var room_in: float = maxf(into.length() - ENTRY_STRAIGHT * TILE_SIZE, 0.0) if j == 1 else into.length() / 2.0
 	var room_out: float = out.length() if j == points.size() - 2 else out.length() / 2.0
 	return minf(radius * TILE_SIZE * tan(angle / 2.0), minf(room_in, room_out))
+
+
+## Arcos de relleno de las esquinas de roca de los cruces: donde dos tramos rectos (de uno o de varios
+## caminos) salen de un mismo punto en direcciones perpendiculares y ningún camino gira entre ellos (en
+## una bifurcación, un cruce o una unión), un arco tangente a los dos del radio de giro del mapa (o
+## menos, si un tramo es más corto). No es camino: solo abre el pasillo y lleva la orilla de dentro de
+## una curva, para que la esquina se vea curva como las de las curvas.
+func _make_fillets(layout: LevelLayout) -> Array[Curve2D]:
+	var segments: Array[PackedVector2Array] = []
+	var corners: Dictionary[Vector2, bool] = {}
+	var rounded: Dictionary[String, bool] = {}
+	for cells: PackedVector2Array in layout.paths:
+		for j: int in cells.size():
+			corners[cells[j]] = true
+			if j > 0 and (cells[j].x == cells[j - 1].x or cells[j].y == cells[j - 1].y):
+				segments.append(PackedVector2Array([cells[j - 1], cells[j]]))
+			if j > 0 and j < cells.size() - 1:
+				var back: Vector2 = (cells[j - 1] - cells[j]).normalized()
+				var ahead: Vector2 = (cells[j + 1] - cells[j]).normalized()
+				rounded[_quadrant_key(cells[j], back, ahead)] = true
+	# Los cruces de dos tramos sin punto en común también cuentan
+	for a: PackedVector2Array in segments:
+		for b: PackedVector2Array in segments:
+			if a[0].x == a[1].x and b[0].y == b[1].y:
+				var crossing: Vector2 = Vector2(a[0].x, b[0].y)
+				if _on_segment(crossing, a) and _on_segment(crossing, b):
+					corners[crossing] = true
+	var directions: Array[Vector2] = [Vector2.RIGHT, Vector2.DOWN, Vector2.LEFT, Vector2.UP]
+	var fillets: Array[Curve2D] = []
+	for corner: Vector2 in corners:
+		# Largo (casillas) del tramo recto que sale del punto en cada dirección
+		var legs: Dictionary[Vector2, float] = {}
+		for segment: PackedVector2Array in segments:
+			if not _on_segment(corner, segment):
+				continue
+			for end: Vector2 in segment:
+				if end != corner:
+					var direction: Vector2 = (end - corner).normalized()
+					legs[direction] = maxf(legs.get(direction, 0.0), corner.distance_to(end))
+		for k: int in directions.size():
+			var first: Vector2 = directions[k]
+			var second: Vector2 = directions[(k + 1) % directions.size()]
+			if not legs.has(first) or not legs.has(second) or rounded.has(_quadrant_key(corner, first, second)):
+				continue
+			var radius: float = minf(layout.turn_radius, minf(legs[first], legs[second])) * TILE_SIZE
+			var center: Vector2 = _cell_center(Vector2i(corner))
+			var handle: float = 4.0 / 3.0 * tan(PI / 8.0) * radius
+			var fillet: Curve2D = Curve2D.new()
+			fillet.bake_interval = CURVE_BAKE_INTERVAL
+			fillet.add_point(center + first * radius, Vector2.ZERO, -first * handle)
+			fillet.add_point(center + second * radius, -second * handle)
+			fillets.append(fillet)
+	return fillets
+
+
+## Identifica el cuarto alrededor de un punto que queda entre dos direcciones perpendiculares.
+func _quadrant_key(point: Vector2, first: Vector2, second: Vector2) -> String:
+	return "%s %s" % [point, (first + second).snapped(Vector2(0.001, 0.001))]
+
+
+## Si el punto está en el tramo recto (horizontal o vertical) de segment[0] a segment[1].
+func _on_segment(point: Vector2, segment: PackedVector2Array) -> bool:
+	var low: Vector2 = segment[0].min(segment[1])
+	var high: Vector2 = segment[0].max(segment[1])
+	return point.x >= low.x and point.x <= high.x and point.y >= low.y and point.y <= high.y

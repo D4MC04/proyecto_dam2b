@@ -13,7 +13,7 @@ La casilla del mapa es de 16x16 px. Los sprites de juego son múltiplos de esa m
 | Torretas (base, cañón, icono `_full_up`) | 32x32 |
 | Enemigos pequeños (Dart, Wasp, Streak) | 24x24 |
 | Fragmentos de la Divisora | 20x20 |
-| Enemigos medianos y grandes (Vanguard, Corsair, Frigate, Cruiser, Ram, Juggernaut, Mothership, Reparadora, Divisora, Espectro) | 32x32 |
+| Enemigos medianos y grandes (Vanguard, Corsair, Frigate, Cruiser, Ram, Juggernaut, Mothership, Reparadora, Divisora, Specter) | 32x32 |
 | Estación (`base/estacion/`) | 80x80 centrada en frames de 96x96 |
 | Escudo de la estación | 64x64 (escalado a 1,25 en juego) |
 | Bala del Cañón doble y trazadora de la Minigun | 4x8 (tira de 8x8 con 2 frames) |

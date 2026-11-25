@@ -443,9 +443,8 @@ func _on_attack_timeout() -> void:
 			cannon.play(&"fire_0")
 		return
 	var target: Enemy = _get_target()
-	# La onda es de área: sale aunque en rango solo haya naves camufladas.
-	var pulse_has_enemies: bool = data.pulse != null and enemies_in_range.any(is_instance_valid)
-	if target == null and not pulse_has_enemies:
+	# Sin naves visibles a tiro no dispara (la onda tampoco: las camufladas no la provocan).
+	if target == null:
 		_stop_shoot_sound()
 		return
 	if _is_static():

@@ -45,6 +45,8 @@ const CLOAK_ALPHA: float = 0.2
 # Disolución por píxeles con borde morado al camuflarse y al reaparecer.
 const CLOAK_SHADER: Shader = preload("res://resources/shaders/cloak_dissolve.gdshader")
 const CLOAK_DISSOLVE_TIME: float = 0.3
+var _cloak_material: ShaderMaterial
+var _cloak_tween: Tween
 
 signal reached_end(damage: int)
 
@@ -61,8 +63,8 @@ func setup(enemy_data: EnemyData, health_multiplier: float = 1.0) -> void:
 	var size: float = effect_scale() * EFFECT_SIZE
 	_health_bar.setup(size, -size / 2.0)
 	add_to_group(&"enemies")
-	if data.cloak_interval > 0.0:
-		_start_cloak_cycle()
+	if data.reveal_time > 0.0:
+		_start_cloaked()
 	if data.heal_aura:
 		var timer: Timer = Timer.new()
 		timer.wait_time = HEAL_INTERVAL
@@ -129,6 +131,8 @@ func take_damage(amount: float, source: Variant = null) -> void:
 	if is_instance_valid(source):
 		(source as Turret).register_damage(dealt, was_alive and hp <= 0)
 	_health_bar.update(hp, max_hp)
+	if data.reveal_time > 0.0 and amount > 0.0 and hp > 0:
+		_reveal()
 	if Settings.get_value(&"show_damage_numbers"):
 		_queue_damage_text(dealt)
 	if hp <= 0:
@@ -210,21 +214,26 @@ func effect_scale() -> float:
 	var frame_size: Vector2 = texture.get_size() * sprite.scale
 	return maxf(frame_size.x, frame_size.y) / EFFECT_SIZE
 
-# Bucle de camuflaje: visible `cloak_interval` s y camuflado `cloak_time` s.
-# El sprite se disuelve con CLOAK_SHADER; la barra de vida se atenúa a la vez.
-func _start_cloak_cycle() -> void:
-	var material: ShaderMaterial = ShaderMaterial.new()
-	material.shader = CLOAK_SHADER
-	material.set_shader_parameter(&"progress", 0.0)
-	material.set_shader_parameter(&"cloaked_alpha", CLOAK_ALPHA)
-	sprite.material = material
-	var tween: Tween = create_tween().set_loops()
-	tween.tween_interval(data.cloak_interval)
-	tween.tween_callback(_set_cloaked.bind(true))
-	_tween_dissolve(tween, material, 1.0, CLOAK_ALPHA)
-	tween.tween_interval(data.cloak_time)
-	tween.tween_callback(_set_cloaked.bind(false))
-	_tween_dissolve(tween, material, 0.0, 1.0)
+# Camuflaje: sale ya camuflado (sprite disuelto con CLOAK_SHADER y barra de vida atenuada).
+func _start_cloaked() -> void:
+	_cloak_material = ShaderMaterial.new()
+	_cloak_material.shader = CLOAK_SHADER
+	_cloak_material.set_shader_parameter(&"progress", 1.0)
+	_cloak_material.set_shader_parameter(&"cloaked_alpha", CLOAK_ALPHA)
+	sprite.material = _cloak_material
+	_health_bar.modulate.a = CLOAK_ALPHA
+	_set_cloaked(true)
+
+# Al recibir daño se destapa `reveal_time` s (cada golpe reinicia la cuenta) y luego se vuelve a camuflar.
+func _reveal() -> void:
+	if _cloak_tween:
+		_cloak_tween.kill()
+	_set_cloaked(false)
+	_cloak_tween = create_tween()
+	_tween_dissolve(_cloak_tween, _cloak_material, 0.0, 1.0)
+	_cloak_tween.tween_interval(data.reveal_time)
+	_cloak_tween.tween_callback(_set_cloaked.bind(true))
+	_tween_dissolve(_cloak_tween, _cloak_material, 1.0, CLOAK_ALPHA)
 
 func _tween_dissolve(tween: Tween, material: ShaderMaterial, progress: float, bar_alpha: float) -> void:
 	tween.tween_property(material, "shader_parameter/progress", progress, CLOAK_DISSOLVE_TIME)
