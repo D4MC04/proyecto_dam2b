@@ -1,6 +1,6 @@
 # Mejora: la Specter sale invisible y se destapa al recibir daño
 
-Estado: propuesta
+Estado: aceptada
 Prioridad: media
 Modelo recomendado: opus
 Esfuerzo recomendado: medium

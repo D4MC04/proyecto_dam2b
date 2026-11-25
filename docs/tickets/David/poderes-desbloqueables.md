@@ -1,6 +1,7 @@
 # Poderes desbloqueables, de pago y con su mini tutorial
 
-Estado: propuesta
+Estado: aceptada
+Espera a: mejora-cluster
 Prioridad: media
 Modelo recomendado: opus
 Esfuerzo recomendado: high
@@ -9,6 +10,7 @@ Esfuerzo recomendado: high
 Ahora los tres poderes (meteorito, congelar y rayo orbital) están desde el primer nivel, gratis y con recargas largas. Desbloquearlos poco a poco y que cuesten dinero los hace una decisión y no satura al jugador nuevo. El nivel de emergencia (`tutorial-nivel-prueba`) ya no los enseña.
 
 ## Qué hay que hacer
+- **Antes de empezar, preguntar al usuario qué quiere que haga este ticket: lo va a cambiar bastante. No tocar nada hasta tener su respuesta; con ella, reescribir este ticket y seguir.**
 - **Antes de tocar nada**, preguntar al usuario: en qué nivel se desbloquea cada poder, cuánto cuesta usarlo y qué recarga nueva lleva.
 - Los poderes no están disponibles desde el principio: cada uno se desbloquea en su nivel (se guarda en `GameState`). Los bloqueados no se ven o salen bloqueados en la fila de poderes, según diga el usuario.
 - Antes de desbloquear el primero no sale nada de poderes en la ficha: ni la fila ni la cabecera "PODERES" (como ya pasa en el nivel de emergencia con `LevelUI._set_powers_enabled`, que esconde las dos).

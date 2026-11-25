@@ -1,6 +1,7 @@
 # Mejora: la Cluster lanza sus trozos hacia delante
 
-Estado: propuesta
+Estado: aceptada
+Espera a: mejora-payload
 Prioridad: media
 Modelo recomendado: opus
 Esfuerzo recomendado: medium

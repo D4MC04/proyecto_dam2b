@@ -1,6 +1,7 @@
 # Mejora: la Mender se vacía para curar
 
-Estado: propuesta
+Estado: aceptada
+Espera a: mejora-specter
 Prioridad: media
 Modelo recomendado: opus
 Esfuerzo recomendado: medium

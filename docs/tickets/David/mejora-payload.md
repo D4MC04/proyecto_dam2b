@@ -1,6 +1,7 @@
 # Mejora: la Saboteadora pasa a ser la Payload, una bomba que explota al morir
 
-Estado: propuesta
+Estado: aceptada
+Espera a: mejora-mender
 Prioridad: media
 Modelo recomendado: opus
 Esfuerzo recomendado: high
