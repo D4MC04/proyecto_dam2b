@@ -1,6 +1,6 @@
 # Icono del juego
 
-Estado: pospuesta
+Estado: propuesta
 Prioridad: media
 Modelo recomendado: opus
 Esfuerzo recomendado: medium
