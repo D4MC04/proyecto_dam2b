@@ -21,12 +21,13 @@
 [ext_resource type="Resource" uid="uid://lgewscsj1aah" path="res://resources/turret_data/tesla.tres" id="tesla"]
 [ext_resource type="Resource" uid="uid://lum6vv00kjel" path="res://resources/wave_data/level_7_2.tres" id="wave_7_2"]
 [ext_resource type="Resource" uid="uid://8skj1u2t1j2p" path="res://resources/wave_data/level_7_3.tres" id="wave_7_3"]
+[ext_resource type="Resource" path="res://resources/turret_data/amplifier.tres" id="amplifier"]
 
 [resource]
 script = ExtResource("2_xvb3k")
 map = ExtResource("1_npfra")
 starting_money = 1500
-turrets = Array[ExtResource("3_j73uf")]([ExtResource("4_npfra"), ExtResource("6_j73uf"), ExtResource("cryo"), ExtResource("5_xvb3k"), ExtResource("miner"), ExtResource("tesla"), ExtResource("orbiter")])
+turrets = Array[ExtResource("3_j73uf")]([ExtResource("4_npfra"), ExtResource("6_j73uf"), ExtResource("cryo"), ExtResource("5_xvb3k"), ExtResource("miner"), ExtResource("tesla"), ExtResource("orbiter"), ExtResource("amplifier")])
 waves = Array[ExtResource("7_4aa7w")]([ExtResource("8_npfra"), ExtResource("wave_7_2"), ExtResource("wave_7_3"), ExtResource("15_u04mg"), ExtResource("16_dw8wc"), ExtResource("17_lc00w"), ExtResource("18_ti04b"), ExtResource("19_a7v7m"), ExtResource("20_sv71e"), ExtResource("21_dw8wc")])
 sector_name = "SECTOR_7_NAME"
 radar_distance = 0.64

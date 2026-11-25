@@ -3,6 +3,13 @@
 [ext_resource type="PackedScene" uid="uid://cys8covu6ahy6" path="res://scenes/level_ui/OverlayScreen.tscn" id="1_overlay"]
 [ext_resource type="Script" uid="uid://dls3jq2gexy0j" path="res://scripts/level_ui/OverlayOptionButton.gd" id="2_option"]
 [ext_resource type="Script" path="res://scripts/level_ui/VictoryScreen.gd" id="3_script"]
+[ext_resource type="Script" uid="uid://cu5uq2sgohj00" path="res://scripts/level_ui/OverlayFrame.gd" id="4_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_kind"]
+content_margin_bottom = 3.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_text"]
+content_margin_bottom = 9.0
 
 [node name="VictoryScreen" instance=ExtResource("1_overlay")]
 script = ExtResource("3_script")
@@ -18,6 +25,88 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 76)
 layout_mode = 2
 mouse_filter = 2
+
+[node name="UnlockPage" type="VBoxContainer" parent="Center/Frame/Margin/Box" index="2"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 15
+
+[node name="KindLabel" type="Label" parent="Center/Frame/Margin/Box/UnlockPage"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 40
+theme_override_styles/normal = SubResource("StyleBoxEmpty_kind")
+horizontal_alignment = 1
+
+[node name="IconCenter" type="CenterContainer" parent="Center/Frame/Margin/Box/UnlockPage"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="IconFrame" type="PanelContainer" parent="Center/Frame/Margin/Box/UnlockPage/IconCenter"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("4_frame")
+decorated = false
+
+[node name="IconMargin" type="MarginContainer" parent="Center/Frame/Margin/Box/UnlockPage/IconCenter/IconFrame"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="IconRect" type="TextureRect" parent="Center/Frame/Margin/Box/UnlockPage/IconCenter/IconFrame/IconMargin"]
+unique_name_in_owner = true
+texture_filter = 1
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="IconSprite" type="Sprite2D" parent="Center/Frame/Margin/Box/UnlockPage/IconCenter/IconFrame/IconMargin/IconRect"]
+unique_name_in_owner = true
+visible = false
+centered = false
+
+[node name="BaseSprite" type="AnimatedSprite2D" parent="Center/Frame/Margin/Box/UnlockPage/IconCenter/IconFrame/IconMargin/IconRect"]
+unique_name_in_owner = true
+visible = false
+
+[node name="CannonSprite" type="AnimatedSprite2D" parent="Center/Frame/Margin/Box/UnlockPage/IconCenter/IconFrame/IconMargin/IconRect"]
+unique_name_in_owner = true
+visible = false
+
+[node name="NameBox" type="VBoxContainer" parent="Center/Frame/Margin/Box/UnlockPage"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="NameLabel" type="Label" parent="Center/Frame/Margin/Box/UnlockPage/NameBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.74509805, 0.98039216, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 40
+horizontal_alignment = 1
+
+[node name="TextLabel" type="Label" parent="Center/Frame/Margin/Box/UnlockPage/NameBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(420, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.9019608, 1, 1)
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxEmpty_text")
+horizontal_alignment = 1
+autowrap_mode = 3
 
 [node name="MenuButton" type="Button" parent="Center/Frame/Margin/Box/Options" unique_id=1204773902]
 custom_minimum_size = Vector2(204, 36)

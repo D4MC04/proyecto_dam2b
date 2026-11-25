@@ -57,7 +57,7 @@ func _process(delta: float) -> void:
 func setup(data: LevelData) -> void:
 	map = data.map.instantiate()
 	map.name = "Map"
-	turrets = data.turrets
+	turrets = GameState.available_turrets(data)
 	game_state.money = data.starting_money
 	add_child(map)
 	move_child(map, 0)

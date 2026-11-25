@@ -37,7 +37,6 @@
 [ext_resource type="Texture2D" path="res://assets/ui/guide_portrait.png" id="51_portrait"]
 [ext_resource type="Script" path="res://scripts/main_menu/OfficeTutorial.gd" id="52_office_tutorial"]
 [ext_resource type="Script" path="res://scripts/main_menu/SectorsCloseUp.gd" id="53_sectors_close"]
-[ext_resource type="PackedScene" path="res://scenes/UnlockNotice.tscn" id="54_unlock_notice"]
 
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_radar"]
@@ -711,9 +710,6 @@ offset_right = 252.0
 offset_bottom = 184.0
 grow_horizontal = 2
 mouse_filter = 2
-
-[node name="UnlockNotice" parent="." instance=ExtResource("54_unlock_notice")]
-layout_mode = 1
 
 [node name="RadarViewport" type="SubViewport" parent="."]
 transparent_bg = true
