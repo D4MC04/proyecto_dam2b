@@ -14,7 +14,6 @@ Lista de las 20 naves a las que queremos llegar: 10 base (sin mecánica, se dist
 
 | Nave | Antes | Vida | Velocidad | Daño a la estación | Botín |
 |---|---|---|---|---|---|
-| Specter | Espectro | 75 | 1,0 (60) | 10 | 20 |
 | Payload | Saboteadora | 100 | 0,75 (45) | 25 | 25 |
 | Mender | Reparadora | 100 | 0,75 (45) | 5 | 25 |
 | Cluster | Divisora | 125 | 0,5 (30) | 15 | 20 (+3 × 5 de los trozos) |
@@ -25,7 +24,6 @@ Lista de las 20 naves a las que queremos llegar: 10 base (sin mecánica, se dist
 | Damper | nueva | 300 | 0,75 (45) | 25 | 70 |
 | Shell | nueva | 150 | 0,5 (30) | 15 | 30 |
 
-- **Specter**: sale invisible siempre. Cualquier daño (área, saltos de la Tesla, Orbitador…) la deja visible 3 s y luego se vuelve a camuflar. En grupo, el área que les da a las demás la destapa; si viene sola, hay que buscar cómo.
 - **Payload**: una bomba. Late cada vez más rápido según avanza por el camino. Al morir explota: el pulso EMP de ahora (96 px, apaga las torretas 3 s) y 50 de daño a las naves que tenga cerca. Matarla dentro de un grupo de naves los castiga a ellos, pero si están junto a tus torretas te las apaga.
 - **Mender**: se vacía para curar. Engancha un rayo a la nave más dañada a 64 px o menos y le pasa su propia vida (10 por segundo). Su barra baja mientras la otra sube. Si la ignoras, ella sola se gasta y muere, pero habrá salvado a otra.
 - **Cluster**: al morir suelta 3 trozos (25 de vida, velocidad 1,5, 5 de daño, 5 de botín) que salen disparados unas casillas hacia delante por el camino. Matarla cerca de la estación es regalarle 3 naves rápidas casi en la meta.
