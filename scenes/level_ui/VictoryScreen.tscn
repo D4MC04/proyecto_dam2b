@@ -8,6 +8,9 @@
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_kind"]
 content_margin_bottom = 3.0
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_text"]
+content_margin_bottom = 9.0
+
 [node name="VictoryScreen" instance=ExtResource("1_overlay")]
 script = ExtResource("3_script")
 accent_color = Color(0.9254902, 0.69803923, 0.23529412, 1)
@@ -68,6 +71,11 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
+[node name="IconSprite" type="Sprite2D" parent="Center/Frame/Margin/Box/UnlockPage/IconCenter/IconFrame/IconMargin/IconRect"]
+unique_name_in_owner = true
+visible = false
+centered = false
+
 [node name="BaseSprite" type="AnimatedSprite2D" parent="Center/Frame/Margin/Box/UnlockPage/IconCenter/IconFrame/IconMargin/IconRect"]
 unique_name_in_owner = true
 visible = false
@@ -96,6 +104,7 @@ custom_minimum_size = Vector2(420, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.9019608, 1, 1)
 theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxEmpty_text")
 horizontal_alignment = 1
 autowrap_mode = 3
 

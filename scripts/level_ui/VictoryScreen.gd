@@ -79,6 +79,7 @@ const LAST_KEY: String = "BTN_MENU"
 @onready var kind_label: Label = %KindLabel
 @onready var icon_frame: OverlayFrame = %IconFrame
 @onready var icon_rect: TextureRect = %IconRect
+@onready var icon_sprite: Sprite2D = %IconSprite
 @onready var base_sprite: AnimatedSprite2D = %BaseSprite
 @onready var cannon_sprite: AnimatedSprite2D = %CannonSprite
 @onready var name_label: Label = %NameLabel
@@ -149,8 +150,11 @@ func _show_page(page: int) -> void:
 	if victory:
 		frame.custom_minimum_size.x = 0.0
 		return
-	# El marco no encoge al pasar de la victoria a los desbloqueos.
-	frame.custom_minimum_size.x = maxf(frame.custom_minimum_size.x, frame.size.x)
+	# El marco no encoge al pasar de la victoria a los desbloqueos, y la frase reserva el alto de la más
+	# larga: todas las páginas de desbloqueo miden lo mismo y todo queda en el mismo sitio.
+	if page == 1:
+		frame.custom_minimum_size.x = maxf(frame.custom_minimum_size.x, frame.size.x)
+		_reserve_text_height(maxf(unlock_page.custom_minimum_size.x, frame.size.x - _frame_padding()))
 	var info: UnlockInfo = _unlocks[page - 1]
 	kind_label.text = tr(info.kind_key)
 	kind_label.add_theme_color_override(&"font_color", info.accent)
@@ -167,28 +171,48 @@ func _show_page(page: int) -> void:
 	_page_fade = create_tween().set_ignore_time_scale()
 	_page_fade.tween_property(unlock_page, "modulate:a", 1.0, PAGE_FADE_TIME)
 
-# Icono en píxeles: se amplía en enteros (sin emborronar) hasta caber en ICON_BOX.
+# Alto de la frase: el de la que más líneas ocupa con el ancho `width` (más el margen de su estilo).
+func _reserve_text_height(width: float) -> void:
+	var font: Font = text_label.get_theme_font(&"font")
+	var font_size: int = text_label.get_theme_font_size(&"font_size")
+	var line_height: float = font.get_height(font_size)
+	var lines: int = 1
+	for info: UnlockInfo in _unlocks:
+		var text_size: Vector2 = font.get_multiline_string_size(info.text, HORIZONTAL_ALIGNMENT_CENTER, width, font_size)
+		lines = maxi(lines, roundi(text_size.y / line_height))
+	var spacing: int = text_label.get_theme_constant(&"line_spacing")
+	var style: StyleBox = text_label.get_theme_stylebox(&"normal")
+	text_label.custom_minimum_size.y = lines * line_height + (lines - 1) * spacing + style.get_minimum_size().y
+
+# Ancho que el marco y sus márgenes quitan al contenido.
+func _frame_padding() -> float:
+	return frame.size.x - unlock_page.get_parent_control().size.x
+
+# Icono en píxeles: se amplía en enteros (sin emborronar) hasta caber en ICON_BOX y va centrado en el
+# hueco cuadrado del icono, en píxeles enteros.
 func _set_icon(texture: Texture2D) -> void:
 	_stop_sprite(base_sprite)
 	_stop_sprite(cannon_sprite)
-	icon_rect.texture = texture
+	icon_rect.custom_minimum_size = Vector2.ONE * ICON_BOX
+	icon_sprite.texture = texture
+	icon_sprite.visible = texture != null
 	if texture == null:
-		icon_rect.custom_minimum_size = Vector2.ONE * ICON_BOX
 		return
 	var side: int = maxi(texture.get_width(), texture.get_height())
 	var factor: int = maxi(1, ICON_BOX / maxi(side, 1))
-	icon_rect.custom_minimum_size = Vector2(texture.get_size()) * factor
+	icon_sprite.scale = Vector2.ONE * factor
+	icon_sprite.position = ((Vector2.ONE * ICON_BOX - Vector2(texture.get_size()) * factor) / 2.0).floor()
 
 # Torreta en reposo, como en el mapa: base y cañón en bucle, ampliados en enteros hasta caber en ICON_BOX
 # y centrados en el hueco del icono.
 func _set_animated_icon(frames: SpriteFrames, cannon: SpriteFrames) -> void:
-	icon_rect.texture = null
+	icon_sprite.visible = false
 	var frame_size: Vector2 = Vector2.ONE * ICON_BOX
 	var animation: StringName = _idle_animation(frames)
 	if animation != &"" and frames.get_frame_count(animation) > 0:
 		frame_size = frames.get_frame_texture(animation, 0).get_size()
 	var factor: int = maxi(1, ICON_BOX / maxi(int(maxf(frame_size.x, frame_size.y)), 1))
-	icon_rect.custom_minimum_size = frame_size * factor
+	icon_rect.custom_minimum_size = Vector2.ONE * ICON_BOX
 	for pair: Array in [[base_sprite, frames], [cannon_sprite, cannon]]:
 		var sprite: AnimatedSprite2D = pair[0]
 		sprite.sprite_frames = pair[1]
