@@ -1,11 +1,11 @@
-﻿# Abre Godot para probar: cierra el Godot de esta carpeta, abre el editor y (si no se pasa -NoGame)
-# el juego con los argumentos de prueba, y los trae al frente (el juego delante del editor).
-# Uso: powershell -NoProfile -ExecutionPolicy Bypass -File open-godot.ps1 -Path <carpeta> [-GameArgs "--level=3 --wave=5"] [-NoGame]
-# Imprime una línea por ventana: "EDITOR OK", "JUEGO OK", o "... NO SALE: motivo".
+﻿# Abre Godot para probar: cierra el Godot de esta carpeta, abre solo el juego (sin editor) con los
+# argumentos de prueba (y la escena -Scene, si se pasa) y lo trae al frente.
+# Uso: powershell -NoProfile -ExecutionPolicy Bypass -File open-godot.ps1 -Path <carpeta> [-GameArgs "--level=3 --wave=5"] [-Scene res://scenes/x.tscn]
+# Imprime "JUEGO OK" o "JUEGO NO SALE: motivo".
 param(
 	[Parameter(Mandatory = $true)][string]$Path,
 	[string]$GameArgs = "",
-	[switch]$NoGame
+	[string]$Scene = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -32,7 +32,7 @@ public static class GodotWin {
 # Normaliza para comparar líneas de órdenes: minúsculas y barras hacia delante.
 function Get-NormalizedText([string]$text) { return $text.ToLower().Replace('\', '/') }
 
-# Procesos de Godot abiertos en esta carpeta (editor, juego y los juegos lanzados con F5 desde el editor).
+# Procesos de Godot abiertos en esta carpeta (el juego y cualquier Godot que quedara abierto).
 function Get-FolderGodot {
 	$folder = Get-NormalizedText $Path
 	Get-CimInstance Win32_Process -Filter "Name LIKE 'Godot%'" | Where-Object {
@@ -101,25 +101,18 @@ if ($old.Count -gt 0) { Start-Sleep -Seconds 1; Write-Output "Cerrados $($old.Co
 
 # 2. Carpeta sin importar (worktree nuevo): importar antes, para que editor y juego no importen a la vez.
 if (-not (Test-Path (Join-Path $Path ".godot"))) {
-	& $godot --headless --path $Path --import 2>&1 | Out-Null
+	Start-Process -FilePath $godot -ArgumentList "--headless","--path","`"$Path`"","--import" -Wait -WindowStyle Hidden
 }
 
-# 3. Editor y juego.
-$editor = Open-Window "EDITOR" "-e" 60
-$game = $null
-if (-not $NoGame) {
-	$extra = if ($GameArgs.Trim()) { "-- $GameArgs" } else { "" }
-	$game = Open-Window "JUEGO" $extra 30
-}
+# 3. Solo el juego (sin editor), con la escena indicada si hay.
+$sceneArg = if ($Scene.Trim()) { "$Scene " } else { "" }
+$extra = if ($GameArgs.Trim()) { "-- $GameArgs" } else { "" }
+$game = Open-Window "JUEGO" "$sceneArg$extra" 60
 
-# 4. Al frente: primero el editor y después el juego, que queda delante.
-foreach ($entry in @(@{ Label = "EDITOR"; Window = $editor }, @{ Label = "JUEGO"; Window = $game })) {
-	$window = $entry.Window
-	if ($null -eq $window) { continue }
-	if ($window.Error) { Write-Output $window.Error; continue }
-	if (Set-Front $window.Handle) {
-		Write-Output "$($entry.Label) OK (pid $($window.Pid))"
-	} else {
-		Write-Output "$($entry.Label) ABIERTO PERO NO DELANTE (pid $($window.Pid)): Windows no dejó traerlo al frente"
-	}
+# 4. Al frente.
+if ($game.Error) { Write-Output $game.Error; exit 0 }
+if (Set-Front $game.Handle) {
+	Write-Output "JUEGO OK (pid $($game.Pid))"
+} else {
+	Write-Output "JUEGO ABIERTO PERO NO DELANTE (pid $($game.Pid)): Windows no dejó traerlo al frente"
 }
