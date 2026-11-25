@@ -174,5 +174,5 @@ pause_after = 0.0
 
 [resource]
 script = ExtResource("6_hwcjp")
-health_multiplier = 3.8
+health_multiplier = 4.4
 groups = Array[ExtResource("1_f5d7v")]([SubResource("Resource_wa4u6"), SubResource("Resource_qwmtc"), SubResource("Resource_hwcjp"), SubResource("Resource_jk2av"), SubResource("Resource_rnyl2"), SubResource("Resource_yjqtd"), SubResource("Resource_o7570"), SubResource("Resource_baqi6"), SubResource("Resource_fgrui"), SubResource("Resource_e5c3g"), SubResource("Resource_rh2nm"), SubResource("Resource_ns0el"), SubResource("Resource_v3k3v"), SubResource("Resource_ivekk"), SubResource("Resource_hwxe2"), SubResource("Resource_hjx7y"), SubResource("Resource_4a8e6"), SubResource("Resource_x47k7"), SubResource("Resource_7x7xa"), SubResource("Resource_8ri1a"), SubResource("Resource_y6s1f"), SubResource("Resource_6drq3")])
