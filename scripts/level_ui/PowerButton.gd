@@ -16,9 +16,13 @@ const ICON_DIM_COLOR: Color = Color(1, 1, 1, 0.5)
 const COOLDOWN_COLOR: Color = Color(0, 0, 0, 0.45)
 const SECONDS_COLOR: Color = Color("#cce6ff")
 const KEY_COLOR: Color = Color("#5a7a96")
-# Hueco de la tecla al borde izquierdo (el icono va a la derecha, con el mismo hueco) y alto de la fuente (Monogram a 16, línea de 13 px).
-const KEY_MARGIN: int = 4
-const FONT_SIZE: int = 16
+# Hueco de la tecla al borde izquierdo (el icono va a la derecha, con el mismo hueco).
+const KEY_MARGIN: int = 5
+# Tamaño de la letra de la tecla (un poco menor que el de los segundos) y de los segundos de recarga.
+const KEY_FONT_SIZE: int = 14
+const SECONDS_FONT_SIZE: int = 16
+# Alto de las mayúsculas y los números de Monogram, en fracción del tamaño (7 px a 16): para centrarlos en vertical.
+const CAP_HEIGHT_EM: float = 7.0 / 16.0
 
 @export var power: Powers.Power
 ## Letra de la tecla que se pinta a la izquierda.
@@ -34,10 +38,15 @@ var _shown_fraction: float = -1.0
 var _shown_aiming: bool = false
 
 func _ready() -> void:
+	var hover_style: ClippedBoxStyle = ClippedBoxStyle.create(HOVER_BG_COLOR, HOVER_BORDER_COLOR)
+	var disabled_style: ClippedBoxStyle = ClippedBoxStyle.create(DISABLED_BG_COLOR, DISABLED_BORDER_COLOR)
+	# El icono (alineado a la derecha) deja al borde el mismo hueco que la tecla.
+	for style: ClippedBoxStyle in [_normal_style, _active_style, hover_style, disabled_style]:
+		style.content_margin_right = KEY_MARGIN
 	add_theme_stylebox_override("normal", _normal_style)
-	add_theme_stylebox_override("hover", ClippedBoxStyle.create(HOVER_BG_COLOR, HOVER_BORDER_COLOR))
+	add_theme_stylebox_override("hover", hover_style)
 	add_theme_stylebox_override("pressed", _active_style)
-	add_theme_stylebox_override("disabled", ClippedBoxStyle.create(DISABLED_BG_COLOR, DISABLED_BORDER_COLOR))
+	add_theme_stylebox_override("disabled", disabled_style)
 	add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	add_theme_color_override("icon_disabled_color", ICON_DIM_COLOR)
 
@@ -59,8 +68,7 @@ func _process(_delta: float) -> void:
 
 func _draw() -> void:
 	var font: Font = get_theme_default_font()
-	var line_y: float = (size.y + font.get_ascent(FONT_SIZE) - font.get_descent(FONT_SIZE)) / 2.0
-	draw_string(font, Vector2(KEY_MARGIN, roundf(line_y)), key_label, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE, KEY_COLOR)
+	draw_string(font, Vector2(KEY_MARGIN, _baseline(KEY_FONT_SIZE)), key_label, HORIZONTAL_ALIGNMENT_LEFT, -1, KEY_FONT_SIZE, KEY_COLOR)
 	if _shown_fraction <= 0.0:
 		return
 	# Oscurecido desde arriba, con alto proporcional a lo que falta, recortado a la forma del botón.
@@ -72,4 +80,8 @@ func _draw() -> void:
 	var band: PackedVector2Array = PackedVector2Array([Vector2(0, 0), Vector2(w, 0), Vector2(w, roundf(h * _shown_fraction)), Vector2(0, roundf(h * _shown_fraction))])
 	for polygon: PackedVector2Array in Geometry2D.intersect_polygons(shape, band):
 		draw_colored_polygon(polygon, COOLDOWN_COLOR)
-	draw_string(font, Vector2(0, roundf(line_y)), str(_shown_seconds), HORIZONTAL_ALIGNMENT_CENTER, w, FONT_SIZE, SECONDS_COLOR)
+	draw_string(font, Vector2(0, _baseline(SECONDS_FONT_SIZE)), str(_shown_seconds), HORIZONTAL_ALIGNMENT_CENTER, w, SECONDS_FONT_SIZE, SECONDS_COLOR)
+
+# Línea base que deja las mayúsculas (y los números) centradas en vertical en el botón.
+func _baseline(font_size: int) -> float:
+	return roundf((size.y + font_size * CAP_HEIGHT_EM) / 2.0)

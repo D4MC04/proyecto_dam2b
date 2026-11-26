@@ -94,34 +94,38 @@ func _corner() -> Image:
 	return img
 
 
-# Icono 16x16: copo de seis brazos con cristal facetado en el centro, rampa Cryo y contorno oscuro.
+# Icono 16x16: copo de nieve de seis brazos (uno vertical y cuatro en diagonal 2:1, a unos 30°) con ramas
+# en V, núcleo claro y borde azul hielo (no negro, para que brille como el hielo). La rampa Cryo va de
+# blanco en el centro a azul en las puntas.
 func _icon() -> Image:
 	var img: Image = _new(16, 16)
-	var c: Vector2 = Vector2(7.5, 7.5)
-	# Relleno: seis brazos largos (cruz + diagonales cortas) en el azul del Cryo.
-	var arms: Array[Vector2] = [Vector2(1, 0), Vector2(-1, 0), Vector2(0, 1), Vector2(0, -1)]
-	var cells: Dictionary[Vector2i, int] = {}
-	for dir: Vector2 in arms:
-		for r: int in range(0, 7):
-			var p: Vector2i = Vector2i((c + dir * (r + 0.5) - Vector2(0.5, 0.5)).round())
-			cells[p] = 1 if r > 4 else 2
-			cells[p + Vector2i(int(dir.y != 0), int(dir.x != 0))] = 1 if r > 4 else 2
-	for dir: Vector2i in [Vector2i(1, 1), Vector2i(-1, -1), Vector2i(1, -1), Vector2i(-1, 1)]:
-		for r: int in range(1, 6):
-			cells[Vector2i(7, 7) + dir * r + Vector2i(1 if dir.x > 0 else 0, 1 if dir.y > 0 else 0)] = 0 if r > 3 else 1
-	# Contorno de 1 px en cruz alrededor del relleno.
+	var center: Vector2i = Vector2i(7, 7)
+	var cells: Dictionary[Vector2i, Color] = {}
+	# Pasos de un brazo diagonal 2:1, del centro hacia fuera.
+	var diagonal: Array[Vector2i] = [Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 2), Vector2i(4, 2), Vector2i(5, 3), Vector2i(6, 3)]
+	for i: int in 6:
+		var tone: Color = ICE[3] if i < 2 else (ICE[2] if i < 4 else ICE[1])
+		for sign: Vector2i in [Vector2i(1, 1), Vector2i(-1, 1), Vector2i(1, -1), Vector2i(-1, -1)]:
+			cells[center + Vector2i(0, i + 1) * sign] = tone
+			cells[center + diagonal[i] * sign] = tone
+	# Ramas en V cerca de las puntas: en los brazos verticales y en los diagonales.
+	for sign: Vector2i in [Vector2i(1, 1), Vector2i(-1, 1), Vector2i(1, -1), Vector2i(-1, -1)]:
+		cells[center + Vector2i(1, 4) * sign] = ICE[2]
+		cells[center + Vector2i(2, 5) * sign] = ICE[1]
+		cells[center + Vector2i(3, 4) * sign] = ICE[2]
+		cells[center + Vector2i(5, 1) * sign] = ICE[2]
+	# Núcleo: anillo claro y centro blanco.
+	for x: int in range(-1, 2):
+		for y: int in range(-1, 2):
+			cells[center + Vector2i(x, y)] = ICE[2]
+	cells[center] = ICE[3]
+	# Borde de 1 px en cruz alrededor del copo.
 	for p: Vector2i in cells:
 		for d: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
 			if not cells.has(p + d):
-				_put(img, p.x + d.x, p.y + d.y, OUTLINE)
+				_put(img, p.x + d.x, p.y + d.y, ICE[0])
 	for p: Vector2i in cells:
-		var tone: int = clampi(cells[p] + 1, 0, 3)
-		_put(img, p.x, p.y, ICE[tone])
-	# Núcleo claro y brillos.
-	for p: Vector2i in [Vector2i(7, 7), Vector2i(8, 7), Vector2i(7, 8), Vector2i(8, 8)]:
-		_put(img, p.x, p.y, ICE[3])
-	_put(img, 7, 3, ICE[3])
-	_put(img, 3, 7, ICE[3])
+		_put(img, p.x, p.y, cells[p])
 	return img
 
 

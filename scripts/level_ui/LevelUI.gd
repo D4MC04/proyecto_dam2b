@@ -35,6 +35,12 @@ const POWER_ACTIONS: Dictionary[Powers.Power, TutorialHints.Action] = {
 	Powers.Power.FREEZE: TutorialHints.Action.POWER_FREEZE,
 	Powers.Power.ORBITAL: TutorialHints.Action.POWER_ORBITAL,
 }
+# Propiedad de InfoPanel con el botón de cada poder.
+const POWER_BUTTONS: Dictionary[Powers.Power, StringName] = {
+	Powers.Power.METEOR: &"meteor_button",
+	Powers.Power.FREEZE: &"freeze_button",
+	Powers.Power.ORBITAL: &"orbital_button",
+}
 
 @onready var game_over_screen: GameOverScreen = %GameOverScreen
 @onready var victory_screen: VictoryScreen = %VictoryScreen
@@ -65,8 +71,8 @@ var _screen_delay: Tween
 var _speed: float = NORMAL_SPEED
 # Latido de la viñeta; null si está apagada.
 var _vignette_pulse: Tween
-# En el nivel de emergencia no hay poderes: ni se ven ni responden las teclas.
-var _powers_enabled: bool = true
+# Poderes desbloqueados en este nivel: los únicos que se ven y se pueden usar.
+var _unlocked_powers: Array[Powers.Power] = []
 
 func _ready() -> void:
 	_update_fps_label()
@@ -133,24 +139,36 @@ func setup(state: LevelState, turrets: Array[TurretData], level_number: int, sec
 	info_panel.show_inspected(state.inspected)
 	info_panel.show_sellable(state.sellable_turret)
 	turret_actions.show_for(state.sellable_turret, state.money)
-	# El tutorial solo sale en el nivel de emergencia, que lo arranca después con start_emergency.
+	# El tutorial del nivel de emergencia lo arranca después start_emergency, y el de los poderes, start_powers_tutorial.
 	tutorial_hints.stop()
-	_set_powers_enabled(true)
+	_set_unlocked_powers(GameState.unlocked_powers(level_number))
 	pause_menu.set_option_text(OverlayScreen.Option.QUIT, QUIT_TEXT)
 
 ## Monta el nivel de emergencia (el nivel de prueba) sobre lo que dejó setup: rótulo "SECTOR 0", sin poderes
 ## y con el tutorial de NOVA. Game lo llama justo después de setup.
 func start_emergency(level: Level) -> void:
 	level_indicator.set_title(tr("HUD_EMERGENCY"), "HUD_EMERGENCY_NAME")
-	_set_powers_enabled(false)
+	var no_powers: Array[Powers.Power] = []
+	_set_unlocked_powers(no_powers)
 	# En la pausa, "Salir" es "Saltar": sale del nivel de emergencia y lo da por hecho (Game._quit_to_menu).
 	pause_menu.set_option_text(OverlayScreen.Option.QUIT, SKIP_TEXT)
 	tutorial_hints.start(level)
 
-func _set_powers_enabled(enabled: bool) -> void:
-	_powers_enabled = enabled
-	info_panel.meteor_button.get_parent().visible = enabled
-	info_panel.powers_header.visible = enabled
+## Si ya hay algún poder desbloqueado y NOVA aún no los ha explicado, arranca su mini tutorial (una vez
+## por partida guardada). Game lo llama justo después de setup en los sectores.
+func start_powers_tutorial(level: Level) -> void:
+	if _unlocked_powers.is_empty() or GameState.powers_tutorial_done:
+		return
+	GameState.complete_powers_tutorial()
+	tutorial_hints.start_powers(level)
+
+# Solo se ven los botones de los poderes desbloqueados; sin ninguno, ni la fila ni su cabecera "PODERES".
+func _set_unlocked_powers(powers: Array[Powers.Power]) -> void:
+	_unlocked_powers = powers
+	for power: Powers.Power in POWER_BUTTONS:
+		(info_panel.get(POWER_BUTTONS[power]) as Control).visible = power in powers
+	info_panel.meteor_button.get_parent().visible = not powers.is_empty()
+	info_panel.powers_header.visible = not powers.is_empty()
 
 ## Powers es nuevo en cada nivel o reinicio: los botones pasan a leer el nuevo. Va antes que setup.
 func setup_powers(powers: Powers) -> void:
@@ -178,9 +196,9 @@ func _set_vignette(active: bool) -> void:
 	_vignette_pulse.tween_method(func(value: float) -> void: material.set_shader_parameter(&"intensity", value),
 			VIGNETTE_MAX_INTENSITY, VIGNETTE_MIN_INTENSITY, VIGNETTE_PULSE_TIME).set_trans(Tween.TRANS_SINE)
 
-# Los poderes solo se usan jugando (y no en el nivel de emergencia).
+# Los poderes solo se usan jugando y si están desbloqueados (en el nivel de emergencia no hay ninguno).
 func _use_power(power: Powers.Power) -> void:
-	if _powers_enabled and is_instance_valid(_powers) and _ui_state == UiState.PLAYING and tutorial_hints.allows(POWER_ACTIONS[power]):
+	if power in _unlocked_powers and is_instance_valid(_powers) and _ui_state == UiState.PLAYING and tutorial_hints.allows(POWER_ACTIONS[power]):
 		_powers.use(power)
 
 # Cualquier clic sobre la interfaz suelta la torreta colocada, menos en el recuadro de Mejorar y Vender:

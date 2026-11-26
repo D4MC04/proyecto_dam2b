@@ -4,9 +4,10 @@ class_name TutorialHints
 ## NOVA, desde la sala de control, da instrucciones en un recuadro abajo del área de juego. Cuando
 ## pide algo, oscurece la pantalla menos lo que hay que tocar (y su recuadro), solo deja hacer eso y
 ## no se va hasta que se hace. Entre peticiones se juega libre. Va en tiempo real: el ×2 no lo acelera.
+## También lleva el mini tutorial de los poderes (start_powers), que sale en el primer sector con alguno.
 
 enum Step { STATION, STATION_BASE, STATION_HEALTH, PREPARE, PLACE_TURRETS, OPEN_WAVES, INSPECT_ENEMY,
-		ENEMY_INFO, START_WAVE, FIRST_WAVE, UPGRADE_PICK, UPGRADE_PRESS, DONE, FREE }
+		ENEMY_INFO, START_WAVE, FIRST_WAVE, UPGRADE_PICK, UPGRADE_PRESS, DONE, FREE, POWERS_INTRO, POWERS_USE }
 # Acciones del jugador que el tutorial puede bloquear; cada sitio donde entran pregunta con allows().
 enum Action { SELECT_TURRET, BUILD, RELEASE_TURRET, SELECT_PLACED, TAB_TURRETS, TAB_WAVES, NEXT_WAVE, WAVE_ARROWS,
 		TOGGLE_AUTO, TOGGLE_SPEED, UPGRADE, SELL, POWER_METEOR, POWER_FREEZE, POWER_ORBITAL }
@@ -15,7 +16,7 @@ enum Action { SELECT_TURRET, BUILD, RELEASE_TURRET, SELECT_PLACED, TAB_TURRETS, 
 # acciones de ALLOWED_ACTIONS (un paso sin entrada no deja ninguna). En los demás todo es libre.
 const FOCUS_STEPS: Array[Step] = [Step.STATION, Step.STATION_BASE, Step.STATION_HEALTH, Step.PREPARE,
 		Step.PLACE_TURRETS, Step.OPEN_WAVES, Step.INSPECT_ENEMY, Step.ENEMY_INFO, Step.START_WAVE, Step.UPGRADE_PICK,
-		Step.UPGRADE_PRESS]
+		Step.UPGRADE_PRESS, Step.POWERS_INTRO, Step.POWERS_USE]
 const ALLOWED_ACTIONS: Dictionary[Step, Array] = {
 	Step.PLACE_TURRETS: [Action.SELECT_TURRET, Action.BUILD, Action.RELEASE_TURRET, Action.TAB_TURRETS],
 	Step.OPEN_WAVES: [Action.TAB_WAVES],
@@ -39,12 +40,14 @@ const TEXTS: Dictionary[Step, String] = {
 	Step.UPGRADE_PICK: "TUTORIAL_UPGRADE_PICK",
 	Step.UPGRADE_PRESS: "TUTORIAL_UPGRADE_PRESS",
 	Step.DONE: "TUTORIAL_DONE",
+	Step.POWERS_INTRO: "TUTORIAL_POWERS_INTRO",
+	Step.POWERS_USE: "TUTORIAL_POWERS_USE",
 }
 # Texto de UPGRADE_PICK cuando NOVA tiene que poner el dinero que falta para la mejora.
 const UPGRADE_GIFT_TEXT: String = "TUTORIAL_UPGRADE_GIFT"
 # Pasos que no esperan una acción del juego: se pasan con un clic en cualquier sitio (o Intro/Espacio).
 const INFO_STEPS: Array[Step] = [Step.STATION, Step.STATION_BASE, Step.STATION_HEALTH, Step.PREPARE,
-		Step.ENEMY_INFO, Step.DONE]
+		Step.ENEMY_INFO, Step.DONE, Step.POWERS_INTRO, Step.POWERS_USE]
 # Pasos que piden hacer algo y aun así dejan hacerlo mientras NOVA habla: lo que se pide sigue
 # directamente a lo que acaba de hacer el jugador (al elegir una torreta, Mejorar).
 const NO_WAIT_STEPS: Array[Step] = [Step.UPGRADE_PRESS]
@@ -59,6 +62,8 @@ const NEXT_AFTER_OK: Dictionary[Step, Step] = {
 	Step.PREPARE: Step.PLACE_TURRETS,
 	Step.ENEMY_INFO: Step.START_WAVE,
 	Step.DONE: Step.FREE,
+	Step.POWERS_INTRO: Step.POWERS_USE,
+	Step.POWERS_USE: Step.FREE,
 }
 # Mensajes que se cierran solos tras AUTO_CLOSE_TIME (desde que se acaba de escribir) si no se pasan antes.
 const AUTO_CLOSE_STEPS: Array[Step] = [Step.DONE]
@@ -162,7 +167,13 @@ func start(level: Level) -> void:
 	_set_active(true)
 	_show_step(Step.STATION)
 
-## Quita el tutorial (cualquier nivel que no sea el de emergencia).
+## Mini tutorial de los poderes: NOVA los presenta con foco en sus botones y luego se juega libre.
+func start_powers(level: Level) -> void:
+	_level = level
+	_set_active(true)
+	_show_step(Step.POWERS_INTRO)
+
+## Quita el tutorial (al montar cualquier nivel; el de emergencia y el de los poderes se arrancan después).
 func stop() -> void:
 	_set_active(false)
 
@@ -488,6 +499,11 @@ func _focus_holes() -> Array[Hole]:
 		Step.UPGRADE_PRESS:
 			if turret_actions.visible:
 				holes.append(_control_hole(turret_actions.upgrade_button, true))
+		Step.POWERS_INTRO, Step.POWERS_USE:
+			holes.append(_control_hole(info_panel.powers_header, false))
+			for button: Control in [info_panel.meteor_button, info_panel.orbital_button, info_panel.freeze_button]:
+				if button.visible:
+					holes.append(_control_hole(button, true))
 	return holes
 
 # Lo que se señala del mapa en el paso actual: se dibuja encima del oscurecido.
