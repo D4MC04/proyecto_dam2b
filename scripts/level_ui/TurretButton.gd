@@ -51,8 +51,12 @@ const LOCK_COLORS: Dictionary = {
 	"4": Color("#0a1018"),
 	"5": Color("#144252"),
 }
-# Largo de cada brazo de los corchetes que rodean la torreta seleccionada por fuera.
-const BRACKET_LENGTH: int = 4
+# Corchetes de la torreta seleccionada: van dentro del botón, a un píxel del borde, y en las dos
+# esquinas recortadas siguen la diagonal. BRACKET_LENGTH es el largo de cada brazo contado desde
+# la esquina; BRACKET_CLIP es el recorte del marco interior (escalera paralela a la del borde).
+const BRACKET_INSET: int = 2
+const BRACKET_CLIP: int = 1
+const BRACKET_LENGTH: int = 5
 
 @onready var icon_rect: Control = %IconRect
 @onready var base_sprite: AnimatedSprite2D = %BaseSprite
@@ -154,23 +158,31 @@ func _on_pressed() -> void:
 		return
 	selection_changed.emit(data, not _selected)
 
-# Corchetes en L en ámbar justo por fuera de las cuatro esquinas de la torreta seleccionada.
+# Corchetes en ámbar dentro de las cuatro esquinas de la torreta seleccionada. Son trozos del
+# contorno de un marco interior con el mismo recorte que la caja, así que en las esquinas
+# recortadas giran siguiendo la diagonal.
 func _draw() -> void:
 	if _locked:
 		draw_texture(_get_locked_texture(Vector2i(size)), Vector2.ZERO)
 		return
 	if not _selected:
 		return
-	var left: int = -1
-	var top: int = -1
-	var right: int = int(size.x)
-	var bottom: int = int(size.y)
-	for corner: Vector2i in [Vector2i(left, top), Vector2i(right, top), Vector2i(left, bottom), Vector2i(right, bottom)]:
-		# Los brazos salen de la esquina hacia el centro del botón.
-		var x_start: int = corner.x if corner.x == left else corner.x - BRACKET_LENGTH + 1
-		var y_start: int = corner.y if corner.y == top else corner.y - BRACKET_LENGTH + 1
-		draw_rect(Rect2(x_start, corner.y, BRACKET_LENGTH, 1), SELECTED_COLOR)
-		draw_rect(Rect2(corner.x, y_start, 1, BRACKET_LENGTH), SELECTED_COLOR)
+	var frame: Rect2i = Rect2i(Vector2i.ZERO, Vector2i(size)).grow(-BRACKET_INSET)
+	for y: int in range(frame.position.y, frame.end.y):
+		var span: Vector2i = ClippedBoxStyle.row_span(frame, BRACKET_CLIP, y)
+		var is_edge_row: bool = y == frame.position.y or y == frame.end.y - 1
+		# Una fila de arriba o de abajo es un tramo entero; las demás, un píxel por lado.
+		var xs: Array[int] = []
+		if is_edge_row:
+			for x: int in range(span.x, span.y):
+				xs.append(x)
+		else:
+			xs = [span.x, span.y - 1]
+		for x: int in xs:
+			var from_side: int = mini(x - frame.position.x, frame.end.x - 1 - x)
+			var from_edge: int = mini(y - frame.position.y, frame.end.y - 1 - y)
+			if from_side < BRACKET_LENGTH and from_edge < BRACKET_LENGTH:
+				draw_rect(Rect2(x, y, 1, 1), SELECTED_COLOR)
 
 static func _get_locked_texture(box_size: Vector2i) -> ImageTexture:
 	if not _locked_textures.has(box_size):
