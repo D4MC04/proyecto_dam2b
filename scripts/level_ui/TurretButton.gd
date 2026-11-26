@@ -51,8 +51,11 @@ const LOCK_COLORS: Dictionary = {
 	"4": Color("#0a1018"),
 	"5": Color("#144252"),
 }
-# Largo de cada brazo de los corchetes que rodean la torreta seleccionada por fuera.
-const BRACKET_LENGTH: int = 4
+# Corchetes de la torreta seleccionada: solo en las dos esquinas rectas (arriba a la derecha y
+# abajo a la izquierda), dentro del botón y a dos píxeles del borde. En las recortadas no hay.
+# BRACKET_LENGTH es el largo de cada brazo contado desde la esquina.
+const BRACKET_INSET: int = 3
+const BRACKET_LENGTH: int = 7
 
 @onready var icon_rect: Control = %IconRect
 @onready var base_sprite: AnimatedSprite2D = %BaseSprite
@@ -154,21 +157,20 @@ func _on_pressed() -> void:
 		return
 	selection_changed.emit(data, not _selected)
 
-# Corchetes en L en ámbar justo por fuera de las cuatro esquinas de la torreta seleccionada.
+# Corchetes en L en ámbar dentro de las dos esquinas rectas de la torreta seleccionada.
 func _draw() -> void:
 	if _locked:
 		draw_texture(_get_locked_texture(Vector2i(size)), Vector2.ZERO)
 		return
 	if not _selected:
 		return
-	var left: int = -1
-	var top: int = -1
-	var right: int = int(size.x)
-	var bottom: int = int(size.y)
-	for corner: Vector2i in [Vector2i(left, top), Vector2i(right, top), Vector2i(left, bottom), Vector2i(right, bottom)]:
+	var frame: Rect2i = Rect2i(Vector2i.ZERO, Vector2i(size)).grow(-BRACKET_INSET)
+	var top_right: Vector2i = Vector2i(frame.end.x - 1, frame.position.y)
+	var bottom_left: Vector2i = Vector2i(frame.position.x, frame.end.y - 1)
+	for corner: Vector2i in [top_right, bottom_left]:
 		# Los brazos salen de la esquina hacia el centro del botón.
-		var x_start: int = corner.x if corner.x == left else corner.x - BRACKET_LENGTH + 1
-		var y_start: int = corner.y if corner.y == top else corner.y - BRACKET_LENGTH + 1
+		var x_start: int = corner.x if corner.x == frame.position.x else corner.x - BRACKET_LENGTH + 1
+		var y_start: int = corner.y if corner.y == frame.position.y else corner.y - BRACKET_LENGTH + 1
 		draw_rect(Rect2(x_start, corner.y, BRACKET_LENGTH, 1), SELECTED_COLOR)
 		draw_rect(Rect2(corner.x, y_start, 1, BRACKET_LENGTH), SELECTED_COLOR)
 
