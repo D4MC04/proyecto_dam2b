@@ -11,8 +11,8 @@ signal power_used(power: Power)
 
 ## Recarga de cada poder, en segundos de juego.
 const COOLDOWNS: Dictionary[Power, float] = {
-	Power.METEOR: 45.0,
-	Power.FREEZE: 60.0,
+	Power.METEOR: 60.0,
+	Power.FREEZE: 90.0,
 	Power.ORBITAL: 75.0,
 }
 const METEOR_RADIUS: float = 40.0

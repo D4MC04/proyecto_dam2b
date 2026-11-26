@@ -119,13 +119,18 @@ Estructura (`Content`, `VBoxContainer` con 4 px de separación):
 
 ## Poderes
 
-Tres `PowerButton` (`scripts/level_ui/PowerButton.gd`) en `InfoPanel/Content/PowersRow`, de unos 35x24 cada uno (se reparten los 110 px útiles), sin foco ni tooltip: `MeteorButton` (icono `assets/ui/power_meteor.png`, tecla Q) y `FreezeButton` (`power_freeze.png`, tecla E) y `OrbitalButton` (`power_orbital.png`, tecla R). La lógica está en `Powers` (ver [niveles.md](niveles.md)). La letra se pinta a 4 px del borde izquierdo y el icono (16 px) va alineado a la derecha con el mismo hueco, dejando unos 5 px de aire entre los dos.
+Tres `PowerButton` (`scripts/level_ui/PowerButton.gd`) en `InfoPanel/Content/PowersRow`, de 34x24 fijos (los tres con la separación llenan los 110 px útiles; con menos, quedan a la izquierda del mismo tamaño), sin foco ni tooltip: `MeteorButton` (icono `assets/ui/power_meteor.png`, tecla Q) y `FreezeButton` (`power_freeze.png`, tecla E) y `OrbitalButton` (`power_orbital.png`, tecla R). La lógica está en `Powers` (ver [niveles.md](niveles.md)). La letra se pinta a 4 px del borde izquierdo y el icono (16 px) va alineado a la derecha con el mismo hueco, dejando unos 5 px de aire entre los dos.
 
 - Icono de 16x16 centrado y la letra de la tecla (`key_label`) a 5 px del borde izquierdo en `#5a7a96`.
 - Estilos con `ClippedBoxStyle.create`: normal fondo `#0e1626` y borde `#1c7496`; hover borde `#40e0f0`; mientras se apunta el meteorito, el normal pasa al ámbar de AUTO (fondo `#453d2b`, borde `#ecb23c`).
 - En recarga el botón está `disabled` (fondo `#0a0f1a`, borde `#1c4a60`, icono al 50 %) y lleva encima un oscurecido negro al 45 % recortado a la forma del botón, anclado arriba y con alto proporcional a lo que falta, y los segundos que faltan (redondeados hacia arriba) centrados en `#cce6ff`.
 - Cada botón lee `Powers` en `_process` (`get_cooldown_left`, `is_aiming`) y solo se redibuja si algo cambia. `LevelUI.setup_powers(powers)`, que `Game` llama antes de `setup` con el `Powers` del nivel, se lo pasa a los dos.
-- Al pulsarlos (o con Q y E) `LevelUI._use_power(power)` llama a `Powers.use` solo en `PLAYING`. En el nivel de emergencia no se ven ni la fila de poderes ni su cabecera "PODERES" (`InfoPanel.powers_header`) y `_use_power` no hace nada (`_set_powers_enabled`). Cualquier `set_state` que no sea `PLAYING` cancela el apuntado.
+- Al pulsarlos (o con Q, E y R) `LevelUI._use_power(power)` llama a `Powers.use` solo en `PLAYING` y si el poder está desbloqueado.
+- **Desbloqueo:** `LevelUI.setup` pide a `GameState.unlocked_powers(level_number)` los del nivel (ver [niveles.md](niveles.md) › "Poderes") y `_set_unlocked_powers` enseña solo sus botones (`POWER_BUTTONS`, propiedad de `InfoPanel` de cada uno); sin ninguno no se ven ni la fila ni su cabecera "PODERES" (`InfoPanel.powers_header`). El nivel de emergencia (`start_emergency`) no tiene ninguno. Cualquier `set_state` que no sea `PLAYING` cancela el apuntado.
+
+### Mini tutorial de los poderes
+
+La primera vez que se juega un sector con algún poder desbloqueado (en la progresión normal, el nivel 3, con el meteorito), NOVA los presenta con el mismo recuadro y foco que el tutorial del nivel de emergencia. `Game`, tras `setup` en los sectores, llama a `LevelUI.start_powers_tutorial(level)`: si hay poderes y `GameState.powers_tutorial_done` es falso, lo marca (`complete_powers_tutorial`, se guarda; así no se repite ni al reiniciar) y llama a `TutorialHints.start_powers(level)`. Son dos pasos informativos con foco (`POWERS_INTRO` y `POWERS_USE`, textos `TUTORIAL_POWERS_INTRO` y `TUTORIAL_POWERS_USE`, dos páginas cada uno): qué son y dónde están, y cómo se lanzan (botón o Q, apuntar, clic; clic derecho cancela) y que luego se recargan. Señalan la cabecera "PODERES" (sin borde) y los botones que se ven (con borde). Mientras, no se deja hacer nada; al acabar se juega libre (`FREE`). Los poderes siguientes salen sin más.
 
 ## Tutorial del nivel de emergencia
 

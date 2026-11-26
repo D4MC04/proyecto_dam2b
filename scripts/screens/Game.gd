@@ -73,6 +73,8 @@ func _setup_level() -> void:
 	_emergency_won = false
 	if _is_emergency:
 		ui.start_emergency(level)
+	else:
+		ui.start_powers_tutorial(level)
 
 func _on_level_lost() -> void:
 	GameState.flush()
