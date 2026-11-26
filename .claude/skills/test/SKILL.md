@@ -12,6 +12,7 @@ Abre Godot para probar lo de este chat. Nota del usuario (puede estar vacía): $
    - `--money=N` (con `--level`): dinero inicial. Para probar torretas, mejoras o fusiones, pon de sobra (`--money=99999`).
    - `--office`: la oficina sin tutoriales. `--office-tutorial`: la oficina con su tutorial.
    - `--progress=N`: nivel más alto desbloqueado (radar y sectores de la oficina).
+   - `--wave-data=res://...tres` (con `--level`): la siguiente oleada es ese `WaveData`. Para probar un enemigo en una oleada hecha a mano (guárdala en `scenes/dev_preview/`, que no se sube).
 
    Elige el que lleve directo a lo cambiado en este chat (o a lo que diga la nota): una torreta o enemigo → un nivel donde salga, con dinero de sobra y, si es un enemigo, la oleada donde aparece (búscalo con Grep en `resources/level_data/` y `resources/wave_data/`); la oficina o sus paneles → `--office`; el nivel de emergencia o sus pistas → `--level=emergency`. Si el cambio es muy general (pantalla de inicio, ranuras) o no hay un punto claro, sin argumentos. Si hace falta un argumento que no existe para llegar a un punto de prueba habitual, añádelo a `DevLaunch.gd` (solo en depuración) y documéntalo aquí.
 

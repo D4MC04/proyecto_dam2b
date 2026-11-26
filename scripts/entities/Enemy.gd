@@ -22,6 +22,8 @@ const SPAWN_IN_TIME: float = 0.2
 # Mender: engancha el rayo a la nave más dañada a HEAL_RANGE px o menos y le pasa data.heal_rate de su
 # vida por segundo. Cada HEAL_PULSE s la curada saca el número, las chispas y la onda verde.
 const HEAL_RANGE: float = 64.0
+# Solo cura lo que tiene delante: naves a menos de este ángulo (grados) de hacia donde mira.
+const HEAL_CONE: float = 60.0
 const HEAL_PULSE: float = 1.0
 # Punta de la aguja en el sprite (sin contar su offset), de donde sale el rayo.
 const NEEDLE_TIP: Vector2 = Vector2(0, -15)
@@ -237,9 +239,15 @@ func _update_heal_beam(delta: float) -> void:
 		die()
 
 func _can_heal(enemy: Enemy) -> bool:
-	return is_instance_valid(enemy) and enemy != self and not enemy.is_queued_for_deletion() \
-			and enemy.hp > 0.0 and enemy.hp < enemy.max_hp \
-			and enemy.global_position.distance_to(global_position) <= HEAL_RANGE
+	if not is_instance_valid(enemy) or enemy == self or enemy.is_queued_for_deletion() \
+			or enemy.hp <= 0.0 or enemy.hp >= enemy.max_hp:
+		return false
+	var offset: Vector2 = enemy.global_position - global_position
+	if offset.length() > HEAL_RANGE:
+		return false
+	# Hacia donde mira el sprite (el dibujo mira hacia arriba).
+	var facing: Vector2 = Vector2.UP.rotated(sprite.global_rotation - deg_to_rad(data.rotation_offset))
+	return facing.dot(offset.normalized()) >= cos(deg_to_rad(HEAL_CONE))
 
 # La nave a curar con menos vida en proporción (null si no hay ninguna dañada cerca).
 func _find_heal_target() -> Enemy:
