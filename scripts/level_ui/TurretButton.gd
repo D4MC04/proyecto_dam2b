@@ -51,12 +51,12 @@ const LOCK_COLORS: Dictionary = {
 	"4": Color("#0a1018"),
 	"5": Color("#144252"),
 }
-# Corchetes de la torreta seleccionada: van dentro del botón, a un píxel del borde, y en las dos
+# Corchetes de la torreta seleccionada: van dentro del botón, a dos píxeles del borde, y en las dos
 # esquinas recortadas siguen la diagonal. BRACKET_LENGTH es el largo de cada brazo contado desde
 # la esquina; BRACKET_CLIP es el recorte del marco interior (escalera paralela a la del borde).
-const BRACKET_INSET: int = 2
-const BRACKET_CLIP: int = 1
-const BRACKET_LENGTH: int = 5
+const BRACKET_INSET: int = 3
+const BRACKET_CLIP: int = 3
+const BRACKET_LENGTH: int = 7
 
 @onready var icon_rect: Control = %IconRect
 @onready var base_sprite: AnimatedSprite2D = %BaseSprite
