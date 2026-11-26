@@ -83,10 +83,10 @@ Niveles registrados en `GameData.levels`:
 | 3 | `maps/levels/Level3.tscn` | 700 € | las anteriores + Cryo | 10 | 25 → 45 (a mano) | Frigate | 2 |
 | 4 | `maps/levels/Level4.tscn` | 900 € | las anteriores + Cañón pesado | 10 | 32 → 94 (a mano) | Juggernaut y Cruiser | 2 |
 | 5 | `maps/levels/Level5.tscn` | 1100 € | las anteriores + Minero | 10 | 12 → 27 | Ram y Divisora | 2 |
-| 6 | `maps/levels/Level6.tscn` | 1300 € | las anteriores + Tesla | 10 | 24 → 45 | Reparadora | 3 |
+| 6 | `maps/levels/Level6.tscn` | 1300 € | las anteriores + Tesla | 10 | 24 → 45 | Mender | 3 |
 | 7 | `maps/levels/Level7.tscn` | 1500 € | las anteriores + Orbitador | 10 | 25 → 44 | Espectro | 4 |
 | 8 | `maps/levels/Level8.tscn` | 1800 € | las anteriores + Amplificador | 10 | 19 → 42 (la Mothership en la 9 y la 10) | Saboteadora y Vanguard | 4 |
-| 9 | `maps/levels/Level9.tscn` | 2200 € | las anteriores + Disintegrator (9 de 10) | 10 | 28 → 62 (la Mothership de la 8 a la 10) | Espectro, Saboteadora, Divisora y Reparadora (y todas las demás) | 8 |
+| 9 | `maps/levels/Level9.tscn` | 2200 € | las anteriores + Disintegrator (9 de 10) | 10 | 28 → 62 (la Mothership de la 8 a la 10) | Espectro, Saboteadora, Divisora y Mender (y todas las demás) | 8 |
 
 Datos del radar:
 

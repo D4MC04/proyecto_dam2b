@@ -10,6 +10,8 @@ class_name DevLaunch
 #   --wave=N           con --level: las oleadas anteriores a la N se dan por jugadas (la siguiente es la N).
 #   --money=N          con --level: dinero inicial N.
 #   --progress=N       nivel más alto desbloqueado (current_level de GameState).
+#   --wave-data=RUTA   con --level: la siguiente oleada es este WaveData (res://...), para probar una
+#                      oleada hecha a mano (p. ej. en scenes/dev_preview/, que no se sube).
 # No se carga ninguna ranura, así que no se guarda nada.
 
 const EMERGENCY: String = "emergency"
@@ -73,3 +75,8 @@ static func apply_to_level(level: Level, data: LevelData) -> void:
 	var wave: String = get_arg("wave")
 	if wave.is_valid_int():
 		level.spawner.skip_waves(wave.to_int() - 1)
+	var wave_data: String = get_arg("wave-data")
+	if wave_data != "" and ResourceLoader.exists(wave_data):
+		# Copia del array: el de LevelData es el del recurso cargado.
+		level.spawner.waves = level.spawner.waves.duplicate()
+		level.spawner.waves[level.spawner.get_wave_index() + 1] = load(wave_data)

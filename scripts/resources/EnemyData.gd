@@ -22,8 +22,12 @@ const INSPECT_TAG: String = "TAG_ENEMY"
 @export var death_sound: AudioStream
 # Camuflaje: sale camuflado y cada daño lo destapa `reveal_time` segundos (0 = nunca se camufla).
 @export var reveal_time: float = 0.0
-# Reparadora: cada pocos segundos cura a los enemigos de alrededor (ver Enemy).
-@export var heal_aura: bool = false
+# Mender: con un rayo pasa `heal_rate` de su vida por segundo a la nave más dañada de cerca
+# (ver Enemy). Con 0 no cura.
+@export var heal_rate: float = 0.0
+# Opcional: SpriteFrames según la vida que le queda, de más llena a casi vacía; `sprite_frames` es la
+# de la vida llena. La Mender lo usa para que el saco se encoja.
+@export var drain_frames: Array[SpriteFrames] = []
 # Opcional: frase corta que se enseña al final de la ficha.
 @export_multiline var description: String
 # Trozos que suelta al morir, de izquierda a derecha según su dibujo (ninguno si está vacío).
