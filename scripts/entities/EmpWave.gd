@@ -1,7 +1,7 @@
 extends Node2D
 class_name EmpWave
-# Pulso EMP de la Saboteadora: un anillo azul de píxeles que crece desde la nave y apaga
-# las torretas por las que pasa su borde. Se queda donde salió, no sigue a la nave.
+# Explosión EMP de la Payload al morir: un anillo azul de píxeles que crece desde donde murió, apaga
+# las torretas por las que pasa su borde y quita vida a las naves que pilla. Se queda donde salió.
 
 # Borde de fuera a dentro: frente blanco, dos píxeles de azul claro y estela azul.
 const RING_COLORS: Array[Color] = [Color("#e6f6ff"), Color("#78bcff"), Color("#78bcff"), Color("#2a6ae6")]
@@ -16,20 +16,16 @@ const FLASH_TIME: float = 0.08
 var _radius: float = 0.0
 var _time: float = 0.0
 var _disable_time: float
+var _damage: float
 var _hit: Array[Turret] = []
-
-## Le pone a la nave un temporizador que cada `emp_interval` segundos empieza a cargar un pulso
-## (EmpCharge), que sale al acabar la carga.
-static func attach(enemy: Enemy) -> void:
-	var timer: Timer = Timer.new()
-	timer.wait_time = enemy.data.emp_interval
-	timer.autostart = true
-	timer.timeout.connect(EmpCharge.start.bind(enemy))
-	enemy.add_child(timer)
+# Naves ya dañadas (y la que explota, que no se daña a sí misma).
+var _hit_enemies: Array[Enemy] = []
 
 static func spawn(enemy: Enemy) -> void:
 	var wave: EmpWave = EmpWave.new()
 	wave._disable_time = enemy.data.emp_disable_time
+	wave._damage = enemy.data.death_damage
+	wave._hit_enemies.append(enemy)
 	# Por encima de torretas y enemigos.
 	wave.z_index = 1
 	enemy.get_parent().add_child(wave)
@@ -47,6 +43,13 @@ func _process(delta: float) -> void:
 		if not _hit.has(turret) and global_position.distance_to(turret.global_position) <= _radius:
 			_hit.append(turret)
 			turret.disable(_disable_time)
+	if _damage <= 0.0:
+		return
+	# Una sola vez a cada nave, cuando le llega el borde. Si cae otra Payload, también explota.
+	for enemy: Enemy in get_tree().get_nodes_in_group(&"enemies"):
+		if enemy.hp > 0.0 and not enemy.is_queued_for_deletion() and not _hit_enemies.has(enemy) and global_position.distance_to(enemy.global_position) <= _radius:
+			_hit_enemies.append(enemy)
+			enemy.take_damage(_damage)
 
 func _draw() -> void:
 	if _time < FLASH_TIME:
