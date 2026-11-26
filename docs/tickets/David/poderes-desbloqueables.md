@@ -1,7 +1,6 @@
 # Poderes desbloqueables, de pago y con su mini tutorial
 
 Estado: aceptada
-Espera a: mejora-cluster
 Prioridad: media
 Modelo recomendado: opus
 Esfuerzo recomendado: high
