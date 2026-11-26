@@ -85,8 +85,8 @@ func setup(enemy_data: EnemyData, health_multiplier: float = 1.0) -> void:
 	if data.heal_rate > 0.0:
 		_heal_beam = HealBeam.new()
 		add_child(_heal_beam)
-	if data.emp_interval > 0.0:
-		EmpWave.attach(self)
+	if data.emp_radius > 0.0:
+		EmpCharge.start(self)
 
 ## Sale del portal: crece de escala 0 a 1 con un destello.
 func spawn_in() -> void:
@@ -359,7 +359,14 @@ func die() -> void:
 	died.emit(data.reward)
 	_play_death_sound()
 	FloatingText.spawn(get_parent(), global_position, "+" + UiFormat.money(data.reward))
+	destroy()
+
+## Restos y, si explota al morir (Payload), su explosión EMP; luego libera la nave. Sin botín ni texto:
+## lo usa también el escaparate de la Navedex.
+func destroy() -> void:
 	Debris.spawn(get_parent(), global_position, _sprite_colors(), effect_scale())
+	if data.emp_radius > 0.0:
+		EmpWave.spawn(self)
 	queue_free()
 
 # Colores de los restos por textura: get_image() es caro, así que se lee una vez por textura.

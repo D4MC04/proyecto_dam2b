@@ -1,6 +1,6 @@
 # Plan de naves (provisional)
 
-Lista de las 20 naves a las que queremos llegar: 10 base (sin mecánica, se distinguen por sus números; ya hechas, ver [enemigos.md](enemigos.md)) y 10 con mecánica. Es provisional: cada ticket la implementa y, al terminar, pasa su nave a [enemigos.md](enemigos.md). Cuando estén todas, este archivo se borra.
+Lista de las 20 naves a las que queremos llegar: 10 base (sin mecánica, se distinguen por sus números; ya hechas, ver [enemigos.md](enemigos.md)) y 10 con mecánica (la Mender y la Payload ya están en [enemigos.md](enemigos.md)). Es provisional: cada ticket la implementa y, al terminar, pasa su nave a [enemigos.md](enemigos.md). Cuando estén todas, este archivo se borra.
 
 ## Reglas
 
@@ -14,7 +14,6 @@ Lista de las 20 naves a las que queremos llegar: 10 base (sin mecánica, se dist
 
 | Nave | Antes | Vida | Velocidad | Daño a la estación | Botín |
 |---|---|---|---|---|---|
-| Payload | Saboteadora | 100 | 0,75 (45) | 25 | 25 |
 | Cluster | Divisora | 125 | 0,5 (30) | 15 | 20 (+3 × 5 de los trozos) |
 | Magpie | nueva | 75 | 1,0 → 0,5 (60 → 30) | 10 | 20 (+ lo robado) |
 | Lure | nueva (sustituye al Señuelo) | 125 | 0,75 (45) | 10 | 25 |
@@ -23,7 +22,6 @@ Lista de las 20 naves a las que queremos llegar: 10 base (sin mecánica, se dist
 | Damper | nueva | 300 | 0,75 (45) | 25 | 70 |
 | Shell | nueva | 150 | 0,5 (30) | 15 | 30 |
 
-- **Payload**: una bomba. Late cada vez más rápido según avanza por el camino. Al morir explota: el pulso EMP de ahora (96 px, apaga las torretas 3 s) y 50 de daño a las naves que tenga cerca. Matarla dentro de un grupo de naves los castiga a ellos, pero si están junto a tus torretas te las apaga.
 - **Cluster**: al morir suelta 3 trozos (25 de vida, velocidad 1,5, 5 de daño, 5 de botín) que salen disparados unas casillas hacia delante por el camino. Matarla cerca de la estación es regalarle 3 naves rápidas casi en la meta.
 - **Magpie**: mientras vive te roba **todo** el dinero que ganes (bajas, Mineros, bonus). En cada robo sale el importe en negativo y en morado (`-15€`) donde se iba a ganar, y el cristal que lleva en el vientre crece y brilla más (4 tamaños). Cuanto más roba, más grande y más lenta. Al matarla el cristal estalla y recuperas todo lo robado. Si llega a la estación, se pierde.
 - **Lure**: cada 5 s suelta un pulso que dura 2,5 s. Durante el pulso, las torretas que la tienen a tiro la apuntan a ella, con una línea roja para que se vea por qué. Camuflada no atrae. Como mucho una por grupo.
@@ -34,5 +32,5 @@ Lista de las 20 naves a las que queremos llegar: 10 base (sin mecánica, se dist
 
 ## Tickets
 
-- `mejora-payload`, `mejora-cluster`: cambiar las que ya existen.
+- `mejora-cluster`: cambiar la que ya existe.
 - `nave-magpie`, `nave-lure`, `nave-tug`, `nave-wildfire`, `nave-damper`, `nave-shell`: las nuevas con mecánica.

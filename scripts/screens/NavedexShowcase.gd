@@ -88,6 +88,9 @@ const MENDER_REFILL_BELOW: float = 0.3
 # Divisora: segundos entera y segundos partida, en bucle.
 const SPLIT_WHOLE_TIME: float = 3.0
 const SPLIT_PARTS_TIME: float = 3.0
+# Payload: segundos volando (latiendo) y segundos tras explotar, en bucle.
+const PAYLOAD_ALIVE_TIME: float = 4.0
+const PAYLOAD_GONE_TIME: float = 1.5
 const GRID_STEP: int = 8
 
 var _data: InspectableData
@@ -109,6 +112,7 @@ var _ship: Enemy
 var _companion: Enemy
 var _parts: Array[Enemy] = []
 var _split_timer: float = 0.0
+var _burst_timer: float = 0.0
 
 func _ready() -> void:
 	clip_contents = true
@@ -271,7 +275,7 @@ func _build_ship(data: EnemyData) -> void:
 		data = data.duplicate() as EnemyData
 		data.heal_rate = 0.0
 		data.reveal_time = 0.0
-		data.emp_interval = 0.0
+		data.emp_radius = 0.0
 		# El duplicado comparte el array con el original: se cambia por una copia vacía.
 		data.split_into = data.split_into.duplicate()
 		data.split_into.clear()
@@ -285,6 +289,7 @@ func _build_ship(data: EnemyData) -> void:
 		_companion.modulate.a = COMPANION_ALPHA
 		_hurt_companion()
 	_split_timer = SPLIT_WHOLE_TIME
+	_burst_timer = PAYLOAD_ALIVE_TIME
 
 func _process(delta: float) -> void:
 	if _level == null or not is_visible_in_tree():
@@ -300,7 +305,12 @@ func _process(delta: float) -> void:
 		if is_instance_valid(_ship) and _ship.hp < _ship.max_hp * MENDER_REFILL_BELOW:
 			_ship.set_health(_ship.max_hp)
 			_ship.spawn_in()
-	if _ship == null or not _known or (_data as EnemyData).split_into.is_empty():
+	if _ship == null or not _known:
+		return
+	if (_data as EnemyData).emp_radius > 0.0:
+		_cycle_payload(delta)
+		return
+	if (_data as EnemyData).split_into.is_empty():
 		return
 	_split_timer -= delta
 	if _split_timer > 0.0:
@@ -315,6 +325,20 @@ func _process(delta: float) -> void:
 		_ship = _spawn(_data as EnemyData, 0.0, 1.0)
 		_ship.spawn_in()
 		_split_timer = SPLIT_WHOLE_TIME
+
+# Payload: vuela PAYLOAD_ALIVE_TIME s, explota como al morir (sin botín ni texto) y vuelve a salir
+# pasados PAYLOAD_GONE_TIME s.
+func _cycle_payload(delta: float) -> void:
+	_burst_timer -= delta
+	if _burst_timer > 0.0:
+		return
+	if is_instance_valid(_ship):
+		_ship.destroy()
+		_burst_timer = PAYLOAD_GONE_TIME
+	else:
+		_ship = _spawn(_data as EnemyData, 0.0, 1.0)
+		_ship.spawn_in()
+		_burst_timer = PAYLOAD_ALIVE_TIME
 
 # Le quita vida sin golpe (sin destello ni número de daño), para que la Mender tenga a quién curar.
 func _hurt_companion() -> void:
