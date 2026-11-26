@@ -164,9 +164,8 @@ theme_override_constants/separation = 4
 
 [node name="MeteorButton" type="Button" parent="Content/PowersRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 24)
+custom_minimum_size = Vector2(34, 24)
 layout_mode = 2
-size_flags_horizontal = 3
 focus_mode = 0
 icon = ExtResource("8_meteor_icon")
 icon_alignment = 2
@@ -175,9 +174,8 @@ key_label = "Q"
 
 [node name="FreezeButton" type="Button" parent="Content/PowersRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 24)
+custom_minimum_size = Vector2(34, 24)
 layout_mode = 2
-size_flags_horizontal = 3
 focus_mode = 0
 icon = ExtResource("9_freeze_icon")
 icon_alignment = 2
@@ -187,9 +185,8 @@ key_label = "E"
 
 [node name="OrbitalButton" type="Button" parent="Content/PowersRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 24)
+custom_minimum_size = Vector2(34, 24)
 layout_mode = 2
-size_flags_horizontal = 3
 focus_mode = 0
 icon = ExtResource("10_orbital_icon")
 icon_alignment = 2

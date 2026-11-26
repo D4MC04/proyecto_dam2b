@@ -8,6 +8,12 @@ const LEGACY_PATH: String = "user://progress.cfg"
 const SECTION: String = "progress"
 # Estrellas máximas que da un nivel ganado.
 const MAX_STARS: int = 3
+## Sector que hay que ganar para desbloquear cada poder (sale desde el nivel siguiente).
+const POWER_UNLOCK_SECTORS: Dictionary[Powers.Power, int] = {
+	Powers.Power.METEOR: 2,
+	Powers.Power.ORBITAL: 4,
+	Powers.Power.FREEZE: 6,
+}
 ## Fracción de vida por encima de la cual se ganan 2 estrellas (25 %).
 const TWO_STARS_HEALTH_FRACTION: float = 0.25
 
@@ -65,6 +71,8 @@ var tutorial_done: bool = false
 var tutorial_won: bool = false
 # El tutorial de la oficina (al llegar a ella después del nivel de emergencia) ya se ha hecho.
 var office_tutorial_done: bool = false
+## El mini tutorial de los poderes (al tener el primero) ya ha salido.
+var powers_tutorial_done: bool = false
 # Enemigos que ya han salido en una partida, por nombre de archivo del EnemyData.
 var seen_enemies: Array[String] = []
 # Contadores acumulados entre partidas: wins, kills, turrets, powers, perfect_waves, spent y built_<torreta>.
@@ -109,6 +117,9 @@ func load_slot(slot: int) -> void:
 	var office_done: Variant = file.get_value(SECTION, "office_tutorial_done", tutorial_done)
 	if typeof(office_done) == TYPE_BOOL:
 		office_tutorial_done = office_done
+	var powers_done: Variant = file.get_value(SECTION, "powers_tutorial_done", false)
+	if typeof(powers_done) == TYPE_BOOL:
+		powers_tutorial_done = powers_done
 	var seen: Variant = file.get_value(SECTION, "seen_enemies", [])
 	if typeof(seen) == TYPE_ARRAY:
 		for key: Variant in seen:
@@ -242,6 +253,23 @@ func record_level_stars(number: int, stars: int) -> void:
 func complete_tutorial(won: bool) -> void:
 	tutorial_done = true
 	tutorial_won = won
+	_save()
+
+## Poderes que se pueden usar en el nivel número `level_number` (desde 1; 0 el nivel de emergencia, que no
+## lleva). Como las torretas, son permanentes: cuenta el nivel que se juega y el progreso (`current_level`).
+func unlocked_powers(level_number: int) -> Array[Powers.Power]:
+	var result: Array[Powers.Power] = []
+	if level_number < 1:
+		return result
+	var reached: int = maxi(level_number, current_level)
+	for power: Powers.Power in POWER_UNLOCK_SECTORS:
+		if reached > POWER_UNLOCK_SECTORS[power]:
+			result.append(power)
+	return result
+
+## El mini tutorial de los poderes ha salido: no vuelve a salir.
+func complete_powers_tutorial() -> void:
+	powers_tutorial_done = true
 	_save()
 
 ## El tutorial de la oficina se ha hecho: no vuelve a salir.
@@ -472,6 +500,7 @@ func _set_defaults() -> void:
 	tutorial_done = false
 	tutorial_won = false
 	office_tutorial_done = false
+	powers_tutorial_done = false
 	seen_enemies.clear()
 	stats.clear()
 	fused_turrets.clear()
@@ -507,6 +536,7 @@ func _save() -> void:
 	file.set_value(SECTION, "tutorial_done", tutorial_done)
 	file.set_value(SECTION, "tutorial_won", tutorial_won)
 	file.set_value(SECTION, "office_tutorial_done", office_tutorial_done)
+	file.set_value(SECTION, "powers_tutorial_done", powers_tutorial_done)
 	file.set_value(SECTION, "seen_enemies", seen_enemies)
 	file.set_value(SECTION, "stats", stats)
 	file.set_value(SECTION, "fused_turrets", fused_turrets)

@@ -11,8 +11,8 @@ signal power_used(power: Power)
 
 ## Recarga de cada poder, en segundos de juego.
 const COOLDOWNS: Dictionary[Power, float] = {
-	Power.METEOR: 45.0,
-	Power.FREEZE: 60.0,
+	Power.METEOR: 60.0,
+	Power.FREEZE: 90.0,
 	Power.ORBITAL: 75.0,
 }
 const METEOR_RADIUS: float = 40.0
@@ -25,8 +25,8 @@ const METEOR_SPARK_INTERVAL: float = 0.04
 const METEOR_SHAKE_DAMAGE: int = 60
 # La marca de quemado se apaga en este tiempo.
 const METEOR_SCORCH_TIME: float = 3.0
-const FREEZE_FACTOR: float = 0.3
-const FREEZE_TIME: float = 4.0
+const FREEZE_FACTOR: float = 0.55
+const FREEZE_TIME: float = 3.5
 # Onda de hielo: sale de la base y llega al borde del área en FREEZE_WAVE_TIME; la escarcha crece en FREEZE_GROW_TIME y se derrite en FREEZE_MELT_TIME.
 const FREEZE_WAVE_TIME: float = 1.2
 # Distancia (px) entre el frente de la onda y el último eco.
@@ -41,7 +41,7 @@ const FREEZE_FLAKE_FALL: float = 140.0
 # borde derecho durante ORBITAL_TIME y se va hacia arriba en ORBITAL_EXIT_TIME.
 const ORBITAL_TIME: float = 2.0
 # Golpe fijo que recibe una vez cada enemigo que toca el rayo.
-const ORBITAL_DAMAGE: float = 300.0
+const ORBITAL_DAMAGE: float = 150.0
 const ORBITAL_HALF_WIDTH: float = 6.0
 const ORBITAL_HALF_HEIGHT: float = 16.0
 const ORBITAL_FALL_TIME: float = 0.15
