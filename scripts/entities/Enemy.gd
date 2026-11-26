@@ -19,13 +19,28 @@ const SLOW_FLASH_TIME: float = 0.1
 const SLOW_TINT: Color = Color(0.65, 0.85, 1.0)
 const HIT_FLASH_TIME: float = 0.15
 const SPAWN_IN_TIME: float = 0.2
-# Reparadora: cada HEAL_INTERVAL s cura HEAL_RATIO de su vida máxima a los enemigos a HEAL_RADIUS px o menos.
-const HEAL_INTERVAL: float = 3.0
-const HEAL_RATIO: float = 0.1
-const HEAL_RADIUS: float = 48.0
+# Mender: engancha el rayo a la nave más dañada a HEAL_RANGE px o menos y le pasa data.heal_rate de su
+# vida por segundo. Cada HEAL_PULSE s la curada saca el número, las chispas y la onda verde.
+const HEAL_RANGE: float = 64.0
+const HEAL_PULSE: float = 1.0
+# Punta de la aguja en el sprite (sin contar su offset), de donde sale el rayo.
+const NEEDLE_TIP: Vector2 = Vector2(0, -15)
 const HEAL_TEXT_COLOR: Color = Color("#7ee89a")
-const HEAL_FLASH: Color = Color(0.8, 2.5, 1.0)
-const HEAL_FLASH_TIME: float = 0.4
+# Onda de la curada: la de amplificar las torretas (amp_scan.gdshader), en verde.
+const HEAL_SCAN_SHADER: Shader = preload("res://resources/shaders/amp_scan.gdshader")
+const HEAL_SCAN_TIME: float = 0.45
+const HEAL_SCAN_TRAIL: float = 3.0
+const HEAL_SCAN_CORE: Color = Color("#f0fff4")
+const HEAL_SCAN_COLOR: Color = Color("#7ee89a")
+var _heal_target: Enemy
+var _heal_beam: HealBeam
+# Vida pasada a la curada que aún no ha salido en número, y cuánto falta para el siguiente.
+var _heal_unshown: float = 0.0
+var _heal_pulse_left: float = 0.0
+var _heal_scan: ShaderMaterial
+var _heal_scan_tween: Tween
+# Nivel de data.drain_frames en uso (0 = sprite_frames, vida llena).
+var _drain_level: int = 0
 # Números de daño (opción show_damage_numbers): los golpes dentro de esta ventana (s) se suman en un solo número.
 const DAMAGE_TEXT_COLOR: Color = Color("#ffffff")
 const DAMAGE_TEXT_WINDOW: float = 0.25
@@ -65,12 +80,9 @@ func setup(enemy_data: EnemyData, health_multiplier: float = 1.0) -> void:
 	add_to_group(&"enemies")
 	if data.reveal_time > 0.0:
 		_start_cloaked()
-	if data.heal_aura:
-		var timer: Timer = Timer.new()
-		timer.wait_time = HEAL_INTERVAL
-		timer.autostart = true
-		timer.timeout.connect(_heal_nearby)
-		add_child(timer)
+	if data.heal_rate > 0.0:
+		_heal_beam = HealBeam.new()
+		add_child(_heal_beam)
 	if data.emp_interval > 0.0:
 		EmpWave.attach(self)
 
@@ -85,6 +97,10 @@ func spawn_in() -> void:
 func _process(delta: float) -> void:
 	progress += get_move_speed() * delta
 	_update_animation()
+	if data.heal_rate > 0.0:
+		_update_heal_beam(delta)
+		if hp <= 0.0:
+			return
 	if progress_ratio >= 1.0:
 		set_process(false)
 		reached_end.emit(data.base_damage)
@@ -131,6 +147,7 @@ func take_damage(amount: float, source: Variant = null) -> void:
 	if is_instance_valid(source):
 		(source as Turret).register_damage(dealt, was_alive and hp <= 0)
 	_health_bar.update(hp, max_hp)
+	_update_drain_frames()
 	if data.reveal_time > 0.0 and amount > 0.0 and hp > 0:
 		_reveal()
 	if Settings.get_value(&"show_damage_numbers"):
@@ -153,26 +170,114 @@ func _flush_damage_text() -> void:
 	FloatingText.spawn(get_parent(), global_position, UiFormat.number(_pending_damage), FloatingText.DURATION, DAMAGE_TEXT_COLOR)
 	_pending_damage = 0.0
 
-## Cura sin pasar de la vida máxima, con el número en verde, un destello y chispas. Con la vida llena no hace nada.
-func heal(amount: float) -> void:
+## Cura sin pasar de la vida máxima y devuelve lo curado (0 con la vida llena o ya muerto).
+## No enseña nada: los efectos salen con show_heal().
+func heal(amount: float) -> float:
 	var healed: float = minf(amount, max_hp - hp)
 	if healed <= 0.0 or hp <= 0.0:
-		return
-	hp += healed
-	_health_bar.update(hp, max_hp)
-	FloatingText.spawn(get_parent(), global_position, "+" + UiFormat.number(healed), FloatingText.DURATION, HEAL_TEXT_COLOR)
-	HealEffect.spawn_sparks(self, effect_scale() * EFFECT_SIZE)
-	var tween: Tween = create_tween()
-	tween.tween_property(sprite, "modulate", _rest_color(), HEAL_FLASH_TIME).from(HEAL_FLASH)
-	tween.tween_callback(func() -> void: sprite.modulate = _rest_color())
+		return 0.0
+	set_health(hp + healed)
+	return healed
 
-# Reparadora: suelta el anillo y cura a los demás enemigos a HEAL_RADIUS px o menos (a sí misma no).
-func _heal_nearby() -> void:
-	HealEffect.spawn_ring(get_parent(), global_position, HEAL_RADIUS)
+## Pone la vida sin golpe ni efectos (barra y saco de la Mender al día).
+func set_health(value: float) -> void:
+	hp = value
+	_health_bar.update(hp, max_hp)
+	_update_drain_frames()
+
+## Efectos de recibir cura: el número en verde (si `amount` > 0), chispas y la onda verde.
+func show_heal(amount: float) -> void:
+	if amount > 0.0:
+		FloatingText.spawn(get_parent(), global_position, "+" + UiFormat.number(amount), FloatingText.DURATION, HEAL_TEXT_COLOR)
+		HealEffect.spawn_sparks(self, effect_scale() * EFFECT_SIZE)
+	_flash_heal()
+
+# Onda verde que sube por la nave con el contorno brillando, como la del Amplificador en las torretas.
+# No pisa otro material (la disolución del camuflaje).
+func _flash_heal() -> void:
+	if sprite.material != null and sprite.material != _heal_scan:
+		return
+	if _heal_scan == null:
+		_heal_scan = ShaderMaterial.new()
+		_heal_scan.shader = HEAL_SCAN_SHADER
+		_heal_scan.set_shader_parameter("trail_length", HEAL_SCAN_TRAIL)
+		_heal_scan.set_shader_parameter("core_color", HEAL_SCAN_CORE)
+		_heal_scan.set_shader_parameter("amber_color", HEAL_SCAN_COLOR)
+	var half_height: float = effect_scale() * EFFECT_SIZE / 2.0
+	_heal_scan.set_shader_parameter("line_start", global_position.y + half_height)
+	_heal_scan.set_shader_parameter("line_end", global_position.y - half_height - HEAL_SCAN_TRAIL)
+	_heal_scan.set_shader_parameter("progress", 0.0)
+	sprite.material = _heal_scan
+	if _heal_scan_tween:
+		_heal_scan_tween.kill()
+	_heal_scan_tween = create_tween()
+	_heal_scan_tween.tween_method(func(value: float) -> void: _heal_scan.set_shader_parameter("progress", value), 0.0, 1.0, HEAL_SCAN_TIME)
+	_heal_scan_tween.tween_callback(func() -> void:
+		if sprite.material == _heal_scan:
+			sprite.material = null)
+
+# Mender: mantiene el rayo en la curada (o busca otra) y le pasa vida de la suya. Si se vacía, muere.
+func _update_heal_beam(delta: float) -> void:
+	if not _can_heal(_heal_target):
+		_set_heal_target(_find_heal_target())
+	if _heal_target == null:
+		return
+	_heal_beam.update_ends(sprite.to_global(sprite.offset + NEEDLE_TIP), _heal_target.global_position)
+	var healed: float = _heal_target.heal(minf(data.heal_rate * delta, hp))
+	_heal_unshown += healed
+	_heal_pulse_left -= delta
+	if _heal_pulse_left <= 0.0:
+		_heal_pulse_left = HEAL_PULSE
+		_heal_target.show_heal(_heal_unshown)
+		_heal_unshown = 0.0
+	set_health(hp - healed)
+	if hp <= 0.0:
+		_set_heal_target(null)
+		set_process(false)
+		die()
+
+func _can_heal(enemy: Enemy) -> bool:
+	return is_instance_valid(enemy) and enemy != self and not enemy.is_queued_for_deletion() \
+			and enemy.hp > 0.0 and enemy.hp < enemy.max_hp \
+			and enemy.global_position.distance_to(global_position) <= HEAL_RANGE
+
+# La nave a curar con menos vida en proporción (null si no hay ninguna dañada cerca).
+func _find_heal_target() -> Enemy:
+	var best: Enemy = null
 	for node: Node in get_tree().get_nodes_in_group(&"enemies"):
 		var enemy: Enemy = node as Enemy
-		if enemy != self and enemy.global_position.distance_to(global_position) <= HEAL_RADIUS:
-			enemy.heal(max_hp * HEAL_RATIO)
+		if _can_heal(enemy) and (best == null or enemy.hp / enemy.max_hp < best.hp / best.max_hp):
+			best = enemy
+	return best
+
+# Cambia de curada: la anterior saca lo que le faltaba por enseñar y la nueva, la onda al engancharse.
+func _set_heal_target(enemy: Enemy) -> void:
+	if enemy == _heal_target:
+		return
+	if is_instance_valid(_heal_target) and _heal_unshown > 0.0:
+		_heal_target.show_heal(_heal_unshown)
+	_heal_unshown = 0.0
+	_heal_pulse_left = HEAL_PULSE
+	_heal_target = enemy
+	_heal_beam.visible = enemy != null
+	if enemy != null:
+		enemy.show_heal(0.0)
+
+# Con data.drain_frames, cambia el dibujo según la vida que le queda (el saco de la Mender se encoge).
+func _update_drain_frames() -> void:
+	if data.drain_frames.is_empty():
+		return
+	var levels: int = data.drain_frames.size() + 1
+	var level: int = clampi(int((1.0 - hp / max_hp) * levels), 0, levels - 1)
+	if level == _drain_level:
+		return
+	_drain_level = level
+	var animation: StringName = sprite.animation
+	var frame: int = sprite.frame
+	var frame_progress: float = sprite.frame_progress
+	sprite.sprite_frames = data.sprite_frames if level == 0 else data.drain_frames[level - 1]
+	sprite.play(animation)
+	sprite.set_frame_and_progress(frame, frame_progress)
 
 # Ralentiza durante `duration` segundos con un destello y la escarcha encima.
 # Si ya estaba ralentizado se renueva la duración, no se acumula.

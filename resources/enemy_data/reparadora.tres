@@ -3,17 +3,22 @@
 [ext_resource type="Script" uid="uid://do62ihbnaitnl" path="res://scripts/resources/EnemyData.gd" id="1_data"]
 [ext_resource type="Shape2D" path="res://resources/collision_shapes/reparadora.tres" id="2_shape"]
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/reparadora.tres" id="3_frames"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/reparadora_1.tres" id="4_drain"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/reparadora_2.tres" id="5_drain"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/reparadora_3.tres" id="6_drain"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/reparadora_4.tres" id="7_drain"]
 
 [resource]
 script = ExtResource("1_data")
 name = "ENEMY_REPARADORA_NAME"
-hp = 90.0
-speed = 38
+hp = 100.0
+speed = 45
 reward = 25
 base_damage = 5
 description = "ENEMY_REPARADORA_DESC"
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
 rotate_sprite = true
-heal_aura = true
+heal_rate = 10.0
+drain_frames = Array[SpriteFrames]([ExtResource("4_drain"), ExtResource("5_drain"), ExtResource("6_drain"), ExtResource("7_drain")])
 metadata/_custom_type_script = "uid://do62ihbnaitnl"

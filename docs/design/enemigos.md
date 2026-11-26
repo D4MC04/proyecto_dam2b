@@ -12,7 +12,7 @@ El `Spawner` lo añade como hijo de un `Path2D` del mapa y llama a `setup(enemy_
 
 ## Datos
 
-`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `base_damage` (vida que quita a la estación al llegar al final, 10 por defecto), `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados), `is_boss` (jefe, ver abajo), `reveal_time` (camuflaje, ver Camuflaje; 0 = no se camufla), `death_sound` (`AudioStream`, ver Daño y muerte), `heal_aura` (solo la Reparadora, ver Curación), `emp_interval`, `emp_radius` y `emp_disable_time` (pulso EMP, ver Habilidades; `emp_interval` 0 = sin pulso), `split_into` (ver Partirse al morir) y `description` (frase corta para la ficha, ya rellena en todos). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da VIDA, VELOCIDAD (px/s), BOTÍN (la recompensa, con €) y DAÑO (`base_damage`); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
+`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `base_damage` (vida que quita a la estación al llegar al final, 10 por defecto), `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados), `is_boss` (jefe, ver abajo), `reveal_time` (camuflaje, ver Camuflaje; 0 = no se camufla), `death_sound` (`AudioStream`, ver Daño y muerte), `heal_rate` y `drain_frames` (la Mender, ver Curación), `emp_interval`, `emp_radius` y `emp_disable_time` (pulso EMP, ver Habilidades; `emp_interval` 0 = sin pulso), `split_into` (ver Partirse al morir) y `description` (frase corta para la ficha, ya rellena en todos). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da VIDA, VELOCIDAD (px/s), BOTÍN (la recompensa, con €) y DAÑO (`base_damage`); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
 
 Recursos en `resources/enemy_data/` (los archivos conservan el nombre de antes; los nombres en inglés van en `translations/textos.csv`, igual en `es` y `en`). Velocidad como multiplicador de 60 px/s:
 
@@ -28,7 +28,7 @@ Recursos en `resources/enemy_data/` (los archivos conservan el nombre de antes; 
 | `ariete` | Ram | 250 | 0,75 (45) | 45 | 50 | 13 | 5 | Daño enorme a la estación |
 | `acorazado` | Juggernaut | 500 | 0,5 (30) | 70 | 25 | 14 | 4 | El tanque |
 | `nodriza` | Mothership | 750 | 0,75 (45) | 130 | 50 | 14 | 8 | Miniboss (ver abajo) |
-| `reparadora` | Reparadora | 90 | 38 | 25 | 5 | 12 | 6 | Con mecánica |
+| `reparadora` | Mender | 100 | 0,75 (45) | 25 | 5 | 12 | 6 | Se vacía para curar (ver Curación) |
 | `espectro` | Specter | 75 | 60 | 20 | 10 | 12 | 7 | Con mecánica |
 | `divisora` | Divisora | 120 | 35 | 20 | 15 | 13 | 5 | Con mecánica |
 | `fragmento_divisora_izquierdo`, `_central`, `_derecho` | Fragmento de Divisora | 25 | 50 | 5 | 5 | 7 | 5 (al partirse la Divisora) | Trozos |
@@ -65,7 +65,7 @@ El sprite (`assets/sprites/enemies/espectro/espectro_0` a `_2`, 32x32, mirando h
 
 ### Daño y muerte
 
-- `setup(data, health_multiplier = 1.0)` fija `max_hp = data.hp * multiplicador` y `hp = max_hp`; la barra de vida y la curación de la Reparadora usan `max_hp`. La ficha de la pestaña Oleadas sigue enseñando la vida base (`data.hp`); las naves en juego no son inspeccionables.
+- `setup(data, health_multiplier = 1.0)` fija `max_hp = data.hp * multiplicador` y `hp = max_hp`; la barra de vida y la curación de la Mender usan `max_hp`. La ficha de la pestaña Oleadas sigue enseñando la vida base (`data.hp`); las naves en juego no son inspeccionables.
 - `take_damage(amount)` resta vida; con vida <= 0 llama a `die()`.
 - Con la opción `show_damage_numbers` de `Settings` (apagada por defecto), `take_damage()` suma el daño realmente hecho y, pasados `DAMAGE_TEXT_WINDOW` (0,25 s) desde el primer golpe, o al morir, lo enseña con `FloatingText` (blanco, `UiFormat.number`) sobre la nave; los golpes seguidos salen agrupados en un solo número.
 - `die()` emite `died(data.reward)`, reproduce `data.death_sound` en el bus `SFX` y libera el nodo. El `AudioStreamPlayer` se crea como hijo del padre (el `Path2D`) porque el enemigo se libera enseguida, y se libera solo al terminar (`finished`). Si llega a la estación (`reached_end`) no suena.
@@ -112,14 +112,17 @@ Sprites: `assets/sprites/enemies/divisora/` (`divisora_0..2.png` de 32x32, `divi
 - Al morir, `die()` también lanza `Debris.spawn()` (`scripts/entities/Debris.gd`, `Node2D` que cuelga del padre y se libera solo; sigue el `time_scale`): un destello blanco de 16 px en el primer frame, un anillo de humo gris (`draw_arc`) que crece y se desvanece, y 5-8 trozos cuadrados de 2-3 px con colores sacados del frame actual del sprite. Salen en direcciones al azar a 50-130 px/s, giran, frenan y se desvanecen en 0,5 s. Con `effect_scale()` mayor que 1 (naves grandes) salen más trozos, más grandes y más lejos, y el destello y el anillo crecen. No sale al llegar a la estación.
 - Barra de vida (`scripts/entities/HealthBar.gd`, hija del enemigo creada en `setup()`): `draw_rect` sin suavizado encima del sprite, del ancho del frame (`effect_scale() * 32`), 2 px de alto con contorno negro y fondo `#14060a`. Relleno verde, ámbar `#ecb23c` por debajo del 50 % y rojo `#f0323c` por debajo del 25 %. Oculta con la vida llena; `take_damage()` la actualiza. No gira (el `PathFollow2D` tiene `rotates = false`; solo gira el sprite).
 
-### Curación (Reparadora)
+### Curación (Mender)
 
-- `heal(amount)`: suma vida sin pasar de `data.hp`; con la vida llena (o ya muerto) no hace nada. Si cura, actualiza la `HealthBar`, saca lo curado ("+9") con `FloatingText` en verde `#7ee89a`, hace un destello verde de 0,4 s sobre el sprite (como `flash()`, vuelve a `_rest_color()`) y añade las chispas de `HealEffect`.
-- Con `data.heal_aura`, `setup()` crea un `Timer` de `HEAL_INTERVAL` (3 s). En cada disparo `_heal_nearby()` suelta el anillo de `HealEffect` y llama a `heal(data.hp * HEAL_RATIO)` (10 % de la vida máxima de la Reparadora, 9) en los demás enemigos del grupo `enemies` a `HEAL_RADIUS` (48 px) o menos. No se cura a sí misma.
-- `HealEffect` (`scripts/entities/HealEffect.gd`, estático, sin escena) pinta en rectángulos de 1 px, sin antialiasing, con la rampa verde `#1c7440`, `#3cb860`, `#7ee89a`, `#c4f5d0`:
-  - `spawn_ring()`: anillo de 1 px claro con otro oscuro por dentro que crece del 25 % al 100 % de 48 px en 0,5 s. Cuelga del camino, en la posición global de la Reparadora.
-  - `spawn_sparks()`: 6 chispas (cabeza clara y estela de 1 px debajo) que suben unos 10 px en 0,4 s. Cuelga de la nave curada (`z_index` 5) para seguirla.
-  - Las dos son opacas la primera mitad y se desvanecen en la segunda.
+La Mender se vacía para curar: pasa su propia vida a otra nave con un rayo. Si nadie la toca, se gasta sola y muere (con su botín normal), pero habrá salvado a otra.
+
+- Con `data.heal_rate` > 0 (10 en la Mender), `setup()` le crea un `HealBeam` y en cada `_process` `_update_heal_beam()` busca la curada si no tiene una válida: la nave del grupo `enemies` con menos vida en proporción (`hp / max_hp`) que no sea ella, esté viva, dañada y a `HEAL_RANGE` (64 px) o menos. La mantiene hasta que muere, se aleja o queda llena; entonces busca otra (sin ninguna, el rayo se oculta y no gasta nada).
+- Cada frame le pasa `data.heal_rate * delta` de vida: `heal()` la suma sin pasar de `max_hp` y devuelve lo curado, que es lo que pierde la Mender (`set_health()`). Si llega a 0, `die()`.
+- `set_health(value)`: pone la vida sin golpe ni efectos y actualiza la barra y el dibujo (`_update_drain_frames()`).
+- `show_heal(amount)`: en la curada, al engancharse (solo la onda) y cada `HEAL_PULSE` (1 s) con lo acumulado ("+10"): número con `FloatingText` en verde `#7ee89a`, chispas de `HealEffect` y la onda verde: el shader del Amplificador en las torretas (`amp_scan.gdshader`, ver [torretas.md](torretas.md)) con `#f0fff4` y `#7ee89a`, 0,45 s y estela de 3 filas. No pisa otro material (la disolución del camuflaje).
+- `data.drain_frames` (opcional): `SpriteFrames` de más llena a casi vacía. Con N, el nivel es `int((1 - hp / max_hp) * (N + 1))`; el 0 es `sprite_frames`. Al cambiar se conserva la animación y el frame. En la Mender son los 5 tamaños del saco; también encoge al recibir daño.
+- `HealBeam` (`scripts/entities/HealBeam.gd`, hijo de la Mender con `top_level`, `z_index` 5): línea de 1 px por píxeles (Bresenham, sin antialiasing) de la punta de la aguja (`NEEDLE_TIP`, girada con el sprite) al centro de la curada, en `#3cb860` al 55 % de opacidad, con pulsos `#c4f5d0` y `#7ee89a` cada 8 px que viajan a 40 px/s hacia la curada.
+- `HealEffect` (`scripts/entities/HealEffect.gd`, estático, sin escena, con la rampa `#1c7440`, `#3cb860`, `#7ee89a`, `#c4f5d0`): `spawn_sparks()`, 6 chispas de 1 px (cabeza clara y estela debajo) que suben unos 10 px en 0,4 s, opacas la primera mitad y se desvanecen en la segunda. Cuelga de la nave curada (`z_index` 5) para seguirla.
 - En el nivel 6 salen cuatro, detrás de una nave del mismo camino (oleadas 2 y 3).
 
 ## Comunicación con el resto

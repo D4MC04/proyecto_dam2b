@@ -8,7 +8,7 @@ extends Control
 ##   (SCENES), elegidas para que se vea su mecánica; la torreta les dispara con sus propias balas, ondas,
 ##   rayos, haces, orbes y escarcha.
 ## - Nave: el Enemy de verdad da vueltas al camino con su animación, su giro y su habilidad (camuflaje,
-##   pulso EMP...). La Reparadora cura a una nave secundaria, tenue y dañada; la Divisora se parte cada
+##   pulso EMP...). La Mender cura con su rayo a una nave secundaria, tenue y dañada, y se rellena al quedarse casi vacía; la Divisora se parte cada
 ##   pocos segundos como en Spawner. Las no vistas van en silueta negra y sin habilidad. Dan vueltas a un
 ##   camino cerrado (rectángulo) sobre un fondo de pantalla oscura con cuadrícula.
 
@@ -69,7 +69,7 @@ const SCENES: Dictionary[String, Dictionary] = {
 }
 # Separación de las naves de un grupo, como en una oleada (px).
 const SHIP_GAP: float = 26.0
-# Nave secundaria de la Reparadora.
+# Nave secundaria de la Mender (a quien cura).
 const COMPANION_DATA: EnemyData = preload("res://resources/enemy_data/dart_rojo.tres")
 # Margen del camino al borde de la vitrina (píxeles del juego; deja sitio a la barra de vida).
 const PATH_MARGIN: float = 14.0
@@ -79,10 +79,12 @@ const MAP_SLOT: Vector2i = Vector2i(14, 8)
 const TILE_SIZE: int = 16
 # Naves: alto del bucle, en fracción del alto (centrado).
 const SHIP_PATH_Y: Vector2 = Vector2(0.3, 0.7)
-# Nave secundaria de la Reparadora: distancia por delante en el camino, opacidad y vida que le falta.
+# Nave secundaria de la Mender: distancia por delante en el camino, opacidad y vida que le falta.
 const COMPANION_GAP: float = 34.0
 const COMPANION_ALPHA: float = 0.45
 const COMPANION_DAMAGE: float = 0.6
+# La Mender se rellena con menos de esta fracción de su vida.
+const MENDER_REFILL_BELOW: float = 0.3
 # Divisora: segundos entera y segundos partida, en bucle.
 const SPLIT_WHOLE_TIME: float = 3.0
 const SPLIT_PARTS_TIME: float = 3.0
@@ -267,7 +269,7 @@ func _build_ship(data: EnemyData) -> void:
 	if not _known:
 		# Silueta: la misma nave sin habilidades, en negro.
 		data = data.duplicate() as EnemyData
-		data.heal_aura = false
+		data.heal_rate = 0.0
 		data.reveal_time = 0.0
 		data.emp_interval = 0.0
 		# El duplicado comparte el array con el original: se cambia por una copia vacía.
@@ -277,7 +279,7 @@ func _build_ship(data: EnemyData) -> void:
 	if not _known:
 		_ship.sprite.modulate = Color.BLACK
 		return
-	if data.heal_aura:
+	if data.heal_rate > 0.0:
 		_companion = _spawn(COMPANION_DATA, COMPANION_GAP, 1.0)
 		_companion.speed = _ship.speed
 		_companion.modulate.a = COMPANION_ALPHA
@@ -291,9 +293,13 @@ func _process(delta: float) -> void:
 	for ship: Variant in _ships:
 		if is_instance_valid(ship) and (ship as Enemy).progress > _path_starts.get((ship as Enemy).get_parent(), 0.0) + 2.0 * PATH_MARGIN and not _view.has_point((ship as Enemy).global_position):
 			(ship as Enemy).queue_free()
-	# La secundaria de la Reparadora vuelve a dañarse cuando la ha curado del todo.
+	# La secundaria de la Mender vuelve a dañarse cuando la ha curado del todo, y la Mender se rellena
+	# antes de vaciarse del todo (en la vitrina no muere).
 	if is_instance_valid(_companion) and _companion.hp >= _companion.max_hp:
 		_hurt_companion()
+		if is_instance_valid(_ship) and _ship.hp < _ship.max_hp * MENDER_REFILL_BELOW:
+			_ship.set_health(_ship.max_hp)
+			_ship.spawn_in()
 	if _ship == null or not _known or (_data as EnemyData).split_into.is_empty():
 		return
 	_split_timer -= delta
@@ -310,9 +316,9 @@ func _process(delta: float) -> void:
 		_ship.spawn_in()
 		_split_timer = SPLIT_WHOLE_TIME
 
-# Le quita vida sin golpe (sin destello ni número de daño), para que la Reparadora tenga a quién curar.
+# Le quita vida sin golpe (sin destello ni número de daño), para que la Mender tenga a quién curar.
 func _hurt_companion() -> void:
-	_companion.hp = _companion.max_hp * (1.0 - COMPANION_DAMAGE)
+	_companion.set_health(_companion.max_hp * (1.0 - COMPANION_DAMAGE))
 
 # Se parte como en Spawner._crack y Spawner._split: frame agrietado con destello y los trozos
 # despedidos de lado que vuelven al camino.

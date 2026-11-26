@@ -1,8 +1,8 @@
 [gd_resource type="SpriteFrames" format=3]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/enemies/reparadora/reparadora_up_1.png" id="1_f"]
-[ext_resource type="Texture2D" path="res://assets/sprites/enemies/reparadora/reparadora_up_2.png" id="2_f"]
-[ext_resource type="Texture2D" path="res://assets/sprites/enemies/reparadora/reparadora_up_3.png" id="3_f"]
+[ext_resource type="Texture2D" path="res://assets/sprites/enemies/reparadora/reparadora_0_0.png" id="1_f"]
+[ext_resource type="Texture2D" path="res://assets/sprites/enemies/reparadora/reparadora_0_1.png" id="2_f"]
+[ext_resource type="Texture2D" path="res://assets/sprites/enemies/reparadora/reparadora_0_2.png" id="3_f"]
 
 [resource]
 animations = [{
@@ -16,9 +16,9 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("3_f")
 }],
-"loop": 1,
+"loop": true,
 "name": &"down",
-"speed": 6.0
+"speed": 8.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -30,9 +30,9 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("3_f")
 }],
-"loop": 1,
+"loop": true,
 "name": &"left",
-"speed": 6.0
+"speed": 8.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -44,9 +44,9 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("3_f")
 }],
-"loop": 1,
+"loop": true,
 "name": &"right",
-"speed": 6.0
+"speed": 8.0
 }, {
 "frames": [{
 "duration": 1.0,
@@ -58,7 +58,7 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("3_f")
 }],
-"loop": 1,
+"loop": true,
 "name": &"up",
-"speed": 6.0
+"speed": 8.0
 }]
