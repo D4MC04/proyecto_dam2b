@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cpetaa834q3m6"
-path="res://.godot/imported/reparadora_up_2.png-31d0734f54fdbb9f476ab6f5972421ff.ctex"
+uid="uid://bxghr2trdo3nt"
+path="res://.godot/imported/reparadora_4_0.png-79b9a3c4a49fdd0a4b63ea9bdd9b86e8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/enemies/reparadora/reparadora_up_2.png"
-dest_files=["res://.godot/imported/reparadora_up_2.png-31d0734f54fdbb9f476ab6f5972421ff.ctex"]
+source_file="res://assets/sprites/enemies/reparadora/reparadora_4_0.png"
+dest_files=["res://.godot/imported/reparadora_4_0.png-79b9a3c4a49fdd0a4b63ea9bdd9b86e8.ctex"]
 
 [params]
 

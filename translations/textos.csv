@@ -133,8 +133,8 @@ ENEMY_NAVE_NORMAL_NAME,Corsair,Corsair
 ENEMY_NAVE_NORMAL_DESC,"La nave de combate estándar. Ni rápida ni lenta, ni frágil ni dura.","The standard combat ship. Neither fast nor slow, neither fragile nor tough."
 ENEMY_NODRIZA_NAME,Mothership,Mothership
 ENEMY_NODRIZA_DESC,Nave enorme que solo sale en los sectores más duros. Aguanta muchísimo y hace mucho daño a la estación.,Huge ship that only shows up in the hardest sectors. Takes a beating and hits the station hard.
-ENEMY_REPARADORA_NAME,Reparadora,Repairer
-ENEMY_REPARADORA_DESC,Nave de apoyo. Cada 3 s repara a las naves cercanas.,Support ship. Every 3 s it repairs nearby ships.
+ENEMY_REPARADORA_NAME,Mender,Mender
+ENEMY_REPARADORA_DESC,"Nave de apoyo que se vacía para curar: engancha un rayo a la nave más dañada de cerca y le pasa su propia vida. Si nadie la para, se gasta sola.","Support ship that drains itself to heal: it hooks a beam to the most damaged ship nearby and gives it its own health. Left alone, it burns itself out."
 ENEMY_SABOTEADORA_NAME,Saboteadora,Saboteur
 ENEMY_SABOTEADORA_DESC,Nave de guerra electrónica. Sus pulsos EMP apagan las torretas cercanas.,Electronic warfare ship. Its EMP pulses shut down nearby turrets.
 ENEMY_STREAK_NAME,Streak,Streak
