@@ -16,7 +16,7 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("3_f")
 }],
-"loop": 1,
+"loop": true,
 "name": &"down",
 "speed": 8.0
 }, {
@@ -30,7 +30,7 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("3_f")
 }],
-"loop": 1,
+"loop": true,
 "name": &"left",
 "speed": 8.0
 }, {
@@ -44,7 +44,7 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("3_f")
 }],
-"loop": 1,
+"loop": true,
 "name": &"right",
 "speed": 8.0
 }, {
@@ -58,7 +58,7 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("3_f")
 }],
-"loop": 1,
+"loop": true,
 "name": &"up",
 "speed": 8.0
 }]

@@ -12,7 +12,7 @@ El `Spawner` lo añade como hijo de un `Path2D` del mapa y llama a `setup(enemy_
 
 ## Datos
 
-`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `base_damage` (vida que quita a la estación al llegar al final, 10 por defecto), `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados), `is_boss` (jefe, ver abajo), `reveal_time` (camuflaje, ver Camuflaje; 0 = no se camufla), `death_sound` (`AudioStream`, ver Daño y muerte), `heal_rate` y `drain_frames` (la Mender, ver Curación), `emp_interval`, `emp_radius` y `emp_disable_time` (pulso EMP, ver Habilidades; `emp_interval` 0 = sin pulso), `split_into` (ver Partirse al morir) y `description` (frase corta para la ficha, ya rellena en todos). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da VIDA, VELOCIDAD (px/s), BOTÍN (la recompensa, con €) y DAÑO (`base_damage`); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
+`EnemyData` (`scripts/resources/EnemyData.gd`): `name`, `hp`, `speed` (px/s), `reward`, `base_damage` (vida que quita a la estación al llegar al final, 10 por defecto), `sprite_frames`, `collision_shape`, `rotate_sprite`, `rotation_offset` (grados), `is_boss` (jefe, ver abajo), `reveal_time` (camuflaje, ver Camuflaje; 0 = no se camufla), `death_sound` (`AudioStream`, ver Daño y muerte), `heal_rate` y `drain_frames` (la Mender, ver Curación), `emp_radius`, `emp_disable_time` y `death_damage` (explosión al morir de la Payload, ver Habilidades; `emp_radius` 0 = no explota), `split_into` (ver Partirse al morir) y `description` (frase corta para la ficha, ya rellena en todos). Cumple el contrato `InspectableData` de la ficha (ver [ui.md](ui.md)): `get_stats()` da VIDA, VELOCIDAD (px/s), BOTÍN (la recompensa, con €) y DAÑO (`base_damage`); etiqueta "ENEMIGO" y acento `ACCENT_COLOR` (`#f0323c`).
 
 Recursos en `resources/enemy_data/` (los archivos conservan el nombre de antes; los nombres en inglés van en `translations/textos.csv`, igual en `es` y `en`). Velocidad como multiplicador de 60 px/s:
 
@@ -29,10 +29,10 @@ Recursos en `resources/enemy_data/` (los archivos conservan el nombre de antes; 
 | `acorazado` | Juggernaut | 500 | 0,5 (30) | 70 | 25 | 14 | 4 | El tanque |
 | `nodriza` | Mothership | 750 | 0,75 (45) | 130 | 50 | 14 | 8 | Miniboss (ver abajo) |
 | `reparadora` | Mender | 100 | 0,75 (45) | 25 | 5 | 12 | 6 | Se vacía para curar (ver Curación) |
+| `saboteadora` | Payload | 100 | 0,75 (45) | 25 | 25 | 13 | 8 | Bomba: explota al morir (ver Habilidades) |
 | `espectro` | Specter | 75 | 60 | 20 | 10 | 12 | 7 | Con mecánica |
 | `divisora` | Divisora | 120 | 35 | 20 | 15 | 13 | 5 | Con mecánica |
 | `fragmento_divisora_izquierdo`, `_central`, `_derecho` | Fragmento de Divisora | 25 | 50 | 5 | 5 | 7 | 5 (al partirse la Divisora) | Trozos |
-| `saboteadora` | Saboteadora | 110 | 30 | 25 | 10 | 13 | 8 | Con mecánica |
 
 Las naves con mecánica (velocidad en px/s) solo tienen ya el botín nuevo; su vida, velocidad y nombre en inglés los cambian sus tickets (ver [naves-plan.md](naves-plan.md)).
 
@@ -68,7 +68,7 @@ El sprite (`assets/sprites/enemies/espectro/espectro_0` a `_2`, 32x32, mirando h
 - `setup(data, health_multiplier = 1.0)` fija `max_hp = data.hp * multiplicador` y `hp = max_hp`; la barra de vida y la curación de la Mender usan `max_hp`. La ficha de la pestaña Oleadas sigue enseñando la vida base (`data.hp`); las naves en juego no son inspeccionables.
 - `take_damage(amount)` resta vida; con vida <= 0 llama a `die()`.
 - Con la opción `show_damage_numbers` de `Settings` (apagada por defecto), `take_damage()` suma el daño realmente hecho y, pasados `DAMAGE_TEXT_WINDOW` (0,25 s) desde el primer golpe, o al morir, lo enseña con `FloatingText` (blanco, `UiFormat.number`) sobre la nave; los golpes seguidos salen agrupados en un solo número.
-- `die()` emite `died(data.reward)`, reproduce `data.death_sound` en el bus `SFX` y libera el nodo. El `AudioStreamPlayer` se crea como hijo del padre (el `Path2D`) porque el enemigo se libera enseguida, y se libera solo al terminar (`finished`). Si llega a la estación (`reached_end`) no suena.
+- `die()` emite `died(data.reward)`, reproduce `data.death_sound` en el bus `SFX` y llama a `destroy()`: restos (`Debris`), la explosión de la Payload si la tiene y libera el nodo. El `AudioStreamPlayer` se crea como hijo del padre (el `Path2D`) porque el enemigo se libera enseguida, y se libera solo al terminar (`finished`). Si llega a la estación (`reached_end`) no suena.
 - Decidido: las naves no suenan al morir (el usuario lo pidió: sonaba demasiado fuerte y tapaba el resto). Las `resources/enemy_data/*.tres` no asignan `death_sound`, así que `_play_death_sound()` no hace nada. El campo `death_sound` de `EnemyData` y el código siguen por si se quiere volver a poner.
 - Los audios de `assets/audio/effects/SpaceShips/` (`.ogg` los largos, `.wav` los cortos) se quedan en `assets/` sin usar (los antiguos 4 Dart compartían `DartShip.wav`).
 
@@ -96,13 +96,11 @@ Sprites: `assets/sprites/enemies/divisora/` (`divisora_0..2.png` de 32x32, `divi
 
 ### Habilidades
 
-- **Pulso EMP** (Saboteadora; `emp_interval` > 0): `setup()` llama a `EmpWave.attach(self)` (`scripts/entities/EmpWave.gd`, sin escena), que cuelga de la nave un `Timer` de `emp_interval` s (5). En cada vuelta empieza una carga de 1 s (`EmpCharge.start(enemy)`, `scripts/entities/EmpCharge.gd`, hijo del sprite para girar con él), toda en píxeles sin antialiasing:
-  - En el núcleo crece una bola de energía de un punto de 2x2 a unos 13 px (se sale del núcleo), en capas que pasan de azul eléctrico a blanco por pasos (`#16307a`, `#2a6ae6`, `#78bcff`, `#e6f6ff`) con centro blanco. Las bobinas se iluminan con los mismos pasos.
-  - Es inestable y va a más con la carga: late cada vez más rápido (de 12 a 60 rad/s), cambia de tamaño a tirones (medios píxeles y saltos de 1 px), vibra 1 px y chispea con píxeles blancos, morados `#aa78ff` y rojizos `#f0323c`.
-  - Suelta hasta 4 rayos de 1 px en zigzag desde su borde hacia fuera, en `#78bcff` y `#e6f6ff`, cada vez más largos (de 3 a 12 px) y frecuentes.
-  - En los últimos 0,3 s la nave tiembla 1 px (posición del sprite) y va al 25 % de su velocidad.
-  - Al acabar, la nave recupera velocidad, da un destello (`flash()`) y `EmpWave.spawn(enemy)` crea en el padre de la nave (el camino, así que no la sigue) un destello blanco de 12 px durante 0,08 s y un anillo de 4 px de grueso (`RING_COLORS`, de fuera a dentro: `#e6f6ff`, dos de `#78bcff` y estela `#2a6ae6`) que sale de golpe hasta `emp_radius` (96 px, 6 casillas: el anillo llega justo hasta ese radio) en 0,3 s, rápido al principio y frenando al final, y se desvanece en 0,2 s. Cada torreta del grupo `turrets` por la que pasa el borde recibe `Turret.disable(emp_disable_time)` (3 s; ver [torretas.md](torretas.md)) una sola vez por pulso.
-- Sprite: `assets/sprites/enemies/saboteadora/saboteadora_0` a `_2.png` (32x32, mirando hacia arriba, `rotate_sprite = true`), generados por `scripts/tools/make_saboteadora.gd` (`godot --headless --path . -s scripts/tools/make_saboteadora.gd`) a partir de una cuadrícula de texto con la mitad izquierda. Casco gris de enemigo, dos antenas delante, dos bobinas laterales con anillos azul eléctrico (`#16307a`, `#2a6ae6`, `#78bcff`, `#e6f6ff`), núcleo redondo en el centro y dos motores rojos. En los 3 frames laten el núcleo, las chispas de las antenas y las llamas.
+- **Explosión EMP al morir** (Payload; `emp_radius` > 0). Es una bomba: importa dónde la matas. Dentro de un grupo de naves las daña; junto a tus torretas te las apaga.
+  - **Latido**: `setup()` llama a `EmpCharge.start(self)` (`scripts/entities/EmpCharge.gd`, hijo del sprite para girar con él, todo en píxeles sin antialiasing). El núcleo de la ventanilla late cada vez más rápido según `progress_ratio`: de 4 rad/s al salir (cada 1,6 s) a 40 rad/s al llegar (unas 6 veces por segundo). Es un latido seco (`pow(0,5 + 0,5 sen, 3)`): en cada pico crece una bola de energía en capas que pasan de azul eléctrico a blanco (`#16307a`, `#2a6ae6`, `#78bcff`, `#e6f6ff`) con el centro blanco, de 2,5 px de radio al salir (dentro de la ventanilla) a 6,5 px al llegar (se sale), y se enciende la luz de la espoleta del morro (y un píxel más por encima en la segunda mitad del camino). Desde el 40 % del camino se vuelve inestable, cada vez más: el radio va a tirones (medios píxeles y saltos de 1 px), la bola vibra 1 px y chispea con píxeles blancos, morados `#aa78ff` y rojizos `#f0323c`, y suelta hasta 4 rayos de 1 px en zigzag (`#78bcff` y `#e6f6ff`) de 3 a 12 px. No cambia la velocidad de la nave.
+  - **Explosión**: al morir (no al llegar a la estación), `die()` llama a `destroy()`, que además de los restos lanza `EmpWave.spawn(self)` (`scripts/entities/EmpWave.gd`, sin escena): crea en el padre de la nave (el camino) un destello blanco de 12 px durante 0,08 s y un anillo de 4 px de grueso (`RING_COLORS`, de fuera a dentro: `#e6f6ff`, dos de `#78bcff` y estela `#2a6ae6`) que sale de golpe hasta `emp_radius` (96 px, 6 casillas) en 0,3 s, rápido al principio y frenando al final, y se desvanece en 0,2 s. Cada torreta del grupo `turrets` por la que pasa el borde recibe `Turret.disable(emp_disable_time)` (3 s; ver [torretas.md](torretas.md)) y cada nave del grupo `enemies` viva, `take_damage(death_damage)` (50, sin torreta de origen), una sola vez. La Payload que explota no se daña a sí misma; si cae otra Payload, también explota (en cadena).
+  - `destroy()` (restos, explosión y liberar, sin botín ni texto) lo usa también el escaparate de la Navedex (ver [menu.md](menu.md)).
+- Sprite: ver la Payload en [art.md](art.md).
 
 ### Efectos visuales
 

@@ -112,7 +112,7 @@ Opcional, solo torretas de bala (Minigun y Minigun pesada). Lo activa `TurretDat
 
 ### Apagada por EMP
 
-`Turret.disable(seconds)` (lo llama el pulso EMP de la Saboteadora, ver [enemigos.md](enemigos.md)). Todas las torretas están en el grupo `turrets`.
+`Turret.disable(seconds)` (lo llama la explosión EMP de la Payload al morir, ver [enemigos.md](enemigos.md)). Todas las torretas están en el grupo `turrets`.
 
 - `disabled = true`: `_process` no apunta, el `Timer` de cooldown se pausa (`paused`, así conserva lo que le quedaba) y el haz continuo (`FocusBeam`) se corta. Si el cañón estaba cargando o disparando vuelve a `default`, y el frame de disparo de onda, cadena o haz no se lanza.
 - Base y cañón se tiñen de azul muy oscuro (`DISABLED_TINT`) y el cañón se queda quieto (`speed_scale` 0).
@@ -229,7 +229,7 @@ Torreta de apoyo que da dinero (`miner.tres`, mejora `miner_fusion.tres` "Excava
 
 - **Cuándo genera**: solo con una oleada en curso. `LevelState.wave_in_progress` se pone a true con `Spawner.wave_started` y a false con `Spawner.wave_cleared` (lo hace `Level`), y emite `wave_in_progress_changed`. `Turret._setup_miner` deja la torreta sin apuntar y con el `Timer` de `attack_cooldown` pausado mientras no hay oleada o está apagada (`_update_mine_timer`); entre oleadas conserva lo que le quedaba.
 - **Animación**: el cañón (`miner_cannon.tres`) anima `default` en bucle (4 frames a 6 fps: la broca gira dentro del pozo y saltan esquirlas de roca). Al cumplirse el `Timer`, espera a que acabe la vuelta de `default` (`animation_looped`) y reproduce `generate` (7 frames a 10 fps, sin bucle): la punta se pone dorada y suelta chispas, sale una pepita del pozo que se parte en dos y cada mitad cae en una tolva, que brilla y queda un poco más llena. En el frame 4 (`MINE_PAYOUT_FRAME`, cuando caen las pepitas) da el dinero con `LevelState.add_money` y saca el `+X€` con `FloatingText` sobre la torreta.
-- **EMP**: el pulso de la Saboteadora la apaga como a las demás: corta `generate` antes del cobro, pierde la generación pendiente y el `Timer` se queda en pausa hasta que vuelve.
+- **EMP**: la explosión de la Payload la apaga como a las demás: corta `generate` antes del cobro, pierde la generación pendiente y el `Timer` se queda en pausa hasta que vuelve.
 - No se amplifica (no tiene `amp_effect`) y no pinta alcance.
 
 ## Tipos de ataque

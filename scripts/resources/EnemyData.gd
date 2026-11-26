@@ -33,11 +33,11 @@ const INSPECT_TAG: String = "TAG_ENEMY"
 # Trozos que suelta al morir, de izquierda a derecha según su dibujo (ninguno si está vacío).
 # Si sus SpriteFrames tienen la animación "crack", se ve un instante antes de partirse.
 @export var split_into: Array[EnemyData] = []
-# Pulso EMP (Saboteadora): cada `emp_interval` s apaga `emp_disable_time` s las torretas
-# a `emp_radius` px o menos. Con `emp_interval` a 0 no suelta pulsos.
-@export var emp_interval: float = 0.0
-@export var emp_radius: float = 48.0
+# Explosión EMP al morir (Payload): apaga `emp_disable_time` s las torretas a `emp_radius` px o menos
+# y quita `death_damage` de vida a las naves que pille. Con `emp_radius` a 0 no explota.
+@export var emp_radius: float = 0.0
 @export var emp_disable_time: float = 3.0
+@export var death_damage: float = 0.0
 
 func get_inspect_icon() -> Texture2D:
 	if sprite_frames != null and sprite_frames.has_animation("up"):
