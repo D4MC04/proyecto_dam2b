@@ -111,8 +111,8 @@ TURRET_TURRET_NAME,Cañón doble,Twin Cannon
 TURRET_TURRET_DESC,Dispara ráfagas rápidas con sus dos cañones. Barata y fiable.,Fires quick bursts from its two barrels. Cheap and reliable.
 TURRET_TURRET_FUSION_NAME,Cañón cuádruple,Quad Cannon
 TURRET_TURRET_FUSION_DESC,Cuatro cañones y una ráfaga muy rápida. Fusión de dos Cañones dobles.,Four barrels and a very fast burst. Fusion of two Twin Cannons.
-TURRET_TURRET_LEVEL3_NAME,Cañón cuádruple III,Quad Cannon III
-TURRET_TURRET_LEVEL3_DESC,Cuatro cañones y una ráfaga muy rápida. Fusión de dos Cañones dobles.,Four barrels and a very fast burst. Fusion of two Twin Cannons.
+TURRET_TURRET_LEVEL3_NAME,Lanza dorada,Golden Lance
+TURRET_TURRET_LEVEL3_DESC,Dos lanzas de oro disparan dardos que atraviesan una nave y golpean a la siguiente.,Two golden lances fire darts that pierce one ship and hit the next.
 ENEMY_ACORAZADO_NAME,Juggernaut,Juggernaut
 ENEMY_ACORAZADO_DESC,El tanque: muy lento y con muchísimo blindaje.,The tank: very slow and heavily armored.
 ENEMY_ARIETE_NAME,Ram,Ram

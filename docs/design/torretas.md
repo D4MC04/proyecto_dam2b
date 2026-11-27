@@ -28,7 +28,7 @@ La fusionada es otro `TurretData` (`resources/turret_data/<x>_fusion.tres`) con 
 
 | Fusionada | Sustituye a | Coste | Daño | Alcance | Cadencia (s) | Diferencia |
 |---|---|---|---|---|---|---|
-| Cañón cuádruple | Cañón doble | 200 | 8 | 72 | 0,15 | Cuatro cañones, ráfaga rápida |
+| Cañón cuádruple | Cañón doble | 200 | 5 | 72 | 0,15 | Cuatro cañones, ráfaga rápida |
 | Minigun pesada | Minigun | 400 | 14 | 96 | 0,3 → 0,04 | Sobrecalentamiento mejor: 90 disparos, parada de 2 s |
 | Cryo ventisca | Cryo | 500 | 12 | 96 | 2,0 | Onda mayor (`wave_scale` 1,5), frena al 35 % durante 4,5 s. Aspecto de vórtice: el aro del cañón acelera durante la recarga (ver [art.md](art.md)) |
 | Cañón de asedio | Cañón pesado | 600 | 55 × 2 | 96 | 2,1 | Dos cañones: salva de 2 balas (`salvo_count`) separadas 0,15 s, una por cañón, que explotan en área de 32 px. La segunda cae encima de la primera; no frena. Bala de 160 px/s con estela y humo |
@@ -38,11 +38,11 @@ La fusionada es otro `TurretData` (`resources/turret_data/<x>_fusion.tres`) con 
 | Aniquilador | Disintegrator | 900 | 60/130/280 por s | 128 | no se usa | Sube de nivel en la mitad de tiempo (`level_time` 0,75) |
 | Amplificador mayor | Amplificador | 800 | no ataca | aura 100 | no se usa | Las torretas de su aura ganan el efecto mayor |
 
-**Nivel 3 (provisional).** De momento cada `<x>_level3.tres` usa los sprites y el ataque del nivel 2 (sin `upgrade_frames`), con nombre "<nivel 2> III" y la misma descripción; cada torreta lo sustituirá por su propio diseño. Sus números siguen el mismo camino que la mejora 1 → 2 pero con medio paso: cada stat que cambió del nivel 1 al 2 vuelve a cambiar en la misma dirección la mitad (nivel 3 = nivel 2 + (nivel 2 − nivel 1) / 2). Los stats propios van en recursos `<x>_level3` (`collision_shapes/`, `bullet_data/<x>_level3_bullet`, `pulse_data/`, `chain_data/`, `beam_data/`, `focus_beam_data/`, `orbit_data/`). No se repite lo que en el nivel 2 empeoró para compensar una mecánica nueva (cadencia del Cañón de asedio por la salva) ni lo visual (velocidad de bala, `growth`, `fire_frame`, `tint`).
+**Nivel 3 (provisional).** De momento cada `<x>_level3.tres` usa los sprites y el ataque del nivel 2 (sin `upgrade_frames`), con nombre "<nivel 2> III" y la misma descripción; cada torreta lo sustituirá por su propio diseño (la Lanza dorada ya lo tiene). Sus números siguen el mismo camino que la mejora 1 → 2 pero con medio paso: cada stat que cambió del nivel 1 al 2 vuelve a cambiar en la misma dirección la mitad (nivel 3 = nivel 2 + (nivel 2 − nivel 1) / 2). Los stats propios van en recursos `<x>_level3` (`collision_shapes/`, `bullet_data/<x>_level3_bullet`, `pulse_data/`, `chain_data/`, `beam_data/`, `focus_beam_data/`, `orbit_data/`). No se repite lo que en el nivel 2 empeoró para compensar una mecánica nueva (cadencia del Cañón de asedio por la salva) ni lo visual (velocidad de bala, `growth`, `fire_frame`, `tint`).
 
 | Nivel 3 | Coste | Cambios respecto al nivel 2 |
 |---|---|---|
-| Cañón cuádruple III | 400 | Cadencia 0,15 → 0,1 s, alcance 72 → 78 |
+| Lanza dorada (diseño propio) | 400 | Daño 5 → 7, cadencia 0,15 → 0,12 s, alcance 72 → 84; dardo de 340 px/s que atraviesa una nave (`pierce` 1) y sigue recto, con estela (`trail_frames`) y chispazo oro (`impact_frames`). Sprites propios en `turret_level3/` (ver [art.md](art.md)) |
 | Minigun pesada III | 800 | Daño 14 → 17, alcance 96 → 104, cadencia 0,3 → 0,25 (mínima 0,04 → 0,035), 105 disparos hasta sobrecalentarse, parada 1,5 s, tubos 0,275 s |
 | Cañón de asedio III | 1200 | Daño 55 → 63, área 32 → 33, alcance 96 → 100 |
 | Cryo ventisca III | 1000 | Daño 12 → 15, alcance 96 → 112 (`wave_scale` 1,75), frena al 25 % durante 5 s |
@@ -57,7 +57,7 @@ La fusionada es otro `TurretData` (`resources/turret_data/<x>_fusion.tres`) con 
 
 Al construir en una casilla libre, `BuildManager` emite `LevelState.turret_placed` (no al mejorar); la escucha el tutorial.
 
-`LevelState.sellable_turret` es la torreta colocada seleccionada. `inspect_placed` la fija junto con `inspected`; cualquier otro cambio de `inspected` la suelta. `BuildManager._try_place` suelta todo (`_deselect_all`) al pulsar la que ya está seleccionada, y cualquier clic sobre la interfaz también la suelta (`LevelUI._input`), menos en el recuadro de Mejorar y Vender; Mejorar la suelta después de mejorar. `LevelState.sell_selected_turret()` suma `Turret.get_sell_value()` (mitad de `Turret.invested`, redondeada hacia abajo; `invested` es el coste al colocar y suma `fusion.cost` en cada mejora; en el nivel 3 es la mitad de su precio, `data.cost`, no de lo invertido: Cañón cuádruple III, 400 → 200), hace `queue_free` de la torreta (al salir del árbol `Grid.register_turret` libera la casilla) y suelta la selección. Al vender sale un `+X€` flotante sobre la casilla (`FloatingText`, ver [enemigos.md](enemigos.md)). No cuenta en el resumen de partida. Solo vende en `PLAYING` (lo comprueba `LevelUI`).
+`LevelState.sellable_turret` es la torreta colocada seleccionada. `inspect_placed` la fija junto con `inspected`; cualquier otro cambio de `inspected` la suelta. `BuildManager._try_place` suelta todo (`_deselect_all`) al pulsar la que ya está seleccionada, y cualquier clic sobre la interfaz también la suelta (`LevelUI._input`), menos en el recuadro de Mejorar y Vender; Mejorar la suelta después de mejorar. `LevelState.sell_selected_turret()` suma `Turret.get_sell_value()` (mitad de `Turret.invested`, redondeada hacia abajo; `invested` es el coste al colocar y suma `fusion.cost` en cada mejora; en el nivel 3 es la mitad de su precio, `data.cost`, no de lo invertido: Lanza dorada, 400 → 200), hace `queue_free` de la torreta (al salir del árbol `Grid.register_turret` libera la casilla) y suelta la selección. Al vender sale un `+X€` flotante sobre la casilla (`FloatingText`, ver [enemigos.md](enemigos.md)). No cuenta en el resumen de partida. Solo vende en `PLAYING` (lo comprueba `LevelUI`).
 
 ## Escena y script
 
@@ -187,6 +187,7 @@ DPS efectivo = DPS a un objetivo × objetivos que se estiman golpeados por dispa
 |---|---|---|---|---|---|---|
 | Cañón doble | 100 (100) | 1 | 20 (20) | 20 (20) | 0,20 (0,20) | 0,20 (0,20) |
 | Cañón cuádruple | 300 (300) | 1 | 53 (47) | 53 (47) | 0,18 (0,16) | 0,18 (0,16) |
+| Lanza dorada | 700 (700) | 1,7 | 58 (50) | 99 (50) | 0,08 (0,07) | 0,14 (0,07) |
 | Minigun | 200 (200) | 1 | 35 (27), pico 160 | 35 (27) | 0,18 (0,13) | 0,18 (0,13) |
 | Minigun pesada | 600 (600) | 1 | 91 (65), pico 350 | 91 (65) | 0,15 (0,11) | 0,15 (0,11) |
 | Cryo | 250 (250) | 6 | 3 (2) | 18 (15) + frena 45 % | 0,012 (0,010) | 0,07 (0,06) |
