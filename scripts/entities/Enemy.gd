@@ -88,7 +88,7 @@ func setup(enemy_data: EnemyData, health_multiplier: float = 1.0) -> void:
 	if data.emp_radius > 0.0:
 		EmpCharge.start(self)
 
-## Sale del portal: crece de escala 0 a 1 con un destello.
+## Aparece en el sitio (Navedex): crece de escala 0 a 1 con un destello.
 func spawn_in() -> void:
 	scale = Vector2.ZERO
 	sprite.modulate = SLOW_FLASH

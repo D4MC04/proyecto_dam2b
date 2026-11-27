@@ -77,7 +77,7 @@ const STATION_REACH: float = 40.0
 # Radio de giro (casillas) de las esquinas si el .txt no da otro (se acorta si el tramo no da para tanto)
 const DEFAULT_TURN_RADIUS: float = 5.0
 # Casillas del principio de cada camino que quedan en recto antes de la primera curva: ahí están la boca
-# del pasillo y el portal de las naves (Spawner.PORTAL_OFFSET, 40 px)
+# del pasillo por donde entran las naves
 const ENTRY_STRAIGHT: float = 3.0
 # Distancia (casillas) a la que el pasillo aparta lo que hay a los lados: es pasillo toda casilla que
 # tenga algún punto a esta distancia o menos de la curva. En un tramo recto sale el camino y una casilla a
@@ -1500,7 +1500,7 @@ func _corner_key(points: PackedVector2Array, j: int) -> String:
 
 ## Distancia (px) de la esquina j a donde empieza y acaba su arco con ese radio (casillas), recortada
 ## para que quepa: hasta la mitad de un tramo entre dos esquinas, el tramo entero en el último y, en el
-## primero, el tramo menos ENTRY_STRAIGHT casillas, que quedan en recto para la boca y el portal.
+## primero, el tramo menos ENTRY_STRAIGHT casillas, que quedan en recto para la boca.
 func _corner_reach(points: PackedVector2Array, j: int, radius: float) -> float:
 	var into: Vector2 = points[j] - points[j - 1]
 	var out: Vector2 = points[j + 1] - points[j]
