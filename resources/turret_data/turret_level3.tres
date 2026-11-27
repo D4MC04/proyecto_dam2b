@@ -8,6 +8,7 @@
 [ext_resource type="SpriteFrames" path="res://resources/sprite_frames/turret_level3_cannon.tres" id="7"]
 [ext_resource type="Resource" path="res://resources/amp_effects/turret.tres" id="amp"]
 [ext_resource type="AudioStream" uid="uid://b754bgcqp6rml" path="res://assets/audio/effects/Turrets/Turret/DobleLaserShoot.wav" id="snd"]
+[ext_resource type="SpriteFrames" path="res://resources/sprite_frames/turret_level3_transform.tres" id="transform"]
 
 [resource]
 script = ExtResource("1")
@@ -20,6 +21,7 @@ attack_range = ExtResource("2")
 bullet_data = ExtResource("3")
 muzzle_offset = Vector2(-7, -15)
 cannon = ExtResource("7")
+upgrade_frames = ExtResource("transform")
 turn_speed = 240.0
 shoot_sound = ExtResource("snd")
 amp_effect = ExtResource("amp")
