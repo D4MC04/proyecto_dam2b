@@ -3,10 +3,12 @@
 [ext_resource type="PackedScene" uid="uid://cbg1rp5gr0iaq" path="res://scenes/maps/levels/Level4.tscn" id="1_2iph1"]
 [ext_resource type="Script" uid="uid://du40p5btlpgd0" path="res://scripts/resources/LevelData.gd" id="2_2ohtm"]
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="3_af13n"]
-[ext_resource type="Resource" uid="uid://cnbuncwscbxtt" path="res://resources/turret_data/turret.tres" id="4_2iph1"]
-[ext_resource type="Resource" uid="uid://bh8qdvmr3kaj" path="res://resources/turret_data/rocket_launcher.tres" id="5_2ohtm"]
-[ext_resource type="Resource" path="res://resources/turret_data/minigun.tres" id="6_af13n"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="7_jxj2i"]
+[ext_resource type="Resource" uid="uid://cnbuncwscbxtt" path="res://resources/turret_data/turret.tres" id="t_turret"]
+[ext_resource type="Resource" uid="uid://bh8qdvmr3kaj" path="res://resources/turret_data/rocket_launcher.tres" id="t_rocket_launcher"]
+[ext_resource type="Resource" path="res://resources/turret_data/minigun.tres" id="t_minigun"]
+[ext_resource type="Resource" path="res://resources/turret_data/orbiter.tres" id="t_orbiter"]
+[ext_resource type="Resource" path="res://resources/turret_data/miner.tres" id="t_miner"]
 [ext_resource type="Resource" uid="uid://cgaty72q84khx" path="res://resources/wave_data/level_4.tres" id="8_2iph1"]
 [ext_resource type="Resource" uid="uid://cgwlj2rcy5217" path="res://resources/wave_data/level_4_4.tres" id="14_ci50m"]
 [ext_resource type="Resource" uid="uid://denqld7yjrx1t" path="res://resources/wave_data/level_4_5.tres" id="15_8f45r"]
@@ -15,16 +17,14 @@
 [ext_resource type="Resource" uid="uid://cigqbnhix2jqo" path="res://resources/wave_data/level_4_7.tres" id="17_7vt8a"]
 [ext_resource type="Resource" uid="uid://b6rl3jp7mi5h7" path="res://resources/wave_data/level_4_9.tres" id="17_keu85"]
 [ext_resource type="Resource" uid="uid://b87mnf6cclclk" path="res://resources/wave_data/level_4_10.tres" id="18_7vt8a"]
-[ext_resource type="Resource" uid="uid://ccgd0f62u5qog" path="res://resources/turret_data/cryo.tres" id="cryo"]
 [ext_resource type="Resource" uid="uid://kc156xs155vk" path="res://resources/wave_data/level_4_2.tres" id="wave_4_2"]
 [ext_resource type="Resource" uid="uid://7ib55vqbvf2h" path="res://resources/wave_data/level_4_3.tres" id="wave_4_3"]
-[ext_resource type="Resource" path="res://resources/turret_data/miner.tres" id="miner"]
 
 [resource]
 script = ExtResource("2_2ohtm")
 map = ExtResource("1_2iph1")
 starting_money = 900
-turrets = Array[ExtResource("3_af13n")]([ExtResource("4_2iph1"), ExtResource("6_af13n"), ExtResource("cryo"), ExtResource("5_2ohtm"), ExtResource("miner")])
+turrets = Array[ExtResource("3_af13n")]([ExtResource("t_turret"), ExtResource("t_rocket_launcher"), ExtResource("t_minigun"), ExtResource("t_orbiter"), ExtResource("t_miner")])
 waves = Array[ExtResource("7_jxj2i")]([ExtResource("8_2iph1"), ExtResource("wave_4_2"), ExtResource("wave_4_3"), ExtResource("14_ci50m"), ExtResource("15_8f45r"), ExtResource("16_keu85"), ExtResource("17_7vt8a"), ExtResource("16_8f45r"), ExtResource("17_keu85"), ExtResource("18_7vt8a")])
 sector_name = "SECTOR_4_NAME"
 radar_distance = 0.46
