@@ -10,6 +10,8 @@ const Project = (() => {
 		CircleShape2D: { radius: { type: "float", default: 10.0 } },
 	};
 
+	const NAMES_CSV = "translations/textos.csv";
+
 	const state = {
 		root: null,
 		docs: {},
@@ -18,6 +20,7 @@ const Project = (() => {
 		names: {},
 		edits: new Map(),
 		listeners: [],
+		savedListeners: [],
 	};
 
 	// --- Acceso a archivos (File System Access API) ---
@@ -313,13 +316,21 @@ const Project = (() => {
 				}
 			}
 			await writeText(path, text);
-			state.docs[path] = Tres.scan(text);
+			if (path.endsWith(".tres")) {
+				state.docs[path] = Tres.scan(text);
+			}
 			for (const edit of edits) {
 				state.edits.delete(editKey(edit.ref));
 			}
 			saved.push(path);
 		}
+		if (saved.includes(NAMES_CSV)) {
+			await loadNames();
+		}
 		notify();
+		for (const listener of state.savedListeners) {
+			await listener(saved);
+		}
 		return saved;
 	}
 
@@ -332,6 +343,11 @@ const Project = (() => {
 
 	function onChange(listener) {
 		state.listeners.push(listener);
+	}
+
+	// Avisa después de guardar, con las rutas escritas.
+	function onSaved(listener) {
+		state.savedListeners.push(listener);
 	}
 
 	function notify() {
@@ -367,6 +383,8 @@ const Project = (() => {
 		save,
 		discard,
 		onChange,
+		onSaved,
+		readText,
 		translate,
 		fileName,
 		get isOpen() {

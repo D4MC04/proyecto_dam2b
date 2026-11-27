@@ -1,7 +1,7 @@
 // Tabla ordenable con celdas editables. Cada columna es:
 // {id, label, title, group, ref(row) -> ref editable, get(row) -> valor calculado, format(v, row),
 //  cellTitle(row) -> tooltip, shared(row) -> aviso si el archivo lo comparten varias filas, sticky, cls,
-//  warn(row) -> true para marcar la celda en rojo}
+//  warn(row) -> true para marcar la celda en rojo, build(td, row) -> celda con contenido propio (botones)}
 // options: {onRowClick(row), isSelected(row)} para tablas con una fila elegida.
 "use strict";
 
@@ -107,7 +107,9 @@ const BalanceTable = (() => {
 		}
 		const r = col.ref ? col.ref(row) : null;
 		const cell = { td, col, row, ref: r, input: null };
-		if (r) {
+		if (col.build) {
+			col.build(td, row);
+		} else if (r) {
 			const input = document.createElement("input");
 			input.type = "number";
 			input.step = r.type === "int" ? "1" : "any";
@@ -151,7 +153,7 @@ const BalanceTable = (() => {
 			}
 			td.classList.toggle("changed", Project.isEdited(ref));
 			td.classList.toggle("default", Project.isDefault(ref) && !Project.isEdited(ref));
-		} else if (!col.ref) {
+		} else if (!col.ref && !col.build) {
 			const value = col.get ? col.get(row) : undefined;
 			td.textContent = col.format ? col.format(value, row) : formatNumber(value);
 		}
