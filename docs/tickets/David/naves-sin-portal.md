@@ -1,7 +1,6 @@
 # Las naves entran desde fuera de la pantalla, sin portal
 
 Estado: aceptada
-Espera a: mejora-payload
 Prioridad: media
 Modelo recomendado: sonnet
 Esfuerzo recomendado: medium
