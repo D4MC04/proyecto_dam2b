@@ -50,8 +50,8 @@ const SECTORS_HINT_MARGIN: float = 16.0
 # Pista "ESC para volver" de Sectores: va fuera de la pantalla de la mesa (no se ve desde la oficina)
 # y solo sale de cerca.
 @onready var sectors_esc_hint: Label = $SectorsEscHint
-@onready var stats_panel: VBoxContainer = $StatsScreen
-@onready var stats_label: Label = %StatsLabel
+@onready var combat_scoreboard: CombatScoreboard = $Office/Views/LeftView/CombatScoreboard
+@onready var stats_close_up: StatsCloseUp = $StatsCloseUp
 @onready var navedex: Navedex = $Navedex
 @onready var archive_tablet: ArchiveTablet = $Office/Views/CenterView/ArchiveTablet
 @onready var options_console: OptionsConsole = $Office/Views/CenterView/OptionsConsole
@@ -81,6 +81,7 @@ func _ready() -> void:
 	turn_edges.can_turn = _can_turn
 	turn_edges.turn_requested.connect(_turn)
 	_update_edges()
+	stats_close_up.painter = combat_scoreboard.painter
 	var quit_button: Button = %QuitButton
 	quit_button.add_theme_stylebox_override(&"hover_pressed", quit_button.get_theme_stylebox(&"hover"))
 	quit_button.add_theme_color_override(&"font_hover_pressed_color", quit_button.get_theme_color(&"font_hover_color"))
@@ -184,6 +185,9 @@ func _close_panel() -> void:
 	if _panel == options_close_up:
 		_zoom_out(_set_options_zoom)
 		return
+	if _panel == stats_close_up:
+		_zoom_out(_set_stats_zoom)
+		return
 	if _panel == navedex:
 		archive_tablet.held = false
 		_zoom_out(_set_tablet_zoom)
@@ -222,25 +226,14 @@ func _on_options_console_pressed() -> void:
 		return
 	_zoom_in(options_close_up, _set_options_zoom)
 
-@warning_ignore("integer_division")
 func _on_combat_scoreboard_pressed() -> void:
-	var seconds: int = int(GameState.play_time)
-	var favorite: String = GameState.favorite_turret()
-	var turret_name: String = "-"
-	if favorite != "":
-		turret_name = (load(Navedex.TURRET_DIR + favorite + ".tres") as TurretData).get_inspect_name()
-	stats_label.text = "\n".join([
-		tr("STATS_KILLS") % GameState.stats.get("kills", 0),
-		tr("STATS_SPENT") % UiFormat.money(GameState.stats.get("spent", 0)),
-		tr("STATS_TIME") % [seconds / 3600, seconds % 3600 / 60],
-		tr("STATS_FAVORITE") % turret_name,
-		tr("STATS_WINS") % GameState.stats.get("wins", 0),
-	])
-	_open_panel(stats_panel)
+	if _panel or _jumping or _leaving:
+		return
+	_zoom_in(stats_close_up, _set_stats_zoom)
 
 # --- Zoom a un objeto de la oficina --------------------------------------------------------
 
-# La vista se acerca a un objeto de la vista central y `panel` queda abierto. `step(amount)` (de 0, la
+# La vista se acerca a un objeto de la vista que se ve y `panel` queda abierto. `step(amount)` (de 0, la
 # oficina normal, a 1) coloca la oficina con _zoom_office() y hace lo propio del objeto.
 func _zoom_in(panel: Control, step: Callable) -> void:
 	_panel = panel
@@ -264,16 +257,17 @@ func _tween_zoom(target: float, step: Callable) -> void:
 	_zoom_tween.tween_method(step, 1.0 - target, target, ZOOM_TIME)
 	await _zoom_tween.finished
 
-# Acerca la oficina y el espacio de detrás: con `amount` 1, el punto `focus` de la vista queda en
+# Acerca la oficina y el espacio de detrás: con `amount` 1, el punto `focus` de la vista que se ve
+# (sus objetos ya están en esas coordenadas: la vista girada tiene Views + su vista en 0) queda en
 # `target` (en píxeles del menú) con la escala `final_scale` (distinta en x e y si al acercarse la
-# vista se inclina hacia el objeto).
+# vista se inclina hacia el objeto). El espacio sigue desplazado con Views, como al girar.
 func _zoom_office(focus: Vector2, final_scale: Vector2, target: Vector2, amount: float) -> void:
 	var zoom: Vector2 = Vector2.ONE.lerp(final_scale, amount)
 	var offset: Vector2 = (target - focus * final_scale) * amount
 	office.scale = zoom
 	office.position = offset
 	space.scale = zoom
-	space.position = offset
+	space.position = offset + Vector2(views.position.x, 0.0) * zoom
 
 # --- Mesa del radar ------------------------------------------------------------------------
 
@@ -352,6 +346,17 @@ func _set_options_zoom(amount: float) -> void:
 	_zoom_office(console.get_center(), Vector2.ONE * (body.size.y / console.size.y), body.get_center(), amount)
 	options_close_up.modulate.a = smoothstep(CLOSE_UP_FADE_START, 1.0, amount)
 	options_close_up.visible = amount > CLOSE_UP_FADE_START
+
+# --- Monitor de stats ----------------------------------------------------------------------
+
+# Zoom de 0 a 1: el monitor de la vista izquierda se acerca hasta ocupar el sitio del monitor de cerca
+# (el mismo marco a StatsCloseUp.BODY_SCALE), que aparece encima al final.
+func _set_stats_zoom(amount: float) -> void:
+	var monitor: Rect2 = combat_scoreboard.get_rect()
+	var body: Rect2 = stats_close_up.get_body_rect()
+	_zoom_office(monitor.get_center(), Vector2.ONE * (body.size.y / monitor.size.y), body.get_center(), amount)
+	stats_close_up.modulate.a = smoothstep(CLOSE_UP_FADE_START, 1.0, amount)
+	stats_close_up.visible = amount > CLOSE_UP_FADE_START
 
 # --- Tablet del archivo --------------------------------------------------------------------
 

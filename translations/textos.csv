@@ -159,6 +159,14 @@ STATS_SPENT,Dinero gastado: %s,Money spent: %s
 STATS_TIME,Tiempo jugado: %dh %02dm,Time played: %dh %02dm
 STATS_FAVORITE,Torreta favorita: %s,Favorite turret: %s
 STATS_WINS,Sectores ganados: %d,Sectors won: %d
+STATS_TURRETS,Torretas puestas: %d,Turrets placed: %d
+STATS_POWERS,Poderes usados: %d,Powers used: %d
+STATS_PERFECT_WAVES,Oleadas perfectas: %d,Perfect waves: %d
+STATS_BUILT,TORRETAS CONSTRUIDAS,TURRETS BUILT
+STATS_SECTORS,SECTORES,SECTORS
+STATS_STARS,%d ESTRELLAS,%d STARS
+STATS_STARS_ONE,1 ESTRELLA,1 STAR
+STATS_NOT_WON,SIN GANAR,NOT WON
 NAVEDEX_SHIPS,NAVES,SHIPS
 NAVEDEX_ACHIEVEMENTS,LOGROS,ACHIEVEMENTS
 NAVEDEX_UPGRADE,MEJORA: %s,UPGRADE: %s

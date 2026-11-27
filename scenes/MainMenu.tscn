@@ -6,7 +6,6 @@
 [ext_resource type="Texture2D" uid="uid://7udnrdhnrwfo" path="res://assets/sprites/planets/asteroide_1.png" id="12_asteroide1"]
 [ext_resource type="Theme" uid="uid://bxeq0loigpcy1" path="res://assets/ui/menu_theme.tres" id="13_theme"]
 [ext_resource type="Script" uid="uid://cu5uq2sgohj00" path="res://scripts/level_ui/OverlayFrame.gd" id="20_frame"]
-[ext_resource type="PackedScene" path="res://scenes/level_ui/ScreenHeader.tscn" id="21_header"]
 [ext_resource type="PackedScene" path="res://scenes/Navedex.tscn" id="22_navedex"]
 [ext_resource type="PackedScene" path="res://scenes/MenuBackground.tscn" id="24_background"]
 [ext_resource type="Texture2D" uid="uid://bykflanuslq17" path="res://assets/sprites/backgrounds/menu/menu_vignette.png" id="26_vignette"]
@@ -37,6 +36,7 @@
 [ext_resource type="Texture2D" path="res://assets/ui/guide_portrait.png" id="51_portrait"]
 [ext_resource type="Script" path="res://scripts/main_menu/OfficeTutorial.gd" id="52_office_tutorial"]
 [ext_resource type="Script" path="res://scripts/main_menu/SectorsCloseUp.gd" id="53_sectors_close"]
+[ext_resource type="Script" path="res://scripts/main_menu/StatsCloseUp.gd" id="54_stats_close"]
 
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_radar"]
@@ -403,7 +403,11 @@ text = "HINT_ESC_BACK"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="StatsScreen" type="VBoxContainer" parent="." unique_id=346163568]
+[node name="Navedex" parent="." unique_id=276684204 instance=ExtResource("22_navedex")]
+visible = false
+layout_mode = 1
+
+[node name="StatsCloseUp" type="Control" parent="."]
 visible = false
 layout_mode = 1
 anchors_preset = 15
@@ -411,44 +415,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-alignment = 1
-
-[node name="StatsPanel" type="PanelContainer" parent="StatsScreen" unique_id=41152293]
-layout_mode = 2
-size_flags_horizontal = 4
-script = ExtResource("20_frame")
-
-[node name="Margin" type="MarginContainer" parent="StatsScreen/StatsPanel" unique_id=1651303938]
-layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 21
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 21
-
-[node name="Content" type="VBoxContainer" parent="StatsScreen/StatsPanel/Margin" unique_id=16778367]
-layout_mode = 2
-theme_override_constants/separation = 18
-
-[node name="Header" parent="StatsScreen/StatsPanel/Margin/Content" unique_id=1033965195 instance=ExtResource("21_header")]
-layout_mode = 2
-title = "HEADER_STATS"
-text_size = 24
-
-[node name="StatsLabel" type="Label" parent="StatsScreen/StatsPanel/Margin/Content" unique_id=1396226164]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-
-[node name="BackButton" type="Button" parent="StatsScreen/StatsPanel/Margin/Content" unique_id=1593982123]
-custom_minimum_size = Vector2(204, 36)
-layout_mode = 2
-size_flags_horizontal = 4
-theme_override_font_sizes/font_size = 24
-text = "BTN_BACK"
-
-[node name="Navedex" parent="." unique_id=276684204 instance=ExtResource("22_navedex")]
-visible = false
-layout_mode = 1
+script = ExtResource("54_stats_close")
 
 [node name="OptionsCloseUp" type="Control" parent="."]
 visible = false
@@ -724,7 +691,7 @@ render_target_update_mode = 4
 [connection signal="pressed" from="Office/Views/CenterView/ArchiveTablet" to="." method="_on_archive_tablet_pressed"]
 [connection signal="pressed" from="Office/Views/LeftView/CombatScoreboard" to="." method="_on_combat_scoreboard_pressed"]
 [connection signal="pressed" from="Office/Views/CenterView/OptionsConsole" to="." method="_on_options_console_pressed"]
-[connection signal="pressed" from="StatsScreen/StatsPanel/Margin/Content/BackButton" to="." method="_close_panel"]
+[connection signal="back_pressed" from="StatsCloseUp" to="." method="_close_panel"]
 [connection signal="back_pressed" from="Navedex" to="." method="_close_panel"]
 [connection signal="back_pressed" from="OptionsCloseUp" to="." method="_close_panel"]
 [connection signal="pressed" from="QuitConfirm/Center/Panel/Margin/Content/Buttons/QuitButton" to="." method="_on_quit_button_pressed"]
