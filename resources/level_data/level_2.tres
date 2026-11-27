@@ -3,9 +3,10 @@
 [ext_resource type="PackedScene" uid="uid://c216ua6g8ynhl" path="res://scenes/maps/levels/Level2.tscn" id="1_wvv31"]
 [ext_resource type="Script" uid="uid://du40p5btlpgd0" path="res://scripts/resources/LevelData.gd" id="2_s45o5"]
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="3_k4sjs"]
-[ext_resource type="Resource" uid="uid://cnbuncwscbxtt" path="res://resources/turret_data/turret.tres" id="4_wvv31"]
-[ext_resource type="Resource" path="res://resources/turret_data/minigun.tres" id="6_k4sjs"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="7_q5l4p"]
+[ext_resource type="Resource" uid="uid://cnbuncwscbxtt" path="res://resources/turret_data/turret.tres" id="t_turret"]
+[ext_resource type="Resource" uid="uid://bh8qdvmr3kaj" path="res://resources/turret_data/rocket_launcher.tres" id="t_rocket_launcher"]
+[ext_resource type="Resource" path="res://resources/turret_data/minigun.tres" id="t_minigun"]
 [ext_resource type="Resource" uid="uid://byedhj4f4e5em" path="res://resources/wave_data/level_2.tres" id="8_wvv31"]
 [ext_resource type="Resource" uid="uid://bevcl7ku6q57g" path="res://resources/wave_data/level_2_4.tres" id="12_q5l4p"]
 [ext_resource type="Resource" uid="uid://bhujilkqgk2jf" path="res://resources/wave_data/level_2_7.tres" id="13_758qn"]
@@ -16,12 +17,11 @@
 [ext_resource type="Resource" uid="uid://domqegbyeo8gi" path="res://resources/wave_data/level_2_10.tres" id="16_wxgxa"]
 [ext_resource type="Resource" uid="uid://cwgkspsqvi7t6" path="res://resources/wave_data/level_2_2.tres" id="wave_2_2"]
 [ext_resource type="Resource" uid="uid://cgf1mne37rvte" path="res://resources/wave_data/level_2_3.tres" id="wave_2_3"]
-[ext_resource type="Resource" uid="uid://ccgd0f62u5qog" path="res://resources/turret_data/cryo.tres" id="cryo"]
 
 [resource]
 script = ExtResource("2_s45o5")
 map = ExtResource("1_wvv31")
-turrets = Array[ExtResource("3_k4sjs")]([ExtResource("4_wvv31"), ExtResource("6_k4sjs"), ExtResource("cryo")])
+turrets = Array[ExtResource("3_k4sjs")]([ExtResource("t_turret"), ExtResource("t_rocket_launcher"), ExtResource("t_minigun")])
 waves = Array[ExtResource("7_q5l4p")]([ExtResource("8_wvv31"), ExtResource("wave_2_2"), ExtResource("wave_2_3"), ExtResource("12_q5l4p"), ExtResource("13_iyd5v"), ExtResource("14_758qn"), ExtResource("13_758qn"), ExtResource("14_2vhsr"), ExtResource("15_g5enw"), ExtResource("16_wxgxa")])
 sector_name = "SECTOR_2_NAME"
 radar_distance = 0.34

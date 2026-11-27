@@ -3,10 +3,17 @@
 [ext_resource type="PackedScene" uid="uid://bj7tpsh2rual3" path="res://scenes/maps/levels/Level9.tscn" id="1_npfra"]
 [ext_resource type="Script" uid="uid://du40p5btlpgd0" path="res://scripts/resources/LevelData.gd" id="2_xvb3k"]
 [ext_resource type="Script" uid="uid://dmo7ci57slbqu" path="res://scripts/resources/TurretData.gd" id="3_j73uf"]
-[ext_resource type="Resource" uid="uid://cnbuncwscbxtt" path="res://resources/turret_data/turret.tres" id="4_npfra"]
-[ext_resource type="Resource" uid="uid://bh8qdvmr3kaj" path="res://resources/turret_data/rocket_launcher.tres" id="5_xvb3k"]
-[ext_resource type="Resource" path="res://resources/turret_data/minigun.tres" id="6_j73uf"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="7_4aa7w"]
+[ext_resource type="Resource" uid="uid://cnbuncwscbxtt" path="res://resources/turret_data/turret.tres" id="t_turret"]
+[ext_resource type="Resource" uid="uid://bh8qdvmr3kaj" path="res://resources/turret_data/rocket_launcher.tres" id="t_rocket_launcher"]
+[ext_resource type="Resource" path="res://resources/turret_data/minigun.tres" id="t_minigun"]
+[ext_resource type="Resource" path="res://resources/turret_data/orbiter.tres" id="t_orbiter"]
+[ext_resource type="Resource" path="res://resources/turret_data/miner.tres" id="t_miner"]
+[ext_resource type="Resource" uid="uid://lgewscsj1aah" path="res://resources/turret_data/tesla.tres" id="t_tesla"]
+[ext_resource type="Resource" uid="uid://ccgd0f62u5qog" path="res://resources/turret_data/cryo.tres" id="t_cryo"]
+[ext_resource type="Resource" path="res://resources/turret_data/amplifier.tres" id="t_amplifier"]
+[ext_resource type="Resource" path="res://resources/turret_data/disintegrator.tres" id="t_disintegrator"]
+[ext_resource type="Resource" path="res://resources/turret_data/rail.tres" id="t_rail"]
 [ext_resource type="Resource" uid="uid://dyw8tr8o7g5p" path="res://resources/wave_data/level_9.tres" id="8_npfra"]
 [ext_resource type="Resource" uid="uid://wsy8r4nyi28u" path="res://resources/wave_data/level_9_4.tres" id="15_hdva3"]
 [ext_resource type="Resource" uid="uid://b08r0iffxsh8w" path="res://resources/wave_data/level_9_5.tres" id="16_vmj3e"]
@@ -15,21 +22,14 @@
 [ext_resource type="Resource" uid="uid://duqskyo51yqtd" path="res://resources/wave_data/level_9_8.tres" id="19_ftqjb"]
 [ext_resource type="Resource" uid="uid://djotd8do8ggcy" path="res://resources/wave_data/level_9_9.tres" id="20_ylr5n"]
 [ext_resource type="Resource" uid="uid://u48gcb2pk8vp" path="res://resources/wave_data/level_9_10.tres" id="21_bir6h"]
-[ext_resource type="Resource" path="res://resources/turret_data/amplifier.tres" id="amplifier"]
-[ext_resource type="Resource" uid="uid://ccgd0f62u5qog" path="res://resources/turret_data/cryo.tres" id="cryo"]
-[ext_resource type="Resource" uid="uid://irudbi4pkbda" path="res://resources/turret_data/disintegrator.tres" id="disintegrator"]
-[ext_resource type="Resource" path="res://resources/turret_data/miner.tres" id="miner"]
-[ext_resource type="Resource" path="res://resources/turret_data/orbiter.tres" id="orbiter"]
-[ext_resource type="Resource" uid="uid://lgewscsj1aah" path="res://resources/turret_data/tesla.tres" id="tesla"]
 [ext_resource type="Resource" uid="uid://btpwskhg8om7s" path="res://resources/wave_data/level_9_2.tres" id="wave_9_2"]
 [ext_resource type="Resource" uid="uid://bw2hcukj2jww1" path="res://resources/wave_data/level_9_3.tres" id="wave_9_3"]
-[ext_resource type="Resource" path="res://resources/turret_data/rail.tres" id="rail"]
 
 [resource]
 script = ExtResource("2_xvb3k")
 map = ExtResource("1_npfra")
 starting_money = 2200
-turrets = Array[ExtResource("3_j73uf")]([ExtResource("4_npfra"), ExtResource("6_j73uf"), ExtResource("cryo"), ExtResource("5_xvb3k"), ExtResource("miner"), ExtResource("tesla"), ExtResource("orbiter"), ExtResource("amplifier"), ExtResource("disintegrator"), ExtResource("rail")])
+turrets = Array[ExtResource("3_j73uf")]([ExtResource("t_turret"), ExtResource("t_rocket_launcher"), ExtResource("t_minigun"), ExtResource("t_orbiter"), ExtResource("t_miner"), ExtResource("t_tesla"), ExtResource("t_cryo"), ExtResource("t_amplifier"), ExtResource("t_disintegrator"), ExtResource("t_rail")])
 waves = Array[ExtResource("7_4aa7w")]([ExtResource("8_npfra"), ExtResource("wave_9_2"), ExtResource("wave_9_3"), ExtResource("15_hdva3"), ExtResource("16_vmj3e"), ExtResource("17_dbew4"), ExtResource("18_vbjy4"), ExtResource("19_ftqjb"), ExtResource("20_ylr5n"), ExtResource("21_bir6h")])
 sector_name = "SECTOR_9_NAME"
 radar_distance = 0.76
