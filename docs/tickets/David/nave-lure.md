@@ -12,10 +12,10 @@ Las torretas siempre eligen bien el objetivo. La Lure les obliga a apuntarla a r
 - Cada 5 s suelta un pulso (anillo) que dura 2,5 s. Durante el pulso, las torretas que la tienen a tiro la eligen como objetivo (en `Turret._best_enemy()` / `_get_target()`); fuera del pulso eligen normal.
 - Las torretas atraídas pintan una línea roja fina hasta ella mientras dura el pulso.
 - Camuflada no atrae. El área que la golpea sigue salpicando a sus vecinas.
-- `make_waves.gd`: como mucho una por grupo.
+- En las oleadas: como mucho una por grupo.
 - Stats de docs/design/naves-plan.md (125 de vida, 45 px/s, 10 de daño, botín 25).
 - Sprite con `scripts/tools/make_lure.gd` (pixel art según docs/design/art.md, mirando hacia arriba, `rotate_sprite = true`), textos en `translations/textos.csv` y `description`.
-- Añadirla a `LEVELS` (nivel propuesto: 8), regenerar y comprobar la Navedex.
+- Añadir la nave a las oleadas del nivel 8 (nivel propuesto) con el panel de balanceo (pestaña Niveles) y comprobar la Navedex.
 - Al terminar: pasarla a docs/design/enemigos.md y quitarla de naves-plan.md.
 
 ## Qué leer
@@ -32,7 +32,7 @@ Solo esto; `/work` no lee nada más de docs/design.
 - resources/enemy_data/lure.tres
 - assets/sprites/enemies/lure/ y scripts/tools/make_lure.gd
 - translations/textos.csv
-- scripts/tools/make_waves.gd y resources/wave_data/ (regenerados)
+- resources/wave_data/ (oleadas del nivel 8, editadas con el panel)
 - docs/design/enemigos.md, docs/design/torretas.md, docs/design/niveles.md y docs/design/naves-plan.md
 
 ## Cómo se prueba a mano

@@ -16,7 +16,7 @@ El nivel 8 no tiene final especial.
 - scripts/tools/make_saboteadora_madre.gd
 - resources/enemy_data/saboteadora_madre.tres
 - scripts/entities/Enemy.gd
-- scripts/tools/make_waves.gd
+- resources/wave_data/ (última oleada del nivel 8, editada con el panel)
 
 ## Cómo se prueba a mano
 1. Última oleada del nivel 8: el jefe apaga muchas torretas a la vez cada cierto tiempo.

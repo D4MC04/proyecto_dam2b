@@ -88,6 +88,14 @@ Es cuánto piensa el modelo antes de responder (se elige junto al modelo; ningú
 ## Crear comandos
 Cada comando es un archivo `.claude/skills/nombre/SKILL.md` con instrucciones. Pídeselo a Claude ("crea un comando `/x` que haga...") o copia uno de los que hay.
 
+## Panel de balanceo
+- Abre `tools/balance/index.html` con doble clic en Chrome o Edge (sin servidor ni instalar nada), pulsa **Abrir proyecto** y elige la carpeta del juego.
+- Enseña los stats de torretas y naves en tablas: se ordenan pulsando la cabecera, las celdas blancas se editan y las cian se calculan solas. Pasa el ratón por cabeceras y celdas para ver de dónde sale cada dato y las fórmulas.
+- **Guardar** escribe directamente en los `.tres` de la carpeta elegida (solo la línea cambiada). Úsalo en la carpeta del worktree de un ticket, nunca en la de `main`, y luego `/commit` como siempre.
+- Pestaña **Niveles**: una fila por nivel (dinero inicial editable, torretas, oleadas y totales). Pulsa un nivel para ver sus oleadas (`health_multiplier` editable, naves, recompensa, vida total, duración de la salida y el ratio dificultad/dinero, en rojo por encima de 1) y pulsa una oleada para editar sus grupos: nave (desplegable), cuántas, separación, pausa después y camino; con los botones se añaden, quitan y reordenan. Todo se recalcula al momento. Las oleadas se cambian siempre aquí: `make_waves.gd` solo genera oleadas automáticas de prueba y sobrescribe las del nivel que se le pida.
+- Pestaña **Diálogos**: los textos de `translations/textos.csv` agrupados por diálogo (llamada de NOVA, tutorial del nivel de emergencia con sus variantes, tutorial de la oficina), con español e inglés lado a lado en cajas editables, contador de caracteres y aviso ⚠ si una línea es bastante más larga que las demás de su diálogo (el recuadro es fijo; `|` separa páginas). El buscador filtra por clave o texto, y «Todos los textos» enseña también el resto de claves. Guardar cambia solo las filas editadas del CSV (`git diff` solo las enseña). **Después hay que reimportar el CSV**: el juego lee los `.translation` que Godot genera al importarlo, y `/test` (sin editor) no los regenera. Reimporta abriendo el editor una vez o con `Godot --headless --import --path .` en la carpeta del juego, y commitea los `.translation` junto al CSV.
+- Si cambias stats que salen en las tablas de `docs/design/` (torretas.md › "Datos", enemigos.md › "Datos"), actualiza esas tablas (o pídeselo a Claude).
+
 ## Trucos
 - **Plan mode** para tickets grandes: Claude piensa y te enseña el plan antes de tocar nada.
 - **Una sesión por ticket**: no mezcles temas en el mismo chat. Si sigues en el mismo, `/clear` entre tickets.

@@ -9,14 +9,14 @@ Esfuerzo recomendado: high
 El último nivel acaba con la misma Nodriza que el 6.
 
 ## Qué hay que hacer
-- Jefe propio (fases: escudo, suelta naves, EMP) para el final del nivel 9, en `make_waves.gd`.
+- Jefe propio (fases: escudo, suelta naves, EMP) para el final del nivel 9, en su última oleada (con el panel de balanceo (pestaña Niveles)).
 - Sprite grande con script de `scripts/tools/`; aviso de jefe.
 
 ## Archivos que toca
 - scripts/tools/make_jefe_final.gd
 - resources/enemy_data/jefe_final.tres
 - scripts/entities/Enemy.gd
-- scripts/tools/make_waves.gd
+- resources/wave_data/ (última oleada del nivel 9, editada con el panel)
 - docs/design/enemigos.md
 
 ## Cómo se prueba a mano

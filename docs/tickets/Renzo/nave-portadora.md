@@ -19,7 +19,7 @@ Ninguna nave crea enemigos mientras vive.
 - resources/enemy_data/dron.tres
 - scripts/level/Spawner.gd
 - scripts/entities/Enemy.gd
-- scripts/tools/make_waves.gd
+- resources/wave_data/ (oleadas donde salga, editadas con el panel)
 
 ## Cómo se prueba a mano
 1. Nivel donde salga: la Portadora suelta drones; la oleada no acaba hasta matarlos.
