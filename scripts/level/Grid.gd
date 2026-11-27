@@ -4,12 +4,18 @@ class_name Grid
 var logic_map: TileMapLayer
 var slot_cells: Dictionary = {}
 var turrets: Dictionary = {}
+# Celdas de TurretSlots quitadas en tiempo de juego: casilla -> [source_id, atlas_coords, alternativa].
+var _hidden_art: Dictionary = {}
+# Casilla bajo la vista previa de construcción (sin torreta aún).
+var _preview_cell: Vector2i = Vector2i(-9999, -9999)
 # Ya hay un recálculo de auras pedido para el final del frame.
 var _amp_pending: bool = false
 
 func setup(lm: TileMapLayer) -> void:
 	logic_map = lm
 	slot_cells.clear()
+	_hidden_art.clear()
+	_preview_cell = Vector2i(-9999, -9999)
 	for c: Vector2i in logic_map.get_used_cells():
 		var data: TileData = logic_map.get_cell_tile_data(c)
 		match data.get_custom_data("kind"):
@@ -21,12 +27,41 @@ func can_build(c: Vector2i) -> bool:
 
 func register_turret(c: Vector2i, t: Turret) -> void:
 	turrets[c] = t
+	_refresh_slot_art(c)
 	t.tree_exiting.connect(func() -> void:
 		turrets.erase(c)
+		_refresh_slot_art(c)
 		_queue_amplification())
 	if t.data.is_amplifier():
 		t.power_changed.connect(_queue_amplification)
 	_queue_amplification()
+
+## Marca la casilla bajo la vista previa (o Vector2i(-9999, -9999) si no hay): su asteroide se oculta.
+func set_preview_cell(c: Vector2i) -> void:
+	if c == _preview_cell:
+		return
+	var old: Vector2i = _preview_cell
+	_preview_cell = c
+	_refresh_slot_art(old)
+	_refresh_slot_art(c)
+
+# El asteroide de la casilla se ve solo si no hay torreta ni vista previa encima. Se quita y repone
+# la celda de TurretSlots desde código, sin tocar el mapa guardado.
+func _refresh_slot_art(c: Vector2i) -> void:
+	if logic_map == null or not is_instance_valid(logic_map):
+		return
+	var layer: TileMapLayer = logic_map.get_parent().get_node_or_null(^"TurretSlots") as TileMapLayer
+	if layer == null:
+		return
+	var covered: bool = turrets.has(c) or c == _preview_cell
+	if covered and not _hidden_art.has(c) and layer.get_cell_source_id(c) >= 0:
+		_hidden_art[c] = [layer.get_cell_source_id(c), layer.get_cell_atlas_coords(c),
+				layer.get_cell_alternative_tile(c)]
+		layer.erase_cell(c)
+	elif not covered and _hidden_art.has(c):
+		var art: Array = _hidden_art[c]
+		layer.set_cell(c, art[0], art[1], art[2])
+		_hidden_art.erase(c)
 
 func cell(p: Vector2) -> Vector2i:
 	return logic_map.local_to_map(logic_map.to_local(p))
