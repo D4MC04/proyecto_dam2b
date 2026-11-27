@@ -464,3 +464,21 @@ button.small {
 .dialog-counter.long {
 	color: #ff6b6b;
 }
+
+/* Botón Jugar de la pestaña Niveles */
+.balance-table td.actions {
+	text-align: left;
+	white-space: nowrap;
+}
+
+.launcher-help {
+	margin: 0 0 12px;
+}
+
+.launcher-help[hidden] {
+	display: none;
+}
+
+.launcher-help button.small {
+	margin-left: 8px;
+}
