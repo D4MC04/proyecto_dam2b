@@ -81,6 +81,7 @@ func _ready() -> void:
 	turn_edges.can_turn = _can_turn
 	turn_edges.turn_requested.connect(_turn)
 	_update_edges()
+	stats_close_up.painter = combat_scoreboard.painter
 	var quit_button: Button = %QuitButton
 	quit_button.add_theme_stylebox_override(&"hover_pressed", quit_button.get_theme_stylebox(&"hover"))
 	quit_button.add_theme_color_override(&"font_hover_pressed_color", quit_button.get_theme_color(&"font_hover_color"))
