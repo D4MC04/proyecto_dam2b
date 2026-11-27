@@ -7,7 +7,7 @@ const BalanceApp = (() => {
 		TurretsTab,
 		EnemiesTab,
 		LevelsTab,
-		{ id: "dialogs", label: "Diálogos" },
+		DialogsTab,
 	];
 
 	let handle = null;
@@ -28,6 +28,13 @@ const BalanceApp = (() => {
 		el["save-button"].addEventListener("click", save);
 		el["discard-button"].addEventListener("click", discard);
 		Project.onChange(onProjectChange);
+		Project.onSaved(async (paths) => {
+			for (const tab of TABS) {
+				if (tab.onSaved) {
+					await tab.onSaved(paths);
+				}
+			}
+		});
 		window.addEventListener("beforeunload", (e) => {
 			if (Project.pendingCount > 0) {
 				e.preventDefault();
