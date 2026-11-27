@@ -8,11 +8,13 @@ En `_unhandled_input`:
 
 La casilla bajo el ratón se busca con `Grid.slot_at(punto)`: cuenta como hueco si el punto cae dentro del asteroide dibujado (círculo de `Grid.SLOT_CLICK_RADIUS` = 15 px alrededor del centro de la casilla; el tile es de 32x32 centrado en ella), no solo en su casilla de 16x16. Si dos asteroides se tocan gana el de centro más cercano. Fuera de todo asteroide devuelve la casilla normal.
 
-- **Mover el ratón**: si hay torreta seleccionada y la casilla bajo el cursor es construible, muestra una vista previa en el centro de la casilla: el icono de la torreta al 60 % de opacidad y su rango dibujado en blanco al 15 % (el Amplificador, su aura en ámbar, ver "Amplificador"). Si no, la oculta.
+- **Mover el ratón**: si hay torreta seleccionada y la casilla bajo el cursor es construible, muestra una vista previa en el centro de la casilla: el icono de la torreta al 60 % de opacidad y su rango dibujado en blanco al 15 % (el Amplificador, su aura en ámbar, ver "Amplificador"). Si no, la oculta. Mientras la vista previa está sobre una casilla, su asteroide de `TurretSlots` no se ve (`Grid.set_preview_cell()`); al apartar el ratón o soltar la torreta vuelve.
 - **Clic izquierdo**: si hay torreta seleccionada, `grid.can_build(cell)` y `state.spend_money(data.cost)`, instancia la torreta como hija de `BuildManager`, la coloca en el centro de la casilla y la registra en `Grid`.
 - **Clic izquierdo sobre una torreta ya colocada** (se mira antes que lo de colocar): siempre `state.inspect_placed(turret)` (no fusiona por clic); la ficha enseña la torreta y sale encima de ella el recuadro `TurretActions` con vender y, si tiene `fusion`, mejorar (ver abajo).
 - **Clic izquierdo donde no se puede construir** (el espacio, o cualquier casilla vacía sin torreta de la tienda elegida): `_deselect_all()` suelta todo, como el clic derecho y además la torreta colocada: `state.selected_turret = null`, `state.inspected = null` (la ficha vuelve al escáner, sin botones ni alcance) y oculta la vista previa.
 - **Clic derecho**: pone `state.selected_turret = null` y oculta la vista previa.
+
+**Asteroide de la casilla**: `Grid._refresh_slot_art(c)` quita la celda de la capa `TurretSlots` (guardando su tile en `_hidden_art`) mientras hay una torreta registrada en la casilla o la vista previa encima, y la repone al venderla o quedar libre, siempre en tiempo de juego sin tocar el mapa guardado.
 
 `stop_building()` oculta la vista previa y hace que `_unhandled_input` deje de hacer nada el resto de la partida. Lo llama `Level` al perder o ganar.
 

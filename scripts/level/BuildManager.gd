@@ -148,11 +148,13 @@ func _update_preview(mouse_pos: Vector2) -> void:
 		_sprite.texture = data.icon
 		_preview.global_position = grid.center(cell)
 		_range.queue_redraw()
+	grid.set_preview_cell(cell)
 	_preview.visible = true
 
 func _hide_preview() -> void:
 
 	_preview.visible = false
+	grid.set_preview_cell(Vector2i(-9999, -9999))
 	_last_cell = Vector2i(-9999, -9999)
 	_last_data = null
 
