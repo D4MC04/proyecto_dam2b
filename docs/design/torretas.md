@@ -42,7 +42,7 @@ La fusionada es otro `TurretData` (`resources/turret_data/<x>_fusion.tres`) con 
 
 | Nivel 3 | Coste | Cambios respecto al nivel 2 |
 |---|---|---|
-| Lanza dorada (diseño propio) | 400 | Daño 5 → 7, cadencia 0,15 → 0,12 s, alcance 72 → 84; dardo de 340 px/s que atraviesa una nave (`pierce` 1) y sigue recto, con estela (`trail_frames`) y chispazo oro (`impact_frames`). Sprites propios en `turret_level3/` (ver [art.md](art.md)) |
+| Lanza dorada (diseño propio) | 400 | Daño 5 → 7, cadencia 0,15 → 0,12 s, alcance 72 → 84; dardo de 340 px/s con estela (`trail_frames`) y chispazo oro (`impact_frames`). Sprites propios en `turret_level3/` (ver [art.md](art.md)) |
 | Minigun pesada III | 800 | Daño 14 → 17, alcance 96 → 104, cadencia 0,3 → 0,25 (mínima 0,04 → 0,035), 105 disparos hasta sobrecalentarse, parada 1,5 s, tubos 0,275 s |
 | Cañón de asedio III | 1200 | Daño 55 → 63, área 32 → 33, alcance 96 → 100 |
 | Cryo ventisca III | 1000 | Daño 12 → 15, alcance 96 → 112 (`wave_scale` 1,75), frena al 25 % durante 5 s |
@@ -187,7 +187,7 @@ DPS efectivo = DPS a un objetivo × objetivos que se estiman golpeados por dispa
 |---|---|---|---|---|---|---|
 | Cañón doble | 100 (100) | 1 | 20 (20) | 20 (20) | 0,20 (0,20) | 0,20 (0,20) |
 | Cañón cuádruple | 300 (300) | 1 | 53 (47) | 53 (47) | 0,18 (0,16) | 0,18 (0,16) |
-| Lanza dorada | 700 (700) | 1,7 | 58 (50) | 99 (50) | 0,08 (0,07) | 0,14 (0,07) |
+| Lanza dorada | 700 (700) | 1 | 58 (50) | 58 (50) | 0,08 (0,07) | 0,08 (0,07) |
 | Minigun | 200 (200) | 1 | 35 (27), pico 160 | 35 (27) | 0,18 (0,13) | 0,18 (0,13) |
 | Minigun pesada | 600 (600) | 1 | 91 (65), pico 350 | 91 (65) | 0,15 (0,11) | 0,15 (0,11) |
 | Cryo | 250 (250) | 6 | 3 (2) | 18 (15) + frena 45 % | 0,012 (0,010) | 0,07 (0,06) |

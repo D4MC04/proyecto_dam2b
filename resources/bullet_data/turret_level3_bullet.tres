@@ -16,5 +16,4 @@ sprite_scale = 1.0
 rotation_offset = 90.0
 trail_frames = ExtResource("6")
 impact_frames = ExtResource("5")
-pierce = 1
 metadata/_custom_type_script = "uid://dufu06mgtfw20"
