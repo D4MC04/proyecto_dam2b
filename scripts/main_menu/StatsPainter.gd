@@ -5,15 +5,11 @@ extends RefCounted
 # que de cerca (StatsCloseUp, a escala 1): así el zoom pasa de uno a otro sin que cambie nada. Se pinta
 # en un lienzo de SIZE (la pantalla de cerca) con los datos reales de GameState: la cabecera con una
 # regla, ocho cifras en dos columnas, las barras de todas las torretas base de más a menos construidas
-# (su número encima y debajo la torreta en reposo, animada), el anillo con el reparto por tipo de ataque,
-# su total y su leyenda, y "Volver". Tras refresh() todo sube desde cero en GROW_TIME y se queda quieto.
+# (su número encima y debajo la torreta en reposo, animada), el anillo de naves descubiertas (vistas
+# y por ver, de las de la Navedex) con su leyenda, y "Volver". Tras refresh() todo sube desde cero en GROW_TIME y se queda quieto.
 
 const SIZE: Vector2i = Vector2i(504, 399)
 const CHART_BG: Color = Color("#0a1828")
-## Colores del anillo y su leyenda, en orden.
-const RING_COLORS: Array[Color] = [OfficePaint.CYAN, OfficePaint.AMBER, OfficePaint.RED, OfficePaint.GREEN]
-## Tipos de ataque con su porción en el anillo; el resto se junta en "otros".
-const RING_TYPES: int = 3
 ## Segundos que tardan los gráficos en subir hasta su valor.
 const GROW_TIME: float = 1.2
 const PAD: int = 12
@@ -41,7 +37,9 @@ var time: float = 0.0
 var hovered_bar: int = -1
 var back_hovered: bool = false
 var turrets: Array[Dictionary] = []
-var _types: Array[Dictionary] = []
+# Tipos de nave vistos y total (los de la Navedex).
+var _seen: int = 0
+var _ships: int = 0
 var _lines: Array[String] = []
 
 func _init() -> void:
@@ -58,32 +56,13 @@ static func built_turrets() -> Array[Dictionary]:
 		return a.count > b.count or (a.count == b.count and a.order < b.order))
 	return list
 
-## Reparto de lo construido por tipo de ataque, de más a menos: los RING_TYPES primeros y el resto en
-## "otros" (STATS_OTHER). [{label: clave de traducción, count: int}], sin los tipos que no tienen ninguna.
-static func built_by_type(list: Array[Dictionary]) -> Array[Dictionary]:
-	var counts: Dictionary[String, int] = {}
-	for turret: Dictionary in list:
-		var label: String = (turret.data as TurretData).get_attack_label()
-		counts[label] = counts.get(label, 0) + turret.count
-	var types: Array[Dictionary] = []
-	for label: String in counts:
-		if counts[label] > 0:
-			types.append({"label": label, "count": counts[label]})
-	types.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.count > b.count)
-	if types.size() > RING_TYPES + 1:
-		var rest: int = 0
-		for type: Dictionary in types.slice(RING_TYPES):
-			rest += type.count
-		types = types.slice(0, RING_TYPES)
-		types.append({"label": "STATS_OTHER", "count": rest})
-	return types
-
 ## Vuelve a leer GameState y los gráficos suben otra vez desde cero.
 @warning_ignore("integer_division")
 func refresh() -> void:
 	time = 0.0
 	turrets = built_turrets()
-	_types = built_by_type(turrets)
+	_seen = GameState.get_progress("seen")
+	_ships = Navedex.ENEMY_FILES.size()
 	var stats: Dictionary = GameState.stats
 	var seconds: int = int(GameState.play_time)
 	var favorite: String = GameState.favorite_turret()
@@ -160,27 +139,18 @@ func _draw_bars(item: CanvasItem, grow: float) -> void:
 			if texture:
 				item.draw_texture(texture, (at - texture.get_size() / 2.0).floor(), tint)
 
-# Anillo que gira despacio con el reparto por tipo, el total en medio y la leyenda con nombre y número.
+# Anillo de naves descubiertas, que gira despacio: las vistas en cian y las que faltan apagadas, con
+# "vistas/total" en medio y la leyenda con cuántas de cada.
 func _draw_ring(item: CanvasItem, grow: float) -> void:
 	var box: Rect2i = RING_RECT
 	OfficePaint.rect(item, box, CHART_BG)
 	var cx: int = box.get_center().x
-	OfficePaint.text_centered(item, cx, box.position.y + 4, TranslationServer.translate("STATS_BY_TYPE"), OfficePaint.CYAN)
+	OfficePaint.text_centered(item, cx, box.position.y + 4, TranslationServer.translate("STATS_SHIPS_SEEN"), OfficePaint.CYAN)
 	var center: Vector2i = Vector2i(cx, box.position.y + 88)
-	var total: int = 0
-	for type: Dictionary in _types:
-		total += type.count
-	# Sin datos, un anillo apagado entero.
-	var parts: Array[float] = [1.0]
-	var colors: Array[Color] = [OfficePaint.SCREEN_LINE]
-	if total > 0:
-		parts.clear()
-		colors.clear()
-		for i: int in _types.size():
-			parts.append(float(_types[i].count) / total * grow)
-			colors.append(RING_COLORS[i])
-	var gap: float = 0.08 if parts.size() > 1 else 0.0
-	var step: float = 0.5 / RING_OUTER
+	var seen: float = float(_seen) / maxi(_ships, 1) * grow
+	var parts: Array[float] = [seen, 1.0 - seen]
+	var colors: Array[Color] = [OfficePaint.CYAN, OfficePaint.SCREEN_LINE]
+	var gap: float = 0.08 if seen > 0.0 and seen < 1.0 else 0.0
 	var start: float = time * 0.3
 	for i: int in parts.size():
 		var end: float = start + parts[i] * TAU
@@ -188,16 +158,18 @@ func _draw_ring(item: CanvasItem, grow: float) -> void:
 		while a < end - gap:
 			for r: int in range(RING_INNER, RING_OUTER):
 				OfficePaint.rect(item, Rect2i(center.x + roundi(cos(a) * r), center.y + roundi(sin(a) * r), 1, 1), colors[i])
-			a += step
+			a += 0.5 / RING_OUTER
 		start = end
-	OfficePaint.text_centered(item, cx, center.y - 7, UiFormat.abbreviate(roundi(total * grow)), OfficePaint.CYAN_LIGHT)
+	var shown: int = roundi(_seen * grow)
+	OfficePaint.text_centered(item, cx, center.y - 7, "%d/%d" % [shown, _ships], OfficePaint.CYAN_LIGHT)
 	var right: int = box.end.x - 8
-	for i: int in _types.size():
+	var rows: Array[Array] = [["STATS_SEEN", shown, OfficePaint.CYAN], ["STATS_UNSEEN", _ships - shown, OfficePaint.CYAN_DARK]]
+	for i: int in rows.size():
 		var y: int = box.position.y + 156 + i * 16
-		OfficePaint.rect(item, Rect2i(box.position.x + 8, y + 3, 7, 7), RING_COLORS[i])
-		OfficePaint.text(item, Vector2i(box.position.x + 20, y), TranslationServer.translate(_types[i].label), OfficePaint.CYAN_LIGHT)
-		var count: String = UiFormat.abbreviate(roundi(_types[i].count * grow))
-		OfficePaint.text(item, Vector2i(right - OfficePaint.text_width(count), y), count, RING_COLORS[i])
+		OfficePaint.rect(item, Rect2i(box.position.x + 8, y + 3, 7, 7), rows[i][2])
+		OfficePaint.text(item, Vector2i(box.position.x + 20, y), TranslationServer.translate(rows[i][0]), OfficePaint.CYAN_LIGHT)
+		var count: String = str(rows[i][1])
+		OfficePaint.text(item, Vector2i(right - OfficePaint.text_width(count), y), count, rows[i][2])
 
 # Frame de la animación "default" (la de reposo, como en el mapa) que toca ahora; null si no hay.
 func _idle_frame(frames: SpriteFrames) -> Texture2D:
