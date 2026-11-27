@@ -5,8 +5,8 @@ extends RefCounted
 # que de cerca (StatsCloseUp, a escala 1): así el zoom pasa de uno a otro sin que cambie nada. Se pinta
 # en un lienzo de SIZE (la pantalla de cerca) con los datos reales de GameState: la cabecera con una
 # regla, ocho cifras en dos columnas, las barras de todas las torretas base de más a menos construidas
-# (su número encima y debajo la torreta en reposo, animada), el anillo de naves descubiertas (vistas
-# y por ver, de las de la Navedex) con su leyenda, y "Volver". Tras refresh() todo sube desde cero en GROW_TIME y se queda quieto.
+# (su número encima y debajo la torreta en reposo, animada), el anillo de los sectores de la campaña
+# según sus estrellas (3, 2, 1 o sin ganar) con su leyenda, y "Volver". Tras refresh() todo sube desde cero en GROW_TIME y se queda quieto.
 
 const SIZE: Vector2i = Vector2i(504, 399)
 const CHART_BG: Color = Color("#0a1828")
@@ -37,9 +37,8 @@ var time: float = 0.0
 var hovered_bar: int = -1
 var back_hovered: bool = false
 var turrets: Array[Dictionary] = []
-# Tipos de nave vistos y total (los de la Navedex).
-var _seen: int = 0
-var _ships: int = 0
+# Sectores de la campaña por su mejor marca: índice 0 sin ganar, 1..MAX_STARS con esas estrellas.
+var _sectors: Array[int] = []
 var _lines: Array[String] = []
 
 func _init() -> void:
@@ -61,8 +60,10 @@ static func built_turrets() -> Array[Dictionary]:
 func refresh() -> void:
 	time = 0.0
 	turrets = built_turrets()
-	_seen = GameState.get_progress("seen")
-	_ships = Navedex.ENEMY_FILES.size()
+	_sectors.clear()
+	_sectors.resize(GameState.MAX_STARS + 1)
+	for number: int in range(1, GameData.levels.size() + 1):
+		_sectors[GameState.get_level_stars(number)] += 1
 	var stats: Dictionary = GameState.stats
 	var seconds: int = int(GameState.play_time)
 	var favorite: String = GameState.favorite_turret()
@@ -139,37 +140,51 @@ func _draw_bars(item: CanvasItem, grow: float) -> void:
 			if texture:
 				item.draw_texture(texture, (at - texture.get_size() / 2.0).floor(), tint)
 
-# Anillo de naves descubiertas, que gira despacio: las vistas en cian y las que faltan apagadas, con
-# "vistas/total" en medio y la leyenda con cuántas de cada.
+# Anillo de los sectores de la campaña, que gira despacio: una porción por cada marca de estrellas (3 en
+# ámbar, 2 en cian, 1 en cian oscuro y sin ganar en gris), con los ganados en medio y la leyenda con
+# cuántos de cada. Las porciones ganadas suben desde cero; lo que falta queda apagado.
 func _draw_ring(item: CanvasItem, grow: float) -> void:
 	var box: Rect2i = RING_RECT
 	OfficePaint.rect(item, box, CHART_BG)
 	var cx: int = box.get_center().x
-	OfficePaint.text_centered(item, cx, box.position.y + 4, TranslationServer.translate("STATS_SHIPS_SEEN"), OfficePaint.CYAN)
+	OfficePaint.text_centered(item, cx, box.position.y + 4, TranslationServer.translate("STATS_SECTORS"), OfficePaint.CYAN)
 	var center: Vector2i = Vector2i(cx, box.position.y + 88)
-	var seen: float = float(_seen) / maxi(_ships, 1) * grow
-	var parts: Array[float] = [seen, 1.0 - seen]
-	var colors: Array[Color] = [OfficePaint.CYAN, OfficePaint.SCREEN_LINE]
-	var gap: float = 0.08 if seen > 0.0 and seen < 1.0 else 0.0
+	var total: int = maxi(GameData.levels.size(), 1)
+	# De más estrellas a sin ganar: [clave, número, color].
+	var rows: Array[Array] = []
+	var won: int = 0
+	for stars: int in range(GameState.MAX_STARS, 0, -1):
+		won += _sectors[stars]
+		var key: String = "STATS_STARS_ONE" if stars == 1 else "STATS_STARS"
+		var color: Color = [OfficePaint.CYAN_DARK, OfficePaint.CYAN, OfficePaint.AMBER][stars - 1]
+		rows.append([TranslationServer.translate(key) % stars if stars > 1 else TranslationServer.translate(key), _sectors[stars], color])
+	rows.append([TranslationServer.translate("STATS_NOT_WON"), _sectors[0], OfficePaint.METAL_DARK])
 	var start: float = time * 0.3
-	for i: int in parts.size():
-		var end: float = start + parts[i] * TAU
+	var left: float = 1.0
+	for row: Array in rows:
+		var part: float = float(row[1]) / total * (grow if row[1] > 0 and row != rows[-1] else 1.0)
+		if row == rows[-1]:
+			part = left
+		left -= part
+		var end: float = start + part * TAU
 		var a: float = start
+		var gap: float = 0.08 if part < 1.0 else 0.0
 		while a < end - gap:
 			for r: int in range(RING_INNER, RING_OUTER):
-				OfficePaint.rect(item, Rect2i(center.x + roundi(cos(a) * r), center.y + roundi(sin(a) * r), 1, 1), colors[i])
+				OfficePaint.rect(item, Rect2i(center.x + roundi(cos(a) * r), center.y + roundi(sin(a) * r), 1, 1), row[2])
 			a += 0.5 / RING_OUTER
 		start = end
-	var shown: int = roundi(_seen * grow)
-	OfficePaint.text_centered(item, cx, center.y - 7, "%d/%d" % [shown, _ships], OfficePaint.CYAN_LIGHT)
+	OfficePaint.text_centered(item, cx, center.y - 7, str(roundi(won * grow)), OfficePaint.CYAN_LIGHT)
 	var right: int = box.end.x - 8
-	var rows: Array[Array] = [["STATS_SEEN", shown, OfficePaint.CYAN], ["STATS_UNSEEN", _ships - shown, OfficePaint.CYAN_DARK]]
 	for i: int in rows.size():
 		var y: int = box.position.y + 156 + i * 16
-		OfficePaint.rect(item, Rect2i(box.position.x + 8, y + 3, 7, 7), rows[i][2])
-		OfficePaint.text(item, Vector2i(box.position.x + 20, y), TranslationServer.translate(rows[i][0]), OfficePaint.CYAN_LIGHT)
-		var count: String = str(rows[i][1])
-		OfficePaint.text(item, Vector2i(right - OfficePaint.text_width(count), y), count, rows[i][2])
+		var color: Color = rows[i][2]
+		OfficePaint.rect(item, Rect2i(box.position.x + 8, y + 3, 7, 7), color)
+		OfficePaint.text(item, Vector2i(box.position.x + 20, y), rows[i][0], OfficePaint.CYAN_LIGHT)
+		var count: String = str(roundi(rows[i][1] * grow))
+		# El gris de "sin ganar" no se lee como texto: su número va en el metal más claro.
+		OfficePaint.text(item, Vector2i(right - OfficePaint.text_width(count), y), count,
+				OfficePaint.METAL if i == rows.size() - 1 else color)
 
 # Frame de la animación "default" (la de reposo, como en el mapa) que toca ahora; null si no hay.
 func _idle_frame(frames: SpriteFrames) -> Texture2D:
