@@ -31,7 +31,7 @@ La fusionada es otro `TurretData` (`resources/turret_data/<x>_fusion.tres`) con 
 | Cryo ventisca | Cryo | 500 | 12 | 96 | 2,0 | Onda mayor (`wave_scale` 1,5), frena al 35 % durante 4,5 s. Aspecto de vórtice: el aro del cañón acelera durante la recarga (ver [art.md](art.md)) |
 | Cañón de asedio | Cañón pesado | 600 | 55 × 2 | 96 | 2,1 | Dos cañones: salva de 2 balas (`salvo_count`) separadas 0,15 s, una por cañón, que explotan en área de 32 px. La segunda cae encima de la primera; no frena. Bala de 160 px/s con estela y humo |
 | Tormenta | Tesla | 700 | 50 | 120 | 1,3 | Cadena de 6 objetivos, saltos de 80 px |
-| Cinturón | Orbitador | 700 | 85 | anillo 40-64 | 1,0 | Hasta 5 cargas, área de 26 px, giran a 110°/s |
+| Cinturón | Orbitador | 700 | 85 | anillo 76-100 | 1,0 | Hasta 5 cargas, área de 26 px, giran a 110°/s |
 | Rail Gauss | Rail | 1000 | 800 | 176 | 4,5 | Haz de 900 px y `half_width` 16 |
 | Aniquilador | Disintegrator | 900 | 60/130/280 por s | 128 | no se usa | Sube de nivel en la mitad de tiempo (`level_time` 0,75) |
 | Amplificador mayor | Amplificador | 800 | no ataca | aura 100 | no se usa | Las torretas de su aura ganan el efecto mayor |
@@ -135,7 +135,7 @@ Las torretas de onda y de cadena no giran el cañón ni usan `_process`.
 
 Funciones para la ficha:
 
-- `get_stats() -> Array[StatEntry]`: en el Amplificador solo COSTE y AURA (radio de `attack_range`). En el Minero, COSTE, GANANCIA (`money_amount`, icono `reward`) e INTERVALO (`attack_cooldown`). En las demás, filas comunes (COSTE con `€`, ALCANCE = radio del `CircleShape2D` de `attack_range` (con `min_range`, "mínimo-máximo", p. ej. `40-64`), CADENCIA = `attack_cooldown` en segundos salvo en el haz continuo; con salva, SALVA (`salvo_count`); con sobrecalentamiento, además CAD. MÁX, AGUANTE (disparos) y PARADA) seguidas de las del ataque. Los nombres de fila son cortos y en mayúsculas (9 caracteres como mucho, ver `StatEntry` en [ui.md](ui.md)).
+- `get_stats() -> Array[StatEntry]`: en el Amplificador solo COSTE y AURA (radio de `attack_range`). En el Minero, COSTE, GANANCIA (`money_amount`, icono `reward`) e INTERVALO (`attack_cooldown`). En las demás, filas comunes (COSTE con `€`, ALCANCE = radio del `CircleShape2D` de `attack_range` (con `min_range`, "mínimo-máximo", p. ej. `76-100`), CADENCIA = `attack_cooldown` en segundos salvo en el haz continuo; con salva, SALVA (`salvo_count`); con sobrecalentamiento, además CAD. MÁX, AGUANTE (disparos) y PARADA) seguidas de las del ataque. Los nombres de fila son cortos y en mayúsculas (9 caracteres como mucho, ver `StatEntry` en [ui.md](ui.md)).
 - `get_attack() -> Resource`: el `*Data` de ataque que tenga (o null).
 - `get_attack_label()`: "BALA", "ONDA", "CADENA", "HAZ", "HAZ CONT.", "ÓRBITA" o "APOYO" (Amplificador, `is_amplifier()`, y Minero, `is_miner()`).
 - Cada `*Data` de ataque tiene su `get_stats()`:
@@ -162,7 +162,7 @@ Recursos en `resources/turret_data/`:
 | `tesla` | Tesla | 350 | 1,3 | 110 | no gira | Cadena: 30 de daño, 3 enemigos, saltos de 64 px |
 | `rail` | Rail | 500 | 5,0 | 160 | 45 | Haz: 450 de daño a toda la línea, 700 px de largo |
 | `disintegrator` | Disintegrator | 450 | no se usa | 112 | 140 | Haz continuo: 35, 70 y 140 de daño/s |
-| `orbiter` | Orbitador | 350 | 1,6 | anillo 40-64 | no gira | Órbita: cargas de 50 de daño en área de 22 px, hasta 4, a 90°/s. Mejora: Cinturón (`orbiter_fusion`, 700): 1,0 s, 85 de daño, área 26, hasta 5, a 110°/s. Sin sonido |
+| `orbiter` | Orbitador | 350 | 1,6 | anillo 76-100 | no gira | Órbita: cargas de 50 de daño en área de 22 px, hasta 4, a 90°/s. Mejora: Cinturón (`orbiter_fusion`, 700): 1,0 s, 85 de daño, área 26, hasta 5, a 110°/s. Sin sonido |
 | `amplifier` | Amplificador | 400 | no se usa | aura 100 | no gira | Ninguno: amplifica a las torretas de alrededor |
 | `miner` | Minero | 300 | 5,0 (intervalo) | no tiene | no gira | Ninguno: +10€ cada 5 s de oleada (la Excavadora, +20€) |
 
@@ -286,7 +286,7 @@ Torreta de apoyo que da dinero (`miner.tres`, mejora `miner_fusion.tres` "Excava
 `scripts/entities/Orbit.gd` + `OrbitData`. Torreta: Orbitador (y su mejora, el Cinturón).
 
 - No apunta ni elige objetivo. El emisor no gira (`_is_static`) y `default` está en bucle. En cada cooldown, si hay menos de `max_orbs` cargas en órbita, reproduce `fire_0` y en `fire_frame` (3) genera una; con la órbita llena no hace nada. Genera también sin enemigos, así que entre oleadas se llena.
-- `Orbit` es un nodo hijo de la torreta (por encima de torretas y enemigos) y sus hijos son las cargas (`AnimatedSprite2D` con `orb_frames`). Todas giran juntas a `orbit_speed` °/s alrededor de la torreta, a medio camino entre `min_range` y el radio de `attack_range` (52 px). Cada carga nueva sale en espiral desde el borde del emisor (6 px) hasta la órbita en `deploy_time` s, frenando al final, y se coloca en medio del hueco más grande entre las que ya giran, así que quedan repartidas.
+- `Orbit` es un nodo hijo de la torreta (por encima de torretas y enemigos) y sus hijos son las cargas (`AnimatedSprite2D` con `orb_frames`). Todas giran juntas a `orbit_speed` °/s alrededor de la torreta, a medio camino entre `min_range` y el radio de `attack_range` (88 px: anillo 76-100, de 24 px de ancho). Cada carga nueva sale en espiral desde el borde del emisor (6 px) hasta la órbita en `deploy_time` s, frenando al final, y se coloca en medio del hueco más grande entre las que ya giran, así que quedan repartidas.
 - Ya en órbita, choca con el primer enemigo del rango cuyo centro quede a menos de medio ancho del anillo (12 px), aunque esté camuflado (no apunta, choca). Mientras sale en espiral no choca: por eso no alcanza a lo que pasa pegado a la torreta.
 - Al chocar hace `damage` a todos los enemigos a menos de `splash_radius` y deja `impact_frames` a escala `impact_scale` (2, un anillo de unos 23 px de radio).
 - Con un EMP las cargas se quedan quietas y no chocan; al venderla o mejorarla, las cargas desaparecen con ella.
