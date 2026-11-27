@@ -14,6 +14,11 @@ const LevelsTab = (() => {
 	const PLACEMENT = 0.75; // colocación y sobreataque
 	const RANGE_PX = 85; // la nave cruza 2 × 85 px de alcance después de salir
 
+	// Botón Jugar: protocolo registrado por tools/balance/launcher/registrar.ps1.
+	const PLAY_PROTOCOL = "astro-artillery://play";
+	const PLAY_CHECK_MS = 2500; // si en este tiempo el navegador no pierde el foco, el protocolo no respondió
+	const LAUNCHER_HELP_KEY = "astro-artillery-launcher-help-shown";
+
 	const RATIO_TITLE = [
 		"Dificultad frente a dinero (niveles.md), construyendo: por encima de 1 se pierde vida.",
 		"Dinero antes de la oleada K = inicial + recompensas de las K-1 anteriores + 25 por oleada perfecta.",
@@ -303,6 +308,21 @@ const LevelsTab = (() => {
 		const f = BalanceTable.formatNumber;
 		return [
 			{ id: "name", label: "Nivel", sticky: true, get: (l) => l.name, format: (v) => v, cellTitle: (l) => l.path },
+			{
+				id: "play",
+				label: "Jugar",
+				title: "Abre el juego (sin editor) ya en este nivel, con los .tres guardados de la carpeta elegida",
+				cls: "actions",
+				build: (td, l) => {
+					const arg = levelArg(l.path);
+					if (arg) {
+						td.append(button("▶ Jugar", `Abre el juego en este nivel (--level=${arg})`, (e) => {
+							e.stopPropagation();
+							play(l);
+						}));
+					}
+				},
+			},
 			{ id: "file", label: "Archivo", get: (l) => Project.fileName(l.path), format: (v) => v, cls: "file" },
 			{ id: "starting_money", label: "Dinero", title: "starting_money (€)", ref: (l) => Project.ref(Project.node(l.path, null), "starting_money") },
 			{ id: "waves", label: "Oleadas", group: "Calculado", get: (l) => l.waves.length },
@@ -351,6 +371,57 @@ const LevelsTab = (() => {
 				cellTitle: (w) => waveStatsOf(w).ratioText,
 			},
 		];
+	}
+
+	// --- Jugar ---
+
+	// Argumento --level de DevLaunch.gd: el número del nivel o "emergency" (null si el archivo no es de nivel).
+	function levelArg(path) {
+		const name = Project.fileName(path);
+		if (name === "emergency") {
+			return "emergency";
+		}
+		const number = levelOrder(path);
+		return number >= 1 && number <= 9 ? String(number) : null;
+	}
+
+	// El juego lee los .tres del disco: con cambios sin guardar, se guardan antes o no se juega.
+	async function play(level) {
+		const pending = Project.pendingCount;
+		if (pending > 0) {
+			if (!window.confirm(`Hay ${pending} cambios sin guardar y el juego lee los archivos guardados.
+
+Aceptar: guardar y jugar.
+Cancelar: no jugar.`)) {
+				return;
+			}
+			if (!(await BalanceApp.save())) {
+				return;
+			}
+		}
+		const params = new URLSearchParams({ level: levelArg(level.path), folder: Project.rootName });
+		launch(`${PLAY_PROTOCOL}?${params}`, level.name);
+	}
+
+	// Una página file:// no puede abrir programas: se abre el protocolo y Windows llama al lanzador.
+	// Si el protocolo no está registrado, el navegador no hace nada: se nota en que no pierde el foco.
+	function launch(url, levelName) {
+		let answered = false;
+		const onBlur = () => (answered = true);
+		window.addEventListener("blur", onBlur, { once: true });
+		const link = document.createElement("a");
+		link.href = url;
+		link.click();
+		BalanceApp.setStatus(`Abriendo el juego en ${levelName}… (la primera vez el navegador pide permiso)`, "ok");
+		window.setTimeout(() => {
+			window.removeEventListener("blur", onBlur);
+			if (answered || document.hidden) {
+				localStorage.setItem(LAUNCHER_HELP_KEY, "1");
+			} else if (!localStorage.getItem(LAUNCHER_HELP_KEY)) {
+				localStorage.setItem(LAUNCHER_HELP_KEY, "1");
+				el.launcherHelp.hidden = false;
+			}
+		}, PLAY_CHECK_MS);
 	}
 
 	// --- Editor de grupos ---
@@ -549,6 +620,12 @@ const LevelsTab = (() => {
 
 	function render(container) {
 		container.innerHTML = `
+			<p class="launcher-help warning" hidden>
+				Si «▶ Jugar» no abre nada, falta registrar el lanzador (una vez): en PowerShell, en la carpeta del juego,
+				<code>powershell -NoProfile -ExecutionPolicy Bypass -File tools/balance/launcher/registrar.ps1</code>.
+				La primera vez el navegador pregunta si abrir «astro-artillery»: marca que lo recuerde y acepta.
+				<button class="small launcher-help-close" title="Ocultar este aviso">✕</button>
+			</p>
 			<div class="levels-layout">
 				<div class="levels-list"></div>
 				<div class="levels-detail">
@@ -563,6 +640,8 @@ const LevelsTab = (() => {
 					</section>
 				</div>
 			</div>`;
+		el.launcherHelp = container.querySelector(".launcher-help");
+		container.querySelector(".launcher-help-close").addEventListener("click", () => (el.launcherHelp.hidden = true));
 		el.levels = container.querySelector(".levels-list");
 		el.wavesTitle = container.querySelector(".waves-title");
 		el.waves = container.querySelector(".waves-table");

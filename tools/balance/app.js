@@ -125,15 +125,18 @@ const BalanceApp = (() => {
 		updateButtons();
 	}
 
+	// Devuelve true si se ha guardado todo.
 	async function save() {
 		const paths = Project.pendingPaths;
 		setStatus("Guardando…");
 		try {
 			const saved = await Project.save();
 			setStatus(`Guardado en ${saved.length} archivo(s): ${saved.join(", ")}`, "ok");
+			return true;
 		} catch (e) {
 			console.error(e);
 			setStatus(`Error al guardar (${paths.join(", ")}): ${e.message || e}`, "error");
+			return false;
 		}
 	}
 
@@ -161,7 +164,7 @@ const BalanceApp = (() => {
 		el["save-button"].textContent = pending > 0 ? `Guardar (${pending})` : "Guardar";
 	}
 
-	return { init };
+	return { init, save, setStatus };
 })();
 
 document.addEventListener("DOMContentLoaded", BalanceApp.init);
