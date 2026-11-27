@@ -57,13 +57,6 @@ var _alive: Dictionary[Enemy, bool] = {}
 var _pending_splits: int = 0
 # Segundos que faltan para que AUTO lance la siguiente oleada; negativo si no hay cuenta atrás.
 var _auto_countdown: float = -1.0
-# Los caminos empiezan 2 casillas fuera del mapa: el portal y la salida de las naves van
-# 40 px más adelante, media casilla dentro del borde, para que se vean.
-const PORTAL_OFFSET: float = 40.0
-
-# Portales abiertos de la oleada actual, por índice de camino.
-var _portals: Dictionary[int, Portal] = {}
-
 func setup(p: Array[Path2D], w: Array[WaveData]) -> void:
 	paths = p
 	waves = w
@@ -78,7 +71,6 @@ func start_next_wave() -> bool:
 	_elapsed = -WAVE_START_DELAY
 	_next_index = 0
 	_spawning = true
-	_open_portals()
 	wave_started.emit(_wave_index, waves.size())
 	return true
 
@@ -131,15 +123,13 @@ func _process(delta: float) -> void:
 		_next_index += 1
 	if _next_index >= _entries.size():
 		_spawning = false
-		_close_portals()
 		wave_spawn_finished.emit(_wave_index)
 		_check_cleared()
 
 func _spawn(entry: SpawnEntry) -> void:
 	var index: int = entry.path_index % paths.size()
-	_spawn_enemy(entry.enemy_data, paths[index], PORTAL_OFFSET).spawn_in()
-	if _portals.has(index):
-		_portals[index].flash_exit()
+	# Los caminos empiezan 2 casillas fuera del mapa: las naves entran volando desde fuera de la pantalla.
+	_spawn_enemy(entry.enemy_data, paths[index], 0.0)
 
 func _spawn_enemy(data: EnemyData, path: Path2D, progress: float) -> Enemy:
 	var enemy: Enemy = ENEMY_SCENE.instantiate()
@@ -152,29 +142,6 @@ func _spawn_enemy(data: EnemyData, path: Path2D, progress: float) -> Enemy:
 	enemy.reached_end.connect(_on_enemy_reached_end.bind(enemy))
 	enemy.died.connect(_on_enemy_died.bind(enemy))
 	return enemy
-
-# Abre un portal a la entrada de cada camino que use la oleada.
-func _open_portals() -> void:
-	for entry: SpawnEntry in _entries:
-		var index: int = entry.path_index % paths.size()
-		if _portals.has(index):
-			continue
-		var portal: Portal = Portal.new()
-		var curve: Curve2D = paths[index].curve
-		portal.position = curve.sample_baked(PORTAL_OFFSET)
-		# La grieta (horizontal en Portal) queda atravesada al camino; girada en múltiplos de 90° para no deformar los píxeles.
-		var direction: Vector2 = curve.sample_baked(PORTAL_OFFSET + 1.0) - portal.position
-		# Los jefes salen con un temblor más fuerte.
-		if _entries.any(func(e: SpawnEntry) -> bool: return e.path_index % paths.size() == index and e.enemy_data.is_boss):
-			portal.shake_strength = Portal.BOSS_SHAKE
-		portal.rotation = snappedf(direction.angle() + PI / 2.0, PI / 2.0)
-		paths[index].add_child(portal)
-		_portals[index] = portal
-
-func _close_portals() -> void:
-	for portal: Portal in _portals.values():
-		portal.close()
-	_portals.clear()
 
 func _on_enemy_died(reward: int, enemy: Enemy) -> void:
 	if not _alive.erase(enemy):
