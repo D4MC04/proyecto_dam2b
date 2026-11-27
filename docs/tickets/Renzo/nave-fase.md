@@ -16,7 +16,7 @@ El Espectro se camufla; una nave que se vuelva intocable da otro tipo de reto.
 - scripts/tools/make_fasica.gd
 - resources/enemy_data/fasica.tres
 - scripts/entities/Enemy.gd
-- scripts/tools/make_waves.gd
+- resources/wave_data/ (oleadas donde salga, editadas con el panel)
 
 ## Cómo se prueba a mano
 1. La Fásica parpadea y en su fase intocable las balas no le hacen daño.

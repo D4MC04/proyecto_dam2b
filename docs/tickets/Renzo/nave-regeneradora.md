@@ -16,7 +16,7 @@ Una nave que se cura sola premia concentrar el daño.
 - scripts/tools/make_regeneradora.gd
 - resources/enemy_data/regeneradora.tres
 - scripts/entities/Enemy.gd
-- scripts/tools/make_waves.gd
+- resources/wave_data/ (oleadas donde salga, editadas con el panel)
 
 ## Cómo se prueba a mano
 1. Dañar una Regeneradora y dejar de disparar: su barra vuelve a subir.

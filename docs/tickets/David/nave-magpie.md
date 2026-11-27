@@ -16,7 +16,7 @@ Todas las naves castigan igual: quitando vida a la estación. Ninguna amenaza el
 - Al matarla, el cristal estalla y suma de golpe lo robado más su botín (texto dorado grande). Si llega a la estación, lo robado se pierde (`-X€` en rojo).
 - Stats de docs/design/naves-plan.md (75 de vida, 10 de daño, botín 20).
 - Sprite con `scripts/tools/make_magpie.gd` (pixel art según docs/design/art.md, mirando hacia arriba, `rotate_sprite = true`), textos en `translations/textos.csv` y `description`.
-- Añadirla a `LEVELS` de `scripts/tools/make_waves.gd` (nivel propuesto: 5), regenerar y comprobar la Navedex.
+- Añadir la nave a las oleadas del nivel 5 (nivel propuesto) con el panel de balanceo (pestaña Niveles) y comprobar la Navedex.
 - Al terminar: pasarla a docs/design/enemigos.md y quitarla de naves-plan.md.
 
 ## Qué leer
@@ -34,7 +34,7 @@ Solo esto; `/work` no lee nada más de docs/design.
 - resources/enemy_data/magpie.tres
 - assets/sprites/enemies/magpie/ y scripts/tools/make_magpie.gd
 - translations/textos.csv
-- scripts/tools/make_waves.gd y resources/wave_data/ (regenerados)
+- resources/wave_data/ (oleadas del nivel 5, editadas con el panel)
 - docs/design/enemigos.md, docs/design/niveles.md y docs/design/naves-plan.md
 
 ## Cómo se prueba a mano

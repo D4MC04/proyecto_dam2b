@@ -17,7 +17,7 @@ Ninguna nave ataca el terreno de construcción.
 - resources/enemy_data/minadora.tres
 - scripts/entities/Enemy.gd
 - scripts/level/Grid.gd
-- scripts/tools/make_waves.gd
+- resources/wave_data/ (oleadas donde salga, editadas con el panel)
 
 ## Cómo se prueba a mano
 1. Tras pasar la Minadora hay minas en casillas libres y no se puede construir en ellas.

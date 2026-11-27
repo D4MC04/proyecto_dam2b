@@ -15,7 +15,7 @@ Falta un enemigo en masa que dé sentido a las torretas de área.
 ## Archivos que toca
 - scripts/tools/make_enjambre.gd
 - resources/enemy_data/enjambre.tres
-- scripts/tools/make_waves.gd
+- resources/wave_data/ (oleadas donde salga, editadas con el panel)
 
 ## Cómo se prueba a mano
 1. Sale un grupo apretado de naves pequeñas; la Tesla y el Cañón pesado las barren.

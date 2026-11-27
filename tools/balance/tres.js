@@ -62,7 +62,7 @@ const Tres = (() => {
 				if (header[1] === "gd_resource" || header[1] === "gd_scene") {
 					doc.header = attrs;
 				} else if (header[1] === "ext_resource") {
-					doc.ext[attrs.id] = { path: resToRel(attrs.path), type: attrs.type };
+					doc.ext[attrs.id] = { path: resToRel(attrs.path), type: attrs.type, uid: attrs.uid || null, line: i };
 				} else {
 					current = { kind: header[1], id: attrs.id || null, attrs, headerLine: i, end: i + 1, props: {} };
 					doc.sections.push(current);
@@ -214,6 +214,94 @@ const Tres = (() => {
 		return lines.join(doc.eol);
 	}
 
+	// --- Cambios de estructura (secciones y ext_resource nuevos o quitados) ---
+
+	const ID_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+	// Id nuevo que no esté en el archivo: "<prefix><5 letras>", como los que pone Godot.
+	function newId(doc, prefix) {
+		const used = new Set([...Object.keys(doc.ext), ...doc.sections.map((s) => s.id).filter((id) => id)]);
+		for (;;) {
+			let suffix = "";
+			for (let i = 0; i < 5; i++) {
+				suffix += ID_CHARS[Math.floor(Math.random() * ID_CHARS.length)];
+			}
+			if (!used.has(prefix + suffix)) {
+				return prefix + suffix;
+			}
+		}
+	}
+
+	// Añade un [ext_resource] detrás del último (o tras la cabecera). Devuelve {text, id}.
+	function addExtResource(text, type, uid, relPath) {
+		const doc = scan(text);
+		const id = newId(doc, `${Object.keys(doc.ext).length + 1}_`);
+		const uidAttr = uid ? ` uid="${uid}"` : "";
+		const line = `[ext_resource type="${type}"${uidAttr} path="res://${relPath}" id="${id}"]`;
+		const lines = doc.lines.slice();
+		const extLines = Object.values(doc.ext).map((e) => e.line);
+		if (extLines.length > 0) {
+			lines.splice(Math.max(...extLines) + 1, 0, line);
+		} else {
+			// Sin ext_resource: tras la cabecera y su línea en blanco.
+			lines.splice(1, 0, "", line);
+		}
+		return { text: lines.join(doc.eol), id };
+	}
+
+	// Quita la línea de un [ext_resource].
+	function removeExtResource(text, id) {
+		const doc = scan(text);
+		if (!doc.ext[id]) {
+			return text;
+		}
+		const lines = doc.lines.slice();
+		lines.splice(doc.ext[id].line, 1);
+		return lines.join(doc.eol);
+	}
+
+	// Quita una [sub_resource] entera (con la línea en blanco que la sigue).
+	function removeSubResource(text, id) {
+		const doc = scan(text);
+		const section = findSection(doc, id);
+		if (!section) {
+			return text;
+		}
+		let end = section.end;
+		while (end < doc.lines.length && doc.lines[end].trim() === "") {
+			end++;
+		}
+		const lines = doc.lines.slice();
+		lines.splice(section.headerLine, end - section.headerLine);
+		return lines.join(doc.eol);
+	}
+
+	// Añade una [sub_resource] justo antes de [resource]. propLines: ["clave = valor", ...]. Devuelve {text, id}.
+	function addSubResource(text, type, propLines, prefix) {
+		const doc = scan(text);
+		const id = newId(doc, prefix || `${type}_`);
+		const resource = findSection(doc, null);
+		if (!resource) {
+			throw new Error("El archivo no tiene [resource]");
+		}
+		const lines = doc.lines.slice();
+		lines.splice(resource.headerLine, 0, `[sub_resource type="${type}" id="${id}"]`, ...propLines, "");
+		return { text: lines.join(doc.eol), id };
+	}
+
+	// Ids de ext_resource a los que apunta alguna propiedad del archivo.
+	function usedExtIds(doc) {
+		const used = new Set();
+		for (const section of doc.sections) {
+			for (const prop of Object.values(section.props)) {
+				for (const m of prop.raw.matchAll(/ExtResource\("([^"]+)"\)/g)) {
+					used.add(m[1]);
+				}
+			}
+		}
+		return used;
+	}
+
 	// Lee los @export de un script de recurso: nombre -> {type, default}.
 	function parseScript(text) {
 		const result = { className: null, fields: {} };
@@ -284,7 +372,23 @@ const Tres = (() => {
 		return rows;
 	}
 
-	return { scan, findSection, parseValue, formatFloat, formatValue, setProp, parseScript, parseCsv, resToRel };
+	return {
+		scan,
+		findSection,
+		parseValue,
+		formatFloat,
+		formatValue,
+		setProp,
+		newId,
+		addExtResource,
+		removeExtResource,
+		removeSubResource,
+		addSubResource,
+		usedExtIds,
+		parseScript,
+		parseCsv,
+		resToRel,
+	};
 })();
 
 if (typeof module !== "undefined") {

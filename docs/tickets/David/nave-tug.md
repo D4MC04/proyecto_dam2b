@@ -12,10 +12,10 @@ Las naves pesadas son lentas y dan mucho tiempo de disparo. La Tug las arrastra 
 - Al salir, engancha un rayo tractor a la nave pesada más cercana de su camino que no lleve ya otra Tug (las que tengan un campo nuevo `towable` en `EnemyData`: Ram, Juggernaut, Mothership, Damper…). Mientras dure, la pesada avanza a la velocidad de la Tug, pegada a ella.
 - Visual: rayo azul de píxeles entre las dos, la pesada con un leve brillo azul y los motores apagados.
 - Si muere la Tug, la pesada vuelve a su velocidad. Si muere la pesada, la Tug sigue sola. Sin pesada cerca, va sola sin rayo.
-- `make_waves.gd`: sacarla justo delante de un grupo de pesadas.
+- En las oleadas: sacarla justo delante de un grupo de pesadas.
 - Stats de docs/design/naves-plan.md (75 de vida, 75 px/s, 10 de daño, botín 20).
 - Sprite con `scripts/tools/make_tug.gd` (nave pequeña con motores enormes y emisor delante; pixel art según docs/design/art.md, mirando hacia arriba, `rotate_sprite = true`), textos en `translations/textos.csv` y `description`.
-- Añadirla a `LEVELS` (nivel propuesto: 6), regenerar y comprobar la Navedex.
+- Añadir la nave a las oleadas del nivel 6 (nivel propuesto) con el panel de balanceo (pestaña Niveles) y comprobar la Navedex.
 - Al terminar: pasarla a docs/design/enemigos.md y quitarla de naves-plan.md.
 
 ## Qué leer
@@ -31,7 +31,7 @@ Solo esto; `/work` no lee nada más de docs/design.
 - resources/enemy_data/tug.tres (y `towable` en las pesadas)
 - assets/sprites/enemies/tug/ y scripts/tools/make_tug.gd
 - translations/textos.csv
-- scripts/tools/make_waves.gd y resources/wave_data/ (regenerados)
+- resources/wave_data/ (oleadas del nivel 6, editadas con el panel)
 - docs/design/enemigos.md, docs/design/niveles.md y docs/design/naves-plan.md
 
 ## Cómo se prueba a mano

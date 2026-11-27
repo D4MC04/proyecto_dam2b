@@ -16,7 +16,7 @@ Una nave que salte hacia delante en el camino rompe las defensas en línea.
 - scripts/tools/make_saltadora.gd
 - resources/enemy_data/saltadora.tres
 - scripts/entities/Enemy.gd
-- scripts/tools/make_waves.gd
+- resources/wave_data/ (oleadas donde salga, editadas con el panel)
 - docs/design/enemigos.md
 
 ## Cómo se prueba a mano

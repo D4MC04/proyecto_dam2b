@@ -16,7 +16,7 @@ Todas las naves reciben el mismo daño venga de donde venga.
 - scripts/tools/make_blindada.gd
 - resources/enemy_data/blindada.tres
 - scripts/entities/Enemy.gd
-- scripts/tools/make_waves.gd
+- resources/wave_data/ (oleadas donde salga, editadas con el panel)
 
 ## Cómo se prueba a mano
 1. Las torretas que disparan por detrás a la Blindada la matan más rápido que las de delante.
