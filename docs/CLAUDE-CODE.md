@@ -88,6 +88,12 @@ Es cuánto piensa el modelo antes de responder (se elige junto al modelo; ningú
 ## Crear comandos
 Cada comando es un archivo `.claude/skills/nombre/SKILL.md` con instrucciones. Pídeselo a Claude ("crea un comando `/x` que haga...") o copia uno de los que hay.
 
+## Panel de balanceo
+- Abre `tools/balance/index.html` con doble clic en Chrome o Edge (sin servidor ni instalar nada), pulsa **Abrir proyecto** y elige la carpeta del juego.
+- Enseña los stats de torretas y naves en tablas: se ordenan pulsando la cabecera, las celdas blancas se editan y las cian se calculan solas. Pasa el ratón por cabeceras y celdas para ver de dónde sale cada dato y las fórmulas.
+- **Guardar** escribe directamente en los `.tres` de la carpeta elegida (solo la línea cambiada). Úsalo en la carpeta del worktree de un ticket, nunca en la de `main`, y luego `/commit` como siempre.
+- Si cambias stats que salen en las tablas de `docs/design/` (torretas.md › "Datos", enemigos.md › "Datos"), actualiza esas tablas (o pídeselo a Claude).
+
 ## Trucos
 - **Plan mode** para tickets grandes: Claude piensa y te enseña el plan antes de tocar nada.
 - **Una sesión por ticket**: no mezcles temas en el mismo chat. Si sigues en el mismo, `/clear` entre tickets.
