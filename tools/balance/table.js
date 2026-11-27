@@ -1,6 +1,8 @@
 // Tabla ordenable con celdas editables. Cada columna es:
 // {id, label, title, group, ref(row) -> ref editable, get(row) -> valor calculado, format(v, row),
-//  cellTitle(row) -> tooltip, shared(row) -> aviso si el archivo lo comparten varias filas, sticky, cls}
+//  cellTitle(row) -> tooltip, shared(row) -> aviso si el archivo lo comparten varias filas, sticky, cls,
+//  warn(row) -> true para marcar la celda en rojo}
+// options: {onRowClick(row), isSelected(row)} para tablas con una fila elegida.
 "use strict";
 
 const BalanceTable = (() => {
@@ -30,8 +32,8 @@ const BalanceTable = (() => {
 		return String(a).localeCompare(String(b), "es");
 	}
 
-	function create(container, columns, rows) {
-		const table = { columns, rows, sortIndex: -1, sortDir: 0, cells: [], trs: [] };
+	function create(container, columns, rows, options) {
+		const table = { columns, rows, options: options || {}, sortIndex: -1, sortDir: 0, cells: [], trs: [] };
 		const el = document.createElement("table");
 		el.className = "balance-table";
 		el.appendChild(buildHead(table));
@@ -40,6 +42,10 @@ const BalanceTable = (() => {
 			const tr = document.createElement("tr");
 			tr.className = row.rowClass || "";
 			columns.forEach((col) => tr.appendChild(buildCell(table, col, row)));
+			if (table.options.onRowClick) {
+				tr.classList.add("clickable");
+				tr.addEventListener("click", () => table.options.onRowClick(row));
+			}
 			table.trs.push({ tr, row, rowIndex });
 			tbody.appendChild(tr);
 		});
@@ -153,6 +159,7 @@ const BalanceTable = (() => {
 		if (input && Project.isDefault(ref)) {
 			tips.push("No está en el .tres: vale lo de por defecto del script. Al guardar se añade la línea.");
 		}
+		td.classList.toggle("warn", !!(col.warn && col.warn(row)));
 		const shared = col.shared ? col.shared(row) : null;
 		td.classList.toggle("shared", !!shared);
 		if (shared) {
@@ -170,6 +177,11 @@ const BalanceTable = (() => {
 	function refresh(table) {
 		for (const cell of table.cells) {
 			refreshCell(cell, false);
+		}
+		if (table.options.isSelected) {
+			for (const item of table.trs) {
+				item.tr.classList.toggle("selected", !!table.options.isSelected(item.row));
+			}
 		}
 	}
 

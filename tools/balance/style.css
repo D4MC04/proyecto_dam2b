@@ -308,3 +308,93 @@ button.primary {
 	border-color: var(--error);
 	color: var(--error);
 }
+
+/* --- Pestaña Niveles --- */
+
+.levels-layout {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.levels-detail {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 24px;
+}
+
+.detail-box h2 {
+	margin: 0 0 6px;
+	font-size: 14px;
+	color: var(--accent);
+}
+
+.balance-table tr.clickable {
+	cursor: pointer;
+}
+
+.balance-table tr.selected td {
+	background: #12343a;
+}
+
+.balance-table tr.selected td.sticky {
+	box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.balance-table td.warn {
+	color: var(--error);
+	font-weight: 600;
+}
+
+.balance-table select {
+	padding: 1px 3px;
+	border: 1px solid transparent;
+	border-radius: 2px;
+	background: transparent;
+	color: var(--text);
+	font: inherit;
+}
+
+.balance-table select:hover,
+.balance-table select:focus {
+	border-color: var(--border);
+	background: var(--bg);
+	outline: none;
+}
+
+.balance-table select option {
+	background: var(--panel);
+}
+
+.balance-table td.changed select {
+	background: var(--changed);
+	border-color: var(--changed-border);
+}
+
+.groups-table th {
+	cursor: default;
+}
+
+.groups-table td.actions {
+	text-align: left;
+}
+
+.groups-table tr.new-group td.sticky {
+	box-shadow: inset 3px 0 0 var(--changed-border);
+}
+
+button.small {
+	padding: 0 6px;
+	margin-right: 2px;
+	font-size: 12px;
+}
+
+.groups-actions button.small {
+	padding: 3px 10px;
+}
+
+/* La tabla de grupos no tiene fila de grupos de columnas: su cabecera va arriba del todo. */
+.balance-table.groups-table thead tr th {
+	top: 0;
+}

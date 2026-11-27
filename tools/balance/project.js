@@ -1,5 +1,7 @@
 // Proyecto abierto: lee los .tres de la carpeta elegida, guarda los cambios pendientes y los escribe.
 // Un "ref" apunta a un campo concreto: {path, sub, key, type, def, index?}. sub es null para [resource].
+// Un ref puede traer read() (valor original) y write(text, value) (texto nuevo) para campos con estructura,
+// como los grupos de una oleada, que no se escriben en una sola línea.
 "use strict";
 
 const Project = (() => {
@@ -157,6 +159,12 @@ const Project = (() => {
 		return fields[key] || null;
 	}
 
+	// Valor por defecto de un @export de una clase (o undefined).
+	function fieldDefault(cls, key) {
+		const info = fieldInfo(cls, key);
+		return info ? info.default : undefined;
+	}
+
 	// Ref editable de un campo numérico de un nodo (null si el campo no existe en su clase).
 	function ref(n, key, index) {
 		if (!n) {
@@ -225,6 +233,9 @@ const Project = (() => {
 	}
 
 	function originalValue(r) {
+		if (r.read) {
+			return r.read();
+		}
 		return rawValue(node(r.path, r.sub), r.key);
 	}
 
@@ -295,7 +306,11 @@ const Project = (() => {
 		for (const [path, edits] of byPath) {
 			let text = await readText(path);
 			for (const edit of edits) {
-				text = Tres.setProp(text, edit.ref.sub, edit.ref.key, Tres.formatValue(edit.ref.type, edit.value));
+				if (edit.ref.write) {
+					text = edit.ref.write(text, edit.value);
+				} else {
+					text = Tres.setProp(text, edit.ref.sub, edit.ref.key, Tres.formatValue(edit.ref.type, edit.value));
+				}
 			}
 			await writeText(path, text);
 			state.docs[path] = Tres.scan(text);
@@ -340,6 +355,7 @@ const Project = (() => {
 		loadDoc,
 		node,
 		ref,
+		fieldDefault,
 		linked,
 		loadLinked,
 		linkedList,

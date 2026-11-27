@@ -6,7 +6,7 @@ const BalanceApp = (() => {
 	const TABS = [
 		TurretsTab,
 		EnemiesTab,
-		{ id: "levels", label: "Niveles" },
+		LevelsTab,
 		{ id: "dialogs", label: "Diálogos" },
 	];
 

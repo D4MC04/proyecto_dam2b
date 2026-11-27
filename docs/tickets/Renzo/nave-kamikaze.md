@@ -12,13 +12,13 @@ Falta una nave que castigue dejar huecos: rápida, frágil y que hace mucho dañ
 - Sprite con `scripts/tools/make_kamikaze.gd` (pixel art según art.md).
 - `EnemyData`: muy rápida, poca vida, `base_damage` alto.
 - Acelera al final del camino.
-- Añadirla a la tabla de `scripts/tools/make_waves.gd` (nivel 5 en adelante) y a la Navedex.
+- Añadir la nave a las oleadas del nivel 5 en adelante con el panel de balanceo (pestaña Niveles) y a la Navedex.
 
 ## Archivos que toca
 - scripts/tools/make_kamikaze.gd
 - resources/enemy_data/kamikaze.tres
 - scripts/entities/Enemy.gd
-- scripts/tools/make_waves.gd
+- resources/wave_data/ (oleadas donde salga, editadas con el panel)
 - docs/design/enemigos.md
 
 ## Cómo se prueba a mano

@@ -17,7 +17,7 @@ El nivel 5 no tiene final especial.
 - resources/enemy_data/acorazado_real.tres
 - scripts/entities/Enemy.gd
 - scripts/level/Spawner.gd
-- scripts/tools/make_waves.gd
+- resources/wave_data/ (última oleada del nivel 5, editada con el panel)
 
 ## Cómo se prueba a mano
 1. Última oleada del nivel 5: el jefe solo recibe daño por donde no tiene el escudo.

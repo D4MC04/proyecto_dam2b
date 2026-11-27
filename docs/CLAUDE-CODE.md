@@ -92,6 +92,7 @@ Cada comando es un archivo `.claude/skills/nombre/SKILL.md` con instrucciones. P
 - Abre `tools/balance/index.html` con doble clic en Chrome o Edge (sin servidor ni instalar nada), pulsa **Abrir proyecto** y elige la carpeta del juego.
 - Enseña los stats de torretas y naves en tablas: se ordenan pulsando la cabecera, las celdas blancas se editan y las cian se calculan solas. Pasa el ratón por cabeceras y celdas para ver de dónde sale cada dato y las fórmulas.
 - **Guardar** escribe directamente en los `.tres` de la carpeta elegida (solo la línea cambiada). Úsalo en la carpeta del worktree de un ticket, nunca en la de `main`, y luego `/commit` como siempre.
+- Pestaña **Niveles**: una fila por nivel (dinero inicial editable, torretas, oleadas y totales). Pulsa un nivel para ver sus oleadas (`health_multiplier` editable, naves, recompensa, vida total, duración de la salida y el ratio dificultad/dinero, en rojo por encima de 1) y pulsa una oleada para editar sus grupos: nave (desplegable), cuántas, separación, pausa después y camino; con los botones se añaden, quitan y reordenan. Todo se recalcula al momento. Las oleadas se cambian siempre aquí: `make_waves.gd` solo genera oleadas automáticas de prueba y sobrescribe las del nivel que se le pida.
 - Si cambias stats que salen en las tablas de `docs/design/` (torretas.md › "Datos", enemigos.md › "Datos"), actualiza esas tablas (o pídeselo a Claude).
 
 ## Trucos

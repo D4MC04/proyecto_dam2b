@@ -13,7 +13,7 @@ Las naves van a la misma velocidad toda su vida, así que da igual matarlas de g
 - El sprite se va tiñendo de rojo y las llamas crecen; con menos del 25 % deja una estela roja.
 - Stats de docs/design/naves-plan.md (150 de vida, 30 px/s de base, 15 de daño, botín 30).
 - Sprite con `scripts/tools/make_wildfire.gd` (pixel art según docs/design/art.md, mirando hacia arriba, `rotate_sprite = true`), textos en `translations/textos.csv` y `description`.
-- Añadirla a `LEVELS` de `scripts/tools/make_waves.gd` (nivel propuesto: 7), regenerar y comprobar la Navedex.
+- Añadir la nave a las oleadas del nivel 7 (nivel propuesto) con el panel de balanceo (pestaña Niveles) y comprobar la Navedex.
 - Al terminar: pasarla a docs/design/enemigos.md y quitarla de naves-plan.md.
 
 ## Qué leer
@@ -29,7 +29,7 @@ Solo esto; `/work` no lee nada más de docs/design.
 - resources/enemy_data/wildfire.tres
 - assets/sprites/enemies/wildfire/ y scripts/tools/make_wildfire.gd
 - translations/textos.csv
-- scripts/tools/make_waves.gd y resources/wave_data/ (regenerados)
+- resources/wave_data/ (oleadas del nivel 7, editadas con el panel)
 - docs/design/enemigos.md, docs/design/niveles.md y docs/design/naves-plan.md
 
 ## Cómo se prueba a mano
