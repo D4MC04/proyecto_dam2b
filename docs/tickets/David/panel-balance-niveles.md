@@ -7,7 +7,7 @@ Modelo recomendado: opus
 Esfuerzo recomendado: high
 
 ## Por qué
-Para balancear los niveles hay que ver juntos el dinero, la vida y las recompensas de cada oleada, y poder cambiar las oleadas sin tocar `.tres` ni tablas de GDScript a mano. Las oleadas pasan a editarse directamente en sus `.tres` desde el panel y `make_waves.gd` deja de usarse.
+Para balancear los niveles hay que ver juntos el dinero, la vida y las recompensas de cada oleada, y poder cambiar las oleadas sin tocar `.tres` ni tablas de GDScript a mano. Los `.tres` pasan a ser los datos de verdad de las oleadas, como con todo lo demás, y se editan desde el panel. `make_waves.gd` queda solo como herramienta para generar oleadas automáticas de prueba.
 
 ## Qué hay que hacer
 - Requiere el panel de `panel-balance-torretas-enemigos` (base en `tools/balance/`, con su lector y escritor de `.tres`, ya en main).
@@ -25,11 +25,17 @@ Para balancear los niveles hay que ver juntos el dinero, la vida y las recompens
   - Una nave que la oleada no usaba es un `ext_resource` nuevo (con id nuevo).
   - Los ids y `uid` que ya existen no se tocan.
   - Al cambiar cualquier dato se recalculan las columnas de la oleada y del nivel.
-- **Retirar `make_waves.gd`**: los `.tres` de `resources/wave_data/` pasan a ser los datos de verdad de las oleadas.
-  - Borrar `scripts/tools/make_waves.gd` y su `.uid`.
-  - Comprobar con Grep que nada más lo usa.
-- En docs/design/niveles.md › "Generador de oleadas": quitar lo del generador y las tablas (`LEVELS`, `LEVEL_1..4`, `HAND_LEVELS`, presupuestos, semillas) y decir que las oleadas se editan en sus `.tres` con el panel. Mantener "Dificultad frente a dinero" (es lo que calcula el panel) y la tabla de niveles.
-- En los tickets de `docs/tickets/*/` con `Estado: propuesta` que mencionan `make_waves.gd`, `LEVELS` o `LEVEL_N`: cambiar esos pasos por "añadir la nave a las oleadas del nivel N con el panel (pestaña Niveles)" y quitar `make_waves.gd` de "Archivos que toca". Los tickets aceptados no se tocan.
+- **`make_waves.gd` pasa a ser solo una herramienta de pruebas**: los `.tres` de `resources/wave_data/` son los datos de verdad de las oleadas.
+  - Quitar del script las oleadas a mano: las tablas `LEVEL_1`..`LEVEL_4`, `HAND_LEVELS`, `EMERGENCY` y `_make_hand_level()` / `_make_emergency()`. Ya están volcadas en sus `.tres`, así que el juego no cambia.
+  - Mantener el generador automático (`LEVELS`, presupuesto, grupos, tiempos, vida, semilla).
+  - Que solo escriba el nivel que se le pida por argumento (por ejemplo `-- --level 5`), y nunca todos de golpe ni sin argumento. Explicar en un comentario al principio que es una herramienta para generar oleadas de prueba y que sobrescribe los `.tres` de ese nivel.
+  - Comprobar con Grep que nada más depende de lo que se quita.
+- En docs/design/niveles.md › "Generador de oleadas":
+  - Decir que las oleadas son sus `.tres` y se editan con el panel.
+  - Contar que `make_waves.gd` es una herramienta para generar oleadas de prueba de un nivel concreto, y cómo se lanza.
+  - Quitar lo de las tablas a mano (`LEVEL_1..4`, `HAND_LEVELS`) y que los niveles 1-4 "van a mano en el script".
+  - Mantener "Dificultad frente a dinero" (es lo que calcula el panel) y la tabla de niveles.
+- En los tickets de `docs/tickets/*/` con `Estado: propuesta` que dicen "añadir a `LEVELS` / `LEVEL_N` de `make_waves.gd` y regenerar": cambiar ese paso por "añadir la nave a las oleadas del nivel N con el panel (pestaña Niveles)" y quitar `make_waves.gd` de "Archivos que toca". Los tickets aceptados no se tocan.
 - Ampliar la sección del panel en docs/CLAUDE-CODE.md con la pestaña Niveles.
 
 ## Qué leer
@@ -41,7 +47,7 @@ Solo esto; `/work` no lee nada más de docs/design.
 
 ## Archivos que toca
 - tools/balance/*.js, tools/balance/index.html
-- scripts/tools/make_waves.gd (se borra)
+- scripts/tools/make_waves.gd (sin las tablas a mano, solo genera el nivel que se le pide)
 - docs/design/niveles.md
 - docs/CLAUDE-CODE.md
 - docs/tickets/*/ (los que estén en propuesta y mencionen make_waves)
