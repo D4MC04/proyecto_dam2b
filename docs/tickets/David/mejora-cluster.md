@@ -1,7 +1,6 @@
 # Mejora: la Cluster lanza sus trozos hacia delante
 
-Estado: aceptada
-Espera a: naves-sin-portal
+Estado: propuesta
 Prioridad: media
 Modelo recomendado: opus
 Esfuerzo recomendado: medium
