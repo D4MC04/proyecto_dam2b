@@ -31,10 +31,11 @@ const MOTHERSHIP: String = "nodriza"
 ## En qué parte de la oleada sale la Mothership (fracción de sus grupos), entre las demás naves.
 const MOTHERSHIP_SPOT: float = 0.6
 
-## Cada oleada multiplica la separación entre naves por esto, sin bajar de MIN_GAP.
+## Cada oleada multiplica el `gap` (la base de la pausa entre grupos) por esto, sin bajar de MIN_GAP.
+## La separación entre naves de un grupo no sale de aquí: es la de spawn_spacing.tres.
 const GAP_SHRINK: float = 0.91
 const MIN_GAP: float = 0.3
-## Pausa entre grupos, en separaciones de nave.
+## Pausa entre grupos, en veces el `gap` de la oleada.
 const GROUP_PAUSE: float = 2.5
 ## Con varios caminos, el siguiente grupo sale cuando el anterior lleva esta fracción de su duración:
 ## 1 en la primera oleada (uno detrás de otro) y MIN_OVERLAP_WAIT en la última.
@@ -50,10 +51,10 @@ const MAX_GROUP: int = 6
 const HEALTH_CURVE: float = 1.4
 
 ## Por nivel: oleadas, caminos del mapa, presupuesto de la primera oleada, crecimiento por oleada,
-## separación inicial entre naves (s), multiplicador de vida de la primera y de la última oleada
-## (`health`, la recompensa no cambia con él), naves nuevas del nivel, naves de niveles anteriores
-## (de las más fáciles a las más duras: se van sumando por ese orden) y desde qué oleada sale la
-## Mothership (`mothership_from`, 0 = nunca).
+## `gap` inicial (s; la pausa entre grupos es GROUP_PAUSE veces este), multiplicador de vida de la
+## primera y de la última oleada (`health`, la recompensa no cambia con él), naves nuevas del nivel,
+## naves de niveles anteriores (de las más fáciles a las más duras: se van sumando por ese orden) y
+## desde qué oleada sale la Mothership (`mothership_from`, 0 = nunca).
 const LEVELS: Array[Dictionary] = [
 	{"waves": 10, "paths": 1, "budget": 150.0, "growth": 1.13, "gap": 1.0, "health": Vector2(1.1, 2.8),
 		"new": [DART, "wasp"], "old": [], "mothership_from": 0},
@@ -188,7 +189,8 @@ func _make_groups(table: Dictionary, k: int, min_ships: int, with_mothership: bo
 			var run: int = 1
 			while n + run < group.size() and group[n + run] == group[n]:
 				run += 1
-			var spacing: float = gap * _spacing(group[n])
+			# La separación entre naves sale de la tabla por velocidad (spawn_spacing.tres).
+			var spacing: float = WaveData.SPAWN_SPACING.get_spacing(group[n].speed)
 			if n > 0:
 				time += spacing
 			end = _add_group(result, group[n], run, spacing, path, time, end)
@@ -204,14 +206,13 @@ func _add_group(result: Array[SpawnGroup], data: EnemyData, count: int, spacing:
 	var group: SpawnGroup = SpawnGroup.new()
 	group.enemy_data = data
 	group.count = count
-	group.spacing = _round(spacing)
 	group.path_index = path
 	var start: float = 0.0
 	if not result.is_empty():
 		result[-1].pause_after = _round(time - end)
 		start = end + result[-1].pause_after
 	result.append(group)
-	return start + group.spacing * (count - 1)
+	return start + spacing * (count - 1)
 
 
 # Redondeado a centésimas: roundf(x * 100) / 100 da 2.9 y no 2.9000000000000004 como snappedf.
@@ -256,11 +257,6 @@ func _cost(data: EnemyData) -> float:
 	for piece: EnemyData in data.split_into:
 		cost += _cost(piece)
 	return cost
-
-
-# Las naves caras (lentas y duras) salen más separadas que los Darts.
-func _spacing(data: EnemyData) -> float:
-	return clampf(_cost(data) / 35.0, 0.6, 2.0)
 
 
 func _enemy(key: String) -> EnemyData:

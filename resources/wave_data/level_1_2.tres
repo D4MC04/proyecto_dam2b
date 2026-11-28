@@ -10,28 +10,24 @@ script = ExtResource("1_kedio")
 enemy_data = ExtResource("6_kedio")
 count = 5
 pause_after = 2.5
-spacing = 0.25
 
 [sub_resource type="Resource" id="Resource_o4464"]
 script = ExtResource("1_kedio")
 enemy_data = ExtResource("6_kedio")
 count = 5
 pause_after = 2.5
-spacing = 0.25
 
 [sub_resource type="Resource" id="Resource_gfr8r"]
 script = ExtResource("1_kedio")
 enemy_data = ExtResource("6_kedio")
 count = 5
 pause_after = 2.5
-spacing = 0.25
 
 [sub_resource type="Resource" id="Resource_5hn52"]
 script = ExtResource("1_kedio")
 enemy_data = ExtResource("5_7i0dt")
 count = 5
 pause_after = 0.0
-spacing = 0.3
 
 [resource]
 script = ExtResource("7_ftv8i")

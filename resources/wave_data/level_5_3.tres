@@ -10,14 +10,12 @@
 script = ExtResource("1_sitd1")
 enemy_data = ExtResource("divisora")
 count = 4
-spacing = 0.66
 pause_after = 1.35
 
 [sub_resource type="Resource" id="Resource_sitd1"]
 script = ExtResource("1_sitd1")
 enemy_data = ExtResource("4_me1no")
 count = 3
-spacing = 0.85
 pause_after = 1.39
 path_index = 1
 
@@ -25,14 +23,12 @@ path_index = 1
 script = ExtResource("1_sitd1")
 enemy_data = ExtResource("divisora")
 count = 4
-spacing = 0.66
 pause_after = 1.35
 
 [sub_resource type="Resource" id="Resource_usxnx"]
 script = ExtResource("1_sitd1")
 enemy_data = ExtResource("4_asm4l")
 count = 3
-spacing = 0.4
 path_index = 1
 
 [resource]
