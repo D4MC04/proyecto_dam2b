@@ -72,5 +72,5 @@ enemy_data = ExtResource("6_y416c")
 
 [resource]
 script = ExtResource("7_k3tv8")
-health_multiplier = 2.54
+health_multiplier = 1.0
 groups = Array[ExtResource("1_xhoq3")]([SubResource("Resource_16e2c"), SubResource("Resource_4rt7g"), SubResource("Resource_ummqs"), SubResource("Resource_xhoq3"), SubResource("Resource_po5f7"), SubResource("Resource_72pey"), SubResource("Resource_pqv8w"), SubResource("Resource_rqffe"), SubResource("Resource_y416c"), SubResource("Resource_k3tv8"), SubResource("Resource_uecqr"), SubResource("Resource_vqi3s")])

@@ -64,5 +64,5 @@ spacing = 0.4
 
 [resource]
 script = ExtResource("7_gf7ro")
-health_multiplier = 2.8
+health_multiplier = 1.0
 groups = Array[ExtResource("1_ylfie")]([SubResource("Resource_7lmsk"), SubResource("Resource_w6ry5"), SubResource("Resource_qyrfs"), SubResource("Resource_ylfie"), SubResource("Resource_wjt01"), SubResource("Resource_f3h7s"), SubResource("Resource_bwa0v"), SubResource("Resource_4f5yb"), SubResource("Resource_3385q"), SubResource("Resource_gf7ro")])

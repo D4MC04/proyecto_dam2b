@@ -8,8 +8,8 @@
 script = ExtResource("1_data")
 name = "ENEMY_STREAK_NAME"
 hp = 50.0
-speed = 105
-reward = 15
+speed = 250
+reward = 20
 base_damage = 10
 sprite_frames = ExtResource("3_frames")
 collision_shape = ExtResource("2_shape")
