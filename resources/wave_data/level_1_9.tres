@@ -24,7 +24,6 @@ pause_after = 0.2
 script = ExtResource("1_xhoq3")
 enemy_data = ExtResource("5_rqffe")
 count = 2
-spacing = 0.3
 pause_after = 0.3
 
 [sub_resource type="Resource" id="Resource_po5f7"]
@@ -36,7 +35,6 @@ pause_after = 1.2
 script = ExtResource("1_xhoq3")
 enemy_data = ExtResource("6_y416c")
 count = 6
-spacing = 0.46
 pause_after = 1.2
 
 [sub_resource type="Resource" id="Resource_pqv8w"]
@@ -48,7 +46,6 @@ pause_after = 0.3
 script = ExtResource("1_xhoq3")
 enemy_data = ExtResource("5_rqffe")
 count = 2
-spacing = 0.3
 pause_after = 0.3
 
 [sub_resource type="Resource" id="Resource_y416c"]

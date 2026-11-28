@@ -9,7 +9,6 @@
 script = ExtResource("1_ylfie")
 enemy_data = ExtResource("6_3385q")
 count = 4
-spacing = 0.27
 pause_after = 0.19
 
 [sub_resource type="Resource" id="Resource_w6ry5"]
@@ -26,7 +25,6 @@ pause_after = 1.1
 script = ExtResource("1_ylfie")
 enemy_data = ExtResource("5_4f5yb")
 count = 6
-spacing = 0.42
 pause_after = 1.1
 
 [sub_resource type="Resource" id="Resource_wjt01"]
@@ -53,14 +51,12 @@ pause_after = 0.3
 script = ExtResource("1_ylfie")
 enemy_data = ExtResource("6_3385q")
 count = 2
-spacing = 0.2
 pause_after = 1.1
 
 [sub_resource type="Resource" id="Resource_gf7ro"]
 script = ExtResource("1_ylfie")
 enemy_data = ExtResource("5_4f5yb")
 count = 2
-spacing = 0.4
 
 [resource]
 script = ExtResource("7_gf7ro")

@@ -11,14 +11,12 @@
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("2_yi6nb")
 count = 5
-spacing = 0.8
 pause_after = -2.4
 
 [sub_resource type="Resource" id="Resource_iqq5x"]
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("2_yi6nb")
 count = 5
-spacing = 0.8
 pause_after = 0.8
 path_index = 1
 
@@ -26,27 +24,23 @@ path_index = 1
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("7_ne0ir")
 count = 3
-spacing = 0.4
 pause_after = 0.4
 
 [sub_resource type="Resource" id="Resource_yi6nb"]
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("2_yi6nb")
-spacing = 0.0
 pause_after = 0.4
 
 [sub_resource type="Resource" id="Resource_3dmc8"]
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("7_ne0ir")
 count = 3
-spacing = 0.4
 pause_after = -0.3
 
 [sub_resource type="Resource" id="Resource_7fuyc"]
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("4_wi7ho")
 count = 2
-spacing = 1.0
 pause_after = 0.8
 path_index = 1
 
@@ -54,21 +48,18 @@ path_index = 1
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("2_yi6nb")
 count = 4
-spacing = 0.8
 pause_after = -1.6
 
 [sub_resource type="Resource" id="Resource_jd0tc"]
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("7_ne0ir")
 count = 3
-spacing = 0.4
 pause_after = 0.4
 path_index = 1
 
 [sub_resource type="Resource" id="Resource_ne0ir"]
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("2_yi6nb")
-spacing = 0.0
 pause_after = 0.4
 path_index = 1
 
@@ -76,7 +67,6 @@ path_index = 1
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("7_ne0ir")
 count = 3
-spacing = 0.4
 pause_after = -0.3
 path_index = 1
 
@@ -84,14 +74,12 @@ path_index = 1
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("3_3dmc8")
 count = 6
-spacing = 0.45
 pause_after = 0.8
 
 [sub_resource type="Resource" id="Resource_tw117"]
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("2_yi6nb")
 count = 4
-spacing = 0.8
 pause_after = -1.6
 path_index = 1
 
@@ -99,21 +87,18 @@ path_index = 1
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("7_ne0ir")
 count = 5
-spacing = 0.4
 pause_after = 0.8
 
 [sub_resource type="Resource" id="Resource_5eerw"]
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("7_ne0ir")
 count = 3
-spacing = 0.4
 pause_after = 0.4
 path_index = 1
 
 [sub_resource type="Resource" id="Resource_0jcrm"]
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("2_yi6nb")
-spacing = 0.0
 pause_after = 0.4
 path_index = 1
 
@@ -121,7 +106,6 @@ path_index = 1
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("7_ne0ir")
 count = 3
-spacing = 0.4
 pause_after = -0.3
 path_index = 1
 
@@ -129,14 +113,12 @@ path_index = 1
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("2_yi6nb")
 count = 5
-spacing = 0.8
 pause_after = 0.8
 
 [sub_resource type="Resource" id="Resource_2pkni"]
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("3_3dmc8")
 count = 5
-spacing = 0.45
 pause_after = -1.0
 path_index = 1
 
@@ -144,20 +126,17 @@ path_index = 1
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("7_ne0ir")
 count = 2
-spacing = 0.4
 pause_after = 0.4
 
 [sub_resource type="Resource" id="Resource_nba2u"]
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("2_yi6nb")
-spacing = 0.0
 pause_after = 0.4
 
 [sub_resource type="Resource" id="Resource_i77r4"]
 script = ExtResource("1_8illh")
 enemy_data = ExtResource("7_ne0ir")
 count = 2
-spacing = 0.4
 pause_after = 0.0
 
 [resource]

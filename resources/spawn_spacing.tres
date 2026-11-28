@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="SpawnSpacing" format=3]
+
+[ext_resource type="Script" uid="uid://dv54hsohufs74" path="res://scripts/resources/SpawnSpacing.gd" id="1_xm1fg"]
+
+[resource]
+script = ExtResource("1_xm1fg")
+spacing_by_speed = Dictionary[int, float]({
+30: 0.68,
+35: 0.5,
+45: 0.21,
+50: 0.5,
+60: 0.18,
+90: 0.3,
+100: 1.0,
+125: 0.6,
+150: 0.4,
+250: 1.0
+})

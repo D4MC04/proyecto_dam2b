@@ -13,7 +13,6 @@
 script = ExtResource("1_8rstv")
 enemy_data = ExtResource("2_airtc")
 count = 6
-spacing = 0.22
 pause_after = 0.18
 path_index = 6
 
@@ -21,7 +20,6 @@ path_index = 6
 script = ExtResource("1_8rstv")
 enemy_data = ExtResource("3_eacnm")
 count = 6
-spacing = 0.22
 pause_after = 0.17
 path_index = 3
 
@@ -29,7 +27,6 @@ path_index = 3
 script = ExtResource("1_8rstv")
 enemy_data = ExtResource("2_airtc")
 count = 6
-spacing = 0.22
 pause_after = 0.18
 path_index = 5
 
@@ -37,7 +34,6 @@ path_index = 5
 script = ExtResource("1_8rstv")
 enemy_data = ExtResource("4_awnst")
 count = 4
-spacing = 0.31
 pause_after = 0.27
 path_index = 4
 
@@ -45,7 +41,6 @@ path_index = 4
 script = ExtResource("1_8rstv")
 enemy_data = ExtResource("5_24tjl")
 count = 4
-spacing = 0.31
 pause_after = 0.27
 path_index = 1
 
@@ -53,21 +48,18 @@ path_index = 1
 script = ExtResource("1_8rstv")
 enemy_data = ExtResource("6_8rstv")
 count = 6
-spacing = 0.19
 pause_after = 0.26
 path_index = 2
 
 [sub_resource type="Resource" id="Resource_24tjl"]
 script = ExtResource("1_8rstv")
 enemy_data = ExtResource("7_airtc")
-spacing = 0.62
 pause_after = 0.77
 
 [sub_resource type="Resource" id="Resource_bcedo"]
 script = ExtResource("1_8rstv")
 enemy_data = ExtResource("2_airtc")
 count = 6
-spacing = 0.22
 pause_after = 0.18
 path_index = 7
 
@@ -75,7 +67,6 @@ path_index = 7
 script = ExtResource("1_8rstv")
 enemy_data = ExtResource("5_24tjl")
 count = 4
-spacing = 0.31
 pause_after = 0.27
 path_index = 3
 
@@ -83,7 +74,6 @@ path_index = 3
 script = ExtResource("1_8rstv")
 enemy_data = ExtResource("6_8rstv")
 count = 5
-spacing = 0.19
 path_index = 6
 
 [resource]

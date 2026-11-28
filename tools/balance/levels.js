@@ -1,6 +1,8 @@
 // Pestaña Niveles: una fila por resources/level_data/*.tres; al elegir un nivel, sus oleadas; al elegir una
-// oleada, sus grupos (editables: nave, cuántas, separación, pausa y camino; se añaden, quitan y reordenan).
+// oleada, sus grupos (editables: nave, cuántas, pausa y camino; se añaden, quitan y reordenan).
 // Las oleadas y los grupos se copian, pegan y duplican (también entre niveles) con un portapapeles del panel.
+// La separación entre naves de un grupo sale de la tabla por velocidad (resources/spawn_spacing.tres),
+// que se edita aquí también.
 "use strict";
 
 const LevelsTab = (() => {
@@ -9,7 +11,11 @@ const LevelsTab = (() => {
 	const WAVE_DIR = "resources/wave_data";
 	const SPAWN_GROUP_SCRIPT = "scripts/resources/SpawnGroup.gd";
 	const WAVE_DATA_SCRIPT = "scripts/resources/WaveData.gd";
-	const GROUP_FIELDS = ["count", "spacing", "pause_after", "path_index"];
+	const GROUP_FIELDS = ["count", "pause_after", "path_index"];
+	// Tabla velocidad -> separación (SpawnSpacing): un único .tres para todas las oleadas.
+	const SPACING_PATH = "resources/spawn_spacing.tres";
+	const SPACING_KEY = "spacing_by_speed";
+	const DEFAULT_SPACING = 0.5; // SpawnSpacing.DEFAULT_SPACING
 
 	const PERFECT_WAVE_BONUS = 25; // LevelState.PERFECT_WAVE_BONUS
 
@@ -32,12 +38,19 @@ const LevelsTab = (() => {
 	let wavesTable = null;
 	let wavesSignature = null;
 	let groupsEditor = null;
+	let spacingRef = null;
+	let spacingEditor = null;
 
 	// --- Carga ---
 
 	async function load() {
 		levels = [];
 		enemyPaths = await Project.loadDir(ENEMY_DIR);
+		spacingRef = null;
+		if (await Project.fileExists(SPACING_PATH)) {
+			await Project.loadDoc(SPACING_PATH);
+			spacingRef = { path: SPACING_PATH, sub: null, key: SPACING_KEY, type: "spacing", read: readSpacing, write: writeSpacing };
+		}
 		const paths = await Project.loadDir(LEVEL_DIR);
 		for (const path of paths) {
 			const n = Project.node(path, null);
@@ -156,7 +169,7 @@ const LevelsTab = (() => {
 
 	// --- Grupos: leer y escribir ---
 
-	// Grupos tal como están en el archivo: [{key, sub, enemy, count, spacing, pause_after, path_index}].
+	// Grupos tal como están en el archivo: [{key, sub, enemy, count, pause_after, path_index}].
 	function readGroups(path) {
 		const n = Project.node(path, null);
 		if (!n) {
@@ -278,6 +291,42 @@ const LevelsTab = (() => {
 		return text;
 	}
 
+	// --- Separación por velocidad: leer y escribir ---
+
+	// Tabla tal como está en spawn_spacing.tres: {velocidad: segundos}.
+	function readSpacing() {
+		const n = Project.node(SPACING_PATH, null);
+		const prop = n && n.section.props[SPACING_KEY];
+		const match = prop ? prop.raw.match(/\{([\s\S]*)\}/) : null;
+		const table = {};
+		for (const entry of match ? match[1].split(",") : []) {
+			const [speed, spacing] = entry.split(":").map((part) => part.trim());
+			if (speed !== undefined && spacing !== undefined && speed !== "") {
+				table[Number(speed)] = Number(spacing);
+			}
+		}
+		return table;
+	}
+
+	// Reescribe el diccionario como lo guarda Godot: una entrada por línea, por velocidad.
+	function writeSpacing(text, table) {
+		const eol = text.includes("\r\n") ? "\r\n" : "\n";
+		const speeds = Object.keys(table).map(Number).sort((a, b) => a - b);
+		const entries = speeds.map((speed) => `${speed}: ${Tres.formatValue("float", table[speed])}`);
+		const body = entries.length > 0 ? `{${eol}${entries.join(`,${eol}`)}${eol}}` : "{}";
+		return Tres.setProp(text, null, SPACING_KEY, `Dictionary[int, float](${body})`);
+	}
+
+	function spacingTable() {
+		return (spacingRef && Project.value(spacingRef)) || {};
+	}
+
+	// Segundos entre dos naves de un grupo de esa nave: los de su velocidad (0,5 si no está, como el juego).
+	function spacingFor(enemyPath) {
+		const spacing = spacingTable()[enemyValue(enemyPath, "speed")];
+		return spacing === undefined ? DEFAULT_SPACING : spacing;
+	}
+
 	// --- Cálculos ---
 
 	function enemyValue(path, key) {
@@ -305,14 +354,15 @@ const LevelsTab = (() => {
 		let start = 0;
 		for (const g of groups) {
 			stats.starts.push(start);
+			const spacing = spacingFor(g.enemy);
 			const totals = shipTotals(g.enemy);
 			stats.ships += g.count;
 			stats.reward += g.count * totals.reward;
 			stats.hp += g.count * totals.hp * hm;
 			if (g.count > 0) {
-				stats.duration = Math.max(stats.duration, start + g.spacing * (g.count - 1));
+				stats.duration = Math.max(stats.duration, start + spacing * (g.count - 1));
 			}
-			start += g.spacing * Math.max(g.count - 1, 0) + g.pause_after;
+			start += spacing * Math.max(g.count - 1, 0) + g.pause_after;
 		}
 		return stats;
 	}
@@ -384,7 +434,7 @@ const LevelsTab = (() => {
 			{ id: "ships", label: "Naves", group: "Calculado", get: (w) => waveStatsOf(w).ships },
 			{ id: "reward", label: "Recompensa", group: "Calculado", title: "Recompensas de sus naves (con sus trozos)", get: (w) => waveStatsOf(w).reward, format: (v) => f(v, 0) },
 			{ id: "hp", label: "Vida total", group: "Calculado", title: "count × hp × health_multiplier, con los trozos de split_into", get: (w) => waveStatsOf(w).hp, format: (v) => f(v, 0) },
-			{ id: "duration", label: "Salida (s)", group: "Calculado", title: "Tiempo de la última nave desde la primera (con spacing y pause_after)", get: (w) => waveStatsOf(w).duration, format: (v) => f(v, 1) },
+			{ id: "duration", label: "Salida (s)", group: "Calculado", title: "Tiempo de la última nave desde la primera (con la separación por velocidad y pause_after)", get: (w) => waveStatsOf(w).duration, format: (v) => f(v, 1) },
 			{ id: "money", label: "Dinero antes", group: "Calculado", title: "Inicial + recompensas anteriores + 25 por oleada perfecta", get: (w) => waveStatsOf(w).money, format: (v) => f(v, 0) },
 		];
 	}
@@ -730,7 +780,6 @@ Cancelar: no jugar.`)) {
 			'<th class="sticky">#</th>' +
 			'<th class="editable" title="enemy_data: la nave del grupo (resources/enemy_data/)">Nave</th>' +
 			'<th class="editable" title="count: naves del grupo">Cuántas</th>' +
-			'<th class="editable" title="spacing (s): entre dos naves del grupo">Separación</th>' +
 			'<th class="editable" title="pause_after (s): desde su última nave hasta la primera del siguiente grupo. Negativo: se solapan">Pausa después</th>' +
 			'<th class="editable" title="path_index: camino del mapa">Camino</th>' +
 			'<th class="computed" title="Tiempo de su primera nave desde el inicio de la oleada">Sale a (s)</th>' +
@@ -785,7 +834,7 @@ Cancelar: no jugar.`)) {
 					const text = input.value.trim();
 					const value = Number(text);
 					let valid = text !== "" && isFinite(value) && (fieldType(field) !== "int" || Number.isInteger(value));
-					if (field === "count" || field === "path_index" || field === "spacing") {
+					if (field === "count" || field === "path_index") {
 						valid = valid && value >= 0;
 					}
 					td.classList.toggle("invalid", !valid);
@@ -863,6 +912,144 @@ Cancelar: no jugar.`)) {
 		});
 	}
 
+	// --- Tabla de separación por velocidad ---
+
+	// Una fila por velocidad: las de la tabla y las de todas las naves (con los cambios pendientes de la
+	// pestaña Naves), así sale una fila nueva cuando una nave tiene una velocidad que no estaba.
+	function spacingRows() {
+		const bySpeed = new Map(Object.keys(spacingTable()).map((speed) => [Number(speed), []]));
+		for (const path of enemyPaths) {
+			const speed = enemyValue(path, "speed");
+			if (typeof speed !== "number") {
+				continue;
+			}
+			if (!bySpeed.has(speed)) {
+				bySpeed.set(speed, []);
+			}
+			bySpeed.get(speed).push(path);
+		}
+		return [...bySpeed.entries()].sort((a, b) => a[0] - b[0]).map(([speed, ships]) => ({ speed, ships }));
+	}
+
+	function shipNames(paths) {
+		const names = paths.map((path) => Project.translate(Project.rawValue(Project.node(path, null), "name")) || Project.fileName(path));
+		return [...new Set(names)].join(", ");
+	}
+
+	// Cambia (o quita, con null) la separación de una velocidad.
+	function setSpacing(speed, spacing) {
+		const table = { ...spacingTable() };
+		if (spacing === null) {
+			delete table[speed];
+		} else {
+			table[speed] = spacing;
+		}
+		Project.setValue(spacingRef, table);
+	}
+
+	// Como la de grupos: se reconstruye solo si cambian las filas; al escribir solo se actualizan valores.
+	function buildSpacing() {
+		const container = el.spacing;
+		if (!spacingRef) {
+			spacingEditor = null;
+			container.textContent = `Falta ${SPACING_PATH}: todas las naves salen a ${DEFAULT_SPACING} s.`;
+			return;
+		}
+		const rows = spacingRows();
+		const signature = rows.map((r) => `${r.speed}:${r.ships.join("+")}`).join(",");
+		if (spacingEditor && spacingEditor.signature === signature) {
+			refreshSpacing();
+			return;
+		}
+		const table = document.createElement("table");
+		table.className = "balance-table spacing-table";
+		const head = document.createElement("thead");
+		head.innerHTML =
+			"<tr>" +
+			'<th class="sticky" title="speed de EnemyData (px/s)">Velocidad</th>' +
+			'<th class="editable" title="Segundos entre dos naves seguidas de un grupo con esa velocidad, en todas las oleadas">Separación (s)</th>' +
+			'<th class="computed" title="Naves con esa velocidad">Naves</th>' +
+			"<th></th>" +
+			"</tr>";
+		table.appendChild(head);
+		const body = document.createElement("tbody");
+		const editorRows = [];
+		rows.forEach((row, index) => {
+			const tr = document.createElement("tr");
+			tr.className = `group-${index % 2}`;
+
+			const speedTd = document.createElement("td");
+			speedTd.className = "sticky computed";
+			speedTd.textContent = String(row.speed);
+			tr.appendChild(speedTd);
+
+			const td = document.createElement("td");
+			td.className = "editable";
+			const input = document.createElement("input");
+			input.type = "number";
+			input.step = "any";
+			input.min = "0";
+			input.placeholder = String(DEFAULT_SPACING);
+			input.addEventListener("input", () => {
+				const text = input.value.trim();
+				const value = Number(text);
+				const valid = text !== "" && isFinite(value) && value >= 0;
+				td.classList.toggle("invalid", !valid);
+				if (valid) {
+					setSpacing(row.speed, value);
+				}
+			});
+			input.addEventListener("keydown", (e) => {
+				if (e.key === "Enter") {
+					input.blur();
+				}
+			});
+			input.addEventListener("blur", () => refreshSpacing(true));
+			td.appendChild(input);
+			tr.appendChild(td);
+
+			const shipsTd = document.createElement("td");
+			shipsTd.className = "computed text";
+			shipsTd.textContent = row.ships.length > 0 ? shipNames(row.ships) : "(ninguna nave)";
+			tr.appendChild(shipsTd);
+
+			const actions = document.createElement("td");
+			actions.className = "actions";
+			if (row.ships.length === 0) {
+				actions.append(button("✕", "Quitar la velocidad de la tabla (ninguna nave la tiene)", () => setSpacing(row.speed, null)));
+			}
+			tr.appendChild(actions);
+
+			body.appendChild(tr);
+			editorRows.push({ speed: row.speed, tr, td, input });
+		});
+		table.appendChild(body);
+		container.replaceChildren(table);
+		spacingEditor = { signature, rows: editorRows };
+		refreshSpacing(true);
+	}
+
+	function refreshSpacing(force) {
+		if (!spacingEditor) {
+			return;
+		}
+		const table = spacingTable();
+		const original = readSpacing();
+		for (const row of spacingEditor.rows) {
+			const spacing = table[row.speed];
+			const missing = spacing === undefined;
+			if (force || document.activeElement !== row.input) {
+				row.input.value = missing ? "" : String(spacing);
+				row.td.classList.remove("invalid");
+			}
+			row.td.classList.toggle("changed", spacing !== original[row.speed]);
+			row.tr.classList.toggle("new-group", missing);
+			row.tr.title = missing
+				? `Velocidad nueva: no está en la tabla. El juego usa ${DEFAULT_SPACING} s y avisa; escribe una separación para añadirla.`
+				: "";
+		}
+	}
+
 	// --- Pintar ---
 
 	function render(container) {
@@ -874,7 +1061,13 @@ Cancelar: no jugar.`)) {
 				<button class="small launcher-help-close" title="Ocultar este aviso">✕</button>
 			</p>
 			<div class="levels-layout">
-				<div class="levels-list"></div>
+				<div class="levels-top">
+					<div class="levels-list"></div>
+					<section class="detail-box">
+						<h2 title="${SPACING_PATH}: segundos entre dos naves seguidas de un grupo según la velocidad de la nave. Vale para todas las oleadas de todos los niveles">Separación por velocidad</h2>
+						<div class="spacing-box"></div>
+					</section>
+				</div>
 				<div class="levels-detail">
 					<section class="detail-box">
 						<h2 class="waves-title"></h2>
@@ -891,6 +1084,8 @@ Cancelar: no jugar.`)) {
 		el.launcherHelp = container.querySelector(".launcher-help");
 		container.querySelector(".launcher-help-close").addEventListener("click", () => (el.launcherHelp.hidden = true));
 		el.levels = container.querySelector(".levels-list");
+		el.spacing = container.querySelector(".spacing-box");
+		spacingEditor = null;
 		el.wavesTitle = container.querySelector(".waves-title");
 		el.waves = container.querySelector(".waves-table");
 		el.groupsTitle = container.querySelector(".groups-title");
@@ -911,6 +1106,7 @@ Cancelar: no jugar.`)) {
 			onRowClick: selectLevel,
 			isSelected: (l) => l === selectedLevel,
 		});
+		buildSpacing();
 		renderLevel();
 	}
 
@@ -986,6 +1182,7 @@ Cancelar: no jugar.`)) {
 			selectedGroupKeys = new Set();
 		}
 		levelsTable.refresh();
+		buildSpacing();
 		if (waveListSignature() !== wavesSignature) {
 			renderLevel();
 			return;

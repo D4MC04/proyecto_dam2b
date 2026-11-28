@@ -10,7 +10,6 @@
 script = ExtResource("1_vexyu")
 enemy_data = ExtResource("2_1s3ly")
 count = 5
-spacing = 0.38
 pause_after = 1.47
 path_index = 1
 
@@ -18,7 +17,6 @@ path_index = 1
 script = ExtResource("1_vexyu")
 enemy_data = ExtResource("3_ujs66")
 count = 6
-spacing = 0.38
 pause_after = 1.45
 path_index = 3
 
@@ -26,7 +24,6 @@ path_index = 3
 script = ExtResource("1_vexyu")
 enemy_data = ExtResource("2_1s3ly")
 count = 5
-spacing = 0.38
 pause_after = 1.47
 path_index = 2
 
@@ -34,14 +31,12 @@ path_index = 2
 script = ExtResource("1_vexyu")
 enemy_data = ExtResource("4_craym")
 count = 6
-spacing = 0.38
 pause_after = 1.45
 
 [sub_resource type="Resource" id="Resource_craym"]
 script = ExtResource("1_vexyu")
 enemy_data = ExtResource("2_1s3ly")
 count = 4
-spacing = 0.38
 path_index = 2
 
 [resource]

@@ -37,6 +37,7 @@ Recursos en `resources/enemy_data/` (los archivos conservan el nombre de antes; 
 Las naves con mecánica (velocidad en px/s) solo tienen ya el botín nuevo; su vida, velocidad y nombre en inglés los cambian sus tickets (ver [naves-plan.md](naves-plan.md)).
 
 - **Naves base**: 10 naves sin mecánica que se distinguen por sus números, por nichos con escalones (rápidas: Dart, Wasp, Streak y Vanguard; estándar: Corsair, Frigate y Cruiser; pesadas: Ram, Juggernaut y Mothership). Vida en saltos de 25 y velocidad en saltos de 0,25. Solo hay un Dart (antes había cuatro de colores).
+- **Separación en las oleadas**: la separación entre naves de un grupo sale de `speed` (tabla `resources/spawn_spacing.tres`, ver [niveles.md](niveles.md) › "Datos de nivel"). Si una nave pasa a una velocidad que no está en la tabla, el juego usa 0,5 s y avisa: hay que darle su separación en el panel (pestaña Niveles).
 - **Mothership**: miniboss, sin aviso de jefe (`is_boss` apagado). Como mucho una por oleada, entre las demás naves, en las oleadas 9 y 10 del nivel 8 y de la 8 a la 10 del nivel 9 (ver [niveles.md](niveles.md)).
 - **Botín**: `reward` ≈ vida / 5 × √(velocidad / 60) × un factor por habilidad (1,2-1,5), redondeado a 5 (el 40 % de lo que daban antes, más o menos). La Divisora y sus tres trozos suman 35 €.
 - **Jefes**: `is_boss` marca a un jefe: su oleada empieza con el `BossAlert` (con su nombre), y al morir el `Spawner` emite `boss_died` (sacude el mapa). Ahora mismo no lo tiene ninguna nave.
