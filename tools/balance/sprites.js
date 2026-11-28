@@ -8,7 +8,7 @@ const SpritesTab = (() => {
 	const ZOOMS = [1, 2, 3, 4, 6, 8];
 	const DEFAULT_ZOOM = 4;
 	// Huecos de vista de una torreta, de izquierda a derecha.
-	const TURRET_KINDS = ["main", "flash"];
+	const TURRET_KINDS = ["main", "fx"];
 	const TIERS = [
 		{ id: "base", label: "Base" },
 		{ id: "fusion", label: "Fusión" },
@@ -218,7 +218,7 @@ const SpritesTab = (() => {
 
 	// --- Carga ---
 
-	// Huecos de una torreta: torreta (base + cañón) y fogonazo (si lo tiene).
+	// Huecos de una torreta: torreta (base + cañón) y efectos (fogonazo y animación de mejora, los que tenga).
 	async function turretSlots(n) {
 		const layers = [];
 		for (const node of await framesNodes(n, "sprite_frames")) {
@@ -228,10 +228,14 @@ const SpritesTab = (() => {
 			layers.push({ label: "Cañón", model: buildFrames(node), preferred: ["default"] });
 		}
 		const slots = { main: { title: "Torreta", layers } };
-		for (const [key, kind, title] of [["muzzle_flash", "flash", "Fogonazo"]]) {
+		const variants = [];
+		for (const [key, label] of [["muzzle_flash", "Fogonazo"], ["upgrade_frames", "Mejora"]]) {
 			for (const node of await framesNodes(n, key)) {
-				slots[kind] = { title, layers: [{ label: title, model: buildFrames(node), preferred: ["default"] }] };
+				variants.push({ label, model: buildFrames(node), preferred: ["default"] });
 			}
+		}
+		if (variants.length > 0) {
+			slots.fx = { title: "Efectos", layers: [{ label: variants[0].label, variants, model: variants[0].model, preferred: variants[0].preferred }] };
 		}
 		return slots;
 	}
@@ -283,7 +287,7 @@ const SpritesTab = (() => {
 		for (const entry of entries) {
 			for (const view of Object.values(entry.slots)) {
 				for (const layer of view.layers) {
-					modelPaths(layer.model).forEach((p) => paths.add(p));
+					layerModels(layer).forEach((model) => modelPaths(model).forEach((p) => paths.add(p)));
 				}
 			}
 		}
@@ -327,17 +331,24 @@ const SpritesTab = (() => {
 		return bitmap ? { w: bitmap.width, h: bitmap.height } : { w: 16, h: 16 };
 	}
 
+	// Modelos que puede mostrar una capa: uno, o uno por variante (fogonazo / mejora).
+	function layerModels(layer) {
+		return layer.variants ? layer.variants.map((v) => v.model) : [layer.model];
+	}
+
 	// Tamaño en px del lienzo de una vista: el frame más grande de todas sus capas y animaciones.
 	function viewSize(view) {
 		let w = 1;
 		let h = 1;
 		for (const layer of view.layers) {
-			for (const name of layer.model.names) {
-				for (const frame of layer.model.anims[name].frames) {
-					if (frame.tex) {
-						const size = textureSize(frame.tex);
-						w = Math.max(w, size.w);
-						h = Math.max(h, size.h);
+			for (const model of layerModels(layer)) {
+				for (const name of model.names) {
+					for (const frame of model.anims[name].frames) {
+						if (frame.tex) {
+							const size = textureSize(frame.tex);
+							w = Math.max(w, size.w);
+							h = Math.max(h, size.h);
+						}
 					}
 				}
 			}
@@ -452,6 +463,9 @@ const SpritesTab = (() => {
 
 	// Ancho mínimo de una vista (para que quepan el desplegable y el texto aunque el sprite sea pequeño).
 	const MIN_VIEW_WIDTH = 150;
+	// Alto de los controles de una capa (con y sin selector de variante).
+	const LAYER_HEIGHT = 40;
+	const LAYER_HEIGHT_VARIANTS = 68;
 	// Por tipo de vista (main, flash, enemy): el mayor sprite y el mayor número de capas de todas las filas.
 	// Así todas las vistas del mismo tipo miden lo mismo y las filas quedan alineadas.
 	let kindInfo = {};
@@ -462,10 +476,10 @@ const SpritesTab = (() => {
 		for (const entry of entries) {
 			for (const [kind, view] of Object.entries(entry.slots)) {
 				const size = viewSize(view);
-				const info = kindInfo[kind] || (kindInfo[kind] = { w: 1, h: 1, layers: 1 });
+				const info = kindInfo[kind] || (kindInfo[kind] = { w: 1, h: 1, controls: 0 });
 				info.w = Math.max(info.w, size.w);
 				info.h = Math.max(info.h, size.h);
-				info.layers = Math.max(info.layers, view.layers.length);
+				info.controls = Math.max(info.controls, view.layers.reduce((sum, l) => sum + (l.variants && l.variants.length > 1 ? LAYER_HEIGHT_VARIANTS : LAYER_HEIGHT), 0));
 			}
 		}
 	}
@@ -474,9 +488,9 @@ const SpritesTab = (() => {
 	function applyLayout() {
 		for (const [kind, info] of Object.entries(kindInfo)) {
 			panel.style.setProperty(`--w-${kind}`, `${Math.max(MIN_VIEW_WIDTH, info.w * zoom + 12)}px`);
-			panel.style.setProperty(`--h-${kind}`, `${info.layers * 40}px`);
+			panel.style.setProperty(`--h-${kind}`, `${info.controls}px`);
 			panel.style.setProperty(`--hs-${kind}`, `${info.h * zoom + 8}px`);
-			panel.style.setProperty(`--hv-${kind}`, `${26 + info.h * zoom + 8 + 4 + info.layers * 40}px`);
+			panel.style.setProperty(`--hv-${kind}`, `${26 + info.h * zoom + 8 + 4 + info.controls}px`);
 		}
 	}
 
@@ -505,7 +519,8 @@ const SpritesTab = (() => {
 		const box = element("div", "sprite-view");
 		box.style.width = `var(--w-${kind})`;
 		const bar = element("div", "sprite-view-bar");
-		bar.appendChild(element("span", "sprite-view-title", data.title));
+		const titleEl = element("span", "sprite-view-title", data.layers[0].variants ? data.layers[0].variants[0].label : data.title);
+		bar.appendChild(titleEl);
 		v.playButton = element("button", "sprite-play", "▶");
 		v.playButton.addEventListener("click", () => setPlaying(v, !v.playing));
 		bar.appendChild(v.playButton);
@@ -520,27 +535,52 @@ const SpritesTab = (() => {
 		for (const layer of v.layers) {
 			const row = element("div", "sprite-layer");
 			const label = element("span", "sprite-layer-label", layer.label);
-			const text = element("span", "sprite-info", animationInfo(layer));
-			text.classList.add("sprite-info-line");
-			row.appendChild(label);
-			if (layer.model.names.length > 1) {
-				const select = element("select", "sprite-select");
+			const text = element("span", "sprite-info sprite-info-line");
+			const select = element("select", "sprite-select");
+			const animName = element("span", "sprite-anim-name");
+			// Rellena el desplegable con las animaciones del modelo actual de la capa.
+			const fillAnimations = () => {
+				select.textContent = "";
 				for (const name of layer.model.names) {
 					const option = element("option", "", name);
 					option.value = name;
 					select.appendChild(option);
 				}
 				select.value = layer.current;
-				select.addEventListener("change", () => {
-					layer.current = select.value;
+				select.hidden = layer.model.names.length <= 1;
+				animName.textContent = layer.current || "";
+				animName.hidden = layer.model.names.length > 1;
+				text.textContent = animationInfo(layer);
+			};
+			select.addEventListener("change", () => {
+				layer.current = select.value;
+				v.time = 0;
+				text.textContent = animationInfo(layer);
+				drawView(v);
+			});
+			if (layer.variants && layer.variants.length > 1) {
+				const variantSelect = element("select", "sprite-select");
+				layer.variants.forEach((variant, index) => {
+					const option = element("option", "", variant.label);
+					option.value = String(index);
+					variantSelect.appendChild(option);
+				});
+				variantSelect.addEventListener("change", () => {
+					const variant = layer.variants[Number(variantSelect.value)];
+					layer.model = variant.model;
+					layer.current = variant.preferred.find((p) => variant.model.anims[p]) || variant.model.names[0];
 					v.time = 0;
-					text.textContent = animationInfo(layer);
+					titleEl.textContent = variant.label;
+					fillAnimations();
 					drawView(v);
 				});
-				row.appendChild(select);
-			} else if (layer.current) {
-				row.appendChild(element("span", "sprite-anim-name", layer.current));
+				row.appendChild(variantSelect);
+			} else {
+				row.appendChild(label);
 			}
+			row.appendChild(select);
+			row.appendChild(animName);
+			fillAnimations();
 			row.appendChild(text);
 			controls.appendChild(row);
 		}
