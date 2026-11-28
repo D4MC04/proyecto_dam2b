@@ -39,6 +39,21 @@ const EnemiesTab = (() => {
 			{ id: "file", label: "Archivo", get: (row) => Project.fileName(row.path), format: (v) => v, cls: "file" },
 			enemyColumn("hp", "Vida", "hp"),
 			enemyColumn("speed", "Velocidad", "speed (px/s)"),
+			{
+				id: "spacing",
+				label: "Separación (s)",
+				title: "Segundos entre dos naves seguidas de un grupo: spawn_spacing.tres, una entrada por velocidad. Cambiarla cambia todas las naves con esa velocidad",
+				ref: (row) => Project.spacingRef(() => enemyValue(row, "speed")),
+				warn: (row) => !Project.hasSpacing(enemyValue(row, "speed")),
+				cellTitle: (row) => {
+					const speed = enemyValue(row, "speed");
+					if (!Project.hasSpacing(speed)) {
+						const seconds = BalanceTable.formatNumber(Project.DEFAULT_SPACING);
+						return `${speed} px/s no está en spawn_spacing.tres: el juego usa ${seconds} s. Pon una separación para añadir la entrada.`;
+					}
+					return `Compartida por todas las naves de ${speed} px/s`;
+				},
+			},
 			enemyColumn("reward", "Botín", "reward (€)"),
 			enemyColumn("base_damage", "Daño est.", "base_damage: vida que quita a la estación al llegar"),
 			enemyColumn("heal_rate", "Curación", "heal_rate (Mender)"),
