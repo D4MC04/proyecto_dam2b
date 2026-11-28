@@ -30,6 +30,8 @@ extends SceneTree
 ##   slots = 7,6 12,6 ...        casillas de torreta (un asteroide con plataforma en cada una)
 ##   rocks = grey brown ice      familias de roca del nivel (grey, brown, dark, ore, ice, crystal,
 ##                               lava); la primera es la principal y cierra el borde del mapa
+##   landmark = ufo 34,18        pieza especial fija (ship, astronaut, ufo o satellite) tapando esa
+##                               casilla (opcional, una por línea); las demás se ponen al azar
 ## Las líneas vacías y las que empiezan por "#" se ignoran.
 
 const DEFAULT_MAP_SIZE: Vector2i = Vector2i(43, 33)
@@ -192,6 +194,8 @@ const LANDMARK_MAX: int = 4
 const LANDMARK_SPACING: int = 10
 const LANDMARK_CORRIDOR_DISTANCE: int = 3
 const LANDMARK_ATTEMPTS: int = 300
+# Nombre de cada pieza especial en el .txt (clave landmark), en el orden de _landmarks
+const LANDMARK_NAMES: Array[String] = ["ship", "astronaut", "ufo", "satellite"]
 
 # Zonas de material: cada casilla toma la familia del punto de zona más cercano
 const ZONE_COUNT: int = 6
@@ -253,6 +257,8 @@ class LevelLayout:
 	var showcase: bool = false
 	var slots: Array[Vector2i] = []
 	var rocks: PackedStringArray = ["grey"]
+	# Piezas especiales fijas: casilla que tapan -> índice en _landmarks
+	var landmarks: Dictionary[Vector2i, int] = {}
 
 
 ## Dibujo de una pieza puesta con una alternativa: centros de los píxeles opacos de su contorno y
@@ -302,6 +308,8 @@ var _slot_errors: int = 0
 # Casillas con algo puesto. _solid, las que tapa algo que se ve bien (todo menos piedrecitas)
 var _blocked: Dictionary[Vector2i, bool] = {}
 var _solid: Dictionary[Vector2i, bool] = {}
+# Casillas de alrededor de las casillas de torreta: solo puede usarlas la roca de la punta de una U
+var _slot_ring: Dictionary[Vector2i, bool] = {}
 var _zone_points: Array[Vector2] = []
 var _zone_families: Array[String] = []
 var _main_family: String = ""
@@ -457,6 +465,13 @@ func _parse(text: String) -> LevelLayout:
 				layout.turn_radius = value.to_float()
 			"slots":
 				layout.slots.assign(_parse_cells(value))
+			"landmark":
+				var parts: PackedStringArray = value.split(" ", false)
+				var index: int = LANDMARK_NAMES.find(parts[0])
+				if index < 0 or parts.size() < 2:
+					push_error("Pieza especial desconocida: %s" % value)
+					return null
+				layout.landmarks[_parse_cells(parts[1])[0]] = index
 			"rocks":
 				layout.rocks = value.split(" ", false)
 				for family: String in layout.rocks:
@@ -516,6 +531,7 @@ func _build_map(layout: LevelLayout) -> Node2D:
 		_distance = _distance_to_path(shore_curves, layout.station)
 	_blocked = {}
 	_solid = {}
+	_slot_ring = {}
 	if has_station:
 		_mark(layout.station, STATION_RADIUS)
 
@@ -524,7 +540,7 @@ func _build_map(layout: LevelLayout) -> Node2D:
 		_place_entrances(scenery, _find_entrances(curves))
 	_place_lights(lights, path_cells, layout.station)
 	_place_bend_edges(scenery, curves, fillets)
-	_place_landmarks(scenery)
+	_place_landmarks(scenery, layout.landmarks)
 	_place_wrecks(scenery)
 	_place_large(scenery)
 	_place_medium(scenery)
@@ -897,6 +913,11 @@ func _place_turret_slots(layer: TileMapLayer, cells: Array[Vector2i]) -> void:
 		used[cell] = shape
 		layer.set_cell(cell, TURRET_SLOTS, Vector2i(shape, TURRET_SLOT_ROWS[_family_at(cell)]) * 2)
 		_mark(cell, 1)
+		for dy: int in range(-1, 2):
+			for dx: int in range(-1, 2):
+				_slot_ring[cell + Vector2i(dx, dy)] = true
+	for cell: Vector2i in cells:
+		_slot_ring.erase(cell)
 
 
 ## Primera casilla de cada camino dentro del mapa y su dirección de avance (por el eje en el que más
@@ -966,9 +987,23 @@ func _place_bend_edges(layer: TileMapLayer, curves: Array[Curve2D], fillets: Arr
 	var done: Dictionary[Vector2i, bool] = {}
 	for curve: Curve2D in curves:
 		var points: PackedVector2Array = curve.get_baked_points()
+		var bends: Array[bool] = []
+		bends.resize(points.size())
+		for i: int in range(1, points.size() - 1):
+			bends[i] = _is_bend(points[maxi(i - BEND_REACH, 0)], points[i]) or _is_bend(points[i], points[mini(i + BEND_REACH, points.size() - 1)])
+		# En la punta de una U cerrada, donde se juntan sus dos giros, quedan unos pocos puntos por el
+		# eje: se cuentan como curva, para que la U sea un solo tramo (y su punta, cerrada)
+		var last_bend: int = -1
+		for i: int in range(1, points.size() - 1):
+			if not bends[i]:
+				continue
+			if last_bend >= 0 and i - last_bend - 1 <= BEND_REACH * 2:
+				for j: int in range(last_bend + 1, i):
+					bends[j] = true
+			last_bend = i
 		var first: int = -1
 		for i: int in range(1, points.size() - 1):
-			var bend: bool = _is_bend(points[maxi(i - BEND_REACH, 0)], points[i]) or _is_bend(points[i], points[mini(i + BEND_REACH, points.size() - 1)])
+			var bend: bool = bends[i]
 			if bend and first < 0:
 				first = i
 			if first >= 0 and (not bend or i == points.size() - 2):
@@ -1017,8 +1052,10 @@ func _tangent(points: PackedVector2Array, i: int) -> Vector2:
 ## Una orilla de un tramo de curva, a lo largo de line (los puntos a BEND_EDGE_CLEARANCE px del
 ## camino; normals, hacia fuera de él). Empieza por el medio y sigue hacia los dos extremos. En el lado
 ## de dentro de una curva cerrada (tight, la punta de la franja de una U) empieza con la roca más
-## grande que quepa, para que la punta acabe redondeada y no en una cadena de piedras. Las casillas
-## de la línea que quedan libres (los huecos entre piezas) se reservan.
+## grande que quepa, para que la punta acabe redondeada y no en una cadena de piedras; puede ir junto
+## al asteroide de una casilla de torreta (en las casillas de alrededor), para que la franja acabe en
+## una pieza y no en un claro. Las casillas de la línea que quedan libres (los huecos entre piezas)
+## se reservan.
 func _place_edge_side(layer: TileMapLayer, line: PackedVector2Array, normals: PackedVector2Array, inner: bool, tight: bool) -> void:
 	if line.size() < 3:
 		return
@@ -1028,7 +1065,7 @@ func _place_edge_side(layer: TileMapLayer, line: PackedVector2Array, normals: Pa
 	var middle: int = int(line.size() / 2.0)
 	var forward: float = lengths[middle]
 	var backward: float = lengths[middle]
-	var fit: EdgeFit = _edge_fit(line, normals, middle, 0.0, EdgeKind.LARGE if tight else _edge_kind(inner))
+	var fit: EdgeFit = _edge_fit(line, normals, middle, 0.0, EdgeKind.LARGE if tight else _edge_kind(inner), true, tight)
 	if fit != null:
 		_put(layer, fit.top_left, fit.piece, fit.alternative)
 		forward += fit.front + _edge_gap()
@@ -1114,8 +1151,9 @@ func _edge_pieces(kind: EdgeKind, family: String) -> Array[Piece]:
 ## El mejor sitio junto al punto k de la línea de la orilla para una pieza del tipo kind (o, si no cabe
 ## ninguna, del siguiente de EDGE_FALLBACK, y al final una pequeña con BEND_EDGE_WIDE_TOLERANCE), o null.
 ## Sin allow_small no llega a probar las pequeñas. Con direction 1 o -1 la pieza empieza en el punto
-## y sigue en ese sentido; con 0, queda centrada en él.
-func _edge_fit(line: PackedVector2Array, normals: PackedVector2Array, k: int, direction: float, kind: EdgeKind, allow_small: bool = true) -> EdgeFit:
+## y sigue en ese sentido; con 0, queda centrada en él. Con allow_slot_ring puede tapar casillas de
+## alrededor de una casilla de torreta.
+func _edge_fit(line: PackedVector2Array, normals: PackedVector2Array, k: int, direction: float, kind: EdgeKind, allow_small: bool = true, allow_slot_ring: bool = false) -> EdgeFit:
 	var tangent: Vector2 = (line[mini(k + 1, line.size() - 1)] - line[maxi(k - 1, 0)]).normalized()
 	if direction < 0.0:
 		tangent = -tangent
@@ -1133,7 +1171,7 @@ func _edge_fit(line: PackedVector2Array, normals: PackedVector2Array, k: int, di
 			for dy: int in range(-1, 2):
 				for dx: int in range(-1, 2):
 					var top_left: Vector2i = guess + Vector2i(dx, dy)
-					if not _edge_cells_free(top_left, piece.size):
+					if not _edge_cells_free(top_left, piece.size, allow_slot_ring):
 						continue
 					for alternative: int in _edge_alternatives(piece):
 						var fit: EdgeFit = _score_edge(piece, top_left, alternative, line[k], tangent, direction, tolerance, ahead)
@@ -1149,13 +1187,14 @@ func _edge_fit(line: PackedVector2Array, normals: PackedVector2Array, k: int, di
 	return null
 
 
-## Las casillas de la pieza están dentro de la decoración y libres; pueden ser del pasillo (lo que
-## cuenta es lo opaco, ver _score_edge).
-func _edge_cells_free(top_left: Vector2i, size: Vector2i) -> bool:
+## Las casillas de la pieza están dentro de la decoración y libres (con allow_slot_ring, también las de
+## alrededor de una casilla de torreta); pueden ser del pasillo (lo que cuenta es lo opaco, ver
+## _score_edge).
+func _edge_cells_free(top_left: Vector2i, size: Vector2i, allow_slot_ring: bool = false) -> bool:
 	for y: int in size.y:
 		for x: int in size.x:
 			var cell: Vector2i = top_left + Vector2i(x, y)
-			if _blocked.has(cell) or not _decor_rect().has_point(cell):
+			if (_blocked.has(cell) and not (allow_slot_ring and _slot_ring.has(cell))) or not _decor_rect().has_point(cell):
 				return false
 	return true
 
@@ -1261,18 +1300,28 @@ func _path_distance(point: Vector2) -> float:
 
 
 ## Unas pocas piezas especiales dentro del campo, lejos del pasillo, del borde y unas de otras, con
-## un hueco libre alrededor.
-func _place_landmarks(layer: TileMapLayer) -> void:
+## un hueco libre alrededor. Primero las fijas del .txt (fixed: casilla -> índice en _landmarks), que
+## cuentan en el total y no se repiten.
+func _place_landmarks(layer: TileMapLayer, fixed: Dictionary[Vector2i, int]) -> void:
+	var placed: Array[Vector2i] = []
+	var pieces: Array[Piece] = _landmarks.duplicate()
+	for cell: Vector2i in fixed:
+		var piece: Piece = _landmarks[fixed[cell]]
+		var rect: Rect2i = _try_put_over(layer, cell, piece)
+		if not rect.has_area():
+			push_error("La pieza especial %s no cabe en %s" % [LANDMARK_NAMES[fixed[cell]], cell])
+			continue
+		placed.append(cell)
+		pieces.erase(piece)
+		_block(rect.grow(1))
 	var candidates: Array[Vector2i] = []
 	for cell: Vector2i in _shuffled_free_cells():
 		if _distance.get(cell, 99) >= LANDMARK_CORRIDOR_DISTANCE and _edge_depth(cell) > BORDER_DEPTH:
 			candidates.append(cell)
 	if candidates.is_empty():
 		return
-	var pieces: Array[Piece] = _landmarks.duplicate()
 	_shuffle(pieces)
-	pieces.resize(mini(pieces.size(), _rng.randi_range(LANDMARK_MIN, LANDMARK_MAX)))
-	var placed: Array[Vector2i] = []
+	pieces.resize(clampi(_rng.randi_range(LANDMARK_MIN, LANDMARK_MAX) - placed.size(), 0, pieces.size()))
 	for piece: Piece in pieces:
 		for attempt: int in LANDMARK_ATTEMPTS:
 			var cell: Vector2i = candidates[_rng.randi_range(0, candidates.size() - 1)]
