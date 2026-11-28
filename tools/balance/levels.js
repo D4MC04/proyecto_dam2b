@@ -901,7 +901,7 @@ Cancelar: no jugar.`)) {
 		el.copyWave = button("Copiar oleada", "Guarda la oleada elegida (grupos y vida ×) en el portapapeles del panel", copyWave);
 		el.pasteWaveAfter = button("Pegar detrás", "", pasteWaveAfter);
 		el.pasteWaveOver = button("Pegar encima", "", pasteWaveOver);
-		el.addWave = button("+ Oleada vacía", "Crea una oleada sin grupos detrás de la elegida (o al final)", addEmptyWave);
+		el.addWave = button("+ Nueva oleada", "Crea una oleada sin grupos detrás de la elegida (o al final)", addEmptyWave);
 		el.removeWave = button("✕ Quitar oleada", "Quita la oleada elegida del nivel; su .tres se borra al guardar (pregunta antes)", removeWave);
 		el.wavesActions.append(el.addWave, el.duplicateWave, el.copyWave, el.pasteWaveAfter, el.pasteWaveOver, el.removeWave);
 		el.copyGroups = button("Copiar grupos", "Guarda los grupos elegidos en el portapapeles del panel", copyGroups);
