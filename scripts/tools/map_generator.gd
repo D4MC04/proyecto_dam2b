@@ -32,6 +32,10 @@ extends SceneTree
 ##                               lava); la primera es la principal y cierra el borde del mapa
 ##   landmark = ufo 34,18        pieza especial fija (ship, astronaut, ufo o satellite) tapando esa
 ##                               casilla (opcional, una por línea); las demás se ponen al azar
+##   tip = 14,25                 punta de U fija (opcional; varias casillas en la línea): la primera
+##                               roca de la orilla de dentro de la U que pasa junto a esa casilla va
+##                               en el punto de la orilla más cercano a ella (y no un poco hacia un
+##                               lado al azar), con aire hasta las piezas de al lado
 ## Las líneas vacías y las que empiezan por "#" se ignoran.
 
 const DEFAULT_MAP_SIZE: Vector2i = Vector2i(43, 33)
@@ -133,6 +137,10 @@ const EDGE_GROUP_GAP: float = 8.0
 const EDGE_TIGHT_TURN: float = 2.5
 # La primera roca de la punta de una U empieza a hasta 1/EDGE_TIGHT_SPREAD de la orilla del medio
 const EDGE_TIGHT_SPREAD: int = 5
+# Una punta fija del .txt (tip) es la de la U cuya orilla de dentro pasa a menos de TIP_REACH casillas
+# de su casilla; las piezas de al lado de su primera roca quedan a TIP_GAP px o más de ella
+const TIP_REACH: float = 2.0
+const TIP_GAP: float = 16.0
 const EDGE_FALLBACK: Dictionary[EdgeKind, EdgeKind] = {
 	EdgeKind.LARGE: EdgeKind.MEDIUM, EdgeKind.MEDIUM: EdgeKind.SMALL, EdgeKind.PEBBLE: EdgeKind.SMALL, EdgeKind.SCRAP: EdgeKind.SMALL,
 }
@@ -261,6 +269,8 @@ class LevelLayout:
 	var rocks: PackedStringArray = ["grey"]
 	# Piezas especiales fijas: casilla que tapan -> índice en _landmarks
 	var landmarks: Dictionary[Vector2i, int] = {}
+	# Puntas de U fijas: casilla en la que va la primera roca de su orilla de dentro
+	var tips: Array[Vector2i] = []
 
 
 ## Dibujo de una pieza puesta con una alternativa: centros de los píxeles opacos de su contorno y
@@ -313,6 +323,7 @@ var _solid: Dictionary[Vector2i, bool] = {}
 var _zone_points: Array[Vector2] = []
 var _zone_families: Array[String] = []
 var _main_family: String = ""
+var _tips: Array[Vector2i] = []
 
 
 func _initialize() -> void:
@@ -472,6 +483,8 @@ func _parse(text: String) -> LevelLayout:
 					push_error("Pieza especial desconocida: %s" % value)
 					return null
 				layout.landmarks[_parse_cells(parts[1])[0]] = index
+			"tip":
+				layout.tips.append_array(_parse_cells(value))
 			"rocks":
 				layout.rocks = value.split(" ", false)
 				for family: String in layout.rocks:
@@ -497,6 +510,7 @@ func _build_map(layout: LevelLayout) -> Node2D:
 	_rng.seed = layout.random_seed
 	_density = _make_noise(layout.random_seed, 0.12)
 	_main_family = layout.rocks[0]
+	_tips = layout.tips
 	_setup_zones(layout.rocks)
 	var space_tileset: TileSet = load(SPACE_TILESET)
 
@@ -1057,16 +1071,22 @@ func _place_edge_side(layer: TileMapLayer, line: PackedVector2Array, normals: Pa
 	var middle: int = int(line.size() / 2.0)
 	# En la punta de una U, la primera roca va un poco hacia un lado u otro al azar, para que cada punta
 	# quede distinta (y quepa algo pequeño al otro lado)
+	var gap_min: float = 0.0
 	if tight:
 		var spread: int = int(line.size() / float(EDGE_TIGHT_SPREAD))
 		middle += _rng.randi_range(-spread, spread)
+		# Punta fija del .txt: la roca va en el punto de la orilla más cercano a su casilla, con aire
+		var tip: int = _tip_index(line)
+		if tip >= 0:
+			middle = tip
+			gap_min = TIP_GAP
 	var forward: float = lengths[middle]
 	var backward: float = lengths[middle]
 	var fit: EdgeFit = _edge_fit(line, normals, middle, 0.0, EdgeKind.LARGE if tight else _edge_kind(inner))
 	if fit != null:
 		_put(layer, fit.top_left, fit.piece, fit.alternative)
-		forward += fit.front + _edge_gap()
-		backward += fit.back - _edge_gap()
+		forward += fit.front + maxf(_edge_gap(), gap_min)
+		backward += fit.back - maxf(_edge_gap(), gap_min)
 	_walk_edge(layer, line, normals, lengths, forward, 1.0, inner)
 	_walk_edge(layer, line, normals, lengths, backward, -1.0, inner)
 	# Los huecos entre piezas se quedan como huecos: el campo no los llena de piedras
@@ -1108,6 +1128,21 @@ func _line_index(lengths: PackedFloat32Array, position: float) -> int:
 	for k: int in lengths.size():
 		if absf(lengths[k] - position) < absf(lengths[best] - position):
 			best = k
+	return best
+
+
+## Punto de la línea de la orilla más cercano a la casilla de una punta fija del .txt (tip) que quede
+## a menos de TIP_REACH casillas de ella, o -1 si no hay ninguna.
+func _tip_index(line: PackedVector2Array) -> int:
+	var best: int = -1
+	var best_distance: float = TIP_REACH * TILE_SIZE
+	for tip: Vector2i in _tips:
+		var center: Vector2 = _cell_center(tip)
+		for k: int in line.size():
+			var distance: float = line[k].distance_to(center)
+			if distance < best_distance:
+				best = k
+				best_distance = distance
 	return best
 
 

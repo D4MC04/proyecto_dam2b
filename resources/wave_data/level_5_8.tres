@@ -10,7 +10,6 @@
 script = ExtResource("1_gvl0q")
 enemy_data = ExtResource("2_n11oi")
 count = 6
-spacing = 0.41
 pause_after = -0.08
 path_index = 1
 
@@ -18,14 +17,12 @@ path_index = 1
 script = ExtResource("1_gvl0q")
 enemy_data = ExtResource("3_gvl0q")
 count = 5
-spacing = 0.47
 pause_after = 0.01
 
 [sub_resource type="Resource" id="Resource_sw4nn"]
 script = ExtResource("1_gvl0q")
 enemy_data = ExtResource("2_n11oi")
 count = 6
-spacing = 0.41
 pause_after = -0.08
 path_index = 1
 
@@ -33,13 +30,11 @@ path_index = 1
 script = ExtResource("1_gvl0q")
 enemy_data = ExtResource("4_n11oi")
 count = 6
-spacing = 0.35
 pause_after = 0.08
 
 [sub_resource type="Resource" id="Resource_iysen"]
 script = ExtResource("1_gvl0q")
 enemy_data = ExtResource("2_n11oi")
-spacing = 0.41
 path_index = 1
 
 [resource]

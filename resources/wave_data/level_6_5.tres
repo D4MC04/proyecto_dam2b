@@ -9,7 +9,6 @@
 script = ExtResource("1_p1k3f")
 enemy_data = ExtResource("2_6ic34")
 count = 6
-spacing = 0.37
 pause_after = 0.71
 path_index = 1
 
@@ -17,14 +16,12 @@ path_index = 1
 script = ExtResource("1_p1k3f")
 enemy_data = ExtResource("3_taruh")
 count = 6
-spacing = 0.31
 pause_after = 0.8
 
 [sub_resource type="Resource" id="Resource_taidi"]
 script = ExtResource("1_p1k3f")
 enemy_data = ExtResource("2_6ic34")
 count = 6
-spacing = 0.37
 pause_after = 0.71
 path_index = 2
 
@@ -32,7 +29,6 @@ path_index = 2
 script = ExtResource("1_p1k3f")
 enemy_data = ExtResource("3_taruh")
 count = 6
-spacing = 0.31
 pause_after = 0.8
 path_index = 1
 
@@ -40,7 +36,6 @@ path_index = 1
 script = ExtResource("1_p1k3f")
 enemy_data = ExtResource("2_6ic34")
 count = 5
-spacing = 0.37
 path_index = 2
 
 [resource]

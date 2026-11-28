@@ -10,14 +10,12 @@
 script = ExtResource("1_baycv")
 enemy_data = ExtResource("2_ao64v")
 count = 6
-spacing = 0.32
 pause_after = 0.95
 
 [sub_resource type="Resource" id="Resource_ao64v"]
 script = ExtResource("1_baycv")
 enemy_data = ExtResource("3_oonni")
 count = 4
-spacing = 0.45
 pause_after = 1.0
 path_index = 2
 
@@ -25,7 +23,6 @@ path_index = 2
 script = ExtResource("1_baycv")
 enemy_data = ExtResource("2_ao64v")
 count = 6
-spacing = 0.32
 pause_after = 0.95
 path_index = 3
 
@@ -33,7 +30,6 @@ path_index = 3
 script = ExtResource("1_baycv")
 enemy_data = ExtResource("3_baycv")
 count = 2
-spacing = 1.05
 pause_after = 1.07
 path_index = 1
 
@@ -41,7 +37,6 @@ path_index = 1
 script = ExtResource("1_baycv")
 enemy_data = ExtResource("2_ao64v")
 count = 6
-spacing = 0.32
 pause_after = 0.95
 path_index = 3
 
@@ -49,7 +44,6 @@ path_index = 3
 script = ExtResource("1_baycv")
 enemy_data = ExtResource("3_oonni")
 count = 4
-spacing = 0.45
 path_index = 2
 
 [resource]
