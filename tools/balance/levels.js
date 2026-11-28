@@ -121,6 +121,7 @@ const LevelsTab = (() => {
 	}
 
 	// Reescribe la lista waves: las oleadas que ya estaban guardan su ext_resource; las nuevas, uno con id nuevo.
+	// Se quita el ext_resource de una oleada que ya no está en la lista.
 	function writeWavePaths(text, paths) {
 		let doc = Tres.scan(text);
 		const extIdFor = (relPath) => Object.keys(doc.ext).find((id) => doc.ext[id].path === relPath);
@@ -142,7 +143,15 @@ const LevelsTab = (() => {
 			ids.push(id);
 		}
 		const list = ids.map((id) => `ExtResource("${id}")`).join(", ");
-		return Tres.setProp(text, null, "waves", `Array[ExtResource("${scriptId}")]([${list}])`);
+		text = Tres.setProp(text, null, "waves", `Array[ExtResource("${scriptId}")]([${list}])`);
+		doc = Tres.scan(text);
+		const used = Tres.usedExtIds(doc);
+		for (const [id, ext] of Object.entries(doc.ext)) {
+			if (ext.path.startsWith(`${WAVE_DIR}/`) && !used.has(id)) {
+				text = Tres.removeExtResource(text, id);
+			}
+		}
+		return text;
 	}
 
 	// --- Grupos: leer y escribir ---
@@ -610,6 +619,33 @@ Cancelar: no jugar.`)) {
 		BalanceApp.setStatus(`Oleada nueva ${Project.fileName(path)}.tres (${data.label}): se crea al guardar.`, "ok");
 	}
 
+	async function addEmptyWave() {
+		if (selectedLevel) {
+			await insertWave(selectedLevel, selectedWave ? selectedWave.index : selectedLevel.waves.length - 1, { groups: [], hm: undefined, label: "vacía" });
+		}
+	}
+
+	// Quita la oleada elegida del nivel y borra su .tres al guardar (si ningún otro nivel la usa).
+	function removeWave() {
+		if (!selectedWave) {
+			return;
+		}
+		const wave = selectedWave;
+		const level = wave.level;
+		if (!window.confirm(`¿Quitar la oleada ${wave.index + 1} (${Project.fileName(wave.path)}.tres) de ${level.name}? Su archivo se borra al guardar.`)) {
+			return;
+		}
+		const paths = (Project.value(level.wavesRef) || []).filter((path) => path !== wave.path);
+		selectedWave = level.waves[wave.index + 1] || level.waves[wave.index - 1] || null;
+		selectedGroupKeys = new Set();
+		Project.setValue(level.wavesRef, paths);
+		const usedElsewhere = levels.some((other) => other !== level && (Project.value(other.wavesRef) || []).includes(wave.path));
+		if (!usedElsewhere) {
+			Project.deleteFile(wave.path);
+		}
+		BalanceApp.setStatus(`Oleada ${Project.fileName(wave.path)}.tres quitada${usedElsewhere ? "" : ": su archivo se borra al guardar"}.`, "ok");
+	}
+
 	async function duplicateWave() {
 		if (selectedWave) {
 			await insertWave(selectedLevel, selectedWave.index, waveData(selectedWave));
@@ -647,6 +683,8 @@ Cancelar: no jugar.`)) {
 	}
 
 	function updateWaveActions() {
+		el.addWave.disabled = !selectedLevel;
+		el.removeWave.disabled = !selectedWave;
 		el.duplicateWave.disabled = !selectedWave;
 		el.copyWave.disabled = !selectedWave;
 		el.pasteWaveAfter.disabled = !waveClipboard || !selectedLevel;
@@ -863,7 +901,9 @@ Cancelar: no jugar.`)) {
 		el.copyWave = button("Copiar oleada", "Guarda la oleada elegida (grupos y vida ×) en el portapapeles del panel", copyWave);
 		el.pasteWaveAfter = button("Pegar detrás", "", pasteWaveAfter);
 		el.pasteWaveOver = button("Pegar encima", "", pasteWaveOver);
-		el.wavesActions.append(el.duplicateWave, el.copyWave, el.pasteWaveAfter, el.pasteWaveOver);
+		el.addWave = button("+ Oleada vacía", "Crea una oleada sin grupos detrás de la elegida (o al final)", addEmptyWave);
+		el.removeWave = button("✕ Quitar oleada", "Quita la oleada elegida del nivel; su .tres se borra al guardar (pregunta antes)", removeWave);
+		el.wavesActions.append(el.addWave, el.duplicateWave, el.copyWave, el.pasteWaveAfter, el.pasteWaveOver, el.removeWave);
 		el.copyGroups = button("Copiar grupos", "Guarda los grupos elegidos en el portapapeles del panel", copyGroups);
 		el.pasteGroups = button("Pegar grupos", "Pega los grupos copiados detrás del último elegido (o al final), en cualquier oleada de cualquier nivel", pasteGroups);
 		el.groupsActions.append(button("+ Añadir grupo", "Añade un grupo al final (con la nave del último)", addGroup), el.copyGroups, el.pasteGroups);

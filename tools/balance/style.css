@@ -491,7 +491,14 @@ button.small {
 .groups-table td.select,
 .groups-table th.select {
 	width: 1%;
+	padding: 0 4px;
 	text-align: center;
+}
+
+.groups-table td.select input,
+.groups-table th.select input {
+	width: auto;
+	margin: 0;
 }
 
 .waves-actions button.small {

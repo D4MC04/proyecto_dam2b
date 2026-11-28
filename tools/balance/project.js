@@ -2,7 +2,7 @@
 // Un "ref" apunta a un campo concreto: {path, sub, key, type, def, index?}. sub es null para [resource].
 // Un ref puede traer read() (valor original) y write(text, value) (texto nuevo) para campos con estructura,
 // como los grupos de una oleada, que no se escriben en una sola línea.
-// Los archivos nuevos (createFile) también quedan pendientes: se escriben al guardar y descartar los olvida.
+// Los archivos nuevos (createFile) y los que se borran (deleteFile) también quedan pendientes hasta guardar.
 "use strict";
 
 const Project = (() => {
@@ -21,6 +21,7 @@ const Project = (() => {
 		names: {},
 		edits: new Map(),
 		created: new Map(),
+		deleted: new Set(),
 		listeners: [],
 		savedListeners: [],
 	};
@@ -94,6 +95,7 @@ const Project = (() => {
 		state.names = {};
 		state.edits.clear();
 		state.created.clear();
+		state.deleted.clear();
 		await loadScripts();
 		await loadNames();
 		notify();
@@ -315,6 +317,22 @@ const Project = (() => {
 		return state.created.has(relPath);
 	}
 
+	// Borra un archivo al guardar (uno nuevo sin guardar se olvida ya). Sus cambios pendientes se pierden.
+	function deleteFile(relPath) {
+		for (const [k, edit] of state.edits) {
+			if (edit.ref.path === relPath) {
+				state.edits.delete(k);
+			}
+		}
+		if (state.created.has(relPath)) {
+			state.created.delete(relPath);
+			delete state.docs[relPath];
+		} else {
+			state.deleted.add(relPath);
+		}
+		notify();
+	}
+
 	// --- Guardar y descartar ---
 
 	// Escribe todos los cambios: relee cada archivo, cambia solo sus líneas y lo guarda.
@@ -353,6 +371,14 @@ const Project = (() => {
 				saved.push(path);
 			}
 		}
+		for (const path of [...state.deleted]) {
+			const parts = path.split("/");
+			const name = parts.pop();
+			await (await getDir(parts.join("/"))).removeEntry(name);
+			state.deleted.delete(path);
+			delete state.docs[path];
+			saved.push(`${path} (borrado)`);
+		}
 		if (saved.includes(NAMES_CSV)) {
 			await loadNames();
 		}
@@ -369,6 +395,7 @@ const Project = (() => {
 			delete state.docs[path];
 		}
 		state.created.clear();
+		state.deleted.clear();
 		notify();
 	}
 
@@ -421,6 +448,7 @@ const Project = (() => {
 		fileExists,
 		createFile,
 		isCreated,
+		deleteFile,
 		translate,
 		fileName,
 		get isOpen() {
@@ -430,10 +458,10 @@ const Project = (() => {
 			return state.root ? state.root.name : "";
 		},
 		get pendingCount() {
-			return state.edits.size + state.created.size;
+			return state.edits.size + state.created.size + state.deleted.size;
 		},
 		get pendingPaths() {
-			return [...new Set([...state.created.keys(), ...[...state.edits.values()].map((e) => e.ref.path)])];
+			return [...new Set([...state.created.keys(), ...state.deleted, ...[...state.edits.values()].map((e) => e.ref.path)])];
 		},
 	};
 })();
