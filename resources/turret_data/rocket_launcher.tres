@@ -14,7 +14,7 @@
 script = ExtResource("5_5io4s")
 shoot_sound = ExtResource("snd")
 name = "TURRET_ROCKET_LAUNCHER_NAME"
-cost = 300
+cost = 200
 attack_cooldown = 1.5
 icon = ExtResource("4_5bwje")
 sprite_frames = ExtResource("6_27bij")
@@ -22,7 +22,7 @@ attack_range = ExtResource("1_0boch")
 bullet_data = ExtResource("2_o0wnv")
 muzzle_offset = Vector2(0, -14)
 cannon = ExtResource("3_6k8hc")
-turn_speed = 180.0
+turn_speed = 200.0
 fusion = ExtResource("fusion")
 amp_effect = ExtResource("amp")
 description = "TURRET_ROCKET_LAUNCHER_DESC"

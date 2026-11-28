@@ -10,12 +10,14 @@ script = ExtResource("1_q180v")
 enemy_data = ExtResource("2_iihy1")
 count = 3
 pause_after = 2.5
+spacing = 0.35
 
 [sub_resource type="Resource" id="Resource_iihy1"]
 script = ExtResource("1_q180v")
 enemy_data = ExtResource("2_3amxn")
 count = 5
 pause_after = 0.0
+spacing = 0.3
 
 [resource]
 script = ExtResource("3_iihy1")

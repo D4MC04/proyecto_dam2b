@@ -3,51 +3,50 @@
 [ext_resource type="Script" uid="uid://dclc5suu1kxn3" path="res://scripts/resources/SpawnGroup.gd" id="1_v2u6e"]
 [ext_resource type="Resource" uid="uid://d2xfg8qmcw3va" path="res://resources/enemy_data/nave_normal.tres" id="2_40lpq"]
 [ext_resource type="Resource" uid="uid://bfiipacu4434d" path="res://resources/enemy_data/wasp.tres" id="2_kbft7"]
-[ext_resource type="Resource" uid="uid://bakq6nmr73sl0" path="res://resources/enemy_data/dart_rojo.tres" id="6_cl76v"]
 [ext_resource type="Script" uid="uid://bov3v8pbstdra" path="res://scripts/resources/WaveData.gd" id="7_k28yc"]
 
 [sub_resource type="Resource" id="Resource_40lpq"]
 script = ExtResource("1_v2u6e")
 enemy_data = ExtResource("2_40lpq")
-count = 3
+count = 5
 pause_after = 2.5
+spacing = 0.35
 
 [sub_resource type="Resource" id="Resource_dl6u1"]
 script = ExtResource("1_v2u6e")
 enemy_data = ExtResource("2_kbft7")
 count = 5
 pause_after = 2.5
+spacing = 0.3
 
 [sub_resource type="Resource" id="Resource_v2u6e"]
 script = ExtResource("1_v2u6e")
-enemy_data = ExtResource("6_cl76v")
+enemy_data = ExtResource("2_kbft7")
 count = 5
 pause_after = 2.5
-
-[sub_resource type="Resource" id="Resource_kbft7"]
-script = ExtResource("1_v2u6e")
-enemy_data = ExtResource("6_cl76v")
-count = 5
-pause_after = 2.5
+spacing = 0.3
 
 [sub_resource type="Resource" id="Resource_1qksg"]
 script = ExtResource("1_v2u6e")
 enemy_data = ExtResource("2_40lpq")
-count = 3
-pause_after = 2.5
-
-[sub_resource type="Resource" id="Resource_l74lo"]
-script = ExtResource("1_v2u6e")
-enemy_data = ExtResource("6_cl76v")
 count = 5
 pause_after = 2.5
+spacing = 0.35
 
 [sub_resource type="Resource" id="Resource_to5do"]
 script = ExtResource("1_v2u6e")
-enemy_data = ExtResource("6_cl76v")
+enemy_data = ExtResource("2_kbft7")
+count = 5
+pause_after = 2.5
+spacing = 0.3
+
+[sub_resource type="Resource" id="Resource_qq1h0"]
+script = ExtResource("1_v2u6e")
+enemy_data = ExtResource("2_kbft7")
 count = 5
 pause_after = 0.0
+spacing = 0.3
 
 [resource]
 script = ExtResource("7_k28yc")
-groups = Array[ExtResource("1_v2u6e")]([SubResource("Resource_40lpq"), SubResource("Resource_dl6u1"), SubResource("Resource_v2u6e"), SubResource("Resource_kbft7"), SubResource("Resource_1qksg"), SubResource("Resource_l74lo"), SubResource("Resource_to5do")])
+groups = Array[ExtResource("1_v2u6e")]([SubResource("Resource_40lpq"), SubResource("Resource_dl6u1"), SubResource("Resource_v2u6e"), SubResource("Resource_1qksg"), SubResource("Resource_to5do"), SubResource("Resource_qq1h0")])
