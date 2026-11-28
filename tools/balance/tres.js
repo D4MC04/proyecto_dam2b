@@ -40,20 +40,9 @@ const Tres = (() => {
 		const doc = { lines, eol, header: {}, ext: {}, sections: [] };
 		let current = null;
 		let inString = false;
-		let openBrackets = 0;
 		let lastProp = null;
 		for (let i = 0; i < lines.length; i++) {
 			const line = lines[i];
-			if (openBrackets > 0) {
-				// Continuación de un valor entre paréntesis o llaves (un Dictionary se guarda en varias líneas).
-				lastProp.raw += "\n" + line;
-				lastProp.endLine = i;
-				openBrackets += bracketDepth(line);
-				if (current) {
-					current.end = i + 1;
-				}
-				continue;
-			}
 			if (inString) {
 				// Continuación de una cadena de varias líneas: se añade al valor crudo.
 				lastProp.raw += "\n" + line;
@@ -90,35 +79,10 @@ const Tres = (() => {
 				current.end = i + 1;
 				if (countQuotes(prop[2]) % 2 === 1) {
 					inString = true;
-				} else {
-					openBrackets = Math.max(bracketDepth(prop[2]), 0);
 				}
 			}
 		}
 		return doc;
-	}
-
-	// Paréntesis, corchetes y llaves abiertos menos cerrados en un trozo de texto (sin contar los de las cadenas).
-	function bracketDepth(text) {
-		let depth = 0;
-		let inString = false;
-		for (let i = 0; i < text.length; i++) {
-			const c = text[i];
-			if (inString) {
-				if (c === "\\") {
-					i++;
-				} else if (c === '"') {
-					inString = false;
-				}
-			} else if (c === '"') {
-				inString = true;
-			} else if (c === "(" || c === "[" || c === "{") {
-				depth++;
-			} else if (c === ")" || c === "]" || c === "}") {
-				depth--;
-			}
-		}
-		return depth;
 	}
 
 	// Sección por id: null es la sección [resource].

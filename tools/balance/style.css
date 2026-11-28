@@ -317,17 +317,6 @@ button.primary {
 	gap: 16px;
 }
 
-.levels-top {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: flex-start;
-	gap: 24px;
-}
-
-.spacing-table tr.new-group td.sticky {
-	box-shadow: inset 3px 0 0 var(--changed-border);
-}
-
 .levels-detail {
 	display: flex;
 	flex-wrap: wrap;
