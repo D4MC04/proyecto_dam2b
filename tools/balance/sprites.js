@@ -8,7 +8,9 @@ const SpritesTab = (() => {
 	const ZOOMS = [1, 2, 3, 4, 6, 8];
 	const DEFAULT_ZOOM = 4;
 	// Huecos de vista de una torreta, de izquierda a derecha.
-	const TURRET_KINDS = ["main", "fx"];
+	const TURRET_KINDS = ["main", "upgrade"];
+	// Tipos de vista que se recortan a lo que pintan (el resto se centra con el tamaño entero del frame).
+	const CROPPED_KINDS = ["upgrade"];
 	const TIERS = [
 		{ id: "base", label: "Base" },
 		{ id: "fusion", label: "Fusión" },
@@ -218,7 +220,7 @@ const SpritesTab = (() => {
 
 	// --- Carga ---
 
-	// Huecos de una torreta: torreta (base + cañón) y efectos (fogonazo y animación de mejora, los que tenga).
+	// Huecos de una torreta: torreta (base + cañón) y animación de mejora (si la tiene). El fogonazo no se enseña.
 	async function turretSlots(n) {
 		const layers = [];
 		for (const node of await framesNodes(n, "sprite_frames")) {
@@ -228,14 +230,10 @@ const SpritesTab = (() => {
 			layers.push({ label: "Cañón", model: buildFrames(node), preferred: ["default"] });
 		}
 		const slots = { main: { title: "Torreta", layers } };
-		const variants = [];
-		for (const [key, label] of [["muzzle_flash", "Fogonazo"], ["upgrade_frames", "Mejora"]]) {
+		for (const [key, kind, title] of [["upgrade_frames", "upgrade", "Mejora"]]) {
 			for (const node of await framesNodes(n, key)) {
-				variants.push({ label, model: buildFrames(node), preferred: ["default"] });
+				slots[kind] = { title, layers: [{ label: title, model: buildFrames(node), preferred: ["default"] }] };
 			}
-		}
-		if (variants.length > 0) {
-			slots.fx = { title: "Efectos", layers: [{ label: variants[0].label, variants, model: variants[0].model, preferred: variants[0].preferred }] };
 		}
 		return slots;
 	}
@@ -287,7 +285,7 @@ const SpritesTab = (() => {
 		for (const entry of entries) {
 			for (const view of Object.values(entry.slots)) {
 				for (const layer of view.layers) {
-					layerModels(layer).forEach((model) => modelPaths(model).forEach((p) => paths.add(p)));
+					modelPaths(layer.model).forEach((p) => paths.add(p));
 				}
 			}
 		}
@@ -331,9 +329,51 @@ const SpritesTab = (() => {
 		return bitmap ? { w: bitmap.width, h: bitmap.height } : { w: 16, h: 16 };
 	}
 
-	// Modelos que puede mostrar una capa: uno, o uno por variante (fogonazo / mejora).
-	function layerModels(layer) {
-		return layer.variants ? layer.variants.map((v) => v.model) : [layer.model];
+	// Caja de los píxeles no transparentes de un frame, con el origen en su centro: {x0, y0, x1, y1} o null.
+	function opaqueBox(tex) {
+		const size = textureSize(tex);
+		const bitmap = images.get(tex.path);
+		if (!bitmap) {
+			return null;
+		}
+		const scratch = document.createElement("canvas");
+		scratch.width = size.w;
+		scratch.height = size.h;
+		const ctx = scratch.getContext("2d");
+		ctx.drawImage(bitmap, tex.x, tex.y, size.w, size.h, 0, 0, size.w, size.h);
+		const data = ctx.getImageData(0, 0, size.w, size.h).data;
+		let box = null;
+		for (let y = 0; y < size.h; y++) {
+			for (let x = 0; x < size.w; x++) {
+				if (data[(y * size.w + x) * 4 + 3] > 0) {
+					box = box || { x0: x, y0: y, x1: x + 1, y1: y + 1 };
+					box.x0 = Math.min(box.x0, x);
+					box.y0 = Math.min(box.y0, y);
+					box.x1 = Math.max(box.x1, x + 1);
+					box.y1 = Math.max(box.y1, y + 1);
+				}
+			}
+		}
+		const cx = Math.floor(size.w / 2);
+		const cy = Math.floor(size.h / 2);
+		return box && { x0: box.x0 - cx, y0: box.y0 - cy, x1: box.x1 - cx, y1: box.y1 - cy };
+	}
+
+	// Caja que contiene todo lo que se pinta en todos los frames de una vista (la animación de mejora tiene
+	// mucho margen transparente: se recorta para no gastar sitio). Con el origen en el centro del frame.
+	function viewCrop(view) {
+		let crop = null;
+		for (const layer of view.layers) {
+			for (const name of layer.model.names) {
+				for (const frame of layer.model.anims[name].frames) {
+					const box = frame.tex && opaqueBox(frame.tex);
+					if (box) {
+						crop = crop ? { x0: Math.min(crop.x0, box.x0), y0: Math.min(crop.y0, box.y0), x1: Math.max(crop.x1, box.x1), y1: Math.max(crop.y1, box.y1) } : box;
+					}
+				}
+			}
+		}
+		return crop;
 	}
 
 	// Tamaño en px del lienzo de una vista: el frame más grande de todas sus capas y animaciones.
@@ -341,14 +381,12 @@ const SpritesTab = (() => {
 		let w = 1;
 		let h = 1;
 		for (const layer of view.layers) {
-			for (const model of layerModels(layer)) {
-				for (const name of model.names) {
-					for (const frame of model.anims[name].frames) {
-						if (frame.tex) {
-							const size = textureSize(frame.tex);
-							w = Math.max(w, size.w);
-							h = Math.max(h, size.h);
-						}
+			for (const name of layer.model.names) {
+				for (const frame of layer.model.anims[name].frames) {
+					if (frame.tex) {
+						const size = textureSize(frame.tex);
+						w = Math.max(w, size.w);
+						h = Math.max(h, size.h);
 					}
 				}
 			}
@@ -366,8 +404,8 @@ const SpritesTab = (() => {
 				continue;
 			}
 			const size = textureSize(frame.tex);
-			const dx = Math.floor((v.canvas.width - size.w * zoom) / 2);
-			const dy = Math.floor((v.canvas.height - size.h * zoom) / 2);
+			const dx = v.crop ? (-Math.floor(size.w / 2) - v.crop.x0) * zoom : Math.floor((v.canvas.width - size.w * zoom) / 2);
+			const dy = v.crop ? (-Math.floor(size.h / 2) - v.crop.y0) * zoom : Math.floor((v.canvas.height - size.h * zoom) / 2);
 			const bitmap = images.get(frame.tex.path);
 			if (bitmap) {
 				ctx.drawImage(bitmap, frame.tex.x, frame.tex.y, size.w, size.h, dx, dy, size.w * zoom, size.h * zoom);
@@ -463,9 +501,6 @@ const SpritesTab = (() => {
 
 	// Ancho mínimo de una vista (para que quepan el desplegable y el texto aunque el sprite sea pequeño).
 	const MIN_VIEW_WIDTH = 150;
-	// Alto de los controles de una capa (con y sin selector de variante).
-	const LAYER_HEIGHT = 40;
-	const LAYER_HEIGHT_VARIANTS = 68;
 	// Por tipo de vista (main, flash, enemy): el mayor sprite y el mayor número de capas de todas las filas.
 	// Así todas las vistas del mismo tipo miden lo mismo y las filas quedan alineadas.
 	let kindInfo = {};
@@ -475,11 +510,25 @@ const SpritesTab = (() => {
 		kindInfo = {};
 		for (const entry of entries) {
 			for (const [kind, view] of Object.entries(entry.slots)) {
-				const size = viewSize(view);
-				const info = kindInfo[kind] || (kindInfo[kind] = { w: 1, h: 1, controls: 0 });
-				info.w = Math.max(info.w, size.w);
-				info.h = Math.max(info.h, size.h);
-				info.controls = Math.max(info.controls, view.layers.reduce((sum, l) => sum + (l.variants && l.variants.length > 1 ? LAYER_HEIGHT_VARIANTS : LAYER_HEIGHT), 0));
+				const info = kindInfo[kind] || (kindInfo[kind] = { w: 1, h: 1, layers: 1, crop: null });
+				if (CROPPED_KINDS.includes(kind)) {
+					const crop = viewCrop(view);
+					if (crop) {
+						const c = info.crop;
+						info.crop = c ? { x0: Math.min(c.x0, crop.x0), y0: Math.min(c.y0, crop.y0), x1: Math.max(c.x1, crop.x1), y1: Math.max(c.y1, crop.y1) } : crop;
+					}
+				} else {
+					const size = viewSize(view);
+					info.w = Math.max(info.w, size.w);
+					info.h = Math.max(info.h, size.h);
+				}
+				info.layers = Math.max(info.layers, view.layers.length);
+			}
+		}
+		for (const info of Object.values(kindInfo)) {
+			if (info.crop) {
+				info.w = info.crop.x1 - info.crop.x0;
+				info.h = info.crop.y1 - info.crop.y0;
 			}
 		}
 	}
@@ -488,9 +537,9 @@ const SpritesTab = (() => {
 	function applyLayout() {
 		for (const [kind, info] of Object.entries(kindInfo)) {
 			panel.style.setProperty(`--w-${kind}`, `${Math.max(MIN_VIEW_WIDTH, info.w * zoom + 12)}px`);
-			panel.style.setProperty(`--h-${kind}`, `${info.controls}px`);
+			panel.style.setProperty(`--h-${kind}`, `${info.layers * 40}px`);
 			panel.style.setProperty(`--hs-${kind}`, `${info.h * zoom + 8}px`);
-			panel.style.setProperty(`--hv-${kind}`, `${26 + info.h * zoom + 8 + 4 + info.controls}px`);
+			panel.style.setProperty(`--hv-${kind}`, `${26 + info.h * zoom + 8 + 4 + info.layers * 40}px`);
 		}
 	}
 
@@ -515,12 +564,11 @@ const SpritesTab = (() => {
 
 	function buildView(data, kind) {
 		const info = kindInfo[kind];
-		const v = { layers: data.layers.map((l) => ({ ...l, current: l.preferred.find((p) => l.model.anims[p]) || l.model.names[0] })), size: { w: info.w, h: info.h }, time: 0, playing: false };
+		const v = { layers: data.layers.map((l) => ({ ...l, current: l.preferred.find((p) => l.model.anims[p]) || l.model.names[0] })), size: { w: info.w, h: info.h }, crop: info.crop, time: 0, playing: false };
 		const box = element("div", "sprite-view");
 		box.style.width = `var(--w-${kind})`;
 		const bar = element("div", "sprite-view-bar");
-		const titleEl = element("span", "sprite-view-title", data.layers[0].variants ? data.layers[0].variants[0].label : data.title);
-		bar.appendChild(titleEl);
+		bar.appendChild(element("span", "sprite-view-title", data.title));
 		v.playButton = element("button", "sprite-play", "▶");
 		v.playButton.addEventListener("click", () => setPlaying(v, !v.playing));
 		bar.appendChild(v.playButton);
@@ -535,52 +583,27 @@ const SpritesTab = (() => {
 		for (const layer of v.layers) {
 			const row = element("div", "sprite-layer");
 			const label = element("span", "sprite-layer-label", layer.label);
-			const text = element("span", "sprite-info sprite-info-line");
-			const select = element("select", "sprite-select");
-			const animName = element("span", "sprite-anim-name");
-			// Rellena el desplegable con las animaciones del modelo actual de la capa.
-			const fillAnimations = () => {
-				select.textContent = "";
+			const text = element("span", "sprite-info", animationInfo(layer));
+			text.classList.add("sprite-info-line");
+			row.appendChild(label);
+			if (layer.model.names.length > 1) {
+				const select = element("select", "sprite-select");
 				for (const name of layer.model.names) {
 					const option = element("option", "", name);
 					option.value = name;
 					select.appendChild(option);
 				}
 				select.value = layer.current;
-				select.hidden = layer.model.names.length <= 1;
-				animName.textContent = layer.current || "";
-				animName.hidden = layer.model.names.length > 1;
-				text.textContent = animationInfo(layer);
-			};
-			select.addEventListener("change", () => {
-				layer.current = select.value;
-				v.time = 0;
-				text.textContent = animationInfo(layer);
-				drawView(v);
-			});
-			if (layer.variants && layer.variants.length > 1) {
-				const variantSelect = element("select", "sprite-select");
-				layer.variants.forEach((variant, index) => {
-					const option = element("option", "", variant.label);
-					option.value = String(index);
-					variantSelect.appendChild(option);
-				});
-				variantSelect.addEventListener("change", () => {
-					const variant = layer.variants[Number(variantSelect.value)];
-					layer.model = variant.model;
-					layer.current = variant.preferred.find((p) => variant.model.anims[p]) || variant.model.names[0];
+				select.addEventListener("change", () => {
+					layer.current = select.value;
 					v.time = 0;
-					titleEl.textContent = variant.label;
-					fillAnimations();
+					text.textContent = animationInfo(layer);
 					drawView(v);
 				});
-				row.appendChild(variantSelect);
-			} else {
-				row.appendChild(label);
+				row.appendChild(select);
+			} else if (layer.current) {
+				row.appendChild(element("span", "sprite-anim-name", layer.current));
 			}
-			row.appendChild(select);
-			row.appendChild(animName);
-			fillAnimations();
 			row.appendChild(text);
 			controls.appendChild(row);
 		}
