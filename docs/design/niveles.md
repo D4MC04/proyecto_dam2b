@@ -320,6 +320,8 @@ Familias de roca (`rocks`), del atlas de rocas: `grey`, `brown` y `dark` (1x1, 2
 
 Lo que sobresale del área queda tapado por las barras, que son opacas.
 
+Bucle sin saltos: en `Nebula` y `Stars`, `repeat_size` es exactamente el tamaño de la textura (640x0 y 640x272) y `repeat_times = 3` en los dos, o sea 3 copias a cada lado del original (el margen sobra: el área mide 704x540 y la textura 640 de ancho). Medido en un escenario aislado (704x540, 240 s a velocidad x8, con `Map` desplazado) el fondo no deja huecos y el salto de `repeat_size` (las estrellas cada ~107 s, la nebulosa cada ~213 s) es invisible, porque cae justo en el borde de una copia. No se pudo reproducir el negro dentro de una partida; si vuelve a verse, sospechar de `repeat_times` insuficiente (con 2 el margen era justo para el desfase de `Twinkle`, -12 px) y de cómo se mueve `Map` (temblor al recibir daño) más que de las texturas.
+
 `Background` no cuenta en `Map.get_used_rect()`, así que no afecta al centrado. Como vive dentro de `Map`, `Level._center_map()` llama a `Map.place_background(GAME_AREA_RECT)` después de mover el mapa: coloca `Background` en coordenadas globales en el origen del área de juego, (128, 0). Un mapa sin `Background` no hace nada.
 
 ## Grid
