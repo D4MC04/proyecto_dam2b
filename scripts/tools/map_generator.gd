@@ -131,6 +131,8 @@ const EDGE_SMALL_STREAK: int = 2
 const EDGE_GROUP_GAP: float = 8.0
 # Una curva es cerrada (la punta de una U) si gira más que esto (rad)
 const EDGE_TIGHT_TURN: float = 2.5
+# La primera roca de la punta de una U empieza a hasta 1/EDGE_TIGHT_SPREAD de la orilla del medio
+const EDGE_TIGHT_SPREAD: int = 5
 const EDGE_FALLBACK: Dictionary[EdgeKind, EdgeKind] = {
 	EdgeKind.LARGE: EdgeKind.MEDIUM, EdgeKind.MEDIUM: EdgeKind.SMALL, EdgeKind.PEBBLE: EdgeKind.SMALL, EdgeKind.SCRAP: EdgeKind.SMALL,
 }
@@ -308,8 +310,6 @@ var _slot_errors: int = 0
 # Casillas con algo puesto. _solid, las que tapa algo que se ve bien (todo menos piedrecitas)
 var _blocked: Dictionary[Vector2i, bool] = {}
 var _solid: Dictionary[Vector2i, bool] = {}
-# Casillas de alrededor de las casillas de torreta: solo puede usarlas la roca de la punta de una U
-var _slot_ring: Dictionary[Vector2i, bool] = {}
 var _zone_points: Array[Vector2] = []
 var _zone_families: Array[String] = []
 var _main_family: String = ""
@@ -531,7 +531,6 @@ func _build_map(layout: LevelLayout) -> Node2D:
 		_distance = _distance_to_path(shore_curves, layout.station)
 	_blocked = {}
 	_solid = {}
-	_slot_ring = {}
 	if has_station:
 		_mark(layout.station, STATION_RADIUS)
 
@@ -913,11 +912,6 @@ func _place_turret_slots(layer: TileMapLayer, cells: Array[Vector2i]) -> void:
 		used[cell] = shape
 		layer.set_cell(cell, TURRET_SLOTS, Vector2i(shape, TURRET_SLOT_ROWS[_family_at(cell)]) * 2)
 		_mark(cell, 1)
-		for dy: int in range(-1, 2):
-			for dx: int in range(-1, 2):
-				_slot_ring[cell + Vector2i(dx, dy)] = true
-	for cell: Vector2i in cells:
-		_slot_ring.erase(cell)
 
 
 ## Primera casilla de cada camino dentro del mapa y su dirección de avance (por el eje en el que más
@@ -1052,10 +1046,8 @@ func _tangent(points: PackedVector2Array, i: int) -> Vector2:
 ## Una orilla de un tramo de curva, a lo largo de line (los puntos a BEND_EDGE_CLEARANCE px del
 ## camino; normals, hacia fuera de él). Empieza por el medio y sigue hacia los dos extremos. En el lado
 ## de dentro de una curva cerrada (tight, la punta de la franja de una U) empieza con la roca más
-## grande que quepa, para que la punta acabe redondeada y no en una cadena de piedras; puede ir junto
-## al asteroide de una casilla de torreta (en las casillas de alrededor), para que la franja acabe en
-## una pieza y no en un claro. Las casillas de la línea que quedan libres (los huecos entre piezas)
-## se reservan.
+## grande que quepa, para que la punta acabe redondeada y no en una cadena de piedras. Las casillas
+## de la línea que quedan libres (los huecos entre piezas) se reservan.
 func _place_edge_side(layer: TileMapLayer, line: PackedVector2Array, normals: PackedVector2Array, inner: bool, tight: bool) -> void:
 	if line.size() < 3:
 		return
@@ -1063,9 +1055,14 @@ func _place_edge_side(layer: TileMapLayer, line: PackedVector2Array, normals: Pa
 	for k: int in range(1, line.size()):
 		lengths.append(lengths[k - 1] + line[k].distance_to(line[k - 1]))
 	var middle: int = int(line.size() / 2.0)
+	# En la punta de una U, la primera roca va un poco hacia un lado u otro al azar, para que cada punta
+	# quede distinta (y quepa algo pequeño al otro lado)
+	if tight:
+		var spread: int = int(line.size() / float(EDGE_TIGHT_SPREAD))
+		middle += _rng.randi_range(-spread, spread)
 	var forward: float = lengths[middle]
 	var backward: float = lengths[middle]
-	var fit: EdgeFit = _edge_fit(line, normals, middle, 0.0, EdgeKind.LARGE if tight else _edge_kind(inner), true, tight)
+	var fit: EdgeFit = _edge_fit(line, normals, middle, 0.0, EdgeKind.LARGE if tight else _edge_kind(inner))
 	if fit != null:
 		_put(layer, fit.top_left, fit.piece, fit.alternative)
 		forward += fit.front + _edge_gap()
@@ -1151,9 +1148,8 @@ func _edge_pieces(kind: EdgeKind, family: String) -> Array[Piece]:
 ## El mejor sitio junto al punto k de la línea de la orilla para una pieza del tipo kind (o, si no cabe
 ## ninguna, del siguiente de EDGE_FALLBACK, y al final una pequeña con BEND_EDGE_WIDE_TOLERANCE), o null.
 ## Sin allow_small no llega a probar las pequeñas. Con direction 1 o -1 la pieza empieza en el punto
-## y sigue en ese sentido; con 0, queda centrada en él. Con allow_slot_ring puede tapar casillas de
-## alrededor de una casilla de torreta.
-func _edge_fit(line: PackedVector2Array, normals: PackedVector2Array, k: int, direction: float, kind: EdgeKind, allow_small: bool = true, allow_slot_ring: bool = false) -> EdgeFit:
+## y sigue en ese sentido; con 0, queda centrada en él.
+func _edge_fit(line: PackedVector2Array, normals: PackedVector2Array, k: int, direction: float, kind: EdgeKind, allow_small: bool = true) -> EdgeFit:
 	var tangent: Vector2 = (line[mini(k + 1, line.size() - 1)] - line[maxi(k - 1, 0)]).normalized()
 	if direction < 0.0:
 		tangent = -tangent
@@ -1171,7 +1167,7 @@ func _edge_fit(line: PackedVector2Array, normals: PackedVector2Array, k: int, di
 			for dy: int in range(-1, 2):
 				for dx: int in range(-1, 2):
 					var top_left: Vector2i = guess + Vector2i(dx, dy)
-					if not _edge_cells_free(top_left, piece.size, allow_slot_ring):
+					if not _edge_cells_free(top_left, piece.size):
 						continue
 					for alternative: int in _edge_alternatives(piece):
 						var fit: EdgeFit = _score_edge(piece, top_left, alternative, line[k], tangent, direction, tolerance, ahead)
@@ -1187,14 +1183,13 @@ func _edge_fit(line: PackedVector2Array, normals: PackedVector2Array, k: int, di
 	return null
 
 
-## Las casillas de la pieza están dentro de la decoración y libres (con allow_slot_ring, también las de
-## alrededor de una casilla de torreta); pueden ser del pasillo (lo que cuenta es lo opaco, ver
-## _score_edge).
-func _edge_cells_free(top_left: Vector2i, size: Vector2i, allow_slot_ring: bool = false) -> bool:
+## Las casillas de la pieza están dentro de la decoración y libres; pueden ser del pasillo (lo que
+## cuenta es lo opaco, ver _score_edge).
+func _edge_cells_free(top_left: Vector2i, size: Vector2i) -> bool:
 	for y: int in size.y:
 		for x: int in size.x:
 			var cell: Vector2i = top_left + Vector2i(x, y)
-			if (_blocked.has(cell) and not (allow_slot_ring and _slot_ring.has(cell))) or not _decor_rect().has_point(cell):
+			if _blocked.has(cell) or not _decor_rect().has_point(cell):
 				return false
 	return true
 
@@ -1452,7 +1447,11 @@ func _place_gravel(layer: TileMapLayer) -> void:
 			layer.set_cell(cell, ANIMATED, Vector2i(TWINKLES[_rng.randi_range(0, TWINKLES.size() - 1)], 0))
 			continue
 		var column: int = _rng.randi_range(0, GRAVEL_SPARSE - 1)
-		if not _is_shore(cell) and _rng.randf() < _density_at(cell):
+		# Dentro de una curva cerrada (la punta de la franja de una U) la casilla del medio es orilla por
+		# cerca que pasa la curva de su esquina, pero su centro queda tan lejos del camino como el medio
+		# de la franja: lleva la misma gravilla, para que la franja no se apague antes de la punta
+		var inner_middle: bool = _center_distance.get(cell, INF) >= SLOT_CENTER - 0.5
+		if (not _is_shore(cell) or inner_middle) and _rng.randf() < _density_at(cell):
 			column = GRAVEL_SPARSE + _rng.randi_range(0, GRAVEL_DENSE - 1)
 		layer.set_cell(cell, GRAVEL, Vector2i(column, GRAVEL_ROWS[_family_at(cell)]))
 
