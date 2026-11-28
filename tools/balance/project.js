@@ -2,6 +2,7 @@
 // Un "ref" apunta a un campo concreto: {path, sub, key, type, def, index?}. sub es null para [resource].
 // Un ref puede traer read() (valor original) y write(text, value) (texto nuevo) para campos con estructura,
 // como los grupos de una oleada, que no se escriben en una sola línea.
+// Los archivos nuevos (createFile) y los que se borran (deleteFile) también quedan pendientes hasta guardar.
 "use strict";
 
 const Project = (() => {
@@ -19,6 +20,8 @@ const Project = (() => {
 		scriptsByPath: {},
 		names: {},
 		edits: new Map(),
+		created: new Map(),
+		deleted: new Set(),
 		listeners: [],
 		savedListeners: [],
 	};
@@ -46,8 +49,8 @@ const Project = (() => {
 		return file.text();
 	}
 
-	async function writeText(relPath, text) {
-		const handle = await getFileHandle(relPath);
+	async function writeText(relPath, text, create) {
+		const handle = await getFileHandle(relPath, create);
 		const writable = await handle.createWritable();
 		await writable.write(text);
 		await writable.close();
@@ -73,6 +76,11 @@ const Project = (() => {
 		}
 	}
 
+	// ¿Existe el archivo, en disco o como archivo nuevo pendiente?
+	async function fileExists(relPath) {
+		return state.created.has(relPath) || (await exists(relPath));
+	}
+
 	// --- Carga ---
 
 	async function openWithHandle(handle) {
@@ -86,6 +94,8 @@ const Project = (() => {
 		state.scriptsByPath = {};
 		state.names = {};
 		state.edits.clear();
+		state.created.clear();
+		state.deleted.clear();
 		await loadScripts();
 		await loadNames();
 		notify();
@@ -294,10 +304,46 @@ const Project = (() => {
 		return !!n && !n.section.props[r.key];
 	}
 
+	// --- Archivos nuevos ---
+
+	// Crea un .tres nuevo con su texto inicial: se puede leer y editar ya, y se escribe al guardar.
+	function createFile(relPath, text) {
+		state.created.set(relPath, text);
+		state.docs[relPath] = Tres.scan(text);
+		notify();
+	}
+
+	function isCreated(relPath) {
+		return state.created.has(relPath);
+	}
+
+	// Borra un archivo al guardar (uno nuevo sin guardar se olvida ya). Sus cambios pendientes se pierden.
+	function deleteFile(relPath) {
+		for (const [k, edit] of state.edits) {
+			if (edit.ref.path === relPath) {
+				state.edits.delete(k);
+			}
+		}
+		if (state.created.has(relPath)) {
+			state.created.delete(relPath);
+			delete state.docs[relPath];
+		} else {
+			state.deleted.add(relPath);
+		}
+		notify();
+	}
+
 	// --- Guardar y descartar ---
 
 	// Escribe todos los cambios: relee cada archivo, cambia solo sus líneas y lo guarda.
 	async function save() {
+		const saved = [];
+		// Primero los archivos nuevos, con su texto inicial; sus cambios se escriben después, como los demás.
+		for (const [path, text] of [...state.created]) {
+			await writeText(path, text, true);
+			state.created.delete(path);
+			saved.push(path);
+		}
 		const byPath = new Map();
 		for (const edit of state.edits.values()) {
 			if (!byPath.has(edit.ref.path)) {
@@ -305,7 +351,6 @@ const Project = (() => {
 			}
 			byPath.get(edit.ref.path).push(edit);
 		}
-		const saved = [];
 		for (const [path, edits] of byPath) {
 			let text = await readText(path);
 			for (const edit of edits) {
@@ -322,7 +367,17 @@ const Project = (() => {
 			for (const edit of edits) {
 				state.edits.delete(editKey(edit.ref));
 			}
-			saved.push(path);
+			if (!saved.includes(path)) {
+				saved.push(path);
+			}
+		}
+		for (const path of [...state.deleted]) {
+			const parts = path.split("/");
+			const name = parts.pop();
+			await (await getDir(parts.join("/"))).removeEntry(name);
+			state.deleted.delete(path);
+			delete state.docs[path];
+			saved.push(`${path} (borrado)`);
 		}
 		if (saved.includes(NAMES_CSV)) {
 			await loadNames();
@@ -336,6 +391,11 @@ const Project = (() => {
 
 	function discard() {
 		state.edits.clear();
+		for (const path of state.created.keys()) {
+			delete state.docs[path];
+		}
+		state.created.clear();
+		state.deleted.clear();
 		notify();
 	}
 
@@ -385,6 +445,10 @@ const Project = (() => {
 		onChange,
 		onSaved,
 		readText,
+		fileExists,
+		createFile,
+		isCreated,
+		deleteFile,
 		translate,
 		fileName,
 		get isOpen() {
@@ -394,10 +458,10 @@ const Project = (() => {
 			return state.root ? state.root.name : "";
 		},
 		get pendingCount() {
-			return state.edits.size;
+			return state.edits.size + state.created.size + state.deleted.size;
 		},
 		get pendingPaths() {
-			return [...new Set([...state.edits.values()].map((e) => e.ref.path))];
+			return [...new Set([...state.created.keys(), ...state.deleted, ...[...state.edits.values()].map((e) => e.ref.path)])];
 		},
 	};
 })();
