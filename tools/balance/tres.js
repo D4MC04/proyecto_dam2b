@@ -7,17 +7,31 @@ const Tres = (() => {
 	const ATTR_RE = /(\w+)=("([^"]*)"|[^\s\]]+)/g;
 	const PROP_RE = /^([A-Za-z_][\w/]*)\s*=\s*(.*)$/;
 
-	// Cuenta las comillas sin escapar para saber si una cadena sigue abierta en la línea siguiente.
-	function countQuotes(text) {
-		let count = 0;
+	// Sigue las comillas y los paréntesis, corchetes y llaves de un trozo de valor y devuelve el estado
+	// {depth, inString} al final: si sigue abierto, el valor continúa en la línea siguiente.
+	function openState(text, state) {
+		let { depth, inString } = state || { depth: 0, inString: false };
 		for (let i = 0; i < text.length; i++) {
-			if (text[i] === "\\") {
-				i++;
-			} else if (text[i] === '"') {
-				count++;
+			const c = text[i];
+			if (inString) {
+				if (c === "\\") {
+					i++;
+				} else if (c === '"') {
+					inString = false;
+				}
+			} else if (c === '"') {
+				inString = true;
+			} else if (c === "(" || c === "[" || c === "{") {
+				depth++;
+			} else if (c === ")" || c === "]" || c === "}") {
+				depth--;
 			}
 		}
-		return count;
+		return { depth, inString };
+	}
+
+	function isOpen(state) {
+		return state.inString || state.depth > 0;
 	}
 
 	function parseAttrs(text) {
@@ -39,16 +53,18 @@ const Tres = (() => {
 		const lines = text.split(/\r?\n/);
 		const doc = { lines, eol, header: {}, ext: {}, sections: [] };
 		let current = null;
-		let inString = false;
+		// Estado del valor abierto (cadena, Dictionary o Array de varias líneas), o null.
+		let open = null;
 		let lastProp = null;
 		for (let i = 0; i < lines.length; i++) {
 			const line = lines[i];
-			if (inString) {
-				// Continuación de una cadena de varias líneas: se añade al valor crudo.
+			if (open) {
+				// Continuación de un valor de varias líneas: se añade al valor crudo.
 				lastProp.raw += "\n" + line;
 				lastProp.endLine = i;
-				if (countQuotes(line) % 2 === 1) {
-					inString = false;
+				open = openState(line, open);
+				if (!isOpen(open)) {
+					open = null;
 				}
 				if (current) {
 					current.end = i + 1;
@@ -77,8 +93,9 @@ const Tres = (() => {
 				lastProp = { raw: prop[2], line: i, endLine: i };
 				current.props[prop[1]] = lastProp;
 				current.end = i + 1;
-				if (countQuotes(prop[2]) % 2 === 1) {
-					inString = true;
+				const state = openState(prop[2]);
+				if (isOpen(state)) {
+					open = state;
 				}
 			}
 		}
@@ -122,7 +139,24 @@ const Tres = (() => {
 		return parts;
 	}
 
-	// Valor crudo de una línea .tres -> número, cadena, booleano, referencia o array.
+	// Interior de un Dictionary ("30: 0.68, 35: 0.5") -> objeto clave -> valor.
+	function parseDictionary(inner) {
+		const result = {};
+		for (const pair of splitTopLevel(inner)) {
+			// El ":" de primer nivel separa la clave del valor.
+			let state = { depth: 0, inString: false };
+			for (let i = 0; i < pair.length; i++) {
+				if (pair[i] === ":" && !isOpen(state)) {
+					result[parseValue(pair.slice(0, i))] = parseValue(pair.slice(i + 1));
+					break;
+				}
+				state = openState(pair[i], state);
+			}
+		}
+		return result;
+	}
+
+	// Valor crudo de una línea .tres -> número, cadena, booleano, referencia, array o diccionario.
 	function parseValue(raw) {
 		raw = raw.trim();
 		let m = raw.match(/^ExtResource\("([^"]+)"\)$/);
@@ -136,6 +170,10 @@ const Tres = (() => {
 		m = raw.match(/^"([\s\S]*)"$/);
 		if (m) {
 			return m[1];
+		}
+		m = raw.match(/^Dictionary(?:\[[^\]]*\])?\(\{([\s\S]*)\}\)$/) || raw.match(/^\{([\s\S]*)\}$/);
+		if (m) {
+			return parseDictionary(m[1]);
 		}
 		m = raw.match(/^Array\[.*?\]\(\[([\s\S]*)\]\)$/) || raw.match(/^\[([\s\S]*)\]$/);
 		if (m) {
@@ -173,8 +211,19 @@ const Tres = (() => {
 		return String(value).replace(/e([-+])(\d)$/, "e$10$2");
 	}
 
-	// Escribe un valor según el tipo del @export: "int", "float" o "Array[float]".
+	// Escribe un valor según el tipo del @export: "int", "float", "Array[float]" o "Dictionary[int, float]".
 	function formatValue(type, value) {
+		const dictMatch = type.match(/^Dictionary\[(\w+),\s*(\w+)\]$/);
+		if (dictMatch) {
+			// Como lo guarda Godot: un par por línea, claves ordenadas.
+			const numericKeys = dictMatch[1] === "int" || dictMatch[1] === "float";
+			const keys = Object.keys(value).sort((a, b) => (numericKeys ? Number(a) - Number(b) : a.localeCompare(b)));
+			if (keys.length === 0) {
+				return `${type}({})`;
+			}
+			const pairs = keys.map((k) => `${formatValue(dictMatch[1], numericKeys ? Number(k) : k)}: ${formatValue(dictMatch[2], value[k])}`);
+			return `${type}({\n${pairs.join(",\n")}\n})`;
+		}
 		if (type === "int") {
 			return String(Math.round(value));
 		}
@@ -198,10 +247,11 @@ const Tres = (() => {
 			throw new Error(`No existe la sección ${sectionId === null ? "[resource]" : sectionId}`);
 		}
 		const lines = doc.lines.slice();
-		const newLine = `${key} = ${rawValue}`;
+		// Un valor de varias líneas (Dictionary) se parte para que lleve el fin de línea del archivo.
+		const newLines = `${key} = ${rawValue}`.split("\n");
 		const prop = section.props[key];
 		if (prop) {
-			lines.splice(prop.line, prop.endLine - prop.line + 1, newLine);
+			lines.splice(prop.line, prop.endLine - prop.line + 1, ...newLines);
 		} else {
 			let insertAt = section.end;
 			for (const [name, p] of Object.entries(section.props)) {
@@ -209,7 +259,7 @@ const Tres = (() => {
 					insertAt = p.line;
 				}
 			}
-			lines.splice(insertAt, 0, newLine);
+			lines.splice(insertAt, 0, ...newLines);
 		}
 		return lines.join(doc.eol);
 	}
@@ -309,7 +359,7 @@ const Tres = (() => {
 		if (classMatch) {
 			result.className = classMatch[1];
 		}
-		const exportRe = /^@export\w*(?:\([^)]*\))?\s+var\s+(\w+)\s*:\s*([\w\[\]]+)\s*(?:=\s*([^#\n]*?))?\s*(?:#.*)?$/gm;
+		const exportRe = /^@export\w*(?:\([^)]*\))?\s+var\s+(\w+)\s*:\s*(\w+(?:\[[\w,\s]*\])?)\s*(?:=\s*([^#\n]*?))?\s*(?:#.*)?$/gm;
 		for (const m of text.matchAll(exportRe)) {
 			const type = m[2];
 			let def;
@@ -321,6 +371,8 @@ const Tres = (() => {
 				def = false;
 			} else if (type.startsWith("Array")) {
 				def = [];
+			} else if (type.startsWith("Dictionary")) {
+				def = {};
 			} else if (type === "String") {
 				def = "";
 			} else {

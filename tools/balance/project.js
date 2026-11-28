@@ -13,6 +13,11 @@ const Project = (() => {
 
 	const NAMES_CSV = "translations/textos.csv";
 
+	// Tabla de separación entre naves por velocidad (SpawnSpacing.gd).
+	const SPAWN_SPACING = "resources/spawn_spacing.tres";
+	const SPACING_KEY = "spacing_by_speed";
+	const DEFAULT_SPACING = 0.5; // SpawnSpacing.DEFAULT_SPACING
+
 	const state = {
 		root: null,
 		docs: {},
@@ -104,6 +109,9 @@ const Project = (() => {
 		state.deleted.clear();
 		await loadScripts();
 		await loadNames();
+		if (await exists(SPAWN_SPACING)) {
+			await loadDoc(SPAWN_SPACING);
+		}
 		notify();
 	}
 
@@ -266,7 +274,8 @@ const Project = (() => {
 		const k = editKey(r);
 		const whole = state.edits.has(k) ? state.edits.get(k).value : originalValue(r);
 		if (r.index !== undefined) {
-			return Array.isArray(whole) ? whole[r.index] : undefined;
+			// index es la posición en un array o la clave en un diccionario.
+			return whole && typeof whole === "object" ? whole[r.index] : undefined;
 		}
 		return whole;
 	}
@@ -280,7 +289,7 @@ const Project = (() => {
 		let whole = newValue;
 		if (r.index !== undefined) {
 			const current = state.edits.has(k) ? state.edits.get(k).value : originalValue(r);
-			whole = (current || []).slice();
+			whole = Array.isArray(current) ? current.slice() : { ...(current || {}) };
 			whole[r.index] = newValue;
 		}
 		if (sameValue(whole, originalValue(r))) {
@@ -302,6 +311,48 @@ const Project = (() => {
 		}
 		const original = originalValue(r) || [];
 		return !sameValue(state.edits.get(k).value[r.index], original[r.index]);
+	}
+
+	// --- Separación por velocidad (resources/spawn_spacing.tres, como SpawnSpacing.gd) ---
+
+	// Ref de la separación de una velocidad: index es la clave del diccionario spacing_by_speed.
+	// speedOf() da la velocidad en cada momento, para que la celda siga a la nave si cambia su speed.
+	// Todas las refs comparten el mismo cambio pendiente (el diccionario entero). null si no hay tabla.
+	function spacingRef(speedOf) {
+		const n = node(SPAWN_SPACING, null);
+		const info = n ? fieldInfo(n.cls, SPACING_KEY) : null;
+		if (!info) {
+			return null;
+		}
+		return {
+			path: SPAWN_SPACING,
+			sub: null,
+			key: SPACING_KEY,
+			type: info.type,
+			def: info.default,
+			get index() {
+				return speedOf();
+			},
+		};
+	}
+
+	// Diccionario velocidad -> segundos, con los cambios pendientes.
+	function spacingTable() {
+		const n = node(SPAWN_SPACING, null);
+		if (!n) {
+			return {};
+		}
+		const k = editKey({ path: SPAWN_SPACING, sub: null, key: SPACING_KEY });
+		return (state.edits.has(k) ? state.edits.get(k).value : rawValue(n, SPACING_KEY)) || {};
+	}
+
+	function hasSpacing(speed) {
+		return Object.prototype.hasOwnProperty.call(spacingTable(), speed);
+	}
+
+	// Segundos entre dos naves de un grupo de esa velocidad (SpawnSpacing.get_spacing).
+	function spacingFor(speed) {
+		return hasSpacing(speed) ? spacingTable()[speed] : DEFAULT_SPACING;
 	}
 
 	// ¿Falta la línea en el .tres? (vale lo de por defecto)
@@ -446,6 +497,10 @@ const Project = (() => {
 		setValue,
 		isEdited,
 		isDefault,
+		spacingRef,
+		hasSpacing,
+		spacingFor,
+		DEFAULT_SPACING,
 		save,
 		discard,
 		onChange,
