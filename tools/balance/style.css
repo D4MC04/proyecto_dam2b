@@ -482,3 +482,23 @@ button.small {
 .launcher-help button.small {
 	margin-left: 8px;
 }
+
+/* Copiar, pegar y duplicar en la pestaña Niveles */
+.balance-table tr.new-group td.sticky {
+	box-shadow: inset 3px 0 0 var(--changed-border);
+}
+
+.groups-table td.select,
+.groups-table th.select {
+	width: 1%;
+	text-align: center;
+}
+
+.waves-actions button.small {
+	padding: 3px 10px;
+}
+
+.waves-actions[hidden],
+.groups-actions[hidden] {
+	display: none;
+}
