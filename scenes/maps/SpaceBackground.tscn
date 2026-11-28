@@ -50,7 +50,7 @@ animations = [{
 [node name="Nebula" type="Parallax2D" parent="." unique_id=1252630419]
 repeat_size = Vector2(640, 0)
 autoscroll = Vector2(-3, 0)
-repeat_times = 2
+repeat_times = 3
 
 [node name="Image" type="Sprite2D" parent="Nebula" unique_id=806515116]
 texture = ExtResource("1_nbs4u")
@@ -63,7 +63,7 @@ texture = ExtResource("2_fdn61")
 [node name="Stars" type="Parallax2D" parent="." unique_id=1775423975]
 repeat_size = Vector2(640, 272)
 autoscroll = Vector2(-6, 0)
-repeat_times = 2
+repeat_times = 3
 
 [node name="Twinkle" type="AnimatedSprite2D" parent="Stars" unique_id=597199402]
 position = Vector2(-12, 0)

@@ -1,40 +1,36 @@
 // Pestaña Niveles: una fila por resources/level_data/*.tres; al elegir un nivel, sus oleadas; al elegir una
 // oleada, sus grupos (editables: nave, cuántas, separación, pausa y camino; se añaden, quitan y reordenan).
+// Las oleadas y los grupos se copian, pegan y duplican (también entre niveles) con un portapapeles del panel.
 "use strict";
 
 const LevelsTab = (() => {
 	const LEVEL_DIR = "resources/level_data";
 	const ENEMY_DIR = "resources/enemy_data";
+	const WAVE_DIR = "resources/wave_data";
 	const SPAWN_GROUP_SCRIPT = "scripts/resources/SpawnGroup.gd";
+	const WAVE_DATA_SCRIPT = "scripts/resources/WaveData.gd";
 	const GROUP_FIELDS = ["count", "spacing", "pause_after", "path_index"];
 
-	// Estimación de niveles.md › "Dificultad frente a dinero" (construyendo: se gasta todo en cada oleada).
 	const PERFECT_WAVE_BONUS = 25; // LevelState.PERFECT_WAVE_BONUS
-	const DPS_PER_MONEY = 0.17; // DPS efectivo por € de las torretas (torretas.md)
-	const PLACEMENT = 0.75; // colocación y sobreataque
-	const RANGE_PX = 85; // la nave cruza 2 × 85 px de alcance después de salir
 
 	// Botón Jugar: protocolo registrado por tools/balance/launcher/registrar.ps1.
 	const PLAY_PROTOCOL = "astro-artillery://play";
 	const PLAY_CHECK_MS = 2500; // si en este tiempo el navegador no pierde el foco, el protocolo no respondió
 	const LAUNCHER_HELP_KEY = "astro-artillery-launcher-help-shown";
 
-	const RATIO_TITLE = [
-		"Dificultad frente a dinero (niveles.md), construyendo: por encima de 1 se pierde vida.",
-		"Dinero antes de la oleada K = inicial + recompensas de las K-1 anteriores + 25 por oleada perfecta.",
-		`DPS montado = dinero × ${DPS_PER_MONEY} × ${PLACEMENT}.`,
-		`DPS exigido = vida total ÷ (salida + 2 × ${RANGE_PX} px ÷ velocidad media de las naves).`,
-		"Ratio = exigido ÷ montado.",
-	].join("\n");
-
 	let levels = [];
 	let enemyPaths = [];
 	let selectedLevel = null;
 	let selectedWave = null;
 	let newGroupCounter = 0;
+	let selectedGroupKeys = new Set();
+	// Portapapeles del panel: grupos sueltos y una oleada entera (grupos sin sub y health_multiplier).
+	let groupClipboard = [];
+	let waveClipboard = null;
 	const el = {};
 	let levelsTable = null;
 	let wavesTable = null;
+	let wavesSignature = null;
 	let groupsEditor = null;
 
 	// --- Carga ---
@@ -48,7 +44,8 @@ const LevelsTab = (() => {
 			if (!n) {
 				continue;
 			}
-			const level = { path, waves: [], turrets: [], name: levelName(path, n) };
+			const level = { path, waves: [], waveCache: {}, turrets: [], name: levelName(path, n) };
+			level.wavesRef = { path, sub: null, key: "waves", type: "waves", read: () => readWavePaths(path), write: (text, value) => writeWavePaths(text, value) };
 			for (const value of Project.rawValue(n, "turrets") || []) {
 				const turret = value && value.ext && n.doc.ext[value.ext];
 				if (turret) {
@@ -56,13 +53,10 @@ const LevelsTab = (() => {
 					level.turrets.push(turret.path);
 				}
 			}
-			for (const value of Project.rawValue(n, "waves") || []) {
-				const wave = value && value.ext && n.doc.ext[value.ext];
-				if (wave) {
-					await Project.loadDoc(wave.path);
-					level.waves.push(makeWave(level, wave.path, level.waves.length));
-				}
+			for (const wavePath of readWavePaths(path)) {
+				await Project.loadDoc(wavePath);
 			}
+			syncWaves(level);
 			levels.push(level);
 		}
 		// Los niveles por número y el de emergencia (sector 0) delante.
@@ -90,15 +84,74 @@ const LevelsTab = (() => {
 		return sector ? `Nivel ${number} · ${sector}` : `Nivel ${number}`;
 	}
 
-	function makeWave(level, path, index) {
+	function makeWave(level, path) {
 		return {
 			level,
 			path,
-			index,
-			rowClass: `group-${index % 2}`,
+			index: 0,
+			rowClass: "",
 			hmRef: Project.ref(Project.node(path, null), "health_multiplier"),
 			groupsRef: { path, sub: null, key: "groups", type: "groups", read: () => readGroups(path), write: (text, value) => writeGroups(text, value) },
 		};
+	}
+
+	// Rehace level.waves con la lista waves actual (con cambios pendientes). Reusa los objetos de oleada.
+	function syncWaves(level) {
+		const paths = (Project.value(level.wavesRef) || []).filter((path) => Project.node(path, null));
+		level.waves = paths.map((path, index) => {
+			if (!level.waveCache[path]) {
+				level.waveCache[path] = makeWave(level, path);
+			}
+			const wave = level.waveCache[path];
+			wave.index = index;
+			wave.rowClass = `group-${index % 2}` + (Project.isCreated(path) ? " new-group" : "");
+			return wave;
+		});
+	}
+
+	// --- Lista de oleadas de un nivel: leer y escribir ---
+
+	// Rutas de las oleadas tal como están en el level_N.tres.
+	function readWavePaths(levelPath) {
+		const n = Project.node(levelPath, null);
+		if (!n) {
+			return [];
+		}
+		return (Project.rawValue(n, "waves") || []).map((v) => v && v.ext && n.doc.ext[v.ext] && n.doc.ext[v.ext].path).filter((path) => path);
+	}
+
+	// Reescribe la lista waves: las oleadas que ya estaban guardan su ext_resource; las nuevas, uno con id nuevo.
+	// Se quita el ext_resource de una oleada que ya no está en la lista.
+	function writeWavePaths(text, paths) {
+		let doc = Tres.scan(text);
+		const extIdFor = (relPath) => Object.keys(doc.ext).find((id) => doc.ext[id].path === relPath);
+		const resource = Tres.findSection(doc, null);
+		const raw = resource && resource.props.waves ? resource.props.waves.raw : "";
+		let scriptId = (raw.match(/^Array\[ExtResource\("([^"]+)"\)\]/) || [])[1] || extIdFor(WAVE_DATA_SCRIPT);
+		if (!scriptId) {
+			({ text, id: scriptId } = Tres.addExtResource(text, "Script", scriptUid(WAVE_DATA_SCRIPT), WAVE_DATA_SCRIPT));
+			doc = Tres.scan(text);
+		}
+		const ids = [];
+		for (const path of paths) {
+			let id = extIdFor(path);
+			if (!id) {
+				const waveNode = Project.node(path, null);
+				({ text, id } = Tres.addExtResource(text, "Resource", waveNode ? waveNode.doc.header.uid || null : null, path));
+				doc = Tres.scan(text);
+			}
+			ids.push(id);
+		}
+		const list = ids.map((id) => `ExtResource("${id}")`).join(", ");
+		text = Tres.setProp(text, null, "waves", `Array[ExtResource("${scriptId}")]([${list}])`);
+		doc = Tres.scan(text);
+		const used = Tres.usedExtIds(doc);
+		for (const [id, ext] of Object.entries(doc.ext)) {
+			if (ext.path.startsWith(`${WAVE_DIR}/`) && !used.has(id)) {
+				text = Tres.removeExtResource(text, id);
+			}
+		}
+		return text;
 	}
 
 	// --- Grupos: leer y escribir ---
@@ -135,12 +188,12 @@ const LevelsTab = (() => {
 		return field === "count" || field === "path_index" ? "int" : "float";
 	}
 
-	// Uid del script SpawnGroup.gd, sacado de cualquier oleada que lo enlace.
-	function spawnGroupUid() {
+	// Uid de un script (SpawnGroup.gd, WaveData.gd), sacado de cualquier nivel u oleada que lo enlace.
+	function scriptUid(scriptPath) {
 		for (const level of levels) {
-			for (const wave of level.waves) {
-				const n = Project.node(wave.path, null);
-				const ext = n && Object.values(n.doc.ext).find((e) => e.path === SPAWN_GROUP_SCRIPT && e.uid);
+			for (const path of [level.path, ...level.waves.map((w) => w.path)]) {
+				const n = Project.node(path, null);
+				const ext = n && Object.values(n.doc.ext).find((e) => e.path === scriptPath && e.uid);
 				if (ext) {
 					return ext.uid;
 				}
@@ -159,7 +212,7 @@ const LevelsTab = (() => {
 
 		let scriptId = extIdFor(SPAWN_GROUP_SCRIPT);
 		if (!scriptId) {
-			({ text, id: scriptId } = Tres.addExtResource(text, "Script", spawnGroupUid(), SPAWN_GROUP_SCRIPT));
+			({ text, id: scriptId } = Tres.addExtResource(text, "Script", scriptUid(SPAWN_GROUP_SCRIPT), SPAWN_GROUP_SCRIPT));
 			doc = Tres.scan(text);
 		}
 		const enemyIds = {};
@@ -248,8 +301,7 @@ const LevelsTab = (() => {
 	function waveStats(wave) {
 		const groups = Project.value(wave.groupsRef) || [];
 		const hm = Project.value(wave.hmRef);
-		const stats = { ships: 0, reward: 0, hp: 0, duration: 0, speed: 0, starts: [] };
-		let speedSum = 0;
+		const stats = { ships: 0, reward: 0, hp: 0, duration: 0, starts: [] };
 		let start = 0;
 		for (const g of groups) {
 			stats.starts.push(start);
@@ -257,41 +309,24 @@ const LevelsTab = (() => {
 			stats.ships += g.count;
 			stats.reward += g.count * totals.reward;
 			stats.hp += g.count * totals.hp * hm;
-			speedSum += g.count * (enemyValue(g.enemy, "speed") || 0);
 			if (g.count > 0) {
 				stats.duration = Math.max(stats.duration, start + g.spacing * (g.count - 1));
 			}
 			start += g.spacing * Math.max(g.count - 1, 0) + g.pause_after;
 		}
-		stats.speed = stats.ships > 0 ? speedSum / stats.ships : 0;
 		return stats;
 	}
 
-	// Estadísticas de todas las oleadas del nivel, con el dinero antes de cada una y el ratio.
+	// Estadísticas de todas las oleadas del nivel, con el dinero antes de cada una.
 	function levelStats(level) {
 		const startMoney = Project.value(Project.ref(Project.node(level.path, null), "starting_money")) || 0;
 		let earned = 0;
 		return level.waves.map((wave, k) => {
 			const stats = waveStats(wave);
 			stats.money = startMoney + earned + PERFECT_WAVE_BONUS * k;
-			stats.built = stats.money * DPS_PER_MONEY * PLACEMENT;
-			stats.time = stats.duration + (stats.speed > 0 ? (2 * RANGE_PX) / stats.speed : 0);
-			stats.needed = stats.time > 0 ? stats.hp / stats.time : 0;
-			stats.ratio = stats.built > 0 ? stats.needed / stats.built : 0;
-			stats.ratioText = ratioText(stats, startMoney, earned, k);
 			earned += stats.reward;
 			return stats;
 		});
-	}
-
-	function ratioText(s, startMoney, earned, k) {
-		const f = BalanceTable.formatNumber;
-		return [
-			`Dinero antes: ${f(startMoney, 0)} + ${f(earned, 0)} + ${PERFECT_WAVE_BONUS} × ${k} = ${f(s.money, 0)} €`,
-			`DPS montado: ${f(s.money, 0)} × ${DPS_PER_MONEY} × ${PLACEMENT} = ${f(s.built, 1)}`,
-			`DPS exigido: ${f(s.hp, 0)} ÷ (${f(s.duration, 1)} s + 2 × ${RANGE_PX} ÷ ${f(s.speed, 1)} px/s) = ${f(s.needed, 1)}`,
-			`Ratio: ${f(s.needed, 1)} ÷ ${f(s.built, 1)} = ${f(s.ratio, 2)}`,
-		].join("\n");
 	}
 
 	function sum(list, key) {
@@ -330,15 +365,6 @@ const LevelsTab = (() => {
 			{ id: "reward", label: "Recompensa", group: "Calculado", title: "Suma de las recompensas de todas las naves (con sus trozos), sin las de oleada perfecta", get: (l) => sum(levelStats(l), "reward"), format: (v) => f(v, 0) },
 			{ id: "hp", label: "Vida total", group: "Calculado", title: "Suma de count × hp × health_multiplier de todas las oleadas (con los trozos)", get: (l) => sum(levelStats(l), "hp"), format: (v) => f(v, 0) },
 			{
-				id: "ratio",
-				label: "Ratio máx.",
-				group: "Calculado",
-				title: "El ratio más alto de sus oleadas.\n" + RATIO_TITLE,
-				get: (l) => Math.max(0, ...levelStats(l).map((s) => s.ratio)),
-				format: (v) => f(v, 2),
-				warn: (l) => Math.max(0, ...levelStats(l).map((s) => s.ratio)) > 1,
-			},
-			{
 				id: "turrets",
 				label: "Torretas",
 				title: "turrets (solo se ven)",
@@ -360,16 +386,6 @@ const LevelsTab = (() => {
 			{ id: "hp", label: "Vida total", group: "Calculado", title: "count × hp × health_multiplier, con los trozos de split_into", get: (w) => waveStatsOf(w).hp, format: (v) => f(v, 0) },
 			{ id: "duration", label: "Salida (s)", group: "Calculado", title: "Tiempo de la última nave desde la primera (con spacing y pause_after)", get: (w) => waveStatsOf(w).duration, format: (v) => f(v, 1) },
 			{ id: "money", label: "Dinero antes", group: "Calculado", title: "Inicial + recompensas anteriores + 25 por oleada perfecta", get: (w) => waveStatsOf(w).money, format: (v) => f(v, 0) },
-			{
-				id: "ratio",
-				label: "Ratio",
-				group: "Calculado",
-				title: RATIO_TITLE,
-				get: (w) => waveStatsOf(w).ratio,
-				format: (v) => f(v, 2),
-				warn: (w) => waveStatsOf(w).ratio > 1,
-				cellTitle: (w) => waveStatsOf(w).ratioText,
-			},
 		];
 	}
 
@@ -463,6 +479,221 @@ Cancelar: no jugar.`)) {
 		setGroups(groups);
 	}
 
+	// Datos de un grupo sin su sub_resource, para el portapapeles.
+	function groupData(group) {
+		const data = { enemy: group.enemy };
+		for (const field of GROUP_FIELDS) {
+			data[field] = group[field];
+		}
+		return data;
+	}
+
+	// Grupos listos para pegar: claves nuevas y sin sub (al guardar son sub_resource con id nuevo).
+	function freshGroups(list) {
+		return list.map((data) => ({ ...data, key: `new-${++newGroupCounter}`, sub: null }));
+	}
+
+	function duplicateGroup(index) {
+		const groups = currentGroups();
+		const [copy] = freshGroups([groupData(groups[index])]);
+		groups.splice(index + 1, 0, copy);
+		setGroups(groups);
+	}
+
+	function copyGroups() {
+		const groups = currentGroups().filter((g) => selectedGroupKeys.has(g.key));
+		if (groups.length === 0) {
+			return;
+		}
+		groupClipboard = groups.map(groupData);
+		BalanceApp.setStatus(`Copiados ${groups.length} grupo(s) de ${Project.fileName(selectedWave.path)}.`, "ok");
+		updateGroupActions();
+	}
+
+	// Pega los grupos copiados detrás del último grupo seleccionado (o al final) y deja elegidos los pegados.
+	function pasteGroups() {
+		if (groupClipboard.length === 0) {
+			return;
+		}
+		const groups = currentGroups();
+		let at = groups.length;
+		groups.forEach((g, index) => {
+			if (selectedGroupKeys.has(g.key)) {
+				at = index + 1;
+			}
+		});
+		const pasted = freshGroups(groupClipboard);
+		groups.splice(at, 0, ...pasted);
+		selectedGroupKeys = new Set(pasted.map((g) => g.key));
+		setGroups(groups);
+	}
+
+	function toggleGroup(key, checked) {
+		if (checked) {
+			selectedGroupKeys.add(key);
+		} else {
+			selectedGroupKeys.delete(key);
+		}
+		refreshGroupSelection();
+	}
+
+	function toggleAllGroups(checked) {
+		const groups = Project.value(selectedWave.groupsRef) || [];
+		selectedGroupKeys = new Set(checked ? groups.map((g) => g.key) : []);
+		refreshGroupSelection();
+	}
+
+	function refreshGroupSelection() {
+		if (groupsEditor) {
+			const groups = Project.value(selectedWave.groupsRef) || [];
+			groups.forEach((group, index) => {
+				const row = groupsEditor.rows[index];
+				if (row) {
+					row.check.checked = selectedGroupKeys.has(group.key);
+					row.tr.classList.toggle("selected", row.check.checked);
+				}
+			});
+			groupsEditor.checkAll.checked = groups.length > 0 && groups.every((g) => selectedGroupKeys.has(g.key));
+		}
+		updateGroupActions();
+	}
+
+	function updateGroupActions() {
+		const count = selectedWave ? (Project.value(selectedWave.groupsRef) || []).filter((g) => selectedGroupKeys.has(g.key)).length : 0;
+		el.copyGroups.disabled = count === 0;
+		el.copyGroups.textContent = count > 0 ? `Copiar ${count} grupo(s)` : "Copiar grupos";
+		el.pasteGroups.disabled = groupClipboard.length === 0;
+		el.pasteGroups.textContent = groupClipboard.length > 0 ? `Pegar ${groupClipboard.length} grupo(s)` : "Pegar grupos";
+	}
+
+	// --- Oleadas: copiar, pegar y duplicar ---
+
+	function waveData(wave) {
+		return {
+			groups: (Project.value(wave.groupsRef) || []).map(groupData),
+			hm: Project.value(wave.hmRef),
+			label: `${wave.level.name}, oleada ${wave.index + 1}`,
+		};
+	}
+
+	// Siguiente nombre libre para una oleada del nivel: level_N_K.tres (o emergency_K.tres) con K desde 2.
+	async function nextWavePath(level) {
+		const prefix = Project.fileName(level.path);
+		for (let k = 2; ; k++) {
+			const path = `${WAVE_DIR}/${prefix}_${k}.tres`;
+			if (!(await Project.fileExists(path))) {
+				return path;
+			}
+		}
+	}
+
+	function newWaveText() {
+		const uid = scriptUid(WAVE_DATA_SCRIPT);
+		return [
+			'[gd_resource type="Resource" script_class="WaveData" format=3]',
+			"",
+			`[ext_resource type="Script"${uid ? ` uid="${uid}"` : ""} path="res://${WAVE_DATA_SCRIPT}" id="1_wave"]`,
+			"",
+			"[resource]",
+			'script = ExtResource("1_wave")',
+			"",
+		].join("\n");
+	}
+
+	// Crea una oleada nueva (un .tres sin uid, pendiente hasta guardar) con esos datos y la pone en el nivel
+	// detrás de la oleada afterIndex (-1: la primera).
+	async function insertWave(level, afterIndex, data) {
+		const path = await nextWavePath(level);
+		Project.createFile(path, newWaveText());
+		const wave = makeWave(level, path);
+		level.waveCache[path] = wave;
+		Project.setValue(wave.groupsRef, freshGroups(data.groups));
+		if (wave.hmRef && data.hm !== undefined) {
+			Project.setValue(wave.hmRef, data.hm);
+		}
+		const paths = (Project.value(level.wavesRef) || []).slice();
+		paths.splice(afterIndex + 1, 0, path);
+		selectedWave = wave;
+		selectedGroupKeys = new Set();
+		Project.setValue(level.wavesRef, paths);
+		BalanceApp.setStatus(`Oleada nueva ${Project.fileName(path)}.tres (${data.label}): se crea al guardar.`, "ok");
+	}
+
+	async function addEmptyWave() {
+		if (selectedLevel) {
+			await insertWave(selectedLevel, selectedWave ? selectedWave.index : selectedLevel.waves.length - 1, { groups: [], hm: undefined, label: "vacía" });
+		}
+	}
+
+	// Quita la oleada elegida del nivel y borra su .tres al guardar (si ningún otro nivel la usa).
+	function removeWave() {
+		if (!selectedWave) {
+			return;
+		}
+		const wave = selectedWave;
+		const level = wave.level;
+		if (!window.confirm(`¿Quitar la oleada ${wave.index + 1} (${Project.fileName(wave.path)}.tres) de ${level.name}? Su archivo se borra al guardar.`)) {
+			return;
+		}
+		const paths = (Project.value(level.wavesRef) || []).filter((path) => path !== wave.path);
+		selectedWave = level.waves[wave.index + 1] || level.waves[wave.index - 1] || null;
+		selectedGroupKeys = new Set();
+		Project.setValue(level.wavesRef, paths);
+		const usedElsewhere = levels.some((other) => other !== level && (Project.value(other.wavesRef) || []).includes(wave.path));
+		if (!usedElsewhere) {
+			Project.deleteFile(wave.path);
+		}
+		BalanceApp.setStatus(`Oleada ${Project.fileName(wave.path)}.tres quitada${usedElsewhere ? "" : ": su archivo se borra al guardar"}.`, "ok");
+	}
+
+	async function duplicateWave() {
+		if (selectedWave) {
+			await insertWave(selectedLevel, selectedWave.index, waveData(selectedWave));
+		}
+	}
+
+	function copyWave() {
+		if (selectedWave) {
+			waveClipboard = waveData(selectedWave);
+			BalanceApp.setStatus(`Copiada la oleada: ${waveClipboard.label}.`, "ok");
+			updateWaveActions();
+		}
+	}
+
+	async function pasteWaveAfter() {
+		if (waveClipboard && selectedLevel) {
+			await insertWave(selectedLevel, selectedWave ? selectedWave.index : selectedLevel.waves.length - 1, waveClipboard);
+		}
+	}
+
+	// Sustituye los grupos y el health_multiplier de la oleada elegida por los copiados.
+	function pasteWaveOver() {
+		if (!waveClipboard || !selectedWave) {
+			return;
+		}
+		const target = `${selectedLevel.name}, oleada ${selectedWave.index + 1} (${Project.fileName(selectedWave.path)}.tres)`;
+		if (!window.confirm(`¿Sustituir los grupos y la vida × de ${target} por los de ${waveClipboard.label}?`)) {
+			return;
+		}
+		selectedGroupKeys = new Set();
+		Project.setValue(selectedWave.groupsRef, freshGroups(waveClipboard.groups));
+		if (selectedWave.hmRef && waveClipboard.hm !== undefined) {
+			Project.setValue(selectedWave.hmRef, waveClipboard.hm);
+		}
+	}
+
+	function updateWaveActions() {
+		el.addWave.disabled = !selectedLevel;
+		el.removeWave.disabled = !selectedWave;
+		el.duplicateWave.disabled = !selectedWave;
+		el.copyWave.disabled = !selectedWave;
+		el.pasteWaveAfter.disabled = !waveClipboard || !selectedLevel;
+		el.pasteWaveOver.disabled = !waveClipboard || !selectedWave;
+		const from = waveClipboard ? `\nCopiada: ${waveClipboard.label}` : "";
+		el.pasteWaveAfter.title = "Crea una oleada nueva con la copiada, detrás de la elegida" + from;
+		el.pasteWaveOver.title = "Sustituye los grupos y la vida × de la oleada elegida por los de la copiada (pregunta antes)" + from;
+	}
+
 	function setGroupField(index, field, value) {
 		const groups = currentGroups();
 		groups[index][field] = value;
@@ -486,13 +717,16 @@ Cancelar: no jugar.`)) {
 		const signature = selectedWave.path + "|" + groups.map((g) => g.key).join(",");
 		if (groupsEditor && groupsEditor.signature === signature) {
 			refreshGroups();
+			refreshGroupSelection();
 			return;
 		}
+		selectedGroupKeys = new Set(groups.filter((g) => selectedGroupKeys.has(g.key)).map((g) => g.key));
 		const table = document.createElement("table");
 		table.className = "balance-table groups-table";
 		const head = document.createElement("thead");
 		head.innerHTML =
 			"<tr>" +
+			'<th class="select" title="Elegir grupos para copiarlos; se pega detrás del último elegido"><input type="checkbox" class="check-all"></th>' +
 			'<th class="sticky">#</th>' +
 			'<th class="editable" title="enemy_data: la nave del grupo (resources/enemy_data/)">Nave</th>' +
 			'<th class="editable" title="count: naves del grupo">Cuántas</th>' +
@@ -504,12 +738,23 @@ Cancelar: no jugar.`)) {
 			"<th></th>" +
 			"</tr>";
 		table.appendChild(head);
+		const checkAll = head.querySelector(".check-all");
+		checkAll.addEventListener("change", () => toggleAllGroups(checkAll.checked));
 		const body = document.createElement("tbody");
 		const rows = [];
 		groups.forEach((group, index) => {
 			const tr = document.createElement("tr");
 			tr.className = `group-${index % 2}`;
 			const cells = {};
+
+			const checkTd = document.createElement("td");
+			checkTd.className = "select";
+			const check = document.createElement("input");
+			check.type = "checkbox";
+			check.title = "Elegir el grupo (copiar, y pegar detrás)";
+			check.addEventListener("change", () => toggleGroup(group.key, check.checked));
+			checkTd.appendChild(check);
+			tr.appendChild(checkTd);
 
 			const number = document.createElement("td");
 			number.className = "sticky computed";
@@ -571,17 +816,19 @@ Cancelar: no jugar.`)) {
 			actions.append(
 				button("↑", "Subir el grupo (sale antes)", () => moveGroup(index, -1)),
 				button("↓", "Bajar el grupo (sale después)", () => moveGroup(index, 1)),
+				button("⧉", "Duplicar el grupo (la copia va justo debajo)", () => duplicateGroup(index)),
 				button("✕", "Quitar el grupo", () => removeGroup(index)),
 			);
 			tr.appendChild(actions);
 
 			body.appendChild(tr);
-			rows.push({ tr, cells, startTd, rewardTd });
+			rows.push({ tr, cells, startTd, rewardTd, check });
 		});
 		table.appendChild(body);
 		container.replaceChildren(table);
-		groupsEditor = { signature, rows };
+		groupsEditor = { signature, rows, checkAll };
 		refreshGroups(true);
+		refreshGroupSelection();
 	}
 
 	function refreshGroups(force) {
@@ -632,6 +879,7 @@ Cancelar: no jugar.`)) {
 					<section class="detail-box">
 						<h2 class="waves-title"></h2>
 						<div class="waves-table"></div>
+						<p class="waves-actions"></p>
 					</section>
 					<section class="detail-box">
 						<h2 class="groups-title"></h2>
@@ -648,7 +896,17 @@ Cancelar: no jugar.`)) {
 		el.groupsTitle = container.querySelector(".groups-title");
 		el.groups = container.querySelector(".groups-table");
 		el.groupsActions = container.querySelector(".groups-actions");
-		el.groupsActions.append(button("+ Añadir grupo", "Añade un grupo al final (con la nave del último)", addGroup));
+		el.wavesActions = container.querySelector(".waves-actions");
+		el.duplicateWave = button("⧉ Duplicar oleada", "Crea una oleada nueva igual que la elegida, justo detrás", duplicateWave);
+		el.copyWave = button("Copiar oleada", "Guarda la oleada elegida (grupos y vida ×) en el portapapeles del panel", copyWave);
+		el.pasteWaveAfter = button("Pegar detrás", "", pasteWaveAfter);
+		el.pasteWaveOver = button("Pegar encima", "", pasteWaveOver);
+		el.addWave = button("+ Nueva oleada", "Crea una oleada sin grupos detrás de la elegida (o al final)", addEmptyWave);
+		el.removeWave = button("✕ Quitar oleada", "Quita la oleada elegida del nivel; su .tres se borra al guardar (pregunta antes)", removeWave);
+		el.wavesActions.append(el.addWave, el.duplicateWave, el.copyWave, el.pasteWaveAfter, el.pasteWaveOver, el.removeWave);
+		el.copyGroups = button("Copiar grupos", "Guarda los grupos elegidos en el portapapeles del panel", copyGroups);
+		el.pasteGroups = button("Pegar grupos", "Pega los grupos copiados detrás del último elegido (o al final), en cualquier oleada de cualquier nivel", pasteGroups);
+		el.groupsActions.append(button("+ Añadir grupo", "Añade un grupo al final (con la nave del último)", addGroup), el.copyGroups, el.pasteGroups);
 		levelsTable = BalanceTable.create(el.levels, levelColumns(), levels, {
 			onRowClick: selectLevel,
 			isSelected: (l) => l === selectedLevel,
@@ -662,6 +920,7 @@ Cancelar: no jugar.`)) {
 		}
 		selectedLevel = level;
 		selectedWave = level.waves[0] || null;
+		selectedGroupKeys = new Set();
 		levelsTable.refresh();
 		renderLevel();
 	}
@@ -671,19 +930,24 @@ Cancelar: no jugar.`)) {
 			return;
 		}
 		selectedWave = wave;
+		selectedGroupKeys = new Set();
 		wavesTable.refresh();
 		renderWave();
 	}
 
 	function renderLevel() {
+		wavesSignature = null;
 		if (!selectedLevel) {
 			el.wavesTitle.textContent = "No hay niveles.";
 			el.waves.replaceChildren();
 			wavesTable = null;
+			el.wavesActions.hidden = true;
 			renderWave();
 			return;
 		}
+		el.wavesActions.hidden = false;
 		el.wavesTitle.textContent = `${selectedLevel.name}: oleadas`;
+		wavesSignature = waveListSignature();
 		wavesTable = BalanceTable.create(el.waves, waveColumns(), selectedLevel.waves, {
 			onRowClick: selectWave,
 			isSelected: (w) => w === selectedWave,
@@ -691,8 +955,13 @@ Cancelar: no jugar.`)) {
 		renderWave();
 	}
 
+	function waveListSignature() {
+		return selectedLevel ? selectedLevel.waves.map((w) => w.path + (Project.isCreated(w.path) ? "*" : "")).join(",") : "";
+	}
+
 	function renderWave() {
 		groupsEditor = null;
+		updateWaveActions();
 		if (!selectedWave) {
 			el.groupsTitle.textContent = "";
 			el.groups.replaceChildren();
@@ -708,7 +977,19 @@ Cancelar: no jugar.`)) {
 		if (!levelsTable) {
 			return;
 		}
+		// La lista de oleadas cambia al pegar o duplicar una oleada y al descartar.
+		for (const level of levels) {
+			syncWaves(level);
+		}
+		if (selectedLevel && !selectedLevel.waves.includes(selectedWave)) {
+			selectedWave = selectedLevel.waves[0] || null;
+			selectedGroupKeys = new Set();
+		}
 		levelsTable.refresh();
+		if (waveListSignature() !== wavesSignature) {
+			renderLevel();
+			return;
+		}
 		if (wavesTable) {
 			wavesTable.refresh();
 		}
