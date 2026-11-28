@@ -222,9 +222,6 @@ const GRAVEL_DENSE: int = 4
 const TWINKLE_CHANCE: float = 0.014
 # Estrellas animadas que parpadean (atlas de animados, fila 0)
 const TWINKLES: Array[int] = [0, 6, 12]
-# Luces de la pista (atlas de animados): las horizontales y las verticales alternan dos piezas
-const LIGHTS_HORIZONTAL: Array[Vector2i] = [Vector2i(18, 0), Vector2i(22, 0)]
-const LIGHTS_VERTICAL: Array[Vector2i] = [Vector2i(26, 0), Vector2i(0, 1)]
 # Asteroides con plataforma de las casillas de torreta (fuente TURRET_SLOTS, piezas de 2x2): una fila
 # por familia de roca y TURRET_SLOT_SHAPES formas por fila (ver make_turret_slot_tiles.gd)
 const TURRET_SLOT_ROWS: Dictionary[String, int] = {
@@ -522,7 +519,6 @@ func _build_map(layout: LevelLayout) -> Node2D:
 	background.name = "Background"
 	_add(map, background)
 	var gravel: TileMapLayer = _add_layer(map, "Gravel", space_tileset)
-	var lights: TileMapLayer = _add_layer(map, "Lights", space_tileset)
 	var scenery: TileMapLayer = _add_layer(map, "VisualMap", space_tileset)
 	var turret_slots: TileMapLayer = _add_layer(map, "TurretSlots", space_tileset)
 	var logic: TileMapLayer = _add_layer(map, "LogicMap", load(LOGIC_TILESET))
@@ -551,7 +547,6 @@ func _build_map(layout: LevelLayout) -> Node2D:
 	_place_turret_slots(turret_slots, layout.slots)
 	if has_station:
 		_place_entrances(scenery, _find_entrances(curves))
-	_place_lights(lights, path_cells, layout.station)
 	_place_bend_edges(scenery, curves, fillets)
 	_place_landmarks(scenery, layout.landmarks)
 	_place_wrecks(scenery)
@@ -956,24 +951,6 @@ func _place_entrances(layer: TileMapLayer, entrances: Dictionary[Vector2i, Vecto
 		for flank: Vector2i in [cell + side, cell - side]:
 			if _is_free(flank):
 				_put(layer, flank, _beacon)
-
-
-## Una luz cada 2 casillas en los tramos rectos; nada en esquinas, cruces ni junto a ellos.
-func _place_lights(layer: TileMapLayer, path_cells: Dictionary[Vector2i, int], station: Vector2i) -> void:
-	var map_rect: Rect2i = Rect2i(Vector2i.ZERO, _map_size)
-	for cell: Vector2i in path_cells:
-		var orientation: int = path_cells[cell]
-		if not map_rect.has_point(cell) or orientation == 3 or _chebyshev(cell, station) <= STATION_RADIUS:
-			continue
-		var along: Vector2i = Vector2i(1, 0) if orientation == 1 else Vector2i(0, 1)
-		var neighbors_straight: bool = path_cells.get(cell + along, 0) == orientation and path_cells.get(cell - along, 0) == orientation
-		if not neighbors_straight:
-			continue
-		var position_along: int = cell.x if orientation == 1 else cell.y
-		if position_along % 2 != 0:
-			continue
-		var lights: Array[Vector2i] = LIGHTS_HORIZONTAL if orientation == 1 else LIGHTS_VERTICAL
-		layer.set_cell(cell, ANIMATED, lights[int(position_along / 2.0) % 2])
 
 
 ## Orilla de cada curva del camino, a los dos lados: piezas variadas (rocas de 2x2, de 3x3 por fuera,
