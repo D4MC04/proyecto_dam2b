@@ -8,7 +8,7 @@
 script = ExtResource("1_data")
 name = "ENEMY_WASP_NAME"
 hp = 50.0
-speed = 75
+speed = 125
 reward = 10
 base_damage = 10
 sprite_frames = ExtResource("3_frames")

@@ -9,25 +9,22 @@ script = ExtResource("1_o3hiw")
 enemy_data = ExtResource("5_k34kx")
 count = 5
 pause_after = 2.5
+spacing = 0.25
 
 [sub_resource type="Resource" id="Resource_sg247"]
 script = ExtResource("1_o3hiw")
 enemy_data = ExtResource("5_k34kx")
 count = 5
 pause_after = 2.5
+spacing = 0.25
 
 [sub_resource type="Resource" id="Resource_vygj4"]
 script = ExtResource("1_o3hiw")
 enemy_data = ExtResource("5_k34kx")
 count = 5
 pause_after = 2.5
-
-[sub_resource type="Resource" id="Resource_bq55e"]
-script = ExtResource("1_o3hiw")
-enemy_data = ExtResource("5_k34kx")
-count = 5
-pause_after = 0.0
+spacing = 0.25
 
 [resource]
 script = ExtResource("7_2ciy8")
-groups = Array[ExtResource("1_o3hiw")]([SubResource("Resource_kvgil"), SubResource("Resource_sg247"), SubResource("Resource_vygj4"), SubResource("Resource_bq55e")])
+groups = Array[ExtResource("1_o3hiw")]([SubResource("Resource_kvgil"), SubResource("Resource_sg247"), SubResource("Resource_vygj4")])

@@ -9,12 +9,12 @@
 [resource]
 script = ExtResource("3_ukydi")
 hit_sound = ExtResource("snd")
-damage = 40.0
-speed = 200.0
+damage = 35.0
+speed = 300.0
 sprite_frames = ExtResource("4_40h1v")
 collision_shape = ExtResource("1_m56mc")
 sprite_scale = 1.0
 rotation_offset = 90.0
 impact_frames = ExtResource("2_g10xc")
-splash_radius = 30.0
+splash_radius = 25.0
 metadata/_custom_type_script = "uid://dufu06mgtfw20"

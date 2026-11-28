@@ -28,10 +28,10 @@ La fusionada es otro `TurretData` (`resources/turret_data/<x>_fusion.tres`) con 
 
 | Fusionada | Sustituye a | Coste | Daño | Alcance | Cadencia (s) | Diferencia |
 |---|---|---|---|---|---|---|
-| Cañón cuádruple | Cañón doble | 200 | 5 | 72 | 0,15 | Cuatro cañones, ráfaga rápida |
+| Cañón cuádruple | Cañón doble | 200 | 5 | 70 | 0,15 | Cuatro cañones, ráfaga rápida |
 | Minigun pesada | Minigun | 400 | 14 | 96 | 0,3 → 0,04 | Sobrecalentamiento mejor: 90 disparos, parada de 2 s |
 | Cryo ventisca | Cryo | 500 | 12 | 96 | 2,0 | Onda mayor (`wave_scale` 1,5), frena al 35 % durante 4,5 s. Aspecto de vórtice: el aro del cañón acelera durante la recarga (ver [art.md](art.md)) |
-| Cañón de asedio | Cañón pesado | 600 | 55 × 2 | 96 | 2,1 | Dos cañones: salva de 2 balas (`salvo_count`) separadas 0,15 s, una por cañón, que explotan en área de 32 px. La segunda cae encima de la primera; no frena. Bala de 160 px/s con estela y humo |
+| Cañón de asedio | Cañón pesado | 400 | 50 × 2 | 80 | 1,5 | Dos cañones: salva de 2 balas (`salvo_count`) separadas 0,15 s, una por cañón, que explotan en área de 25 px. La segunda cae encima de la primera; no frena. Bala de 300 px/s con estela y humo |
 | Tormenta | Tesla | 700 | 50 | 120 | 1,3 | Cadena de 6 objetivos, saltos de 80 px |
 | Cinturón | Orbitador | 700 | 85 | anillo 76-100 | 1,0 | Hasta 5 cargas, área de 26 px, giran a 110°/s |
 | Rail Gauss | Rail | 1000 | 800 | 176 | 4,5 | Haz de 900 px y `half_width` 16 |
@@ -42,9 +42,9 @@ La fusionada es otro `TurretData` (`resources/turret_data/<x>_fusion.tres`) con 
 
 | Nivel 3 | Coste | Cambios respecto al nivel 2 |
 |---|---|---|
-| Lanza dorada (diseño propio) | 400 | Daño 5 → 7, cadencia 0,15 → 0,12 s, alcance 72 → 84; dardo de 340 px/s con estela (`trail_frames`) y chispazo oro (`impact_frames`). Sprites propios en `turret_level3/` (ver [art.md](art.md)) |
+| Lanza dorada (diseño propio) | 400 | Daño 5 → 7, cadencia 0,15 → 0,12 s, alcance 70 → 80; dardo de 340 px/s con estela (`trail_frames`) y chispazo oro (`impact_frames`). Sprites propios en `turret_level3/` (ver [art.md](art.md)) |
 | Minigun pesada III | 800 | Daño 14 → 17, alcance 96 → 104, cadencia 0,3 → 0,25 (mínima 0,04 → 0,035), 105 disparos hasta sobrecalentarse, parada 1,5 s, tubos 0,275 s |
-| Cañón de asedio III | 1200 | Daño 55 → 63, área 32 → 33, alcance 96 → 100 |
+| Cañón de asedio III | 800 | Daño 50 → 60, alcance 80 → 90 (área y velocidad de bala igual que el nivel 2) |
 | Cryo ventisca III | 1000 | Daño 12 → 15, alcance 96 → 112 (`wave_scale` 1,75), frena al 25 % durante 5 s |
 | Tormenta III | 1400 | Daño 50 → 60, 8 objetivos, saltos de 88 px, alcance 120 → 125 |
 | Cinturón III | 1400 | Cadencia 1,0 → 0,7 s, daño 85 → 103, área 28, hasta 6 cargas, 120°/s |
@@ -157,10 +157,10 @@ Recursos en `resources/turret_data/`:
 
 | Archivo | Nombre | Coste | Cooldown (s) | Rango (px) | Giro (°/s) | Ataque |
 |---|---|---|---|---|---|---|
-| `turret` | Cañón doble | 100 | 0,25 | 60 | 240 | Bala: 5 de daño, 300 px/s |
+| `turret` | Cañón doble | 100 | 0,25 | 60 | 300 | Bala: 5 de daño, 300 px/s |
 | `minigun` | Minigun | 200 | 0,4 | 80 | 270 | Bala trazadora: 8 de daño, 400 px/s. Sobrecalentamiento: 0,4 → 0,05 s, 60 disparos (a tope desde el 30), parada de 3 s. Sonido provisional: `Turret/DobleLaserShoot.wav` |
 | `cryo` | Cryo | 250 | 2,0 | 64 | no gira | Onda: 6 de daño, velocidad al 55 % durante 3,5 s |
-| `rocket_launcher` | Cañón pesado | 300 | 1,5 | 88 | 180 | Bala: 40 de daño y explota en área de 30 px, 200 px/s |
+| `rocket_launcher` | Cañón pesado | 200 | 1,5 | 70 | 200 | Bala: 35 de daño y explota en área de 25 px, 300 px/s |
 | `tesla` | Tesla | 350 | 1,3 | 110 | no gira | Cadena: 30 de daño, 3 enemigos, saltos de 64 px |
 | `rail` | Rail | 500 | 5,0 | 160 | 45 | Haz: 450 de daño a toda la línea, 700 px de largo |
 | `disintegrator` | Disintegrator | 450 | no se usa | 112 | 140 | Haz continuo: 35, 70 y 140 de daño/s |
@@ -192,8 +192,8 @@ DPS efectivo = DPS a un objetivo × objetivos que se estiman golpeados por dispa
 | Minigun pesada | 600 (600) | 1 | 91 (65), pico 350 | 91 (65) | 0,15 (0,11) | 0,15 (0,11) |
 | Cryo | 250 (250) | 6 | 3 (2) | 18 (15) + frena 45 % | 0,012 (0,010) | 0,07 (0,06) |
 | Cryo ventisca | 750 (750) | 9 | 6 (4) | 54 (36) + frena 65 % | 0,008 (0,005) | 0,07 (0,05) |
-| Cañón pesado | 300 (300) | 2,2 | 27 (30) | 59 (66) | 0,09 (0,10) | 0,20 (0,22) |
-| Cañón de asedio | 900 (900) | 2,8 | 52 (62) + frena | 147 (175) + frena | 0,06 (0,07) | 0,16 (0,19) |
+| Cañón pesado | 200 (300) | 2,2 | 23 (27) | 51 (59) | 0,12 (0,09) | 0,26 (0,20) |
+| Cañón de asedio | 600 (900) | 2,8 | 67 (52) + frena | 187 (147) + frena | 0,11 (0,06) | 0,31 (0,16) |
 | Tesla | 350 (400) | 2,6 | 23 (23) | 60 (60) | 0,07 (0,06) | 0,17 (0,15) |
 | Tormenta | 1050 (1200) | 4,5 | 38 (35) | 173 (156) | 0,04 (0,03) | 0,16 (0,13) |
 | Orbitador | 350 (450) | 1,7 | 31 (25) | 53 (42) | 0,09 (0,06) | 0,15 (0,09) |

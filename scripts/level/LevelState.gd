@@ -81,4 +81,3 @@ func spend_money(amount: int) -> bool:
 	GameState.add_stat("spent", amount)
 	money_changed.emit(money)
 	return true
-

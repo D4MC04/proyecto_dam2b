@@ -8,7 +8,7 @@
 script = ExtResource("1_data")
 name = "ENEMY_DART_ROJO_NAME"
 hp = 25.0
-speed = 90
+speed = 150
 reward = 5
 base_damage = 5
 sprite_frames = ExtResource("3_frames")

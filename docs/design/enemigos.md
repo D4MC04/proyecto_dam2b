@@ -18,12 +18,12 @@ Recursos en `resources/enemy_data/` (los archivos conservan el nombre de antes; 
 
 | Archivo | Nombre | Vida | Velocidad | Botín | Daño a la estación | Radio de colisión | Primer nivel en que sale | Papel |
 |---|---|---|---|---|---|---|---|---|
-| `dart_rojo` | Dart | 25 | 1,5 (90) | 5 | 5 | 8 | 1 | Enjambre: frágil, rápida, en grupos grandes |
-| `wasp` | Wasp | 50 | 1,25 (75) | 10 | 10 | 9 | 1 | Rápida algo más dura |
+| `dart_rojo` | Dart | 25 | 2,5 (150) | 5 | 5 | 8 | 1 | Enjambre: frágil, rápida, en grupos grandes |
+| `wasp` | Wasp | 50 | 2,08 (125) | 10 | 10 | 9 | 1 | Rápida algo más dura |
 | `streak` | Streak | 50 | 1,75 (105) | 15 | 10 | 8 | 2 | La más rápida; sola o en parejas |
 | `vanguard` | Vanguard | 150 | 1,5 (90) | 35 | 15 | 12 | 8 | Rápida y dura: la amenaza rápida de los niveles altos |
-| `nave_normal` | Corsair | 100 | 1,0 (60) | 20 | 15 | 12 | 2 | El estándar, la referencia |
-| `nave_agresiva` | Frigate | 125 | 1,25 (75) | 30 | 15 | 12 | 3 | Un Corsair mejorado |
+| `nave_normal` | Corsair | 100 | 1,67 (100) | 20 | 15 | 12 | 2 | El estándar, la referencia |
+| `nave_agresiva` | Frigate | 125 | 2,08 (125) | 30 | 15 | 12 | 3 | Un Corsair mejorado |
 | `cruiser` | Cruiser | 200 | 1,0 (60) | 40 | 20 | 13 | 4 | Estándar pesado, entre la Frigate y la Ram |
 | `ariete` | Ram | 250 | 0,75 (45) | 45 | 50 | 13 | 5 | Daño enorme a la estación |
 | `acorazado` | Juggernaut | 500 | 0,5 (30) | 70 | 25 | 14 | 4 | El tanque |
