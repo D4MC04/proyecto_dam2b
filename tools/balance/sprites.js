@@ -1,0 +1,608 @@
+// Pestaña Sprites: torretas (base, fusión y nivel 3 juntos) y naves, a escala entera y con sus animaciones.
+// Solo se ve: lee los SpriteFrames de los .tres y los PNG de la carpeta elegida; no escribe nada.
+"use strict";
+
+const SpritesTab = (() => {
+	const TURRET_DIR = "resources/turret_data";
+	const ENEMY_DIR = "resources/enemy_data";
+	const ZOOMS = [1, 2, 3, 4, 6, 8];
+	const DEFAULT_ZOOM = 4;
+	const TIERS = [
+		{ id: "base", label: "Base" },
+		{ id: "fusion", label: "Fusión" },
+		{ id: "level3", label: "Nivel 3" },
+	];
+
+	let families = [];
+	let enemies = [];
+	let images = new Map();
+	let frameModels = new Map();
+	let views = [];
+	let cards = [];
+	let zoom = DEFAULT_ZOOM;
+	let playButton = null;
+	let lastTime = null;
+	let animationHandle = null;
+
+	// --- Lectura de SpriteFrames ---
+
+	// Lee un valor de Godot (array, diccionario, cadena, &"nombre", número, SubResource, ...) desde la posición i.
+	function parseVariant(text, start) {
+		let i = start;
+		function skipSpaces() {
+			while (i < text.length && /\s/.test(text[i])) {
+				i++;
+			}
+		}
+		function readString() {
+			let out = "";
+			i++;
+			while (i < text.length && text[i] !== '"') {
+				if (text[i] === "\\") {
+					i++;
+				}
+				out += text[i];
+				i++;
+			}
+			i++;
+			return out;
+		}
+		function readValue() {
+			skipSpaces();
+			const c = text[i];
+			if (c === "[") {
+				i++;
+				const list = [];
+				for (;;) {
+					skipSpaces();
+					if (text[i] === "]" || i >= text.length) {
+						i++;
+						return list;
+					}
+					list.push(readValue());
+					skipSpaces();
+					if (text[i] === ",") {
+						i++;
+					}
+				}
+			}
+			if (c === "{") {
+				i++;
+				const dict = {};
+				for (;;) {
+					skipSpaces();
+					if (text[i] === "}" || i >= text.length) {
+						i++;
+						return dict;
+					}
+					const key = readValue();
+					skipSpaces();
+					i++; // ":"
+					dict[key] = readValue();
+					skipSpaces();
+					if (text[i] === ",") {
+						i++;
+					}
+				}
+			}
+			if (c === '"') {
+				return readString();
+			}
+			if (c === "&" && text[i + 1] === '"') {
+				i++;
+				return readString();
+			}
+			const word = /^[A-Za-z_][\w.]*|^[-+]?[\d.]+(?:e[-+]?\d+)?/i.exec(text.slice(i));
+			if (!word) {
+				throw new Error(`SpriteFrames: no entiendo «${text.slice(i, i + 20)}»`);
+			}
+			i += word[0].length;
+			if (/^[-+\d.]/.test(word[0])) {
+				return Number(word[0]);
+			}
+			if (text[i] === "(") {
+				// Llamada tipo SubResource("id") o ExtResource("id").
+				const close = text.indexOf(")", i);
+				const args = text.slice(i + 1, close).trim().replace(/^"|"$/g, "");
+				i = close + 1;
+				if (word[0] === "SubResource") {
+					return { sub: args };
+				}
+				if (word[0] === "ExtResource") {
+					return { ext: args };
+				}
+				return { call: word[0], args };
+			}
+			if (word[0] === "true" || word[0] === "false") {
+				return word[0] === "true";
+			}
+			return word[0] === "null" ? null : word[0];
+		}
+		return readValue();
+	}
+
+	// Textura de un frame: {path, x, y, w, h} (w y h null si es la imagen entera) o null.
+	function frameTexture(doc, value) {
+		if (value && value.ext && doc.ext[value.ext]) {
+			return { path: doc.ext[value.ext].path, x: 0, y: 0, w: null, h: null };
+		}
+		if (value && value.sub) {
+			const section = Tres.findSection(doc, value.sub);
+			if (!section || !section.props.atlas) {
+				return null;
+			}
+			const atlas = Tres.parseValue(section.props.atlas.raw);
+			if (!atlas || !atlas.ext || !doc.ext[atlas.ext]) {
+				return null;
+			}
+			const rect = section.props.region ? /Rect2\(([^)]*)\)/.exec(section.props.region.raw) : null;
+			if (!rect) {
+				return { path: doc.ext[atlas.ext].path, x: 0, y: 0, w: null, h: null };
+			}
+			const [x, y, w, h] = rect[1].split(",").map(Number);
+			return { path: doc.ext[atlas.ext].path, x, y, w, h };
+		}
+		return null;
+	}
+
+	// Modelo de un .tres de SpriteFrames: {names, anims: {nombre: {speed, loop, frames: [{duration, tex}]}}}.
+	function buildFrames(n) {
+		if (frameModels.has(n.path)) {
+			return frameModels.get(n.path);
+		}
+		const model = { names: [], anims: {} };
+		const prop = n.section.props.animations;
+		if (prop) {
+			const text = n.doc.lines.slice(prop.line).join("\n").replace(/^\s*animations\s*=\s*/, "");
+			const list = parseVariant(text, 0);
+			for (const anim of Array.isArray(list) ? list : []) {
+				const name = String(anim.name);
+				model.names.push(name);
+				model.anims[name] = {
+					speed: Number(anim.speed),
+					loop: !!anim.loop,
+					frames: (anim.frames || []).map((f) => ({ duration: Number(f.duration) || 1, tex: frameTexture(n.doc, f.texture) })),
+				};
+			}
+		}
+		frameModels.set(n.path, model);
+		return model;
+	}
+
+	// Nodos de SpriteFrames a los que apunta un campo (uno o una lista), con su archivo ya cargado.
+	async function framesNodes(n, key) {
+		const raw = Project.rawValue(n, key);
+		const values = Array.isArray(raw) ? raw : [raw];
+		const found = [];
+		for (const v of values) {
+			if (v && v.ext && n.doc.ext[v.ext]) {
+				const path = n.doc.ext[v.ext].path;
+				await Project.loadDoc(path);
+				const target = Project.node(path, null);
+				if (target) {
+					found.push(target);
+				}
+			}
+		}
+		return found;
+	}
+
+	// Ruta del PNG de un campo Texture2D, o null.
+	function texturePath(n, key) {
+		const raw = Project.rawValue(n, key);
+		return raw && raw.ext && n.doc.ext[raw.ext] ? n.doc.ext[raw.ext].path : null;
+	}
+
+	// Una capa a dibujar: {label, model, preferred}. Una textura suelta es un modelo de un solo frame.
+	function textureModel(path) {
+		return { names: ["default"], anims: { default: { speed: 5, loop: false, frames: [{ duration: 1, tex: { path, x: 0, y: 0, w: null, h: null } }] } } };
+	}
+
+	// --- Imágenes ---
+
+	function modelPaths(model) {
+		const paths = new Set();
+		for (const name of model.names) {
+			for (const frame of model.anims[name].frames) {
+				if (frame.tex) {
+					paths.add(frame.tex.path);
+				}
+			}
+		}
+		return paths;
+	}
+
+	async function loadImage(path) {
+		if (images.has(path)) {
+			return;
+		}
+		let bitmap = null;
+		try {
+			bitmap = await createImageBitmap(await Project.readBlob(path));
+		} catch (e) {
+			console.warn(`Sprites: no se pudo leer ${path}`, e);
+		}
+		images.set(path, bitmap);
+	}
+
+	// --- Carga ---
+
+	// Vistas de una torreta: la principal (base + cañón) y las extras (icono, mejora, fogonazo).
+	async function turretViews(n) {
+		const main = [];
+		for (const node of await framesNodes(n, "sprite_frames")) {
+			main.push({ label: "Base", model: buildFrames(node), preferred: ["default"] });
+		}
+		for (const node of await framesNodes(n, "cannon")) {
+			main.push({ label: "Cañón", model: buildFrames(node), preferred: ["default"] });
+		}
+		const result = [{ title: "Torreta", layers: main }];
+		const icon = texturePath(n, "icon");
+		if (icon) {
+			result.push({ title: "Icono", layers: [{ label: "Icono", model: textureModel(icon), preferred: ["default"] }] });
+		}
+		for (const [key, title] of [["upgrade_frames", "Mejora"], ["muzzle_flash", "Fogonazo"]]) {
+			for (const node of await framesNodes(n, key)) {
+				result.push({ title, layers: [{ label: title, model: buildFrames(node), preferred: ["default"] }] });
+			}
+		}
+		return result;
+	}
+
+	async function enemyViews(n) {
+		const result = [];
+		for (const node of await framesNodes(n, "sprite_frames")) {
+			result.push({ title: "Nave", layers: [{ label: "Nave", model: buildFrames(node), preferred: ["up", "default"] }] });
+		}
+		let index = 1;
+		for (const node of await framesNodes(n, "drain_frames")) {
+			result.push({ title: `Desgaste ${index}`, layers: [{ label: `Desgaste ${index}`, model: buildFrames(node), preferred: ["up", "default"] }] });
+			index++;
+		}
+		return result;
+	}
+
+	async function load() {
+		stopAnimation();
+		families = [];
+		enemies = [];
+		images = new Map();
+		frameModels = new Map();
+		const byFamily = new Map();
+		for (const path of await Project.loadDir(TURRET_DIR)) {
+			const n = Project.node(path, null);
+			if (!n) {
+				continue;
+			}
+			const stem = Project.fileName(path);
+			const tier = stem.endsWith("_fusion") ? "fusion" : stem.endsWith("_level3") ? "level3" : "base";
+			const family = stem.replace(/_(fusion|level3)$/, "");
+			if (!byFamily.has(family)) {
+				byFamily.set(family, { id: family, tiers: {} });
+				families.push(byFamily.get(family));
+			}
+			byFamily.get(family).tiers[tier] = { path, node: n, views: await turretViews(n) };
+		}
+		for (const path of await Project.loadDir(ENEMY_DIR)) {
+			const n = Project.node(path, null);
+			if (n) {
+				enemies.push({ path, node: n, views: await enemyViews(n) });
+			}
+		}
+		const paths = new Set();
+		const entries = [...enemies, ...families.flatMap((f) => Object.values(f.tiers))];
+		for (const entry of entries) {
+			for (const view of entry.views) {
+				for (const layer of view.layers) {
+					modelPaths(layer.model).forEach((p) => paths.add(p));
+				}
+			}
+		}
+		await Promise.all([...paths].map(loadImage));
+	}
+
+	// --- Animación ---
+
+	function animationLength(anim) {
+		if (!anim || anim.speed <= 0) {
+			return 0;
+		}
+		return anim.frames.reduce((sum, f) => sum + f.duration, 0) / anim.speed;
+	}
+
+	// Frame que toca en el instante t: con bucle da la vuelta, sin bucle se queda en el último.
+	function frameAt(anim, t) {
+		if (!anim || anim.frames.length === 0) {
+			return null;
+		}
+		const total = animationLength(anim);
+		if (total <= 0) {
+			return anim.frames[0];
+		}
+		let time = anim.loop ? t % total : Math.min(t, total);
+		for (const frame of anim.frames) {
+			const length = frame.duration / anim.speed;
+			if (time < length) {
+				return frame;
+			}
+			time -= length;
+		}
+		return anim.frames[anim.frames.length - 1];
+	}
+
+	function textureSize(tex) {
+		if (tex.w !== null) {
+			return { w: tex.w, h: tex.h };
+		}
+		const bitmap = images.get(tex.path);
+		return bitmap ? { w: bitmap.width, h: bitmap.height } : { w: 16, h: 16 };
+	}
+
+	// Tamaño en px del lienzo de una vista: el frame más grande de todas sus capas y animaciones.
+	function viewSize(view) {
+		let w = 1;
+		let h = 1;
+		for (const layer of view.layers) {
+			for (const name of layer.model.names) {
+				for (const frame of layer.model.anims[name].frames) {
+					if (frame.tex) {
+						const size = textureSize(frame.tex);
+						w = Math.max(w, size.w);
+						h = Math.max(h, size.h);
+					}
+				}
+			}
+		}
+		return { w, h };
+	}
+
+	function drawView(v) {
+		const ctx = v.canvas.getContext("2d");
+		ctx.imageSmoothingEnabled = false;
+		ctx.clearRect(0, 0, v.canvas.width, v.canvas.height);
+		for (const layer of v.layers) {
+			const frame = frameAt(layer.model.anims[layer.current], v.time);
+			if (!frame || !frame.tex) {
+				continue;
+			}
+			const size = textureSize(frame.tex);
+			const dx = Math.floor((v.canvas.width - size.w * zoom) / 2);
+			const dy = Math.floor((v.canvas.height - size.h * zoom) / 2);
+			const bitmap = images.get(frame.tex.path);
+			if (bitmap) {
+				ctx.drawImage(bitmap, frame.tex.x, frame.tex.y, size.w, size.h, dx, dy, size.w * zoom, size.h * zoom);
+			} else {
+				// Falta el PNG: un recuadro rojo con aspa.
+				ctx.strokeStyle = "#f0323c";
+				ctx.strokeRect(dx + 0.5, dy + 0.5, size.w * zoom - 1, size.h * zoom - 1);
+				ctx.beginPath();
+				ctx.moveTo(dx, dy);
+				ctx.lineTo(dx + size.w * zoom, dy + size.h * zoom);
+				ctx.moveTo(dx + size.w * zoom, dy);
+				ctx.lineTo(dx, dy + size.h * zoom);
+				ctx.stroke();
+			}
+		}
+	}
+
+	function resizeView(v) {
+		const size = viewSize(v);
+		v.canvas.width = size.w * zoom;
+		v.canvas.height = size.h * zoom;
+		drawView(v);
+	}
+
+	// ¿Acaba sola la animación de esta vista? (todas las capas sin bucle y ya al final)
+	function isFinished(v) {
+		return v.layers.every((l) => {
+			const anim = l.model.anims[l.current];
+			return !anim || (!anim.loop && v.time >= animationLength(anim));
+		});
+	}
+
+	function setPlaying(v, playing) {
+		if (playing && isFinished(v)) {
+			v.time = 0;
+		}
+		v.playing = playing;
+		v.playButton.textContent = playing ? "⏸" : "▶";
+		v.playButton.title = playing ? "Pausar" : "Reproducir con los fps y el bucle de la animación";
+		if (playing) {
+			startAnimation();
+		}
+		drawView(v);
+	}
+
+	function tick(now) {
+		const dt = lastTime === null ? 0 : (now - lastTime) / 1000;
+		lastTime = now;
+		let any = false;
+		for (const v of views) {
+			if (!v.playing) {
+				continue;
+			}
+			v.time += dt;
+			drawView(v);
+			if (isFinished(v)) {
+				setPlaying(v, false);
+			} else {
+				any = true;
+			}
+		}
+		animationHandle = any ? requestAnimationFrame(tick) : null;
+		if (!any) {
+			lastTime = null;
+		}
+		updateAllButton();
+	}
+
+	function startAnimation() {
+		if (animationHandle === null) {
+			lastTime = null;
+			animationHandle = requestAnimationFrame(tick);
+		}
+	}
+
+	function stopAnimation() {
+		if (animationHandle !== null) {
+			cancelAnimationFrame(animationHandle);
+		}
+		animationHandle = null;
+		lastTime = null;
+		views = [];
+		cards = [];
+	}
+
+	function updateAllButton() {
+		if (playButton) {
+			const anyPlaying = views.some((v) => v.playing);
+			playButton.textContent = anyPlaying ? "⏸ Pausar todo" : "▶ Reproducir todo";
+		}
+	}
+
+	// --- Interfaz ---
+
+	function element(tag, className, text) {
+		const e = document.createElement(tag);
+		if (className) {
+			e.className = className;
+		}
+		if (text !== undefined) {
+			e.textContent = text;
+		}
+		return e;
+	}
+
+	function animationInfo(layer) {
+		const anim = layer.model.anims[layer.current];
+		if (!anim) {
+			return "sin animación";
+		}
+		return `${anim.frames.length} ${anim.frames.length === 1 ? "frame" : "frames"} · ${anim.speed} fps · ${anim.loop ? "bucle" : "sin bucle"}`;
+	}
+
+	function buildView(data) {
+		const v = { layers: data.layers.map((l) => ({ ...l, current: l.preferred.find((p) => l.model.anims[p]) || l.model.names[0] })), time: 0, playing: false };
+		const box = element("div", "sprite-view");
+		box.appendChild(element("div", "sprite-view-title", data.title));
+		const stage = element("div", "sprite-stage");
+		v.canvas = element("canvas", "sprite-canvas");
+		v.playButton = element("button", "sprite-play", "▶");
+		v.playButton.addEventListener("click", () => setPlaying(v, !v.playing));
+		stage.appendChild(v.canvas);
+		box.appendChild(stage);
+		const controls = element("div", "sprite-controls");
+		controls.appendChild(v.playButton);
+		for (const layer of v.layers) {
+			const row = element("div", "sprite-layer");
+			const info = element("span", "sprite-info", animationInfo(layer));
+			if (v.layers.length > 1) {
+				row.appendChild(element("span", "sprite-layer-label", layer.label));
+			}
+			if (layer.model.names.length > 1) {
+				const select = element("select", "sprite-select");
+				for (const name of layer.model.names) {
+					const option = element("option", "", name);
+					option.value = name;
+					select.appendChild(option);
+				}
+				select.value = layer.current;
+				select.addEventListener("change", () => {
+					layer.current = select.value;
+					v.time = 0;
+					info.textContent = animationInfo(layer);
+					drawView(v);
+				});
+				row.appendChild(select);
+			} else if (layer.current) {
+				row.appendChild(element("span", "sprite-anim-name", layer.current));
+			}
+			row.appendChild(info);
+			controls.appendChild(row);
+		}
+		box.appendChild(controls);
+		resizeView(v);
+		views.push(v);
+		return box;
+	}
+
+	function buildCard(entry, nameOf, tierLabel) {
+		const card = element("div", "sprite-card");
+		const head = element("div", "sprite-card-head");
+		const name = element("span", "sprite-name", nameOf());
+		head.appendChild(name);
+		head.appendChild(element("span", "sprite-file", tierLabel ? `${tierLabel} · ${Project.fileName(entry.path)}` : Project.fileName(entry.path)));
+		card.appendChild(head);
+		const body = element("div", "sprite-views");
+		if (entry.views.length === 0) {
+			body.appendChild(element("p", "placeholder", "Sin sprite."));
+		}
+		for (const view of entry.views) {
+			body.appendChild(buildView(view));
+		}
+		card.appendChild(body);
+		cards.push({ name, nameOf });
+		return card;
+	}
+
+	function turretName(entry) {
+		return () => Project.translate(Project.rawValue(entry.node, "name"));
+	}
+
+	function render(container) {
+		stopAnimation();
+		container.textContent = "";
+		const toolbar = element("div", "sprite-toolbar");
+		toolbar.appendChild(element("label", "", "Zoom "));
+		const zoomSelect = element("select", "sprite-select");
+		for (const z of ZOOMS) {
+			const option = element("option", "", `×${z}`);
+			option.value = String(z);
+			zoomSelect.appendChild(option);
+		}
+		zoomSelect.value = String(zoom);
+		zoomSelect.addEventListener("change", () => {
+			zoom = Number(zoomSelect.value);
+			views.forEach(resizeView);
+		});
+		toolbar.appendChild(zoomSelect);
+		playButton = element("button", "", "▶ Reproducir todo");
+		playButton.addEventListener("click", () => {
+			const play = !views.some((v) => v.playing);
+			views.forEach((v) => setPlaying(v, play));
+			updateAllButton();
+		});
+		toolbar.appendChild(playButton);
+		toolbar.appendChild(element("span", "sprite-hint", "Solo se ve: la animación va con los fps y el bucle del SpriteFrames. Cada vista tiene su ▶."));
+		container.appendChild(toolbar);
+
+		container.appendChild(element("h2", "sprite-section", "Torretas"));
+		for (const family of families) {
+			const row = element("div", "sprite-family");
+			for (const tier of TIERS) {
+				const entry = family.tiers[tier.id];
+				if (entry) {
+					row.appendChild(buildCard(entry, turretName(entry), tier.label));
+				}
+			}
+			container.appendChild(row);
+		}
+
+		container.appendChild(element("h2", "sprite-section", "Naves"));
+		const grid = element("div", "sprite-family");
+		for (const entry of enemies) {
+			grid.appendChild(buildCard(entry, () => Project.translate(Project.rawValue(entry.node, "name")), ""));
+		}
+		container.appendChild(grid);
+		updateAllButton();
+	}
+
+	// Los nombres traducidos pueden cambiar al guardar el CSV desde la pestaña Diálogos.
+	function refresh() {
+		for (const card of cards) {
+			card.name.textContent = card.nameOf();
+		}
+	}
+
+	return { id: "sprites", label: "Sprites", load, render, refresh };
+})();

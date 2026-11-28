@@ -8,6 +8,7 @@ const BalanceApp = (() => {
 		EnemiesTab,
 		LevelsTab,
 		DialogsTab,
+		SpritesTab,
 	];
 
 	let handle = null;

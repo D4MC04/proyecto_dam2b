@@ -49,6 +49,12 @@ const Project = (() => {
 		return file.text();
 	}
 
+	// Archivo binario (un PNG, por ejemplo) como Blob.
+	async function readBlob(relPath) {
+		const handle = await getFileHandle(relPath);
+		return handle.getFile();
+	}
+
 	async function writeText(relPath, text, create) {
 		const handle = await getFileHandle(relPath, create);
 		const writable = await handle.createWritable();
@@ -445,6 +451,7 @@ const Project = (() => {
 		onChange,
 		onSaved,
 		readText,
+		readBlob,
 		fileExists,
 		createFile,
 		isCreated,
