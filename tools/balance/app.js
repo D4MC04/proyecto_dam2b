@@ -16,7 +16,7 @@ const BalanceApp = (() => {
 	const el = {};
 
 	function init() {
-		for (const id of ["open-button", "reload-button", "save-button", "discard-button", "project-name", "status", "tab-bar", "tab-content", "unsupported"]) {
+		for (const id of ["open-button", "reload-button", "save-button", "discard-button", "status", "tab-bar", "tab-content", "unsupported"]) {
 			el[id] = document.getElementById(id);
 		}
 		buildTabs();
@@ -75,6 +75,7 @@ const BalanceApp = (() => {
 
 	function setStatus(text, kind) {
 		el.status.textContent = text;
+		el.status.title = text;
 		el.status.className = kind || "";
 	}
 
@@ -117,7 +118,6 @@ const BalanceApp = (() => {
 					tab.render(document.getElementById(`tab-${tab.id}`));
 				}
 			}
-			el["project-name"].textContent = picked.name;
 			setStatus(`Proyecto cargado: ${picked.name}`, "ok");
 		} catch (e) {
 			console.error(e);

@@ -11,14 +11,12 @@
 		<h1>Astro Artillery · Balanceo</h1>
 		<button id="open-button" class="primary">Abrir proyecto</button>
 		<button id="reload-button" title="Vuelve a leer los archivos de la carpeta (tras cambiar de rama, por ejemplo)">Recargar</button>
-		<span id="project-name" class="project-name"></span>
+		<span id="status"></span>
 		<span class="spacer"></span>
 		<button id="discard-button">Descartar</button>
 		<button id="save-button" class="primary">Guardar</button>
 	</header>
 	<p id="unsupported" class="warning" hidden>Este navegador no deja elegir carpetas (File System Access API). Abre el panel en Chrome o Edge.</p>
-	<p class="hint">Guarda directamente en la carpeta elegida: úsalo en el worktree de un ticket, nunca en <code>main</code>. Celdas: <span class="swatch changed"></span> cambiada · <span class="swatch default"></span> no está en el .tres (valor por defecto) · <span class="swatch shared"></span> archivo compartido con otras filas. Pasa el ratón por las cabeceras y celdas para ver de dónde sale cada dato.</p>
-	<p id="status"></p>
 	<nav id="tab-bar" class="tab-bar"></nav>
 	<main id="tab-content"></main>
 

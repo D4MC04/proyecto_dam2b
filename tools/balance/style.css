@@ -49,10 +49,6 @@ body {
 	flex: 1;
 }
 
-.project-name {
-	color: var(--muted);
-}
-
 button {
 	padding: 5px 12px;
 	border: 1px solid var(--border);
@@ -78,7 +74,6 @@ button.primary {
 }
 
 .hint,
-#status,
 .warning {
 	margin: 8px 16px;
 	color: var(--muted);
@@ -89,6 +84,16 @@ button.primary {
 	border: 1px solid var(--error);
 	border-radius: 4px;
 	color: var(--text);
+}
+
+/* El estado va en la barra, a la derecha de «Recargar», con la misma separación que entre el título y «Abrir proyecto» (12px de margen + 8px de hueco). */
+#status {
+	min-width: 0;
+	margin: 0 0 0 12px;
+	overflow: hidden;
+	color: var(--muted);
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
 #status.ok {
@@ -512,7 +517,7 @@ button.small {
 	display: none;
 }
 
-/* Pestaña Sprites */
+/* Pestaña Sprites. Las medidas de las vistas (--w-main, --h-main, ...) las pone sprites.js según el zoom. */
 .sprite-toolbar {
 	position: sticky;
 	top: 0;
@@ -534,11 +539,30 @@ button.small {
 	color: var(--accent);
 }
 
-.sprite-family {
-	display: flex;
-	flex-wrap: wrap;
+/* Torretas: nombre + una columna por fase. Las columnas miden lo mismo en todas las filas. */
+.sprite-grid {
+	display: grid;
 	gap: 8px;
-	margin-bottom: 8px;
+	align-items: start;
+}
+
+.sprite-grid-turrets {
+	grid-template-columns: 150px repeat(3, max-content);
+	width: max-content;
+}
+
+.sprite-grid-enemies {
+	grid-template-columns: repeat(auto-fill, calc(var(--w-enemy) + 18px));
+}
+
+.sprite-col-head {
+	color: var(--muted);
+	font-weight: 600;
+}
+
+.sprite-family-name {
+	padding-top: 8px;
+	font-weight: 600;
 }
 
 .sprite-card {
@@ -549,44 +573,53 @@ button.small {
 }
 
 .sprite-card-head {
-	display: flex;
-	align-items: baseline;
-	gap: 8px;
-	margin-bottom: 6px;
+	height: 34px;
+	overflow: hidden;
 }
 
 .sprite-name {
+	overflow: hidden;
 	font-weight: 600;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
 .sprite-file {
+	overflow: hidden;
 	color: var(--muted);
 	font-size: 11px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
-.sprite-views {
+.sprite-slots {
 	display: flex;
-	flex-wrap: wrap;
 	gap: 8px;
 }
 
 .sprite-view {
+	flex: none;
+}
+
+.sprite-view-bar {
 	display: flex;
-	flex-direction: column;
-	gap: 4px;
-	max-width: 280px;
+	align-items: center;
+	justify-content: space-between;
+	height: 26px;
 }
 
 .sprite-view-title {
+	overflow: hidden;
 	color: var(--muted);
 	font-size: 11px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
 .sprite-stage {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	min-width: 64px;
 	padding: 4px;
 	border-radius: 4px;
 	background: #07090d;
@@ -596,18 +629,18 @@ button.small {
 .sprite-canvas {
 	image-rendering: pixelated;
 	image-rendering: crisp-edges;
-	max-width: 100%;
 }
 
 .sprite-controls {
 	display: flex;
 	flex-direction: column;
-	gap: 2px;
+	gap: 4px;
+	margin-top: 4px;
+	overflow: hidden;
 }
 
 .sprite-play {
-	align-self: flex-start;
-	padding: 2px 8px;
+	padding: 1px 8px;
 }
 
 .sprite-layer {
@@ -624,6 +657,11 @@ button.small {
 	font-size: 11px;
 }
 
+.sprite-info-line {
+	flex-basis: 100%;
+}
+
 .sprite-select {
+	min-width: 0;
 	max-width: 110px;
 }

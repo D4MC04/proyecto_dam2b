@@ -7,6 +7,8 @@ const SpritesTab = (() => {
 	const ENEMY_DIR = "resources/enemy_data";
 	const ZOOMS = [1, 2, 3, 4, 6, 8];
 	const DEFAULT_ZOOM = 4;
+	// Huecos de vista de una torreta, de izquierda a derecha.
+	const TURRET_KINDS = ["main", "flash"];
 	const TIERS = [
 		{ id: "base", label: "Base" },
 		{ id: "fusion", label: "Fusión" },
@@ -187,17 +189,6 @@ const SpritesTab = (() => {
 		return found;
 	}
 
-	// Ruta del PNG de un campo Texture2D, o null.
-	function texturePath(n, key) {
-		const raw = Project.rawValue(n, key);
-		return raw && raw.ext && n.doc.ext[raw.ext] ? n.doc.ext[raw.ext].path : null;
-	}
-
-	// Una capa a dibujar: {label, model, preferred}. Una textura suelta es un modelo de un solo frame.
-	function textureModel(path) {
-		return { names: ["default"], anims: { default: { speed: 5, loop: false, frames: [{ duration: 1, tex: { path, x: 0, y: 0, w: null, h: null } }] } } };
-	}
-
 	// --- Imágenes ---
 
 	function modelPaths(model) {
@@ -227,39 +218,37 @@ const SpritesTab = (() => {
 
 	// --- Carga ---
 
-	// Vistas de una torreta: la principal (base + cañón) y las extras (icono, mejora, fogonazo).
-	async function turretViews(n) {
-		const main = [];
+	// Huecos de una torreta: torreta (base + cañón) y fogonazo (si lo tiene).
+	async function turretSlots(n) {
+		const layers = [];
 		for (const node of await framesNodes(n, "sprite_frames")) {
-			main.push({ label: "Base", model: buildFrames(node), preferred: ["default"] });
+			layers.push({ label: "Base", model: buildFrames(node), preferred: ["default"] });
 		}
 		for (const node of await framesNodes(n, "cannon")) {
-			main.push({ label: "Cañón", model: buildFrames(node), preferred: ["default"] });
+			layers.push({ label: "Cañón", model: buildFrames(node), preferred: ["default"] });
 		}
-		const result = [{ title: "Torreta", layers: main }];
-		const icon = texturePath(n, "icon");
-		if (icon) {
-			result.push({ title: "Icono", layers: [{ label: "Icono", model: textureModel(icon), preferred: ["default"] }] });
-		}
-		for (const [key, title] of [["upgrade_frames", "Mejora"], ["muzzle_flash", "Fogonazo"]]) {
+		const slots = { main: { title: "Torreta", layers } };
+		for (const [key, kind, title] of [["muzzle_flash", "flash", "Fogonazo"]]) {
 			for (const node of await framesNodes(n, key)) {
-				result.push({ title, layers: [{ label: title, model: buildFrames(node), preferred: ["default"] }] });
+				slots[kind] = { title, layers: [{ label: title, model: buildFrames(node), preferred: ["default"] }] };
 			}
 		}
-		return result;
+		return slots;
 	}
 
-	async function enemyViews(n) {
-		const result = [];
+	// Una ficha por nave y una más por cada sprite de desgaste (drain_frames), todas con un solo hueco.
+	async function enemyEntries(path, n) {
+		const entries = [];
 		for (const node of await framesNodes(n, "sprite_frames")) {
-			result.push({ title: "Nave", layers: [{ label: "Nave", model: buildFrames(node), preferred: ["up", "default"] }] });
+			entries.push({ path, node: n, slots: { enemy: { title: "Nave", layers: [{ label: "Nave", model: buildFrames(node), preferred: ["up", "default"] }] } } });
 		}
 		let index = 1;
 		for (const node of await framesNodes(n, "drain_frames")) {
-			result.push({ title: `Desgaste ${index}`, layers: [{ label: `Desgaste ${index}`, model: buildFrames(node), preferred: ["up", "default"] }] });
+			const tag = `desgaste ${index}`;
+			entries.push({ path, node: n, tag, slots: { enemy: { title: `Nave (${tag})`, layers: [{ label: "Nave", model: buildFrames(node), preferred: ["up", "default"] }] } } });
 			index++;
 		}
-		return result;
+		return entries;
 	}
 
 	async function load() {
@@ -281,18 +270,18 @@ const SpritesTab = (() => {
 				byFamily.set(family, { id: family, tiers: {} });
 				families.push(byFamily.get(family));
 			}
-			byFamily.get(family).tiers[tier] = { path, node: n, views: await turretViews(n) };
+			byFamily.get(family).tiers[tier] = { path, node: n, slots: await turretSlots(n) };
 		}
 		for (const path of await Project.loadDir(ENEMY_DIR)) {
 			const n = Project.node(path, null);
 			if (n) {
-				enemies.push({ path, node: n, views: await enemyViews(n) });
+				enemies.push(...(await enemyEntries(path, n)));
 			}
 		}
 		const paths = new Set();
 		const entries = [...enemies, ...families.flatMap((f) => Object.values(f.tiers))];
 		for (const entry of entries) {
-			for (const view of entry.views) {
+			for (const view of Object.values(entry.slots)) {
 				for (const layer of view.layers) {
 					modelPaths(layer.model).forEach((p) => paths.add(p));
 				}
@@ -386,9 +375,8 @@ const SpritesTab = (() => {
 	}
 
 	function resizeView(v) {
-		const size = viewSize(v);
-		v.canvas.width = size.w * zoom;
-		v.canvas.height = size.h * zoom;
+		v.canvas.width = v.size.w * zoom;
+		v.canvas.height = v.size.h * zoom;
 		drawView(v);
 	}
 
@@ -462,6 +450,36 @@ const SpritesTab = (() => {
 
 	// --- Interfaz ---
 
+	// Ancho mínimo de una vista (para que quepan el desplegable y el texto aunque el sprite sea pequeño).
+	const MIN_VIEW_WIDTH = 150;
+	// Por tipo de vista (main, flash, enemy): el mayor sprite y el mayor número de capas de todas las filas.
+	// Así todas las vistas del mismo tipo miden lo mismo y las filas quedan alineadas.
+	let kindInfo = {};
+	let panel = null;
+
+	function computeKinds(entries) {
+		kindInfo = {};
+		for (const entry of entries) {
+			for (const [kind, view] of Object.entries(entry.slots)) {
+				const size = viewSize(view);
+				const info = kindInfo[kind] || (kindInfo[kind] = { w: 1, h: 1, layers: 1 });
+				info.w = Math.max(info.w, size.w);
+				info.h = Math.max(info.h, size.h);
+				info.layers = Math.max(info.layers, view.layers.length);
+			}
+		}
+	}
+
+	// Medidas de cada tipo de vista según el zoom, como variables CSS del panel.
+	function applyLayout() {
+		for (const [kind, info] of Object.entries(kindInfo)) {
+			panel.style.setProperty(`--w-${kind}`, `${Math.max(MIN_VIEW_WIDTH, info.w * zoom + 12)}px`);
+			panel.style.setProperty(`--h-${kind}`, `${info.layers * 40}px`);
+			panel.style.setProperty(`--hs-${kind}`, `${info.h * zoom + 8}px`);
+			panel.style.setProperty(`--hv-${kind}`, `${26 + info.h * zoom + 8 + 4 + info.layers * 40}px`);
+		}
+	}
+
 	function element(tag, className, text) {
 		const e = document.createElement(tag);
 		if (className) {
@@ -481,24 +499,30 @@ const SpritesTab = (() => {
 		return `${anim.frames.length} ${anim.frames.length === 1 ? "frame" : "frames"} · ${anim.speed} fps · ${anim.loop ? "bucle" : "sin bucle"}`;
 	}
 
-	function buildView(data) {
-		const v = { layers: data.layers.map((l) => ({ ...l, current: l.preferred.find((p) => l.model.anims[p]) || l.model.names[0] })), time: 0, playing: false };
+	function buildView(data, kind) {
+		const info = kindInfo[kind];
+		const v = { layers: data.layers.map((l) => ({ ...l, current: l.preferred.find((p) => l.model.anims[p]) || l.model.names[0] })), size: { w: info.w, h: info.h }, time: 0, playing: false };
 		const box = element("div", "sprite-view");
-		box.appendChild(element("div", "sprite-view-title", data.title));
-		const stage = element("div", "sprite-stage");
-		v.canvas = element("canvas", "sprite-canvas");
+		box.style.width = `var(--w-${kind})`;
+		const bar = element("div", "sprite-view-bar");
+		bar.appendChild(element("span", "sprite-view-title", data.title));
 		v.playButton = element("button", "sprite-play", "▶");
 		v.playButton.addEventListener("click", () => setPlaying(v, !v.playing));
+		bar.appendChild(v.playButton);
+		box.appendChild(bar);
+		const stage = element("div", "sprite-stage");
+		stage.style.height = `var(--hs-${kind})`;
+		v.canvas = element("canvas", "sprite-canvas");
 		stage.appendChild(v.canvas);
 		box.appendChild(stage);
 		const controls = element("div", "sprite-controls");
-		controls.appendChild(v.playButton);
+		controls.style.height = `var(--h-${kind})`;
 		for (const layer of v.layers) {
 			const row = element("div", "sprite-layer");
-			const info = element("span", "sprite-info", animationInfo(layer));
-			if (v.layers.length > 1) {
-				row.appendChild(element("span", "sprite-layer-label", layer.label));
-			}
+			const label = element("span", "sprite-layer-label", layer.label);
+			const text = element("span", "sprite-info", animationInfo(layer));
+			text.classList.add("sprite-info-line");
+			row.appendChild(label);
 			if (layer.model.names.length > 1) {
 				const select = element("select", "sprite-select");
 				for (const name of layer.model.names) {
@@ -510,14 +534,14 @@ const SpritesTab = (() => {
 				select.addEventListener("change", () => {
 					layer.current = select.value;
 					v.time = 0;
-					info.textContent = animationInfo(layer);
+					text.textContent = animationInfo(layer);
 					drawView(v);
 				});
 				row.appendChild(select);
 			} else if (layer.current) {
 				row.appendChild(element("span", "sprite-anim-name", layer.current));
 			}
-			row.appendChild(info);
+			row.appendChild(text);
 			controls.appendChild(row);
 		}
 		box.appendChild(controls);
@@ -526,32 +550,48 @@ const SpritesTab = (() => {
 		return box;
 	}
 
-	function buildCard(entry, nameOf, tierLabel) {
-		const card = element("div", "sprite-card");
-		const head = element("div", "sprite-card-head");
-		const name = element("span", "sprite-name", nameOf());
-		head.appendChild(name);
-		head.appendChild(element("span", "sprite-file", tierLabel ? `${tierLabel} · ${Project.fileName(entry.path)}` : Project.fileName(entry.path)));
-		card.appendChild(head);
-		const body = element("div", "sprite-views");
-		if (entry.views.length === 0) {
-			body.appendChild(element("p", "placeholder", "Sin sprite."));
+	// Un hueco de tipo kind: la vista si la tiene, o un espacio del mismo ancho.
+	function buildSlot(entry, kind) {
+		if (entry.slots[kind]) {
+			return buildView(entry.slots[kind], kind);
 		}
-		for (const view of entry.views) {
-			body.appendChild(buildView(view));
-		}
-		card.appendChild(body);
-		cards.push({ name, nameOf });
-		return card;
+		const spacer = element("div", "sprite-view");
+		spacer.style.width = `var(--w-${kind})`;
+		spacer.style.height = `var(--hv-${kind})`;
+		return spacer;
 	}
 
-	function turretName(entry) {
+	function entryName(entry) {
 		return () => Project.translate(Project.rawValue(entry.node, "name"));
+	}
+
+	// Ficha de una torreta o nave: nombre y archivo (cada uno en una línea) y sus huecos de vista.
+	function buildCard(entry, kinds) {
+		const card = element("div", "sprite-card");
+		const head = element("div", "sprite-card-head");
+		const name = element("div", "sprite-name", entryName(entry)());
+		head.appendChild(name);
+		const fileName = Project.fileName(entry.path);
+		head.appendChild(element("div", "sprite-file", entry.tag ? `${fileName} · ${entry.tag}` : fileName));
+		card.appendChild(head);
+		const slots = element("div", "sprite-slots");
+		for (const kind of kinds) {
+			if (kindInfo[kind]) {
+				slots.appendChild(buildSlot(entry, kind));
+			}
+		}
+		card.appendChild(slots);
+		cards.push({ name, nameOf: entryName(entry) });
+		return card;
 	}
 
 	function render(container) {
 		stopAnimation();
+		panel = container;
 		container.textContent = "";
+		computeKinds([...enemies, ...families.flatMap((f) => Object.values(f.tiers))]);
+		applyLayout();
+
 		const toolbar = element("div", "sprite-toolbar");
 		toolbar.appendChild(element("label", "", "Zoom "));
 		const zoomSelect = element("select", "sprite-select");
@@ -563,6 +603,7 @@ const SpritesTab = (() => {
 		zoomSelect.value = String(zoom);
 		zoomSelect.addEventListener("change", () => {
 			zoom = Number(zoomSelect.value);
+			applyLayout();
 			views.forEach(resizeView);
 		});
 		toolbar.appendChild(zoomSelect);
@@ -576,24 +617,30 @@ const SpritesTab = (() => {
 		toolbar.appendChild(element("span", "sprite-hint", "Solo se ve: la animación va con los fps y el bucle del SpriteFrames. Cada vista tiene su ▶."));
 		container.appendChild(toolbar);
 
+		// Torretas: una fila por torreta, con una columna por fase (base, fusión, nivel 3).
 		container.appendChild(element("h2", "sprite-section", "Torretas"));
+		const turretGrid = element("div", "sprite-grid sprite-grid-turrets");
+		turretGrid.appendChild(element("div"));
+		for (const tier of TIERS) {
+			turretGrid.appendChild(element("div", "sprite-col-head", tier.label));
+		}
 		for (const family of families) {
-			const row = element("div", "sprite-family");
+			const first = family.tiers.base || Object.values(family.tiers)[0];
+			turretGrid.appendChild(element("div", "sprite-family-name", entryName(first)()));
 			for (const tier of TIERS) {
 				const entry = family.tiers[tier.id];
-				if (entry) {
-					row.appendChild(buildCard(entry, turretName(entry), tier.label));
-				}
+				turretGrid.appendChild(entry ? buildCard(entry, TURRET_KINDS) : element("div"));
 			}
-			container.appendChild(row);
 		}
+		container.appendChild(turretGrid);
 
+		// Naves: una ficha por nave (y una por cada sprite de desgaste), todas del mismo tamaño.
 		container.appendChild(element("h2", "sprite-section", "Naves"));
-		const grid = element("div", "sprite-family");
+		const enemyGrid = element("div", "sprite-grid sprite-grid-enemies");
 		for (const entry of enemies) {
-			grid.appendChild(buildCard(entry, () => Project.translate(Project.rawValue(entry.node, "name")), ""));
+			enemyGrid.appendChild(buildCard(entry, ["enemy"]));
 		}
-		container.appendChild(grid);
+		container.appendChild(enemyGrid);
 		updateAllButton();
 	}
 
