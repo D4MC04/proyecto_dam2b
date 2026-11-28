@@ -1,5 +1,5 @@
 // Pestaña Niveles: una fila por resources/level_data/*.tres; al elegir un nivel, sus oleadas; al elegir una
-// oleada, sus grupos (editables: nave, cuántas, separación, pausa y camino; se añaden, quitan y reordenan).
+// oleada, sus grupos (editables: nave, cuántas, pausa y camino; se añaden, quitan y reordenan).
 // Las oleadas y los grupos se copian, pegan y duplican (también entre niveles) con un portapapeles del panel.
 "use strict";
 
@@ -9,7 +9,8 @@ const LevelsTab = (() => {
 	const WAVE_DIR = "resources/wave_data";
 	const SPAWN_GROUP_SCRIPT = "scripts/resources/SpawnGroup.gd";
 	const WAVE_DATA_SCRIPT = "scripts/resources/WaveData.gd";
-	const GROUP_FIELDS = ["count", "spacing", "pause_after", "path_index"];
+	// La separación entre naves no es del grupo: sale de spawn_spacing.tres según la velocidad de la nave.
+	const GROUP_FIELDS = ["count", "pause_after", "path_index"];
 
 	const PERFECT_WAVE_BONUS = 25; // LevelState.PERFECT_WAVE_BONUS
 
@@ -156,7 +157,7 @@ const LevelsTab = (() => {
 
 	// --- Grupos: leer y escribir ---
 
-	// Grupos tal como están en el archivo: [{key, sub, enemy, count, spacing, pause_after, path_index}].
+	// Grupos tal como están en el archivo: [{key, sub, enemy, count, pause_after, path_index}].
 	function readGroups(path) {
 		const n = Project.node(path, null);
 		if (!n) {
@@ -298,6 +299,11 @@ const LevelsTab = (() => {
 		return totals;
 	}
 
+	// Segundos entre dos naves del grupo (WaveData.group_spacing): los de la velocidad de su nave.
+	function groupSpacing(group) {
+		return group.enemy ? Project.spacingFor(enemyValue(group.enemy, "speed")) : Project.DEFAULT_SPACING;
+	}
+
 	function waveStats(wave) {
 		const groups = Project.value(wave.groupsRef) || [];
 		const hm = Project.value(wave.hmRef);
@@ -309,10 +315,12 @@ const LevelsTab = (() => {
 			stats.ships += g.count;
 			stats.reward += g.count * totals.reward;
 			stats.hp += g.count * totals.hp * hm;
+			// Como WaveData.get_entries(): la separación sale de la velocidad de la nave.
+			const spacing = groupSpacing(g);
 			if (g.count > 0) {
-				stats.duration = Math.max(stats.duration, start + g.spacing * (g.count - 1));
+				stats.duration = Math.max(stats.duration, start + spacing * (g.count - 1));
 			}
-			start += g.spacing * Math.max(g.count - 1, 0) + g.pause_after;
+			start += spacing * Math.max(g.count - 1, 0) + g.pause_after;
 		}
 		return stats;
 	}
@@ -384,7 +392,7 @@ const LevelsTab = (() => {
 			{ id: "ships", label: "Naves", group: "Calculado", get: (w) => waveStatsOf(w).ships },
 			{ id: "reward", label: "Recompensa", group: "Calculado", title: "Recompensas de sus naves (con sus trozos)", get: (w) => waveStatsOf(w).reward, format: (v) => f(v, 0) },
 			{ id: "hp", label: "Vida total", group: "Calculado", title: "count × hp × health_multiplier, con los trozos de split_into", get: (w) => waveStatsOf(w).hp, format: (v) => f(v, 0) },
-			{ id: "duration", label: "Salida (s)", group: "Calculado", title: "Tiempo de la última nave desde la primera (con spacing y pause_after)", get: (w) => waveStatsOf(w).duration, format: (v) => f(v, 1) },
+			{ id: "duration", label: "Salida (s)", group: "Calculado", title: "Tiempo de la última nave desde la primera (con la separación de spawn_spacing.tres según la velocidad de cada nave y pause_after)", get: (w) => waveStatsOf(w).duration, format: (v) => f(v, 1) },
 			{ id: "money", label: "Dinero antes", group: "Calculado", title: "Inicial + recompensas anteriores + 25 por oleada perfecta", get: (w) => waveStatsOf(w).money, format: (v) => f(v, 0) },
 		];
 	}
@@ -730,7 +738,6 @@ Cancelar: no jugar.`)) {
 			'<th class="sticky">#</th>' +
 			'<th class="editable" title="enemy_data: la nave del grupo (resources/enemy_data/)">Nave</th>' +
 			'<th class="editable" title="count: naves del grupo">Cuántas</th>' +
-			'<th class="editable" title="spacing (s): entre dos naves del grupo">Separación</th>' +
 			'<th class="editable" title="pause_after (s): desde su última nave hasta la primera del siguiente grupo. Negativo: se solapan">Pausa después</th>' +
 			'<th class="editable" title="path_index: camino del mapa">Camino</th>' +
 			'<th class="computed" title="Tiempo de su primera nave desde el inicio de la oleada">Sale a (s)</th>' +
@@ -785,7 +792,7 @@ Cancelar: no jugar.`)) {
 					const text = input.value.trim();
 					const value = Number(text);
 					let valid = text !== "" && isFinite(value) && (fieldType(field) !== "int" || Number.isInteger(value));
-					if (field === "count" || field === "path_index" || field === "spacing") {
+					if (field === "count" || field === "path_index") {
 						valid = valid && value >= 0;
 					}
 					td.classList.toggle("invalid", !valid);
